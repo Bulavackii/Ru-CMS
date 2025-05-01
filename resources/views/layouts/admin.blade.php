@@ -21,6 +21,22 @@
     {{-- Контент --}}
     <div class="flex-1 flex flex-col">
 
+        {{-- Верхняя тёмная навигация --}}
+        <nav class="bg-gray-800 text-white p-4">
+            <div class="container mx-auto flex justify-between items-center">
+                <div class="flex gap-4">
+                    <a href="/" class="font-bold hover:underline">🏠 На сайт</a>
+                    <a href="{{ route('admin.modules.index') }}" class="hover:underline">⚙️ Модули</a>
+                    <a href="{{ route('admin.search.index') }}" class="hover:underline">🔍 Поиск</a>
+                </div>
+
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="hover:underline">🚪 Выйти</button>
+                </form>
+            </div>
+        </nav>
+
         {{-- Шапка с поиском --}}
         <header class="bg-white p-4 shadow text-xl font-semibold flex justify-between items-center">
             <div>

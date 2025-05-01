@@ -118,3 +118,7 @@ php artisan serve
 Проект готов к работе на:
 http://localhost:8000
 
+composer require laravel/breeze --dev
+php artisan breeze:install blade
+npm install && npm run dev
+php artisan migrate

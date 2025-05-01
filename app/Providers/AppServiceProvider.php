@@ -4,60 +4,52 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\View;
+use Modules\System\Models\Module;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
         //
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
         $modulesPath = base_path('modules');
 
-        foreach (glob("{$modulesPath}/*", GLOB_ONLYDIR) as $modulePath) {
-            $moduleName = basename($modulePath);
+        // Подключение активных модулей (по базе)
+        if (class_exists(Module::class)) {
+            $activeModules = Module::where('active', true)->pluck('name');
 
-            // Web маршруты
-            $webRoutes = "{$modulePath}/Routes/web.php";
-            if (file_exists($webRoutes)) {
-                Route::middleware('web')->group($webRoutes);
-            }
+            foreach ($activeModules as $module) {
+                $base = "{$modulesPath}/{$module}";
 
-            // API маршруты
-            $apiRoutes = "{$modulePath}/Routes/api.php";
-            if (file_exists($apiRoutes)) {
-                Route::prefix('api')->middleware('api')->group($apiRoutes);
-            }
+                if (File::exists("{$base}/Routes/web.php")) {
+                    $this->loadRoutesFrom("{$base}/Routes/web.php");
+                }
 
-            // Миграции
-            if (is_dir($modulePath . '/Migrations')) {
-                $this->loadMigrationsFrom($modulePath . '/Migrations');
-            }
+                if (File::exists("{$base}/Views")) {
+                    $this->loadViewsFrom("{$base}/Views", $module);
+                }
 
-            // Виды
-            if (is_dir($modulePath . '/Views')) {
-                $this->loadViewsFrom($modulePath . '/Views', $moduleName);
-            }
+                if (File::isDirectory("{$base}/Migrations")) {
+                    $this->loadMigrationsFrom("{$base}/Migrations");
+                }
 
-            // Переводы
-            if (is_dir($modulePath . '/Lang')) {
-                $this->loadTranslationsFrom($modulePath . '/Lang', $moduleName);
+                if (File::isDirectory("{$base}/Lang")) {
+                    $this->loadTranslationsFrom("{$base}/Lang", $module);
+                }
             }
         }
 
-        // ✅ Прямое подключение модуля Users
-        $this->loadRoutesFrom(base_path('modules/Users/Routes/web.php'));
-        $this->loadViewsFrom(base_path('modules/Users/Views'), 'Users');
-        // ✅ Прямое подключение модуля Search
-        $this->loadRoutesFrom(base_path('modules/Search/Routes/web.php'));
-        $this->loadViewsFrom(base_path('modules/Search/Views'), 'Search');
+        // ✅ Прямое подключение Users
+        $this->loadRoutesFrom("{$modulesPath}/Users/Routes/web.php");
+        $this->loadViewsFrom("{$modulesPath}/Users/Views", 'Users');
+
+        // ✅ Прямое подключение Search
+        $this->loadRoutesFrom("{$modulesPath}/Search/Routes/web.php");
+        $this->loadViewsFrom("{$modulesPath}/Search/Views", 'Search');
     }
 }
