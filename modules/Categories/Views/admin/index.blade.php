@@ -3,43 +3,49 @@
 @section('title', 'Категории')
 
 @section('content')
-    <h1 class="text-2xl font-bold mb-4">Категории</h1>
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold">Список категорий</h1>
+        <a href="{{ route('admin.categories.create') }}"
+           class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+            + Добавить категорию
+        </a>
+    </div>
 
     @if (session('success'))
-        <div class="mb-4 p-3 bg-green-100 text-green-800 rounded">
+        <div class="bg-green-100 text-green-800 px-4 py-2 mb-4 rounded">
             {{ session('success') }}
         </div>
     @endif
 
-    <div class="mb-4">
-        <a href="{{ route('admin.categories.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Добавить категорию</a>
-    </div>
-
-    <table class="min-w-full bg-white shadow rounded">
+    <table class="w-full bg-white shadow rounded overflow-hidden">
         <thead>
-            <tr class="border-b bg-gray-100">
+            <tr class="bg-gray-100 border-b">
                 <th class="text-left px-4 py-2">Название</th>
-                <th class="text-left px-4 py-2">Тип</th>
                 <th class="text-left px-4 py-2">Действия</th>
             </tr>
         </thead>
         <tbody>
-            @foreach ($categories as $category)
+            @forelse ($categories as $category)
                 <tr class="border-b">
                     <td class="px-4 py-2">{{ $category->title }}</td>
-                    <td class="px-4 py-2">{{ $category->type }}</td>
-                    <td class="px-4 py-2 flex gap-2">
-                        <a href="{{ route('admin.categories.edit', $category->id) }}" class="text-blue-600">Редактировать</a>
-                        <form method="POST" action="{{ route('admin.categories.destroy', $category->id) }}">
+                    <td class="px-4 py-2 space-x-2">
+                        <a href="{{ route('admin.categories.edit', $category->id) }}"
+                           class="text-blue-600 hover:underline">Редактировать</a>
+
+                        <form action="{{ route('admin.categories.destroy', $category->id) }}" method="POST"
+                              class="inline-block"
+                              onsubmit="return confirm('Удалить эту категорию?')">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="text-red-600" onclick="return confirm('Удалить категорию?')">Удалить</button>
+                            <button type="submit" class="text-red-600 hover:underline">Удалить</button>
                         </form>
                     </td>
                 </tr>
-            @endforeach
+            @empty
+                <tr>
+                    <td colspan="2" class="text-center text-gray-500 py-6">Категорий пока нет.</td>
+                </tr>
+            @endforelse
         </tbody>
     </table>
-
-    <div class="mt-4">{{ $categories->links() }}</div>
 @endsection

@@ -9,9 +9,7 @@ return new class extends Migration {
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
-            $table->string('title')->unique();
-            $table->text('description')->nullable();
-            $table->string('type')->default('general'); // news, product, etc.
+            $table->string('title');
             $table->timestamps();
         });
     }

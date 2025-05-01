@@ -2,60 +2,68 @@
 
 namespace Modules\Categories\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Modules\Categories\Models\Category;
 
 class CategoryController extends Controller
 {
-    public function index()
+    // Список категорий с поиском
+    public function index(Request $request)
     {
-        $categories = Category::orderBy('created_at', 'desc')->paginate(10);
+        $query = Category::query();
+
+        if ($request->filled('search')) {
+            $query->where('title', 'like', '%' . $request->search . '%');
+        }
+
+        $categories = $query->orderByDesc('id')->paginate(10);
+
         return view('Categories::admin.index', compact('categories'));
     }
 
+    // Форма создания
     public function create()
     {
         return view('Categories::admin.create');
     }
 
+    // Сохранение категории
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|max:255|unique:categories',
-            'description' => 'nullable|string',
-            'type' => 'required|string'
+            'title' => 'required|string|max:255',
         ]);
 
-        Category::create($request->all());
+        Category::create(['title' => $request->title]);
 
-        return redirect()->route('admin.categories.index')->with('success', 'Категория создана!');
+        return redirect()->route('admin.categories.index')->with('success', 'Категория добавлена.');
     }
 
+    // Форма редактирования
     public function edit($id)
     {
         $category = Category::findOrFail($id);
         return view('Categories::admin.edit', compact('category'));
     }
 
+    // Обновление категории
     public function update(Request $request, $id)
     {
+        $request->validate(['title' => 'required|string|max:255']);
+
         $category = Category::findOrFail($id);
+        $category->update(['title' => $request->title]);
 
-        $request->validate([
-            'title' => 'required|string|max:255|unique:categories,title,' . $id,
-            'description' => 'nullable|string',
-            'type' => 'required|string'
-        ]);
-
-        $category->update($request->all());
-
-        return redirect()->route('admin.categories.index')->with('success', 'Категория обновлена!');
+        return redirect()->route('admin.categories.index')->with('success', 'Категория обновлена.');
     }
 
+    // Удаление
     public function destroy($id)
     {
-        Category::findOrFail($id)->delete();
-        return redirect()->route('admin.categories.index')->with('success', 'Категория удалена!');
+        $category = Category::findOrFail($id);
+        $category->delete();
+
+        return redirect()->route('admin.categories.index')->with('success', 'Категория удалена');
     }
 }
