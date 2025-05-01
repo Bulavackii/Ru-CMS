@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use Modules\System\Controllers\Admin\ModuleController;
 use Modules\Search\Controllers\Admin\SearchController;
+use Modules\News\Controllers\Frontend\NewsController as FrontendNewsController;
 
 // Главная страница
 Route::get('/', function () {
@@ -59,3 +60,8 @@ Route::middleware(['web', 'auth', 'admin'])->group(function () {
     // SPA fallback (должен быть в конце!)
     Route::get('/admin/{any}', fn () => view('admin'))->where('any', '.*');
 });
+
+// Модуль категорий
+require_once base_path('modules/Categories/Routes/web.php');
+Route::get('/news', [FrontendNewsController::class, 'index'])->name('news.index');
+Route::get('/news/{slug}', [FrontendNewsController::class, 'show'])->name('news.show');
