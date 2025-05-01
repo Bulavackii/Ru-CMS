@@ -20,6 +20,7 @@
 
 ## 🗂 Структура проекта
 
+Ru-CMS/ ├── app/ ├── modules/ │ ├── System/ │ ├── Users/ │ ├── Search/ │ └── ... ├── resources/ │ ├── views/ │ │ ├── auth/ │ │ ├── frontend/ │ │ └── layouts/ │ └── js/ ├── routes/ │ ├── web.php ├── database/ ├── public/ ├── storage/ ├── vite.config.js ├── composer.json └── package.json
 
 ---
 
