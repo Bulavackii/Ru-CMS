@@ -1,61 +1,116 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🛒 RuShop CMS
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+**RuShop CMS** — это модульная система управления сайтом (CMS), построенная на PHP 8.4+ и Laravel 12+, ориентированная на магазины и сайты для России и стран СНГ.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🚀 Основные возможности
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- 🧩 Модульная архитектура: всё как отдельные модули
+- ⚙️ GUI-интерфейс управления модулями (включение/отключение, установка ZIP)
+- 🧑‍💼 Разделение ролей: обычный пользователь и администратор
+- 🔍 Глобальный поиск по пользователям, категориям и товарам
+- 🔐 Кастомная система авторизации и восстановления пароля
+- 🎨 Адаптивная клиентская часть на Blade + Tailwind
+- 🇷🇺 Русская локализация по умолчанию
+- 📦 Установка модулей через ZIP-архивы
+- 📈 Интеграции с российскими сервисами (в планах)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 🗂 Структура проекта
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## ⚙️ Установка проекта
 
-## Laravel Sponsors
+```bash
+# 1. Клонируй проект с GitHub
+git clone https://github.com/ТВОЙ-АККАУНТ/Ru-CMS.git
+cd Ru-CMS
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+# 2. Установи зависимости Laravel
+composer install
 
-### Premium Partners
+# 3. Установи зависимости фронтенда
+npm install
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development/)**
-- **[Active Logic](https://activelogic.com)**
+# 4. Создай файл окружения
+cp .env.example .env
 
-## Contributing
+# 5. Сгенерируй ключ приложения
+php artisan key:generate
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+# 6. Настрой .env для подключения к MySQL
+# DB_DATABASE=rushop
+# DB_USERNAME=...
+# DB_PASSWORD=...
 
-## Code of Conduct
+# 7. Примени миграции и сиды
+php artisan migrate --seed
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# 8. Запусти локальный сервер
+php artisan serve
 
-## Security Vulnerabilities
+# 9. Запусти компиляцию фронтенда
+npm run dev
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+👤 Пользователи по умолчанию:
+| Роль         | Email               | Пароль    |
+|--------------|---------------------|-----------|
+| Администратор| `admin@example.com` | `123456`|
+| Пользователь | `user@example.com`  | `123456`|
 
-## License
+📦 Работа с модулями
+Установка ZIP-модуля — через форму в /admin/modules
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+module.json должен содержать:
+{
+  "name": "Search",
+  "version": "1.0.0",
+  "active": false
+}
+
+
+🔐 Роуты авторизации
+| URI             | Метод | Назначение                   |
+|------------------|--------|------------------------------|
+| `/login`         | GET    | Форма входа                 |
+| `/register`      | GET    | Форма регистрации           |
+| `/logout`        | POST   | Выход из аккаунта           |
+| `/forgot-password` | GET  | Восстановление пароля       |
+| `/reset-password/{token}` | GET | Форма сброса пароля    |
+
+🧠 Команды разработчика
+# Очистка кешей (на случай ошибок)
+php artisan cache:clear
+php artisan view:clear
+php artisan route:clear
+php artisan config:clear
+
+# Повторное создание таблиц
+php artisan migrate:fresh --seed
+
+# Создание модели и миграции
+php artisan make:model Product -m
+
+# Создание модуля вручную
+mkdir modules/ExampleModule
+touch modules/ExampleModule/module.json
+
+
+🔮 Планы на будущее
+ React-админка с Vite
+
+ Интеграции: Сбербанк, СДЭК, VK API
+
+ SEO-модуль
+
+ Модуль доставки и оплаты
+
+ Редактор страниц и статей
+
+📖 Лицензия
+Проект распространяется под лицензией MIT. Используй, дорабатывай и предлагай pull requests!
+
