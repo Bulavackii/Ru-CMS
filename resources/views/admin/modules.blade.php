@@ -1,6 +1,7 @@
 @extends('layouts.admin')
 
 @section('title', 'Управление модулями')
+
 @section('header', 'Модули системы')
 
 @section('content')
@@ -18,11 +19,12 @@
         </div>
     @endif
 
+    {{-- Таблица модулей --}}
     <h2 class="text-lg font-bold mb-4">Список установленных модулей</h2>
 
-    <table class="min-w-full bg-white shadow rounded">
+    <table class="min-w-full bg-white shadow rounded mb-10">
         <thead>
-            <tr class="border-b">
+            <tr class="border-b bg-gray-100">
                 <th class="text-left px-4 py-2">Название</th>
                 <th class="text-left px-4 py-2">Версия</th>
                 <th class="text-left px-4 py-2">Активен</th>
@@ -45,8 +47,7 @@
                         <form method="POST" action="{{ route('admin.modules.toggle', $module->id) }}">
                             @csrf
                             @method('PATCH')
-                            <button
-                                class="px-3 py-1 rounded text-white
+                            <button class="px-3 py-1 rounded text-white
                                 {{ $module->active ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600' }}">
                                 {{ $module->active ? 'Отключить' : 'Включить' }}
                             </button>
@@ -57,15 +58,14 @@
         </tbody>
     </table>
 
-    <hr class="my-8">
-
-    <h2 class="text-lg font-bold mb-4">Установить модуль из ZIP</h2>
+    {{-- GUI-инсталлятор ZIP --}}
+    <h2 class="text-lg font-bold mb-4">Установить модуль из ZIP-архива</h2>
 
     <form method="POST" action="{{ route('admin.modules.install') }}" enctype="multipart/form-data" class="space-y-4">
         @csrf
-        <input type="file" name="module" accept=".zip" required class="border p-2">
-        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-            Установить
+        <input type="file" name="module" accept=".zip" required class="border p-2 rounded w-full">
+        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded">
+            Установить модуль
         </button>
     </form>
 
