@@ -27,6 +27,16 @@
         </div>
     </header>
 
+    {{-- Навигационное меню --}}
+    <nav class="bg-white shadow p-4 flex justify-between">
+        <div>
+            <a href="/" class="font-bold text-blue-600">Главная</a>
+        </div>
+        <div>
+            <a href="/search" class="text-gray-700 hover:underline">Поиск</a>
+        </div>
+    </nav>
+
     {{-- Контент страницы --}}
     <main class="flex-grow">
         @yield('content')

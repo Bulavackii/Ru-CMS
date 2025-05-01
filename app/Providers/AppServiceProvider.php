@@ -56,5 +56,8 @@ class AppServiceProvider extends ServiceProvider
         // ✅ Прямое подключение модуля Users
         $this->loadRoutesFrom(base_path('modules/Users/Routes/web.php'));
         $this->loadViewsFrom(base_path('modules/Users/Views'), 'Users');
+        // ✅ Прямое подключение модуля Search
+        $this->loadRoutesFrom(base_path('modules/Search/Routes/web.php'));
+        $this->loadViewsFrom(base_path('modules/Search/Views'), 'Search');
     }
 }
