@@ -1,6 +1,5 @@
 {
     "name": "Users",
     "version": "1.0",
-    "description": "Модуль пользователей и авторизации",
     "active": true
-  }
+}

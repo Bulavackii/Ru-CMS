@@ -38,19 +38,23 @@ class AppServiceProvider extends ServiceProvider
             }
 
             // Миграции
-            if (is_dir($modulePath.'/Migrations')) {
-                $this->loadMigrationsFrom($modulePath.'/Migrations');
+            if (is_dir($modulePath . '/Migrations')) {
+                $this->loadMigrationsFrom($modulePath . '/Migrations');
             }
 
             // Виды
-            if (is_dir($modulePath.'/Views')) {
-                $this->loadViewsFrom($modulePath.'/Views', $moduleName);
+            if (is_dir($modulePath . '/Views')) {
+                $this->loadViewsFrom($modulePath . '/Views', $moduleName);
             }
 
             // Переводы
-            if (is_dir($modulePath.'/Lang')) {
-                $this->loadTranslationsFrom($modulePath.'/Lang', $moduleName);
+            if (is_dir($modulePath . '/Lang')) {
+                $this->loadTranslationsFrom($modulePath . '/Lang', $moduleName);
             }
         }
+
+        // ✅ Прямое подключение модуля Users
+        $this->loadRoutesFrom(base_path('modules/Users/Routes/web.php'));
+        $this->loadViewsFrom(base_path('modules/Users/Views'), 'Users');
     }
 }

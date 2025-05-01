@@ -4,21 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Панель управления')</title>
-
-    {{-- Подключение CSS и JS через Vite --}}
-    @vite(['resources/css/app.css', 'resources/js/app.jsx'])
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-    <nav class="bg-gray-800 text-white p-4">
-        <div class="container mx-auto">
-            <a href="/admin/modules" class="font-bold">RuShop CMS Admin</a>
-        </div>
-    </nav>
+<body class="bg-gray-100 text-gray-800 flex">
 
-    <main class="py-6">
-        <div class="container mx-auto">
+    {{-- Сайдбар --}}
+    <aside class="w-64 bg-white h-screen shadow-md">
+        <div class="p-6 font-bold text-lg border-b">RuShop Admin</div>
+        <nav class="mt-4 space-y-2">
+            <a href="/admin/modules" class="block px-4 py-2 hover:bg-gray-100">Модули</a>
+            <a href="/admin/users" class="block px-4 py-2 hover:bg-gray-100">Пользователи</a>
+        </nav>
+    </aside>
+
+    {{-- Контент --}}
+    <div class="flex-1 flex flex-col">
+        <header class="bg-white p-4 shadow text-xl font-semibold">
+            @yield('header', 'Админка')
+        </header>
+
+        <main class="p-6 flex-1">
             @yield('content')
-        </div>
-    </main>
+        </main>
+    </div>
+
 </body>
 </html>
