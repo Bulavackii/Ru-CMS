@@ -13,6 +13,7 @@ use Modules\News\Controllers\Frontend\NewsController as FrontendNewsController;
 use Modules\Categories\Controllers\Admin\CategoryController as FrontendCategoryController;
 use Modules\News\Models\News;
 use App\Models\Category;
+use App\Http\Controllers\Admin\UploadController;
 
 Route::get('/', function () {
     $user = Auth::user();
@@ -68,6 +69,9 @@ Route::middleware(['web', 'auth', 'admin'])->group(function () {
 
     // ✅ Категории (подключение admin-маршрутов модуля)
     require_once base_path('modules/Categories/Routes/web.php');
+
+    // ✅ Загрузка медиафайлов из редактора
+    Route::post('/admin/upload-media', [UploadController::class, 'uploadMedia'])->name('admin.upload.media');
 
     // SPA fallback (всегда в самом конце!)
     Route::get('/admin/{any}', fn () => view('admin'))->where('any', '.*');

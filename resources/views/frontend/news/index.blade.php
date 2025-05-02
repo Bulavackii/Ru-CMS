@@ -9,9 +9,37 @@
         <div class="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             @foreach ($newsList as $news)
                 <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition p-4 flex flex-col">
-                    @if ($news->cover)
-                        <img src="{{ asset('storage/' . $news->cover) }}" alt="{{ $news->title }}"
-                            class="mb-3 rounded-md max-h-48 w-full object-cover">
+                    @php
+                        $imgSrc = null;
+
+                        if ($news->cover) {
+                            $imgSrc = asset('storage/' . $news->cover);
+                        } else {
+                            preg_match('/<img[^>]+src="([^">]+)"/i', $news->content, $imgMatch);
+                            if (!empty($imgMatch[1])) {
+                                $imgSrc = $imgMatch[1];
+                            } else {
+                                preg_match('/<video[^>]+src="([^">]+)"/i', $news->content, $videoMatch);
+                                if (!empty($videoMatch[1])) {
+                                    $imgSrc = $videoMatch[1];
+                                } else {
+                                    preg_match('/<source[^>]+src="([^">]+)"/i', $news->content, $sourceMatch);
+                                    $imgSrc = $sourceMatch[1] ?? null;
+                                }
+                            }
+                        }
+                    @endphp
+
+                    @if ($imgSrc)
+                        @if (Str::endsWith($imgSrc, ['.mp4', '.webm']))
+                            <video controls class="mb-3 rounded-md max-h-48 w-full object-cover">
+                                <source src="{{ $imgSrc }}" type="video/mp4">
+                                Ваш браузер не поддерживает видео.
+                            </video>
+                        @else
+                            <img src="{{ $imgSrc }}" alt="{{ $news->title }}"
+                                class="mb-3 rounded-md max-h-48 w-full object-cover">
+                        @endif
                     @endif
 
                     <h2 class="text-lg font-semibold mb-1">
@@ -38,8 +66,10 @@
                         @endforelse
                     </p>
 
-                    <div class="text-sm text-gray-700 mb-4">
-                        {!! Str::limit(strip_tags($news->content), 100) !!}
+                    <div class="text-sm text-gray-700 mb-4 overflow-hidden max-h-32 relative">
+                        <div class="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-gray-100 to-transparent">
+                        </div>
+                        {!! Str::limit(strip_tags($news->content), 300) !!}
                     </div>
 
                     <a href="{{ route('news.show', $news->slug) }}"

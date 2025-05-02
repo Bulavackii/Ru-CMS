@@ -5,24 +5,21 @@
 @section('content')
     <h1 class="text-2xl font-bold mb-4">Редактировать новость</h1>
 
-    {{-- Ошибки --}}
     @if ($errors->any())
         <div class="bg-red-100 text-red-700 px-4 py-2 mb-4 rounded">
             {{ $errors->first() }}
         </div>
     @endif
 
-    {{-- 🛠 Исправлено: передаём id через массив --}}
-    <form method="POST" action="{{ route('admin.news.update', ['news' => $news->id]) }}">
+    <form method="POST" action="{{ route('admin.news.update', ['news' => $news->id]) }}" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
         {{-- Заголовок --}}
         <div class="mb-4">
             <label for="title" class="block mb-1 font-semibold">Заголовок</label>
-            <input type="text" name="title" id="title"
-                   value="{{ old('title', $news->title) }}"
-                   class="w-full border rounded px-3 py-2" required>
+            <input type="text" name="title" id="title" value="{{ old('title', $news->title) }}"
+                class="w-full border rounded px-3 py-2" required>
         </div>
 
         {{-- Категории --}}
@@ -32,7 +29,7 @@
                 @foreach ($categories as $category)
                     <label class="inline-flex items-center">
                         <input type="checkbox" name="categories[]" value="{{ $category->id }}"
-                               {{ $news->categories->contains($category->id) ? 'checked' : '' }} class="mr-2">
+                            {{ $news->categories->contains($category->id) ? 'checked' : '' }} class="mr-2">
                         {{ $category->title }}
                     </label>
                 @endforeach
@@ -42,15 +39,14 @@
         {{-- Контент --}}
         <div class="mb-4">
             <label for="content" class="block mb-1 font-semibold">Содержимое</label>
-            <textarea name="content" id="editor" rows="12"
-                      class="w-full border rounded px-3 py-2">{{ old('content', $news->content) }}</textarea>
+            <textarea name="content" id="editor" rows="12" class="w-full border rounded px-3 py-2">{{ old('content', $news->content) }}</textarea>
         </div>
 
         {{-- Публикация --}}
         <div class="mb-4">
             <label class="inline-flex items-center">
                 <input type="checkbox" name="published" value="1" class="mr-2"
-                       {{ $news->published ? 'checked' : '' }}>
+                    {{ $news->published ? 'checked' : '' }}>
                 Опубликовать
             </label>
         </div>
@@ -60,32 +56,54 @@
         </button>
     </form>
 
-    {{-- Подключение локального TinyMCE --}}
+    {{-- TinyMCE --}}
     <script src="{{ asset('admin/tinymce/tinymce.min.js') }}"></script>
     <script>
         tinymce.init({
             selector: '#editor',
             language: 'ru',
             language_url: '{{ asset('admin/tinymce/langs/ru.js') }}',
+            height: 500,
             branding: false,
             plugins: [
-                'anchor', 'autolink', 'charmap', 'codesample', 'emoticons', 'image', 'link', 'lists', 'media',
-                'searchreplace', 'table', 'visualblocks', 'wordcount',
-                'checklist', 'mediaembed', 'casechange', 'formatpainter', 'pageembed', 'a11ychecker',
-                'tinymcespellchecker', 'permanentpen', 'powerpaste', 'advtable', 'advcode', 'editimage',
-                'advtemplate', 'mentions', 'tinycomments', 'tableofcontents', 'footnotes', 'mergetags',
-                'autocorrect', 'typography', 'inlinecss', 'markdown', 'importword', 'exportword', 'exportpdf'
+                'image', 'media', 'link', 'lists', 'table', 'code', 'visualblocks', 'wordcount'
             ],
-            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | ' +
-                     'link image media table mergetags | addcomment showcomments | spellcheckdialog ' +
-                     'a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | ' +
-                     'emoticons charmap | removeformat',
-            tinycomments_mode: 'embedded',
-            tinycomments_author: 'Author name',
-            mergetags_list: [
-                { value: 'First.Name', title: 'First Name' },
-                { value: 'Email', title: 'Email' },
-            ],
+            toolbar: 'undo redo | styleselect | bold italic underline | alignleft aligncenter alignright | ' +
+                'bullist numlist outdent indent | link image media table | code | removeformat',
+
+            convert_urls: false,
+            automatic_uploads: true,
+            images_upload_url: '{{ route('admin.upload.media') }}',
+            media_upload_url: '{{ route('admin.upload.media') }}',
+            images_upload_credentials: true,
+
+            file_picker_types: 'image media',
+            file_picker_callback: function(callback, value, meta) {
+                const input = document.createElement('input');
+                input.setAttribute('type', 'file');
+                input.setAttribute('accept', meta.filetype === 'image' ? 'image/*' : 'video/*');
+
+                input.onchange = function() {
+                    const file = this.files[0];
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    fetch('{{ route('admin.upload.media') }}', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => callback(data.location, {
+                            title: file.name
+                        }))
+                        .catch(() => alert('Ошибка загрузки файла'));
+                };
+
+                input.click();
+            }
         });
     </script>
 @endsection
