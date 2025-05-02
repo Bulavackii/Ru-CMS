@@ -9,11 +9,21 @@
         <div class="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             @foreach ($newsList as $news)
                 <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition p-4 flex flex-col">
-                    <h2 class="text-lg font-semibold mb-2">
+                    @if ($news->cover)
+                        <img src="{{ asset('storage/' . $news->cover) }}" alt="{{ $news->title }}"
+                            class="mb-3 rounded-md max-h-48 w-full object-cover">
+                    @endif
+
+                    <h2 class="text-lg font-semibold mb-1">
                         <a href="{{ route('news.show', $news->slug) }}" class="text-blue-600 hover:underline">
                             {{ $news->title }}
                         </a>
                     </h2>
+
+                    <p class="text-sm text-gray-500 mb-2">
+                        {{ $news->created_at->format('d.m.Y') }}
+                    </p>
+
                     <p class="text-gray-600 text-sm mb-2">
                         Категории:
                         @forelse ($news->categories as $category)
@@ -27,9 +37,11 @@
                             <span class="text-gray-400">Без категории</span>
                         @endforelse
                     </p>
+
                     <div class="text-sm text-gray-700 mb-4">
                         {!! Str::limit(strip_tags($news->content), 100) !!}
                     </div>
+
                     <a href="{{ route('news.show', $news->slug) }}"
                         class="mt-auto text-blue-600 hover:underline text-sm font-medium">
                         Читать далее →
