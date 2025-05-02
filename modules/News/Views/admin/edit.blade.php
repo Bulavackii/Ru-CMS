@@ -15,14 +15,12 @@
         @csrf
         @method('PUT')
 
-        {{-- Заголовок --}}
         <div class="mb-4">
             <label for="title" class="block mb-1 font-semibold">Заголовок</label>
             <input type="text" name="title" id="title" value="{{ old('title', $news->title) }}"
                 class="w-full border rounded px-3 py-2" required>
         </div>
 
-        {{-- Категории --}}
         <div class="mb-4">
             <label class="block mb-1 font-semibold">Категории</label>
             <div class="flex flex-wrap gap-2">
@@ -36,13 +34,11 @@
             </div>
         </div>
 
-        {{-- Контент --}}
         <div class="mb-4">
             <label for="content" class="block mb-1 font-semibold">Содержимое</label>
             <textarea name="content" id="editor" rows="12" class="w-full border rounded px-3 py-2">{{ old('content', $news->content) }}</textarea>
         </div>
 
-        {{-- Публикация --}}
         <div class="mb-4">
             <label class="inline-flex items-center">
                 <input type="checkbox" name="published" value="1" class="mr-2"
@@ -65,17 +61,21 @@
             language_url: '{{ asset('admin/tinymce/langs/ru.js') }}',
             height: 500,
             branding: false,
-            plugins: [
-                'image', 'media', 'link', 'lists', 'table', 'code', 'visualblocks', 'wordcount'
-            ],
-            toolbar: 'undo redo | styleselect | bold italic underline | alignleft aligncenter alignright | ' +
-                'bullist numlist outdent indent | link image media table | code | removeformat',
-
             convert_urls: false,
+            license_key: 'gpl',
             automatic_uploads: true,
-            images_upload_url: '{{ route('admin.upload.media') }}',
-            media_upload_url: '{{ route('admin.upload.media') }}',
-            images_upload_credentials: true,
+            plugins: [
+                'image', 'media', 'mediaembed', 'link', 'lists', 'table', 'code',
+                'visualblocks', 'wordcount'
+            ],
+            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | ' +
+                'alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | ' +
+                'link image media mediaembed table | code | removeformat',
+
+            fontsize_formats: '10px 12px 14px 16px 18px 24px 36px',
+
+            extended_valid_elements: 'iframe[src|frameborder|style|scrolling|class|width|height|name|align|allow|allowfullscreen|sandbox]',
+            valid_children: '+body[iframe]',
 
             file_picker_types: 'image media',
             file_picker_callback: function(callback, value, meta) {
@@ -91,15 +91,24 @@
                     fetch('{{ route('admin.upload.media') }}', {
                             method: 'POST',
                             headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                    .getAttribute('content')
                             },
                             body: formData
                         })
                         .then(response => response.json())
-                        .then(data => callback(data.location, {
-                            title: file.name
-                        }))
-                        .catch(() => alert('Ошибка загрузки файла'));
+                        .then(data => {
+                            if (data.location) {
+                                callback(data.location, {
+                                    title: file.name
+                                });
+                            } else {
+                                alert('Ошибка: сервер не вернул ссылку на файл.');
+                            }
+                        })
+                        .catch(error => {
+                            alert('Ошибка загрузки файла: ' + error.message);
+                        });
                 };
 
                 input.click();

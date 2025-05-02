@@ -15,6 +15,7 @@ use Modules\News\Models\News;
 use App\Models\Category;
 use App\Http\Controllers\Admin\UploadController;
 
+// Главная страница
 Route::get('/', function () {
     $user = Auth::user();
     $categories = Category::all();
@@ -67,13 +68,13 @@ Route::middleware(['web', 'auth', 'admin'])->group(function () {
     // 🔍 Поиск
     Route::get('/admin/search', [SearchController::class, 'index'])->name('admin.search.index');
 
-    // ✅ Категории (подключение admin-маршрутов модуля)
+    // ✅ Категории (из модуля)
     require_once base_path('modules/Categories/Routes/web.php');
 
     // ✅ Загрузка медиафайлов из редактора
     Route::post('/admin/upload-media', [UploadController::class, 'uploadMedia'])->name('admin.upload.media');
 
-    // SPA fallback (всегда в самом конце!)
+    // SPA fallback — в самом конце
     Route::get('/admin/{any}', fn () => view('admin'))->where('any', '.*');
 });
 

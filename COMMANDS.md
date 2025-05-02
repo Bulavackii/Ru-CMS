@@ -122,3 +122,6 @@ composer require laravel/breeze --dev
 php artisan breeze:install blade
 npm install && npm run dev
 php artisan migrate
+
+
+в php.ini достаточные лимиты (upload_max_filesize, post_max_size)
