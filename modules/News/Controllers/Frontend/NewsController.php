@@ -9,13 +9,21 @@ class NewsController extends Controller
 {
     public function index()
     {
-        $news = News::with('categories')->latest()->paginate(6);
-        return view('News::frontend.index', compact('news'));
+        $newsList = News::with('categories')
+            ->where('published', true) // ← фильтрация по опубликованным
+            ->orderByDesc('id')
+            ->paginate(10);
+
+        return view('frontend.news.index', compact('newsList'));
     }
 
     public function show($slug)
     {
-        $newsItem = News::where('slug', $slug)->with('categories')->firstOrFail();
-        return view('News::frontend.show', compact('newsItem'));
+        $news = News::with('categories')
+            ->where('slug', $slug)
+            ->where('published', true) // ← показываем только опубликованные
+            ->firstOrFail();
+
+        return view('frontend.news.show', compact('news'));
     }
 }

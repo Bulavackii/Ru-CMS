@@ -11,12 +11,24 @@ use Modules\System\Controllers\Admin\ModuleController;
 use Modules\Search\Controllers\Admin\SearchController;
 use Modules\News\Controllers\Frontend\NewsController as FrontendNewsController;
 use Modules\Categories\Controllers\Admin\CategoryController as FrontendCategoryController;
+use Modules\News\Models\News;
+use App\Models\Category;
 
-// Главная страница
 Route::get('/', function () {
-    return view('frontend.home', [
-        'user' => Auth::user(),
-    ]);
+    $user = Auth::user();
+    $categories = Category::all();
+
+    $query = News::with('categories')->where('published', true);
+
+    if (request('category')) {
+        $query->whereHas('categories', function ($q) {
+            $q->where('categories.id', request('category'));
+        });
+    }
+
+    $newsList = $query->orderByDesc('id')->paginate(10);
+
+    return view('frontend.home', compact('user', 'categories', 'newsList'));
 });
 
 // 👤 Гостевой доступ
