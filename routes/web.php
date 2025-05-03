@@ -12,10 +12,10 @@ use Modules\Search\Controllers\Admin\SearchController;
 use Modules\News\Controllers\Frontend\NewsController as FrontendNewsController;
 use Modules\Categories\Controllers\Admin\CategoryController as FrontendCategoryController;
 use Modules\News\Models\News;
-use App\Models\Category;
+use Modules\Categories\Models\Category;
 use App\Http\Controllers\Admin\UploadController;
 
-// Главная страница
+// ✅ Главная страница — показываем все опубликованные новости
 Route::get('/', function () {
     $user = Auth::user();
     $categories = Category::all();

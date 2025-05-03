@@ -1,29 +1,50 @@
-<div class="bg-white rounded-lg shadow-md hover:shadow-lg transition p-4 flex flex-col h-full">
-    {{-- Обложка, либо первая картинка/видео из контента --}}
-    @if ($news->cover)
-        <img src="{{ asset('storage/' . $news->cover) }}" alt="{{ $news->title }}"
-            class="mb-3 rounded-md max-h-48 w-full object-cover">
-    @else
-        @php
-            preg_match('/<img[^>]+src="([^">]+)"/i', $news->content, $imgMatch);
-            preg_match('/<video[^>]+src="([^">]+)"/i', $news->content, $videoMatch);
-        @endphp
+@php
+    $imgSrc = null;
 
-        @if (!empty($imgMatch[1]))
-            <img src="{{ $imgMatch[1] }}" alt="{{ $news->title }}" class="mb-3 rounded-md max-h-48 w-full object-cover">
-        @elseif (!empty($videoMatch[1]))
-            <video src="{{ $videoMatch[1] }}" controls class="mb-3 rounded-md max-h-48 w-full object-cover">
+    if ($news->cover) {
+        $imgSrc = asset('storage/' . $news->cover);
+    } else {
+        preg_match('/<img[^>]+src="([^">]+)"/i', $news->content, $imgMatch);
+        if (!empty($imgMatch[1])) {
+            $imgSrc = $imgMatch[1];
+        } else {
+            preg_match('/<video[^>]+src="([^">]+)"/i', $news->content, $videoMatch);
+            if (!empty($videoMatch[1])) {
+                $imgSrc = $videoMatch[1];
+            } else {
+                preg_match('/<source[^>]+src="([^">]+)"/i', $news->content, $sourceMatch);
+                $imgSrc = $sourceMatch[1] ?? null;
+            }
+        }
+    }
+@endphp
+
+<div class="bg-white rounded-lg shadow-md hover:shadow-lg transition p-4 flex flex-col">
+
+    {{-- Изображение или видео --}}
+    @if ($imgSrc)
+        @if (Str::endsWith($imgSrc, ['.mp4', '.webm']))
+            <video controls class="mb-3 rounded-md max-h-48 w-full object-cover">
+                <source src="{{ $imgSrc }}" type="video/mp4">
                 Ваш браузер не поддерживает видео.
             </video>
+        @else
+            <img src="{{ $imgSrc }}" alt="{{ $news->title }}"
+                 class="mb-3 rounded-md max-h-48 w-full object-cover">
         @endif
     @endif
 
     {{-- Заголовок --}}
-    <h3 class="text-lg font-semibold mb-2">
+    <h2 class="text-lg font-semibold mb-1">
         <a href="{{ route('news.show', $news->slug) }}" class="text-blue-600 hover:underline">
             {{ $news->title }}
         </a>
-    </h3>
+    </h2>
+
+    {{-- Дата --}}
+    <p class="text-sm text-gray-500 mb-2">
+        {{ $news->created_at->format('d.m.Y') }}
+    </p>
 
     {{-- Категории --}}
     <p class="text-gray-600 text-sm mb-2">
@@ -32,21 +53,21 @@
             <a href="{{ url('/?category=' . $category->id) }}" class="text-blue-600 hover:underline">
                 {{ $category->title }}
             </a>
-            @if (!$loop->last)
-                ,
-            @endif
+            @if (!$loop->last), @endif
         @empty
             <span class="text-gray-400">Без категории</span>
         @endforelse
     </p>
 
-    {{-- Краткий текст — тянется вниз, даже если обложки нет --}}
-    <div class="text-sm text-gray-700 mb-4 flex-grow">
-        {!! Str::of(strip_tags($news->content))->limit(250, '...') !!}
+    {{-- Краткое описание --}}
+    <div class="text-sm text-gray-700 mb-4 overflow-hidden max-h-32 relative">
+        <div class="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-gray-100 to-transparent"></div>
+        {!! Str::limit(strip_tags($news->content), 300) !!}
     </div>
 
-    {{-- Кнопка читать --}}
-    <a href="{{ route('news.show', $news->slug) }}" class="mt-auto text-blue-600 hover:underline text-sm font-medium">
+    {{-- Читать далее --}}
+    <a href="{{ route('news.show', $news->slug) }}"
+       class="mt-auto text-blue-600 hover:underline text-sm font-medium">
         Читать далее →
     </a>
 </div>

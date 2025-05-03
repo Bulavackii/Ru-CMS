@@ -29,8 +29,6 @@
             <div class="container mx-auto flex justify-between items-center">
                 <div class="flex gap-4">
                     <a href="/" class="font-bold hover:underline">🏠 На сайт</a>
-                    <a href="{{ route('admin.modules.index') }}" class="hover:underline">⚙️ Модули</a>
-                    <a href="{{ route('admin.search.index') }}" class="hover:underline">🔍 Поиск</a>
                 </div>
 
                 <form method="POST" action="{{ route('logout') }}">

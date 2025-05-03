@@ -125,3 +125,6 @@ php artisan migrate
 
 
 в php.ini достаточные лимиты (upload_max_filesize, post_max_size)
+
+
+UPDATE modules SET active = 1 WHERE name = 'News';
