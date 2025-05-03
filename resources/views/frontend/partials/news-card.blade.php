@@ -22,12 +22,16 @@
                         $imgSrc = "https://img.youtube.com/vi/{$youtubeId}/hqdefault.jpg";
                     }
                 }
+                if (!$imgSrc) {
+                    $imgSrc = asset('images/no-image.png');
+                }
             }
         }
     }
 @endphp
 
-<div class="bg-white rounded-lg shadow-md hover:shadow-lg transition flex flex-col w-full h-full max-w-xs mx-auto overflow-hidden">
+<div
+    class="bg-white rounded-lg shadow-md hover:shadow-lg transition flex flex-col w-full h-full max-w-xs mx-auto overflow-hidden">
 
     {{-- Превью --}}
     <div class="w-full h-48 bg-gray-100 rounded-t-md overflow-hidden flex items-center justify-center">
@@ -48,9 +52,8 @@
 
         {{-- Заголовок --}}
         <h2 class="text-lg font-semibold mb-2 h-12 overflow-hidden break-words">
-            <a href="{{ route('news.show', $news->slug) }}"
-               class="text-blue-600 hover:underline truncate block w-full"
-               title="{{ $news->title }}">
+            <a href="{{ route('news.show', $news->slug) }}" class="text-blue-600 hover:underline truncate block w-full"
+                title="{{ $news->title }}">
                 {{ $news->title }}
             </a>
         </h2>
@@ -64,7 +67,10 @@
             @forelse ($news->categories as $category)
                 <a href="{{ url('/?category=' . $category->id) }}" class="text-blue-600 hover:underline">
                     {{ $category->title }}
-                </a>@if (!$loop->last), @endif
+                </a>
+                @if (!$loop->last)
+                    ,
+                @endif
             @empty
                 <span class="text-gray-400">Без категории</span>
             @endforelse
@@ -72,13 +78,15 @@
 
         {{-- Краткое описание --}}
         <div class="text-sm text-gray-700 mb-4 overflow-hidden relative flex-grow max-h-32 leading-relaxed break-words">
-            <div class="absolute bottom-0 left-0 w-full h-6 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
+            <div
+                class="absolute bottom-0 left-0 w-full h-6 bg-gradient-to-t from-white to-transparent pointer-events-none">
+            </div>
             {!! Str::limit(strip_tags($news->content), 300) !!}
         </div>
 
         {{-- Кнопка --}}
         <a href="{{ route('news.show', $news->slug) }}"
-           class="mt-auto text-blue-600 hover:underline text-sm font-medium">
+            class="mt-auto text-blue-600 hover:underline text-sm font-medium">
             Читать далее →
         </a>
     </div>
