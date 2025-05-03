@@ -28,9 +28,15 @@ Route::get('/', function () {
         });
     }
 
-    $newsList = $query->orderByDesc('id')->paginate(10);
+    // 🔽 Автоматическая группировка по шаблонам
+    $templates = [];
+    $allNews = $query->get();
+    foreach ($allNews as $item) {
+        $key = strtolower($item->template ?: 'default');
+        $templates[$key][] = $item;
+    }
 
-    return view('frontend.home', compact('user', 'categories', 'newsList'));
+    return view('frontend.home', compact('user', 'categories', 'templates'));
 });
 
 // 👤 Гостевой доступ

@@ -17,6 +17,7 @@ class News extends Model
         'content',
         'slug',
         'published',
+        'template',
     ];
 
     public function categories(): BelongsToMany

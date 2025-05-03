@@ -11,6 +11,19 @@
         </a>
     </div>
 
+    {{-- 🔽 Фильтр по шаблону --}}
+    <form method="GET" class="mb-4">
+        <label for="template" class="font-semibold mr-2">Шаблон:</label>
+        <select name="template" id="template" onchange="this.form.submit()" class="border rounded px-3 py-1">
+            <option value="">Все шаблоны</option>
+            @foreach ($templates as $key => $label)
+                <option value="{{ $key }}" {{ request('template') === $key ? 'selected' : '' }}>
+                    {{ $label }}
+                </option>
+            @endforeach
+        </select>
+    </form>
+
     @if (session('success'))
         <div class="bg-green-100 text-green-800 px-4 py-2 mb-4 rounded">
             {{ session('success') }}
@@ -23,6 +36,7 @@
                 <th class="text-left px-4 py-2">Заголовок</th>
                 <th class="text-left px-4 py-2">Категории</th>
                 <th class="text-left px-4 py-2">Статус</th>
+                <th class="text-left px-4 py-2">Шаблон</th>
                 <th class="text-left px-4 py-2">Действия</th>
             </tr>
         </thead>
@@ -44,6 +58,9 @@
                             <span class="text-gray-500">Черновик</span>
                         @endif
                     </td>
+                    <td class="px-4 py-2">
+                        {{ $templates[$news->template] ?? ucfirst($news->template) }}
+                    </td>
                     <td class="px-4 py-2 space-x-2">
                         <a href="{{ route('admin.news.edit', $news->id) }}"
                            class="text-blue-600 hover:underline">Редактировать</a>
@@ -59,7 +76,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="4" class="text-center text-gray-500 py-6">Новостей пока нет.</td>
+                    <td colspan="5" class="text-center text-gray-500 py-6">Новостей пока нет.</td>
                 </tr>
             @endforelse
         </tbody>

@@ -15,12 +15,14 @@
         @csrf
         @method('PUT')
 
+        {{-- Заголовок --}}
         <div class="mb-4">
             <label for="title" class="block mb-1 font-semibold">Заголовок</label>
             <input type="text" name="title" id="title" value="{{ old('title', $news->title) }}"
                 class="w-full border rounded px-3 py-2" required>
         </div>
 
+        {{-- Категории --}}
         <div class="mb-4">
             <label class="block mb-1 font-semibold">Категории</label>
             <div class="flex flex-wrap gap-2">
@@ -34,15 +36,28 @@
             </div>
         </div>
 
+        {{-- Шаблон --}}
+        <div class="mb-4">
+            <label for="template" class="block mb-1 font-semibold">Шаблон</label>
+            <select name="template" id="template" class="w-full border rounded px-3 py-2">
+                <option value="">Новости</option>
+                <option value="products" {{ old('template', $news->template) == 'products' ? 'selected' : '' }}>Товары</option>
+                <option value="contacts" {{ old('template', $news->template) == 'contacts' ? 'selected' : '' }}>Контакты</option>
+                <option value="gallery" {{ old('template', $news->template) == 'gallery' ? 'selected' : '' }}>Галерея</option>
+            </select>
+        </div>
+
+        {{-- Контент --}}
         <div class="mb-4">
             <label for="content" class="block mb-1 font-semibold">Содержимое</label>
             <textarea name="content" id="editor" rows="12" class="w-full border rounded px-3 py-2">{{ old('content', $news->content) }}</textarea>
         </div>
 
+        {{-- Публикация --}}
         <div class="mb-4">
             <label class="inline-flex items-center">
                 <input type="checkbox" name="published" value="1" class="mr-2"
-                    {{ $news->published ? 'checked' : '' }}>
+                    {{ old('published', $news->published) ? 'checked' : '' }}>
                 Опубликовать
             </label>
         </div>
@@ -71,12 +86,9 @@
             toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | ' +
                 'alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | ' +
                 'link image media mediaembed table | code | removeformat',
-
             fontsize_formats: '10px 12px 14px 16px 18px 24px 36px',
-
             extended_valid_elements: 'iframe[src|frameborder|style|scrolling|class|width|height|name|align|allow|allowfullscreen|sandbox]',
             valid_children: '+body[iframe]',
-
             file_picker_types: 'image media',
             file_picker_callback: function(callback, value, meta) {
                 const input = document.createElement('input');
@@ -89,26 +101,23 @@
                     formData.append('file', file);
 
                     fetch('{{ route('admin.upload.media') }}', {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                    .getAttribute('content')
-                            },
-                            body: formData
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.location) {
-                                callback(data.location, {
-                                    title: file.name
-                                });
-                            } else {
-                                alert('Ошибка: сервер не вернул ссылку на файл.');
-                            }
-                        })
-                        .catch(error => {
-                            alert('Ошибка загрузки файла: ' + error.message);
-                        });
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.location) {
+                            callback(data.location, { title: file.name });
+                        } else {
+                            alert('Ошибка: сервер не вернул ссылку на файл.');
+                        }
+                    })
+                    .catch(error => {
+                        alert('Ошибка загрузки файла: ' + error.message);
+                    });
                 };
 
                 input.click();

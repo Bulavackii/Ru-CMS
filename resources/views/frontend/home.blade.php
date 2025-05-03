@@ -20,27 +20,21 @@
         </button>
     </form>
 
-    {{-- Список новостей --}}
-    @if ($newsList->count() > 0 && $newsList->count() < 4)
-        <div class="flex justify-center flex-wrap gap-6">
-            @foreach ($newsList as $news)
-                <div class="w-full sm:w-2/3 md:w-1/2 lg:w-1/3">
-                    @include('frontend.partials.news-card', ['news' => $news])
-                </div>
-            @endforeach
-        </div>
-    @elseif ($newsList->count() >= 4)
-        <div class="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            @foreach ($newsList as $news)
-                @include('frontend.partials.news-card', ['news' => $news])
-            @endforeach
-        </div>
-    @else
-        <p class="text-center text-gray-500 col-span-full">Новостей пока нет.</p>
-    @endif
+    {{-- Переводы заголовков блоков --}}
+    @php
+        $titles = [
+            'default' => 'Новости',
+            'products' => 'Товары',
+            'contacts' => 'Контакты',
+            'gallery' => 'Галерея',
+        ];
+    @endphp
 
-    {{-- Пагинация --}}
-    <div class="mt-8">
-        {{ $newsList->withQueryString()->links() }}
-    </div>
+    {{-- Автоматический вывод блоков по шаблонам --}}
+    @foreach ($templates as $key => $newsList)
+        <x-frontend.news-grid
+            :newsList="$newsList"
+            :title="$titles[$key] ?? ucfirst($key)"
+        />
+    @endforeach
 @endsection

@@ -11,10 +11,26 @@ use Illuminate\Support\Str;
 class NewsController extends Controller
 {
     // Список всех новостей
-    public function index()
+    public function index(Request $request)
     {
-        $newsList = News::with('categories')->paginate(10);
-        return view('News::admin.index', compact('newsList'));
+        $query = News::with('categories');
+
+        // 🔍 Фильтр по шаблону
+        if ($request->filled('template')) {
+            $query->where('template', $request->input('template'));
+        }
+
+        $newsList = $query->orderByDesc('id')->paginate(10);
+
+        // 🔽 Все доступные шаблоны
+        $templates = [
+            'default' => 'Новости',
+            'products' => 'Товары',
+            'contacts' => 'Контакты',
+            'gallery' => 'Галерея',
+        ];
+
+        return view('News::admin.index', compact('newsList', 'templates'));
     }
 
     // Форма создания новости
@@ -32,13 +48,15 @@ class NewsController extends Controller
             'content' => 'nullable|string',
             'categories' => 'nullable|array',
             'published' => 'nullable|boolean',
+            'template' => 'nullable|string|max:50',
         ]);
 
         $news = News::create([
             'title' => $request->title,
             'content' => $request->content,
-            'slug' => Str::slug($request->title) . '-' . uniqid(), // Уникальный слаг
+            'slug' => Str::slug($request->title) . '-' . uniqid(),
             'published' => $request->boolean('published'),
+            'template' => $request->input('template') ?? 'default',
         ]);
 
         if ($request->filled('categories')) {
@@ -63,13 +81,15 @@ class NewsController extends Controller
             'content' => 'nullable|string',
             'categories' => 'nullable|array',
             'published' => 'nullable|boolean',
+            'template' => 'nullable|string|max:50',
         ]);
 
         $news->update([
             'title' => $request->title,
             'content' => $request->content,
-            'slug' => Str::slug($request->title), // Можешь оставить .'-'.uniqid(), если нужно уникально при обновлении
+            'slug' => Str::slug($request->title),
             'published' => $request->boolean('published'),
+            'template' => $request->input('template') ?? 'default',
         ]);
 
         $news->categories()->sync($request->input('categories', []));

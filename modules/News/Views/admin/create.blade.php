@@ -34,6 +34,17 @@
             </div>
         </div>
 
+        {{-- Шаблон --}}
+        <div class="mb-4">
+            <label for="template" class="block mb-1 font-semibold">Шаблон</label>
+            <select name="template" id="template" class="w-full border rounded px-3 py-2">
+                <option value="">Новости</option>
+                <option value="products" {{ old('template', $news->template ?? '') == 'products' ? 'selected' : '' }}>Товары</option>
+                <option value="contacts" {{ old('template', $news->template ?? '') == 'contacts' ? 'selected' : '' }}>Контакты</option>
+                <option value="gallery" {{ old('template', $news->template ?? '') == 'gallery' ? 'selected' : '' }}>Галерея</option>
+            </select>
+        </div>
+
         {{-- Контент --}}
         <div class="mb-4">
             <label for="content" class="block mb-1 font-semibold">Содержимое</label>
