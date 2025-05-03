@@ -3,21 +3,23 @@
 @section('title', $newsItem->title)
 
 @section('content')
-    <div class="max-w-4xl mx-auto px-4">
-        <h1 class="text-3xl font-bold mb-4">{{ $newsItem->title }}</h1>
+    <div class="max-w-4xl mx-auto px-4 overflow-hidden">
+        <h1 class="text-3xl font-bold mb-4 break-words">{{ $newsItem->title }}</h1>
 
-        <div class="text-gray-600 mb-4">
+        <div class="text-gray-600 mb-4 flex flex-wrap items-center gap-2">
             Категории:
-            @foreach ($newsItem->categories as $cat)
+            @forelse ($newsItem->categories as $cat)
                 <a href="{{ url('/?category=' . $cat->id) }}"
-                   class="text-sm bg-gray-200 rounded px-2 py-1 mr-1 hover:bg-blue-100 inline-block">
+                   class="text-sm bg-gray-200 rounded px-2 py-1 hover:bg-blue-100">
                     {{ $cat->title }}
                 </a>
-            @endforeach
+            @empty
+                <span class="text-sm text-gray-400">Без категории</span>
+            @endforelse
         </div>
 
-        {{-- Контент новости --}}
-        <div class="news-content">
+        {{-- Контент --}}
+        <div class="news-content prose max-w-none">
             {!! $newsItem->content !!}
         </div>
 
@@ -30,27 +32,35 @@
 @push('styles')
     <style>
         .news-content {
-            width: 100%;
             overflow-wrap: break-word;
+            word-wrap: break-word;
+            word-break: break-word;
         }
 
         .news-content img,
         .news-content video,
-        .news-content iframe {
-            max-width: 100% !important;
-            height: auto !important;
+        .news-content iframe,
+        .news-content embed,
+        .news-content object {
+            max-width: 100%;
+            height: auto;
             display: block;
             margin: 1rem auto;
         }
 
         .news-content table {
-            width: 100% !important;
+            width: 100%;
             overflow-x: auto;
             display: block;
         }
 
-        .news-content * {
-            word-wrap: break-word;
+        .news-content pre {
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .news-content a {
+            word-break: break-word;
         }
     </style>
 @endpush

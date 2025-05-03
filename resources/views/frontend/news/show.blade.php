@@ -3,7 +3,7 @@
 @section('title', $news->title)
 
 @section('content')
-    <article class="max-w-3xl mx-auto bg-white rounded shadow p-6">
+    <article class="max-w-3xl mx-auto bg-white rounded shadow p-6 overflow-hidden">
         <h1 class="text-3xl font-bold mb-4">{{ $news->title }}</h1>
 
         {{-- Категории --}}
@@ -20,7 +20,7 @@
         @endif
 
         {{-- Контент --}}
-        <div class="prose max-w-none">
+        <div class="prose max-w-none news-content">
             {!! $news->content !!}
         </div>
 
@@ -32,3 +32,31 @@
         </div>
     </article>
 @endsection
+
+@push('styles')
+    <style>
+        .news-content {
+            word-break: break-word;
+        }
+
+        .news-content img,
+        .news-content video,
+        .news-content iframe {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 1rem auto;
+            border-radius: 0.5rem;
+        }
+
+        .news-content table {
+            width: 100%;
+            overflow-x: auto;
+            display: block;
+        }
+
+        .news-content * {
+            word-wrap: break-word;
+        }
+    </style>
+@endpush

@@ -20,20 +20,23 @@ Route::get('/', function () {
     $user = Auth::user();
     $categories = Category::all();
 
-    $query = News::with('categories')->where('published', true);
+    // Список шаблонов
+    $allTemplates = ['default', 'products', 'contacts', 'gallery'];
 
-    if (request('category')) {
-        $query->whereHas('categories', function ($q) {
-            $q->where('categories.id', request('category'));
-        });
-    }
-
-    // 🔽 Автоматическая группировка по шаблонам
     $templates = [];
-    $allNews = $query->get();
-    foreach ($allNews as $item) {
-        $key = strtolower($item->template ?: 'default');
-        $templates[$key][] = $item;
+
+    foreach ($allTemplates as $templateKey) {
+        $query = News::with('categories')
+            ->where('published', true)
+            ->where('template', $templateKey);
+
+        if (request("category_$templateKey")) {
+            $query->whereHas('categories', function ($q) use ($templateKey) {
+                $q->where('categories.id', request("category_$templateKey"));
+            });
+        }
+
+        $templates[$templateKey] = $query->get();
     }
 
     return view('frontend.home', compact('user', 'categories', 'templates'));

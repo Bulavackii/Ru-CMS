@@ -43,7 +43,9 @@
         <tbody>
             @forelse ($newsList as $news)
                 <tr class="border-b">
-                    <td class="px-4 py-2">{{ $news->title }}</td>
+                    <td class="px-4 py-2 max-w-xs truncate" title="{{ $news->title }}">
+                        {{ $news->title }}
+                    </td>
                     <td class="px-4 py-2">
                         @foreach ($news->categories as $category)
                             <span class="inline-block bg-gray-200 text-sm rounded px-2 py-1 mr-1">

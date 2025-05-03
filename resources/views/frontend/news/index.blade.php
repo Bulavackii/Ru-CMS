@@ -42,8 +42,8 @@
                         @endif
                     @endif
 
-                    <h2 class="text-lg font-semibold mb-1">
-                        <a href="{{ route('news.show', $news->slug) }}" class="text-blue-600 hover:underline">
+                    <h2 class="text-lg font-semibold mb-1 break-words overflow-hidden max-h-12 leading-snug">
+                        <a href="{{ route('news.show', $news->slug) }}" class="text-blue-600 hover:underline block truncate">
                             {{ $news->title }}
                         </a>
                     </h2>
