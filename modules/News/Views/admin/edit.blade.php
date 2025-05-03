@@ -44,6 +44,7 @@
                 <option value="products" {{ old('template', $news->template) == 'products' ? 'selected' : '' }}>Товары</option>
                 <option value="contacts" {{ old('template', $news->template) == 'contacts' ? 'selected' : '' }}>Контакты</option>
                 <option value="gallery" {{ old('template', $news->template) == 'gallery' ? 'selected' : '' }}>Галерея</option>
+                <option value="test" {{ old('template', $news->template ?? '') == 'test' ? 'selected' : '' }}>Тест</option>
             </select>
         </div>
 

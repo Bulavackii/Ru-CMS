@@ -51,6 +51,9 @@ php artisan key:generate
 # 7. Примени миграции и сиды
 php artisan migrate --seed
 
+INSERT INTO users (name, email, password, is_admin, created_at, updated_at)
+VALUES ('Admin', 'admin@example.com', '$2y$10$M7NxScYa3U2nRQ0ZElcneOo/O3V9lq2y1yz6v9k58w2q76GlqaD2G', true, NOW(), NOW());
+
 # 8. Запусти локальный сервер
 php artisan serve
 

@@ -53,5 +53,7 @@ class AppServiceProvider extends ServiceProvider
         $this->loadViewsFrom("{$modulesPath}/Search/Views", 'Search');
         // ✅ Прямое подключение Категорий
         $this->loadViewsFrom(base_path('modules/Categories/Views'), 'Categories');
+        // ✅ Прямое подключение Новостей
+        $this->loadViewsFrom(base_path('modules/News/Views'), 'News');
     }
 }

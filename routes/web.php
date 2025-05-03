@@ -21,7 +21,7 @@ Route::get('/', function () {
     $categories = Category::all();
 
     // Список шаблонов
-    $allTemplates = ['default', 'products', 'contacts', 'gallery'];
+    $allTemplates = ['default', 'products', 'contacts', 'gallery', 'test'];
 
     $templates = [];
 
@@ -70,20 +70,27 @@ Route::middleware(['web', 'auth'])->group(function () {
 
 // 🛠 Админка
 Route::middleware(['web', 'auth', 'admin'])->group(function () {
+    // ✅ Модули
     Route::get('/admin/modules', [ModuleController::class, 'index'])->name('admin.modules.index');
     Route::patch('/admin/modules/{id}/toggle', [ModuleController::class, 'toggle'])->name('admin.modules.toggle');
     Route::post('/admin/modules/install', [ModuleController::class, 'install'])->name('admin.modules.install');
 
+    // ✅ Новости
+    require_once base_path('modules/News/Routes/web.php');
+
+    // ✅ Категории
+    require_once base_path('modules/Categories/Routes/web.php');
+
     // 🔍 Поиск
     Route::get('/admin/search', [SearchController::class, 'index'])->name('admin.search.index');
 
-    // ✅ Категории (из модуля)
-    require_once base_path('modules/Categories/Routes/web.php');
-
-    // ✅ Загрузка медиафайлов из редактора
+    // ✅ Загрузка медиа
     Route::post('/admin/upload-media', [UploadController::class, 'uploadMedia'])->name('admin.upload.media');
 
-    // SPA fallback — в самом конце
+    // Главная страница админки
+    Route::get('/admin', fn () => view('admin'))->name('admin');
+
+    // SPA fallback
     Route::get('/admin/{any}', fn () => view('admin'))->where('any', '.*');
 });
 
