@@ -24,6 +24,14 @@
             <input type="number" name="order" id="order" value="0" class="w-full border rounded px-3 py-2">
         </div>
 
+        <div class="mb-4">
+            <label for="position" class="block font-semibold mb-1">Позиция на странице</label>
+            <select name="position" id="position" class="w-full border rounded px-3 py-2">
+                <option value="top" {{ old('position', $slideshow->position ?? '') == 'top' ? 'selected' : '' }}>Вверху страницы</option>
+                <option value="bottom" {{ old('position', $slideshow->position ?? '') == 'bottom' ? 'selected' : '' }}>Внизу страницы</option>
+            </select>
+        </div>
+
         <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">➕ Добавить слайд</button>
     </form>
 
@@ -32,7 +40,7 @@
         <h2 class="text-xl font-bold mb-2">Текущие слайды</h2>
         <div class="grid grid-cols-2 gap-4">
             @foreach ($slideshow->items->sortBy('order') as $slide)
-                <div class="border rounded overflow-hidden shadow relative">
+                <div class="border rounded overflow-hidden shadow relative bg-white">
                     @if ($slide->media_type === 'image')
                         <img src="{{ asset('storage/' . $slide->file_path) }}" class="w-full">
                     @else
@@ -41,8 +49,9 @@
                         </video>
                     @endif
 
-                    <div class="p-2 text-sm">
-                        {{ $slide->caption ?? 'Без подписи' }}
+                    <div class="p-2 text-sm border-t bg-gray-50 text-gray-700">
+                        <strong>Подпись:</strong>
+                        {{ $slide->caption ?: '—' }}
                     </div>
 
                     <form method="POST" action="{{ route('admin.slides.destroy', $slide->id) }}"

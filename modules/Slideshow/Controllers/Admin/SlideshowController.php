@@ -11,25 +11,49 @@ use Illuminate\Support\Str;
 
 class SlideshowController extends Controller
 {
-
+    /**
+     * Список всех слайдшоу
+     */
     public function index()
     {
         $slideshows = Slideshow::withCount('items')->orderBy('created_at', 'desc')->paginate(10);
-
         return view('Slideshow::admin.index', compact('slideshows'));
     }
 
     /**
-     * Форма добавления нового слайда
+     * Форма создания слайдшоу
      */
-    public function create(Request $request)
+    public function createSlideshow()
     {
-        $slideshowId = $request->input('slideshow_id');
+        return view('Slideshow::admin.create');
+    }
 
-        // Проверим, что слайдшоу существует
-        $slideshow = Slideshow::findOrFail($slideshowId);
+    /**
+     * Сохранение нового слайдшоу
+     */
+    public function storeSlideshow(Request $request)
+    {
+        $request->validate([
+            'title'    => 'required|string|max:255',
+            'position' => 'required|in:top,bottom',
+        ]);
 
-        return view('Slideshow::admin.slide-create', compact('slideshowId'));
+        Slideshow::create([
+            'title'    => $request->title,
+            'slug'     => Str::slug($request->title) . '-' . uniqid(),
+            'position' => $request->position,
+        ]);
+
+        return redirect()->route('admin.slideshow.index')->with('success', 'Слайдшоу создано!');
+    }
+
+    /**
+     * Страница редактирования слайдшоу и добавления слайдов
+     */
+    public function edit($id)
+    {
+        $slideshow = Slideshow::with('items')->findOrFail($id);
+        return view('Slideshow::admin.edit', compact('slideshow'));
     }
 
     /**
@@ -39,9 +63,10 @@ class SlideshowController extends Controller
     {
         $request->validate([
             'slideshow_id' => 'required|exists:slideshows,id',
-            'media' => 'required|file|mimes:jpeg,png,webp,mp4,webm|max:20480',
-            'caption' => 'nullable|string|max:255',
-            'order' => 'nullable|integer',
+            'media'        => 'required|file|mimes:jpeg,png,webp,mp4,webm|max:20480',
+            'caption'      => 'nullable|string|max:255',
+            'order'        => 'nullable|integer',
+            'position'     => 'nullable|in:top,bottom', // возможно передаётся из формы
         ]);
 
         $file = $request->file('media');
@@ -49,18 +74,25 @@ class SlideshowController extends Controller
 
         SlideshowItem::create([
             'slideshow_id' => $request->slideshow_id,
-            'file_path' => $path,
-            'media_type' => str_contains($file->getMimeType(), 'video') ? 'video' : 'image',
-            'caption' => $request->caption,
-            'order' => $request->order ?? 0,
+            'file_path'    => $path,
+            'media_type'   => str_contains($file->getMimeType(), 'video') ? 'video' : 'image',
+            'caption'      => $request->caption,
+            'order'        => $request->order ?? 0,
         ]);
+
+        // Если указана новая позиция — обновим её в слайдшоу
+        if ($request->filled('position')) {
+            $slideshow = Slideshow::find($request->slideshow_id);
+            $slideshow->position = $request->position;
+            $slideshow->save();
+        }
 
         return redirect()->route('admin.slideshow.edit', $request->slideshow_id)
             ->with('success', 'Слайд добавлен');
     }
 
     /**
-     * Удаление слайда
+     * Удаление всего слайдшоу
      */
     public function destroy(Slideshow $slideshow)
     {
@@ -74,39 +106,16 @@ class SlideshowController extends Controller
         return redirect()->route('admin.slideshow.index')->with('success', 'Слайдшоу удалено!');
     }
 
-    public function edit($id)
-    {
-        $slideshow = Slideshow::with('items')->findOrFail($id);
-        return view('Slideshow::admin.edit', compact('slideshow'));
-    }
-
-    public function createSlideshow()
-    {
-        return view('Slideshow::admin.create');
-    }
-
-    public function storeSlideshow(Request $request)
-    {
-        $request->validate([
-            'title' => 'required|string|max:255',
-        ]);
-
-        Slideshow::create([
-            'title' => $request->title,
-            'slug' => Str::slug($request->title) . '-' . uniqid(),
-        ]);
-
-        return redirect()->route('admin.slideshow.index')->with('success', 'Слайдшоу создано!');
-    }
-
+    /**
+     * Удаление отдельного слайда
+     */
     public function deleteSlide($id)
     {
         $slide = SlideshowItem::findOrFail($id);
 
-        // Удалим файл с диска
         Storage::disk('public')->delete($slide->file_path);
-
         $slideshowId = $slide->slideshow_id;
+
         $slide->delete();
 
         return redirect()->route('admin.slideshow.edit', $slideshowId)

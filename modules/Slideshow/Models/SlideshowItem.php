@@ -10,7 +10,8 @@ class SlideshowItem extends Model
         'slideshow_id',
         'file_path',
         'media_type',
-        'position',
+        'caption',       
+        'order',
     ];
 
     public function slideshow()

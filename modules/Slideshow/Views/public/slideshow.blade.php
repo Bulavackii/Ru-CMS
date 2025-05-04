@@ -2,7 +2,7 @@
     <div class="swiper swiper-{{ $slideshow->id }} max-w-screen-xl mx-auto rounded shadow overflow-hidden" style="height: 500px;">
         <div class="swiper-wrapper">
             @foreach($slideshow->items->sortBy('order') as $item)
-                <div class="swiper-slide">
+                <div class="swiper-slide relative">
                     @if ($item->media_type === 'image')
                         <img src="{{ asset('storage/' . $item->file_path) }}"
                              alt="{{ $item->caption ?? 'Слайд' }}"
@@ -12,6 +12,13 @@
                             <source src="{{ asset('storage/' . $item->file_path) }}" type="video/mp4">
                             Ваш браузер не поддерживает видео.
                         </video>
+                    @endif
+
+                    {{-- ✨ Подпись слайда --}}
+                    @if ($item->caption)
+                        <div class="absolute bottom-0 left-0 w-full bg-black/60 text-white text-sm p-2 text-center">
+                            {{ $item->caption }}
+                        </div>
                     @endif
                 </div>
             @endforeach
