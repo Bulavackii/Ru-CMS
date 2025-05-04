@@ -19,7 +19,7 @@
         <div class="mb-4">
             <label for="title" class="block mb-1 font-semibold">Заголовок</label>
             <input type="text" name="title" id="title" value="{{ old('title', $news->title) }}"
-                class="w-full border rounded px-3 py-2" required>
+                   class="w-full border rounded px-3 py-2" required>
         </div>
 
         {{-- Категории --}}
@@ -29,7 +29,7 @@
                 @foreach ($categories as $category)
                     <label class="inline-flex items-center">
                         <input type="checkbox" name="categories[]" value="{{ $category->id }}"
-                            {{ $news->categories->contains($category->id) ? 'checked' : '' }} class="mr-2">
+                               {{ $news->categories->contains($category->id) ? 'checked' : '' }} class="mr-2">
                         {{ $category->title }}
                     </label>
                 @endforeach
@@ -40,25 +40,26 @@
         <div class="mb-4">
             <label for="template" class="block mb-1 font-semibold">Шаблон</label>
             <select name="template" id="template" class="w-full border rounded px-3 py-2">
-                <option value="">Новости</option>
-                <option value="products" {{ old('template', $news->template) == 'products' ? 'selected' : '' }}>Товары</option>
-                <option value="contacts" {{ old('template', $news->template) == 'contacts' ? 'selected' : '' }}>Контакты</option>
-                <option value="gallery" {{ old('template', $news->template) == 'gallery' ? 'selected' : '' }}>Галерея</option>
-                <option value="test" {{ old('template', $news->template ?? '') == 'test' ? 'selected' : '' }}>Тест</option>
+                @foreach ($templates as $value => $label)
+                    <option value="{{ $value }}" {{ old('template', $news->template ?? '') == $value ? 'selected' : '' }}>
+                        {{ $label }}
+                    </option>
+                @endforeach
             </select>
         </div>
 
         {{-- Контент --}}
         <div class="mb-4">
             <label for="content" class="block mb-1 font-semibold">Содержимое</label>
-            <textarea name="content" id="editor" rows="12" class="w-full border rounded px-3 py-2">{{ old('content', $news->content) }}</textarea>
+            <textarea name="content" id="editor" rows="12"
+                      class="w-full border rounded px-3 py-2">{{ old('content', $news->content) }}</textarea>
         </div>
 
         {{-- Публикация --}}
         <div class="mb-4">
             <label class="inline-flex items-center">
                 <input type="checkbox" name="published" value="1" class="mr-2"
-                    {{ old('published', $news->published) ? 'checked' : '' }}>
+                       {{ old('published', $news->published) ? 'checked' : '' }}>
                 Опубликовать
             </label>
         </div>

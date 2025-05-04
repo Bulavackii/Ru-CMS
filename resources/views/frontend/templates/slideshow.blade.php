@@ -1,7 +1,10 @@
-<div class="my-12">
-    @foreach ($newsList as $news)
-        @if ($news->slideshow && $news->slideshow->items->count())
-            @include('Slideshow::public.slideshow', ['slideshow' => $news->slideshow])
+{{-- resources/views/frontend/templates/slideshow.blade.php --}}
+@if ($newsList->isNotEmpty())
+    @foreach ($newsList as $item)
+        @if ($item->slideshow)
+            <div class="my-12">
+                @include('Slideshow::public.slideshow', ['slideshow' => $item->slideshow])
+            </div>
         @endif
     @endforeach
-</div>
+@endif

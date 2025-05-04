@@ -23,7 +23,7 @@ Route::get('/', function () {
     $categories = Category::all();
 
     // Список шаблонов
-    $allTemplates = ['default', 'products', 'contacts', 'gallery', 'test', 'slideshow',];
+    $allTemplates = ['default', 'products', 'contacts', 'gallery', 'test', 'slideshow', 'test2',];
 
     $templates = [];
 
