@@ -98,4 +98,18 @@ class SlideshowController extends Controller
 
         return redirect()->route('admin.slideshow.index')->with('success', 'Слайдшоу создано!');
     }
+
+    public function deleteSlide($id)
+    {
+        $slide = SlideshowItem::findOrFail($id);
+
+        // Удалим файл с диска
+        Storage::disk('public')->delete($slide->file_path);
+
+        $slideshowId = $slide->slideshow_id;
+        $slide->delete();
+
+        return redirect()->route('admin.slideshow.edit', $slideshowId)
+            ->with('success', 'Слайд удалён');
+    }
 }

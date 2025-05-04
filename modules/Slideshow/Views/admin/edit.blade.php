@@ -32,7 +32,7 @@
         <h2 class="text-xl font-bold mb-2">Текущие слайды</h2>
         <div class="grid grid-cols-2 gap-4">
             @foreach ($slideshow->items->sortBy('order') as $slide)
-                <div class="border rounded overflow-hidden shadow">
+                <div class="border rounded overflow-hidden shadow relative">
                     @if ($slide->media_type === 'image')
                         <img src="{{ asset('storage/' . $slide->file_path) }}" class="w-full">
                     @else
@@ -40,9 +40,17 @@
                             <source src="{{ asset('storage/' . $slide->file_path) }}">
                         </video>
                     @endif
+
                     <div class="p-2 text-sm">
                         {{ $slide->caption ?? 'Без подписи' }}
                     </div>
+
+                    <form method="POST" action="{{ route('admin.slides.destroy', $slide->id) }}"
+                          onsubmit="return confirm('Удалить этот слайд?')" class="absolute top-1 right-1">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="text-red-600 text-xl hover:text-red-800">✕</button>
+                    </form>
                 </div>
             @endforeach
         </div>
