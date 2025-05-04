@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\View;
 use Modules\System\Models\Module;
+use Illuminate\Support\Facades\Schema;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,8 +20,8 @@ class AppServiceProvider extends ServiceProvider
     {
         $modulesPath = base_path('modules');
 
-        // Подключение активных модулей (по базе)
-        if (class_exists(Module::class)) {
+        // Подключение активных модулей — безопасно
+        if (class_exists(Module::class) && Schema::hasTable('modules')) {
             $activeModules = Module::where('active', true)->pluck('name');
 
             foreach ($activeModules as $module) {
@@ -51,9 +52,16 @@ class AppServiceProvider extends ServiceProvider
         // ✅ Прямое подключение Search
         $this->loadRoutesFrom("{$modulesPath}/Search/Routes/web.php");
         $this->loadViewsFrom("{$modulesPath}/Search/Views", 'Search');
+
         // ✅ Прямое подключение Категорий
         $this->loadViewsFrom(base_path('modules/Categories/Views'), 'Categories');
+
         // ✅ Прямое подключение Новостей
         $this->loadViewsFrom(base_path('modules/News/Views'), 'News');
+
+        // ✅ Прямое подключение Слайдшоу
+        $this->loadRoutesFrom(base_path('modules/Slideshow/Routes/web.php'));
+        $this->loadMigrationsFrom(__DIR__.'/Database/Migrations');
+        $this->loadViewsFrom(base_path('modules/Slideshow/Views'), 'Slideshow');
     }
 }

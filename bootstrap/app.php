@@ -22,4 +22,4 @@ return Application::configure(basePath: dirname(__DIR__))
 
 $app->register(Modules\System\Providers\SystemServiceProvider::class);
 $app->register(Modules\News\Providers\NewsServiceProvider::class);
-
+$app->register(Modules\Slideshow\SlideshowServiceProvider::class);

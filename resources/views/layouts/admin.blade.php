@@ -23,5 +23,8 @@
         @include('layouts.admin.footer')
     </div>
 
+    {{-- Подключение JS для слайдшоу --}}
+<script src="{{ asset('admin-assets/js/slideshow.js') }}"></script>
+
 </body>
 </html>

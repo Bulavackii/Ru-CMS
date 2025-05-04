@@ -5,6 +5,7 @@ namespace Modules\News\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class News extends Model
 {
@@ -23,5 +24,10 @@ class News extends Model
     public function categories(): BelongsToMany
     {
         return $this->belongsToMany(\App\Models\Category::class, 'news_category');
+    }
+
+    public function slideshow()
+    {
+        return $this->hasOne(\Modules\Slideshow\Models\Slideshow::class, 'news_id');
     }
 }

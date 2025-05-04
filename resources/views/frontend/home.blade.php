@@ -13,15 +13,24 @@
         ];
     @endphp
 
+    {{-- 🔁 Слайдшоу (на всю ширину, до всех блоков) --}}
+    @foreach ($slideshows as $slideshow)
+        @include('Slideshow::public.slideshow', ['slideshow' => $slideshow])
+    @endforeach
+
+    {{-- 🔁 Вывод блоков по шаблонам --}}
     @foreach ($templates as $key => $newsList)
-        @if ($newsList->isNotEmpty())
+        @if ($key !== 'slideshow' && $newsList->isNotEmpty())
             @php
                 $templateView = 'frontend.templates.' . $key;
             @endphp
 
             @if (View::exists($templateView))
                 {{-- ✅ Кастомный шаблон из resources/views/frontend/templates --}}
-                @include($templateView, ['newsList' => $newsList, 'title' => $titles[$key] ?? ucfirst($key)])
+                @include($templateView, [
+                    'newsList' => $newsList,
+                    'title' => $titles[$key] ?? ucfirst($key),
+                ])
             @else
                 {{-- 🔁 Общий шаблон карточек --}}
                 <div class="mb-10">

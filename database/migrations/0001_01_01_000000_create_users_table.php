@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         // Таблица users
@@ -119,7 +116,7 @@ return new class extends Migration
             });
         }
 
-        // Добавление столбца is_admin в таблицу users
+        // Добавление столбца is_admin в users
         if (Schema::hasTable('users') && !Schema::hasColumn('users', 'is_admin')) {
             Schema::table('users', function (Blueprint $table) {
                 $table->boolean('is_admin')->default(false)->after('password');
@@ -135,6 +132,29 @@ return new class extends Migration
             });
         }
 
+        // Таблица news
+        if (!Schema::hasTable('news')) {
+            Schema::create('news', function (Blueprint $table) {
+                $table->id();
+                $table->string('title');
+                $table->string('slug')->unique();
+                $table->longText('content')->nullable();
+                $table->boolean('published')->default(false);
+                $table->string('template')->nullable();
+                $table->timestamps();
+            });
+        }
+
+        // Таблица news_category
+        if (!Schema::hasTable('news_category')) {
+            Schema::create('news_category', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('news_id')->constrained('news')->onDelete('cascade');
+                $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
+                $table->timestamps();
+            });
+        }
+
         // Таблица products
         if (!Schema::hasTable('products')) {
             Schema::create('products', function (Blueprint $table) {
@@ -143,34 +163,6 @@ return new class extends Migration
                 $table->text('description')->nullable();
                 $table->decimal('price', 10, 2)->default(0);
                 $table->timestamps();
-            });
-        }
-
-        // Добавление столбца slug в таблицу news
-        if (Schema::hasTable('news') && !Schema::hasColumn('news', 'slug')) {
-            Schema::table('news', function (Blueprint $table) {
-                $table->string('slug')->unique()->after('title');
-            });
-        }
-
-        // Добавление столбца published в таблицу news
-        if (Schema::hasTable('news') && !Schema::hasColumn('news', 'published')) {
-            Schema::table('news', function (Blueprint $table) {
-                $table->boolean('published')->default(false)->after('content');
-            });
-        }
-
-        // Изменение типа столбца content в таблице news
-        if (Schema::hasTable('news') && Schema::hasColumn('news', 'content')) {
-            Schema::table('news', function (Blueprint $table) {
-                $table->longText('content')->change();
-            });
-        }
-
-        // Добавление столбца template в таблицу news
-        if (Schema::hasTable('news') && !Schema::hasColumn('news', 'template')) {
-            Schema::table('news', function (Blueprint $table) {
-                $table->string('template')->nullable()->after('slug');
             });
         }
 
@@ -184,33 +176,62 @@ return new class extends Migration
                 $table->timestamps();
             });
         }
+
+        // Таблица slideshows
+        if (!Schema::hasTable('slideshows')) {
+            Schema::create('slideshows', function (Blueprint $table) {
+                $table->id();
+                $table->string('title')->nullable();
+                $table->string('slug')->unique();
+                $table->text('description')->nullable();
+                $table->boolean('published')->default(false);
+                $table->timestamps();
+            });
+        }
+
+        // Таблица slides
+        if (!Schema::hasTable('slides')) {
+            Schema::create('slides', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('slideshow_id')->constrained('slideshows')->onDelete('cascade');
+                $table->string('media_path');
+                $table->enum('media_type', ['image', 'video']);
+                $table->text('caption')->nullable();
+                $table->integer('order')->default(0);
+                $table->timestamps();
+            });
+        }
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        // Удаляем все таблицы
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
-        Schema::dropIfExists('sessions');
-        Schema::dropIfExists('cache');
-        Schema::dropIfExists('cache_locks');
-        Schema::dropIfExists('jobs');
-        Schema::dropIfExists('job_batches');
-        Schema::dropIfExists('failed_jobs');
-        Schema::dropIfExists('personal_access_tokens');
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('is_admin');
-        });
-        Schema::dropIfExists('categories');
-        Schema::dropIfExists('products');
-        Schema::table('news', function (Blueprint $table) {
-            $table->dropColumn('slug');
-            $table->dropColumn('published');
-            $table->dropColumn('template');
-        });
+        Schema::dropIfExists('news_category');
+        Schema::dropIfExists('slides');
+        Schema::dropIfExists('slideshows');
         Schema::dropIfExists('modules');
+
+        Schema::dropIfExists('products');
+
+        if (Schema::hasTable('news')) {
+            Schema::dropIfExists('news');
+        }
+
+        Schema::dropIfExists('categories');
+
+        if (Schema::hasTable('users') && Schema::hasColumn('users', 'is_admin')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->dropColumn('is_admin');
+            });
+        }
+
+        Schema::dropIfExists('personal_access_tokens');
+        Schema::dropIfExists('failed_jobs');
+        Schema::dropIfExists('job_batches');
+        Schema::dropIfExists('jobs');
+        Schema::dropIfExists('cache_locks');
+        Schema::dropIfExists('cache');
+        Schema::dropIfExists('sessions');
+        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('users');
     }
 };

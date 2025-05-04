@@ -7,16 +7,17 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('news_category', function (Blueprint $table) {
+        Schema::create('slideshow_media', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('news_id')->constrained('news')->onDelete('cascade');
-            $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
+            $table->foreignId('slideshow_id')->constrained('slideshows')->onDelete('cascade');
+            $table->string('file_path');
+            $table->enum('media_type', ['image', 'video']);
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('news_category');
+        Schema::dropIfExists('slideshow_media');
     }
 };

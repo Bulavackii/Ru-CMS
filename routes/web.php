@@ -14,6 +14,8 @@ use Modules\Categories\Controllers\Admin\CategoryController as FrontendCategoryC
 use Modules\News\Models\News;
 use Modules\Categories\Models\Category;
 use App\Http\Controllers\Admin\UploadController;
+use Modules\Slideshow\Controllers\Admin\SlideshowController;
+use Modules\Slideshow\Models\Slideshow;
 
 // ✅ Главная страница — показываем все опубликованные новости
 Route::get('/', function () {
@@ -21,7 +23,7 @@ Route::get('/', function () {
     $categories = Category::all();
 
     // Список шаблонов
-    $allTemplates = ['default', 'products', 'contacts', 'gallery', 'test'];
+    $allTemplates = ['default', 'products', 'contacts', 'gallery', 'test', 'slideshow',];
 
     $templates = [];
 
@@ -39,7 +41,9 @@ Route::get('/', function () {
         $templates[$templateKey] = $query->get();
     }
 
-    return view('frontend.home', compact('user', 'categories', 'templates'));
+    $slideshows = Slideshow::with('items')->get();
+
+    return view('frontend.home', compact('user', 'categories', 'templates', 'slideshows'));
 });
 
 // 👤 Гостевой доступ
@@ -81,6 +85,9 @@ Route::middleware(['web', 'auth', 'admin'])->group(function () {
     // ✅ Категории
     require_once base_path('modules/Categories/Routes/web.php');
 
+    // ✅ Слайдшоу (подключаем все маршруты из модуля)
+    require_once base_path('modules/Slideshow/Routes/web.php');
+
     // 🔍 Поиск
     Route::get('/admin/search', [SearchController::class, 'index'])->name('admin.search.index');
 
@@ -88,12 +95,15 @@ Route::middleware(['web', 'auth', 'admin'])->group(function () {
     Route::post('/admin/upload-media', [UploadController::class, 'uploadMedia'])->name('admin.upload.media');
 
     // Главная страница админки
-    Route::get('/admin', fn () => view('admin'))->name('admin');
+    Route::get('/admin', fn() => view('admin'))->name('admin');
 
     // SPA fallback
-    Route::get('/admin/{any}', fn () => view('admin'))->where('any', '.*');
+    Route::get('/admin/{any}', fn() => view('admin'))->where('any', '.*');
 });
 
 // ✅ Новости (frontend)
 Route::get('/news', [FrontendNewsController::class, 'index'])->name('news.index');
 Route::get('/news/{slug}', [FrontendNewsController::class, 'show'])->name('news.show');
+
+// ✅ Слайдшоу (frontend)
+Route::get('/slideshow/{slug}', [\Modules\Slideshow\Controllers\PublicController::class, 'show'])->name('slideshow.show');

@@ -23,6 +23,13 @@
             {!! $newsItem->content !!}
         </div>
 
+        {{-- Слайдшоу --}}
+        @if ($newsItem->slideshow && $newsItem->slideshow->items->count())
+            <div class="mt-8">
+                @include('Slideshow::public.slideshow', ['slideshow' => $newsItem->slideshow])
+            </div>
+        @endif
+
         <div class="mt-6">
             <a href="{{ route('news.index') }}" class="text-blue-600 hover:underline">← Назад к списку новостей</a>
         </div>

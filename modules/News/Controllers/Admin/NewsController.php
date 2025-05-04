@@ -103,4 +103,12 @@ class NewsController extends Controller
         $news->delete();
         return redirect()->route('admin.news.index')->with('success', 'Новость удалена!');
     }
+
+    public function show($slug)
+    {
+        // Загрузка новости с категориями и слайдшоу + слайды
+        $newsItem = News::with(['categories', 'slideshow.items'])->where('slug', $slug)->firstOrFail();
+
+        return view('News::public.show', compact('newsItem'));
+    }
 }

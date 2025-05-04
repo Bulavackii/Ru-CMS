@@ -128,3 +128,11 @@ php artisan migrate
 
 
 UPDATE modules SET active = 1 WHERE name = 'News';
+
+
+
+php artisan migrate --path=modules/Slideshow/Database/Migrations
+
+
+rmdir public\storage
+php artisan storage:link

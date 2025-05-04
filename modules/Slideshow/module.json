@@ -1,0 +1,7 @@
+{
+    "name": "Slideshow",
+    "alias": "slideshow",
+    "version": "1.0.0",
+    "description": "Модуль слайдшоу с фото/видео для новостей",
+    "active": true
+  }
