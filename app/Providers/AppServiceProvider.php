@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\View;
 use Modules\System\Models\Module;
 use Illuminate\Support\Facades\Schema;
+use Modules\Notifications\Models\Notification;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -61,7 +64,13 @@ class AppServiceProvider extends ServiceProvider
 
         // ✅ Прямое подключение Слайдшоу
         $this->loadRoutesFrom(base_path('modules/Slideshow/Routes/web.php'));
-        $this->loadMigrationsFrom(__DIR__.'/Database/Migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/Database/Migrations');
         $this->loadViewsFrom(base_path('modules/Slideshow/Views'), 'Slideshow');
+        // ✅ Прямое подключение Уведомлений
+        $this->loadViewsFrom(base_path('modules/Notifications/Resources/views'), 'Notifications');
+
+        View::composer('*', function ($view) {
+            $view->with('notifications', Notification::where('enabled', true)->get());
+        });
     }
 }

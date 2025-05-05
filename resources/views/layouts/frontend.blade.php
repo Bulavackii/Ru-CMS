@@ -6,9 +6,11 @@
     <meta charset="UTF-8">
     <title>@yield('title', 'RuShop CMS')</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <!-- Swiper CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-    <!-- tailwindcss -->
+
+    <!-- Tailwind CSS -->
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 
@@ -16,6 +18,9 @@
 
     {{-- 🔝 Верхняя панель --}}
     @include('layouts.partials.header')
+
+    {{-- 🔔 Уведомления --}}
+    <x-frontend.notifications />
 
     {{-- 📄 Основной контент --}}
     <main class="flex-grow py-10">
@@ -29,6 +34,7 @@
 
     <!-- Swiper JS -->
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
     @stack('scripts')
 </body>
 

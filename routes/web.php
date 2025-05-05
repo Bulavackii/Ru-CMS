@@ -88,6 +88,9 @@ Route::middleware(['web', 'auth', 'admin'])->group(function () {
     // ✅ Слайдшоу (подключаем все маршруты из модуля)
     require_once base_path('modules/Slideshow/Routes/web.php');
 
+    // ✅ Уведомления
+    require_once base_path('modules/Notifications/Routes/web.php');
+
     // 🔍 Поиск
     Route::get('/admin/search', [SearchController::class, 'index'])->name('admin.search.index');
 

@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
         // Ручные пользователи (админ и обычный) из сидера
         $this->call([
             UsersTableSeeder::class,
+            NotificationSeeder::class,
         ]);
     }
 }

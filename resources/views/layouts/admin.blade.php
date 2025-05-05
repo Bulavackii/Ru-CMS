@@ -1,4 +1,3 @@
-{{-- Новый admin.blade.php --}}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -24,7 +23,9 @@
     </div>
 
     {{-- Подключение JS для слайдшоу --}}
-<script src="{{ asset('admin-assets/js/slideshow.js') }}"></script>
+    <script src="{{ asset('admin-assets/js/slideshow.js') }}"></script>
 
+    {{-- Подключение доп. скриптов (например, TinyMCE) --}}
+    @stack('scripts')
 </body>
 </html>

@@ -6,6 +6,7 @@
         <a href="/admin/search" class="block px-4 py-2 hover:bg-gray-100">Поиск</a>
         <a href="{{ route('admin.news.index') }}" class="block px-4 py-2 hover:bg-gray-100">Новости</a>
         <a href="{{ route('admin.categories.index') }}" class="block px-4 py-2 hover:bg-gray-100">Категории</a>
-        <a href="{{ route('admin.slideshow.index') }}" class="block px-4 py-2 hover:bg-gray-100">Слайдшоу</a> 
+        <a href="{{ route('admin.slideshow.index') }}" class="block px-4 py-2 hover:bg-gray-100">Слайдшоу</a>
+        <a href="{{ route('admin.notifications.index') }}" class="block px-4 py-2 hover:bg-gray-100">Уведомления</a>
     </nav>
 </aside>
