@@ -148,9 +148,10 @@ class NewsController extends Controller
         $customLabels = [
             'products'  => 'Товары',
             'contacts'  => 'Контакты',
-            'gallery'   => 'Галерея',
-            'slideshow' => 'Слайдшоу',
-            'test2'     => 'Тест 2',
+            'faq'   => 'Вопросы',
+            'reviews' => 'Отзывы',
+            'default'      => 'Новости',
+            'slideshow'      => 'Слайдшоу',
             'test'      => 'Тест',
         ];
 

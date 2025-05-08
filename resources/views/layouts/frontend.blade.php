@@ -2,15 +2,17 @@
 <html lang="ru">
 
 <head>
-    @stack('styles')
     <meta charset="UTF-8">
     <title>@yield('title', 'RuShop CMS')</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Swiper CSS -->
+    {{-- 🔗 Дополнительные стили (из шаблонов) --}}
+    @stack('styles')
+
+    {{-- Swiper CSS --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
-    <!-- Tailwind CSS -->
+    {{-- Tailwind CSS --}}
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 
@@ -32,9 +34,7 @@
     {{-- 📌 Подвал --}}
     @include('layouts.partials.footer')
 
-    <!-- Swiper JS -->
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-
+    {{-- 🔽 Дополнительные скрипты (из шаблонов) --}}
     @stack('scripts')
 </body>
 

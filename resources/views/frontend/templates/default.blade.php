@@ -26,15 +26,29 @@
                     $imgSrc = $imgSrc ?: asset('images/no-image.png');
                 @endphp
 
-                <div class="news-card relative flex flex-col border border-gray-100 hover:border-gray-200 p-5 shadow-md hover:shadow-xl transition-all bg-white rounded-2xl max-w-xs w-full">
-                    {{-- ✅ Мигающий бейдж "НОВОСТЬ" --}}
+                <div class="news-card relative flex flex-col p-5 border border-gray-100 hover:border-gray-200 shadow-md hover:shadow-xl transition-all bg-white rounded-2xl max-w-xs w-full">
+
+                    {{-- 📰 Бейдж "НОВОСТЬ" --}}
                     <div class="absolute -top-3 right-3 z-10 bg-white border-2 border-blue-600 text-blue-600 text-xs font-bold px-3 py-1 rounded-full shadow-md animate-pulse">
-                        📰 НОВОСТЬ
+                        📰 NEWS
                     </div>
 
-                    <div class="w-full h-40 overflow-hidden mb-4 rounded-xl border border-gray-200">
+                    {{-- 🏷️ Категории (верхний левый угол) --}}
+                    @if ($news->categories->count())
+                        <div class="absolute top-3 left-3 z-10 flex flex-wrap gap-1">
+                            @foreach ($news->categories as $category)
+                                <a href="{{ url('/?category=' . $category->id) }}"
+                                   class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full hover:underline">
+                                    {{ $category->title }}
+                                </a>
+                            @endforeach
+                        </div>
+                    @endif
+
+                    {{-- Обложка --}}
+                    <div class="w-full h-48 overflow-hidden mb-4 rounded-xl border border-gray-200 pt-6 relative">
                         @if ($isVideo)
-                            <video controls class="w-full h-full object-cover rounded-xl">
+                            <video class="w-full h-full object-cover rounded-xl" muted autoplay loop playsinline>
                                 <source src="{{ $imgSrc }}" type="video/mp4">
                                 Ваш браузер не поддерживает видео.
                             </video>
@@ -43,30 +57,26 @@
                         @endif
                     </div>
 
-                    <h3 class="text-xl font-semibold text-gray-900 mb-1 line-clamp-2 leading-tight">
+                    {{-- Заголовок --}}
+                    <h3 class="text-xl font-semibold text-gray-900 mb-1 leading-tight max-h-14 overflow-hidden">
                         <a href="{{ route('news.show', $news->slug) }}" class="hover:text-blue-600 transition">
                             {{ $news->title }}
                         </a>
                     </h3>
 
-                    <p class="text-sm text-gray-500 mb-2">📅 {{ $news->created_at->format('d.m.Y') }}</p>
+                    {{-- 📅 Дата --}}
+                    <p class="text-sm text-gray-500 mb-2">
+                        📅 {{ $news->created_at->format('d.m.Y') }}
+                    </p>
 
-                    <div class="text-sm text-gray-700 mb-2">
-                        Категории:
-                        @forelse ($news->categories as $category)
-                            <a href="{{ url('/?category=' . $category->id) }}" class="text-blue-600 hover:underline">
-                                {{ $category->title }}
-                            </a>@if (!$loop->last),@endif
-                        @empty
-                            <span class="text-gray-400">Без категории</span>
-                        @endforelse
+                    {{-- 🧾 Краткое содержание --}}
+                    <div class="text-sm text-gray-600 mb-3 line-clamp-4">
+                        💬 {!! Str::limit(strip_tags($news->content), 220) !!}
                     </div>
 
-                    <div class="text-sm text-gray-600 mb-4 line-clamp-3">
-                        {!! Str::limit(strip_tags($news->content), 200) !!}
-                    </div>
-
-                    <a href="{{ route('news.show', $news->slug) }}" class="mt-auto text-sm text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition shadow">
+                    {{-- 🔘 Кнопка --}}
+                    <a href="{{ route('news.show', $news->slug) }}"
+                       class="mt-auto block text-center text-sm bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition shadow">
                         Читать далее →
                     </a>
                 </div>

@@ -1,4 +1,8 @@
-/* Карточки: отзывы и вопросы */
+
+/* =============================== */
+/* 📦 Карточки: Вопросы   */
+/* =============================== */
+
 .review-card, .faq-card {
     background: #ffffff;
     border-radius: 1.5rem;
@@ -19,7 +23,7 @@
     box-shadow: 0 14px 28px rgba(0, 0, 0, 0.10);
 }
 
-/* Мигающие бейджи */
+/* 🔖 Мигающие бейджи */
 .review-badge, .faq-badge {
     position: absolute;
     top: -0.75rem;
@@ -44,14 +48,14 @@
     color: #3b82f6;
 }
 
-/* Анимация пульсации */
+/* 💫 Пульс-анимация */
 @keyframes pulse {
     0% { transform: scale(1); opacity: 1; }
     50% { transform: scale(1.1); opacity: 0.8; }
     100% { transform: scale(1); opacity: 1; }
 }
 
-/* Категории-бейджи */
+/* 🏷️ Категории */
 .category-badges {
     position: absolute;
     top: 0.75rem;
@@ -79,7 +83,7 @@
     text-decoration: underline;
 }
 
-/* Медиа блок */
+/* 📷 Медиа-контейнер */
 .card-media {
     width: 100%;
     height: 190px;
@@ -89,7 +93,7 @@
     margin-bottom: 1rem;
 }
 
-/* Заголовки и контент */
+/* 🔠 Заголовки и 💬 контент */
 .faq-question, .review-author {
     font-weight: 700;
     font-size: 1.1rem;
@@ -107,7 +111,7 @@
     margin-bottom: 1rem;
 }
 
-/* Автор и дата */
+/* 👤 Автор и 📅 дата отзыва */
 .review-header {
     display: flex;
     justify-content: space-between;
@@ -116,7 +120,7 @@
     margin-bottom: 0.75rem;
 }
 
-/* Рейтинг */
+/* ⭐ Рейтинг */
 .review-rating {
     font-size: 0.9rem;
     color: #15803d;
@@ -129,7 +133,7 @@
     align-self: flex-start;
 }
 
-/* Адаптивность */
+/* 📱 Адаптивность */
 @media (max-width: 768px) {
     .review-card, .faq-card {
         max-width: 100%;

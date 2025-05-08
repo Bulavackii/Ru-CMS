@@ -1,4 +1,5 @@
-/* Карточка новости */
+
+/* Карточка новости или товара */
 .news-card {
     background: #ffffff;
     border-radius: 1.5rem;
@@ -14,12 +15,13 @@
     overflow: hidden;
 }
 
+/* Hover эффект */
 .news-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 14px 28px rgba(0, 0, 0, 0.10);
 }
 
-/* Бейдж новости */
+/* Бейдж в правом верхнем углу */
 .news-badge {
     position: absolute;
     top: -0.75rem;
@@ -33,6 +35,41 @@
     border-radius: 9999px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
     animation: pulse 2s infinite;
+    z-index: 10;
+}
+
+/* Бейдж "АКЦИЯ" для товаров */
+.promo-badge {
+    position: absolute;
+    top: -0.75rem;
+    right: 0.75rem;
+    background: white;
+    border: 2px solid #dc2626;
+    color: #dc2626;
+    padding: 0.4rem 0.7rem;
+    font-size: 0.75rem;
+    font-weight: bold;
+    border-radius: 9999px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+    animation: pulse 2s infinite;
+    z-index: 10;
+}
+
+/* Бейдж "Новинка" */
+.new-badge {
+    position: absolute;
+    top: -0.75rem;
+    right: 3.5rem;
+    background: white;
+    border: 2px solid #9333ea;
+    color: #9333ea;
+    padding: 0.4rem 0.7rem;
+    font-size: 0.75rem;
+    font-weight: bold;
+    border-radius: 9999px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+    animation: pulse 2s infinite;
+    z-index: 10;
 }
 
 /* Анимация мигания */
@@ -40,4 +77,65 @@
     0% { transform: scale(1); opacity: 1; }
     50% { transform: scale(1.1); opacity: 0.8; }
     100% { transform: scale(1); opacity: 1; }
+}
+
+/* Категории-бейджи (левый верх) */
+.category-badges {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    z-index: 10;
+}
+
+.category-badge {
+    background-color: #eff6ff;
+    color: #2563eb;
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    border: 1px solid #bfdbfe;
+    white-space: nowrap;
+    transition: background-color 0.2s ease;
+}
+
+.category-badge:hover {
+    background-color: #dbeafe;
+    text-decoration: underline;
+}
+
+/* Обложка медиа */
+.card-media {
+    width: 100%;
+    height: 190px;
+    object-fit: cover;
+    border-radius: 1rem;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 1rem;
+}
+
+/* Текст и описание */
+.card-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+}
+
+.card-date {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-bottom: 0.75rem;
+}
+
+.card-description {
+    font-size: 0.9rem;
+    color: #374151;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+    max-height: 4.5rem;
+    overflow: hidden;
 }
