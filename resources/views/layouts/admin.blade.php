@@ -6,6 +6,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Панель управления')</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..."
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body class="bg-gray-100 text-gray-800 flex">
 
@@ -24,6 +26,9 @@
 
     {{-- Подключение JS для слайдшоу --}}
     <script src="{{ asset('admin-assets/js/slideshow.js') }}"></script>
+
+    {{-- Подключение alpinejs --}}
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     {{-- Подключение доп. скриптов (например, TinyMCE) --}}
     @stack('scripts')
