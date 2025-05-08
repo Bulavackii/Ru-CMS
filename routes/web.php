@@ -22,8 +22,16 @@ Route::get('/', function () {
     $user = Auth::user();
     $categories = Category::all();
 
-    // Список шаблонов
-    $allTemplates = ['default', 'products', 'contacts', 'gallery', 'test', 'slideshow', 'test2', 'example'];
+    // Список всех шаблонов
+    $allTemplates = [
+        'default',     // Обычные новости
+        'products',    // Товары
+        'reviews',     // Отзывы
+        'faq',         // Вопрос-ответ
+        'gallery',     // Галерея
+        'slideshow',   // Слайдшоу
+        'test',        // Тестовый шаблон
+    ];
 
     $templates = [];
 
@@ -32,6 +40,7 @@ Route::get('/', function () {
             ->where('published', true)
             ->where('template', $templateKey);
 
+        // Фильтрация по категориям
         if (request("category_$templateKey")) {
             $query->whereHas('categories', function ($q) use ($templateKey) {
                 $q->where('categories.id', request("category_$templateKey"));

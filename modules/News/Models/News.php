@@ -19,6 +19,9 @@ class News extends Model
         'slug',
         'published',
         'template',
+        'price',
+        'stock',
+        'is_promo',
     ];
 
     public function categories(): BelongsToMany

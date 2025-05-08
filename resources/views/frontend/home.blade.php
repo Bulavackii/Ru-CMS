@@ -5,13 +5,15 @@
 @section('content')
     @php
         $titles = [
-            'default'   => 'Новости',
-            'products'  => 'Товары',
-            'contacts'  => 'Контакты',
-            'gallery'   => 'Галерея',
-            'test'      => 'Тест',
+            'default' => 'Новости',
+            'products' => 'Товары',
+            'contacts' => 'Контакты',
+            'gallery' => 'Галерея',
+            'test' => 'Тест',
             'slideshow' => 'Слайдшоу',
-            'test2'     => 'Тест2',
+            'test2' => 'Тест2',
+            'faq' => 'Вопросы',
+            'reviews' => 'Отзывы',
         ];
     @endphp
 

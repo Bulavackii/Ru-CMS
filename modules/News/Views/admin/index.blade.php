@@ -5,24 +5,46 @@
 @section('content')
     <div class="flex items-center justify-between mb-6">
         <h1 class="text-2xl font-bold">Список новостей</h1>
-        <a href="{{ route('admin.news.create') }}"
-           class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+        <a href="{{ route('admin.news.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
             + Добавить новость
         </a>
     </div>
 
-    {{-- 🔽 Фильтр по шаблону --}}
-    <form method="GET" class="mb-4">
-        <label for="template" class="font-semibold mr-2">Шаблон:</label>
-        <select name="template" id="template" onchange="this.form.submit()" class="border rounded px-3 py-1">
-            <option value="">Все шаблоны</option>
-            @foreach ($templates as $key => $label)
-                <option value="{{ $key }}" {{ request('template') === $key ? 'selected' : '' }}>
-                    {{ $label }}
-                </option>
-            @endforeach
-        </select>
-    </form>
+    {{-- 🧭 Фильтр по шаблонам в виде табов --}}
+    <div class="flex flex-wrap items-center gap-2 mb-6">
+        @php
+            $icons = [
+                'default' => '📰',
+                'products' => '🛍️',
+                'contacts' => '📇',
+                'gallery' => '🖼️',
+                'slideshow' => '🎞️',
+                'faq' => '❓',
+                'reviews' => '⭐',
+                'test' => '🧪',
+                'test2' => '⚙️',
+            ];
+
+            $current = request('template');
+        @endphp
+
+        {{-- Кнопка "Все" --}}
+        <a href="{{ route('admin.news.index') }}"
+            class="px-3 py-1.5 rounded-full text-sm font-medium border transition
+              {{ !$current ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100' }}">
+            📂 Все
+        </a>
+
+        {{-- Кнопки по шаблонам --}}
+        @foreach ($templates as $key => $label)
+            <a href="{{ route('admin.news.index', ['template' => $key]) }}"
+                class="px-3 py-1.5 rounded-full text-sm font-medium border transition
+                  {{ $current === $key ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100' }}">
+                {{ $icons[$key] ?? '🔖' }} {{ $label }}
+            </a>
+        @endforeach
+    </div>
+
 
     @if (session('success'))
         <div class="bg-green-100 text-green-800 px-4 py-2 mb-4 rounded">
@@ -61,15 +83,14 @@
                         @endif
                     </td>
                     <td class="px-4 py-2">
-                        {{ $templates[$news->template] ?? ucfirst($news->template) }}
+                        @include('News::admin.template-badge', ['template' => $news->template])
                     </td>
                     <td class="px-4 py-2 space-x-2">
                         <a href="{{ route('admin.news.edit', $news->id) }}"
-                           class="text-blue-600 hover:underline">Редактировать</a>
+                            class="text-blue-600 hover:underline">Редактировать</a>
 
-                        <form action="{{ route('admin.news.destroy', $news->id) }}" method="POST"
-                              class="inline-block"
-                              onsubmit="return confirm('Удалить эту новость?')">
+                        <form action="{{ route('admin.news.destroy', $news->id) }}" method="POST" class="inline-block"
+                            onsubmit="return confirm('Удалить эту новость?')">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="text-red-600 hover:underline">Удалить</button>

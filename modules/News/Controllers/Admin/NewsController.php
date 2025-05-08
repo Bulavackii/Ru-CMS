@@ -11,33 +11,41 @@ use App\Models\Category;
 
 class NewsController extends Controller
 {
-    // Список всех новостей
     public function index(Request $request)
     {
         $query = News::with('categories');
 
-        // 🔍 Фильтр по шаблону
         if ($request->filled('template')) {
             $query->where('template', $request->input('template'));
         }
 
         $newsList = $query->orderByDesc('id')->paginate(10);
 
-        // 🔽 Статический список для фильтра
-        $templates = [
+        // Все возможные шаблоны (полный список)
+        $allTemplates = [
             'default'   => 'Новости',
             'products'  => 'Товары',
             'contacts'  => 'Контакты',
             'gallery'   => 'Галерея',
             'slideshow' => 'Слайдшоу',
-            'test2'     => 'Тест2',
-            'test'      => 'Тест',
+            'faq'     => 'Вопросы',
+            'reviews'      => 'Отзывы',
+            'test'  => 'Тест',
         ];
+
+        // Получаем реально используемые шаблоны в новостях
+        $usedTemplates = News::select('template')->distinct()->pluck('template')->toArray();
+
+        // Фильтруем список шаблонов
+        $templates = array_filter(
+            $allTemplates,
+            fn($key) => in_array($key, $usedTemplates),
+            ARRAY_FILTER_USE_KEY
+        );
 
         return view('News::admin.index', compact('newsList', 'templates'));
     }
 
-    // Форма создания новости
     public function create()
     {
         $categories = Category::all();
@@ -47,7 +55,6 @@ class NewsController extends Controller
         return view('News::admin.create', compact('categories', 'templates', 'news'));
     }
 
-    // Сохранение новости
     public function store(Request $request)
     {
         $request->validate([
@@ -56,15 +63,26 @@ class NewsController extends Controller
             'categories' => 'nullable|array',
             'published'  => 'nullable|boolean',
             'template'   => 'nullable|string|max:50',
+            'price'      => 'nullable|numeric|min:0',
+            'stock'      => 'nullable|integer|min:0',
+            'is_promo'   => 'nullable|boolean',
         ]);
 
-        $news = News::create([
+        $data = [
             'title'     => $request->title,
             'content'   => $request->content,
             'slug'      => Str::slug($request->title) . '-' . uniqid(),
             'published' => $request->boolean('published'),
             'template'  => $request->input('template') ?? 'default',
-        ]);
+        ];
+
+        if ($request->template === 'products') {
+            $data['price'] = $request->input('price');
+            $data['stock'] = $request->input('stock');
+            $data['is_promo'] = $request->boolean('is_promo');
+        }
+
+        $news = News::create($data);
 
         if ($request->filled('categories')) {
             $news->categories()->sync($request->categories);
@@ -73,7 +91,6 @@ class NewsController extends Controller
         return redirect()->route('admin.news.index')->with('success', 'Новость создана!');
     }
 
-    // Форма редактирования
     public function edit(News $news)
     {
         $categories = Category::all();
@@ -82,7 +99,6 @@ class NewsController extends Controller
         return view('News::admin.edit', compact('news', 'categories', 'templates'));
     }
 
-    // Обновление новости
     public function update(Request $request, News $news)
     {
         $request->validate([
@@ -91,36 +107,43 @@ class NewsController extends Controller
             'categories' => 'nullable|array',
             'published'  => 'nullable|boolean',
             'template'   => 'nullable|string|max:50',
+            'price'      => 'nullable|numeric|min:0',
+            'stock'      => 'nullable|integer|min:0',
+            'is_promo'   => 'nullable|boolean',
         ]);
 
-        $news->update([
+        $data = [
             'title'     => $request->title,
             'content'   => $request->content,
             'slug'      => Str::slug($request->title),
             'published' => $request->boolean('published'),
             'template'  => $request->input('template') ?? 'default',
-        ]);
+        ];
 
+        if ($request->template === 'products') {
+            $data['price'] = $request->input('price');
+            $data['stock'] = $request->input('stock');
+            $data['is_promo'] = $request->boolean('is_promo');
+        }
+
+        $news->update($data);
         $news->categories()->sync($request->input('categories', []));
 
         return redirect()->route('admin.news.index')->with('success', 'Новость обновлена!');
     }
 
-    // Удаление
     public function destroy(News $news)
     {
         $news->delete();
         return redirect()->route('admin.news.index')->with('success', 'Новость удалена!');
     }
 
-    // Просмотр новости (для публичной части)
     public function show($slug)
     {
         $newsItem = News::with(['categories', 'slideshow.items'])->where('slug', $slug)->firstOrFail();
         return view('News::public.show', compact('newsItem'));
     }
 
-    // 🔽 Подгрузка шаблонов из папки templates
     private function loadTemplates(): array
     {
         $templates = ['default' => 'Новости'];

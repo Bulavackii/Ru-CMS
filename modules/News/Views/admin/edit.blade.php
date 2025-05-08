@@ -48,6 +48,26 @@
             </select>
         </div>
 
+        {{-- Цена, Остаток, Промо --}}
+        <div id="product-fields" class="mb-4" style="display: none;">
+            <div class="mb-2">
+                <label for="price" class="block mb-1 font-semibold">Цена</label>
+                <input type="number" step="0.01" name="price" id="price" value="{{ old('price', $news->price ?? '') }}" class="w-full border rounded px-3 py-2">
+            </div>
+
+            <div class="mb-2">
+                <label for="stock" class="block mb-1 font-semibold">Осталось на складе</label>
+                <input type="number" name="stock" id="stock" value="{{ old('stock', $news->stock ?? '') }}" class="w-full border rounded px-3 py-2">
+            </div>
+
+            <div>
+                <label class="inline-flex items-center">
+                    <input type="checkbox" name="is_promo" value="1" class="mr-2" {{ old('is_promo', $news->is_promo ?? false) ? 'checked' : '' }}>
+                    Акционный товар
+                </label>
+            </div>
+        </div>
+
         {{-- Контент --}}
         <div class="mb-4">
             <label for="content" class="block mb-1 font-semibold">Содержимое</label>
@@ -124,6 +144,22 @@
 
                 input.click();
             }
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const templateSelect = document.getElementById('template');
+            const productFields = document.getElementById('product-fields');
+
+            function toggleProductFields() {
+                if (templateSelect.value === 'products') {
+                    productFields.style.display = 'block';
+                } else {
+                    productFields.style.display = 'none';
+                }
+            }
+
+            templateSelect.addEventListener('change', toggleProductFields);
+            toggleProductFields();
         });
     </script>
 @endsection
