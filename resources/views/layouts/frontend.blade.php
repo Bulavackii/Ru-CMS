@@ -14,6 +14,10 @@
 
     {{-- Tailwind CSS --}}
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+     {{-- font-awesome --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-dY6zWyv..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+
 </head>
 
 <body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
