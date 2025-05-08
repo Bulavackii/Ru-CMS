@@ -10,49 +10,41 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use Modules\System\Controllers\Admin\ModuleController;
 use Modules\Search\Controllers\Admin\SearchController;
 use Modules\News\Controllers\Frontend\NewsController as FrontendNewsController;
-use Modules\Categories\Controllers\Admin\CategoryController as FrontendCategoryController;
-use Modules\News\Models\News;
 use Modules\Categories\Models\Category;
+use Modules\News\Models\News;
 use App\Http\Controllers\Admin\UploadController;
-use Modules\Slideshow\Controllers\Admin\SlideshowController;
 use Modules\Slideshow\Models\Slideshow;
 
-// ✅ Главная страница — показываем все опубликованные новости
+// ✅ Главная страница
 Route::get('/', function () {
     $user = Auth::user();
     $categories = Category::all();
 
-    // Список всех шаблонов
-    $allTemplates = [
-        'default',     // Обычные новости
-        'products',    // Товары
-        'reviews',     // Отзывы
-        'faq',         // Вопрос-ответ
-        'gallery',     // Галерея
-        'slideshow',   // Слайдшоу
-        'test',        // Тестовый шаблон
-    ];
-
+    $templateKeys = ['default', 'products', 'reviews', 'faq', 'gallery', 'slideshow', 'test', 'test2', 'contacts'];
     $templates = [];
 
-    foreach ($allTemplates as $templateKey) {
+    foreach ($templateKeys as $key) {
         $query = News::with('categories')
             ->where('published', true)
-            ->where('template', $templateKey);
+            ->where('template', $key);
 
-        // Фильтрация по категориям
-        if (request("category_$templateKey")) {
-            $query->whereHas('categories', function ($q) use ($templateKey) {
-                $q->where('categories.id', request("category_$templateKey"));
+        if (request("category_$key")) {
+            $query->whereHas('categories', function ($q) use ($key) {
+                $q->where('categories.id', request("category_$key"));
             });
         }
 
-        $templates[$templateKey] = $query->get();
+        $templates[$key] = $query->orderByDesc('id')->get();
     }
 
     $slideshows = Slideshow::with('items')->get();
 
-    return view('frontend.home', compact('user', 'categories', 'templates', 'slideshows'));
+    return view('frontend.home', [
+        'user' => $user,
+        'categories' => $categories,
+        'templates' => $templates,
+        'slideshows' => $slideshows,
+    ]);
 });
 
 // 👤 Гостевой доступ
@@ -70,52 +62,32 @@ Route::middleware('guest')->group(function () {
     Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('password.update');
 });
 
-// 🔒 Выход
 Route::post('/logout', function () {
     Auth::logout();
     return redirect('/');
 })->name('logout')->middleware('auth');
 
-// 👤 Личный кабинет
 Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });
 
-// 🛠 Админка
 Route::middleware(['web', 'auth', 'admin'])->group(function () {
-    // ✅ Модули
     Route::get('/admin/modules', [ModuleController::class, 'index'])->name('admin.modules.index');
     Route::patch('/admin/modules/{id}/toggle', [ModuleController::class, 'toggle'])->name('admin.modules.toggle');
     Route::post('/admin/modules/install', [ModuleController::class, 'install'])->name('admin.modules.install');
 
-    // ✅ Новости
     require_once base_path('modules/News/Routes/web.php');
-
-    // ✅ Категории
     require_once base_path('modules/Categories/Routes/web.php');
-
-    // ✅ Слайдшоу (подключаем все маршруты из модуля)
     require_once base_path('modules/Slideshow/Routes/web.php');
-
-    // ✅ Уведомления
     require_once base_path('modules/Notifications/Routes/web.php');
 
-    // 🔍 Поиск
     Route::get('/admin/search', [SearchController::class, 'index'])->name('admin.search.index');
-
-    // ✅ Загрузка медиа
     Route::post('/admin/upload-media', [UploadController::class, 'uploadMedia'])->name('admin.upload.media');
 
-    // Главная страница админки
     Route::get('/admin', fn() => view('admin'))->name('admin');
-
-    // SPA fallback
     Route::get('/admin/{any}', fn() => view('admin'))->where('any', '.*');
 });
 
-// ✅ Новости (frontend)
 Route::get('/news', [FrontendNewsController::class, 'index'])->name('news.index');
 Route::get('/news/{slug}', [FrontendNewsController::class, 'show'])->name('news.show');
-
-// ✅ Слайдшоу (frontend)
 Route::get('/slideshow/{slug}', [\Modules\Slideshow\Controllers\PublicController::class, 'show'])->name('slideshow.show');

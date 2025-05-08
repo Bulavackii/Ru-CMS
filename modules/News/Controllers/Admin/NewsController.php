@@ -21,22 +21,19 @@ class NewsController extends Controller
 
         $newsList = $query->orderByDesc('id')->paginate(10);
 
-        // Все возможные шаблоны (полный список)
         $allTemplates = [
             'default'   => 'Новости',
             'products'  => 'Товары',
             'contacts'  => 'Контакты',
             'gallery'   => 'Галерея',
             'slideshow' => 'Слайдшоу',
-            'faq'     => 'Вопросы',
-            'reviews'      => 'Отзывы',
-            'test'  => 'Тест',
+            'faq'       => 'Вопросы',
+            'reviews'   => 'Отзывы',
+            'test'      => 'Тест',
         ];
 
-        // Получаем реально используемые шаблоны в новостях
         $usedTemplates = News::select('template')->distinct()->pluck('template')->toArray();
 
-        // Фильтруем список шаблонов
         $templates = array_filter(
             $allTemplates,
             fn($key) => in_array($key, $usedTemplates),
@@ -73,10 +70,10 @@ class NewsController extends Controller
             'content'   => $request->content,
             'slug'      => Str::slug($request->title) . '-' . uniqid(),
             'published' => $request->boolean('published'),
-            'template'  => $request->input('template') ?? 'default',
+            'template'  => $request->input('template', 'default') ?: 'default',
         ];
 
-        if ($request->template === 'products') {
+        if ($data['template'] === 'products') {
             $data['price'] = $request->input('price');
             $data['stock'] = $request->input('stock');
             $data['is_promo'] = $request->boolean('is_promo');
@@ -117,10 +114,10 @@ class NewsController extends Controller
             'content'   => $request->content,
             'slug'      => Str::slug($request->title),
             'published' => $request->boolean('published'),
-            'template'  => $request->input('template') ?? 'default',
+            'template'  => $request->input('template', 'default') ?: 'default',
         ];
 
-        if ($request->template === 'products') {
+        if ($data['template'] === 'products') {
             $data['price'] = $request->input('price');
             $data['stock'] = $request->input('stock');
             $data['is_promo'] = $request->boolean('is_promo');
