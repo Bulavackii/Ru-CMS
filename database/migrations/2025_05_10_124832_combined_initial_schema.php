@@ -21,6 +21,13 @@ return new class extends Migration
             });
         }
 
+        // Добавление поля is_admin
+        if (Schema::hasTable('users') && !Schema::hasColumn('users', 'is_admin')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->boolean('is_admin')->default(false)->after('password');
+            });
+        }
+
         // Таблица password_reset_tokens
         if (!Schema::hasTable('password_reset_tokens')) {
             Schema::create('password_reset_tokens', function (Blueprint $table) {
@@ -116,13 +123,6 @@ return new class extends Migration
             });
         }
 
-        // Добавление столбца is_admin в users
-        if (Schema::hasTable('users') && !Schema::hasColumn('users', 'is_admin')) {
-            Schema::table('users', function (Blueprint $table) {
-                $table->boolean('is_admin')->default(false)->after('password');
-            });
-        }
-
         // Таблица categories
         if (!Schema::hasTable('categories')) {
             Schema::create('categories', function (Blueprint $table) {
@@ -145,23 +145,23 @@ return new class extends Migration
             });
         }
 
+        // Добавление полей SEO, price, stock, is_promo
+        Schema::table('news', function (Blueprint $table) {
+            if (!Schema::hasColumn('news', 'meta_title')) $table->string('meta_title')->nullable();
+            if (!Schema::hasColumn('news', 'meta_description')) $table->string('meta_description')->nullable();
+            if (!Schema::hasColumn('news', 'meta_keywords')) $table->string('meta_keywords')->nullable();
+            if (!Schema::hasColumn('news', 'meta_header')) $table->string('meta_header')->nullable();
+            if (!Schema::hasColumn('news', 'price')) $table->decimal('price', 10, 2)->nullable();
+            if (!Schema::hasColumn('news', 'stock')) $table->integer('stock')->nullable();
+            if (!Schema::hasColumn('news', 'is_promo')) $table->boolean('is_promo')->default(false);
+        });
+
         // Таблица news_category
         if (!Schema::hasTable('news_category')) {
             Schema::create('news_category', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('news_id')->constrained('news')->onDelete('cascade');
                 $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
-                $table->timestamps();
-            });
-        }
-
-        // Таблица products
-        if (!Schema::hasTable('products')) {
-            Schema::create('products', function (Blueprint $table) {
-                $table->id();
-                $table->string('name');
-                $table->text('description')->nullable();
-                $table->decimal('price', 10, 2)->default(0);
                 $table->timestamps();
             });
         }
@@ -189,6 +189,13 @@ return new class extends Migration
             });
         }
 
+        // Добавление поля position
+        if (Schema::hasTable('slideshows') && !Schema::hasColumn('slideshows', 'position')) {
+            Schema::table('slideshows', function (Blueprint $table) {
+                $table->string('position')->default('top');
+            });
+        }
+
         // Таблица slides
         if (!Schema::hasTable('slides')) {
             Schema::create('slides', function (Blueprint $table) {
@@ -201,37 +208,37 @@ return new class extends Migration
                 $table->timestamps();
             });
         }
+
+        // Таблица slideshow_items (если используется)
+        if (Schema::hasTable('slideshow_items')) {
+            Schema::table('slideshow_items', function (Blueprint $table) {
+                if (!Schema::hasColumn('slideshow_items', 'caption')) {
+                    $table->string('caption')->nullable()->after('media_type');
+                }
+                if (!Schema::hasColumn('slideshow_items', 'order')) {
+                    $table->integer('order')->default(0);
+                }
+            });
+        }
+
+        // Таблица notifications
+        if (Schema::hasTable('notifications')) {
+            Schema::table('notifications', function (Blueprint $table) {
+                if (!Schema::hasColumn('notifications', 'enabled')) {
+                    $table->boolean('enabled')->default(true)->after('cookie_key');
+                }
+                if (!Schema::hasColumn('notifications', 'bg_color')) {
+                    $table->string('bg_color', 20)->nullable()->after('icon');
+                }
+                if (!Schema::hasColumn('notifications', 'text_color')) {
+                    $table->string('text_color', 20)->nullable()->after('bg_color');
+                }
+            });
+        }
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('news_category');
-        Schema::dropIfExists('slides');
-        Schema::dropIfExists('slideshows');
-        Schema::dropIfExists('modules');
-
-        Schema::dropIfExists('products');
-
-        if (Schema::hasTable('news')) {
-            Schema::dropIfExists('news');
-        }
-
-        Schema::dropIfExists('categories');
-
-        if (Schema::hasTable('users') && Schema::hasColumn('users', 'is_admin')) {
-            Schema::table('users', function (Blueprint $table) {
-                $table->dropColumn('is_admin');
-            });
-        }
-
-        Schema::dropIfExists('personal_access_tokens');
-        Schema::dropIfExists('failed_jobs');
-        Schema::dropIfExists('job_batches');
-        Schema::dropIfExists('jobs');
-        Schema::dropIfExists('cache_locks');
-        Schema::dropIfExists('cache');
-        Schema::dropIfExists('sessions');
-        Schema::dropIfExists('password_reset_tokens');
-        Schema::dropIfExists('users');
+        // Здесь можно добавить откат по необходимости
     }
 };

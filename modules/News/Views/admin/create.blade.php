@@ -22,13 +22,46 @@
                    required placeholder="Введите заголовок">
         </div>
 
+        {{-- Meta Title --}}
+        <div class="mb-4 max-w-xl">
+            <label for="meta_title" class="block mb-1 font-semibold">🔖 Meta Title</label>
+            <input type="text" name="meta_title" id="meta_title" value="{{ old('meta_title') }}"
+                   class="w-full border border-gray-300 rounded px-3 py-2"
+                   placeholder="Например: Новости | RuCMS">
+            <p class="text-xs text-gray-500 mt-1">
+                Заголовок страницы в поисковой выдаче (до 60 символов). Разделяйте блоки через «|» или «—».
+            </p>
+        </div>
+
+        {{-- Meta Description --}}
+        <div class="mb-4 max-w-xl">
+            <label for="meta_description" class="block mb-1 font-semibold">📄 Meta Description</label>
+            <textarea name="meta_description" id="meta_description" rows="3"
+                      class="w-full border border-gray-300 rounded px-3 py-2"
+                      placeholder="Краткое описание до 160 символов.">{{ old('meta_description') }}</textarea>
+            <p class="text-xs text-gray-500 mt-1">
+                Описание страницы, отображающееся в поисковой выдаче. Указывайте основные ключевые слова.
+            </p>
+        </div>
+
+        {{-- Meta Keywords --}}
+        <div class="mb-6 max-w-xl">
+            <label for="meta_keywords" class="block mb-1 font-semibold">🔑 Ключевые слова</label>
+            <input type="text" name="meta_keywords" id="meta_keywords" value="{{ old('meta_keywords') }}"
+                   class="w-full border border-gray-300 rounded px-3 py-2"
+                   placeholder="Например: экология, вода, ресурсы">
+            <p class="text-xs text-gray-500 mt-1">
+                Введите ключевые слова через <strong>запятую</strong> или <strong>пробел</strong>. Например: <em>чистая вода, охрана природы</em>.
+            </p>
+        </div>
+
         {{-- Шаблон --}}
         <div class="mb-6 max-w-xs">
             <label for="template" class="block mb-1 font-semibold">🧩 Шаблон</label>
             <select name="template" id="template"
                     class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-200">
                 @foreach ($templates as $value => $label)
-                    <option value="{{ $value }}" {{ old('template', $news->template ?? '') == $value ? 'selected' : '' }}>
+                    <option value="{{ $value }}" {{ old('template') == $value ? 'selected' : '' }}>
                         {{ $label }}
                     </option>
                 @endforeach
@@ -123,9 +156,7 @@
                     formData.append('file', file);
                     fetch('{{ route('admin.upload.media') }}', {
                         method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
+                        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                         body: formData
                     })
                     .then(response => response.json())
@@ -144,20 +175,20 @@
             }
         });
 
-        const templateSelect = document.getElementById('template');
-        const productFields = document.getElementById('product-fields');
-
-        function toggleProductFields() {
-            if (templateSelect.value === 'products') {
-                productFields.classList.remove('hidden');
-                productFields.classList.add('animate-fade-in');
-            } else {
-                productFields.classList.add('hidden');
+        document.addEventListener('DOMContentLoaded', function () {
+            const templateSelect = document.getElementById('template');
+            const productFields = document.getElementById('product-fields');
+            function toggleProductFields() {
+                if (templateSelect.value === 'products') {
+                    productFields.classList.remove('hidden');
+                    productFields.classList.add('animate-fade-in');
+                } else {
+                    productFields.classList.add('hidden');
+                }
             }
-        }
-
-        document.addEventListener('DOMContentLoaded', toggleProductFields);
-        templateSelect.addEventListener('change', toggleProductFields);
+            templateSelect.addEventListener('change', toggleProductFields);
+            toggleProductFields();
+        });
     </script>
 
     <style>

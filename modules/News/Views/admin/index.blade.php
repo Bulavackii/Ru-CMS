@@ -10,7 +10,7 @@
         </a>
     </div>
 
-    {{-- 🧭 Фильтр по шаблонам в виде табов --}}
+    {{-- 🧭 Фильтр по шаблонам --}}
     <div class="flex flex-wrap items-center gap-2 mb-6">
         @php
             $icons = [
@@ -24,20 +24,17 @@
                 'test' => '🧪',
                 'test2' => '⚙️',
             ];
-
             $current = request('template');
         @endphp
 
         <a href="{{ route('admin.news.index') }}"
-            class="px-3 py-1.5 rounded-full text-sm font-medium border transition
-              {{ !$current ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100' }}">
+           class="px-3 py-1.5 rounded-full text-sm font-medium border transition {{ !$current ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100' }}">
             📂 Все
         </a>
 
         @foreach ($templates as $key => $label)
             <a href="{{ route('admin.news.index', ['template' => $key]) }}"
-                class="px-3 py-1.5 rounded-full text-sm font-medium border transition
-                  {{ $current === $key ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100' }}">
+               class="px-3 py-1.5 rounded-full text-sm font-medium border transition {{ $current === $key ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100' }}">
                 {{ $icons[$key] ?? '🔖' }} {{ $label }}
             </a>
         @endforeach
@@ -55,6 +52,10 @@
                 <tr>
                     <th class="text-left px-4 py-3">📝 Заголовок</th>
                     <th class="text-left px-4 py-3">📂 Категории</th>
+                    <th class="text-left px-4 py-3 w-52">🔖 Meta Title</th>
+                    <th class="text-left px-4 py-3 w-52">🔑 Ключевые слова</th>
+                    <th class="text-left px-4 py-3 w-64">📝 Meta Description</th>
+                    <th class="text-left px-4 py-3 w-32">🛍️ Товар</th>
                     <th class="text-center px-4 py-3">📢 Статус</th>
                     <th class="text-center px-4 py-3">📦 Шаблон</th>
                     <th class="text-center px-4 py-3">⚙️ Действия</th>
@@ -66,6 +67,7 @@
                         <td class="px-4 py-3 max-w-xs truncate" title="{{ $news->title }}">
                             {{ $news->title }}
                         </td>
+
                         <td class="px-4 py-3">
                             @foreach ($news->categories as $category)
                                 <span class="inline-block bg-gray-200 text-gray-700 text-xs rounded-full px-2 py-1 mr-1 mb-1">
@@ -73,6 +75,31 @@
                                 </span>
                             @endforeach
                         </td>
+
+                        <td class="px-4 py-3 text-gray-800" title="{{ $news->meta_title }}">
+                            {{ Str::limit($news->meta_title, 60) }}
+                        </td>
+
+                        <td class="px-4 py-3 text-gray-800" title="{{ $news->meta_keywords }}">
+                            {{ Str::limit($news->meta_keywords, 60) }}
+                        </td>
+
+                        <td class="px-4 py-3 text-gray-800" title="{{ $news->meta_description }}">
+                            {{ Str::limit($news->meta_description, 100) }}
+                        </td>
+
+                        <td class="px-4 py-3 text-gray-800">
+                            @if ($news->template === 'products')
+                                💰 {{ number_format($news->price, 2, ',', ' ') }} ₽<br>
+                                📦 {{ $news->stock ?? 0 }} шт.<br>
+                                @if ($news->is_promo)
+                                    <span class="inline-block mt-1 px-2 py-0.5 text-xs text-white bg-pink-500 rounded-full">🔥 Акция</span>
+                                @endif
+                            @else
+                                —
+                            @endif
+                        </td>
+
                         <td class="px-4 py-3 text-center">
                             @if ($news->published)
                                 <span class="text-green-600 animate-pulse" title="Опубликовано">
@@ -84,15 +111,16 @@
                                 </span>
                             @endif
                         </td>
+
                         <td class="px-4 py-3 text-center">
                             @include('News::admin.template-badge', ['template' => $news->template])
                         </td>
+
                         <td class="px-4 py-3 text-center whitespace-nowrap">
                             <a href="{{ route('admin.news.edit', $news->id) }}"
                                class="text-blue-600 hover:text-blue-800 mr-2 transition-transform transform hover:scale-110" title="Редактировать">
                                 <i class="fas fa-edit"></i>
                             </a>
-
                             <form action="{{ route('admin.news.destroy', $news->id) }}" method="POST" class="inline-block"
                                   onsubmit="return confirm('Удалить эту новость?')">
                                 @csrf
@@ -105,7 +133,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="text-center text-gray-500 py-6">Новостей пока нет.</td>
+                        <td colspan="9" class="text-center text-gray-500 py-6">Новостей пока нет.</td>
                     </tr>
                 @endforelse
             </tbody>

@@ -55,22 +55,30 @@ class NewsController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title'      => 'required|string|max:255',
-            'content'    => 'nullable|string',
-            'categories' => 'nullable|array',
-            'published'  => 'nullable|boolean',
-            'template'   => 'nullable|string|max:50',
-            'price'      => 'nullable|numeric|min:0',
-            'stock'      => 'nullable|integer|min:0',
-            'is_promo'   => 'nullable|boolean',
+            'title'            => 'required|string|max:255',
+            'content'          => 'nullable|string',
+            'categories'       => 'nullable|array',
+            'published'        => 'nullable|boolean',
+            'template'         => 'nullable|string|max:50',
+            'price'            => 'nullable|numeric|min:0',
+            'stock'            => 'nullable|integer|min:0',
+            'is_promo'         => 'nullable|boolean',
+            'meta_title'       => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string|max:255',
+            'meta_keywords'    => 'nullable|string|max:255',
+            'meta_header'      => 'nullable|string|max:255',
         ]);
 
         $data = [
-            'title'     => $request->title,
-            'content'   => $request->content,
-            'slug'      => Str::slug($request->title) . '-' . uniqid(),
-            'published' => $request->boolean('published'),
-            'template'  => $request->input('template', 'default') ?: 'default',
+            'title'            => $request->input('title'),
+            'content'          => $request->input('content'),
+            'slug'             => Str::slug($request->title) . '-' . uniqid(),
+            'published'        => $request->boolean('published'),
+            'template'         => $request->input('template', 'default') ?: 'default',
+            'meta_title'       => $request->input('meta_title'),
+            'meta_description' => $request->input('meta_description'),
+            'meta_keywords'    => $request->input('meta_keywords'),
+            'meta_header'      => $request->input('meta_header'),
         ];
 
         if ($data['template'] === 'products') {
@@ -99,22 +107,30 @@ class NewsController extends Controller
     public function update(Request $request, News $news)
     {
         $request->validate([
-            'title'      => 'required|string|max:255',
-            'content'    => 'nullable|string',
-            'categories' => 'nullable|array',
-            'published'  => 'nullable|boolean',
-            'template'   => 'nullable|string|max:50',
-            'price'      => 'nullable|numeric|min:0',
-            'stock'      => 'nullable|integer|min:0',
-            'is_promo'   => 'nullable|boolean',
+            'title'            => 'required|string|max:255',
+            'content'          => 'nullable|string',
+            'categories'       => 'nullable|array',
+            'published'        => 'nullable|boolean',
+            'template'         => 'nullable|string|max:50',
+            'price'            => 'nullable|numeric|min:0',
+            'stock'            => 'nullable|integer|min:0',
+            'is_promo'         => 'nullable|boolean',
+            'meta_title'       => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string|max:255',
+            'meta_keywords'    => 'nullable|string|max:255',
+            'meta_header'      => 'nullable|string|max:255',
         ]);
 
         $data = [
-            'title'     => $request->title,
-            'content'   => $request->content,
-            'slug'      => Str::slug($request->title),
-            'published' => $request->boolean('published'),
-            'template'  => $request->input('template', 'default') ?: 'default',
+            'title'            => $request->input('title'),
+            'content'          => $request->input('content'),
+            'slug'             => Str::slug($request->title),
+            'published'        => $request->boolean('published'),
+            'template'         => $request->input('template', 'default') ?: 'default',
+            'meta_title'       => $request->input('meta_title'),
+            'meta_description' => $request->input('meta_description'),
+            'meta_keywords'    => $request->input('meta_keywords'),
+            'meta_header'      => $request->input('meta_header'),
         ];
 
         if ($data['template'] === 'products') {
@@ -148,10 +164,10 @@ class NewsController extends Controller
         $customLabels = [
             'products'  => 'Товары',
             'contacts'  => 'Контакты',
-            'faq'   => 'Вопросы',
-            'reviews' => 'Отзывы',
-            'default'      => 'Новости',
-            'slideshow'      => 'Слайдшоу',
+            'faq'       => 'Вопросы',
+            'reviews'   => 'Отзывы',
+            'default'   => 'Новости',
+            'slideshow' => 'Слайдшоу',
             'test'      => 'Тест',
         ];
 

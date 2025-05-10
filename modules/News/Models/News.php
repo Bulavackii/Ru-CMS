@@ -22,6 +22,10 @@ class News extends Model
         'price',
         'stock',
         'is_promo',
+        'meta_title',
+        'meta_description',
+        'meta_keywords',
+        'meta_header',
     ];
 
     public function categories(): BelongsToMany
