@@ -19,6 +19,15 @@ class NewsController extends Controller
             $query->where('template', $request->input('template'));
         }
 
+        if ($request->filled('categories')) {
+            $categoryIds = array_filter((array) $request->input('categories'));
+            if (count($categoryIds)) {
+                $query->whereHas('categories', function ($q) use ($categoryIds) {
+                    $q->whereIn('categories.id', $categoryIds);
+                });
+            }
+        }
+
         $newsList = $query->orderByDesc('id')->paginate(10);
 
         $allTemplates = [
@@ -40,7 +49,9 @@ class NewsController extends Controller
             ARRAY_FILTER_USE_KEY
         );
 
-        return view('News::admin.index', compact('newsList', 'templates'));
+        $categories = Category::all();
+
+        return view('News::admin.index', compact('newsList', 'templates', 'categories'));
     }
 
     public function create()
