@@ -1,7 +1,7 @@
 <aside class="w-64 bg-white h-screen shadow-lg border-r text-gray-800 flex flex-col"
        style="animation: fadeIn 0.4s ease-in-out;">
 
-    {{-- 🔰 Верхний блок: флаг и заголовок --}}
+    {{-- 🔰 Верхний блок --}}
     <div class="flex items-center gap-3 px-6 py-5 border-b">
         <img src="{{ asset('images/flag.jpg') }}" alt="Флаг России"
              class="w-8 h-5 object-cover rounded-sm shadow-sm" />
@@ -26,11 +26,13 @@
 
         @foreach ($links as $link)
             <a href="{{ $link['route'] }}"
-               class="flex items-center gap-2 px-4 py-2 rounded transition-all duration-200
+               title="{{ $link['label'] }}"
+               class="flex items-center gap-2 px-4 py-2 rounded transition-all duration-200 group
                {{ $link['check']
                    ? 'bg-blue-50 text-blue-700 font-semibold border-l-4 border-blue-500 shadow-inner animate-pulse'
                    : 'hover:bg-blue-100 hover:text-blue-800 hover:shadow hover:font-semibold text-gray-700' }}">
-                <i class="fas {{ $link['icon'] }}"></i> {{ $link['label'] }}
+                <i class="fas {{ $link['icon'] }} transition-transform duration-300 group-hover:rotate-6"></i>
+                {{ $link['label'] }}
             </a>
         @endforeach
 
@@ -48,32 +50,32 @@
 
         @foreach ($systemLinks as $link)
             <a href="{{ $link['url'] }}"
-               class="flex items-center gap-2 px-4 py-2 rounded transition-all duration-200
+               title="{{ $link['label'] }}"
+               class="flex items-center gap-2 px-4 py-2 rounded transition-all duration-200 group
                {{ $link['check']
                    ? 'bg-blue-50 text-blue-700 font-semibold border-l-4 border-blue-500 shadow-inner animate-pulse'
                    : 'hover:bg-blue-100 hover:text-blue-800 hover:shadow hover:font-semibold text-gray-700' }}">
-                <i class="fas {{ $link['icon'] }}"></i> {{ $link['label'] }}
+                <i class="fas {{ $link['icon'] }} transition-transform duration-300 group-hover:-translate-y-1"></i>
+                {{ $link['label'] }}
             </a>
         @endforeach
     </nav>
 
-    {{-- 📌 Нижний блок --}}
+    {{-- 📌 Подвал --}}
     <div class="px-6 py-4 border-t text-xs text-gray-500 bg-gray-50">
         Версия CMS: <strong>1.0</strong>
     </div>
 
-    {{-- 🔄 Встроенные стили --}}
+    {{-- 🔄 Анимации --}}
     <style>
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(8px); }
             to   { opacity: 1; transform: translateY(0); }
         }
-
         @keyframes pulse {
             0%, 100% { box-shadow: inset 0 0 0 rgba(0, 0, 0, 0); }
             50% { box-shadow: inset 0 0 10px rgba(96, 165, 250, 0.25); }
         }
-
         .animate-pulse {
             animation: pulse 1.5s ease-in-out infinite;
         }

@@ -136,3 +136,5 @@ php artisan migrate --path=modules/Slideshow/Database/Migrations
 
 rmdir public\storage
 php artisan storage:link
+
+php artisan vendor:publish --tag=laravel-pagination
