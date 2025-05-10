@@ -151,6 +151,43 @@ class NewsController extends Controller
         return redirect()->route('admin.news.index')->with('success', 'Новость удалена!');
     }
 
+    public function bulkAction(Request $request)
+    {
+        $ids = $request->input('selected', []);
+
+        if ($request->action === 'delete') {
+            News::whereIn('id', $ids)->delete();
+            return back()->with('success', 'Выбранные новости удалены.');
+        }
+
+        if ($request->action === 'edit') {
+            return redirect()->route('admin.news.bulk.edit', ['ids' => implode(',', $ids)]);
+        }
+
+        return back()->with('error', 'Выберите действие.');
+    }
+
+    public function bulkEdit(Request $request)
+    {
+        $ids = explode(',', $request->input('ids', ''));
+        $news = News::whereIn('id', $ids)->get();
+        return view('News::admin.bulk-edit', compact('news'));
+    }
+
+    public function bulkUpdate(Request $request)
+    {
+        $fields = $request->input('fields', []);
+
+        foreach ($fields as $id => $values) {
+            $news = News::find($id);
+            if ($news) {
+                $news->update(array_filter($values));
+            }
+        }
+
+        return redirect()->route('admin.news.index')->with('success', 'Изменения сохранены.');
+    }
+
     public function show($slug)
     {
         $newsItem = News::with(['categories', 'slideshow.items'])->where('slug', $slug)->firstOrFail();

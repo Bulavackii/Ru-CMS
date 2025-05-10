@@ -28,13 +28,13 @@
         @endphp
 
         <a href="{{ route('admin.news.index') }}"
-           class="px-3 py-1.5 rounded-full text-sm font-medium border transition {{ !$current ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100' }}">
+            class="px-3 py-1.5 rounded-full text-sm font-medium border transition {{ !$current ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100' }}">
             📂 Все
         </a>
 
         @foreach ($templates as $key => $label)
             <a href="{{ route('admin.news.index', ['template' => $key]) }}"
-               class="px-3 py-1.5 rounded-full text-sm font-medium border transition {{ $current === $key ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100' }}">
+                class="px-3 py-1.5 rounded-full text-sm font-medium border transition {{ $current === $key ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100' }}">
                 {{ $icons[$key] ?? '🔖' }} {{ $label }}
             </a>
         @endforeach
@@ -46,101 +46,82 @@
         </div>
     @endif
 
-    <div class="overflow-x-auto">
+    <form method="POST" action="{{ route('admin.news.bulk') }}" id="bulk-form">
+        @csrf
+        <div class="mb-4 flex flex-wrap items-center gap-4">
+            <select name="action" class="border rounded px-3 py-2 text-sm">
+                <option value="">Выберите действие</option>
+                <option value="delete">Удалить выбранные</option>
+                <option value="edit">Массовое редактирование</option>
+            </select>
+            <button type="submit"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">Применить</button>
+        </div>
+
         <table class="min-w-full bg-white shadow rounded-lg overflow-hidden">
             <thead class="bg-gray-100 border-b text-sm text-gray-600">
                 <tr>
-                    <th class="text-left px-4 py-3">📝 Заголовок</th>
-                    <th class="text-left px-4 py-3">📂 Категории</th>
-                    <th class="text-left px-4 py-3 w-52">🔖 Meta Title</th>
-                    <th class="text-left px-4 py-3 w-52">🔑 Ключевые слова</th>
-                    <th class="text-left px-4 py-3 w-64">📝 Meta Description</th>
-                    <th class="text-left px-4 py-3 w-32">🛍️ Товар</th>
-                    <th class="text-center px-4 py-3">📢 Статус</th>
-                    <th class="text-center px-4 py-3">📦 Шаблон</th>
-                    <th class="text-center px-4 py-3">⚙️ Действия</th>
+                    <th class="px-4 py-3"><input type="checkbox" id="check-all"></th>
+                    <th>Заголовок</th>
+                    <th>Категории</th>
+                    <th>Meta Title</th>
+                    <th>Ключевые слова</th>
+                    <th>Meta Description</th>
+                    <th>Товар</th>
+                    <th>Статус</th>
+                    <th>Шаблон</th>
+                    <th>Действия</th>
                 </tr>
             </thead>
-            <tbody class="text-sm">
-                @forelse ($newsList as $index => $news)
-                    <tr class="transition duration-150 ease-in-out {{ $index % 2 === 0 ? 'bg-white' : 'bg-gray-50' }} hover:bg-blue-50">
-                        <td class="px-4 py-3 max-w-xs truncate" title="{{ $news->title }}">
-                            {{ $news->title }}
-                        </td>
-
-                        <td class="px-4 py-3">
-                            @foreach ($news->categories as $category)
-                                <span class="inline-block bg-gray-200 text-gray-700 text-xs rounded-full px-2 py-1 mr-1 mb-1">
-                                    {{ $category->title }}
-                                </span>
-                            @endforeach
-                        </td>
-
-                        <td class="px-4 py-3 text-gray-800" title="{{ $news->meta_title }}">
-                            {{ Str::limit($news->meta_title, 60) }}
-                        </td>
-
-                        <td class="px-4 py-3 text-gray-800" title="{{ $news->meta_keywords }}">
-                            {{ Str::limit($news->meta_keywords, 60) }}
-                        </td>
-
-                        <td class="px-4 py-3 text-gray-800" title="{{ $news->meta_description }}">
-                            {{ Str::limit($news->meta_description, 100) }}
-                        </td>
-
-                        <td class="px-4 py-3 text-gray-800">
-                            @if ($news->template === 'products')
-                                💰 {{ number_format($news->price, 2, ',', ' ') }} ₽<br>
-                                📦 {{ $news->stock ?? 0 }} шт.<br>
-                                @if ($news->is_promo)
-                                    <span class="inline-block mt-1 px-2 py-0.5 text-xs text-white bg-pink-500 rounded-full">🔥 Акция</span>
-                                @endif
-                            @else
-                                —
-                            @endif
-                        </td>
-
-                        <td class="px-4 py-3 text-center">
-                            @if ($news->published)
-                                <span class="text-green-600 animate-pulse" title="Опубликовано">
-                                    <i class="fas fa-check-circle"></i>
-                                </span>
-                            @else
-                                <span class="text-gray-400" title="Черновик">
-                                    <i class="fas fa-clock"></i>
-                                </span>
-                            @endif
-                        </td>
-
-                        <td class="px-4 py-3 text-center">
-                            @include('News::admin.template-badge', ['template' => $news->template])
-                        </td>
-
-                        <td class="px-4 py-3 text-center whitespace-nowrap">
-                            <a href="{{ route('admin.news.edit', $news->id) }}"
-                               class="text-blue-600 hover:text-blue-800 mr-2 transition-transform transform hover:scale-110" title="Редактировать">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <form action="{{ route('admin.news.destroy', $news->id) }}" method="POST" class="inline-block"
-                                  onsubmit="return confirm('Удалить эту новость?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:text-red-800 transition-transform transform hover:scale-110" title="Удалить">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                @empty
+            <tbody>
+                @foreach ($newsList as $news)
                     <tr>
-                        <td colspan="9" class="text-center text-gray-500 py-6">Новостей пока нет.</td>
+                        <td><input type="checkbox" name="selected[]" value="{{ $news->id }}" class="row-checkbox"></td>
+                        <td>{{ $news->title }}</td>
+                        <td>@foreach ($news->categories as $cat)<span>{{ $cat->title }}</span>@endforeach</td>
+                        <td>{{ Str::limit($news->meta_title, 60) }}</td>
+                        <td>{{ Str::limit($news->meta_keywords, 60) }}</td>
+                        <td>{{ Str::limit($news->meta_description, 100) }}</td>
+                        <td>{{ $news->template === 'products' ? number_format($news->price, 2, ',', ' ') . ' ₽' : '—' }}</td>
+                        <td>{{ $news->published ? '✅' : '🕒' }}</td>
+                        <td>{{ $news->template }}</td>
+                        <td><a href="{{ route('admin.news.edit', $news->id) }}">✏️</a></td>
                     </tr>
-                @endforelse
+                @endforeach
             </tbody>
         </table>
 
-        <div class="mt-4">
-            {{ $newsList->withQueryString()->links() }}
-        </div>
-    </div>
+        {{ $newsList->links() }}
+    </form>
+
+    <script>
+    document.getElementById('check-all')?.addEventListener('change', e =>
+        document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = e.target.checked)
+    );
+
+    document.getElementById('bulk-form')?.addEventListener('submit', function(e) {
+        const form = this;
+        const action = form.querySelector('[name="action"]').value;
+        const selected = [...form.querySelectorAll('.row-checkbox:checked')].map(cb => cb.value);
+
+        if (!action) {
+            e.preventDefault();
+            alert('Выберите действие!');
+            return;
+        }
+
+        if (!selected.length) {
+            e.preventDefault();
+            alert('Выберите хотя бы одну новость.');
+            return;
+        }
+
+        if (action === 'edit') {
+            e.preventDefault();
+            const url = `{{ route('admin.news.bulk.edit') }}?ids=${selected.join(',')}`;
+            window.location.href = url;
+        }
+    });
+</script>
+
 @endsection
