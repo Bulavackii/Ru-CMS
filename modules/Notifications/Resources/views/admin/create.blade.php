@@ -3,97 +3,74 @@
 @section('title', 'Создание уведомления')
 
 @section('content')
-    <h1 class="text-2xl font-bold mb-6">Создать уведомление</h1>
+    <h1 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">📝 Создать уведомление</h1>
 
     @if ($errors->any())
-        <div class="bg-red-100 text-red-800 p-3 rounded mb-4">
-            {{ $errors->first() }}
+        <div class="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 px-4 py-3 rounded mb-6 shadow">
+            ⚠️ {{ $errors->first() }}
         </div>
     @endif
 
-    <form method="POST" action="{{ route('admin.notifications.store') }}" class="space-y-6 max-w-2xl">
+    <form method="POST" action="{{ route('admin.notifications.store') }}"
+          class="space-y-6 w-full bg-white dark:bg-gray-900 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-800">
         @csrf
 
         {{-- Заголовок --}}
-        <div>
-            <label for="title" class="block font-semibold mb-1">Заголовок</label>
-            <input type="text" name="title" id="title" value="{{ old('title') }}" required class="w-full border rounded px-3 py-2">
-        </div>
+        <x-admin.input label="Заголовок" name="title" required />
 
         {{-- Тип --}}
-        <div>
-            <label for="type" class="block font-semibold mb-1">Тип уведомления</label>
-            <select name="type" id="type" class="w-full border rounded px-3 py-2">
-                <option value="text" selected>Текст</option>
-                <option value="cookie">Cookie</option>
-            </select>
-        </div>
+        <x-admin.select label="Тип уведомления" name="type" :options="[
+            'text' => 'Текст',
+            'cookie' => 'Cookie',
+        ]" selected="text" />
 
         {{-- Аудитория --}}
-        <div>
-            <label for="target" class="block font-semibold mb-1">Показать для</label>
-            <select name="target" id="target" class="w-full border rounded px-3 py-2">
-                <option value="all" selected>Все</option>
-                <option value="admin">Только админы</option>
-                <option value="user">Только пользователи</option>
-            </select>
-        </div>
+        <x-admin.select label="Показать для" name="target" :options="[
+            'all' => 'Все',
+            'admin' => 'Только админы',
+            'user' => 'Только пользователи',
+        ]" selected="all" />
 
         {{-- Позиция --}}
-        <div>
-            <label for="position" class="block font-semibold mb-1">Позиция</label>
-            <select name="position" id="position" class="w-full border rounded px-3 py-2">
-                <option value="top" selected>Сверху</option>
-                <option value="bottom">Снизу</option>
-                <option value="fullscreen">Во весь экран</option>
-            </select>
-        </div>
+        <x-admin.select label="Позиция" name="position" :options="[
+            'top' => 'Сверху',
+            'bottom' => 'Снизу',
+            'fullscreen' => 'Во весь экран',
+        ]" selected="top" />
 
         {{-- Иконка --}}
-        <div>
-            <label for="icon" class="block font-semibold mb-1">Иконка</label>
-            <input type="text" name="icon" id="icon" value="ℹ️" class="w-full border rounded px-3 py-2">
-        </div>
+        <x-admin.input label="Иконка" name="icon" value="ℹ️" />
 
         {{-- Цвет фона --}}
-        <div>
-            <label for="bg_color" class="block font-semibold mb-1">Цвет фона (HEX)</label>
-            <input type="text" name="bg_color" id="bg_color" value="#2563eb" class="w-full border rounded px-3 py-2">
-        </div>
+        <x-admin.input label="Цвет фона (HEX)" name="bg_color" value="#2563eb" />
 
         {{-- Цвет текста --}}
-        <div>
-            <label for="text_color" class="block font-semibold mb-1">Цвет текста (HEX)</label>
-            <input type="text" name="text_color" id="text_color" value="#ffffff" class="w-full border rounded px-3 py-2">
-        </div>
+        <x-admin.input label="Цвет текста (HEX)" name="text_color" value="#ffffff" />
 
         {{-- Содержимое --}}
         <div>
-            <label for="message" class="block font-semibold mb-1">Содержимое</label>
-            <textarea name="message" id="editor" rows="6" class="w-full border rounded px-3 py-2">{{ old('message') }}</textarea>
+            <label for="editor" class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Содержимое</label>
+            <textarea name="message" id="editor" rows="6"
+                      class="w-full border rounded px-3 py-2 dark:bg-gray-800 dark:text-gray-100">{{ old('message') }}</textarea>
         </div>
 
         {{-- Время показа --}}
-        <div>
-            <label for="duration" class="block font-semibold mb-1">⏰ Время показа (секунды)</label>
-            <input type="number" name="duration" id="duration" value="{{ old('duration', 0) }}" class="w-full border rounded px-3 py-2" placeholder="0 = до закрытия">
-        </div>
+        <x-admin.input label="⏰ Время показа (сек)" name="duration" type="number" value="0"
+                       hint="0 = пока не закроет пользователь" />
 
-        {{-- Маршрут --}}
-        <div>
-            <label for="route_filter" class="block font-semibold mb-1">Маршрут или URL</label>
-            <input type="text" name="route_filter" id="route_filter" value="/" class="w-full border rounded px-3 py-2">
-        </div>
+        {{-- Фильтр маршрута --}}
+        <x-admin.input label="Маршрут или URL" name="route_filter" value="/" />
 
-        {{-- Cookie ключ --}}
-        <div>
-            <label for="cookie_key" class="block font-semibold mb-1">Ключ cookie (если нужно)</label>
-            <input type="text" name="cookie_key" id="cookie_key" value="{{ old('cookie_key') }}" class="w-full border rounded px-3 py-2">
-        </div>
+        {{-- Ключ cookie --}}
+        <x-admin.input label="Ключ cookie (если нужно)" name="cookie_key" />
 
-        <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
-            💾 Сохранить
-        </button>
+        {{-- Кнопка --}}
+        <div class="pt-4">
+            <button type="submit"
+                    class="inline-flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-6 py-2 rounded-md text-sm font-semibold shadow transition">
+                💾 Сохранить
+            </button>
+        </div>
     </form>
 @endsection
 
