@@ -21,9 +21,15 @@ class NewsController extends Controller
     {
         $news = News::with('categories')
             ->where('slug', $slug)
-            ->where('published', true) // ← показываем только опубликованные
+            ->where('published', true)
             ->firstOrFail();
 
-        return view('frontend.news.show', compact('news'));
+        return view('frontend.news.show', [
+            'news' => $news,
+            'meta_title' => $news->meta_title ?? $news->title,
+            'meta_description' => $news->meta_description,
+            'meta_keywords' => $news->meta_keywords,
+            'title' => $news->title, // для <title> в Blade
+        ]);
     }
 }
