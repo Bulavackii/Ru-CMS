@@ -19,7 +19,7 @@
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ url()->current() }}">
 
-    {{-- 🟦 Open Graph для соцсетей --}}
+    {{-- 🟦 Open Graph --}}
     <meta property="og:title" content="{{ $meta_title ?? ($title ?? 'RuShop CMS') }}">
     @if (!empty($meta_description))
         <meta property="og:description" content="{{ $meta_description }}">
@@ -28,29 +28,23 @@
     <meta property="og:type" content="article">
     <meta property="og:locale" content="ru_RU">
 
-    {{-- 🐦 Twitter-карты --}}
+    {{-- 🐦 Twitter --}}
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="{{ $meta_title ?? ($title ?? 'RuShop CMS') }}">
     @if (!empty($meta_description))
         <meta name="twitter:description" content="{{ $meta_description }}">
     @endif
 
-    {{-- 🔗 Дополнительные стили (из шаблонов) --}}
+    {{-- 🎨 Стили --}}
     @stack('styles')
 
-    {{-- Swiper CSS --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-
-    {{-- Tailwind CSS --}}
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-
-    {{-- Font Awesome --}}
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-          integrity="sha512-dY6zWyv..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 
-<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
+<body class="bg-white text-gray-800 min-h-screen flex flex-col border-l border-r border-black">
 
     {{-- 🔝 Верхняя панель --}}
     @include('layouts.partials.header')
@@ -58,7 +52,7 @@
     {{-- 🔔 Уведомления --}}
     <x-frontend.notifications />
 
-    {{-- 📄 Основной контент --}}
+    {{-- 📄 Контент страницы --}}
     <main class="flex-grow py-10">
         <div class="container mx-auto px-4">
             @yield('content')
@@ -68,7 +62,7 @@
     {{-- 📌 Подвал --}}
     @include('layouts.partials.footer')
 
-    {{-- 🔽 Дополнительные скрипты (из шаблонов) --}}
+    {{-- 📜 JS --}}
     @stack('scripts')
 </body>
 

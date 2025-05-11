@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Frontend\DashboardController;
+use App\Http\Controllers\Frontend\OrganizationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -11,6 +12,7 @@ use Modules\System\Controllers\Admin\ModuleController;
 use Modules\Search\Controllers\Admin\SearchController;
 use Modules\News\Controllers\Admin\NewsController;
 use Modules\News\Controllers\Frontend\NewsController as FrontendNewsController;
+use Modules\Slideshow\Controllers\PublicController;
 use Modules\Categories\Models\Category;
 use Modules\News\Models\News;
 use App\Http\Controllers\Admin\UploadController;
@@ -69,28 +71,29 @@ Route::post('/logout', function () {
     return redirect('/');
 })->name('logout')->middleware('auth');
 
-// 👤 Личный кабинет
+// 👤 Личный кабинет (физ и юр лица)
 Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/edit', [DashboardController::class, 'edit'])->name('dashboard.edit');
+    Route::put('/dashboard/edit', [DashboardController::class, 'update'])->name('dashboard.update');
+
+    // Только для юр. лиц — форма организации
+    Route::get('/organization', [OrganizationController::class, 'edit'])->name('organization.edit');
+    Route::put('/organization', [OrganizationController::class, 'update'])->name('organization.update');
 });
 
 // 🛠️ Админка и модули
 Route::middleware(['web', 'auth', 'admin'])->group(function () {
-    // Модули
     Route::get('/admin/modules', [ModuleController::class, 'index'])->name('admin.modules.index');
     Route::patch('/admin/modules/{id}/toggle', [ModuleController::class, 'toggle'])->name('admin.modules.toggle');
     Route::post('/admin/modules/install', [ModuleController::class, 'install'])->name('admin.modules.install');
 
-    // Загрузка медиа
     Route::post('/admin/upload-media', [UploadController::class, 'uploadMedia'])->name('admin.upload.media');
 
-    // Поиск
     Route::get('/admin/search', [SearchController::class, 'index'])->name('admin.search.index');
 
-    // Маршруты модуля News
     Route::prefix('admin/news')->group(function () {
         $controller = NewsController::class;
-
         Route::get('/', [$controller, 'index'])->name('admin.news.index');
         Route::get('/create', [$controller, 'create'])->name('admin.news.create');
         Route::post('/', [$controller, 'store'])->name('admin.news.store');
@@ -98,19 +101,16 @@ Route::middleware(['web', 'auth', 'admin'])->group(function () {
         Route::put('/{news}', [$controller, 'update'])->name('admin.news.update');
         Route::delete('/{news}', [$controller, 'destroy'])->name('admin.news.destroy');
 
-        // 🔀 Групповые действия
         Route::post('/bulk', [$controller, 'bulkAction'])->name('admin.news.bulk');
         Route::post('/bulk-update', [$controller, 'bulkUpdate'])->name('admin.news.bulk.update');
-        Route::post('/bulk-delete', [$controller, 'bulkDelete'])->name('admin.news.bulkDelete'); 
+        Route::post('/bulk-delete', [$controller, 'bulkDelete'])->name('admin.news.bulkDelete');
         Route::get('/bulk', [$controller, 'bulkEdit'])->name('admin.news.bulk.edit');
     });
 
-    // Подключение других модулей
     require_once base_path('modules/Categories/Routes/web.php');
     require_once base_path('modules/Slideshow/Routes/web.php');
     require_once base_path('modules/Notifications/Routes/web.php');
 
-    // Главная админка
     Route::get('/admin', fn() => view('admin'))->name('admin');
     Route::get('/admin/{any}', fn() => view('admin'))->where('any', '.*');
 });
@@ -118,4 +118,9 @@ Route::middleware(['web', 'auth', 'admin'])->group(function () {
 // 🌐 Публичные маршруты
 Route::get('/news', [FrontendNewsController::class, 'index'])->name('news.index');
 Route::get('/news/{slug}', [FrontendNewsController::class, 'show'])->name('news.show');
-Route::get('/slideshow/{slug}', [\Modules\Slideshow\Controllers\PublicController::class, 'show'])->name('slideshow.show');
+Route::get('/slideshow/{slug}', [PublicController::class, 'show'])->name('slideshow.show');
+
+// 🔗 Статические страницы
+Route::view('/about', 'frontend.pages.about')->name('pages.about');
+Route::view('/faq', 'frontend.pages.faq')->name('pages.faq');
+Route::view('/contacts', 'frontend.pages.contacts')->name('pages.contacts');
