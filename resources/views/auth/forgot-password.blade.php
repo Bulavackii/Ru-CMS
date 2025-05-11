@@ -1,25 +1,47 @@
-<x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600">
-        {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
+@extends('layouts.guest')
+
+@section('title', 'Восстановление пароля')
+
+@section('content')
+    <div class="max-w-md mx-auto bg-white border border-black rounded-lg shadow-lg p-6 space-y-6 animate-fade-in">
+
+        {{-- 📘 Информационное сообщение --}}
+        <div class="text-sm text-gray-700">
+            Забыли пароль? Без проблем. Укажите ваш e-mail, и мы вышлем вам ссылку для сброса пароля.
+        </div>
+
+        {{-- ✅ Статус (например, "Ссылка отправлена") --}}
+        @if (session('status'))
+            <div class="bg-green-100 text-green-800 px-4 py-2 rounded shadow-sm text-sm">
+                ✅ {{ session('status') }}
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('password.email') }}" class="space-y-5">
+            @csrf
+
+            {{-- 📧 Поле ввода e-mail --}}
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700">E-mail</label>
+                <input id="email"
+                       type="email"
+                       name="email"
+                       value="{{ old('email') }}"
+                       required
+                       autofocus
+                       class="mt-1 block w-full border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 px-4 py-2">
+                @error('email')
+                    <p class="text-sm text-red-600 mt-2">{{ $message }}</p>
+                @enderror
+            </div>
+
+            {{-- 🚀 Кнопка отправки --}}
+            <div class="flex justify-end">
+                <button type="submit"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded shadow transition-transform transform hover:scale-105">
+                    Отправить ссылку для сброса пароля
+                </button>
+            </div>
+        </form>
     </div>
-
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
-
-    <form method="POST" action="{{ route('password.email') }}">
-        @csrf
-
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Email Password Reset Link') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+@endsection

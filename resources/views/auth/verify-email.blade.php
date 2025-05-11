@@ -1,31 +1,45 @@
-<x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600">
-        {{ __('Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.') }}
-    </div>
+@extends('layouts.guest')
 
-    @if (session('status') == 'verification-link-sent')
-        <div class="mb-4 font-medium text-sm text-green-600">
-            {{ __('A new verification link has been sent to the email address you provided during registration.') }}
-        </div>
-    @endif
+@section('title', 'Подтверждение E-mail')
 
-    <div class="mt-4 flex items-center justify-between">
-        <form method="POST" action="{{ route('verification.send') }}">
-            @csrf
+@section('content')
+    <div class="max-w-md mx-auto bg-white border border-black rounded-lg shadow-lg p-6 space-y-6 animate-fade-in">
 
-            <div>
-                <x-primary-button>
-                    {{ __('Resend Verification Email') }}
-                </x-primary-button>
+        {{-- 📧 Заголовок --}}
+        <h2 class="text-2xl font-extrabold text-center text-blue-700">📧 Подтверждение E-mail</h2>
+
+        {{-- ℹ️ Информация --}}
+        <p class="text-gray-700 text-sm text-center leading-relaxed">
+            Спасибо за регистрацию! Пожалуйста, подтвердите свой адрес электронной почты, перейдя по ссылке, которую мы отправили.
+            <br class="hidden sm:block"> Если вы не получили письмо, вы можете запросить повторную отправку.
+        </p>
+
+        {{-- ✅ Уведомление об отправке новой ссылки --}}
+        @if (session('status') == 'verification-link-sent')
+            <div class="bg-green-100 text-green-800 text-sm border border-green-300 rounded px-4 py-2 text-center shadow-sm">
+                ✅ Новая ссылка была отправлена на ваш e-mail.
             </div>
-        </form>
+        @endif
 
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
+        {{-- 🔘 Действия --}}
+        <div class="flex justify-center gap-4 mt-4">
+            {{-- 🔁 Повторная отправка письма --}}
+            <form method="POST" action="{{ route('verification.send') }}">
+                @csrf
+                <button type="submit"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded shadow transition-transform transform hover:scale-105">
+                    Отправить повторно
+                </button>
+            </form>
 
-            <button type="submit" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                {{ __('Log Out') }}
-            </button>
-        </form>
+            {{-- 🚪 Выход --}}
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit"
+                        class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-4 py-2 rounded shadow transition-transform transform hover:scale-105">
+                    Выйти
+                </button>
+            </form>
+        </div>
     </div>
-</x-guest-layout>
+@endsection
