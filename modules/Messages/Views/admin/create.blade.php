@@ -28,6 +28,23 @@
             <form method="POST" action="{{ route('admin.messages.store') }}" class="space-y-5">
                 @csrf
 
+                {{-- Кому --}}
+                <div>
+                    <label for="to_user_id" class="block font-semibold text-gray-700 mb-1">Получатель *</label>
+                    <select name="to_user_id" id="to_user_id" required
+                            class="w-full border rounded px-4 py-3 focus:ring-2 focus:ring-blue-400 @error('to_user_id') border-red-500 @enderror">
+                        <option value="">-- Выберите администратора --</option>
+                        @foreach ($admins as $admin)
+                            <option value="{{ $admin->id }}" @selected(old('to_user_id') == $admin->id)>
+                                {{ $admin->name }} ({{ $admin->email }})
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('to_user_id')
+                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 {{-- Тема --}}
                 <div>
                     <label for="subject" class="block font-semibold text-gray-700 mb-1">Тема сообщения *</label>

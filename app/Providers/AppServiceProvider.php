@@ -68,6 +68,10 @@ class AppServiceProvider extends ServiceProvider
         $this->loadViewsFrom(base_path('modules/Slideshow/Views'), 'Slideshow');
         // ✅ Прямое подключение Уведомлений
         $this->loadViewsFrom(base_path('modules/Notifications/Resources/views'), 'Notifications');
+        // ✅ Прямое подключение Сообщений
+        $this->loadRoutesFrom(base_path('modules/Messages/Routes/web.php'));
+        $this->loadViewsFrom(base_path('modules/Messages/Views'), 'messages');
+        $this->loadMigrationsFrom(base_path('modules/Messages/Migrations'));
 
         View::composer('*', function ($view) {
             $view->with('notifications', Notification::where('enabled', true)->get());

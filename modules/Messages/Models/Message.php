@@ -3,22 +3,27 @@
 namespace Modules\Messages\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\User;
 
 class Message extends Model
 {
-    use HasFactory;
+    protected $table = 'messages';
 
     protected $fillable = [
+        'user_id',
+        'to_user_id',
         'subject',
-        'content',
-        'admin_id',
+        'body',
         'is_read',
     ];
 
-    public function admin()
+    public function sender()
     {
-        return $this->belongsTo(User::class, 'admin_id');
+        return $this->belongsTo(\App\Models\User::class, 'user_id');
+    }
+
+    public function receiver()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'to_user_id');
     }
 }

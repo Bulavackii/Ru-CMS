@@ -18,7 +18,7 @@
             <thead class="bg-gray-50 text-gray-600 uppercase text-xs border-b">
                 <tr>
                     <th class="px-4 py-3 text-left">Тема</th>
-                    <th class="px-4 py-3 text-left">Автор</th>
+                    <th class="px-4 py-3 text-left">От → Кому</th>
                     <th class="px-4 py-3 text-center">Статус</th>
                     <th class="px-4 py-3 text-right">Дата</th>
                 </tr>
@@ -32,7 +32,11 @@
                                 {{ $msg->subject }}
                             </a>
                         </td>
-                        <td class="px-4 py-3">{{ $msg->user->name ?? '—' }}</td>
+                        <td class="px-4 py-3">
+                            {{ $msg->sender->name ?? '—' }}
+                            <span class="text-gray-400">→</span>
+                            {{ $msg->receiver->name ?? '—' }}
+                        </td>
                         <td class="px-4 py-3 text-center">
                             @if ($msg->is_read)
                                 <span class="text-green-600">Прочитано</span>
