@@ -8,6 +8,8 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Admin\ErrorReportController;
+use App\Http\Controllers\Admin\UploadController;
 use Modules\System\Controllers\Admin\ModuleController;
 use Modules\Search\Controllers\Admin\SearchController;
 use Modules\News\Controllers\Admin\NewsController;
@@ -15,7 +17,6 @@ use Modules\News\Controllers\Frontend\NewsController as FrontendNewsController;
 use Modules\Slideshow\Controllers\PublicController;
 use Modules\Categories\Models\Category;
 use Modules\News\Models\News;
-use App\Http\Controllers\Admin\UploadController;
 use Modules\Slideshow\Models\Slideshow;
 
 // ✅ Главная страница
@@ -77,21 +78,24 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/dashboard/edit', [DashboardController::class, 'edit'])->name('dashboard.edit');
     Route::put('/dashboard/edit', [DashboardController::class, 'update'])->name('dashboard.update');
 
-    // Только для юр. лиц — форма организации
     Route::get('/organization', [OrganizationController::class, 'edit'])->name('organization.edit');
     Route::put('/organization', [OrganizationController::class, 'update'])->name('organization.update');
 });
 
 // 🛠️ Админка и модули
 Route::middleware(['web', 'auth', 'admin'])->group(function () {
+    // 📦 Модули
     Route::get('/admin/modules', [ModuleController::class, 'index'])->name('admin.modules.index');
     Route::patch('/admin/modules/{id}/toggle', [ModuleController::class, 'toggle'])->name('admin.modules.toggle');
     Route::post('/admin/modules/install', [ModuleController::class, 'install'])->name('admin.modules.install');
 
+    // 📤 Медиа
     Route::post('/admin/upload-media', [UploadController::class, 'uploadMedia'])->name('admin.upload.media');
 
+    // 🔍 Поиск
     Route::get('/admin/search', [SearchController::class, 'index'])->name('admin.search.index');
 
+    // 📰 Новости
     Route::prefix('admin/news')->group(function () {
         $controller = NewsController::class;
         Route::get('/', [$controller, 'index'])->name('admin.news.index');
@@ -107,10 +111,21 @@ Route::middleware(['web', 'auth', 'admin'])->group(function () {
         Route::get('/bulk', [$controller, 'bulkEdit'])->name('admin.news.bulk.edit');
     });
 
+    // 🐞 Сообщить об ошибке
+    Route::get('/admin/error-report', [ErrorReportController::class, 'form'])->name('admin.error.report');
+    Route::post('/admin/error-report', [ErrorReportController::class, 'send'])->name('admin.error.report.send');
+
+    // 🌍 Геолокация и информация о системе
+    Route::get('/admin/geolocation', [ErrorReportController::class, 'geolocation'])->name('admin.geolocation');
+    Route::get('/admin/system-info', [ErrorReportController::class, 'systemInfo'])->name('admin.system_info');
+
+    // 📁 Маршруты модулей
     require_once base_path('modules/Categories/Routes/web.php');
     require_once base_path('modules/Slideshow/Routes/web.php');
     require_once base_path('modules/Notifications/Routes/web.php');
+    require_once base_path('modules/Messages/Routes/web.php');
 
+    // 🏠 Главная админки
     Route::get('/admin', fn() => view('admin'))->name('admin');
     Route::get('/admin/{any}', fn() => view('admin'))->where('any', '.*');
 });

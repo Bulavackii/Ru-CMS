@@ -9,7 +9,8 @@
         "php": "^8.2",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.1",
-        "laravel/tinker": "^2.10.1"
+        "laravel/tinker": "^2.10.1",
+        "stevebauman/location": "^7.5"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -26,7 +27,10 @@
             "Modules\\": "modules/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+            "app/helpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

@@ -27,10 +27,19 @@
                 @endif
             </a>
 
-            {{-- 💬 Сообщения (заглушка) --}}
-            <a href="#" title="Сообщения (в разработке)"
-               class="relative text-gray-600 dark:text-gray-300 hover:text-blue-600 transition">
-                <i class="fas fa-envelope text-lg opacity-50"></i>
+            {{-- 💬 Сообщения --}}
+            @php
+                $unreadMessages = \Modules\Messages\Models\Message::where('is_read', false)->count();
+            @endphp
+            <a href="{{ route('admin.messages.index') }}"
+               class="relative text-gray-600 dark:text-gray-300 hover:text-blue-600 transition"
+               title="Сообщения">
+                <i class="fas fa-envelope text-lg"></i>
+                @if ($unreadMessages > 0)
+                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1 animate-ping-slow">
+                        {{ $unreadMessages }}
+                    </span>
+                @endif
             </a>
 
             {{-- 👤 Профиль --}}
