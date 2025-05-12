@@ -88,6 +88,8 @@ Route::middleware(['web', 'auth', 'admin'])->group(function () {
     Route::get('/admin/modules', [ModuleController::class, 'index'])->name('admin.modules.index');
     Route::patch('/admin/modules/{id}/toggle', [ModuleController::class, 'toggle'])->name('admin.modules.toggle');
     Route::post('/admin/modules/install', [ModuleController::class, 'install'])->name('admin.modules.install');
+    Route::post('/admin/modules/register', [ModuleController::class, 'register'])->name('admin.modules.register');
+    Route::delete('/admin/modules/{id}', [ModuleController::class, 'destroy'])->name('admin.modules.destroy');
 
     Route::post('/admin/upload-media', [UploadController::class, 'uploadMedia'])->name('admin.upload.media');
 

@@ -52,13 +52,6 @@
         @endif
     </div>
 
-    {{-- ✅ Сообщение --}}
-    @if (session('success'))
-        <div class="bg-green-100 text-green-800 px-4 py-2 mb-4 rounded shadow">
-            ✅ {{ session('success') }}
-        </div>
-    @endif
-
     <form method="POST" action="{{ route('admin.news.bulk') }}" id="bulk-form">
         @csrf
 

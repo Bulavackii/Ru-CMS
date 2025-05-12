@@ -5,20 +5,21 @@
 @section('content')
     <h1 class="text-2xl font-bold mb-6">Редактировать уведомление</h1>
 
-    @if ($errors->any())
+    @if ($errors?->any())
         <div class="bg-red-100 text-red-800 p-3 rounded mb-4">
             {{ $errors->first() }}
         </div>
     @endif
 
-    <form method="POST" action="{{ route('admin.notifications.update', $notification->id) }}" class="space-y-6 max-w-2xl">
+    <form method="POST" action="{{ route('admin.notifications.update', $notification->id) }}" class="space-y-6 w-full">
         @csrf
         @method('PUT')
 
         {{-- Заголовок --}}
         <div>
             <label for="title" class="block font-semibold mb-1">Заголовок</label>
-            <input type="text" name="title" id="title" value="{{ old('title', $notification->title) }}" required class="w-full border rounded px-3 py-2">
+            <input type="text" name="title" id="title" value="{{ old('title', $notification->title) }}" required
+                class="w-full border rounded px-3 py-2">
         </div>
 
         {{-- Тип --}}
@@ -35,8 +36,10 @@
             <label for="target" class="block font-semibold mb-1">Показать для</label>
             <select name="target" id="target" class="w-full border rounded px-3 py-2">
                 <option value="all" {{ old('target', $notification->target) === 'all' ? 'selected' : '' }}>Все</option>
-                <option value="admin" {{ old('target', $notification->target) === 'admin' ? 'selected' : '' }}>Только админы</option>
-                <option value="user" {{ old('target', $notification->target) === 'user' ? 'selected' : '' }}>Только пользователи</option>
+                <option value="admin" {{ old('target', $notification->target) === 'admin' ? 'selected' : '' }}>Только
+                    админы</option>
+                <option value="user" {{ old('target', $notification->target) === 'user' ? 'selected' : '' }}>Только
+                    пользователи</option>
             </select>
         </div>
 
@@ -44,28 +47,35 @@
         <div>
             <label for="position" class="block font-semibold mb-1">Позиция</label>
             <select name="position" id="position" class="w-full border rounded px-3 py-2">
-                <option value="top" {{ old('position', $notification->position) === 'top' ? 'selected' : '' }}>Сверху</option>
-                <option value="bottom" {{ old('position', $notification->position) === 'bottom' ? 'selected' : '' }}>Снизу</option>
-                <option value="fullscreen" {{ old('position', $notification->position) === 'fullscreen' ? 'selected' : '' }}>Во весь экран</option>
+                <option value="top" {{ old('position', $notification->position) === 'top' ? 'selected' : '' }}>Сверху
+                </option>
+                <option value="bottom" {{ old('position', $notification->position) === 'bottom' ? 'selected' : '' }}>Снизу
+                </option>
+                <option value="fullscreen"
+                    {{ old('position', $notification->position) === 'fullscreen' ? 'selected' : '' }}>Во весь экран
+                </option>
             </select>
         </div>
 
         {{-- Иконка --}}
         <div>
             <label for="icon" class="block font-semibold mb-1">Иконка</label>
-            <input type="text" name="icon" id="icon" value="{{ old('icon', $notification->icon) }}" class="w-full border rounded px-3 py-2">
+            <input type="text" name="icon" id="icon" value="{{ old('icon', $notification->icon) }}"
+                class="w-full border rounded px-3 py-2">
         </div>
 
         {{-- Цвет фона --}}
         <div>
             <label for="bg_color" class="block font-semibold mb-1">Цвет фона (HEX)</label>
-            <input type="text" name="bg_color" id="bg_color" value="{{ old('bg_color', $notification->bg_color) }}" class="w-full border rounded px-3 py-2">
+            <input type="text" name="bg_color" id="bg_color" value="{{ old('bg_color', $notification->bg_color) }}"
+                class="w-full border rounded px-3 py-2">
         </div>
 
         {{-- Цвет текста --}}
         <div>
             <label for="text_color" class="block font-semibold mb-1">Цвет текста (HEX)</label>
-            <input type="text" name="text_color" id="text_color" value="{{ old('text_color', $notification->text_color) }}" class="w-full border rounded px-3 py-2">
+            <input type="text" name="text_color" id="text_color"
+                value="{{ old('text_color', $notification->text_color) }}" class="w-full border rounded px-3 py-2">
         </div>
 
         {{-- Содержимое --}}
@@ -77,19 +87,22 @@
         {{-- Время показа --}}
         <div>
             <label for="duration" class="block font-semibold mb-1">⏰ Время показа (секунды)</label>
-            <input type="number" name="duration" id="duration" value="{{ old('duration', $notification->duration) }}" class="w-full border rounded px-3 py-2" placeholder="0 = до закрытия">
+            <input type="number" name="duration" id="duration" value="{{ old('duration', $notification->duration) }}"
+                class="w-full border rounded px-3 py-2" placeholder="0 = до закрытия">
         </div>
 
         {{-- Маршрут --}}
         <div>
             <label for="route_filter" class="block font-semibold mb-1">Маршрут или URL</label>
-            <input type="text" name="route_filter" id="route_filter" value="{{ old('route_filter', $notification->route_filter) }}" class="w-full border rounded px-3 py-2">
+            <input type="text" name="route_filter" id="route_filter"
+                value="{{ old('route_filter', $notification->route_filter) }}" class="w-full border rounded px-3 py-2">
         </div>
 
         {{-- Ключ cookie --}}
         <div>
             <label for="cookie_key" class="block font-semibold mb-1">Ключ cookie (если нужно)</label>
-            <input type="text" name="cookie_key" id="cookie_key" value="{{ old('cookie_key', $notification->cookie_key) }}" class="w-full border rounded px-3 py-2">
+            <input type="text" name="cookie_key" id="cookie_key"
+                value="{{ old('cookie_key', $notification->cookie_key) }}" class="w-full border rounded px-3 py-2">
         </div>
 
         <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
@@ -119,7 +132,7 @@
                 const input = document.createElement('input');
                 input.setAttribute('type', 'file');
                 input.setAttribute('accept', meta.filetype === 'image' ? 'image/*' : 'video/*');
-                input.onchange = function () {
+                input.onchange = function() {
                     const file = this.files[0];
                     const formData = new FormData();
                     formData.append('file', file);
@@ -132,7 +145,9 @@
                         body: formData
                     }).then(response => response.json()).then(data => {
                         if (data.location) {
-                            callback(data.location, { title: file.name });
+                            callback(data.location, {
+                                title: file.name
+                            });
                         } else {
                             alert('Ошибка: сервер не вернул ссылку на файл.');
                         }

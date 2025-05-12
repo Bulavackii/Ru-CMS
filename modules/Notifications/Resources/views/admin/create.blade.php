@@ -42,10 +42,10 @@
         <x-admin.input label="Иконка" name="icon" value="ℹ️" />
 
         {{-- Цвет фона --}}
-        <x-admin.input label="Цвет фона (HEX)" name="bg_color" value="#2563eb" />
+        <x-admin.input label="Цвет фона (HEX)" name="bg_color" value="#cccaca" />
 
         {{-- Цвет текста --}}
-        <x-admin.input label="Цвет текста (HEX)" name="text_color" value="#ffffff" />
+        <x-admin.input label="Цвет текста (HEX)" name="text_color" value="#000000" />
 
         {{-- Содержимое --}}
         <div>

@@ -10,9 +10,12 @@ class Module extends Model
         'name',
         'version',
         'active',
+        'installed_at',
     ];
 
     protected $casts = [
         'active' => 'boolean',
     ];
+
+    protected $dates = ['installed_at'];
 }

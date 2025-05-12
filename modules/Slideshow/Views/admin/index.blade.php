@@ -13,13 +13,6 @@
         </a>
     </div>
 
-    {{-- ✅ Уведомление --}}
-    @if (session('success'))
-        <div class="bg-green-100 text-green-800 px-4 py-2 mb-4 rounded shadow">
-            ✅ {{ session('success') }}
-        </div>
-    @endif
-
     {{-- 📊 Таблица --}}
     <div class="overflow-x-auto">
         <table class="min-w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg shadow-md overflow-hidden">

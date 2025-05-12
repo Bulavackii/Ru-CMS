@@ -12,13 +12,6 @@
         </a>
     </div>
 
-    {{-- ✅ Сообщение об успехе --}}
-    @if (session('success'))
-        <div class="bg-green-100 text-green-800 px-4 py-2 mb-4 rounded shadow">
-            ✅ {{ session('success') }}
-        </div>
-    @endif
-
     {{-- 📊 Таблица категорий --}}
     <div class="overflow-x-auto">
         <table class="min-w-full bg-white dark:bg-gray-900 shadow-md border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
