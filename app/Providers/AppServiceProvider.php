@@ -73,6 +73,8 @@ class AppServiceProvider extends ServiceProvider
         $this->loadViewsFrom(base_path('modules/Messages/Views'), 'messages');
         $this->loadMigrationsFrom(base_path('modules/Messages/Migrations'));
 
+        $this->loadViewsFrom("{$modulesPath}/Users/Views", 'users');
+
         View::composer('*', function ($view) {
             $view->with('notifications', Notification::where('enabled', true)->get());
         });

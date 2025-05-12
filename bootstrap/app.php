@@ -26,3 +26,4 @@ $app->register(Modules\Slideshow\SlideshowServiceProvider::class);
 $app->register(Modules\Messages\Providers\MessagesServiceProvider::class);
 $app->register(Modules\Notifications\Providers\NotificationsServiceProvider::class);
 
+

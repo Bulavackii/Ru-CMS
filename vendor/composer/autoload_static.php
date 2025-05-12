@@ -557,7 +557,9 @@ class ComposerStaticInit88970a0117c062eed55fa8728fc43833
     );
 
     public static $classMap = array (
+        'App\\Http\\Controllers\\Admin\\CategoryController' => __DIR__ . '/../..' . '/app/Http/Controllers/Admin/CategoryController.php',
         'App\\Http\\Controllers\\Admin\\ErrorReportController' => __DIR__ . '/../..' . '/app/Http/Controllers/Admin/ErrorReportController.php',
+        'App\\Http\\Controllers\\Admin\\FileController' => __DIR__ . '/../..' . '/app/Http/Controllers/Admin/FileController.php',
         'App\\Http\\Controllers\\Admin\\UploadController' => __DIR__ . '/../..' . '/app/Http/Controllers/Admin/UploadController.php',
         'App\\Http\\Controllers\\Auth\\AuthenticatedSessionController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/AuthenticatedSessionController.php',
         'App\\Http\\Controllers\\Auth\\ConfirmablePasswordController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/ConfirmablePasswordController.php',
@@ -579,6 +581,8 @@ class ComposerStaticInit88970a0117c062eed55fa8728fc43833
         'App\\Http\\Requests\\Auth\\LoginRequest' => __DIR__ . '/../..' . '/app/Http/Requests/Auth/LoginRequest.php',
         'App\\Http\\Requests\\ProfileUpdateRequest' => __DIR__ . '/../..' . '/app/Http/Requests/ProfileUpdateRequest.php',
         'App\\Models\\Category' => __DIR__ . '/../..' . '/app/Models/Category.php',
+        'App\\Models\\File' => __DIR__ . '/../..' . '/app/Models/File.php',
+        'App\\Models\\FileCategory' => __DIR__ . '/../..' . '/app/Models/FileCategory.php',
         'App\\Models\\Product' => __DIR__ . '/../..' . '/app/Models/Product.php',
         'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',

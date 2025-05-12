@@ -138,3 +138,7 @@ rmdir public\storage
 php artisan storage:link
 
 php artisan vendor:publish --tag=laravel-pagination
+
+
+php artisan migrate --path=database/migrations/2025_05_012_100000_create_file_categories_table.php
+php artisan migrate --path=database/migrations/2025_05_12_100100_create_files_table.php

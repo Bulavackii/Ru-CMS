@@ -9,7 +9,7 @@ class UsersServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadRoutesFrom(__DIR__.'/../Routes/web.php');
-        $this->loadViewsFrom(__DIR__.'/../Views', 'Users');
         $this->loadMigrationsFrom(__DIR__.'/../Migrations');
+        $this->loadViewsFrom(module_path('users', 'Resources/views'), 'users');
     }
 }

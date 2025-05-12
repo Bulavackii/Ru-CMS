@@ -7,15 +7,15 @@ use Modules\System\Models\Module;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use ZipArchive;
-use Carbon\Carbon;
 
 class ModuleController extends Controller
 {
+    // Список модулей
     public function index(): View
     {
-        $modules = Module::orderByDesc('priority')->get();
+        $modules = Module::all();
         return view('admin.modules', compact('modules'));
     }
 
@@ -25,7 +25,7 @@ class ModuleController extends Controller
         $module->active = !$module->active;
         $module->save();
 
-        return response()->json(['success' => true, 'status' => $module->active]);
+        return redirect()->route('admin.modules.index');
     }
 
     public function install(Request $request)
@@ -38,100 +38,42 @@ class ModuleController extends Controller
         $filename = $file->getClientOriginalName();
         $moduleName = pathinfo($filename, PATHINFO_FILENAME);
 
-        $tempPath = storage_path("app/temp");
-        File::ensureDirectoryExists($tempPath);
-        $zipPath = $tempPath . '/' . $filename;
-        $file->move($tempPath, $filename);
+        // Временный путь
+        $zipPath = storage_path("app/temp/$filename");
+        $file->move(storage_path('app/temp'), $filename);
 
-        $extractPath = $tempPath . '/' . $moduleName;
-        File::deleteDirectory($extractPath);
-        File::makeDirectory($extractPath);
-
+        // Распаковка
+        $extractPath = base_path("modules/$moduleName");
         $zip = new ZipArchive;
-        if ($zip->open($zipPath) !== true) {
-            return back()->with('error', 'Ошибка распаковки архива.');
+
+        if ($zip->open($zipPath) === true) {
+            $zip->extractTo($extractPath);
+            $zip->close();
+            File::delete($zipPath);
+        } else {
+            return back()->withErrors(['module' => 'Ошибка распаковки архива']);
         }
-        $zip->extractTo($extractPath);
-        $zip->close();
-        File::delete($zipPath);
 
-        $configPath = $extractPath . '/module.json';
-        $actualRoot = $extractPath;
-
+        // Чтение module.json
+        $configPath = "$extractPath/module.json";
         if (!File::exists($configPath)) {
-            $dirs = File::directories($extractPath);
-            if (count($dirs) === 1 && File::exists($dirs[0] . '/module.json')) {
-                $actualRoot = $dirs[0];
-                $configPath = $actualRoot . '/module.json';
-            } else {
-                return redirect()->route('admin.modules.index')->with('error', 'Файл module.json не найден.');
-            }
+            return back()->withErrors(['module' => 'module.json не найден']);
         }
 
         $data = json_decode(File::get($configPath), true);
-        if (!isset($data['name'], $data['version'])) {
-            return redirect()->route('admin.modules.index')->with('error', 'Некорректный module.json.');
+        if (!$data || !isset($data['name'], $data['version'])) {
+            return back()->withErrors(['module' => 'Некорректный module.json']);
         }
 
-        $finalPath = base_path("modules/{$data['name']}");
-
-        if (File::exists($finalPath)) {
-            File::deleteDirectory($finalPath);
-        }
-
-        File::moveDirectory($actualRoot, $finalPath);
-        File::deleteDirectory($extractPath);
-
-        // Убедимся, что значение для installed_at всегда корректно
-        $installedAt = $this->validateInstalledAt($data['installed_at'] ?? null);
-
-        Module::updateOrCreate(
+        // Регистрация модуля
+        \Modules\System\Models\Module::updateOrCreate(
             ['name' => $data['name']],
             [
-                'version'      => $data['version'],
-                'active'       => $data['active'] ?? false,
-                'installed_at' => $installedAt,
+                'version' => $data['version'],
+                'active' => $data['active'] ?? false,
             ]
         );
 
-        Log::info("Модуль {$data['name']} установлен или обновлён", $data);
-        File::deleteDirectory($tempPath);
-
-        return redirect()->route('admin.modules.index')->with('success', 'Модуль установлен или обновлён.');
-    }
-
-    public function destroy($id)
-    {
-        $module = Module::findOrFail($id);
-        $path = base_path("modules/{$module->name}");
-
-        if (File::exists($path)) {
-            File::deleteDirectory($path);
-        }
-
-        $module->delete();
-
-        return redirect()->route('admin.modules.index')->with('success', 'Модуль удалён.');
-    }
-
-    /**
-     * Валидация и установка правильной даты для installed_at
-     *
-     * @param mixed $installedAt
-     * @return \Carbon\Carbon
-     */
-    protected function validateInstalledAt($installedAt)
-    {
-        // Если установлена некорректная дата или пустое значение, устанавливаем текущую дату
-        if (empty($installedAt) || !Carbon::hasFormat($installedAt, 'Y-m-d H:i:s')) {
-            return Carbon::now();
-        }
-
-        // Если это строка, то пытаемся преобразовать в объект Carbon
-        try {
-            return Carbon::parse($installedAt);
-        } catch (\Exception $e) {
-            return Carbon::now(); // если не удалось парсить, ставим текущую дату
-        }
+        return redirect()->route('admin.modules.index')->with('success', 'Модуль установлен!');
     }
 }

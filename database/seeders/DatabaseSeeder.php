@@ -22,6 +22,17 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
+        // Создание администратора, если он ещё не существует
+        User::updateOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'name' => 'Admin',
+                'email_verified_at' => now(),
+                'password' => bcrypt('password'),
+                'is_admin' => true, // Если поле для админа есть в модели
+            ]
+        );
+
         // Ручные пользователи (админ и обычный) из сидера
         $this->call([
             UsersTableSeeder::class,

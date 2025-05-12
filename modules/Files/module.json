@@ -1,0 +1,16 @@
+{
+    "name": "Files",
+    "version": "1.0",
+    "author": "Your Name",
+    "description": "Модуль для загрузки файлов с поддержкой категорий и скачивания",
+    "routes": [
+        "/admin/files"
+    ],
+    "views": [
+        "admin/files/index.blade.php"
+    ],
+    "migrations": [
+        "2024_05_01_100000_create_files_table.php",
+        "2024_05_01_100100_create_file_categories_table.php"
+    ]
+}

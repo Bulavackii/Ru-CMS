@@ -19,6 +19,9 @@ use Modules\Categories\Models\Category;
 use Modules\News\Models\News;
 use Modules\Slideshow\Models\Slideshow;
 use Modules\Messages\Controllers\Admin\MessageController;
+use Modules\Users\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\FileController;
+use App\Http\Controllers\Admin\CategoryController;
 
 // ✅ Главная страница
 Route::get('/', function () {
@@ -90,10 +93,19 @@ Route::middleware(['web', 'auth', 'admin'])->group(function () {
     Route::post('/admin/modules/install', [ModuleController::class, 'install'])->name('admin.modules.install');
     Route::post('/admin/modules/register', [ModuleController::class, 'register'])->name('admin.modules.register');
     Route::delete('/admin/modules/{id}', [ModuleController::class, 'destroy'])->name('admin.modules.destroy');
+    Route::patch('/admin/users/{id}/toggle-role', [UserController::class, 'toggleRole'])->name('admin.users.toggleRole');
+
+    // Для отображения формы создания пользователя
+    Route::get('/admin/users/create', [UserController::class, 'create'])->name('admin.users.create');
+    // Для обработки и сохранения нового пользователя
+    Route::post('/admin/users', [UserController::class, 'store'])->name('admin.users.store');
+
 
     Route::post('/admin/upload-media', [UploadController::class, 'uploadMedia'])->name('admin.upload.media');
+    Route::post('/admin/categories', [CategoryController::class, 'store'])->name('admin.categories.store');
 
     Route::get('/admin/search', [SearchController::class, 'index'])->name('admin.search.index');
+
 
     Route::prefix('admin/news')->group(function () {
         $controller = NewsController::class;
@@ -115,6 +127,21 @@ Route::middleware(['web', 'auth', 'admin'])->group(function () {
         Route::get('/create', [MessageController::class, 'create'])->name('admin.messages.create');
         Route::post('/', [MessageController::class, 'store'])->name('admin.messages.store');
         Route::get('/{message}', [MessageController::class, 'show'])->name('admin.messages.show');
+    });
+
+    // Маршруты для управления файлами
+    Route::prefix('admin/files')->name('admin.files.')->group(function () {
+        // Страница списка файлов
+        Route::get('/', [FileController::class, 'index'])->name('index');
+
+        // Загрузка файла
+        Route::post('/upload', [FileController::class, 'upload'])->name('upload');
+
+        // Скачивание файла
+        Route::get('/download/{id}', [FileController::class, 'download'])->name('download');
+
+        // Фильтрация файлов по категориям
+        Route::get('/filter', [FileController::class, 'filter'])->name('filter');
     });
 
     Route::get('/admin/error-report', [ErrorReportController::class, 'form'])->name('admin.error.report');
