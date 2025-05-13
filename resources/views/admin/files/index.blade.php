@@ -15,7 +15,7 @@
         </button>
         <button onclick="submitBulkDelete()"
             class="inline-flex items-center gap-2 bg-red-600 text-white hover:bg-red-700 px-4 py-2 rounded-md shadow text-sm">
-            <i class="fas fa-trash"></i> Удалить
+            <i class="fas fa-trash"></i> Удалить выбранные
         </button>
         <button onclick="document.getElementById('create-category-form').classList.toggle('hidden');"
             class="inline-flex items-center gap-2 bg-black text-white hover:bg-gray-700 px-4 py-2 rounded-md shadow text-sm">
@@ -28,15 +28,13 @@
 
 <div class="flex flex-wrap items-center gap-2 mb-2 p-3 rounded bg-gray-100 dark:bg-gray-800">
     <span class="text-sm font-semibold text-gray-600 dark:text-gray-300">Категории:</span>
-
     <a href="{{ route('admin.files.index') }}"
-        class="px-3 py-1.5 rounded-full text-sm font-medium border shadow-sm {{ request('category') ? 'bg-white text-gray-700 hover:bg-gray-100' : 'bg-black text-white' }}">
+       class="px-3 py-1.5 rounded-full text-sm font-medium border shadow-sm {{ request('category') ? 'bg-white text-gray-700 hover:bg-gray-100' : 'bg-black text-white' }}">
         Все
     </a>
-
     @foreach ($categories as $category)
         <a href="{{ route('admin.files.index', ['category' => $category->id]) }}"
-            class="px-3 py-1.5 rounded-full text-sm font-medium border shadow-sm {{ request('category') == $category->id ? 'bg-black text-white' : 'bg-white text-gray-700 hover:bg-gray-100' }}">
+           class="px-3 py-1.5 rounded-full text-sm font-medium border shadow-sm {{ request('category') == $category->id ? 'bg-black text-white' : 'bg-white text-gray-700 hover:bg-gray-100' }}">
             {{ $category->icon }} {{ $category->title }}
         </a>
     @endforeach
@@ -67,10 +65,16 @@
                 <td class="px-4 py-3">{{ number_format($file->size / 1024, 2) }} KB</td>
                 <td class="px-4 py-3 text-left">
                     <div class="flex flex-col space-y-1">
-                        <a href="{{ route('admin.files.download', $file->id) }}" class="text-blue-500 text-sm">Скачать</a>
-                        <div class="flex items-center text-xs">
+                        <a href="{{ route('admin.files.download', $file->id) }}"
+                           class="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium">
+                            <i class="fas fa-download"></i> Скачать
+                        </a>
+                        <div class="flex items-center text-xs text-gray-500 bg-gray-100 rounded px-2 py-1">
                             <span class="truncate max-w-[200px]">{{ asset('storage/' . $file->path) }}</span>
-                            <button onclick="copyLink('{{ asset('storage/' . $file->path) }}')" class="ml-2 text-gray-500 hover:text-black">📋</button>
+                            <button onclick="copyLink('{{ asset('storage/' . $file->path) }}')"
+                                    class="ml-2 text-gray-500 hover:text-black transition" title="Скопировать ссылку">
+                                <i class="fas fa-copy"></i>
+                            </button>
                         </div>
                     </div>
                 </td>
@@ -94,14 +98,17 @@
     @csrf
     <input type="hidden" name="type" value="file">
     <input type="hidden" name="redirect_back_to_files" value="1">
+
     <div class="mb-4">
         <label for="category_title" class="block text-sm">Название категории</label>
         <input type="text" id="category_title" name="title" required class="mt-1 p-2 border rounded-md w-full">
     </div>
+
     <div class="mb-4">
         <label for="category_icon" class="block text-sm">Иконка категории</label>
         <input type="text" id="category_icon" name="icon" class="mt-1 p-2 border rounded-md w-full">
     </div>
+
     <button type="submit"
         class="bg-black text-white px-4 py-2 rounded-md shadow hover:bg-gray-800 text-sm font-semibold">
         Создать категорию
@@ -142,11 +149,10 @@
     function filterFiles() {
         const search = document.getElementById('searchInput').value.toLowerCase();
         const rows = document.querySelectorAll('#filesTable tbody tr');
-
         rows.forEach(row => {
             const name = row.querySelector('.file-name').textContent.toLowerCase();
-            const matchSearch = name.includes(search);
-            row.style.display = matchSearch ? '' : 'none';
+            const match = name.includes(search);
+            row.style.display = match ? '' : 'none';
         });
     }
 

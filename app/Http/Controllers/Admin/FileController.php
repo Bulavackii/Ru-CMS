@@ -51,7 +51,8 @@ class FileController extends Controller
     public function download($id)
     {
         $file = File::findOrFail($id);
-        return Storage::download($file->path);
+
+        return Storage::disk('public')->download($file->path, $file->name);
     }
 
     // Фильтрация по категориям (если используется отдельно)
