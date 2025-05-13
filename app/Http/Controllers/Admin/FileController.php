@@ -64,4 +64,22 @@ class FileController extends Controller
 
         return view('files.index', compact('files', 'categories'));
     }
+
+    public function bulkDelete(Request $request)
+    {
+        $ids = explode(',', $request->input('file_ids'));
+
+        if (!empty($ids)) {
+            $files = File::whereIn('id', $ids)->get();
+
+            foreach ($files as $file) {
+                Storage::disk('public')->delete($file->path);
+                $file->delete();
+            }
+
+            return back()->with('success', 'Выбранные файлы удалены.');
+        }
+
+        return back()->with('error', 'Не выбрано ни одного файла для удаления.');
+    }
 }
