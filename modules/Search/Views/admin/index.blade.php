@@ -102,7 +102,8 @@
                         <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-400 mt-2">🔹 {{ $block['label'] }}
                         </h3>
                         @foreach ($block['collection'] as $item)
-                            <x-admin-info-card :icon="$block['icon']" :title="highlight($block['title']($item), $query)">
+                            <x-admin-info-card :icon="$block['icon']">
+                                <x-slot name="title">{!! highlight($block['title']($item), $query) !!}</x-slot>
                                 {!! highlight($block['desc']($item), $query) !!}
                             </x-admin-info-card>
                         @endforeach
