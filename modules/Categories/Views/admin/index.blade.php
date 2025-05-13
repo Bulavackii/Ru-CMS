@@ -12,7 +12,7 @@
                    placeholder="Поиск..." oninput="filterCategories()">
             <button onclick="submitBulkDelete()"
                 class="inline-flex items-center gap-2 bg-red-600 text-white hover:bg-red-700 px-4 py-2 rounded-md shadow text-sm">
-                <i class="fas fa-trash"></i> Удалить выбранные
+                <i class="fas fa-trash"></i> Удалить
             </button>
             <a href="{{ route('admin.categories.create') }}"
                class="inline-flex items-center gap-2 bg-black text-white hover:bg-gray-800 px-4 py-2 rounded-md shadow text-sm">
