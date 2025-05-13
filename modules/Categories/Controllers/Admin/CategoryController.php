@@ -66,4 +66,16 @@ class CategoryController extends Controller
 
         return redirect()->route('admin.categories.index')->with('success', 'Категория удалена');
     }
+
+    public function bulkDelete(\Illuminate\Http\Request $request)
+    {
+        $ids = explode(',', $request->input('category_ids'));
+
+        if (!empty($ids)) {
+            \App\Models\Category::whereIn('id', $ids)->delete();
+            return redirect()->route('admin.categories.index')->with('success', 'Выбранные категории удалены.');
+        }
+
+        return redirect()->route('admin.categories.index')->with('error', 'Вы не выбрали ни одной категории.');
+    }
 }

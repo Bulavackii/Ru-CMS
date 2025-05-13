@@ -152,10 +152,12 @@ Route::middleware(['web', 'auth', 'admin'])->group(function () {
 
     Route::delete('/admin/files/bulk-delete', [FileController::class, 'bulkDelete'])->name('admin.files.bulkDelete');
 
+    Route::delete('/admin/categories/bulk-delete', [\Modules\Categories\Controllers\Admin\CategoryController::class, 'bulkDelete'])
+        ->name('admin.categories.bulkDelete');
+
     require_once base_path('modules/Categories/Routes/web.php');
     require_once base_path('modules/Slideshow/Routes/web.php');
     require_once base_path('modules/Notifications/Routes/web.php');
-    // require_once base_path('modules/Messages/Routes/web.php'); // удалено, чтобы не дублировать маршруты
 
     Route::get('/admin', fn() => view('admin'))->name('admin');
     Route::get('/admin/{any}', fn() => view('admin'))->where('any', '.*');

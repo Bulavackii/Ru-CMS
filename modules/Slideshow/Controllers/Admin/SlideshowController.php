@@ -66,7 +66,7 @@ class SlideshowController extends Controller
             'media'        => 'required|file|mimes:jpeg,png,webp,mp4,webm|max:20480',
             'caption'      => 'nullable|string|max:255',
             'order'        => 'nullable|integer',
-            'position'     => 'nullable|in:top,bottom', // возможно передаётся из формы
+            'position'     => 'nullable|in:top,bottom',
         ]);
 
         $file = $request->file('media');
@@ -80,7 +80,6 @@ class SlideshowController extends Controller
             'order'        => $request->order ?? 0,
         ]);
 
-        // Если указана новая позиция — обновим её в слайдшоу
         if ($request->filled('position')) {
             $slideshow = Slideshow::find($request->slideshow_id);
             $slideshow->position = $request->position;
@@ -121,4 +120,13 @@ class SlideshowController extends Controller
         return redirect()->route('admin.slideshow.edit', $slideshowId)
             ->with('success', 'Слайд удалён');
     }
+
+    /**
+     * Массовое удаление слайдшоу и их слайдов
+     */
+    public function bulkDelete(Request $request)
+{
+    dd($request->all()); // Для отладки
+}
+
 }
