@@ -3,21 +3,20 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\File;
-use App\Models\FileCategory;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use App\Models\Category;
 
 class FileController extends Controller
 {
-    // Метод для загрузки файла
+    // Загрузка файла
     public function upload(Request $request)
     {
         $request->validate([
             'file' => 'required|file|mimes:jpeg,png,gif,mp4,pdf,doc,docx,xls,xlsx,webm,ogg',
-            'category_id' => 'required|exists:file_categories,id',
+            'category_id' => 'required|exists:categories,id',
         ]);
 
         $file = $request->file('file');
@@ -35,13 +34,12 @@ class FileController extends Controller
         return back()->with('success', 'Файл загружен успешно!');
     }
 
-    // Метод для отображения списка файлов
+    // Список файлов
     public function index(Request $request)
     {
         $currentCategory = $request->input('category');
-        $categories = FileCategory::all();
+        $categories = Category::where('type', 'file')->get();
 
-        // Пагинация файлов
         $files = File::when($currentCategory, function ($query) use ($currentCategory) {
             return $query->where('category_id', $currentCategory);
         })->paginate(10);
@@ -49,19 +47,20 @@ class FileController extends Controller
         return view('admin.files.index', compact('files', 'categories', 'currentCategory'));
     }
 
-    // Метод для скачивания файла
+    // Скачать файл
     public function download($id)
     {
         $file = File::findOrFail($id);
         return Storage::download($file->path);
     }
 
-    // Метод для фильтрации по категориям
+    // Фильтрация по категориям (если используется отдельно)
     public function filter(Request $request)
     {
         $categoryId = $request->get('category');
         $files = File::where('category_id', $categoryId)->get();
-        $categories = FileCategory::all();
+        $categories = Category::where('type', 'file')->get();
+
         return view('files.index', compact('files', 'categories'));
     }
 }

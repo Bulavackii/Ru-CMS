@@ -2,28 +2,38 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\FileCategory;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class CategoryController extends Controller
 {
-    // Метод для создания новой категории
     public function store(Request $request)
     {
-        // Валидация поля категории
         $request->validate([
-            'name' => 'required|string|max:255',
-            'icon' => 'nullable|string|max:10', // Иконка категории
+            'title' => 'required|string|max:255',
+            'icon'  => 'nullable|string|max:10',
+            // Жёстко задаём тип — не доверяем форме
         ]);
 
-        // Создание новой категории
-        FileCategory::create([
-            'name' => $request->name,
-            'icon' => $request->icon, // Иконка категории (по желанию)
+        Category::create([
+            'title' => $request->input('title'),
+            'icon'  => $request->input('icon'),
+            'type'  => 'file', // гарантированно устанавливаем тип
         ]);
 
-        // Перенаправление на страницу с успешным сообщением
-        return redirect()->route('admin.files.index')->with('success', 'Категория успешно создана!');
+        // Вернём обратно в файлы, если была форма из /admin/files
+        if ($request->has('redirect_back_to_files')) {
+            return redirect()->route('admin.files.index')->with('success', 'Категория создана!');
+        }
+
+        return redirect()->route('admin.categories.index')->with('success', 'Категория создана!');
+    }
+
+    public function index()
+    {
+        // Отображаем все категории, а не только 'file'
+        $categories = Category::orderByDesc('id')->paginate(20);
+        return view('admin.categories.index', compact('categories'));
     }
 }
