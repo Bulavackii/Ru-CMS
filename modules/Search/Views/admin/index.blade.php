@@ -26,11 +26,6 @@
                             class="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-md text-sm font-semibold shadow transition w-fit">
                             <i class="fas fa-search"></i> Искать
                         </a>
-
-                        <a :href="`{{ route('admin.search.index') }}?q=${encodeURIComponent(q)}&export=csv`"
-                            class="inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-md text-sm font-semibold shadow transition w-fit">
-                            <i class="fas fa-file-csv"></i>
-                        </a>
                     </div>
 
                     <div class="flex flex-wrap items-center gap-2 mt-2">
