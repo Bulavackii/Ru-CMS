@@ -9,19 +9,13 @@
                 @php
                     $mediaSrc = $news->cover
                         ? asset('storage/' . $news->cover)
-                        : (
-                            preg_match('/<video[^>]*src="([^"]+)"/i', $news->content, $videoMatch)
-                                ? $videoMatch[1]
-                                : (
-                                    preg_match('/<source[^>]*src="([^"]+)"/i', $news->content, $sourceMatch)
-                                        ? $sourceMatch[1]
-                                        : (
-                                            preg_match('/<img[^>]+src="([^">]+)"/i', $news->content, $imgMatch)
-                                                ? $imgMatch[1]
-                                                : asset('images/no-image.png')
-                                        )
-                                )
-                        );
+                        : (preg_match('/<video[^>]*src="([^"]+)"/i', $news->content, $videoMatch)
+                            ? $videoMatch[1]
+                            : (preg_match('/<source[^>]*src="([^"]+)"/i', $news->content, $sourceMatch)
+                                ? $sourceMatch[1]
+                                : (preg_match('/<img[^>]+src="([^">]+)"/i', $news->content, $imgMatch)
+                                    ? $imgMatch[1]
+                                    : asset('images/no-image.png'))));
 
                     $isVideo = Str::endsWith($mediaSrc, ['.mp4', '.webm']);
                     $price = $news->price ?? null;
@@ -30,14 +24,14 @@
                     $isNew = $news->created_at->gt(now()->subDays(7));
                 @endphp
 
-                <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all p-5 flex flex-col relative border border-gray-100 hover:border-gray-200 max-w-xs w-full">
-
+                <div
+                    class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all p-5 flex flex-col relative border border-gray-100 hover:border-gray-200 max-w-xs w-full">
                     {{-- 🏷️ Категории --}}
                     @if ($news->categories->count())
                         <div class="absolute top-3 left-3 z-10 flex flex-wrap gap-1">
                             @foreach ($news->categories as $category)
                                 <a href="{{ url('/?category_products=' . $category->id) }}"
-                                   class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full hover:underline">
+                                    class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full hover:underline">
                                     {{ $category->title }}
                                 </a>
                             @endforeach
@@ -46,14 +40,16 @@
 
                     {{-- 🔥 Бейдж "Акция" --}}
                     @if ($isPromo)
-                        <div class="absolute -top-3 right-3 z-10 bg-white border-2 border-red-600 text-red-600 text-xs font-bold px-3 py-1 rounded-full shadow-md animate-pulse">
+                        <div
+                            class="absolute -top-3 right-3 z-10 bg-white border-2 border-red-600 text-red-600 text-xs font-bold px-3 py-1 rounded-full shadow-md animate-pulse">
                             🔥 STOCK
                         </div>
                     @endif
 
                     {{-- 🆕 Бейдж "Новинка" --}}
                     @if ($isNew && !$isPromo)
-                        <div class="absolute -top-3 right-3 z-10 bg-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md animate-pulse">
+                        <div
+                            class="absolute -top-3 right-3 z-10 bg-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md animate-pulse">
                             🆕 Новинка
                         </div>
                     @endif
@@ -103,16 +99,72 @@
 
                     {{-- 🔘 Кнопки --}}
                     <div class="mt-auto flex gap-3">
-                        <a href="#" class="w-1/2 text-sm text-center bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold py-2.5 rounded-lg transition shadow">
+                        <a href="#"
+                            class="w-1/2 text-sm text-center bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold py-2.5 rounded-lg transition shadow">
                             🛒 В корзину
                         </a>
-                        <a href="{{ route('news.show', $news->slug) }}" class="w-1/2 text-sm text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition shadow">
+                        <a href="{{ route('news.show', $news->slug) }}"
+                            class="w-1/2 text-sm text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition shadow">
                             Подробнее →
                         </a>
                     </div>
                 </div>
             @endforeach
         </div>
+
+        {{-- 📄 Пагинация --}}
+        {{-- 📄 Пагинация --}}
+        @if ($newsList->hasPages())
+            <div class="mt-10 w-full flex flex-col items-center justify-center gap-2">
+                {{-- ℹ️ Инфо о записях --}}
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                    Показано с <span class="font-semibold">{{ $newsList->firstItem() }}</span>
+                    по <span class="font-semibold">{{ $newsList->lastItem() }}</span>
+                    из <span class="font-semibold">{{ $newsList->total() }}</span> записей
+                </div>
+
+                {{-- Навигация --}}
+                <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                    {{-- Назад --}}
+                    @if ($newsList->onFirstPage())
+                        <span class="px-3 py-1.5 bg-gray-200 text-gray-500 rounded-md text-sm cursor-not-allowed">
+                            ← Назад
+                        </span>
+                    @else
+                        <a href="{{ $newsList->previousPageUrl() }}"
+                            class="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-md text-sm transition">
+                            ← Назад
+                        </a>
+                    @endif
+
+                    {{-- Номера страниц --}}
+                    @foreach ($newsList->getUrlRange(1, $newsList->lastPage()) as $page => $url)
+                        @if ($page == $newsList->currentPage())
+                            <span class="px-3 py-1.5 bg-blue-600 text-white rounded-md text-sm font-semibold shadow">
+                                {{ $page }}
+                            </span>
+                        @else
+                            <a href="{{ $url }}"
+                                class="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-md text-sm transition">
+                                {{ $page }}
+                            </a>
+                        @endif
+                    @endforeach
+
+                    {{-- Вперёд --}}
+                    @if ($newsList->hasMorePages())
+                        <a href="{{ $newsList->nextPageUrl() }}"
+                            class="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-md text-sm transition">
+                            Вперёд →
+                        </a>
+                    @else
+                        <span class="px-3 py-1.5 bg-gray-200 text-gray-500 rounded-md text-sm cursor-not-allowed">
+                            Вперёд →
+                        </span>
+                    @endif
+                </div>
+            </div>
+        @endif
     @else
         <p class="text-center text-gray-500">Нет товаров.</p>
     @endif

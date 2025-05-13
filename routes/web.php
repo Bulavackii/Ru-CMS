@@ -22,13 +22,19 @@ use Modules\Messages\Controllers\Admin\MessageController;
 use Modules\Users\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\FileController;
 use App\Http\Controllers\Admin\CategoryController;
+ use Illuminate\Pagination\LengthAwarePaginator;
 
-// ✅ Главная страница
+// ✅ Главная страница с пагинацией по шаблонам
 Route::get('/', function () {
     $user = Auth::user();
     $categories = Category::all();
+    $slideshows = Slideshow::with('items')->get();
 
-    $templateKeys = ['default', 'products', 'reviews', 'faq', 'gallery', 'slideshow', 'test', 'test2', 'contacts'];
+    $templateKeys = [
+        'default', 'products', 'reviews', 'faq',
+        'gallery', 'slideshow', 'test', 'test2', 'contacts'
+    ];
+
     $templates = [];
 
     foreach ($templateKeys as $key) {
@@ -36,16 +42,31 @@ Route::get('/', function () {
             ->where('published', true)
             ->where('template', $key);
 
+        // Фильтрация по категориям
         if (request("category_$key")) {
             $query->whereHas('categories', function ($q) use ($key) {
                 $q->where('categories.id', request("category_$key"));
             });
         }
 
-        $templates[$key] = $query->orderByDesc('id')->get();
-    }
+        $allItems = $query->orderByDesc('id')->get();
 
-    $slideshows = Slideshow::with('items')->get();
+        $perPage = 9;
+        $currentPage = LengthAwarePaginator::resolveCurrentPage($key . '_page');
+        $offset = ($currentPage - 1) * $perPage;
+        $items = $allItems->slice($offset, $perPage)->values();
+
+        $templates[$key] = new LengthAwarePaginator(
+            $items,
+            $allItems->count(),
+            $perPage,
+            $currentPage,
+            [
+                'path' => request()->url(),
+                'pageName' => $key . '_page',
+            ]
+        );
+    }
 
     return view('frontend.home', [
         'user' => $user,

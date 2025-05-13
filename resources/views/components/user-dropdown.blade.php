@@ -34,7 +34,7 @@
             <a href="{{ url('/dashboard') }}"
                class="block px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition">👤 Профиль</a>
             <a href="{{ url('/admin/modules') }}"
-               class="block px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition">⚙️ Модули</a>
+               class="block px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition">⚙️ Параметры</a>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit"
