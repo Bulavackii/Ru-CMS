@@ -9,14 +9,19 @@
                 @php
                     $mediaSrc = $news->cover
                         ? asset('storage/' . $news->cover)
-                        : (preg_match('/<video[^>]*src="([^"]+)"/i', $news->content, $videoMatch)
-                            ? $videoMatch[1]
-                            : (preg_match('/<source[^>]*src="([^"]+)"/i', $news->content, $sourceMatch)
-                                ? $sourceMatch[1]
-                                : (preg_match('/<img[^>]+src="([^">]+)"/i', $news->content, $imgMatch)
-                                    ? $imgMatch[1]
-                                    : asset('images/no-image.png'))));
-
+                        : (
+                            preg_match('/<video[^>]*src="([^"]+)"/i', $news->content, $videoMatch)
+                                ? $videoMatch[1]
+                                : (
+                                    preg_match('/<source[^>]*src="([^"]+)"/i', $news->content, $sourceMatch)
+                                        ? $sourceMatch[1]
+                                        : (
+                                            preg_match('/<img[^>]+src="([^">]+)"/i', $news->content, $imgMatch)
+                                                ? $imgMatch[1]
+                                                : asset('images/no-image.png')
+                                        )
+                                )
+                        );
                     $isVideo = Str::endsWith($mediaSrc, ['.mp4', '.webm']);
                     $price = $news->price ?? null;
                     $stock = $news->stock ?? null;
@@ -25,7 +30,7 @@
                 @endphp
 
                 <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all p-5 flex flex-col relative border border-gray-100 hover:border-gray-200 max-w-xs w-full">
-                    {{-- 🏷️ Категории --}}
+                    {{-- Категории --}}
                     @if ($news->categories->count())
                         <div class="absolute top-3 left-3 z-10 flex flex-wrap gap-1">
                             @foreach ($news->categories as $category)
@@ -37,7 +42,7 @@
                         </div>
                     @endif
 
-                    {{-- 🔥 Акция / 🆕 Новинка --}}
+                    {{-- Бейдж акции / новинки --}}
                     @if ($isPromo)
                         <div class="absolute -top-3 right-3 z-10 bg-white border-2 border-red-600 text-red-600 text-xs font-bold px-3 py-1 rounded-full shadow-md animate-pulse">
                             🔥 STOCK
@@ -51,11 +56,12 @@
                     {{-- Обложка --}}
                     <div class="w-full h-48 overflow-hidden mb-4 rounded-xl border border-gray-200 pt-6 relative">
                         @if ($isVideo)
-                            <video class="w-full h-full object-cover rounded-xl" muted autoplay loop playsinline>
+                            <video class="w-full h-full object-cover rounded-xl" muted autoplay loop playsinline controls>
                                 <source src="{{ $mediaSrc }}" type="video/mp4">
+                                Ваш браузер не поддерживает видео.
                             </video>
                         @else
-                            <img src="{{ $mediaSrc }}" alt="{{ $news->title }}" class="w-full h-full object-cover">
+                            <img src="{{ $mediaSrc }}" alt="{{ $news->title }}" class="w-full h-full object-cover rounded-xl">
                         @endif
                     </div>
 
@@ -66,17 +72,17 @@
                         </a>
                     </h3>
 
-                    {{-- 📅 Дата --}}
+                    {{-- Дата --}}
                     <p class="text-sm text-gray-500 mb-2">
                         📅 {{ $news->created_at->format('d.m.Y') }}
                     </p>
 
-                    {{-- 🧾 Описание --}}
+                    {{-- Краткое описание --}}
                     <div class="text-sm text-gray-600 mb-3 line-clamp-4 break-words break-all">
-                        {!! Str::limit(strip_tags($news->content), 160) !!}
+                        💬 {!! Str::limit(strip_tags($news->content), 160) !!}
                     </div>
 
-                    {{-- 💰 Цена и 📦 Остаток --}}
+                    {{-- Цена и остаток --}}
                     <div class="flex flex-wrap justify-between items-center text-sm text-gray-800 mb-3">
                         @if ($price)
                             <div class="bg-green-100 text-green-900 px-3 py-1 rounded-full font-medium shadow-sm">
@@ -105,7 +111,7 @@
             @endforeach
         </div>
 
-        {{-- 📄 Пагинация --}}
+        {{-- Пагинация --}}
         @if ($newsList->hasPages())
             <div class="mt-10 w-full flex flex-col items-center justify-center gap-2">
                 <div class="text-sm text-gray-500 dark:text-gray-400">
@@ -115,7 +121,6 @@
                 </div>
 
                 <div class="flex items-center space-x-2 rtl:space-x-reverse">
-                    {{-- Назад --}}
                     @if ($newsList->onFirstPage())
                         <span class="px-3 py-1.5 bg-gray-200 text-gray-500 rounded-md text-sm cursor-not-allowed">
                             ← Назад
@@ -127,7 +132,6 @@
                         </a>
                     @endif
 
-                    {{-- Номера страниц --}}
                     @foreach ($newsList->getUrlRange(1, $newsList->lastPage()) as $page => $url)
                         @if ($page == $newsList->currentPage())
                             <span class="px-3 py-1.5 bg-blue-600 text-white rounded-md text-sm font-semibold shadow">
@@ -141,7 +145,6 @@
                         @endif
                     @endforeach
 
-                    {{-- Вперёд --}}
                     @if ($newsList->hasMorePages())
                         <a href="{{ $newsList->nextPageUrl() }}"
                            class="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-md text-sm transition">

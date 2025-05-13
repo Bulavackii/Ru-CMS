@@ -45,11 +45,12 @@
                         </div>
                     @endif
 
-                    {{-- Обложка --}}
+                    {{-- Обложка (с видео-контролами) --}}
                     <div class="w-full h-48 overflow-hidden mb-4 rounded-xl border border-gray-200 pt-6 relative">
                         @if ($isVideo)
-                            <video class="w-full h-full object-cover rounded-xl" muted autoplay loop playsinline>
+                            <video class="w-full h-full object-cover rounded-xl" controls preload="metadata">
                                 <source src="{{ $mediaSrc }}" type="video/mp4">
+                                Ваш браузер не поддерживает видео.
                             </video>
                         @else
                             <img src="{{ $mediaSrc }}" alt="Фото отзыва" class="w-full h-full object-cover rounded-xl">
@@ -68,11 +69,19 @@
                     </div>
 
                     {{-- ⭐ Рейтинг --}}
-                    @if (!empty($review->rating))
-                        <div class="bg-yellow-100 text-yellow-900 text-sm font-semibold px-3 py-1 rounded-full w-fit">
-                            ⭐ Оценка: {{ $review->rating }}/5
-                        </div>
-                    @endif
+                    {{-- ⭐ Рейтинг --}}
+@if (!empty($review->rating))
+    <div class="bg-yellow-100 text-yellow-900 text-sm font-semibold px-3 py-1 rounded-full w-fit">
+        ⭐ Оценка: {{ $review->rating }}/5
+    </div>
+@endif
+
+{{-- 🔘 Кнопка --}}
+<a href="{{ route('news.show', $review->slug) }}"
+   class="mt-3 block text-center text-sm bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition shadow">
+    Читать далее →
+</a>
+
                 </div>
             @endforeach
         </div>

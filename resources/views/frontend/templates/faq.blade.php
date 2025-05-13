@@ -48,8 +48,9 @@
                     {{-- Обложка --}}
                     <div class="w-full h-48 overflow-hidden mb-4 rounded-xl border border-gray-200 pt-6 relative">
                         @if ($isVideo)
-                            <video class="w-full h-full object-cover rounded-xl" muted autoplay loop playsinline>
+                            <video class="w-full h-full object-cover rounded-xl" muted autoplay loop playsinline controls>
                                 <source src="{{ $mediaSrc }}" type="video/mp4">
+                                Ваш браузер не поддерживает видео.
                             </video>
                         @else
                             <img src="{{ $mediaSrc }}" alt="{{ $faq->title }}" class="w-full h-full object-cover rounded-xl">
@@ -94,7 +95,6 @@
                 </div>
 
                 <div class="flex items-center space-x-2 rtl:space-x-reverse">
-                    {{-- Назад --}}
                     @if ($faqList->onFirstPage())
                         <span class="px-3 py-1.5 bg-gray-200 text-gray-500 rounded-md text-sm cursor-not-allowed">
                             ← Назад
@@ -106,7 +106,6 @@
                         </a>
                     @endif
 
-                    {{-- Номера страниц --}}
                     @foreach ($faqList->getUrlRange(1, $faqList->lastPage()) as $page => $url)
                         @if ($page == $faqList->currentPage())
                             <span class="px-3 py-1.5 bg-blue-600 text-white rounded-md text-sm font-semibold shadow">
@@ -120,7 +119,6 @@
                         @endif
                     @endforeach
 
-                    {{-- Вперёд --}}
                     @if ($faqList->hasMorePages())
                         <a href="{{ $faqList->nextPageUrl() }}"
                            class="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-md text-sm transition">
