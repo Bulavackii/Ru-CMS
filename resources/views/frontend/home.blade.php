@@ -3,6 +3,30 @@
 @section('title', 'Главная')
 
 @section('content')
+<style>
+    body {
+        position: relative;
+        z-index: 0;
+    }
+
+    body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: -1;
+        width: 100%;
+        height: 100%;
+        background-image: url('{{ asset('images/fon.jpg') }}');
+        background-repeat: repeat;
+        background-size: auto;
+        background-position: center top;
+        opacity: 0.1;
+        pointer-events: none;
+    }
+</style>
+
+<div class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm min-h-screen px-4 py-8">
     @php
         $titles = [
             'default'   => 'Новости',
@@ -21,22 +45,18 @@
         @include('Slideshow::public.slideshow', ['slideshow' => $slideshow])
     @endforeach
 
-    {{-- 🔁 Вывод ВСЕХ шаблонов --}}
+    {{-- 🔁 Шаблоны --}}
     @foreach ($templates as $key => $newsList)
-        @if ($newsList->isEmpty())
-            @continue
-        @endif
+        @if ($newsList->isEmpty()) @continue @endif
 
         @php $templateView = 'frontend.templates.' . $key; @endphp
 
-        {{-- ✅ Проверка существования кастомного шаблона --}}
         @if (View::exists($templateView))
             @include($templateView, [
                 'newsList' => $newsList,
                 'title' => $titles[$key] ?? ucfirst($key),
             ])
         @elseif ($key === 'slideshow')
-            {{-- 🖼️ Отдельный случай slideshow --}}
             <div class="my-8">
                 @foreach ($newsList as $news)
                     @if ($news->slideshow)
@@ -45,7 +65,6 @@
                 @endforeach
             </div>
         @else
-            {{-- 📰 Общий шаблон для всех остальных --}}
             <div class="mb-10">
                 <h2 class="text-2xl font-bold mb-4 text-center">{{ $titles[$key] ?? ucfirst($key) }}</h2>
                 <x-frontend.news-grid :newsList="$newsList" :title="null" />
@@ -57,4 +76,5 @@
     @foreach ($slideshows->where('position', 'bottom') as $slideshow)
         @include('Slideshow::public.slideshow', ['slideshow' => $slideshow])
     @endforeach
+</div>
 @endsection
