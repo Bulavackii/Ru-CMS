@@ -150,6 +150,8 @@ Route::middleware(['web', 'auth', 'admin'])->group(function () {
     Route::get('/admin/geolocation', [ErrorReportController::class, 'geolocation'])->name('admin.geolocation');
     Route::get('/admin/system-info', [ErrorReportController::class, 'systemInfo'])->name('admin.system_info');
 
+    Route::delete('/admin/files/bulk-delete', [FileController::class, 'bulkDelete'])->name('admin.files.bulkDelete');
+
     require_once base_path('modules/Categories/Routes/web.php');
     require_once base_path('modules/Slideshow/Routes/web.php');
     require_once base_path('modules/Notifications/Routes/web.php');

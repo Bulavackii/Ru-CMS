@@ -42,7 +42,7 @@ class FileController extends Controller
 
         $files = File::when($currentCategory, function ($query) use ($currentCategory) {
             return $query->where('category_id', $currentCategory);
-        })->paginate(10);
+        })->paginate(10)->withQueryString(); // Сохраняем фильтр при пагинации
 
         return view('admin.files.index', compact('files', 'categories', 'currentCategory'));
     }
@@ -62,5 +62,17 @@ class FileController extends Controller
         $categories = Category::where('type', 'file')->get();
 
         return view('files.index', compact('files', 'categories'));
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        $ids = explode(',', $request->input('file_ids'));
+
+        if (!empty($ids)) {
+            \App\Models\File::whereIn('id', $ids)->delete();
+            return back()->with('success', 'Выбранные файлы удалены.');
+        }
+
+        return back()->with('error', 'Не выбрано ни одного файла для удаления.');
     }
 }
