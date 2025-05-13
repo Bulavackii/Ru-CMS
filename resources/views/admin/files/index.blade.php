@@ -15,7 +15,7 @@
         </button>
         <button onclick="submitBulkDelete()"
             class="inline-flex items-center gap-2 bg-red-600 text-white hover:bg-red-700 px-4 py-2 rounded-md shadow text-sm">
-            <i class="fas fa-trash"></i> Удалить выбранные
+            <i class="fas fa-trash"></i> Удалить
         </button>
         <button onclick="document.getElementById('create-category-form').classList.toggle('hidden');"
             class="inline-flex items-center gap-2 bg-black text-white hover:bg-gray-700 px-4 py-2 rounded-md shadow text-sm">
@@ -24,28 +24,28 @@
     </div>
 </div>
 
-<style>
-    .active-category {
-        background-color: #000 !important;
-        color: #fff !important;
-        border-color: #000 !important;
-    }
-</style>
-
 @php $categories = \App\Models\Category::all(); @endphp
 
 <div class="flex flex-wrap items-center gap-2 mb-2 p-3 rounded bg-gray-100 dark:bg-gray-800">
     <span class="text-sm font-semibold text-gray-600 dark:text-gray-300">Категории:</span>
+
     <a href="{{ route('admin.files.index') }}"
-       class="px-3 py-1.5 rounded-full text-sm font-medium border shadow-sm {{ request('category') ? 'bg-white text-gray-700 hover:bg-gray-100' : 'bg-black text-white' }}">
+        class="px-3 py-1.5 rounded-full text-sm font-medium border shadow-sm {{ request('category') ? 'bg-white text-gray-700 hover:bg-gray-100' : 'bg-black text-white' }}">
         Все
     </a>
+
     @foreach ($categories as $category)
         <a href="{{ route('admin.files.index', ['category' => $category->id]) }}"
-           class="px-3 py-1.5 rounded-full text-sm font-medium border shadow-sm {{ request('category') == $category->id ? 'bg-black text-white' : 'bg-white text-gray-700 hover:bg-gray-100' }}">
+            class="px-3 py-1.5 rounded-full text-sm font-medium border shadow-sm {{ request('category') == $category->id ? 'bg-black text-white' : 'bg-white text-gray-700 hover:bg-gray-100' }}">
             {{ $category->icon }} {{ $category->title }}
         </a>
     @endforeach
+</div>
+
+<div class="mb-6 text-sm text-gray-700 dark:text-gray-300">
+    Вы выбрали: <span class="font-semibold">
+        {{ request('category') ? ($categories->firstWhere('id', request('category'))?->icon . ' ' . $categories->firstWhere('id', request('category'))?->title) : 'Все категории' }}
+    </span>
 </div>
 
 <table id="filesTable" class="min-w-full table-auto border border-gray-300 rounded shadow bg-white dark:bg-gray-900">
@@ -60,7 +60,7 @@
     </thead>
     <tbody class="text-sm divide-y divide-gray-100 dark:divide-gray-800">
         @foreach ($files as $file)
-            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition" data-category-id="{{ $file->category_id }}">
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition">
                 <td class="px-4 py-3 text-center"><input type="checkbox" class="row-checkbox" value="{{ $file->id }}"></td>
                 <td class="px-4 py-3 file-name">{{ $file->name }}</td>
                 <td class="px-4 py-3">{{ $file->category->title ?? '—' }}</td>
@@ -116,10 +116,12 @@
 
 <script>
     function triggerFileUpload() {
-        if (!selectedCategory) {
+        const selected = '{{ request('category') }}';
+        if (!selected) {
             alert('Сначала выберите категорию.');
             return;
         }
+        document.getElementById('upload-category-id').value = selected;
         document.getElementById('upload-file').click();
     }
 
@@ -140,10 +142,11 @@
     function filterFiles() {
         const search = document.getElementById('searchInput').value.toLowerCase();
         const rows = document.querySelectorAll('#filesTable tbody tr');
+
         rows.forEach(row => {
             const name = row.querySelector('.file-name').textContent.toLowerCase();
-            const match = name.includes(search);
-            row.style.display = match ? '' : 'none';
+            const matchSearch = name.includes(search);
+            row.style.display = matchSearch ? '' : 'none';
         });
     }
 
