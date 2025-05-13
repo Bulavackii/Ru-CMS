@@ -24,42 +24,35 @@
                     $isNew = $news->created_at->gt(now()->subDays(7));
                 @endphp
 
-                <div
-                    class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all p-5 flex flex-col relative border border-gray-100 hover:border-gray-200 max-w-xs w-full">
+                <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all p-5 flex flex-col relative border border-gray-100 hover:border-gray-200 max-w-xs w-full">
                     {{-- 🏷️ Категории --}}
                     @if ($news->categories->count())
                         <div class="absolute top-3 left-3 z-10 flex flex-wrap gap-1">
                             @foreach ($news->categories as $category)
                                 <a href="{{ url('/?category_products=' . $category->id) }}"
-                                    class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full hover:underline">
+                                   class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full hover:underline">
                                     {{ $category->title }}
                                 </a>
                             @endforeach
                         </div>
                     @endif
 
-                    {{-- 🔥 Бейдж "Акция" --}}
+                    {{-- 🔥 Акция / 🆕 Новинка --}}
                     @if ($isPromo)
-                        <div
-                            class="absolute -top-3 right-3 z-10 bg-white border-2 border-red-600 text-red-600 text-xs font-bold px-3 py-1 rounded-full shadow-md animate-pulse">
+                        <div class="absolute -top-3 right-3 z-10 bg-white border-2 border-red-600 text-red-600 text-xs font-bold px-3 py-1 rounded-full shadow-md animate-pulse">
                             🔥 STOCK
                         </div>
-                    @endif
-
-                    {{-- 🆕 Бейдж "Новинка" --}}
-                    @if ($isNew && !$isPromo)
-                        <div
-                            class="absolute -top-3 right-3 z-10 bg-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md animate-pulse">
+                    @elseif ($isNew)
+                        <div class="absolute -top-3 right-3 z-10 bg-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md animate-pulse">
                             🆕 Новинка
                         </div>
                     @endif
 
-                    {{-- 🎥 Обложка --}}
+                    {{-- Обложка --}}
                     <div class="w-full h-48 overflow-hidden mb-4 rounded-xl border border-gray-200 pt-6 relative">
                         @if ($isVideo)
                             <video class="w-full h-full object-cover rounded-xl" muted autoplay loop playsinline>
                                 <source src="{{ $mediaSrc }}" type="video/mp4">
-                                Ваш браузер не поддерживает видео.
                             </video>
                         @else
                             <img src="{{ $mediaSrc }}" alt="{{ $news->title }}" class="w-full h-full object-cover">
@@ -67,7 +60,7 @@
                     </div>
 
                     {{-- Заголовок --}}
-                    <h3 class="text-xl font-semibold text-gray-900 mb-1 leading-tight max-h-14 overflow-hidden">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-1 leading-tight break-words break-all line-clamp-2">
                         <a href="{{ route('news.show', $news->slug) }}" class="hover:text-blue-600 transition">
                             {{ $news->title }}
                         </a>
@@ -79,7 +72,7 @@
                     </p>
 
                     {{-- 🧾 Описание --}}
-                    <div class="text-sm text-gray-600 mb-3 line-clamp-3">
+                    <div class="text-sm text-gray-600 mb-3 line-clamp-4 break-words break-all">
                         {!! Str::limit(strip_tags($news->content), 160) !!}
                     </div>
 
@@ -97,14 +90,14 @@
                         @endif
                     </div>
 
-                    {{-- 🔘 Кнопки --}}
+                    {{-- Кнопки --}}
                     <div class="mt-auto flex gap-3">
                         <a href="#"
-                            class="w-1/2 text-sm text-center bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold py-2.5 rounded-lg transition shadow">
+                           class="w-1/2 text-sm text-center bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold py-2.5 rounded-lg transition shadow">
                             🛒 В корзину
                         </a>
                         <a href="{{ route('news.show', $news->slug) }}"
-                            class="w-1/2 text-sm text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition shadow">
+                           class="w-1/2 text-sm text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition shadow">
                             Подробнее →
                         </a>
                     </div>
@@ -113,17 +106,14 @@
         </div>
 
         {{-- 📄 Пагинация --}}
-        {{-- 📄 Пагинация --}}
         @if ($newsList->hasPages())
             <div class="mt-10 w-full flex flex-col items-center justify-center gap-2">
-                {{-- ℹ️ Инфо о записях --}}
                 <div class="text-sm text-gray-500 dark:text-gray-400">
                     Показано с <span class="font-semibold">{{ $newsList->firstItem() }}</span>
                     по <span class="font-semibold">{{ $newsList->lastItem() }}</span>
-                    из <span class="font-semibold">{{ $newsList->total() }}</span> записей
+                    из <span class="font-semibold">{{ $newsList->total() }}</span> товаров
                 </div>
 
-                {{-- Навигация --}}
                 <div class="flex items-center space-x-2 rtl:space-x-reverse">
                     {{-- Назад --}}
                     @if ($newsList->onFirstPage())
@@ -132,7 +122,7 @@
                         </span>
                     @else
                         <a href="{{ $newsList->previousPageUrl() }}"
-                            class="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-md text-sm transition">
+                           class="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-md text-sm transition">
                             ← Назад
                         </a>
                     @endif
@@ -145,7 +135,7 @@
                             </span>
                         @else
                             <a href="{{ $url }}"
-                                class="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-md text-sm transition">
+                               class="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-md text-sm transition">
                                 {{ $page }}
                             </a>
                         @endif
@@ -154,7 +144,7 @@
                     {{-- Вперёд --}}
                     @if ($newsList->hasMorePages())
                         <a href="{{ $newsList->nextPageUrl() }}"
-                            class="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-md text-sm transition">
+                           class="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-md text-sm transition">
                             Вперёд →
                         </a>
                     @else

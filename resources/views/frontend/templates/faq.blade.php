@@ -28,10 +28,12 @@
                 @endphp
 
                 <div class="faq-card relative flex flex-col p-5 border border-gray-100 hover:border-gray-200 shadow-md hover:shadow-xl transition-all bg-white rounded-2xl max-w-xs w-full">
+                    {{-- ❓ Бейдж --}}
                     <div class="absolute -top-3 right-3 z-10 bg-white border-2 border-blue-600 text-blue-600 text-xs font-bold px-3 py-1 rounded-full shadow-md animate-pulse">
                         ❓ FAQ
                     </div>
 
+                    {{-- Категории --}}
                     @if ($faq->categories->count())
                         <div class="absolute top-3 left-3 z-10 flex flex-wrap gap-1">
                             @foreach ($faq->categories as $category)
@@ -43,31 +45,35 @@
                         </div>
                     @endif
 
+                    {{-- Обложка --}}
                     <div class="w-full h-48 overflow-hidden mb-4 rounded-xl border border-gray-200 pt-6 relative">
                         @if ($isVideo)
                             <video class="w-full h-full object-cover rounded-xl" muted autoplay loop playsinline>
                                 <source src="{{ $mediaSrc }}" type="video/mp4">
-                                Ваш браузер не поддерживает видео.
                             </video>
                         @else
-                            <img src="{{ $mediaSrc }}" alt="{{ $faq->title }}" class="w-full h-full object-cover">
+                            <img src="{{ $mediaSrc }}" alt="{{ $faq->title }}" class="w-full h-full object-cover rounded-xl">
                         @endif
                     </div>
 
-                    <h3 class="text-xl font-semibold text-gray-900 mb-1 leading-tight max-h-14 overflow-hidden">
+                    {{-- Заголовок --}}
+                    <h3 class="text-xl font-semibold text-gray-900 mb-1 leading-tight break-words break-all line-clamp-2">
                         <a href="{{ route('news.show', $faq->slug) }}" class="hover:text-blue-600 transition">
                             {{ $faq->title }}
                         </a>
                     </h3>
 
+                    {{-- 📅 Дата --}}
                     <p class="text-sm text-gray-500 mb-2">
                         📅 {{ $faq->created_at->format('d.m.Y') }}
                     </p>
 
-                    <div class="text-sm text-gray-700 mb-3 line-clamp-4">
+                    {{-- Ответ --}}
+                    <div class="text-sm text-gray-700 mb-3 line-clamp-4 break-words break-all">
                         💬 {!! Str::limit(strip_tags($faq->content), 200) !!}
                     </div>
 
+                    {{-- Кнопка --}}
                     <div class="mt-auto">
                         <a href="{{ route('news.show', $faq->slug) }}"
                            class="block text-center text-sm bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition shadow">
