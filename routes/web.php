@@ -22,7 +22,8 @@ use Modules\Messages\Controllers\Admin\MessageController;
 use Modules\Users\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\FileController;
 use App\Http\Controllers\Admin\CategoryController;
- use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Modules\Payments\Models\Order;
 
 // ✅ Главная страница с пагинацией по шаблонам
 Route::get('/', function () {
@@ -31,8 +32,15 @@ Route::get('/', function () {
     $slideshows = Slideshow::with('items')->get();
 
     $templateKeys = [
-        'default', 'products', 'reviews', 'faq',
-        'gallery', 'slideshow', 'test', 'test2', 'contacts'
+        'default',
+        'products',
+        'reviews',
+        'faq',
+        'gallery',
+        'slideshow',
+        'test',
+        'test2',
+        'contacts'
     ];
 
     $templates = [];
@@ -105,6 +113,16 @@ Route::middleware(['web', 'auth'])->group(function () {
 
     Route::get('/organization', [OrganizationController::class, 'edit'])->name('organization.edit');
     Route::put('/organization', [OrganizationController::class, 'update'])->name('organization.update');
+
+    // ✅ История заказов
+    Route::get('/dashboard/orders', function () {
+        $orders = \Modules\Payments\Models\Order::with('paymentMethod', 'items')
+            ->where('user_id', auth()->id())
+            ->latest()
+            ->paginate(10);
+
+        return view('frontend.dashboard.orders', compact('orders'));
+    })->name('dashboard.orders');
 });
 
 // 🛠️ Админка и модули

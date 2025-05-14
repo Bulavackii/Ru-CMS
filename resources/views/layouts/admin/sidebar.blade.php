@@ -88,6 +88,24 @@
                         'icon' => 'fa-bell',
                         'label' => 'Уведомления',
                     ],
+                    [
+                        'url' => route('admin.payments.index'),
+                        'check' => request()->is('admin/payments*'),
+                        'icon' => 'fa-credit-card',
+                        'label' => 'Оплата',
+                    ],
+                    [
+                        'url' => route('admin.orders.index'),
+                        'check' => request()->is('admin/orders*'),
+                        'icon' => 'fa-box',
+                        'label' => 'Заказы',
+                    ],
+                    [
+                        'url' => route('admin.delivery.index'),
+                        'check' => request()->is('admin/delivery*'),
+                        'icon' => 'fa-truck',
+                        'label' => 'Доставка',
+                    ],
                 ];
             @endphp
 

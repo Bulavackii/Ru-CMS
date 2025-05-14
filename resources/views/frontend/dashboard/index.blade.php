@@ -65,5 +65,54 @@
                 </a>
             @endif
         </div>
+
+        {{-- 📦 Последние заказы --}}
+        @if ($orders->count())
+            <div class="mt-6 border-t border-gray-200 pt-6 space-y-4 text-sm text-gray-700 px-6 pb-6">
+                <h2 class="text-lg font-bold text-blue-900">🛍️ Последние заказы</h2>
+
+                <table class="w-full bg-white border border-gray-300 rounded-md shadow text-sm">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-3 py-2 text-left">№</th>
+                            <th class="px-3 py-2 text-left">Сумма</th>
+                            <th class="px-3 py-2 text-left">Оплата</th>
+                            <th class="px-3 py-2 text-left">Статус</th>
+                            <th class="px-3 py-2 text-left">Дата</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($orders as $order)
+                            <tr class="border-t border-gray-100">
+                                <td class="px-3 py-2 font-semibold">#{{ $order->id }}</td>
+                                <td class="px-3 py-2">{{ number_format($order->total, 2, ',', ' ') }} ₽</td>
+                                <td class="px-3 py-2">{{ $order->paymentMethod->title ?? '-' }}</td>
+                                <td class="px-3 py-2">
+                                    @php
+                                        $colors = ['pending' => 'gray', 'paid' => 'green', 'canceled' => 'red'];
+                                        $color = $colors[$order->status] ?? 'gray';
+                                    @endphp
+                                    <span class="inline-block px-2 py-1 text-xs rounded-full bg-{{ $color }}-100 text-{{ $color }}-800">
+                                        {{ ucfirst($order->status) }}
+                                    </span>
+                                </td>
+                                <td class="px-3 py-2">{{ $order->created_at->format('d.m.Y H:i') }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+
+                <div class="text-right">
+                    <a href="{{ route('dashboard.orders') }}"
+                       class="text-sm text-blue-600 hover:underline">
+                        → Все заказы
+                    </a>
+                </div>
+            </div>
+        @else
+            <div class="mt-6 text-sm text-gray-500 text-center px-6 pb-6">
+                🕒 У вас пока нет заказов.
+            </div>
+        @endif
     </div>
 @endsection

@@ -66,12 +66,24 @@ class AppServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(base_path('modules/Slideshow/Routes/web.php'));
         $this->loadMigrationsFrom(__DIR__ . '/Database/Migrations');
         $this->loadViewsFrom(base_path('modules/Slideshow/Views'), 'Slideshow');
+
         // ✅ Прямое подключение Уведомлений
         $this->loadViewsFrom(base_path('modules/Notifications/Resources/views'), 'Notifications');
+
         // ✅ Прямое подключение Сообщений
         $this->loadRoutesFrom(base_path('modules/Messages/Routes/web.php'));
         $this->loadViewsFrom(base_path('modules/Messages/Views'), 'messages');
         $this->loadMigrationsFrom(base_path('modules/Messages/Migrations'));
+
+        // ✅ Подключение Payments вручную
+        $this->loadRoutesFrom(base_path('modules/Payments/Routes/web.php'));
+        $this->loadViewsFrom(base_path('modules/Payments/Views'), 'Payments');
+        $this->loadMigrationsFrom(base_path('modules/Payments/Migrations'));
+
+        // ✅ Прямое подключение Delivery
+        $this->loadRoutesFrom(base_path('modules/Delivery/Routes/web.php'));
+        $this->loadViewsFrom(base_path('modules/Delivery/Views'), 'Delivery');
+        $this->loadMigrationsFrom(base_path('modules/Delivery/Migrations'));
 
         $this->loadViewsFrom("{$modulesPath}/Users/Views", 'users');
 

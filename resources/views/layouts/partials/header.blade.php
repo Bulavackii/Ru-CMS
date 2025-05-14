@@ -5,7 +5,7 @@
 <header class="relative text-sm text-gray-800 leading-tight">
     {{-- 🖼️ Фоновое изображение --}}
     <div class="absolute inset-0 z-0 opacity-10"
-         style="background-image: url('{{ asset('images/fon.jpg') }}'); background-repeat: repeat; background-size: auto;">
+        style="background-image: url('{{ asset('images/fon.jpg') }}'); background-repeat: repeat; background-size: auto;">
     </div>
 
     {{-- 🌫️ Контейнер контента --}}
@@ -21,19 +21,40 @@
             </div>
 
             {{-- 📌 Меню навигации --}}
-            <nav class="flex flex-wrap justify-center md:justify-start items-center gap-4 text-sm font-medium text-gray-700">
+            <nav
+                class="flex flex-wrap justify-center md:justify-start items-center gap-4 text-sm font-medium text-gray-700">
                 <a href="{{ url('/') }}"
-                   class="transition hover:text-blue-600 {{ request()->is('/') ? 'text-blue-600 font-semibold' : '' }}">🏠 Главная</a>
+                    class="transition hover:text-blue-600 {{ request()->is('/') ? 'text-blue-600 font-semibold' : '' }}">🏠
+                    Главная</a>
                 <a href="{{ url('/about') }}"
-                   class="transition hover:text-blue-600 {{ request()->is('about') ? 'text-blue-600 font-semibold' : '' }}">📘 О нас</a>
+                    class="transition hover:text-blue-600 {{ request()->is('about') ? 'text-blue-600 font-semibold' : '' }}">📘
+                    О нас</a>
                 <a href="{{ url('/faq') }}"
-                   class="transition hover:text-blue-600 {{ request()->is('faq') ? 'text-blue-600 font-semibold' : '' }}">❓ Вопросы</a>
+                    class="transition hover:text-blue-600 {{ request()->is('faq') ? 'text-blue-600 font-semibold' : '' }}">❓
+                    Вопросы</a>
                 <a href="{{ url('/contacts') }}"
-                   class="transition hover:text-blue-600 {{ request()->is('contacts') ? 'text-blue-600 font-semibold' : '' }}">📞 Контакты</a>
+                    class="transition hover:text-blue-600 {{ request()->is('contacts') ? 'text-blue-600 font-semibold' : '' }}">📞
+                    Контакты</a>
             </nav>
 
-            {{-- 👤 Аккаунт пользователя --}}
-            <div class="flex items-center gap-4 text-sm text-gray-700">
+            {{-- 👤 Аккаунт пользователя + 🛒 Корзина --}}
+            @php
+                $cart = session('cart', []);
+                $cartCount = array_sum(array_column($cart, 'qty'));
+            @endphp
+
+            <div class="flex items-center gap-4 text-sm text-gray-700 relative">
+                {{-- 🛒 Корзина --}}
+                <a href="{{ route('cart.index') }}" class="relative hover:text-blue-600 transition" id="cart-button">
+                    🛒
+                    @if ($cartCount > 0)
+                        <span
+                            class="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                            {{ $cartCount }}
+                        </span>
+                    @endif
+                </a>
+
                 @auth
                     <a href="{{ route('dashboard') }}" class="hover:text-blue-600 transition">👤 Кабинет</a>
 
@@ -43,8 +64,7 @@
 
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit"
-                                class="text-red-600 hover:text-red-700 transition">
+                        <button type="submit" class="text-red-600 hover:text-red-700 transition">
                             🚪 Выйти
                         </button>
                     </form>

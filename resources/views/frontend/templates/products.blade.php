@@ -99,7 +99,11 @@
                     {{-- Кнопки --}}
                     <div class="mt-auto flex gap-3">
                         <a href="#"
-                           class="w-1/2 text-sm text-center bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold py-2.5 rounded-lg transition shadow">
+                           class="w-1/2 text-sm text-center bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold py-2.5 rounded-lg transition shadow add-to-cart"
+                           data-id="{{ $news->id }}"
+                           data-title="{{ $news->title }}"
+                           data-price="{{ $price }}"
+                           data-qty="1">
                             🛒 В корзину
                         </a>
                         <a href="{{ route('news.show', $news->slug) }}"
@@ -162,3 +166,31 @@
         <p class="text-center text-gray-500">Нет товаров.</p>
     @endif
 </div>
+
+@push('scripts')
+<script>
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+        button.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            fetch("{{ route('cart.add') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    id: this.dataset.id,
+                    title: this.dataset.title,
+                    price: this.dataset.price,
+                    qty: this.dataset.qty
+                })
+            }).then(res => res.json())
+              .then(data => {
+                alert(data.message || 'Добавлено в корзину!');
+                location.reload(); // если хочешь обновлять счётчик и т.п.
+            });
+        });
+    });
+</script>
+@endpush

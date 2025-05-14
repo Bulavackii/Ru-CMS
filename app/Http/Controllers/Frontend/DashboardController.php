@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Modules\Payments\Models\Order;
 
 class DashboardController extends Controller
 {
@@ -14,7 +15,14 @@ class DashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
-        return view('frontend.dashboard.index', compact('user'));
+
+        $orders = Order::with('paymentMethod', 'items')
+            ->where('user_id', $user->id)
+            ->latest()
+            ->take(5)
+            ->get();
+
+        return view('frontend.dashboard.index', compact('user', 'orders'));
     }
 
     /**
