@@ -39,22 +39,30 @@
 
             {{-- 👤 Аккаунт пользователя + 🛒 Корзина --}}
             @php
+                use Modules\News\Models\News;
+
                 $cart = session('cart', []);
                 $cartCount = array_sum(array_column($cart, 'qty'));
+
+                // Проверка наличия хотя бы одного товара
+                $hasProducts = News::where('template', 'products')->exists();
             @endphp
 
             <div class="flex items-center gap-4 text-sm text-gray-700 relative">
                 {{-- 🛒 Корзина --}}
-                <a href="{{ route('cart.index') }}" class="relative hover:text-blue-600 transition" id="cart-button">
-                    🛒
-                    @if ($cartCount > 0)
-                        <span
-                            class="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                            {{ $cartCount }}
-                        </span>
-                    @endif
-                </a>
+                @if ($hasProducts)
+                    <a href="{{ route('cart.index') }}" class="relative hover:text-blue-600 transition" id="cart-button">
+                        🛒
+                        @if ($cartCount > 0)
+                            <span
+                                class="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                                {{ $cartCount }}
+                            </span>
+                        @endif
+                    </a>
+                @endif
 
+                {{-- 👤 Аккаунт --}}
                 @auth
                     <a href="{{ route('dashboard') }}" class="hover:text-blue-600 transition">👤 Кабинет</a>
 
