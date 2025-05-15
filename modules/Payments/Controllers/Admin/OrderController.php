@@ -9,7 +9,12 @@ class OrderController extends Controller
 {
     public function index()
     {
-        $orders = Order::with(['paymentMethod', 'deliveryMethod', 'items'])->latest()->paginate(15);
+        Order::where('is_new', true)->update(['is_new' => false]);
+
+        $orders = Order::with(['paymentMethod', 'deliveryMethod', 'items'])
+            ->latest()
+            ->paginate(15);
+
         return view('Payments::admin.orders.index', compact('orders'));
     }
 

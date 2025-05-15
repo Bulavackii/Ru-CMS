@@ -9,6 +9,7 @@ use Modules\Payments\Models\PaymentMethod;
 use Modules\Payments\Models\Order;
 use Modules\Payments\Models\OrderItem;
 use Modules\Delivery\Models\DeliveryMethod;
+use Modules\Notifications\Models\Notification;
 
 class CartController extends Controller
 {
@@ -60,7 +61,6 @@ class CartController extends Controller
         $cart = session('cart', []);
         $total = collect($cart)->sum(fn($item) => $item['qty'] * $item['price']);
 
-        // 💾 Создание заказа
         $order = Order::create([
             'user_id'            => Auth::check() ? Auth::id() : null,
             'payment_method_id'  => $request->payment_method_id,
@@ -69,7 +69,6 @@ class CartController extends Controller
             'status'             => 'pending',
         ]);
 
-        // 💾 Создание позиций заказа
         foreach ($cart as $item) {
             OrderItem::create([
                 'order_id'   => $order->id,
@@ -79,6 +78,16 @@ class CartController extends Controller
                 'qty'        => $item['qty'],
             ]);
         }
+
+        // 🔔 Уведомление для администратора
+        $order = Order::create([
+            'user_id'            => Auth::check() ? Auth::id() : null,
+            'payment_method_id'  => $request->payment_method_id,
+            'delivery_method_id' => $request->delivery_method_id,
+            'total'              => $total,
+            'status'             => 'pending',
+            'is_new'             => true,
+        ]);
 
         session()->forget('cart');
 
