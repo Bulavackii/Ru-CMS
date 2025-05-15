@@ -79,16 +79,16 @@ class CartController extends Controller
             'delivery_method_id' => 'required|exists:delivery_methods,id',
         ]);
 
-        $cart = session('cart', []);
+        $items = $request->input('items', []);
 
-        if (empty($cart)) {
+        if (empty($items)) {
             return redirect()->route('cart.index')->with('error', 'Корзина пуста');
         }
 
-        $order = null; // ← инициализация за пределами транзакции
+        $order = null;
 
-        DB::transaction(function () use ($request, $cart, &$order) {
-            $total = collect($cart)->sum(fn($item) => $item['qty'] * $item['price']);
+        DB::transaction(function () use ($request, $items, &$order) {
+            $total = collect($items)->sum(fn($item) => $item['qty'] * $item['price']);
 
             $order = Order::create([
                 'user_id'            => Auth::check() ? Auth::id() : null,
@@ -99,7 +99,7 @@ class CartController extends Controller
                 'is_new'             => true,
             ]);
 
-            foreach ($cart as $item) {
+            foreach ($items as $item) {
                 $product = News::findOrFail($item['id']);
 
                 if (!is_null($product->stock) && $product->stock < $item['qty']) {
@@ -125,14 +125,14 @@ class CartController extends Controller
         return redirect()->route('cart.confirm', ['id' => $order->id]);
     }
 
-
     public function confirm($id)
     {
-        $order = Order::with(['paymentMethod', 'deliveryMethod'])->findOrFail($id);
+        $order = Order::with(['paymentMethod', 'deliveryMethod', 'items'])->findOrFail($id);
 
         return view('Payments::public.confirm', [
             'paymentMethod'  => $order->paymentMethod,
             'deliveryMethod' => $order->deliveryMethod,
+            'order'          => $order,
         ]);
     }
 }

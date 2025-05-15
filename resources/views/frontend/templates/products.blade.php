@@ -130,8 +130,35 @@
     @endif
 </div>
 
+<div id="toast-container" class="fixed top-5 right-5 z-50 space-y-2"></div>
+
 @push('scripts')
 <script>
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `px-4 py-3 rounded-lg shadow-md text-sm font-medium flex items-center gap-2 animate-slide-in
+            ${type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`;
+        toast.innerHTML = `${type === 'success' ? '✅' : '❌'} <span>${message}</span>`;
+        document.getElementById('toast-container').appendChild(toast);
+
+        setTimeout(() => {
+            toast.classList.add('opacity-0', 'translate-x-4');
+            setTimeout(() => toast.remove(), 400);
+        }, 2500);
+    }
+
+    function updateCartCount() {
+        fetch("{{ route('cart.count') }}")
+            .then(res => res.json())
+            .then(data => {
+                const counter = document.getElementById('cart-count');
+                if (counter) {
+                    counter.textContent = data.count;
+                    counter.classList.toggle('hidden', data.count === 0);
+                }
+            });
+    }
+
     document.querySelectorAll('.add-to-cart').forEach(button => {
         button.addEventListener('click', function (e) {
             e.preventDefault();
@@ -142,7 +169,7 @@
             const availableStock = parseInt(this.dataset.stock);
 
             if (qty > availableStock) {
-                alert(`⚠️ На складе доступно всего ${availableStock} шт.`);
+                showToast(`⚠️ На складе доступно всего ${availableStock} шт.`, 'error');
                 return;
             }
 
@@ -158,9 +185,15 @@
                     price: this.dataset.price,
                     qty: qty
                 })
-            }).then(res => res.json()).then(data => {
-                alert(data.message || 'Добавлено в корзину!');
-                location.reload();
+            }).then(res => {
+                if (!res.ok) throw res;
+                return res.json();
+            }).then(data => {
+                showToast(data.message || 'Добавлено в корзину!', 'success');
+                updateCartCount();
+            }).catch(async error => {
+                const msg = await error.json().then(e => e.message ?? 'Ошибка запроса').catch(() => 'Ошибка');
+                showToast(msg, 'error');
             });
         });
     });
@@ -171,7 +204,6 @@
             const stock = parseInt(this.dataset.stock);
             const input = document.querySelector(`#qty-${id}`);
             let current = parseInt(input.value);
-
             if (current < stock) {
                 input.value = current + 1;
             }
@@ -183,7 +215,6 @@
             const id = this.dataset.id;
             const input = document.querySelector(`#qty-${id}`);
             let current = parseInt(input.value);
-
             if (current > 1) {
                 input.value = current - 1;
             }
