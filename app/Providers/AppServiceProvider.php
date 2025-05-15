@@ -52,7 +52,7 @@ class AppServiceProvider extends ServiceProvider
 
         // ✅ Ручные подключения
         $this->loadRoutesFrom("{$modulesPath}/Users/Routes/web.php");
-        $this->loadViewsFrom("{$modulesPath}/Users/Views", 'Users');
+        $this->loadViewsFrom(base_path('modules/Users/Views'), 'users');
 
         $this->loadRoutesFrom("{$modulesPath}/Search/Routes/web.php");
         $this->loadViewsFrom("{$modulesPath}/Search/Views", 'Search');
@@ -65,7 +65,7 @@ class AppServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(base_path('modules/Slideshow/Migrations'));
 
         $this->loadRoutesFrom(base_path('modules/Messages/Routes/web.php'));
-        $this->loadViewsFrom(base_path('modules/Messages/Views'), 'Messages');
+        $this->loadViewsFrom(base_path('modules/Messages/Views'), 'messages');
         $this->loadMigrationsFrom(base_path('modules/Messages/Migrations'));
 
         $this->loadRoutesFrom(base_path('modules/Payments/Routes/web.php'));

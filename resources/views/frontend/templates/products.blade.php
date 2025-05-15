@@ -89,13 +89,31 @@
                         @endif
                     </div>
 
+                    <div class="flex items-center gap-2 mb-3 justify-between">
+                        <span class="text-sm text-gray-700">Кол-во:</span>
+                        <div class="flex items-center border border-gray-300 rounded overflow-hidden">
+                            <button type="button"
+                                    class="px-2 bg-gray-100 text-gray-700 hover:bg-gray-200 font-bold text-lg decrement"
+                                    data-id="{{ $news->id }}">−</button>
+                            <input type="text"
+                                   id="qty-{{ $news->id }}"
+                                   value="1"
+                                   readonly
+                                   class="w-10 text-center border-l border-r border-gray-200 text-sm qty-input"
+                                   data-id="{{ $news->id }}">
+                            <button type="button"
+                                    class="px-2 bg-gray-100 text-gray-700 hover:bg-gray-200 font-bold text-lg increment"
+                                    data-id="{{ $news->id }}"
+                                    data-stock="{{ $stock }}">+</button>
+                        </div>
+                    </div>
+
                     <div class="mt-auto flex gap-3">
                         <a href="#"
                            class="w-1/2 text-sm text-center bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold py-2.5 rounded-lg transition shadow add-to-cart"
                            data-id="{{ $news->id }}"
                            data-title="{{ $news->title }}"
                            data-price="{{ $price }}"
-                           data-qty="1"
                            data-stock="{{ $stock }}">
                             🛒 В корзину
                         </a>
@@ -107,8 +125,6 @@
                 </div>
             @endforeach
         </div>
-
-        {{-- Pagination (unchanged) --}}
     @else
         <p class="text-center text-gray-500">Нет товаров.</p>
     @endif
@@ -120,7 +136,9 @@
         button.addEventListener('click', function (e) {
             e.preventDefault();
 
-            const qty = parseInt(this.dataset.qty);
+            const id = this.dataset.id;
+            const input = document.querySelector(`#qty-${id}`);
+            const qty = parseInt(input?.value || 1);
             const availableStock = parseInt(this.dataset.stock);
 
             if (qty > availableStock) {
@@ -144,6 +162,31 @@
                 alert(data.message || 'Добавлено в корзину!');
                 location.reload();
             });
+        });
+    });
+
+    document.querySelectorAll('.increment').forEach(button => {
+        button.addEventListener('click', function () {
+            const id = this.dataset.id;
+            const stock = parseInt(this.dataset.stock);
+            const input = document.querySelector(`#qty-${id}`);
+            let current = parseInt(input.value);
+
+            if (current < stock) {
+                input.value = current + 1;
+            }
+        });
+    });
+
+    document.querySelectorAll('.decrement').forEach(button => {
+        button.addEventListener('click', function () {
+            const id = this.dataset.id;
+            const input = document.querySelector(`#qty-${id}`);
+            let current = parseInt(input.value);
+
+            if (current > 1) {
+                input.value = current - 1;
+            }
         });
     });
 </script>
