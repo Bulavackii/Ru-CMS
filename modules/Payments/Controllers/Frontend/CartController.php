@@ -5,10 +5,12 @@ namespace Modules\Payments\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Modules\Payments\Models\PaymentMethod;
 use Modules\Payments\Models\Order;
 use Modules\Payments\Models\OrderItem;
 use Modules\Delivery\Models\DeliveryMethod;
+use Modules\News\Models\News;
 
 class CartController extends Controller
 {
@@ -23,15 +25,35 @@ class CartController extends Controller
 
     public function add(Request $request)
     {
-        $cart = session('cart', []);
         $id = $request->input('id');
+        $qty = intval($request->input('qty'));
 
-        $cart[$id] = [
-            'id'    => $id,
-            'title' => $request->input('title'),
-            'price' => floatval($request->input('price')),
-            'qty'   => intval($request->input('qty')),
-        ];
+        $product = News::findOrFail($id);
+
+        if (!is_null($product->stock) && $product->stock < $qty) {
+            return response()->json([
+                'message' => 'Недостаточно товара на складе. Доступно: ' . $product->stock
+            ], 400);
+        }
+
+        $cart = session('cart', []);
+
+        if (isset($cart[$id])) {
+            $cart[$id]['qty'] += $qty;
+
+            if (!is_null($product->stock) && $cart[$id]['qty'] > $product->stock) {
+                return response()->json([
+                    'message' => 'Вы не можете добавить больше товаров, чем есть на складе. Доступно: ' . $product->stock
+                ], 400);
+            }
+        } else {
+            $cart[$id] = [
+                'id'    => $id,
+                'title' => $request->input('title'),
+                'price' => floatval($request->input('price')),
+                'qty'   => $qty,
+            ];
+        }
 
         session(['cart' => $cart]);
 
@@ -63,33 +85,44 @@ class CartController extends Controller
             return redirect()->route('cart.index')->with('error', 'Корзина пуста');
         }
 
-        $total = collect($cart)->sum(fn($item) => $item['qty'] * $item['price']);
+        DB::transaction(function () use ($request, $cart) {
+            $total = collect($cart)->sum(fn($item) => $item['qty'] * $item['price']);
 
-        // ✅ Создание заказа
-        $order = Order::create([
-            'user_id'            => Auth::check() ? Auth::id() : null,
-            'payment_method_id'  => $request->payment_method_id,
-            'delivery_method_id' => $request->delivery_method_id,
-            'total'              => $total,
-            'status'             => 'pending',
-            'is_new'             => true,
-        ]);
-
-        foreach ($cart as $item) {
-            OrderItem::create([
-                'order_id'   => $order->id,
-                'product_id' => $item['id'],
-                'title'      => $item['title'],
-                'price'      => $item['price'],
-                'qty'        => $item['qty'],
+            $order = Order::create([
+                'user_id'            => Auth::check() ? Auth::id() : null,
+                'payment_method_id'  => $request->payment_method_id,
+                'delivery_method_id' => $request->delivery_method_id,
+                'total'              => $total,
+                'status'             => 'pending',
+                'is_new'             => true,
             ]);
-        }
+
+            foreach ($cart as $item) {
+                $product = News::findOrFail($item['id']);
+
+                if (!is_null($product->stock) && $product->stock < $item['qty']) {
+                    throw new \Exception('Недостаточно товара на складе: ' . $product->title);
+                }
+
+                OrderItem::create([
+                    'order_id'   => $order->id,
+                    'product_id' => $item['id'],
+                    'title'      => $item['title'],
+                    'price'      => $item['price'],
+                    'qty'        => $item['qty'],
+                ]);
+
+                if (!is_null($product->stock)) {
+                    $product->decrement('stock', $item['qty']);
+                }
+            }
+        });
 
         session()->forget('cart');
 
-        // 🔁 redirect вместо view
         return redirect()->route('cart.confirm', ['id' => $order->id]);
     }
+
     public function confirm($id)
     {
         $order = Order::with(['paymentMethod', 'deliveryMethod'])->findOrFail($id);

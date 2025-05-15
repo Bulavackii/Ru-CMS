@@ -3,6 +3,7 @@
 namespace Modules\Payments\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Modules\News\Models\News;
 
 class OrderItem extends Model
 {
@@ -17,5 +18,10 @@ class OrderItem extends Model
     public function order()
     {
         return $this->belongsTo(Order::class);
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(News::class, 'news_id');
     }
 }
