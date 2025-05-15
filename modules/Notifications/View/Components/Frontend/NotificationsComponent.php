@@ -9,14 +9,14 @@ use Illuminate\Support\Facades\Request;
 
 class NotificationsComponent extends Component
 {
-    public $notifications = [];
+    public $notifications;
 
     public function __construct()
     {
         $user = Auth::user();
-        $currentPath = '/' . ltrim(Request::path(), '/');
+        $currentPath = '/' . trim(Request::path(), '/'); // например: /news/123
 
-        $query = Notification::query()
+        $this->notifications = Notification::query()
             ->where('enabled', true)
             ->where(function ($q) use ($user) {
                 if (!$user) {
@@ -27,25 +27,23 @@ class NotificationsComponent extends Component
                     $q->whereIn('target', ['all', 'user']);
                 }
             })
-            ->where(function ($q) use ($currentPath) {
-                $q->whereNull('route_filter')
-                    ->orWhere('route_filter', '/')
-                    ->orWhere('route_filter', $currentPath);
-            });
+            ->get()
+            ->filter(function ($notification) use ($currentPath) {
+                $filter = trim($notification->route_filter ?? '', '/');
 
-        $notifications = $query->orderByDesc('created_at')->get();
-
-        // ❗ Отфильтровываем уведомления с cookie, если уже установлено
-        foreach ($notifications as $n) {
-            if ($n->type === 'cookie' && $n->cookie_key) {
-                $cookie = Request::cookie($n->cookie_key);
-                if (!$cookie) {
-                    $this->notifications[] = $n;
+                if ($filter === '' || $filter === '/') {
+                    return $currentPath === '';
                 }
-            } else {
-                $this->notifications[] = $n;
-            }
-        }
+
+                // wildcard (поддержка /news/* и т.п.)
+                if (str_contains($filter, '*')) {
+                    $pattern = '#^' . str_replace('\*', '.*', preg_quote($filter, '#')) . '$#i';
+                    return (bool)preg_match($pattern, trim($currentPath, '/'));
+                }
+
+                return trim($currentPath, '/') === $filter;
+            })
+            ->values(); // сброс индексов
     }
 
     public function render()

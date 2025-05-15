@@ -9,8 +9,7 @@
         $arrowDirection = $position === 'bottom' ? 'up' : ($position === 'top' ? 'down' : null);
     @endphp
 
-    <div
-        id="notification-container"
+    <div id="notification-container"
         style="
             position: fixed;
             z-index: 9999;
@@ -23,8 +22,7 @@
             width: 100%;
             max-width: 100vw;
             padding: 0 16px;
-        "
-    >
+        ">
         @foreach ($notifications as $n)
             @php $cookieKey = 'notif_' . $n->id; @endphp
 
@@ -39,9 +37,7 @@
                 </script>
             @endif
 
-            <div
-                class="notification relative"
-                data-duration="{{ $n->duration ?? 0 }}"
+            <div class="notification relative" data-duration="{{ $n->duration ?? 0 }}"
                 data-cookie="{{ $n->type === 'cookie' ? $cookieKey : '' }}"
                 style="
                     pointer-events: all;
@@ -57,11 +53,11 @@
                     border: 1px solid rgba(255, 255, 255, 0.15);
                     transition: all 0.3s ease;
                     position: relative;
-                "
-            >
+                ">
                 {{-- 🔽 Сноска-стрелка --}}
                 @if ($arrowDirection)
-                    <div style="
+                    <div
+                        style="
                         position: absolute;
                         {{ $arrowDirection === 'up' ? 'bottom: -10px' : 'top: -10px' }};
                         left: 50%;
@@ -73,12 +69,12 @@
                         {{ $arrowDirection === 'up'
                             ? 'border-top: 10px solid rgba(255, 255, 255, 0.15);'
                             : 'border-bottom: 10px solid rgba(255, 255, 255, 0.15);' }}
-                    "></div>
+                    ">
+                    </div>
                 @endif
 
                 {{-- ❌ Кнопка закрытия --}}
-                <button
-                    class="close-btn"
+                <button class="close-btn"
                     style="
                         position: absolute;
                         top: 12px;
@@ -91,8 +87,7 @@
                         cursor: pointer;
                         transition: transform 0.2s ease;
                     "
-                    aria-label="Закрыть"
-                >&times;</button>
+                    aria-label="Закрыть">&times;</button>
 
                 {{-- 🔔 Заголовок и иконка --}}
                 @if ($n->icon || $n->title)
@@ -101,7 +96,8 @@
                             <span class="text-xl">{{ $n->icon }}</span>
                         @endif
                         @if ($n->title)
-                            <h3 class="text-base font-bold uppercase tracking-wide text-blue-800 dark:text-blue-300 bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded shadow-sm">
+                            <h3
+                                class="text-base font-bold uppercase tracking-wide text-blue-800 dark:text-blue-300 bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded shadow-sm">
                                 {{ $n->title }}
                             </h3>
                         @endif
@@ -109,7 +105,8 @@
                 @endif
 
                 {{-- 📃 Сообщение --}}
-                <div class="text-sm leading-relaxed text-gray-800 dark:text-gray-100 bg-white/10 dark:bg-black/10 p-3 rounded shadow-inner">
+                <div
+                    class="text-sm leading-relaxed text-gray-800 dark:text-gray-100 bg-white/10 dark:bg-black/10 p-3 rounded shadow-inner">
                     {!! $n->message !!}
                 </div>
             </div>
@@ -139,26 +136,47 @@
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.notification').forEach(box => {
                 const duration = parseInt(box.dataset.duration, 10);
-                const closeBtn = box.querySelector('.close-btn');
                 const cookieKey = box.dataset.cookie;
+                const closeBtn = box.querySelector('.close-btn');
 
-                const removeBox = () => {
+                // Если cookie уже есть — удалить уведомление
+                if (cookieKey && document.cookie.includes(cookieKey + '=1')) {
+                    box.remove();
+                    return;
+                }
+
+                // Плавное появление
+                box.style.opacity = '0';
+                box.style.transform = 'translateY(-5px) scale(0.98)';
+                setTimeout(() => {
+                    box.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    box.style.opacity = '1';
+                    box.style.transform = 'translateY(0) scale(1)';
+                }, 100);
+
+                // Закрытие вручную
+                closeBtn?.addEventListener('click', () => {
                     box.style.opacity = '0';
                     box.style.transform = 'translateY(-10px) scale(0.95)';
-                    setTimeout(() => {
-                        box.remove();
-                        if (cookieKey) {
-                            document.cookie = `${cookieKey}=1; path=/; SameSite=Lax`;
-                        }
-                    }, 300);
-                };
+                    if (cookieKey) {
+                        document.cookie = cookieKey + '=1; path=/; max-age=31536000';
+                    }
+                    setTimeout(() => box.remove(), 300);
+                });
 
-                closeBtn?.addEventListener('click', removeBox);
-
+                // Автоудаление
                 if (duration > 0) {
-                    setTimeout(removeBox, duration * 1000);
+                    setTimeout(() => {
+                        box.style.opacity = '0';
+                        box.style.transform = 'translateY(-10px) scale(0.95)';
+                        if (cookieKey) {
+                            document.cookie = cookieKey + '=1; path=/; max-age=31536000';
+                        }
+                        setTimeout(() => box.remove(), 300);
+                    }, duration * 1000);
                 }
             });
         });
     </script>
+
 @endif
