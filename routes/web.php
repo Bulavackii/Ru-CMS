@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\FileController;
 use App\Http\Controllers\Admin\CategoryController;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Modules\Payments\Models\Order;
+use App\Http\Controllers\Frontend\PasswordController;
 
 // ✅ Главная страница с пагинацией по шаблонам
 Route::get('/', function () {
@@ -110,16 +111,18 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/edit', [DashboardController::class, 'edit'])->name('dashboard.edit');
     Route::put('/dashboard/edit', [DashboardController::class, 'update'])->name('dashboard.update');
+    Route::get('/dashboard/password', [PasswordController::class, 'edit'])->name('password.change.form');
+    Route::put('/dashboard/password', [PasswordController::class, 'update'])->name('password.change.update');
 
     Route::get('/organization', [OrganizationController::class, 'edit'])->name('organization.edit');
     Route::put('/organization', [OrganizationController::class, 'update'])->name('organization.update');
 
-    // ✅ История заказов
+    // ✅ История заказов с доставкой и пагинацией по 5 штук
     Route::get('/dashboard/orders', function () {
-        $orders = \Modules\Payments\Models\Order::with('paymentMethod', 'items')
+        $orders = \Modules\Payments\Models\Order::with('paymentMethod', 'deliveryMethod', 'items')
             ->where('user_id', auth()->id())
             ->latest()
-            ->paginate(10);
+            ->paginate(5);
 
         return view('frontend.dashboard.orders', compact('orders'));
     })->name('dashboard.orders');

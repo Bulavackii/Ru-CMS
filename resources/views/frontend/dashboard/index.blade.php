@@ -64,6 +64,11 @@
                     🏢 Редактировать
                 </a>
             @endif
+
+            <a href="{{ route('password.change.form') }}"
+               class="bg-gray-600 hover:bg-gray-700 text-white font-semibold px-5 py-2 rounded shadow transition-transform transform hover:scale-105 text-center">
+                🔒 Сменить пароль
+            </a>
         </div>
 
         {{-- 📦 Последние заказы --}}
@@ -77,6 +82,7 @@
                             <th class="px-3 py-2 text-left">№</th>
                             <th class="px-3 py-2 text-left">Сумма</th>
                             <th class="px-3 py-2 text-left">Оплата</th>
+                            <th class="px-3 py-2 text-left">Доставка</th>
                             <th class="px-3 py-2 text-left">Статус</th>
                             <th class="px-3 py-2 text-left">Дата</th>
                         </tr>
@@ -87,6 +93,14 @@
                                 <td class="px-3 py-2 font-semibold">#{{ $order->id }}</td>
                                 <td class="px-3 py-2">{{ number_format($order->total, 2, ',', ' ') }} ₽</td>
                                 <td class="px-3 py-2">{{ $order->paymentMethod->title ?? '-' }}</td>
+                                <td class="px-3 py-2">
+                                    @if ($order->deliveryMethod)
+                                        {{ $order->deliveryMethod->title }}<br>
+                                        <span class="text-xs text-gray-500">{{ number_format($order->deliveryMethod->price, 2, ',', ' ') }} ₽</span>
+                                    @else
+                                        —
+                                    @endif
+                                </td>
                                 <td class="px-3 py-2">
                                     @php
                                         $colors = ['pending' => 'gray', 'paid' => 'green', 'canceled' => 'red'];
