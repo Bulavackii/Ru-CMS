@@ -1,8 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Blade;
+namespace Modules\Notifications\Providers;
+
 use Illuminate\Support\ServiceProvider;
-use Modules\Notifications\View\Components\Frontend\Notifications;
+use Illuminate\Support\Facades\Blade;
+use Modules\Notifications\View\Components\Frontend\NotificationsComponent;
 
 class NotificationsServiceProvider extends ServiceProvider
 {
@@ -10,9 +12,8 @@ class NotificationsServiceProvider extends ServiceProvider
     {
         $this->loadViewsFrom(__DIR__ . '/../Resources/views', 'Notifications');
         $this->loadRoutesFrom(__DIR__ . '/../Routes/web.php');
-        $this->loadMigrationsFrom(__DIR__ . '/../Database/migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
 
-        // 👇 Это правильное место
-        Blade::component('frontend.notifications', Notifications::class);
+        Blade::component('frontend-notifications', 'Modules\\Notifications\\View\\Components\\Frontend\\NotificationsComponent');
     }
 }

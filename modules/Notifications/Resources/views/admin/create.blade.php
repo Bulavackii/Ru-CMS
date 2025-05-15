@@ -39,10 +39,10 @@
         ]" selected="top" />
 
         {{-- Иконка --}}
-        <x-admin.input label="Иконка" name="icon" value="ℹ️" />
+        <x-admin.input label="Иконка" name="icon" value="🔔" />
 
         {{-- Цвет фона --}}
-        <x-admin.input label="Цвет фона (HEX)" name="bg_color" value="#cccaca" />
+        <x-admin.input label="Цвет фона (HEX)" name="bg_color" value="#E6F3F9" />
 
         {{-- Цвет текста --}}
         <x-admin.input label="Цвет текста (HEX)" name="text_color" value="#000000" />

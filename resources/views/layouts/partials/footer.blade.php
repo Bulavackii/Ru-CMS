@@ -1,7 +1,7 @@
 <footer class="relative text-sm text-gray-600 mt-10">
     {{-- 🖼️ Фон --}}
     <div class="absolute inset-0 z-0 opacity-10"
-         style="background-image: url('{{ asset('images/fon.jpg') }}'); background-repeat: repeat; background-size: auto;">
+        style="background-image: url('{{ asset('images/fon.jpg') }}'); background-repeat: repeat; background-size: auto;">
     </div>
 
     {{-- 🌫️ Основной фон --}}
@@ -57,16 +57,17 @@
 
         {{-- 🔻 Нижняя секция: подписка, язык, копирайт --}}
         <div class="border-t border-gray-200 px-4 py-6 bg-white/80 backdrop-blur-sm">
-            <div class="max-w-screen-xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-gray-500">
+            <div
+                class="max-w-screen-xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-gray-500">
 
                 {{-- ✉️ Подписка --}}
                 <form method="POST" action="#" class="flex flex-col md:flex-row md:items-center gap-3 text-sm">
                     @csrf
                     <input type="email" name="email" placeholder="Ваш email"
-                           class="px-4 py-2 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                           required>
+                        class="px-4 py-2 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        required>
                     <button type="submit"
-                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition font-semibold">
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition font-semibold">
                         Подписаться
                     </button>
                 </form>
@@ -77,7 +78,7 @@
                         @csrf
                         <label for="lang" class="font-medium">Язык:</label>
                         <select name="locale" id="lang"
-                                class="border border-gray-300 rounded px-3 py-1 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            class="border border-gray-300 rounded px-3 py-1 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                             <option value="ru" selected>🇷🇺 Русский</option>
                             <option value="en">🇬🇧 English</option>
                         </select>

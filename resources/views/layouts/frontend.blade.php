@@ -50,7 +50,7 @@
     @include('layouts.partials.header')
 
     {{-- 🔔 Уведомления --}}
-    <x-frontend.notifications />
+    <x-frontend-notifications />
 
     {{-- 📄 Контент страницы --}}
     <main class="flex-grow py-10">

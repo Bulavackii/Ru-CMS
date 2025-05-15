@@ -6,11 +6,13 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\View;
-use Modules\System\Models\Module;
 use Illuminate\Support\Facades\Schema;
-use Modules\Notifications\Models\Notification;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Modules\System\Models\Module;
+use Modules\Notifications\Models\Notification;
+use Modules\Notifications\View\Components\Frontend\NotificationsComponent;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $modulesPath = base_path('modules');
 
-        // Подключение активных модулей — безопасно
+        // 🔁 Автоподключение активных модулей
         if (class_exists(Module::class) && Schema::hasTable('modules')) {
             $activeModules = Module::where('active', true)->pluck('name');
 
@@ -48,45 +50,37 @@ class AppServiceProvider extends ServiceProvider
             }
         }
 
-        // ✅ Прямое подключение Users
+        // ✅ Ручные подключения
         $this->loadRoutesFrom("{$modulesPath}/Users/Routes/web.php");
         $this->loadViewsFrom("{$modulesPath}/Users/Views", 'Users');
 
-        // ✅ Прямое подключение Search
         $this->loadRoutesFrom("{$modulesPath}/Search/Routes/web.php");
         $this->loadViewsFrom("{$modulesPath}/Search/Views", 'Search');
 
-        // ✅ Прямое подключение Категорий
         $this->loadViewsFrom(base_path('modules/Categories/Views'), 'Categories');
-
-        // ✅ Прямое подключение Новостей
         $this->loadViewsFrom(base_path('modules/News/Views'), 'News');
 
-        // ✅ Прямое подключение Слайдшоу
         $this->loadRoutesFrom(base_path('modules/Slideshow/Routes/web.php'));
-        $this->loadMigrationsFrom(__DIR__ . '/Database/Migrations');
         $this->loadViewsFrom(base_path('modules/Slideshow/Views'), 'Slideshow');
+        $this->loadMigrationsFrom(base_path('modules/Slideshow/Migrations'));
 
-        // ✅ Прямое подключение Уведомлений
-        $this->loadViewsFrom(base_path('modules/Notifications/Resources/views'), 'Notifications');
-
-        // ✅ Прямое подключение Сообщений
         $this->loadRoutesFrom(base_path('modules/Messages/Routes/web.php'));
-        $this->loadViewsFrom(base_path('modules/Messages/Views'), 'messages');
+        $this->loadViewsFrom(base_path('modules/Messages/Views'), 'Messages');
         $this->loadMigrationsFrom(base_path('modules/Messages/Migrations'));
 
-        // ✅ Подключение Payments вручную
         $this->loadRoutesFrom(base_path('modules/Payments/Routes/web.php'));
         $this->loadViewsFrom(base_path('modules/Payments/Views'), 'Payments');
         $this->loadMigrationsFrom(base_path('modules/Payments/Migrations'));
 
-        // ✅ Прямое подключение Delivery
         $this->loadRoutesFrom(base_path('modules/Delivery/Routes/web.php'));
         $this->loadViewsFrom(base_path('modules/Delivery/Views'), 'Delivery');
         $this->loadMigrationsFrom(base_path('modules/Delivery/Migrations'));
 
-        $this->loadViewsFrom("{$modulesPath}/Users/Views", 'users');
+        // ✅ Уведомления — views + регистрация Blade-компонента
+        $this->loadViewsFrom(base_path('modules/Notifications/Resources/views'), 'Notifications');
+        Blade::component('frontend-notifications', NotificationsComponent::class);
 
+        // ✅ View composer для глобального доступа к уведомлениям
         View::composer('*', function ($view) {
             $view->with('notifications', Notification::where('enabled', true)->get());
         });

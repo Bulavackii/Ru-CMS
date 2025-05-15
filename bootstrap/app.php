@@ -24,6 +24,4 @@ $app->register(Modules\System\Providers\SystemServiceProvider::class);
 $app->register(Modules\News\Providers\NewsServiceProvider::class);
 $app->register(Modules\Slideshow\SlideshowServiceProvider::class);
 $app->register(Modules\Messages\Providers\MessagesServiceProvider::class);
-$app->register(Modules\Notifications\Providers\NotificationsServiceProvider::class);
-
-
+$app->register(Modules\Notifications\NotificationsServiceProvider::class);
