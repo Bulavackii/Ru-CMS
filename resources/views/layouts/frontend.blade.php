@@ -44,23 +44,32 @@
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 
-<body class="bg-white text-gray-800 min-h-screen flex flex-col border-l border-r border-black">
+<body class="relative text-gray-800 min-h-screen flex flex-col border-l border-r border-black overflow-x-hidden">
 
-    {{-- 🔝 Верхняя панель --}}
-    @include('layouts.partials.header')
+    {{-- 🖼️ Фоновое изображение (как в header) --}}
+    <div class="absolute inset-0 z-0 opacity-10 pointer-events-none"
+        style="background-image: url('{{ asset('images/fon.jpg') }}'); background-repeat: repeat; background-size: auto;">
+    </div>
 
-    {{-- 🔔 Уведомления --}}
-    <x-frontend-notifications />
+    {{-- 📦 Весь остальной контент поверх --}}
+    <div class="relative z-10 flex flex-col min-h-screen">
 
-    {{-- 📄 Контент страницы --}}
-    <main class="flex-grow py-10">
-        <div class="container mx-auto px-4">
-            @yield('content')
-        </div>
-    </main>
+        {{-- 🔝 Верхняя панель --}}
+        @include('layouts.partials.header')
 
-    {{-- 📌 Подвал --}}
-    @include('layouts.partials.footer')
+        {{-- 🔔 Уведомления --}}
+        <x-frontend-notifications />
+
+        {{-- 📄 Контент страницы --}}
+        <main class="flex-grow py-10">
+            <div class="container mx-auto px-4">
+                @yield('content')
+            </div>
+        </main>
+
+        {{-- 📌 Подвал --}}
+        @include('layouts.partials.footer')
+    </div>
 
     {{-- 📜 JS --}}
     @stack('scripts')
