@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Modules\Payments\Models\Order;
 use App\Http\Controllers\Frontend\PasswordController;
+use App\Http\Controllers\Admin\AccountSettingsController;
 
 // ✅ Главная страница с пагинацией по шаблонам
 Route::get('/', function () {
@@ -142,6 +143,8 @@ Route::middleware(['web', 'auth', 'admin'])->group(function () {
     // Для обработки и сохранения нового пользователя
     Route::post('/admin/users', [UserController::class, 'store'])->name('admin.users.store');
 
+    // Настройки учётной записи админа
+    Route::get('/account/settings', [AccountSettingsController::class, 'index'])->name('admin.account.settings');
 
     Route::post('/admin/upload-media', [UploadController::class, 'uploadMedia'])->name('admin.upload.media');
     Route::post('/admin/categories', [CategoryController::class, 'store'])->name('admin.categories.store');
