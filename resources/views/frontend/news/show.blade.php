@@ -35,8 +35,8 @@
                             💰 {{ number_format($news->price, 2, ',', ' ') }} ₽
                         </div>
                         @if (!is_null($news->stock))
-                            <div class="bg-yellow-100 text-yellow-900 px-4 py-2 rounded-full font-semibold shadow-sm text-sm inline-block">
-                                📦 Осталось: {{ $news->stock }}
+                            <div class="bg-yellow-100 text-yellow-900 px-4 py-2 rounded-full font-semibold shadow-sm text-sm inline-block stock-display" data-id="{{ $news->id }}">
+                                📦 Осталось: <span>{{ $news->stock }}</span>
                             </div>
                         @endif
                     </div>
@@ -82,57 +82,127 @@
             </a>
         </div>
     </article>
+
+    <div id="toast-container" class="fixed top-5 right-5 z-50 space-y-2"></div>
 @endsection
 
-@push('styles')
-    <style>
-        .news-content {
-            word-break: break-word;
-        }
+@push('scripts')
+<script>
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `px-4 py-3 rounded-lg shadow-md text-sm font-medium flex items-center gap-2 animate-slide-in
+            ${type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`;
+        toast.innerHTML = `${type === 'success' ? '✅' : '❌'} <span>${message}</span>`;
+        document.getElementById('toast-container').appendChild(toast);
 
-        .news-content * {
-            word-wrap: break-word;
-            overflow-wrap: anywhere;
-        }
+        setTimeout(() => {
+            toast.classList.add('opacity-0', 'translate-x-4');
+            setTimeout(() => toast.remove(), 400);
+        }, 2500);
+    }
 
-        .news-content img,
-        .news-content video,
-        .news-content iframe {
-            max-width: 100%;
-            height: auto;
-            display: block;
-            margin: 1.5rem auto;
-            border-radius: 0.75rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
+    function updateCartCount() {
+        fetch("{{ route('cart.count') }}")
+            .then(res => res.json())
+            .then(data => {
+                const counter = document.getElementById('cart-count');
+                if (counter) {
+                    counter.textContent = data.count;
+                    counter.classList.toggle('hidden', data.count === 0);
+                }
+            });
+    }
 
-        .news-content table {
-            display: block;
-            width: 100%;
-            overflow-x: auto;
-            border-collapse: collapse;
-            margin-top: 1rem;
-            margin-bottom: 1rem;
-        }
+    function updateLocalStock(productId) {
+        const input = document.querySelector(`#qty-${productId}`);
+        const qty = parseInt(input.value);
+        const originalStock = parseInt(document.querySelector(`.add-to-cart[data-id='${productId}']`).dataset.stock);
+        const stockSpan = document.querySelector(`.stock-display[data-id='${productId}'] span`);
 
-        .news-content table th,
-        .news-content table td {
-            padding: 0.5rem;
-            border: 1px solid #d1d5db;
+        if (stockSpan) {
+            const remaining = originalStock - qty;
+            stockSpan.textContent = remaining < 0 ? 0 : remaining;
         }
+    }
 
-        .news-content h1, .news-content h2, .news-content h3 {
-            font-weight: 700;
-            margin-top: 1.5rem;
-        }
+    function updateServerStock(productId) {
+        fetch(`/product/${productId}/stock`)
+            .then(res => res.json())
+            .then(data => {
+                const stockSpan = document.querySelector(`.stock-display[data-id='${productId}'] span`);
+                if (stockSpan) {
+                    stockSpan.textContent = data.stock;
+                    const btn = document.querySelector(`.add-to-cart[data-id='${productId}']`);
+                    if (btn) {
+                        btn.dataset.stock = data.stock;
+                    }
+                }
+            });
+    }
 
-        @media (max-width: 640px) {
-            .news-content img,
-            .news-content video,
-            .news-content iframe {
-                max-width: 100%;
-                height: auto;
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+        button.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            const id = this.dataset.id;
+            const input = document.querySelector(`#qty-${id}`);
+            const qty = parseInt(input?.value || 1);
+            const availableStock = parseInt(this.dataset.stock);
+
+            if (qty > availableStock) {
+                showToast(`⚠️ На складе доступно всего ${availableStock} шт.`, 'error');
+                return;
             }
-        }
-    </style>
+
+            fetch("{{ route('cart.add') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    id: this.dataset.id,
+                    title: this.dataset.title,
+                    price: this.dataset.price,
+                    qty: qty
+                })
+            }).then(res => {
+                if (!res.ok) throw res;
+                return res.json();
+            }).then(data => {
+                showToast(data.message || 'Добавлено в корзину!', 'success');
+                updateCartCount();
+                updateServerStock(id);
+            }).catch(async error => {
+                const msg = await error.json().then(e => e.message ?? 'Ошибка запроса').catch(() => 'Ошибка');
+                showToast(msg, 'error');
+            });
+        });
+    });
+
+    document.querySelectorAll('.increment').forEach(button => {
+        button.addEventListener('click', function () {
+            const id = this.dataset.id;
+            const stock = parseInt(this.dataset.stock);
+            const input = document.querySelector(`#qty-${id}`);
+            let current = parseInt(input.value);
+            if (current < stock) {
+                input.value = current + 1;
+                updateLocalStock(id);
+            }
+        });
+    });
+
+    document.querySelectorAll('.decrement').forEach(button => {
+        button.addEventListener('click', function () {
+            const id = this.dataset.id;
+            const input = document.querySelector(`#qty-${id}`);
+            let current = parseInt(input.value);
+            if (current > 1) {
+                input.value = current - 1;
+                updateLocalStock(id);
+            }
+        });
+    });
+</script>
 @endpush
