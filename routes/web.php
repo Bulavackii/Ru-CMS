@@ -29,31 +29,23 @@ use App\Http\Controllers\Admin\AccountSettingsController;
 use App\Http\Controllers\Frontend\FrontendSearchController;
 
 // ✅ Главная страница с пагинацией по шаблонам
+// Внутри маршрута '/'
 Route::get('/', function () {
     $user = Auth::user();
     $categories = Category::all();
     $slideshows = Slideshow::with('items')->get();
 
     $templateKeys = [
-        'default',
-        'products',
-        'reviews',
-        'faq',
-        'gallery',
-        'slideshow',
-        'test',
-        'test2',
-        'contacts'
+        'default', 'products', 'reviews', 'faq',
+        'gallery', 'slideshow', 'test', 'test2', 'contacts'
     ];
 
     $templates = [];
+    $cart = session('cart', []);
 
     foreach ($templateKeys as $key) {
-        $query = News::with('categories')
-            ->where('published', true)
-            ->where('template', $key);
+        $query = News::with('categories')->where('published', true)->where('template', $key);
 
-        // Фильтрация по категориям
         if (request("category_$key")) {
             $query->whereHas('categories', function ($q) use ($key) {
                 $q->where('categories.id', request("category_$key"));
@@ -61,6 +53,13 @@ Route::get('/', function () {
         }
 
         $allItems = $query->orderByDesc('id')->get();
+
+        // Учти количество товаров в корзине
+        $allItems->transform(function ($item) use ($cart) {
+            $cartQty = isset($cart[$item->id]) ? $cart[$item->id]['qty'] : 0;
+            $item->stock = is_null($item->stock) ? null : max($item->stock - $cartQty, 0);
+            return $item;
+        });
 
         $perPage = 9;
         $currentPage = LengthAwarePaginator::resolveCurrentPage($key . '_page');
@@ -72,10 +71,7 @@ Route::get('/', function () {
             $allItems->count(),
             $perPage,
             $currentPage,
-            [
-                'path' => request()->url(),
-                'pageName' => $key . '_page',
-            ]
+            ['path' => request()->url(), 'pageName' => $key . '_page']
         );
     }
 

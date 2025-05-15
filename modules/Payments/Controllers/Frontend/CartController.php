@@ -85,7 +85,9 @@ class CartController extends Controller
             return redirect()->route('cart.index')->with('error', 'Корзина пуста');
         }
 
-        DB::transaction(function () use ($request, $cart) {
+        $order = null; // ← инициализация за пределами транзакции
+
+        DB::transaction(function () use ($request, $cart, &$order) {
             $total = collect($cart)->sum(fn($item) => $item['qty'] * $item['price']);
 
             $order = Order::create([
@@ -122,6 +124,7 @@ class CartController extends Controller
 
         return redirect()->route('cart.confirm', ['id' => $order->id]);
     }
+
 
     public function confirm($id)
     {
