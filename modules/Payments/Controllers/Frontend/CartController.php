@@ -9,7 +9,6 @@ use Modules\Payments\Models\PaymentMethod;
 use Modules\Payments\Models\Order;
 use Modules\Payments\Models\OrderItem;
 use Modules\Delivery\Models\DeliveryMethod;
-use Modules\Notifications\Models\Notification;
 
 class CartController extends Controller
 {
@@ -59,14 +58,21 @@ class CartController extends Controller
         ]);
 
         $cart = session('cart', []);
+
+        if (empty($cart)) {
+            return redirect()->route('cart.index')->with('error', 'Корзина пуста');
+        }
+
         $total = collect($cart)->sum(fn($item) => $item['qty'] * $item['price']);
 
+        // ✅ Создание заказа
         $order = Order::create([
             'user_id'            => Auth::check() ? Auth::id() : null,
             'payment_method_id'  => $request->payment_method_id,
             'delivery_method_id' => $request->delivery_method_id,
             'total'              => $total,
             'status'             => 'pending',
+            'is_new'             => true,
         ]);
 
         foreach ($cart as $item) {
@@ -79,17 +85,14 @@ class CartController extends Controller
             ]);
         }
 
-        // 🔔 Уведомление для администратора
-        $order = Order::create([
-            'user_id'            => Auth::check() ? Auth::id() : null,
-            'payment_method_id'  => $request->payment_method_id,
-            'delivery_method_id' => $request->delivery_method_id,
-            'total'              => $total,
-            'status'             => 'pending',
-            'is_new'             => true,
-        ]);
-
         session()->forget('cart');
+
+        // 🔁 redirect вместо view
+        return redirect()->route('cart.confirm', ['id' => $order->id]);
+    }
+    public function confirm($id)
+    {
+        $order = Order::with(['paymentMethod', 'deliveryMethod'])->findOrFail($id);
 
         return view('Payments::public.confirm', [
             'paymentMethod'  => $order->paymentMethod,

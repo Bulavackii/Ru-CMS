@@ -27,4 +27,5 @@ Route::middleware(['web'])->group(function () {
     Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
     Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
     Route::post('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
+    Route::get('/cart/confirm/{id}', [CartController::class, 'confirm'])->name('cart.confirm');
 });

@@ -15,6 +15,9 @@
     @endif
 
     <div class="bg-white border border-black rounded-xl shadow-lg max-w-2xl mx-auto overflow-hidden">
+
+        <p class="text-sm text-gray-500 text-center">Ваш ID: {{ auth()->id() }}</p>
+
         {{-- 🧾 Основной блок --}}
         <div class="p-6 space-y-3 text-sm text-gray-700">
             <div class="flex items-center gap-2">

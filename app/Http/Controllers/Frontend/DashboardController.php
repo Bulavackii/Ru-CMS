@@ -16,7 +16,9 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        $orders = Order::with('paymentMethod', 'items')
+        // Убираем items, чтобы не было дублирования
+        $orders = Order::with(['paymentMethod', 'deliveryMethod'])
+            ->select('orders.*')
             ->where('user_id', $user->id)
             ->latest()
             ->take(5)

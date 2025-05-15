@@ -11,7 +11,7 @@ class OrderController extends Controller
     {
         Order::where('is_new', true)->update(['is_new' => false]);
 
-        $orders = Order::with(['paymentMethod', 'deliveryMethod', 'items'])
+        $orders = Order::with(['paymentMethod', 'deliveryMethod', 'items', 'user'])
             ->latest()
             ->paginate(15);
 
