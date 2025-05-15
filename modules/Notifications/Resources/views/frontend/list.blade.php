@@ -26,9 +26,23 @@
         "
     >
         @foreach ($notifications as $n)
+            @php $cookieKey = 'notif_' . $n->id; @endphp
+
+            @if ($n->type === 'cookie')
+                <script>
+                    if (document.cookie.includes('{{ $cookieKey }}=1')) {
+                        document.addEventListener('DOMContentLoaded', () => {
+                            const el = document.querySelector('[data-cookie="{{ $cookieKey }}"]');
+                            el?.remove();
+                        });
+                    }
+                </script>
+            @endif
+
             <div
                 class="notification relative"
                 data-duration="{{ $n->duration ?? 0 }}"
+                data-cookie="{{ $n->type === 'cookie' ? $cookieKey : '' }}"
                 style="
                     pointer-events: all;
                     padding: 20px 28px;
@@ -126,19 +140,23 @@
             document.querySelectorAll('.notification').forEach(box => {
                 const duration = parseInt(box.dataset.duration, 10);
                 const closeBtn = box.querySelector('.close-btn');
+                const cookieKey = box.dataset.cookie;
 
-                closeBtn?.addEventListener('click', () => {
+                const removeBox = () => {
                     box.style.opacity = '0';
                     box.style.transform = 'translateY(-10px) scale(0.95)';
-                    setTimeout(() => box.remove(), 300);
-                });
+                    setTimeout(() => {
+                        box.remove();
+                        if (cookieKey) {
+                            document.cookie = `${cookieKey}=1; path=/; SameSite=Lax`;
+                        }
+                    }, 300);
+                };
+
+                closeBtn?.addEventListener('click', removeBox);
 
                 if (duration > 0) {
-                    setTimeout(() => {
-                        box.style.opacity = '0';
-                        box.style.transform = 'translateY(-10px) scale(0.95)';
-                        setTimeout(() => box.remove(), 300);
-                    }, duration * 1000);
+                    setTimeout(removeBox, duration * 1000);
                 }
             });
         });
