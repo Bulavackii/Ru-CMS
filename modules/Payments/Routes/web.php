@@ -31,9 +31,12 @@ Route::middleware(['web'])->group(function () {
     Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
     Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
     Route::get('/cart/count', function () {
-    return response()->json([
-        'count' => array_sum(array_column(session('cart', []), 'qty')),
-    ]);
-})->name('cart.count');
-
+        return response()->json([
+            'count' => array_sum(array_column(session('cart', []), 'qty')),
+        ]);
+    })->name('cart.count');
+    Route::get('/product/{id}/stock', function ($id) {
+        $product = \Modules\News\Models\News::findOrFail($id);
+        return response()->json(['stock' => $product->stock ?? 0]);
+    });
 });

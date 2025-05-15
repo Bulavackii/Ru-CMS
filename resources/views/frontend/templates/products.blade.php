@@ -83,8 +83,8 @@
                             </div>
                         @endif
                         @if (!is_null($stock))
-                            <div class="bg-yellow-100 text-yellow-900 px-3 py-1 rounded-full font-medium shadow-sm">
-                                📦 Осталось: {{ $stock }}
+                            <div class="bg-yellow-100 text-yellow-900 px-3 py-1 rounded-full font-medium shadow-sm stock-display" data-id="{{ $news->id }}">
+                                📦 Осталось: <span>{{ $stock }}</span>
                             </div>
                         @endif
                     </div>
@@ -159,6 +159,34 @@
             });
     }
 
+    function updateLocalStock(productId) {
+        const input = document.querySelector(`#qty-${productId}`);
+        const qty = parseInt(input.value);
+        const originalStock = parseInt(document.querySelector(`.add-to-cart[data-id='${productId}']`).dataset.stock);
+        const stockSpan = document.querySelector(`.stock-display[data-id='${productId}'] span`);
+
+        if (stockSpan) {
+            const remaining = originalStock - qty;
+            stockSpan.textContent = remaining < 0 ? 0 : remaining;
+        }
+    }
+
+    function updateServerStock(productId) {
+        fetch(`/product/${productId}/stock`)
+            .then(res => res.json())
+            .then(data => {
+                const stockSpan = document.querySelector(`.stock-display[data-id='${productId}'] span`);
+                if (stockSpan) {
+                    stockSpan.textContent = data.stock;
+                    // Обновляем оригинальное значение в кнопке, чтобы updateLocalStock не сбивался
+                    const btn = document.querySelector(`.add-to-cart[data-id='${productId}']`);
+                    if (btn) {
+                        btn.dataset.stock = data.stock;
+                    }
+                }
+            });
+    }
+
     document.querySelectorAll('.add-to-cart').forEach(button => {
         button.addEventListener('click', function (e) {
             e.preventDefault();
@@ -191,6 +219,7 @@
             }).then(data => {
                 showToast(data.message || 'Добавлено в корзину!', 'success');
                 updateCartCount();
+                updateServerStock(id); // обновим остаток с сервера после добавления
             }).catch(async error => {
                 const msg = await error.json().then(e => e.message ?? 'Ошибка запроса').catch(() => 'Ошибка');
                 showToast(msg, 'error');
@@ -206,6 +235,7 @@
             let current = parseInt(input.value);
             if (current < stock) {
                 input.value = current + 1;
+                updateLocalStock(id);
             }
         });
     });
@@ -217,6 +247,7 @@
             let current = parseInt(input.value);
             if (current > 1) {
                 input.value = current - 1;
+                updateLocalStock(id);
             }
         });
     });
