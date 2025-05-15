@@ -26,6 +26,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Modules\Payments\Models\Order;
 use App\Http\Controllers\Frontend\PasswordController;
 use App\Http\Controllers\Admin\AccountSettingsController;
+use App\Http\Controllers\Frontend\FrontendSearchController;
 
 // ✅ Главная страница с пагинацией по шаблонам
 Route::get('/', function () {
@@ -217,3 +218,5 @@ Route::get('/slideshow/{slug}', [PublicController::class, 'show'])->name('slides
 Route::view('/about', 'frontend.pages.about')->name('pages.about');
 Route::view('/faq', 'frontend.pages.faq')->name('pages.faq');
 Route::view('/contacts', 'frontend.pages.contacts')->name('pages.contacts');
+
+Route::get('/search', [FrontendSearchController::class, 'index'])->name('frontend.search');
