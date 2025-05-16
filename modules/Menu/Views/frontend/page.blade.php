@@ -43,3 +43,54 @@
     </div>
 </main>
 @endsection
+
+@push('styles')
+<style>
+    .prose img,
+    .prose video,
+    .prose iframe,
+    .prose embed,
+    .prose object {
+        display: inline-block;
+        max-width: 100%;
+        height: auto;
+        margin: 1rem auto;
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .prose img[style*="float:left"],
+    .prose video[style*="float:left"],
+    .prose iframe[style*="float:left"] {
+        float: left;
+        margin-right: 1rem;
+        margin-left: 0;
+    }
+
+    .prose img[style*="float:right"],
+    .prose video[style*="float:right"],
+    .prose iframe[style*="float:right"] {
+        float: right;
+        margin-left: 1rem;
+        margin-right: 0;
+    }
+
+    .prose:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+
+    .prose a {
+        word-break: break-word;
+        color: #1d4ed8;
+        text-decoration: underline;
+        transition: 0.2s;
+    }
+
+    .prose a:hover {
+        color: #2563eb;
+        text-decoration: none;
+    }
+</style>
+@endpush

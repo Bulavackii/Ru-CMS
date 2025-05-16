@@ -37,4 +37,9 @@ class MenuItem extends Model
     {
         return $this->hasMany(MenuItem::class, 'parent_id')->orderBy('order');
     }
+
+    public function linkedPage()
+    {
+        return $this->belongsTo(\Modules\Menu\Models\Page::class, 'linked_id');
+    }
 }

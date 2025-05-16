@@ -43,4 +43,51 @@ class MenuController extends Controller
             }
         }
     }
+
+    public function storeItem(Request $request, Menu $menu)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'type' => 'required|in:url,page,category',
+            'url' => 'nullable|string',
+            'linked_id' => 'nullable|integer',
+            'parent_id' => 'nullable|exists:menu_items,id',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string|max:255',
+            'meta_keywords' => 'nullable|string|max:255',
+        ]);
+
+        $menu->items()->create($validated);
+        return back()->with('success', 'Пункт меню добавлен.');
+    }
+
+    public function create()
+    {
+        return view('Menu::admin.menu.create');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'position' => 'required|in:header,footer,sidebar',
+            'active' => 'nullable|boolean',
+        ]);
+
+        Menu::create([
+            'title' => $request->title,
+            'position' => $request->position,
+            'active' => $request->has('active'),
+        ]);
+
+        return redirect()->route('admin.menus.index')->with('success', 'Меню создано.');
+    }
+
+    public function toggle(Menu $menu)
+    {
+        $menu->active = !$menu->active;
+        $menu->save();
+
+        return back()->with('success', 'Меню успешно обновлено.');
+    }
 }

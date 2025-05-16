@@ -28,6 +28,7 @@ use App\Http\Controllers\Frontend\PasswordController;
 use App\Http\Controllers\Admin\AccountSettingsController;
 use App\Http\Controllers\Frontend\FrontendSearchController;
 use Modules\Menu\Models\Page;
+use Modules\Menu\Models\Menu;
 
 // ✅ Главная страница с пагинацией по шаблонам
 Route::get('/', function () {
@@ -46,6 +47,11 @@ Route::get('/', function () {
         'test2',
         'contacts'
     ];
+
+    $menus = Menu::with(['items' => function ($q) {
+        $q->whereNull('parent_id')->orderBy('order')
+            ->with(['children' => fn($q) => $q->orderBy('order')]);
+    }])->where('active', true)->get();
 
     $templates = [];
     $cart = session('cart', []);
@@ -92,6 +98,7 @@ Route::get('/', function () {
         'templates' => $templates,
         'slideshows' => $slideshows,
         'homePages' => $homePages,
+        'menus' => $menus,
     ]);
 });
 
