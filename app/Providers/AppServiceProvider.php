@@ -76,6 +76,10 @@ class AppServiceProvider extends ServiceProvider
         $this->loadViewsFrom(base_path('modules/Delivery/Views'), 'Delivery');
         $this->loadMigrationsFrom(base_path('modules/Delivery/Migrations'));
 
+         $this->loadRoutesFrom(base_path('modules/Menu/Routes/web.php'));
+        $this->loadViewsFrom(base_path('modules/Menu/Views'), 'Menu');
+        $this->loadMigrationsFrom(base_path('modules/Menu/Migrations'));
+
         // ✅ Уведомления — views + регистрация Blade-компонента
         $this->loadViewsFrom(base_path('modules/Notifications/Resources/views'), 'Notifications');
         Blade::component('frontend-notifications', NotificationsComponent::class);

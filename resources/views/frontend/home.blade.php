@@ -45,6 +45,11 @@
         @include('Slideshow::public.slideshow', ['slideshow' => $slideshow])
     @endforeach
 
+    {{-- 🧾 Страницы, отмеченные для главной --}}
+    @if (!empty($homePages) && $homePages->count())
+        @include('Menu::frontend.homepage-pages', ['pages' => $homePages])
+    @endif
+
     {{-- 🔁 Шаблоны --}}
     @foreach ($templates as $key => $newsList)
         @if ($newsList->isEmpty()) @continue @endif

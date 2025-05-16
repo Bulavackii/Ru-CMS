@@ -27,17 +27,24 @@ use Modules\Payments\Models\Order;
 use App\Http\Controllers\Frontend\PasswordController;
 use App\Http\Controllers\Admin\AccountSettingsController;
 use App\Http\Controllers\Frontend\FrontendSearchController;
+use Modules\Menu\Models\Page;
 
 // ✅ Главная страница с пагинацией по шаблонам
-// Внутри маршрута '/'
 Route::get('/', function () {
     $user = Auth::user();
     $categories = Category::all();
     $slideshows = Slideshow::with('items')->get();
 
     $templateKeys = [
-        'default', 'products', 'reviews', 'faq',
-        'gallery', 'slideshow', 'test', 'test2', 'contacts'
+        'default',
+        'products',
+        'reviews',
+        'faq',
+        'gallery',
+        'slideshow',
+        'test',
+        'test2',
+        'contacts'
     ];
 
     $templates = [];
@@ -54,7 +61,6 @@ Route::get('/', function () {
 
         $allItems = $query->orderByDesc('id')->get();
 
-        // Учти количество товаров в корзине
         $allItems->transform(function ($item) use ($cart) {
             $cartQty = isset($cart[$item->id]) ? $cart[$item->id]['qty'] : 0;
             $item->stock = is_null($item->stock) ? null : max($item->stock - $cartQty, 0);
@@ -75,11 +81,17 @@ Route::get('/', function () {
         );
     }
 
+    $homePages = Page::where('published', true)
+        ->where('show_on_homepage', true)
+        ->orderBy('homepage_order')
+        ->get();
+
     return view('frontend.home', [
         'user' => $user,
         'categories' => $categories,
         'templates' => $templates,
         'slideshows' => $slideshows,
+        'homePages' => $homePages,
     ]);
 });
 

@@ -25,3 +25,4 @@ $app->register(Modules\News\Providers\NewsServiceProvider::class);
 $app->register(Modules\Slideshow\SlideshowServiceProvider::class);
 $app->register(Modules\Messages\Providers\MessagesServiceProvider::class);
 $app->register(Modules\Notifications\NotificationsServiceProvider::class);
+$app->register(Modules\Menu\Providers\MenuServiceProvider::class);
