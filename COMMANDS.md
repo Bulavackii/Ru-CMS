@@ -1,148 +1,48 @@
-Проектный план RuShop CMS
+🔽 1. Клонирование и начальная установка
 
-1. Создание базового ядра CMS
+# 📦 Клонируем репозиторий
+git clone https://github.com/Bulavackii/Ru-CMS.git
+cd Ru-CMS
 
-Настройка проекта:
+# 📦 Устанавливаем зависимости PHP
+composer install
 
-composer create-project laravel/laravel rushop-cms
-cd rushop-cms
-composer require laravel/sanctum
+# 📦 Устанавливаем JS-зависимости (React + Tailwind + Vite)
+npm install
 
-Конфигурация базы данных:
-Редактируем файл:
-/config/database.php
-
-Инициализация React + Vite + TailwindCSS:
-
-npm install react react-dom vite @vitejs/plugin-react tailwindcss postcss autoprefixer
-npm install -D tailwindcss
-npx tailwindcss init -p
-
-2. Разработка модуля системы и управления модулями
-
-Структура модулей:
-
-/modules/System/
-├── Config/config.php
-├── Controllers/Admin/ModuleController.php
-├── Models/Module.php
-├── Views/admin/
-├── Routes/web.php
-├── Migrations/
-├── Lang/ru/
-├── module.json
-
-Команда для миграций:
-
-php artisan make:migration create_modules_table --path=/modules/System/Migrations
-
-3. Реализация GUI админки (React + Tailwind)
-
-Расположение React приложения:
-
-/resources/views/admin
-
-Сборка приложения:
-
-npm run build
-
-4. Создание базовых модулей (Shop, Cart, Checkout, Payments)
-
-Пример структуры для модуля Shop:
-
-/modules/Shop/
-├── Config/config.php
-├── Controllers/Frontend/ProductController.php
-├── Controllers/Admin/ProductAdminController.php
-├── Models/Product.php
-├── Views/frontend/product.blade.php
-├── Routes/web.php
-├── Migrations/create_products_table.php
-├── Seeders/ProductSeeder.php
-├── Lang/ru/messages.php
-├── module.json
-
-Создание миграций и сидеров:
-
-php artisan make:migration create_products_table --path=/modules/Shop/Migrations
-php artisan make:seeder ProductSeeder --path=/modules/Shop/Seeders
-
-5. Реализация магазина модулей и загрузки ZIP
-
-Реализация загрузчика модулей:
-
-composer require maatwebsite/excel
-
-Контроллер и представления:
-
-/modules/System/Controllers/Admin/ModuleUploadController.php
-/modules/System/Views/admin/upload-module.blade.php
-
-6. Интеграция российских сервисов
-
-Добавление интеграций через Composer:
-
-composer require yoomoney/yookassa-sdk-php
-composer require tinkoff/tinkoff-sdk
-composer require guzzlehttp/guzzle
-
-Структура интеграций (пример платежей):
-
-/modules/Payments/
-├── Config/config.php
-├── Controllers/PaymentsController.php
-├── Models/Payment.php
-├── Migrations/create_payments_table.php
-├── module.json
-
-7. Оптимизация и тестирование
-
-Использование PHPUnit:
-
-composer require --dev phpunit/phpunit
-php artisan make:test ShopTest
-
-Линтинг и проверка кода:
-
-composer require --dev friendsofphp/php-cs-fixer
-./vendor/bin/php-cs-fixer fix
-
-8. Запуск первой версии CMS
-
-Финальные шаги:
-
-npm run build
-php artisan migrate --seed
-php artisan serve
-
-Проект готов к работе на:
-http://localhost:8000
-
-composer require laravel/breeze --dev
-php artisan breeze:install blade
-npm install && npm run dev
-php artisan migrate
-
-
-в php.ini достаточные лимиты (upload_max_filesize, post_max_size)
-
-
-UPDATE modules SET active = 1 WHERE name = 'News';
+# ⚙️ Создаём .env-файл и настраиваем подключение к БД
+cp .env.example .env
+php artisan key:generate
 
 
 
-php artisan migrate --path=modules/Slideshow/Database/Migrations
-
-
-rmdir public\storage
+🧰 2. Настройка прав и линков
+# 🔗 Символическая ссылка для публичных файлов (обложки, загрузки и т.п.)
 php artisan storage:link
 
-php artisan vendor:publish --tag=laravel-pagination
+# 🛠 Убедись, что в php.ini заданы лимиты:
+# upload_max_filesize = 100M
+# post_max_size = 100M
 
 
+
+📂 3. Миграции и сиды
+# 🛠 Основные миграции ядра и начальных таблиц
+php artisan migrate
+
+# 🌱 Посев пользователей и прочих данных (если есть)
+php artisan db:seed
+
+
+▶️ Или по конкретным путям, если требуется (пример ниже):
+php artisan migrate --path=modules/Slideshow/Database/Migrations
+php artisan migrate --path=modules/Menu/Database/Migrations
 php artisan migrate --path=database/migrations/2025_05_012_100000_create_file_categories_table.php
 php artisan migrate --path=database/migrations/2025_05_12_100100_create_files_table.php
 
 
-php artisan migrate --path=modules/Menu/Database/Migrations
-php artisan migrate:rollback --path=modules/Menu/Database/Migrations
+⭐ 4. Если не хочешь заморачиваться, объедини миграции и сиды в одну команду:
+# 🛎️ Сначала установка миграций, а затем посев пользователей и прочих данных (если есть), 
+# то есть объединяет php artisan migrate и php artisan db:seed
+
+php artisan migrate --seed
