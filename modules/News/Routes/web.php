@@ -2,11 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\News\Controllers\Admin\NewsController;
-use Modules\News\Controllers\Frontend\NewsController as FrontendNewsController;
-
-// Фронтовой маршрут для просмотра новости по слагу
-Route::get('/news/{slug}', [FrontendNewsController::class, 'show'])
-    ->name('news.show');
 
 Route::prefix('admin/news')->middleware(['web', 'auth', 'admin'])->group(function () {
     Route::get('/', [NewsController::class, 'index'])->name('admin.news.index');

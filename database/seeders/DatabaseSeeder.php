@@ -65,7 +65,6 @@ class DatabaseSeeder extends Seeder
         */
         $this->call([
             UsersTableSeeder::class,         // 👥 Дополнительные пользователи
-            NotificationSeeder::class,       // 🔔 Уведомления по умолчанию
         ]);
     }
 }
