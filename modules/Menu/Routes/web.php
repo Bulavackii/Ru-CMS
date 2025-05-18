@@ -7,6 +7,7 @@ use Modules\Menu\Controllers\Admin\PageController as AdminPageController;
 use Modules\Menu\Controllers\Frontend\PageController as FrontendPageController;
 use Modules\Menu\Models\Page;
 use Modules\Categories\Models\Category;
+use Modules\Menu\Controllers\Admin\PageController;
 
 // 🔒 Админка
 Route::middleware(['web', 'auth', 'admin'])->prefix('admin')->group(function () {
@@ -17,6 +18,7 @@ Route::middleware(['web', 'auth', 'admin'])->prefix('admin')->group(function () 
     Route::get('menus/{menu}/edit', [MenuController::class, 'edit'])->name('admin.menus.edit');
     Route::patch('menus/{menu}/toggle', [MenuController::class, 'toggle'])->name('admin.menus.toggle');
     Route::post('menus/{menu}/items/update-order', [MenuController::class, 'updateOrder'])->name('admin.menus.updateOrder');
+    Route::delete('/{menu}', [MenuController::class, 'destroy'])->name('admin.menus.destroy');
 
     // 🧷 Пункты меню
     Route::post('menus/{menu}/items', [MenuItemController::class, 'store'])->name('admin.menu_items.store');
@@ -29,6 +31,7 @@ Route::middleware(['web', 'auth', 'admin'])->prefix('admin')->group(function () 
     Route::get('pages/{page}/edit', [AdminPageController::class, 'edit'])->name('admin.pages.edit');
     Route::put('pages/{page}', [AdminPageController::class, 'update'])->name('admin.pages.update');
     Route::delete('pages/{page}', [AdminPageController::class, 'destroy'])->name('admin.pages.destroy');
+    Route::get('pages/{page}/preview', [PageController::class, 'preview'])->name('admin.pages.preview');
 
     // 🔄 AJAX-запросы (✅ исправлены имена)
     Route::get('ajax/pages', fn() => Page::select('id', 'title')->get())->name('admin.ajax.pages');

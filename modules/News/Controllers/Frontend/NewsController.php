@@ -10,7 +10,7 @@ class NewsController extends Controller
     public function index()
     {
         $newsList = News::with('categories')
-            ->where('published', true) // ← фильтрация по опубликованным
+            ->where('published', true) 
             ->orderByDesc('id')
             ->paginate(10);
 

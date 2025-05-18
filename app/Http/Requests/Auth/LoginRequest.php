@@ -9,10 +9,23 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * 🛂 LoginRequest
+ *
+ * FormRequest для обработки логина пользователя.
+ * Отвечает за:
+ * - 🔍 Валидацию email и пароля
+ * - 🚫 Защиту от перебора (rate limit)
+ * - 🔐 Аутентификацию через `Auth::attempt()`
+ */
 class LoginRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * ✅ authorize()
+     *
+     * Разрешает выполнение запроса (для всех).
+     *
+     * @return bool
      */
     public function authorize(): bool
     {
@@ -20,9 +33,13 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * 📋 rules()
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * Правила валидации формы входа:
+     * - email: обязателен, строка, валидный формат
+     * - password: обязателен, строка
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
      */
     public function rules(): array
     {
@@ -33,7 +50,13 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * Attempt to authenticate the request's credentials.
+     * 🔐 authenticate()
+     *
+     * Выполняет попытку входа:
+     * - Проверяет, не превышен ли лимит попыток
+     * - Пытается авторизовать пользователя
+     * - Если неудачно — увеличивает счётчик RateLimiter и выбрасывает ошибку
+     * - Если успешно — сбрасывает счётчик попыток
      *
      * @throws \Illuminate\Validation\ValidationException
      */
@@ -42,18 +65,21 @@ class LoginRequest extends FormRequest
         $this->ensureIsNotRateLimited();
 
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
+            RateLimiter::hit($this->throttleKey()); // Увеличиваем счётчик попыток
 
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'email' => trans('auth.failed'), // ❌ Неверный логин/пароль
             ]);
         }
 
-        RateLimiter::clear($this->throttleKey());
+        RateLimiter::clear($this->throttleKey()); // ✅ Сброс счётчика после успешного входа
     }
 
     /**
-     * Ensure the login request is not rate limited.
+     * 🛡️ ensureIsNotRateLimited()
+     *
+     * Проверяет, не превышен ли лимит попыток входа.
+     * По умолчанию: не более 5 попыток на IP+email.
      *
      * @throws \Illuminate\Validation\ValidationException
      */
@@ -63,7 +89,7 @@ class LoginRequest extends FormRequest
             return;
         }
 
-        event(new Lockout($this));
+        event(new Lockout($this)); // ⏳ Вызываем событие блокировки
 
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
@@ -76,10 +102,17 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * Get the rate limiting throttle key for the request.
+     * 🧠 throttleKey()
+     *
+     * Генерирует уникальный ключ для учёта попыток:
+     * 💡 email + IP → translit → lowercase
+     *
+     * @return string
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        return Str::transliterate(
+            Str::lower($this->string('email')) . '|' . $this->ip()
+        );
     }
 }

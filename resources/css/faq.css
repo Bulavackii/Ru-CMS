@@ -1,9 +1,9 @@
-
 /* =============================== */
-/* 📦 Карточки: Вопросы   */
+/* 📦 Карточки: Вопросы и Отзывы  */
 /* =============================== */
 
-.review-card, .faq-card {
+.review-card,
+.faq-card {
     background: #ffffff;
     border-radius: 1.5rem;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
@@ -18,13 +18,15 @@
     overflow: hidden;
 }
 
-.review-card:hover, .faq-card:hover {
+.review-card:hover,
+.faq-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 14px 28px rgba(0, 0, 0, 0.10);
 }
 
-/* 🔖 Мигающие бейджи */
-.review-badge, .faq-badge {
+/* 🔖 Бейджи: "FAQ" / "Отзыв" */
+.review-badge,
+.faq-badge {
     position: absolute;
     top: -0.75rem;
     right: 0.75rem;
@@ -39,23 +41,23 @@
 }
 
 .review-badge {
-    border: 2px solid #10b981;
+    border: 2px solid #10b981; /* зелёный */
     color: #10b981;
 }
 
 .faq-badge {
-    border: 2px solid #3b82f6;
+    border: 2px solid #3b82f6; /* синий */
     color: #3b82f6;
 }
 
-/* 💫 Пульс-анимация */
+/* 💫 Анимация мигания */
 @keyframes pulse {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.1); opacity: 0.8; }
+    0%   { transform: scale(1); opacity: 1; }
+    50%  { transform: scale(1.1); opacity: 0.8; }
     100% { transform: scale(1); opacity: 1; }
 }
 
-/* 🏷️ Категории */
+/* 🏷️ Категории (левый верх) */
 .category-badges {
     position: absolute;
     top: 0.75rem;
@@ -83,7 +85,7 @@
     text-decoration: underline;
 }
 
-/* 📷 Медиа-контейнер */
+/* 🖼️ Обложка */
 .card-media {
     width: 100%;
     height: 190px;
@@ -93,8 +95,9 @@
     margin-bottom: 1rem;
 }
 
-/* 🔠 Заголовки и 💬 контент */
-.faq-question, .review-author {
+/* 🔠 Заголовок (вопрос или автор) */
+.faq-question,
+.review-author {
     font-weight: 700;
     font-size: 1.1rem;
     color: #1f2937;
@@ -104,14 +107,16 @@
     gap: 0.5rem;
 }
 
-.faq-answer, .review-content {
+/* 💬 Контент (ответ или текст отзыва) */
+.faq-answer,
+.review-content {
     font-size: 0.95rem;
     color: #374151;
     line-height: 1.6;
     margin-bottom: 1rem;
 }
 
-/* 👤 Автор и 📅 дата отзыва */
+/* 🕵️ Шапка отзыва (автор и дата) */
 .review-header {
     display: flex;
     justify-content: space-between;
@@ -120,7 +125,7 @@
     margin-bottom: 0.75rem;
 }
 
-/* ⭐ Рейтинг */
+/* ⭐ Рейтинг отзыва */
 .review-rating {
     font-size: 0.9rem;
     color: #15803d;
@@ -133,9 +138,34 @@
     align-self: flex-start;
 }
 
-/* 📱 Адаптивность */
+/* 📱 Адаптивность карточек */
 @media (max-width: 768px) {
-    .review-card, .faq-card {
+    .review-card,
+    .faq-card {
         max-width: 100%;
     }
+}
+
+/* 🌙 Тёмная тема (если используешь Tailwind dark mode) */
+.dark .review-card,
+.dark .faq-card {
+    background: #1f2937;
+    border-color: #374151;
+}
+
+.dark .faq-question,
+.dark .review-author,
+.dark .faq-answer,
+.dark .review-content {
+    color: #f3f4f6;
+}
+
+.dark .category-badge {
+    background-color: #1e3a8a;
+    color: #dbeafe;
+    border-color: #3b82f6;
+}
+
+.dark .category-badge:hover {
+    background-color: #2563eb;
 }

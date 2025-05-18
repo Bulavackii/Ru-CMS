@@ -12,13 +12,18 @@ use ZipArchive;
 
 class ModuleController extends Controller
 {
-    // Список модулей
+    /**
+     * 📦 Отображение списка всех модулей
+     */
     public function index(): View
     {
         $modules = Module::all();
         return view('admin.modules', compact('modules'));
     }
 
+    /**
+     * 🔁 Переключение активности модуля (вкл/выкл)
+     */
     public function toggle($id)
     {
         $module = Module::findOrFail($id);
@@ -28,6 +33,9 @@ class ModuleController extends Controller
         return redirect()->route('admin.modules.index');
     }
 
+    /**
+     * 📥 Установка нового модуля из ZIP-архива
+     */
     public function install(Request $request)
     {
         $request->validate([
@@ -38,14 +46,15 @@ class ModuleController extends Controller
         $filename = $file->getClientOriginalName();
         $moduleName = pathinfo($filename, PATHINFO_FILENAME);
 
-        // Временный путь
+        // 📁 Сохраняем ZIP-файл во временную директорию
         $zipPath = storage_path("app/temp/$filename");
         $file->move(storage_path('app/temp'), $filename);
 
-        // Распаковка
+        // 📂 Путь для распаковки
         $extractPath = base_path("modules/$moduleName");
         $zip = new ZipArchive;
 
+        // 🔓 Попытка распаковать архив
         if ($zip->open($zipPath) === true) {
             $zip->extractTo($extractPath);
             $zip->close();
@@ -54,19 +63,20 @@ class ModuleController extends Controller
             return back()->withErrors(['module' => 'Ошибка распаковки архива']);
         }
 
-        // Чтение module.json
+        // 📄 Проверка наличия module.json
         $configPath = "$extractPath/module.json";
         if (!File::exists($configPath)) {
-            return back()->withErrors(['module' => 'module.json не найден']);
+            return back()->withErrors(['module' => 'Файл module.json не найден']);
         }
 
+        // 📚 Чтение и проверка содержимого module.json
         $data = json_decode(File::get($configPath), true);
         if (!$data || !isset($data['name'], $data['version'])) {
-            return back()->withErrors(['module' => 'Некорректный module.json']);
+            return back()->withErrors(['module' => 'Некорректный формат файла module.json']);
         }
 
-        // Регистрация модуля
-        \Modules\System\Models\Module::updateOrCreate(
+        // 📝 Регистрация или обновление модуля в базе
+        Module::updateOrCreate(
             ['name' => $data['name']],
             [
                 'version' => $data['version'],

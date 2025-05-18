@@ -6,52 +6,53 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Default Cache Store
+    | 🗄️ Хранилище кэша по умолчанию
     |--------------------------------------------------------------------------
     |
-    | This option controls the default cache store that will be used by the
-    | framework. This connection is utilized if another isn't explicitly
-    | specified when running a cache operation inside the application.
+    | Здесь указывается, какое "хранилище" (store) будет использоваться
+    | по умолчанию во всём приложении, если не указано иное.
+    | Наиболее надёжный вариант — `database`, `redis`, `file`.
     |
     */
-
     'default' => env('CACHE_STORE', 'database'),
 
     /*
     |--------------------------------------------------------------------------
-    | Cache Stores
+    | 🧰 Доступные хранилища кэша
     |--------------------------------------------------------------------------
     |
-    | Here you may define all of the cache "stores" for your application as
-    | well as their drivers. You may even define multiple stores for the
-    | same cache driver to group types of items stored in your caches.
+    | Здесь определяются все доступные драйверы кэша и их настройки.
+    | Можно использовать сразу несколько разных систем кэширования.
     |
-    | Supported drivers: "array", "database", "file", "memcached",
-    |                    "redis", "dynamodb", "octane", "null"
+    | Поддерживаемые драйверы:
+    | "array", "database", "file", "memcached", "redis", "dynamodb", "octane", "null"
     |
     */
-
     'stores' => [
 
+        // 🔁 Быстрый временный кэш (RAM, сбрасывается при перезапуске)
         'array' => [
             'driver' => 'array',
-            'serialize' => false,
+            'serialize' => false, // если false — не сериализует объекты (экономит память)
         ],
 
+        // 🗃️ Кэш в БД
         'database' => [
             'driver' => 'database',
-            'connection' => env('DB_CACHE_CONNECTION'),
-            'table' => env('DB_CACHE_TABLE', 'cache'),
-            'lock_connection' => env('DB_CACHE_LOCK_CONNECTION'),
-            'lock_table' => env('DB_CACHE_LOCK_TABLE'),
+            'connection' => env('DB_CACHE_CONNECTION'), // можно задать другую БД
+            'table' => env('DB_CACHE_TABLE', 'cache'), // таблица для хранения кэша
+            'lock_connection' => env('DB_CACHE_LOCK_CONNECTION'), // для блокировок
+            'lock_table' => env('DB_CACHE_LOCK_TABLE'), // таблица блокировок
         ],
 
+        // 📂 Кэш в файловой системе
         'file' => [
             'driver' => 'file',
-            'path' => storage_path('framework/cache/data'),
-            'lock_path' => storage_path('framework/cache/data'),
+            'path' => storage_path('framework/cache/data'), // папка хранения
+            'lock_path' => storage_path('framework/cache/data'), // блокировки
         ],
 
+        // ⚡ Memcached (кэш в памяти, используется на крупных проектах)
         'memcached' => [
             'driver' => 'memcached',
             'persistent_id' => env('MEMCACHED_PERSISTENT_ID'),
@@ -71,12 +72,14 @@ return [
             ],
         ],
 
+        // 🟥 Redis — быстрый кэш в памяти (рекомендуется для продакшена)
         'redis' => [
             'driver' => 'redis',
             'connection' => env('REDIS_CACHE_CONNECTION', 'cache'),
             'lock_connection' => env('REDIS_CACHE_LOCK_CONNECTION', 'default'),
         ],
 
+        // ☁️ AWS DynamoDB (облачный масштабируемый кэш)
         'dynamodb' => [
             'driver' => 'dynamodb',
             'key' => env('AWS_ACCESS_KEY_ID'),
@@ -86,23 +89,22 @@ return [
             'endpoint' => env('DYNAMODB_ENDPOINT'),
         ],
 
+        // 🚀 Octane кэш — для high-performance серверов (RoadRunner, Swoole)
         'octane' => [
             'driver' => 'octane',
         ],
-
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Cache Key Prefix
+    | 🔑 Префикс для ключей кэша
     |--------------------------------------------------------------------------
     |
-    | When utilizing the APC, database, memcached, Redis, and DynamoDB cache
-    | stores, there might be other applications using the same cache. For
-    | that reason, you may prefix every cache key to avoid collisions.
+    | Чтобы избежать конфликтов ключей между несколькими приложениями,
+    | использующими один и тот же механизм кэширования, можно задать префикс.
+    | Например: mycms_cache_homepage, mycms_cache_menu и т.д.
     |
     */
-
-    'prefix' => env('CACHE_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_cache_'),
+    'prefix' => env('CACHE_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_') . '_cache_'),
 
 ];

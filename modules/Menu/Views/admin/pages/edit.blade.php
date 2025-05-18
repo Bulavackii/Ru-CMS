@@ -3,35 +3,41 @@
 @section('title', 'Редактировать страницу')
 
 @section('content')
-    <h1 class="text-2xl font-bold mb-6">✏️ Редактировать страницу</h1>
+    {{-- ✏️ Заголовок страницы --}}
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">✏️ Редактировать страницу</h1>
+        <span class="text-sm text-gray-500 dark:text-gray-400">🛠️ Внесите изменения в содержимое или SEO</span>
+    </div>
 
+    {{-- ⚠️ Сообщение об ошибке валидации --}}
     @if ($errors->any())
         <div class="bg-red-100 border border-red-300 text-red-800 px-4 py-3 mb-6 rounded shadow animate-pulse">
             ⚠️ {{ $errors->first() }}
         </div>
     @endif
 
+    {{-- 🧾 Форма редактирования страницы --}}
     <form method="POST" action="{{ route('admin.pages.update', $page) }}" class="space-y-6">
         @csrf
         @method('PUT')
 
-        {{-- Заголовок --}}
+        {{-- 📄 Заголовок страницы --}}
         <x-admin.input label="📄 Заголовок" name="title" :value="old('title', $page->title)" required />
 
-        {{-- SEO --}}
+        {{-- 🧠 SEO-блок --}}
         <x-admin.input label="🔖 Meta Title" name="meta_title" :value="old('meta_title', $page->meta_title)" />
-        <x-admin.input label="📄 Meta Description" name="meta_description" :value="old('meta_description', $page->meta_description)" />
+        <x-admin.input label="📝 Meta Description" name="meta_description" :value="old('meta_description', $page->meta_description)" />
         <x-admin.input label="🔑 Ключевые слова" name="meta_keywords" :value="old('meta_keywords', $page->meta_keywords)" />
 
-        {{-- Slug --}}
+        {{-- 🔗 Slug (ссылка) --}}
         <x-admin.input label="🔗 Slug (ссылка)" name="slug" :value="old('slug', $page->slug)" />
 
-        {{-- Категории --}}
+        {{-- 📂 Категории --}}
         <div>
             <label class="block font-semibold mb-2 text-gray-700 dark:text-gray-300">📂 Категории</label>
             <div class="flex flex-wrap gap-3">
                 @foreach ($categories as $category)
-                    <label class="flex items-center px-3 py-1 border border-gray-300 rounded-full cursor-pointer text-sm hover:bg-blue-50 transition">
+                    <label class="flex items-center px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-full cursor-pointer text-sm hover:bg-blue-50 dark:hover:bg-gray-700 transition">
                         <input type="checkbox" name="categories[]" value="{{ $category->id }}"
                                class="form-checkbox text-blue-600 mr-2"
                                {{ in_array($category->id, old('categories', $page->categories->pluck('id')->toArray())) ? 'checked' : '' }}>
@@ -41,36 +47,45 @@
             </div>
         </div>
 
-        {{-- Контент --}}
+        {{-- 📝 Контент страницы --}}
         <div>
             <label for="editor" class="block font-semibold mb-1 text-gray-700 dark:text-gray-300">📝 Контент</label>
             <textarea name="content" id="editor" rows="12"
                       class="w-full border border-gray-300 rounded px-3 py-2 dark:bg-gray-800 dark:text-white">{{ old('content', $page->content) }}</textarea>
         </div>
 
-        {{-- Настройки публикации --}}
-        <div class="flex flex-col sm:flex-row gap-6">
-            <label class="inline-flex items-center">
-                <input type="checkbox" name="published" value="1" class="mr-2" {{ $page->published ? 'checked' : '' }}>
-                ✅ Опубликовать
-            </label>
+        {{-- ⚙️ Настройки публикации и кнопка --}}
+        <div class="pt-4 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-6">
+                {{-- ✅ Опубликовать --}}
+                <label class="inline-flex items-center">
+                    <input type="checkbox" name="published" value="1" class="mr-2"
+                        {{ old('published', $page->published) ? 'checked' : '' }}>
+                    ✅ Опубликовать
+                </label>
 
-            <label class="inline-flex items-center">
-                <input type="checkbox" name="show_on_homepage" value="1" class="mr-2" {{ $page->show_on_homepage ? 'checked' : '' }}>
-                🏠 Показать на главной
-            </label>
+                {{-- 🏠 Показывать на главной --}}
+                <label class="inline-flex items-center">
+                    <input type="checkbox" name="show_on_homepage" value="1" class="mr-2"
+                        {{ old('show_on_homepage', $page->show_on_homepage) ? 'checked' : '' }}>
+                    🏠 Показать на главной
+                </label>
 
-            <x-admin.input label="🔢 Порядок на главной" name="homepage_order" type="number" :value="old('homepage_order', $page->homepage_order)" class="w-32" />
-        </div>
+                {{-- 🔢 Порядок на главной --}}
+                <x-admin.input label="🔢 Порядок" name="homepage_order" type="number"
+                    :value="old('homepage_order', $page->homepage_order)" class="w-32" />
+            </div>
 
-        <div class="pt-4">
-            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded shadow">
-                💾 Сохранить изменения
-            </button>
+            {{-- 💾 Кнопка сохранения --}}
+            <div class="text-right">
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded shadow text-sm">
+                    💾 Сохранить изменения
+                </button>
+            </div>
         </div>
     </form>
 
-    {{-- TinyMCE --}}
+    {{-- 🧠 TinyMCE редактор --}}
     <script src="{{ asset('admin/tinymce/tinymce.min.js') }}"></script>
     <script>
         tinymce.init({

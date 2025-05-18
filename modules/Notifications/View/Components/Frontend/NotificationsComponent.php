@@ -3,49 +3,75 @@
 namespace Modules\Notifications\View\Components\Frontend;
 
 use Illuminate\View\Component;
-use Modules\Notifications\Models\Notification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
+use Modules\Notifications\Models\Notification;
 
 class NotificationsComponent extends Component
 {
+    // 📦 Коллекция отфильтрованных уведомлений
     public $notifications;
 
     public function __construct()
     {
         $user = Auth::user();
-        $currentPath = '/' . trim(Request::path(), '/'); // например: /news/123
+        $currentPath = '/' . ltrim(Request::path(), '/'); // 🔍 Текущий путь, например: /news/123
 
+        // 🧠 Получаем уведомления, отфильтрованные по включённости, цели и маршруту
         $this->notifications = Notification::query()
             ->where('enabled', true)
-            ->where(function ($q) use ($user) {
+
+            // 🎯 Учитываем целевую аудиторию
+            ->where(function ($query) use ($user) {
                 if (!$user) {
-                    $q->where('target', 'all');
+                    $query->where('target', 'all');
                 } elseif ($user->is_admin) {
-                    $q->whereIn('target', ['all', 'admin']);
+                    $query->whereIn('target', ['all', 'admin']);
                 } else {
-                    $q->whereIn('target', ['all', 'user']);
+                    $query->whereIn('target', ['all', 'user']);
                 }
             })
+
             ->get()
-            ->filter(function ($notification) use ($currentPath) {
-                $filter = trim($notification->route_filter ?? '', '/');
 
-                if ($filter === '' || $filter === '/') {
-                    return $currentPath === '';
-                }
-
-                // wildcard (поддержка /news/* и т.п.)
-                if (str_contains($filter, '*')) {
-                    $pattern = '#^' . str_replace('\*', '.*', preg_quote($filter, '#')) . '$#i';
-                    return (bool)preg_match($pattern, trim($currentPath, '/'));
-                }
-
-                return trim($currentPath, '/') === $filter;
+            // 🌐 Фильтруем по маршруту
+            ->filter(function (Notification $notification) use ($currentPath) {
+                return $this->matchesRouteFilter($notification->route_filter, $currentPath);
             })
-            ->values(); // сброс индексов
+
+            ->values(); // 🔄 Сбрасываем индексы коллекции
     }
 
+    /**
+     * 🔍 Проверяет соответствие фильтра маршруту
+     */
+    protected function matchesRouteFilter(?string $filter, string $currentPath): bool
+    {
+        $filter = trim($filter ?? '', '/');
+        $cleanPath = trim($currentPath, '/');
+
+        // 📌 Если маршрут пустой — отображаем только на главной
+        if ($filter === '' || $filter === '/') {
+            return $cleanPath === '';
+        }
+
+        // 🌟 Wildcard-поддержка: например, /news/* будет соответствовать /news/123
+        if ($filter === '*') {
+            return true;
+        }
+
+        if (str_contains($filter, '*')) {
+            $pattern = '#^' . str_replace('\*', '.*', preg_quote($filter, '#')) . '$#i';
+            return (bool)preg_match($pattern, $cleanPath);
+        }
+
+        // 📎 Строгое совпадение
+        return $cleanPath === $filter;
+    }
+
+    /**
+     * 🧾 Отображаем Blade-представление
+     */
     public function render()
     {
         return view('Notifications::frontend.list');

@@ -3,62 +3,81 @@
 @section('title', 'Категории')
 
 @section('content')
-    {{-- 🔘 Заголовок + панель управления --}}
-    <div class="flex items-center justify-between mb-6">
+    {{-- 🧭 Заголовок и панель управления --}}
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
         <h1 class="text-2xl font-bold text-gray-800 dark:text-white">🏷️ Список категорий</h1>
-        <div class="flex gap-2">
+
+        <div class="flex flex-wrap gap-2">
+            {{-- 🔍 Поиск --}}
             <input type="text" id="searchInput"
-                   class="border border-gray-300 rounded-md p-2 text-sm"
-                   placeholder="Поиск..." oninput="filterCategories()">
-            <button onclick="submitBulkDelete()"
-                class="inline-flex items-center gap-2 bg-red-600 text-white hover:bg-red-700 px-4 py-2 rounded-md shadow text-sm">
+                class="border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-md px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="🔎 Поиск..." oninput="filterCategories()">
+
+            {{-- 🗑️ Массовое удаление --}}
+            <button onclick="submitBulkDelete()" id="bulkDeleteBtn"
+                class="inline-flex items-center gap-2 bg-red-600 text-white hover:bg-red-700 px-4 py-2 rounded-md shadow text-sm transition disabled:opacity-50"
+                disabled>
                 <i class="fas fa-trash"></i> Удалить
             </button>
+
+            {{-- ➕ Добавить --}}
             <a href="{{ route('admin.categories.create') }}"
-               class="inline-flex items-center gap-2 bg-black text-white hover:bg-gray-800 px-4 py-2 rounded-md shadow text-sm">
-                <i class="fas fa-plus"></i> Категория
+                class="inline-flex items-center gap-2 bg-black text-white hover:bg-gray-800 px-4 py-2 rounded-md shadow text-sm transition">
+                <i class="fas fa-plus"></i> Добавить
             </a>
         </div>
     </div>
 
-    {{-- 📊 Таблица категорий --}}
+    {{-- 📋 Таблица категорий --}}
     <form id="bulk-delete-form" method="POST" action="{{ route('admin.categories.bulkDelete') }}">
         @csrf
         @method('DELETE')
         <input type="hidden" name="category_ids" id="bulk-delete-ids">
 
-        <div class="overflow-x-auto">
-            <table id="categoriesTable" class="min-w-full bg-white dark:bg-gray-900 shadow-md border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
-                <thead class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm uppercase">
+        <div class="overflow-x-auto rounded-lg shadow">
+            <table id="categoriesTable"
+                class="min-w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-sm sm:text-base">
+                <thead class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 uppercase text-xs sm:text-sm">
                     <tr>
-                        <th class="px-4 py-3 text-left"><input type="checkbox" id="check-all"></th>
-                        <th class="text-left px-4 py-3">🏷️ Название</th>
-                        <th class="text-center px-4 py-3">⚙️ Действия</th>
+                        <th class="px-4 py-3 w-10 text-left">
+                            <input type="checkbox" id="check-all" class="form-checkbox h-4 w-4 text-blue-600">
+                        </th>
+                        <th class="px-4 py-3 text-left">🏷️ Название</th>
+                        <th class="px-4 py-3 text-center">⚙️ Действия</th>
                     </tr>
                 </thead>
-                <tbody class="text-sm divide-y divide-gray-100 dark:divide-gray-800">
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                     @forelse ($categories as $category)
-                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-                            <td class="px-4 py-3"><input type="checkbox" class="row-checkbox" value="{{ $category->id }}"></td>
-                            <td class="px-4 py-3 text-gray-800 dark:text-gray-100 font-medium category-title">
-                                {{ $category->icon }} {{ $category->title }}
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition" data-id="{{ $category->id }}">
+                            {{-- ✅ Выбор --}}
+                            <td class="px-4 py-3">
+                                <input type="checkbox" class="row-checkbox form-checkbox h-4 w-4 text-blue-600"
+                                    value="{{ $category->id }}">
                             </td>
+
+                            {{-- 🏷️ Название + метка --}}
+                            <td class="px-4 py-3 font-medium text-gray-800 dark:text-white category-title">
+                                <div class="flex items-center gap-2">
+                                    @if ($category->icon)
+                                        <span class="text-xl">{{ $category->icon }}</span>
+                                    @else
+                                        <i class="fas fa-tag text-gray-400"></i>
+                                    @endif
+
+                                    <span
+                                        class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                        {{ $category->title }}
+                                    </span>
+                                </div>
+                            </td>
+
+                            {{-- 🛠️ Действия --}}
                             <td class="px-4 py-3 text-center whitespace-nowrap">
                                 <a href="{{ route('admin.categories.edit', $category->id) }}"
-                                   class="text-blue-600 hover:text-blue-800 mr-3 transition-transform transform hover:scale-110"
-                                   title="Редактировать">
-                                    <i class="fas fa-edit"></i>
+                                    class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md shadow text-xs font-medium transition"
+                                    title="Редактировать категорию" aria-label="Редактировать категорию">
+                                    <i class="fas fa-edit"></i> Редактировать
                                 </a>
-                                <form action="{{ route('admin.categories.destroy', $category->id) }}" method="POST"
-                                      class="inline-block" onsubmit="return confirm('Удалить эту категорию?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit"
-                                            class="text-red-600 hover:text-red-800 transition-transform transform hover:scale-110"
-                                            title="Удалить">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                </form>
                             </td>
                         </tr>
                     @empty
@@ -78,28 +97,48 @@
         {{ $categories->withQueryString()->links('vendor.pagination.tailwind') }}
     </div>
 
+    {{-- 📜 JS --}}
     <script>
         function filterCategories() {
             const search = document.getElementById('searchInput').value.toLowerCase();
             const rows = document.querySelectorAll('#categoriesTable tbody tr');
 
             rows.forEach(row => {
-                const title = row.querySelector('.category-title')?.textContent.toLowerCase();
-                const match = title.includes(search);
-                row.style.display = match ? '' : 'none';
+                const title = row.querySelector('.category-title')?.textContent.toLowerCase() || '';
+                row.style.display = title.includes(search) ? '' : 'none';
             });
         }
 
         function submitBulkDelete() {
-            const selected = Array.from(document.querySelectorAll('.row-checkbox:checked')).map(cb => cb.value);
+            const selected = [...document.querySelectorAll('.row-checkbox:checked')].map(cb => cb.value);
             if (!selected.length) return alert('Выберите категории для удаления.');
             if (!confirm('Удалить выбранные категории?')) return;
+
+            // 🎞️ Анимация удаления
+            selected.forEach(id => {
+                const row = document.querySelector(`tr[data-id='${id}']`);
+                if (row) {
+                    row.classList.add('opacity-30', 'transition-all', 'duration-300');
+                }
+            });
+
             document.getElementById('bulk-delete-ids').value = selected.join(',');
-            document.getElementById('bulk-delete-form').submit();
+            setTimeout(() => document.getElementById('bulk-delete-form').submit(), 300);
         }
 
         document.getElementById('check-all')?.addEventListener('change', e => {
-            document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = e.target.checked);
+            const checked = e.target.checked;
+            document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = checked);
+            toggleDeleteButton();
         });
+
+        document.querySelectorAll('.row-checkbox').forEach(cb => {
+            cb.addEventListener('change', toggleDeleteButton);
+        });
+
+        function toggleDeleteButton() {
+            const selectedCount = document.querySelectorAll('.row-checkbox:checked').length;
+            document.getElementById('bulkDeleteBtn').disabled = selectedCount === 0;
+        }
     </script>
 @endsection

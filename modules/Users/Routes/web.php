@@ -8,4 +8,5 @@ Route::middleware(['web', 'auth', 'admin'])->prefix('admin')->group(function () 
     Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('admin.users.destroy');
     Route::get('/admin/users/{user}/password', [UserController::class, 'editPassword'])->name('admin.users.password.edit');
     Route::put('/admin/users/{user}/password', [UserController::class, 'updatePassword'])->name('admin.users.password.update');
+    Route::get('/admin/users/search/ajax', [UserController::class, 'ajaxSearch'])->name('admin.users.ajaxSearch');
 });

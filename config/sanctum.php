@@ -6,79 +6,73 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Stateful Domains
+    | 🏠 Доверенные (stateful) домены
     |--------------------------------------------------------------------------
     |
-    | Requests from the following domains / hosts will receive stateful API
-    | authentication cookies. Typically, these should include your local
-    | and production domains which access your API via a frontend SPA.
+    | Указанные здесь домены будут считаться «доверенными» для хранения
+    | cookie с токеном авторизации. Это важно для SPA, которые используют
+    | cookie вместо заголовка Authorization.
+    |
+    | Пример:
+    | SANCTUM_STATEFUL_DOMAINS=localhost,127.0.0.1:8000,my-site.ru
     |
     */
-
     'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
         '%s%s',
         'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1',
         Sanctum::currentApplicationUrlWithPort(),
-        // Sanctum::currentRequestHost(),
+        // Sanctum::currentRequestHost(), // можно включить при необходимости
     ))),
 
     /*
     |--------------------------------------------------------------------------
-    | Sanctum Guards
+    | 🛡️ Guard'ы для авторизации
     |--------------------------------------------------------------------------
     |
-    | This array contains the authentication guards that will be checked when
-    | Sanctum is trying to authenticate a request. If none of these guards
-    | are able to authenticate the request, Sanctum will use the bearer
-    | token that's present on an incoming request for authentication.
+    | Указывается список guard'ов, которые будут проверяться для авторизации
+    | через Sanctum. Обычно это "web", если используется cookie-based аутентификация.
     |
     */
-
     'guard' => ['web'],
 
     /*
     |--------------------------------------------------------------------------
-    | Expiration Minutes
+    | ⏳ Время жизни токена (в минутах)
     |--------------------------------------------------------------------------
     |
-    | This value controls the number of minutes until an issued token will be
-    | considered expired. This will override any values set in the token's
-    | "expires_at" attribute, but first-party sessions are not affected.
+    | Позволяет задать глобальное время истечения (expiration) токена.
+    | Если установлено `null`, токен бессрочный (пока не будет отозван).
+    | Не влияет на session-based SPA, только на токены API.
     |
     */
-
     'expiration' => null,
 
     /*
     |--------------------------------------------------------------------------
-    | Token Prefix
+    | 🏷️ Префикс для токенов
     |--------------------------------------------------------------------------
     |
-    | Sanctum can prefix new tokens in order to take advantage of numerous
-    | security scanning initiatives maintained by open source platforms
-    | that notify developers if they commit tokens into repositories.
+    | Добавляет префикс ко всем токенам, чтобы они легче распознавались
+    | в публичных репозиториях и могли быть отсканированы GitHub и другими сервисами.
     |
-    | See: https://docs.github.com/en/code-security/secret-scanning/about-secret-scanning
+    | Подробнее: https://docs.github.com/en/code-security/secret-scanning
     |
     */
-
     'token_prefix' => env('SANCTUM_TOKEN_PREFIX', ''),
 
     /*
     |--------------------------------------------------------------------------
-    | Sanctum Middleware
+    | ⚙️ Middleware Sanctum
     |--------------------------------------------------------------------------
     |
-    | When authenticating your first-party SPA with Sanctum you may need to
-    | customize some of the middleware Sanctum uses while processing the
-    | request. You may change the middleware listed below as required.
+    | Здесь указываются middleware, которые Sanctum будет использовать
+    | при авторизации через сессионные cookie (SPA).
+    | Их можно переопределить при необходимости.
     |
     */
-
     'middleware' => [
         'authenticate_session' => Laravel\Sanctum\Http\Middleware\AuthenticateSession::class,
         'encrypt_cookies' => Illuminate\Cookie\Middleware\EncryptCookies::class,
         'validate_csrf_token' => Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
     ],
-
 ];

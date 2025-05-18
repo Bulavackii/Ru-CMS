@@ -7,45 +7,55 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Modules\Users\Models\User;
 
+/**
+ * 🔐 Контроллер авторизации пользователей (клиентская часть)
+ */
 class AuthController extends Controller
 {
-    // Форма авторизации
+    /**
+     * 🧾 Отображение формы входа
+     */
     public function showLoginForm()
     {
         return view('Users::frontend.login');
     }
 
-    // Авторизация пользователя
+    /**
+     * 🔓 Обработка логина
+     */
     public function login(Request $request)
     {
+        // 📋 Валидация данных
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
 
+        // ✅ Попытка входа
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
-            // Переадресация: если админ — на админку
-            if (Auth::user()->is_admin) {
-                return redirect('/admin/modules');
-            }
-
-            // Иначе — на клиентскую часть
-            return redirect('/dashboard');
+            // 🔁 Редирект в админку или личный кабинет
+            return Auth::user()->is_admin
+                ? redirect('/admin/modules') // 🛠 Админка
+                : redirect('/dashboard');    // 👤 Кабинет пользователя
         }
 
+        // ❌ Ошибка авторизации
         return back()->withErrors([
-            'email' => 'Ошибка входа, проверьте данные',
+            'email' => 'Неверный логин или пароль',
         ])->onlyInput('email');
     }
 
-    // Выход из аккаунта
+    /**
+     * 🚪 Выход из аккаунта
+     */
     public function logout(Request $request)
     {
-        Auth::logout();
+        Auth::logout(); // ⛔ Завершаем сессию
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect('/');
+
+        return redirect('/'); // 🔙 На главную
     }
 }

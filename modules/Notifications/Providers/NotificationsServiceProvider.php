@@ -8,12 +8,21 @@ use Modules\Notifications\View\Components\Frontend\NotificationsComponent;
 
 class NotificationsServiceProvider extends ServiceProvider
 {
-    public function boot()
+    /**
+     * 🚀 Метод boot вызывается при загрузке модуля
+     */
+    public function boot(): void
     {
+        // 🖼️ Загрузка Blade-шаблонов
         $this->loadViewsFrom(__DIR__ . '/../Resources/views', 'Notifications');
+
+        // 🛣️ Загрузка маршрутов модуля
         $this->loadRoutesFrom(__DIR__ . '/../Routes/web.php');
+
+        // 🧬 Загрузка миграций
         $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
 
-        Blade::component('frontend-notifications', 'Modules\\Notifications\\View\\Components\\Frontend\\NotificationsComponent');
+        // 🧩 Регистрация Blade-компонента <x-frontend-notifications />
+        Blade::component('frontend-notifications', NotificationsComponent::class);
     }
 }

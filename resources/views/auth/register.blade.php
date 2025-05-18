@@ -4,8 +4,11 @@
 
 @section('content')
     <div class="bg-white border border-black rounded-lg shadow-md p-8 max-w-xl mx-auto animate-fade-in">
-        <h2 class="text-3xl font-bold text-center text-blue-800 mb-6">📝 Регистрация пользователя</h2>
+        <h2 class="text-3xl font-bold text-center text-blue-800 mb-6">
+            📝 Регистрация пользователя
+        </h2>
 
+        {{-- ⚠️ Ошибки --}}
         @if ($errors->any())
             <div class="mb-6 bg-red-100 border border-red-400 text-red-800 px-4 py-2 rounded">
                 <strong>Ошибка:</strong> {{ $errors->first() }}
@@ -17,67 +20,89 @@
 
             {{-- 👤 Имя --}}
             <div>
-                <label for="name" class="block text-sm font-semibold text-gray-700 mb-1">Имя</label>
+                <label for="name" class="block text-sm font-semibold text-gray-700 mb-1">
+                    <i class="fas fa-user mr-1"></i> Имя
+                </label>
                 <input id="name" type="text" name="name" value="{{ old('name') }}" required
-                       class="w-full border border-black rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-200">
+                       class="w-full border border-black rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-200"
+                       placeholder="Иван Иванов">
+                <p class="text-xs text-gray-500 mt-1">Введите ваше полное имя</p>
             </div>
 
             {{-- 📧 Email --}}
             <div>
-                <label for="email" class="block text-sm font-semibold text-gray-700 mb-1">E-mail</label>
+                <label for="email" class="block text-sm font-semibold text-gray-700 mb-1">
+                    <i class="fas fa-envelope mr-1"></i> E-mail
+                </label>
                 <input id="email" type="email" name="email" value="{{ old('email') }}" required
-                       class="w-full border border-black rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-200">
+                       class="w-full border border-black rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-200"
+                       placeholder="you@example.com">
+                <p class="text-xs text-gray-500 mt-1">На этот адрес придёт письмо с подтверждением</p>
             </div>
 
             {{-- 🔒 Пароль --}}
             <div>
-                <label for="password" class="block text-sm font-semibold text-gray-700 mb-1">Пароль</label>
+                <label for="password" class="block text-sm font-semibold text-gray-700 mb-1">
+                    <i class="fas fa-lock mr-1"></i> Пароль
+                </label>
                 <input id="password" type="password" name="password" required
-                       class="w-full border border-black rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-200">
+                       class="w-full border border-black rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-200"
+                       placeholder="Минимум 8 символов">
+                <p class="text-xs text-gray-500 mt-1">Используйте надёжный пароль</p>
             </div>
 
             {{-- 🔁 Подтверждение пароля --}}
             <div>
-                <label for="password_confirmation" class="block text-sm font-semibold text-gray-700 mb-1">Повторите пароль</label>
+                <label for="password_confirmation" class="block text-sm font-semibold text-gray-700 mb-1">
+                    <i class="fas fa-check-circle mr-1"></i> Повторите пароль
+                </label>
                 <input id="password_confirmation" type="password" name="password_confirmation" required
-                       class="w-full border border-black rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-200">
+                       class="w-full border border-black rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-200"
+                       placeholder="Повторите ввод пароля">
+                <p class="text-xs text-gray-500 mt-1">Убедитесь, что пароли совпадают</p>
             </div>
 
             {{-- 🧾 Чекбокс Юр. лицо --}}
             <div class="flex items-center">
                 <input type="checkbox" id="is_legal" name="is_legal" class="mr-2 border-black focus:ring-blue-300">
-                <label for="is_legal" class="text-sm font-medium text-gray-700">Зарегистрироваться как юридическое лицо</label>
+                <label for="is_legal" class="text-sm font-medium text-gray-700">
+                    Зарегистрироваться как юридическое лицо
+                </label>
             </div>
 
-            {{-- 🏢 Форма Юр. лица (по умолчанию скрыта) --}}
+            {{-- 🏢 Форма Юр. лица --}}
             <div id="legal-fields" class="hidden space-y-4 mt-4">
                 <div>
-                    <label for="org_name" class="block text-sm font-medium text-gray-700">Наименование организации</label>
+                    <label for="org_name" class="block text-sm font-medium text-gray-700">🏢 Наименование организации</label>
                     <input id="org_name" type="text" name="org_name"
-                           class="w-full border border-black rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-200">
+                           class="w-full border border-black rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-200"
+                           placeholder="ООО «Ромашка»">
                 </div>
                 <div>
-                    <label for="ogrn" class="block text-sm font-medium text-gray-700">ОГРН</label>
+                    <label for="ogrn" class="block text-sm font-medium text-gray-700">🧾 ОГРН</label>
                     <input id="ogrn" type="text" name="ogrn"
-                           class="w-full border border-black rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-200">
+                           class="w-full border border-black rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-200"
+                           placeholder="1234567890123">
                 </div>
                 <div>
-                    <label for="inn" class="block text-sm font-medium text-gray-700">ИНН</label>
+                    <label for="inn" class="block text-sm font-medium text-gray-700">🔢 ИНН</label>
                     <input id="inn" type="text" name="inn"
-                           class="w-full border border-black rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-200">
+                           class="w-full border border-black rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-200"
+                           placeholder="1234567890">
                 </div>
                 <div>
-                    <label for="kpp" class="block text-sm font-medium text-gray-700">КПП</label>
+                    <label for="kpp" class="block text-sm font-medium text-gray-700">🧮 КПП</label>
                     <input id="kpp" type="text" name="kpp"
-                           class="w-full border border-black rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-200">
+                           class="w-full border border-black rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-200"
+                           placeholder="123456789">
                 </div>
             </div>
 
-            {{-- ✅ Кнопка регистрации --}}
+            {{-- ✅ Кнопка --}}
             <div>
                 <button type="submit"
                         class="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2 rounded shadow-md hover:shadow-lg transition-transform transform hover:scale-105">
-                    ✅ Зарегистрироваться
+                    <i class="fas fa-user-plus mr-1"></i> Зарегистрироваться
                 </button>
             </div>
         </form>
@@ -89,11 +114,10 @@
         </div>
     </div>
 
-    {{-- 🔽 JS: Показ/скрытие формы юр. лица --}}
+    {{-- 🔽 JS: показ/скрытие полей юр.лица --}}
     <script>
         document.getElementById('is_legal')?.addEventListener('change', function () {
-            const legalFields = document.getElementById('legal-fields');
-            legalFields.classList.toggle('hidden', !this.checked);
+            document.getElementById('legal-fields').classList.toggle('hidden', !this.checked);
         });
     </script>
 @endsection

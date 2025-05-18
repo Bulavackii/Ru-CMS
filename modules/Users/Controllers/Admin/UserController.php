@@ -6,37 +6,47 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Response;
 
+/**
+ * 👥 Контроллер управления пользователями (админка)
+ */
 class UserController extends Controller
 {
-    // 📌 Отображение списка пользователей
+    /**
+     * 📄 Список пользователей с фильтрацией по роли и поиском
+     */
     public function index(Request $request)
     {
-        $currentRole = $request->get('role');
+        $currentRole = $request->get('role'); // admin / user
         $search = $request->get('search', '');
 
         $users = User::query()
             ->when($currentRole, fn($query) =>
-                $query->where('is_admin', $currentRole === 'admin' ? 1 : 0))
+            $query->where('is_admin', $currentRole === 'admin' ? 1 : 0))
             ->when($search, fn($query) =>
-                $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                      ->orWhere('email', 'like', "%{$search}%");
-                }))
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            }))
             ->orderBy('name')
             ->paginate(5)
-            ->appends($request->only(['search', 'role'])); // сохраняем фильтры при переходе страниц
+            ->appends($request->only(['search', 'role'])); // сохранение фильтров при пагинации
 
         return view('users::admin.index', compact('users', 'currentRole', 'search'));
     }
 
-    // 🧩 Отображение формы создания
+    /**
+     * 🧾 Форма создания нового пользователя
+     */
     public function create()
     {
         return view('users::admin.create');
     }
 
-    // ✅ Сохранение нового пользователя
+    /**
+     * 💾 Сохранение нового пользователя
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -45,7 +55,7 @@ class UserController extends Controller
             'password' => 'required|string|min:8|confirmed',
         ]);
 
-        $user = User::create([
+        User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => bcrypt($validated['password']),
@@ -55,7 +65,9 @@ class UserController extends Controller
         return redirect()->route('admin.users.index')->with('success', 'Пользователь успешно создан!');
     }
 
-    // 🔁 Переключение роли пользователя
+    /**
+     * 🔄 Переключение роли пользователя (админ/пользователь)
+     */
     public function toggleRole($id)
     {
         $user = User::find($id);
@@ -70,14 +82,18 @@ class UserController extends Controller
         return redirect()->route('admin.users.index')->with('success', 'Роль пользователя изменена');
     }
 
-    // 🔐 Форма смены пароля
+    /**
+     * 🔐 Форма смены пароля
+     */
     public function editPassword($id)
     {
         $user = User::findOrFail($id);
         return view('users::admin.password', compact('user'));
     }
 
-    // 💾 Обновление пароля
+    /**
+     * 📝 Обновление пароля пользователя
+     */
     public function updatePassword(Request $request, $id)
     {
         $request->validate([
@@ -91,7 +107,9 @@ class UserController extends Controller
         return redirect()->route('admin.users.index')->with('success', 'Пароль обновлён');
     }
 
-    // 🗑️ Удаление пользователя
+    /**
+     * 🗑️ Удаление пользователя (кроме админов)
+     */
     public function destroy($id)
     {
         $user = User::find($id);
@@ -107,5 +125,19 @@ class UserController extends Controller
         $user->delete();
 
         return redirect()->route('admin.users.index')->with('success', 'Пользователь удалён');
+    }
+
+    // 🔍 AJAX-поиск пользователей
+    public function ajaxSearch(Request $request)
+    {
+        $query = $request->input('q');
+
+        $users = User::query()
+            ->where('name', 'like', "%$query%")
+            ->orWhere('email', 'like', "%$query%")
+            ->limit(10)
+            ->get(['id', 'name', 'email', 'is_admin']);
+
+        return Response::json($users);
     }
 }

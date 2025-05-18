@@ -7,17 +7,34 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Modules\Payments\Models\Order;
 
+/**
+ * 🧑‍💼 DashboardController
+ *
+ * Контроллер личного кабинета пользователя на клиентской части.
+ *
+ * Функции:
+ * 🔹 Просмотр и редактирование профиля
+ * 🔹 Просмотр последних заказов
+ */
 class DashboardController extends Controller
 {
     /**
-     * 👤 Отображение личного кабинета
+     * 👤 index()
+     *
+     * 📄 Отображает главную страницу личного кабинета пользователя
+     *
+     * Загружает:
+     * - текущего пользователя
+     * - последние 5 заказов без подгрузки items (для экономии)
+     *
+     * @return \Illuminate\View\View
      */
     public function index()
     {
         $user = Auth::user();
 
-        // Убираем items, чтобы не было дублирования
-        $orders = Order::with(['paymentMethod', 'deliveryMethod'])
+        // 📦 Последние 5 заказов (без items)
+        $orders = Order::with(['paymentMethod', 'deliveryMethod']) // Методы оплаты и доставки
             ->select('orders.*')
             ->where('user_id', $user->id)
             ->latest()
@@ -28,7 +45,11 @@ class DashboardController extends Controller
     }
 
     /**
-     * ✏️ Форма редактирования профиля
+     * ✏️ edit()
+     *
+     * 📄 Форма редактирования профиля пользователя
+     *
+     * @return \Illuminate\View\View
      */
     public function edit()
     {
@@ -37,13 +58,22 @@ class DashboardController extends Controller
     }
 
     /**
-     * 💾 Сохранение данных профиля
+     * 💾 update()
+     *
+     * ✅ Обновляет данные профиля пользователя
+     *
+     * 🔍 Валидирует поля: ФИО, адреса, контакты, а также юр.информацию
+     * 💼 Поддерживает оба варианта: физлицо и юрлицо (`is_company`)
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request)
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
+        // 🛡️ Валидация данных профиля
         $validated = $request->validate([
             'name'              => 'required|string|max:255',
             'address'           => 'nullable|string|max:255',
@@ -62,6 +92,7 @@ class DashboardController extends Controller
             'okato'             => 'nullable|string|max:20',
         ]);
 
+        // 💾 Обновление данных пользователя
         $user->fill([
             'name'              => $validated['name'],
             'address'           => $validated['address'] ?? null,
@@ -70,7 +101,7 @@ class DashboardController extends Controller
             'whatsapp'          => $validated['whatsapp'] ?? null,
             'vk'                => $validated['vk'] ?? null,
             'zip'               => $validated['zip'] ?? null,
-            'is_company'        => $request->has('is_company'),
+            'is_company'        => $request->has('is_company'), // Флаг: юрлицо или нет
             'company_name'      => $validated['company_name'] ?? null,
             'inn'               => $validated['inn'] ?? null,
             'ogrn'              => $validated['ogrn'] ?? null,
@@ -82,6 +113,7 @@ class DashboardController extends Controller
 
         $user->save();
 
-        return redirect()->route('dashboard')->with('success', 'Профиль успешно обновлён');
+        // ✅ Возврат с уведомлением
+        return redirect()->route('dashboard')->with('success', '✅ Профиль успешно обновлён');
     }
 }

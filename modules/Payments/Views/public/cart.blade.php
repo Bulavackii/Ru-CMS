@@ -39,14 +39,12 @@
                                 <div class="mt-2 font-bold text-sm text-gray-800">Сумма: <span class="subtotal">{{ number_format($subtotal, 2, ',', ' ') }}</span> ₽</div>
                             </div>
 
-                            {{-- Удалить --}}
                             <div class="flex-shrink-0">
                                 <button formaction="{{ route('cart.remove') }}" formmethod="POST" name="id" value="{{ $item['id'] }}" class="text-red-600 hover:text-red-800 text-sm flex items-center gap-1">
                                     <i class="fas fa-trash-alt"></i> Удалить
                                 </button>
                             </div>
 
-                            {{-- 🆕 Скрытые поля для передачи данных --}}
                             <input type="hidden" name="items[{{ $item['id'] }}][id]" value="{{ $item['id'] }}">
                             <input type="hidden" name="items[{{ $item['id'] }}][title]" value="{{ $item['title'] }}">
                             <input type="hidden" name="items[{{ $item['id'] }}][price]" value="{{ $item['price'] }}">
@@ -59,42 +57,56 @@
                 <div class="space-y-6">
                     <div class="bg-white border border-gray-200 rounded-lg shadow p-6">
                         <h2 class="text-lg font-semibold mb-4">💳 Способ оплаты</h2>
-                        <select name="payment_method_id" required class="w-full border-gray-300 rounded px-4 py-2 shadow-sm focus:ring focus:ring-indigo-300 text-sm">
+                        <select name="payment_method_id" id="payment-method" required class="w-full border-gray-300 rounded px-4 py-2 shadow-sm focus:ring focus:ring-indigo-300 text-sm">
                             @foreach ($paymentMethods as $method)
-                                <option value="{{ $method->id }}">{{ $method->title }}</option>
+                                <option value="{{ $method->id }}" data-description="{{ $method->description ?? '' }}">
+                                    {{ $method->title }}
+                                </option>
                             @endforeach
                         </select>
+                        <p id="payment-description" class="mt-2 text-sm text-gray-600 italic"></p>
                     </div>
 
                     <div class="bg-white border border-gray-200 rounded-lg shadow p-6">
                         <h2 class="text-lg font-semibold mb-4">🚚 Метод доставки</h2>
-                        <select name="delivery_method_id" required class="w-full border-gray-300 rounded px-4 py-2 shadow-sm focus:ring focus:ring-indigo-300 text-sm">
+                        <select name="delivery_method_id" id="delivery-method" required class="w-full border-gray-300 rounded px-4 py-2 shadow-sm focus:ring focus:ring-indigo-300 text-sm">
                             @foreach ($deliveryMethods as $method)
-                                <option value="{{ $method->id }}" {{ old('delivery_method_id') == $method->id ? 'selected' : '' }}>
+                                <option value="{{ $method->id }}" data-price="{{ $method->price }}" data-description="{{ $method->description ?? '' }}">
                                     {{ $method->name }} ({{ number_format($method->price, 2, ',', ' ') }} ₽)
                                 </option>
                             @endforeach
                         </select>
+                        <p id="delivery-description" class="mt-2 text-sm text-gray-600 italic"></p>
                     </div>
 
                     <div class="bg-white border border-gray-200 rounded-lg shadow p-6 text-center">
-                        <div class="text-xl font-bold mb-4">💵 Итого: <span id="cart-total">{{ number_format($total, 2, ',', ' ') }}</span> ₽</div>
+                        <div class="text-xl font-bold mb-4">
+                            💵 Итого: <span id="cart-total">{{ number_format($total, 2, ',', ' ') }}</span> ₽<br>
+                            🚚 Доставка: <span id="delivery-cost">0,00</span> ₽
+                            <hr class="my-2">
+                            <span class="text-2xl font-extrabold">💰 Всего: <span id="grand-total">0,00</span> ₽</span>
+                        </div>
 
                         <button type="submit" class="bg-black hover:bg-gray-800 text-white px-8 py-3 rounded-md shadow-md font-semibold transition">
-                             Оформить заказ
+                            Оформить заказ
                         </button>
                     </div>
                 </div>
-
             </div>
         </form>
     @else
         <p class="text-center text-gray-500 text-lg">Ваша корзина пуста.</p>
     @endif
 
-    {{-- ✅ JS-логика --}}
     <script>
     document.addEventListener('DOMContentLoaded', function () {
+        const deliverySelect = document.getElementById('delivery-method');
+        const paymentSelect = document.getElementById('payment-method');
+        const deliveryDescription = document.getElementById('delivery-description');
+        const paymentDescription = document.getElementById('payment-description');
+        const deliveryCostSpan = document.getElementById('delivery-cost');
+        const grandTotalSpan = document.getElementById('grand-total');
+
         const updateTotals = () => {
             let total = 0;
 
@@ -103,24 +115,38 @@
                 const priceText = parent.querySelector('.price').innerText.replace(/\s/g, '').replace(',', '.');
                 const qty = parseInt(input.value);
                 const price = parseFloat(priceText);
-
                 const subtotal = qty * price;
                 parent.querySelector('.subtotal').innerText = subtotal.toLocaleString('ru-RU', { minimumFractionDigits: 2 });
-
                 total += subtotal;
             });
 
             document.getElementById('cart-total').innerText = total.toLocaleString('ru-RU', { minimumFractionDigits: 2 });
+
+            const delivery = parseFloat(deliveryCostSpan.innerText.replace(/\s/g, '').replace(',', '.')) || 0;
+            const grand = total + delivery;
+            grandTotalSpan.innerText = grand.toLocaleString('ru-RU', { minimumFractionDigits: 2 });
         };
+
+        function updateDeliveryInfo() {
+            const selected = deliverySelect.options[deliverySelect.selectedIndex];
+            const price = parseFloat(selected.dataset.price || 0);
+            const desc = selected.dataset.description || '';
+            deliveryDescription.innerText = desc;
+            deliveryCostSpan.innerText = price.toLocaleString('ru-RU', { minimumFractionDigits: 2 });
+            updateTotals();
+        }
+
+        function updatePaymentInfo() {
+            const selected = paymentSelect.options[paymentSelect.selectedIndex];
+            const desc = selected.dataset.description || '';
+            paymentDescription.innerText = desc;
+        }
 
         document.querySelectorAll('.increment').forEach(btn => {
             btn.addEventListener('click', function () {
                 const input = document.querySelector(`.qty-input[data-id="${this.dataset.id}"]`);
                 input.value = parseInt(input.value) + 1;
-
-                const hiddenInput = document.querySelector(`.qty-hidden[data-id="${this.dataset.id}"]`);
-                if (hiddenInput) hiddenInput.value = input.value;
-
+                document.querySelector(`.qty-hidden[data-id="${this.dataset.id}"]`).value = input.value;
                 updateTotals();
             });
         });
@@ -130,15 +156,17 @@
                 const input = document.querySelector(`.qty-input[data-id="${this.dataset.id}"]`);
                 if (parseInt(input.value) > 1) {
                     input.value = parseInt(input.value) - 1;
-
-                    const hiddenInput = document.querySelector(`.qty-hidden[data-id="${this.dataset.id}"]`);
-                    if (hiddenInput) hiddenInput.value = input.value;
-
+                    document.querySelector(`.qty-hidden[data-id="${this.dataset.id}"]`).value = input.value;
                     updateTotals();
                 }
             });
         });
 
+        deliverySelect.addEventListener('change', updateDeliveryInfo);
+        paymentSelect.addEventListener('change', updatePaymentInfo);
+
+        updateDeliveryInfo();
+        updatePaymentInfo();
         updateTotals();
     });
     </script>

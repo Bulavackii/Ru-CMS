@@ -1,10 +1,18 @@
 @foreach ($pages as $page)
-    <article class="w-full mb-[3px] bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm transition-all duration-300">
+    <article class="w-full mb-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm transition-all duration-300">
 
-        {{-- 📰 Заголовок --}}
+        {{-- 📰 Заголовок страницы --}}
         <header class="px-6 pt-6 pb-2 text-center">
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white break-words leading-tight mb-2">
-                {{ $page->title }}
+                @if (!empty($page->slug))
+                    <a href="{{ route('frontend.pages.show', $page->slug) }}"
+                       class="hover:text-blue-600 transition inline-flex items-center gap-1"
+                       title="Открыть страницу">
+                        🔗 {{ $page->title }}
+                    </a>
+                @else
+                    {{ $page->title }}
+                @endif
             </h2>
 
             {{-- 🏷️ Категории --}}
@@ -12,20 +20,20 @@
                 <div class="flex flex-wrap justify-center gap-2 text-xs sm:text-sm mb-3">
                     @foreach ($page->categories as $category)
                         <a href="{{ url('/?category=' . $category->id) }}"
-                           class="inline-block bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100 px-3 py-1 rounded-full font-medium hover:underline transition">
-                            {{ $category->title }}
+                           class="inline-block bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100 px-3 py-1 rounded-full font-medium transition">
+                            🏷️ {{ $category->title }}
                         </a>
                     @endforeach
                 </div>
             @endif
 
-            {{-- 🔸 Декоративная линия --}}
+            {{-- 🔹 Декоративная линия --}}
             <div class="flex justify-center">
                 <hr class="w-24 border-t-2 border-black dark:border-white opacity-30 mb-2">
             </div>
         </header>
 
-        {{-- 📄 Контент --}}
+        {{-- 📄 Контент страницы --}}
         <div class="page-content prose dark:prose-invert max-w-none px-6 pb-6 text-gray-800 dark:text-gray-100">
             {!! $page->content !!}
         </div>

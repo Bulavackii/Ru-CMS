@@ -1,7 +1,10 @@
 <?php
 
 return [
-    'previous' => '&laquo; Назад',
-    'next' => 'Вперёд &raquo;',
-    'showing' => 'Показано от :first до :last из :total результатов',
+    'previous' => '← Назад',
+    'next' => 'Вперёд →',
+    'showing' => 'Показано с :first по :last из :total записей',
+    'to' => 'по',
+    'of' => 'из',
+    'results' => 'записей',
 ];

@@ -3,40 +3,99 @@
 @section('title', 'Заказ #' . $order->id)
 
 @section('content')
-    <h1 class="text-2xl font-bold mb-4">📄 Заказ #{{ $order->id }}</h1>
+    <h1 class="text-2xl font-bold mb-6 flex items-center gap-2">📄 Заказ #{{ $order->id }}</h1>
 
-    <p><strong>Пользователь:</strong> {{ $order->user->name ?? 'Гость' }}</p>
-    <p><strong>Способ оплаты:</strong> {{ $order->paymentMethod->title ?? '-' }}</p>
-    <p><strong>Сумма:</strong> {{ number_format($order->total, 2, ',', ' ') }} ₽</p>
-    <p><strong>Статус:</strong> {{ ucfirst($order->status) }}</p>
-    <p><strong>Дата:</strong> {{ $order->created_at->format('d.m.Y H:i') }}</p>
+    {{-- 🧍 Информация о заказе --}}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow p-5 space-y-2">
+            <p class="text-sm text-gray-500">👤 Пользователь:</p>
+            <p class="text-base font-semibold text-gray-800 dark:text-white">
+                {{ $order->user->name ?? '🕵️ Гость' }}
+            </p>
 
-    <hr class="my-4">
+            <p class="text-sm text-gray-500 mt-4">💳 Способ оплаты:</p>
+            <p class="text-base font-semibold text-gray-800 dark:text-white">
+                {{ $order->paymentMethod->title ?? '—' }}
+            </p>
 
-    <h2 class="text-xl font-semibold mb-2">🧾 Товары в заказе</h2>
+            <p class="text-sm text-gray-500 mt-4">💰 Сумма заказа:</p>
+            <p class="text-base font-semibold text-gray-800 dark:text-white">
+                {{ number_format($order->total, 2, ',', ' ') }} ₽
+            </p>
+        </div>
 
-    <table class="w-full bg-white dark:bg-gray-900 border rounded shadow-sm text-sm">
-        <thead class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
-            <tr>
-                <th class="px-3 py-2 text-left">Товар</th>
-                <th class="px-3 py-2 text-left">Цена</th>
-                <th class="px-3 py-2 text-left">Кол-во</th>
-                <th class="px-3 py-2 text-left">Сумма</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($order->items as $item)
-                <tr class="border-t border-gray-100 dark:border-gray-800">
-                    <td class="px-3 py-2">{{ $item->title }}</td>
-                    <td class="px-3 py-2">{{ number_format($item->price, 2, ',', ' ') }} ₽</td>
-                    <td class="px-3 py-2">{{ $item->qty }}</td>
-                    <td class="px-3 py-2">{{ number_format($item->price * $item->qty, 2, ',', ' ') }} ₽</td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
+        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow p-5 space-y-2">
+            <p class="text-sm text-gray-500">📌 Статус:</p>
+            @php
+                $colors = ['pending' => 'gray', 'paid' => 'green', 'canceled' => 'red'];
+                $color = $colors[$order->status] ?? 'gray';
+            @endphp
+            <span
+                class="inline-block px-3 py-1 rounded-full bg-{{ $color }}-100 text-{{ $color }}-800 dark:bg-{{ $color }}-800 dark:text-white text-sm font-semibold capitalize">
+                {{ $order->status }}
+            </span>
 
-    <div class="mt-6">
-        <a href="{{ route('admin.orders.index') }}" class="text-blue-600 hover:underline">← Назад к списку</a>
+            <p class="text-sm text-gray-500 mt-4">🕒 Дата оформления:</p>
+            <p class="text-base font-semibold text-gray-800 dark:text-white">
+                {{ $order->created_at->format('d.m.Y H:i') }}
+            </p>
+
+            @if ($order->deliveryMethod)
+                <p class="text-sm text-gray-500 mt-4">🚚 Метод доставки:</p>
+                <p class="text-base font-semibold text-gray-800 dark:text-white">
+                    {{ $order->deliveryMethod->title }}
+                    @if ($order->deliveryMethod->price)
+                        <span
+                            class="text-sm text-gray-500 ml-1">({{ number_format($order->deliveryMethod->price, 2, ',', ' ') }}
+                            ₽)</span>
+                    @endif
+                </p>
+            @endif
+        </div>
+    </div>
+
+    {{-- 📦 Таблица товаров --}}
+    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow p-5">
+        <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">🧾 Товары в заказе</h2>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm table-auto">
+                <thead class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                    <tr>
+                        <th class="px-4 py-2 text-left">Товар</th>
+                        <th class="px-4 py-2 text-left">Цена</th>
+                        <th class="px-4 py-2 text-left">Кол-во</th>
+                        <th class="px-4 py-2 text-left">Сумма</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                    @foreach ($order->items as $item)
+                        <tr>
+                            <td class="px-4 py-3 text-gray-800 dark:text-gray-100">{{ $item->title }}</td>
+                            <td class="px-4 py-3">{{ number_format($item->price, 2, ',', ' ') }} ₽</td>
+                            <td class="px-4 py-3">{{ $item->qty }}</td>
+                            <td class="px-4 py-3 font-semibold text-gray-800 dark:text-white">
+                                {{ number_format($item->price * $item->qty, 2, ',', ' ') }} ₽
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+
+        <div class="text-right text-xl font-bold mt-6 text-gray-900 dark:text-white">
+            💵 Итого: {{ number_format($order->total, 2, ',', ' ') }} ₽
+        </div>
+    </div>
+
+    {{-- 🔙 Назад --}}
+    <div class="mt-8">
+        {{-- 🔙 Кнопка "Назад к списку" справа --}}
+<div class="mt-8 flex justify-end">
+    <a href="{{ route('admin.orders.index') }}"
+       class="inline-flex items-center gap-2 px-5 py-2.5 bg-black hover:bg-gray-800 text-white text-sm font-bold rounded-full shadow-sm transition-all duration-200">
+        <i class="fas fa-arrow-left text-xs"></i> Назад
+    </a>
+</div>
     </div>
 @endsection

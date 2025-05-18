@@ -3,105 +3,128 @@
 @section('title', 'Редактировать меню')
 
 @section('content')
-    <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">🧩 Меню: {{ $menu->title }}</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400">Позиция: {{ $menu->position }}</p>
+    {{-- 🧩 Заголовок страницы --}}
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        {{-- Название меню --}}
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">
+            🧩 Меню: {{ $menu->title }}
+        </h1>
+
+        {{-- Позиция меню --}}
+        <div class="text-sm text-gray-500 dark:text-gray-400">
+            📍 Позиция: <strong>{{ $menu->position }}</strong>
+        </div>
     </div>
 
-    {{-- 🔘 Добавить пункт меню --}}
+    {{-- ➕ Добавление нового пункта меню --}}
     <form action="{{ route('admin.menu_items.store', $menu) }}" method="POST"
-        class="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg p-6 mb-8">
+        class="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl p-6 mb-10 space-y-6">
         @csrf
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        {{-- 🔣 Поля формы --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <div>
-                <label class="block text-sm font-semibold mb-1">Название</label>
-                <input type="text" name="title" class="w-full border rounded px-3 py-2 dark:bg-gray-800 dark:text-white"
-                    required>
+                <label class="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">🏷️ Название</label>
+                <input type="text" name="title" required
+                    class="w-full border rounded px-3 py-2 dark:bg-gray-800 dark:text-white">
             </div>
 
             <div>
-                <label class="block text-sm font-semibold mb-1">Тип</label>
+                <label class="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">🔗 Тип</label>
                 <select name="type" id="menu-type"
                     class="w-full border rounded px-3 py-2 dark:bg-gray-800 dark:text-white">
-                    <option value="url">Внешняя ссылка</option>
-                    <option value="page">Страница</option>
-                    <option value="category">Категория</option>
+                    <option value="url">🌍 Внешняя ссылка</option>
+                    <option value="page">📄 Страница</option>
+                    <option value="category">🏷️ Категория</option>
                 </select>
             </div>
 
             <div id="url-field">
-                <label class="block text-sm font-semibold mb-1">URL (если внешняя ссылка)</label>
+                <label class="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">🌐 URL (если
+                    внешняя)</label>
                 <input type="text" name="url"
                     class="w-full border rounded px-3 py-2 dark:bg-gray-800 dark:text-white">
             </div>
 
             <div id="linked-id-field" style="display:none">
-                <label class="block text-sm font-semibold mb-1">Выберите объект</label>
+                <label class="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">🔍 Связанный объект</label>
                 <select name="linked_id" id="linked-id"
                     class="w-full border rounded px-3 py-2 dark:bg-gray-800 dark:text-white"></select>
             </div>
+        </div>
 
-            <div class="md:col-span-2">
-                <label class="block text-sm font-semibold mb-1">SEO: Meta Title</label>
+        {{-- 🧠 SEO-поля --}}
+        <div class="grid grid-cols-1 gap-4">
+            <div>
+                <label class="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">🧠 Meta Title</label>
                 <input type="text" name="meta_title"
                     class="w-full border rounded px-3 py-2 dark:bg-gray-800 dark:text-white">
             </div>
-            <div class="md:col-span-2">
-                <label class="block text-sm font-semibold mb-1">SEO: Meta Description</label>
+            <div>
+                <label class="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">📝 Meta Description</label>
                 <input type="text" name="meta_description"
                     class="w-full border rounded px-3 py-2 dark:bg-gray-800 dark:text-white">
             </div>
-            <div class="md:col-span-2">
-                <label class="block text-sm font-semibold mb-1">SEO: Meta Keywords</label>
+            <div>
+                <label class="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">🏷️ Meta Keywords</label>
                 <input type="text" name="meta_keywords"
                     class="w-full border rounded px-3 py-2 dark:bg-gray-800 dark:text-white">
             </div>
         </div>
 
-        <div class="mt-6">
-            <button type="submit" class="bg-black hover:bg-gray-800 text-white px-6 py-2 rounded shadow">
+        {{-- ✅ Кнопка отправки --}}
+        <div class="pt-4">
+            <button type="submit"
+                class="bg-black hover:bg-gray-800 text-white px-6 py-2 rounded shadow text-sm inline-flex items-center gap-2">
                 ➕ Добавить пункт
             </button>
         </div>
     </form>
 
-    {{-- 🔁 Список с drag-and-drop --}}
-    <div id="menu-editor" class="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg p-6">
+    {{-- 🔽 Разделитель --}}
+    <hr class="my-8 border-t border-dashed border-gray-300 dark:border-gray-700">
+
+    {{-- 🧩 Drag-and-drop редактор --}}
+    <div class="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl p-6 relative">
         <ul id="menu-list" class="space-y-2">
-            {{-- Пункты меню загружаются через JS --}}
+            {{-- 🧩 Пункты меню загружаются через JS --}}
         </ul>
+
+        {{-- 💾 Кнопка сохранения (sticky) --}}
+        <div class="mt-6 sm:mt-8 text-right">
+            <button id="save-menu-order"
+                class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded shadow text-sm inline-flex items-center gap-2">
+                <i class="fas fa-save"></i> Сохранить порядок
+            </button>
+        </div>
     </div>
 
-    <div class="mt-6">
-        <button id="save-menu-order" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded shadow">
-            💾 Сохранить порядок
-        </button>
-    </div>
-
+    {{-- 📋 Список пунктов меню (резервный вывод) --}}
     @if ($items->isNotEmpty())
-        <div class="mt-8">
-            <h2 class="text-lg font-bold text-gray-700 dark:text-white mb-4">📌 Список пунктов</h2>
+        <div class="mt-10 space-y-3">
+            <h2 class="text-lg font-bold text-gray-700 dark:text-white mb-2">📌 Список пунктов</h2>
 
-            <ul class="space-y-3">
-                @foreach ($items as $item)
-                    <li
-                        class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <div class="font-semibold text-gray-900 dark:text-white">{{ $item->title }}</div>
-                                <div class="text-xs text-gray-500 mt-1">Тип: {{ $item->type }} | ID:
-                                    {{ $item->linked_id }}</div>
-                            </div>
-                            <form method="POST" action="{{ route('admin.menu_items.destroy', [$menu, $item]) }}"
-                                onsubmit="return confirm('Удалить пункт?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:text-red-800 text-sm">Удалить</button>
-                            </form>
+            @foreach ($items as $item)
+                <div
+                    class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col sm:flex-row justify-between gap-4 items-start sm:items-center">
+                    <div>
+                        <div class="font-semibold text-gray-900 dark:text-white">{{ $item->title }}</div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            🔗 Тип: <span title="Тип привязки">{{ $item->type }}</span>
+                            | 🆔 ID: <span title="ID объекта">{{ $item->linked_id }}</span>
                         </div>
-                    </li>
-                @endforeach
-            </ul>
+                    </div>
+                    <form method="POST" action="{{ route('admin.menu_items.destroy', [$menu, $item]) }}"
+                        onsubmit="return confirm('Удалить пункт?')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit"
+                            class="text-red-600 hover:text-red-800 text-sm inline-flex items-center gap-1">
+                            🗑️ Удалить
+                        </button>
+                    </form>
+                </div>
+            @endforeach
         </div>
     @endif
 @endsection

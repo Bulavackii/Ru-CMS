@@ -1,69 +1,89 @@
 @extends('layouts.admin')
 
 @section('title', 'Редактирование слайдшоу')
-@section('header', 'Слайды: ' . $slideshow->title)
+@section('header', '🎞️ Слайды: ' . $slideshow->title)
 
 @section('content')
-    {{-- Форма добавления слайда --}}
-    <form method="POST" action="{{ route('admin.slides.store') }}" enctype="multipart/form-data" class="mb-6 max-w-xl">
+    {{-- 📥 Форма добавления нового слайда --}}
+    <form method="POST" action="{{ route('admin.slides.store') }}" enctype="multipart/form-data"
+          class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow p-6 mb-8 max-w-2xl space-y-6">
         @csrf
         <input type="hidden" name="slideshow_id" value="{{ $slideshow->id }}">
 
-        <div class="mb-4">
-            <label for="media" class="block mb-1 font-semibold">Файл (изображение или видео)</label>
-            <input type="file" name="media" id="media" class="w-full border rounded px-3 py-2" required>
+        {{-- 🖼️ Файл слайда --}}
+        <div>
+            <label for="media" class="block font-semibold mb-1 text-gray-700 dark:text-gray-300">🖼️ Файл (изображение или видео)</label>
+            <input type="file" name="media" id="media" required
+                   class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 bg-white dark:bg-gray-800 text-sm shadow-sm">
         </div>
 
-        <div class="mb-4">
-            <label for="caption" class="block mb-1 font-semibold">Подпись (необязательно)</label>
-            <input type="text" name="caption" id="caption" class="w-full border rounded px-3 py-2">
+        {{-- 📝 Подпись --}}
+        <div>
+            <label for="caption" class="block font-semibold mb-1 text-gray-700 dark:text-gray-300">📝 Подпись (необязательно)</label>
+            <input type="text" name="caption" id="caption"
+                   class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 bg-white dark:bg-gray-800 text-sm shadow-sm">
         </div>
 
-        <div class="mb-4">
-            <label for="order" class="block mb-1 font-semibold">Порядок</label>
-            <input type="number" name="order" id="order" value="0" class="w-full border rounded px-3 py-2">
+        {{-- 🔢 Порядок --}}
+        <div>
+            <label for="order" class="block font-semibold mb-1 text-gray-700 dark:text-gray-300">🔢 Порядок</label>
+            <input type="number" name="order" id="order" value="0"
+                   class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 bg-white dark:bg-gray-800 text-sm shadow-sm">
         </div>
 
-        <div class="mb-4">
-            <label for="position" class="block font-semibold mb-1">Позиция на странице</label>
-            <select name="position" id="position" class="w-full border rounded px-3 py-2">
-                <option value="top" {{ old('position', $slideshow->position ?? '') == 'top' ? 'selected' : '' }}>Вверху страницы</option>
-                <option value="bottom" {{ old('position', $slideshow->position ?? '') == 'bottom' ? 'selected' : '' }}>Внизу страницы</option>
+        {{-- 📍 Позиция --}}
+        <div>
+            <label for="position" class="block font-semibold mb-1 text-gray-700 dark:text-gray-300">📍 Позиция слайдшоу</label>
+            <select name="position" id="position"
+                    class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 bg-white dark:bg-gray-800 text-sm shadow-sm">
+                <option value="top" {{ old('position', $slideshow->position ?? '') == 'top' ? 'selected' : '' }}>🔝 Вверху страницы</option>
+                <option value="bottom" {{ old('position', $slideshow->position ?? '') == 'bottom' ? 'selected' : '' }}>🔻 Внизу страницы</option>
             </select>
         </div>
 
-        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">➕ Добавить слайд</button>
+        {{-- ✅ Кнопка --}}
+        <div class="text-right">
+            <button type="submit"
+                    class="inline-flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-6 py-2 rounded-md text-sm font-semibold shadow transition">
+                <i class="fas fa-plus-circle"></i> Добавить слайд
+            </button>
+        </div>
     </form>
 
-    {{-- Существующие слайды --}}
+    {{-- 🖼️ Существующие слайды --}}
     @if ($slideshow->items->count())
-        <h2 class="text-xl font-bold mb-2">Текущие слайды</h2>
-        <div class="grid grid-cols-2 gap-4">
+        <h2 class="text-lg font-bold mb-4 text-gray-800 dark:text-white">📂 Текущие слайды</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             @foreach ($slideshow->items->sortBy('order') as $slide)
-                <div class="border rounded overflow-hidden shadow relative bg-white">
+                <div class="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm relative bg-white dark:bg-gray-800 transition">
                     @if ($slide->media_type === 'image')
-                        <img src="{{ asset('storage/' . $slide->file_path) }}" class="w-full">
+                        <img src="{{ asset('storage/' . $slide->file_path) }}" class="w-full h-48 object-cover" alt="Слайд">
                     @else
-                        <video controls class="w-full">
+                        <video controls class="w-full h-48 object-cover">
                             <source src="{{ asset('storage/' . $slide->file_path) }}">
                         </video>
                     @endif
 
-                    <div class="p-2 text-sm border-t bg-gray-50 text-gray-700">
-                        <strong>Подпись:</strong>
-                        {{ $slide->caption ?: '—' }}
+                    <div class="p-3 text-sm border-t dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-200">
+                        <strong>📝 Подпись:</strong> {{ $slide->caption ?: '—' }}
                     </div>
 
+                    {{-- 🗑️ Удаление --}}
                     <form method="POST" action="{{ route('admin.slides.destroy', $slide->id) }}"
-                          onsubmit="return confirm('Удалить этот слайд?')" class="absolute top-1 right-1">
+                          onsubmit="return confirm('Удалить этот слайд?')"
+                          class="absolute top-2 right-2">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="text-red-600 text-xl hover:text-red-800">✕</button>
+                        <button type="submit"
+                                class="text-red-600 hover:text-red-800 text-lg"
+                                title="Удалить слайд">
+                            <i class="fas fa-times-circle"></i>
+                        </button>
                     </form>
                 </div>
             @endforeach
         </div>
     @else
-        <p class="text-gray-500">Нет слайдов</p>
+        <div class="text-gray-500 dark:text-gray-400">📭 Нет слайдов для отображения</div>
     @endif
 @endsection

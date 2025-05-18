@@ -6,12 +6,26 @@ use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
+/**
+ * 🧾 ProfileUpdateRequest
+ *
+ * FormRequest для обновления профиля пользователя.
+ *
+ * Содержит:
+ * 🔹 Валидацию имени
+ * 🔹 Валидацию email с учётом текущего пользователя
+ */
 class ProfileUpdateRequest extends FormRequest
 {
     /**
-     * Get the validation rules that apply to the request.
+     * 📋 rules()
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * Правила валидации при обновлении профиля:
+     * - name: обязательное текстовое поле, не длиннее 255 символов
+     * - email: обязателен, email-формат, не более 255 символов, уникален среди пользователей
+     *   ⚠️ Исключает текущего пользователя из проверки уникальности
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
      */
     public function rules(): array
     {
@@ -20,10 +34,10 @@ class ProfileUpdateRequest extends FormRequest
             'email' => [
                 'required',
                 'string',
-                'lowercase',
+                'lowercase', // приведение email к нижнему регистру
                 'email',
                 'max:255',
-                Rule::unique(User::class)->ignore($this->user()->id),
+                Rule::unique(User::class)->ignore($this->user()->id), // 👤 Игнорируем текущего пользователя
             ],
         ];
     }

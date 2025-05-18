@@ -12,16 +12,19 @@ use Illuminate\Support\Str;
 class SlideshowController extends Controller
 {
     /**
-     * Список всех слайдшоу
+     * 📋 Отображение списка всех слайдшоу
      */
     public function index()
     {
-        $slideshows = Slideshow::withCount('items')->orderBy('created_at', 'desc')->paginate(10);
+        $slideshows = Slideshow::withCount('items')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
         return view('Slideshow::admin.index', compact('slideshows'));
     }
 
     /**
-     * Форма создания слайдшоу
+     * ➕ Форма создания нового слайдшоу
      */
     public function createSlideshow()
     {
@@ -29,7 +32,7 @@ class SlideshowController extends Controller
     }
 
     /**
-     * Сохранение нового слайдшоу
+     * 💾 Сохранение нового слайдшоу
      */
     public function storeSlideshow(Request $request)
     {
@@ -44,11 +47,13 @@ class SlideshowController extends Controller
             'position' => $request->position,
         ]);
 
-        return redirect()->route('admin.slideshow.index')->with('success', 'Слайдшоу создано!');
+        return redirect()
+            ->route('admin.slideshow.index')
+            ->with('success', 'Слайдшоу успешно создано!');
     }
 
     /**
-     * Страница редактирования слайдшоу и добавления слайдов
+     * ✏️ Редактирование слайдшоу и добавление слайдов
      */
     public function edit($id)
     {
@@ -57,7 +62,7 @@ class SlideshowController extends Controller
     }
 
     /**
-     * Сохранение нового слайда
+     * ⬆️ Загрузка и сохранение нового слайда
      */
     public function store(Request $request)
     {
@@ -86,12 +91,13 @@ class SlideshowController extends Controller
             $slideshow->save();
         }
 
-        return redirect()->route('admin.slideshow.edit', $request->slideshow_id)
+        return redirect()
+            ->route('admin.slideshow.edit', $request->slideshow_id)
             ->with('success', 'Слайд добавлен');
     }
 
     /**
-     * Удаление всего слайдшоу
+     * 🗑️ Удаление всего слайдшоу и его слайдов
      */
     public function destroy(Slideshow $slideshow)
     {
@@ -102,11 +108,13 @@ class SlideshowController extends Controller
 
         $slideshow->delete();
 
-        return redirect()->route('admin.slideshow.index')->with('success', 'Слайдшоу удалено!');
+        return redirect()
+            ->route('admin.slideshow.index')
+            ->with('success', 'Слайдшоу удалено');
     }
 
     /**
-     * Удаление отдельного слайда
+     * ❌ Удаление отдельного слайда
      */
     public function deleteSlide($id)
     {
@@ -117,16 +125,17 @@ class SlideshowController extends Controller
 
         $slide->delete();
 
-        return redirect()->route('admin.slideshow.edit', $slideshowId)
+        return redirect()
+            ->route('admin.slideshow.edit', $slideshowId)
             ->with('success', 'Слайд удалён');
     }
 
     /**
-     * Массовое удаление слайдшоу и их слайдов
+     * 🧹 Массовое удаление слайдшоу и их слайдов
+     * (в разработке — вывод для отладки)
      */
     public function bulkDelete(Request $request)
-{
-    dd($request->all()); // Для отладки
-}
-
+    {
+        dd($request->all()); // 🔧 Отладочная заглушка
+    }
 }
