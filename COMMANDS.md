@@ -70,3 +70,7 @@ php artisan migrate --seed
 php artisan key:generate
 
 php artisan modules:sync
+
+php artisan sitemap:generate
+
+php artisan robots:generate

@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Blade;
 use Modules\System\Models\Module;
 use Modules\Notifications\Models\Notification;
 use Modules\Notifications\View\Components\Frontend\NotificationsComponent;
+use Modules\News\Models\News;
+use App\Observers\NewsObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -37,6 +39,8 @@ class AppServiceProvider extends ServiceProvider
             return;
         }
 
+        News::observe(NewsObserver::class);
+        
         /**
          * 🔁 Загрузка всех активных модулей
          */

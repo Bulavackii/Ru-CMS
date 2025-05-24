@@ -1,2 +1,14 @@
+# 🤖 Robots.txt — для поисковых систем
+# 📅 Сгенерировано: 2025-05-24 20:40:23
+
 User-agent: *
-Disallow:
+Disallow: /admin/
+Disallow: /login
+Disallow: /register
+Disallow: /password
+
+# ✅ Разрешаем всё остальное
+Allow: /
+
+# 🗺️ Sitemap:
+Sitemap: http://localhost/sitemap.xml

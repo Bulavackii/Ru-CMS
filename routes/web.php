@@ -31,6 +31,9 @@ use Modules\Menu\Models\Page;
 use Modules\Menu\Models\Menu;
 use Modules\Install\Controllers\InstallController;
 use App\Http\Middleware\RedirectIfInstalled;
+use App\Http\Controllers\SitemapController;
+
+Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 
 Route::middleware(['web', 'skip.install.db', \App\Http\Middleware\RedirectIfInstalled::class])
     ->prefix('install')
