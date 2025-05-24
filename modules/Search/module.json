@@ -1,5 +1,7 @@
 {
-    "name": "Search",
-    "version": "1.0",
-    "active": true
+  "name": "Search",
+  "title": "🔎 Поиск",
+  "version": "1.0.0",
+  "active": true,
+  "priority": 12
 }

@@ -1,5 +1,7 @@
 {
-    "name": "Notifications",
-    "version": "1.0",
-    "active": true
-  }
+  "name": "Notifications",
+  "title": "💬 Уведомления",
+  "version": "1.0.0",
+  "active": true,
+  "priority": 7
+}

@@ -68,3 +68,5 @@ php artisan migrate --seed
 ```
 
 php artisan key:generate
+
+php artisan modules:sync

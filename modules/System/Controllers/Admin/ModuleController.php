@@ -7,8 +7,8 @@ use Modules\System\Models\Module;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
 use ZipArchive;
+use Illuminate\Support\Facades\Response;
 
 class ModuleController extends Controller
 {
@@ -17,7 +17,11 @@ class ModuleController extends Controller
      */
     public function index(): View
     {
-        $modules = Module::all();
+        $modules = Module::orderBy('priority')->get()->map(function ($module) {
+            $module->is_installed = is_dir(base_path("modules/{$module->name}"));
+            return $module;
+        });
+
         return view('admin.modules', compact('modules'));
     }
 
@@ -30,7 +34,8 @@ class ModuleController extends Controller
         $module->active = !$module->active;
         $module->save();
 
-        return redirect()->route('admin.modules.index');
+        $status = $module->active ? 'включён' : 'отключён';
+        return redirect()->route('admin.modules.index')->with('success', "Модуль «{$module->title}» {$status}.");
     }
 
     /**
@@ -46,15 +51,12 @@ class ModuleController extends Controller
         $filename = $file->getClientOriginalName();
         $moduleName = pathinfo($filename, PATHINFO_FILENAME);
 
-        // 📁 Сохраняем ZIP-файл во временную директорию
         $zipPath = storage_path("app/temp/$filename");
         $file->move(storage_path('app/temp'), $filename);
 
-        // 📂 Путь для распаковки
         $extractPath = base_path("modules/$moduleName");
         $zip = new ZipArchive;
 
-        // 🔓 Попытка распаковать архив
         if ($zip->open($zipPath) === true) {
             $zip->extractTo($extractPath);
             $zip->close();
@@ -63,27 +65,113 @@ class ModuleController extends Controller
             return back()->withErrors(['module' => 'Ошибка распаковки архива']);
         }
 
-        // 📄 Проверка наличия module.json
         $configPath = "$extractPath/module.json";
         if (!File::exists($configPath)) {
             return back()->withErrors(['module' => 'Файл module.json не найден']);
         }
 
-        // 📚 Чтение и проверка содержимого module.json
         $data = json_decode(File::get($configPath), true);
         if (!$data || !isset($data['name'], $data['version'])) {
-            return back()->withErrors(['module' => 'Некорректный формат файла module.json']);
+            return back()->withErrors(['module' => 'Некорректный формат module.json']);
         }
 
-        // 📝 Регистрация или обновление модуля в базе
-        Module::updateOrCreate(
+        $module = Module::updateOrCreate(
             ['name' => $data['name']],
             [
-                'version' => $data['version'],
-                'active' => $data['active'] ?? false,
+                'title'    => $data['title'] ?? $data['name'],
+                'version'  => $data['version'],
+                'priority' => $data['priority'] ?? Module::max('priority') + 1,
+                'active'   => $data['active'] ?? false,
             ]
         );
 
-        return redirect()->route('admin.modules.index')->with('success', 'Модуль установлен!');
+        return redirect()->route('admin.modules.index')->with('success', "Модуль «{$module->title}» успешно установлен!");
+    }
+
+    /**
+     * 🗑 Удаление модуля
+     */
+    public function destroy($id)
+    {
+        $module = Module::findOrFail($id);
+        $moduleDir = base_path("modules/{$module->name}");
+
+        if (File::exists($moduleDir)) {
+            File::deleteDirectory($moduleDir);
+        }
+
+        $module->delete();
+
+        return redirect()->route('admin.modules.index')->with('success', "Модуль «{$module->title}» был удалён.");
+    }
+
+    /**
+     * 📦 Архивация модуля
+     */
+    public function archive($id)
+    {
+        $module = Module::findOrFail($id);
+        $moduleDir = base_path("modules/{$module->name}");
+
+        if (!File::exists($moduleDir)) {
+            return back()->with('error', 'Модуль не найден в файловой системе.');
+        }
+
+        $archiveDir = base_path('modules/archives');
+        if (!File::exists($archiveDir)) {
+            File::makeDirectory($archiveDir, 0755, true);
+        }
+
+        $zipPath = "{$archiveDir}/{$module->name}.zip";
+
+        if (File::exists($zipPath)) {
+            File::delete($zipPath);
+        }
+
+        $zip = new ZipArchive;
+        if ($zip->open($zipPath, ZipArchive::CREATE) === true) {
+            $files = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($moduleDir, \FilesystemIterator::SKIP_DOTS),
+                \RecursiveIteratorIterator::LEAVES_ONLY
+            );
+
+            foreach ($files as $file) {
+                $filePath = $file->getRealPath();
+                $relativePath = substr($filePath, strlen($moduleDir) + 1);
+                $zip->addFile($filePath, $relativePath);
+            }
+
+            $zip->close();
+
+            return back()->with('success', "Архив модуля «{$module->title}» создан в /modules/archives.");
+        }
+
+        return back()->with('error', 'Не удалось создать архив.');
+    }
+
+    /**
+     * ⬇️ Скачать архив модуля
+     */
+    public function downloadArchive($name)
+    {
+        $archivePath = base_path("modules/archives/{$name}.zip");
+
+        if (!File::exists($archivePath)) {
+            abort(404, 'Архив не найден.');
+        }
+
+        return response()->download($archivePath, "{$name}.zip");
+    }
+
+    /**
+     * 🔢 Drag-and-drop сортировка приоритетов
+     */
+    public function reorder(Request $request)
+    {
+        foreach ($request->input('order') as $item) {
+            Module::where('id', $item['id'])->update(['priority' => $item['priority']]);
+        }
+
+        return response()->json(['status' => 'ok']);
     }
 }

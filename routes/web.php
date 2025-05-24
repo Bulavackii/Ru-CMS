@@ -165,6 +165,9 @@ Route::middleware(['web', 'auth', 'admin'])->group(function () {
     Route::post('/admin/modules/register', [ModuleController::class, 'register'])->name('admin.modules.register');
     Route::delete('/admin/modules/{id}', [ModuleController::class, 'destroy'])->name('admin.modules.destroy');
     Route::patch('/admin/users/{id}/toggle-role', [UserController::class, 'toggleRole'])->name('admin.users.toggleRole');
+    Route::patch('/admin/modules/{id}/archive', [ModuleController::class, 'archive'])->name('admin.modules.archive');
+    Route::get('/admin/modules/{name}/download', [ModuleController::class, 'downloadArchive'])->name('admin.modules.downloadArchive');
+    Route::post('/admin/modules/reorder', [ModuleController::class, 'reorder'])->name('admin.modules.reorder');
 
     // Для отображения формы создания пользователя
     Route::get('/admin/users/create', [UserController::class, 'create'])->name('admin.users.create');

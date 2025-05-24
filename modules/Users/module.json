@@ -1,5 +1,7 @@
 {
-    "name": "Users",
-    "version": "1.0",
-    "active": true
+  "name": "Users",
+  "title": "👨‍💻 Пользователи",
+  "version": "1.0.0",
+  "active": true,
+  "priority": 6
 }

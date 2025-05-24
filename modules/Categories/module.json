@@ -1,5 +1,7 @@
 {
-    "name": "Categories",
-    "namespace": "Modules\\Categories\\",
-    "active": true
+  "name": "Categories",
+  "title": "🗂️ Категории",
+  "version": "1.0.0",
+  "active": true,
+  "priority": 3
 }
