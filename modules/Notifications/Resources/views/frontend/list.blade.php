@@ -1,6 +1,3 @@
-{{-- DEBUG: Проверка типа данных --}}
-{{-- {{ dump($notifications) }} --}}
-
 @if ($notifications->count())
     @php
         $position = $notifications->first()->position ?? 'top';
@@ -22,10 +19,26 @@
             @php
                 $cookieKey = 'notif_' . $n->id;
                 $filterPath = ltrim($n->route_filter ?? '', '/');
+                $show = false;
+
+                // 🔒 Строгая проверка маршрута
+                $routeOk = $filterPath === '' || $currentPath === $filterPath;
+
+                if ($routeOk) {
+                    if ($n->target === 'all') {
+                        $show = true;
+                    } elseif (auth()->check()) {
+                        $user = auth()->user();
+                        if ($n->target === 'admin' && $user->is_admin) {
+                            $show = true;
+                        } elseif ($n->target === 'user' && !$user->is_admin) {
+                            $show = true;
+                        }
+                    }
+                }
             @endphp
 
-            {{-- 🔒 Строгая проверка маршрута --}}
-            @if ($filterPath === '' || $currentPath === $filterPath)
+            @if ($show)
                 <div class="notification relative"
                      data-duration="{{ $n->duration ?? 0 }}"
                      data-cookie="{{ $n->type === 'cookie' ? $cookieKey : '' }}"
