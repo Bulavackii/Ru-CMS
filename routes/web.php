@@ -29,6 +29,18 @@ use App\Http\Controllers\Admin\AccountSettingsController;
 use App\Http\Controllers\Frontend\FrontendSearchController;
 use Modules\Menu\Models\Page;
 use Modules\Menu\Models\Menu;
+use Modules\Install\Controllers\InstallController;
+use App\Http\Middleware\RedirectIfInstalled;
+
+Route::middleware(['web', 'skip.install.db', \App\Http\Middleware\RedirectIfInstalled::class])
+    ->prefix('install')
+    ->group(function () {
+        Route::get('/', [InstallController::class, 'welcome'])->name('install.welcome');
+        Route::get('/requirements', [InstallController::class, 'requirements'])->name('install.requirements');
+        Route::match(['get', 'post'], '/database', [InstallController::class, 'database'])->name('install.database');
+        Route::match(['get', 'post'], '/admin', [InstallController::class, 'admin'])->name('install.admin');
+        Route::get('/finish', [InstallController::class, 'finish'])->name('install.finish');
+    });
 
 // ✅ Главная страница с пагинацией по шаблонам
 Route::get('/', function () {

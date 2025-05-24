@@ -14,7 +14,7 @@ return [
     | Рекомендуется "database" или "redis" для продакшена.
     |
     */
-    'driver' => env('SESSION_DRIVER', 'database'),
+    'driver' => env('SESSION_DRIVER', 'file'),
 
     /*
     |--------------------------------------------------------------------------

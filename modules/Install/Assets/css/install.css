@@ -1,0 +1,123 @@
+body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8fafc;
+    color: #1f2937;
+}
+
+.dark body {
+    background-color: #1f2937;
+    color: #f3f4f6;
+}
+
+.install-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    min-height: 100vh;
+}
+
+.install-box {
+    background-color: white;
+    color: #1f2937;
+    padding: 2rem;
+    border-radius: 1rem;
+    max-width: 500px;
+    width: 100%;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.05);
+    text-align: center;
+}
+
+.dark .install-box {
+    background-color: #374151;
+    color: #f3f4f6;
+}
+
+.logo-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.logo-circle {
+    width: 56px;
+    height: 56px;
+    background-color: #2563eb;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-text {
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+.welcome-title {
+    margin-top: 1rem;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.rocket-icon {
+    color: #3b82f6;
+}
+
+.welcome-text {
+    margin-top: 0.5rem;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #6b7280;
+}
+
+.dark .welcome-text {
+    color: #d1d5db;
+}
+
+.btn-start {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #2563eb;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    text-decoration: none;
+    margin-top: 1rem;
+}
+
+.btn-start:hover {
+    background-color: #1d4ed8;
+}
+
+.btn-theme {
+    font-size: 0.75rem;
+    margin-top: 1rem;
+    background: none;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
+}
+
+.btn-theme:hover {
+    color: #111827;
+}
+
+.dark .btn-theme {
+    color: #d1d5db;
+}
+
+.dark .btn-theme:hover {
+    color: white;
+}

@@ -66,3 +66,5 @@ php artisan migrate --path=database/migrations/2025_05_12_100100_create_files_ta
 ```bash
 php artisan migrate --seed
 ```
+
+php artisan key:generate
