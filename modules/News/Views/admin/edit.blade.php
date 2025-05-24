@@ -5,123 +5,52 @@
 @section('content')
     <h1 class="text-2xl font-bold mb-6">✏️ Редактировать новость</h1>
 
-    @if ($errors->any())
+    @if (\$errors->any())
         <div class="bg-red-100 border border-red-300 text-red-800 px-4 py-3 mb-6 rounded shadow animate-pulse">
-            <strong>Ошибка:</strong> {{ $errors->first() }}
+            <strong>Ошибка:</strong> {{ \$errors->first() }}
         </div>
     @endif
 
-    <form method="POST" action="{{ route('admin.news.update', ['news' => $news->id]) }}" enctype="multipart/form-data" class="space-y-6">
+    <form method="POST" action="{{ route('admin.news.update', ['news' => \$news->id]) }}" enctype="multipart/form-data" class="space-y-6">
         @csrf
         @method('PUT')
 
-        {{-- Заголовок --}}
-        <div class="mb-6 max-w-xl">
-            <label for="title" class="block mb-1 font-semibold">📰 Заголовок</label>
-            <input type="text" name="title" id="title" value="{{ old('title', $news->title) }}"
-                   class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-200"
-                   required>
-        </div>
+        <x-admin.input label="🔔 Заголовок" name="title" :value="\$news->title" required />
+        <x-admin.input label="🔖 Meta Title" name="meta_title" :value="\$news->meta_title" hint="До 60 символов. Используйте «|» или «—»." />
+        <x-admin.input label="📄 Meta Description" name="meta_description" :value="\$news->meta_description" hint="До 160 символов." />
+        <x-admin.input label="🔑 Ключевые слова" name="meta_keywords" :value="\$news->meta_keywords" hint="Через запятую: акции, доставка" />
+        <x-admin.select label="🧹 Шаблон" name="template" :options="\$templates" :selected="\$news->template" />
 
-        {{-- Meta Title --}}
-        <div class="mb-4 max-w-xl">
-            <label for="meta_title" class="block mb-1 font-semibold">🔖 Meta Title</label>
-            <input type="text" name="meta_title" id="meta_title" value="{{ old('meta_title', $news->meta_title) }}"
-                   class="w-full border border-gray-300 rounded px-3 py-2"
-                   placeholder="Например: Новости компании | RuShop">
-            <p class="text-xs text-gray-500 mt-1">
-                Заголовок страницы в поисковой выдаче (до 60 символов). Используйте ключевые слова и разделяйте блоки через «|» или «—».
-            </p>
-        </div>
-
-        {{-- Meta Description --}}
-        <div class="mb-4 max-w-xl">
-            <label for="meta_description" class="block mb-1 font-semibold">📄 Meta Description</label>
-            <textarea name="meta_description" id="meta_description" rows="3"
-                      class="w-full border border-gray-300 rounded px-3 py-2"
-                      placeholder="Краткое описание до 160 символов.">{{ old('meta_description', $news->meta_description) }}</textarea>
-            <p class="text-xs text-gray-500 mt-1">
-                Краткое описание (до 160 символов) — используется в сниппете поисковика. Включайте ключевые слова и цепляющий текст.
-            </p>
-        </div>
-
-        {{-- Meta Keywords --}}
-        <div class="mb-6 max-w-xl">
-            <label for="meta_keywords" class="block mb-1 font-semibold">🔑 Ключевые слова</label>
-            <input type="text" name="meta_keywords" id="meta_keywords" value="{{ old('meta_keywords', $news->meta_keywords) }}"
-                   class="w-full border border-gray-300 rounded px-3 py-2"
-                   placeholder="Например: акции, доставка, отзывы, RuShop">
-            <p class="text-xs text-gray-500 mt-1">
-                Перечислите ключевые слова через <strong>запятую</strong> или <strong>пробел</strong>, например: <em>товары, скидки, интернет-магазин</em>.
-            </p>
-        </div>
-
-        {{-- Категории --}}
         <div>
             <label class="block mb-2 font-semibold">📂 Категории</label>
             <div class="flex flex-wrap gap-3">
-                @foreach ($categories as $category)
+                @foreach (\$categories as \$category)
                     <label class="flex items-center px-3 py-1 border border-gray-300 rounded-full cursor-pointer text-sm hover:bg-blue-50 transition">
-                        <input type="checkbox" name="categories[]" value="{{ $category->id }}"
-                               class="form-checkbox text-blue-600 mr-2"
-                               {{ $news->categories->contains($category->id) ? 'checked' : '' }}>
-                        {{ $category->title }}
+                        <input type="checkbox" name="categories[]" value="{{ \$category->id }}" class="form-checkbox text-blue-600 mr-2" {{ \$news->categories->contains(\$category->id) ? 'checked' : '' }}>
+                        {{ \$category->title }}
                     </label>
                 @endforeach
             </div>
         </div>
 
-        {{-- Шаблон --}}
-        <div class="mb-6 max-w-xs">
-            <label for="template" class="block mb-1 font-semibold">🧩 Шаблон</label>
-            <select name="template" id="template"
-                    class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-200">
-                @foreach ($templates as $value => $label)
-                    <option value="{{ $value }}" {{ old('template', $news->template) == $value ? 'selected' : '' }}>
-                        {{ $label }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
-
-        {{-- Цена, Остаток, Промо --}}
-        <div id="product-fields" class="mb-4 hidden">
-            <div class="mb-3">
-                <label for="price" class="block font-semibold mb-1">💰 Цена</label>
-                <input type="number" step="0.01" name="price" id="price" value="{{ old('price', $news->price) }}"
-                       class="w-full border border-gray-300 rounded px-3 py-2">
-            </div>
-
-            <div class="mb-3">
-                <label for="stock" class="block font-semibold mb-1">📦 Остаток на складе</label>
-                <input type="number" name="stock" id="stock" value="{{ old('stock', $news->stock) }}"
-                       class="w-full border border-gray-300 rounded px-3 py-2">
-            </div>
-
-            <div>
-                <label class="inline-flex items-center">
-                    <input type="checkbox" name="is_promo" value="1" class="mr-2"
-                           {{ old('is_promo', $news->is_promo) ? 'checked' : '' }}>
-                    🏷️ Акционный товар
-                </label>
-            </div>
-        </div>
-
-        {{-- Контент --}}
-        <div>
-            <label for="content" class="block mb-1 font-semibold">📝 Содержимое</label>
-            <textarea name="content" id="editor" rows="12"
-                      class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200">{{ old('content', $news->content) }}</textarea>
-        </div>
-
-        {{-- Публикация --}}
-        <div>
-            <label class="inline-flex items-center">
-                <input type="checkbox" name="published" value="1" class="mr-2"
-                       {{ old('published', $news->published) ? 'checked' : '' }}>
-                ✅ Опубликовать
+        <div id="product-fields" class="mb-6 hidden">
+            <x-admin.input label="💰 Цена" name="price" type="number" step="0.01" :value="\$news->price" />
+            <x-admin.input label="📦 Остаток" name="stock" type="number" :value="\$news->stock" />
+            <label class="inline-flex items-center text-sm text-gray-700">
+                <input type="checkbox" name="is_promo" value="1" class="mr-2" {{ \$news->is_promo ? 'checked' : '' }}>
+                🏷️ Акционный товар
             </label>
         </div>
+
+        <div>
+            <label for="editor" class="block mb-1 font-semibold">📝 Содержимое</label>
+            <textarea name="content" id="editor" rows="14" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200">{{ old('content', \$news->content) }}</textarea>
+        </div>
+
+        <label class="inline-flex items-center">
+            <input type="checkbox" name="published" value="1" class="mr-2" {{ \$news->published ? 'checked' : '' }}>
+            ✅ Опубликовать
+        </label>
 
         <div class="pt-4">
             <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded shadow">
@@ -130,7 +59,6 @@
         </div>
     </form>
 
-    {{-- TinyMCE --}}
     <script src="{{ asset('admin/tinymce/tinymce.min.js') }}"></script>
     <script>
         tinymce.init({
@@ -147,6 +75,18 @@
             extended_valid_elements: 'iframe[src|frameborder|style|scrolling|class|width|height|name|align|allow|allowfullscreen|sandbox]',
             valid_children: '+body[iframe]',
             file_picker_types: 'image media',
+            content_style: `
+                body { font-family: system-ui; line-height: 1.6; }
+                ul, ol {
+                    list-style-position: inside;
+                    text-align: left;
+                    padding-left: 0;
+                    margin-left: 0;
+                }
+                li {
+                    margin: 0.25rem 0;
+                }
+            `,
             file_picker_callback: function(callback, value, meta) {
                 const input = document.createElement('input');
                 input.type = 'file';

@@ -1,3 +1,67 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* 📋 Стили списков внутри карточек новостей */
+.news-card ul,
+.news-card ol {
+    padding-left: 1.5rem;
+    margin-bottom: 1.25rem;
+    list-style-position: inside;
+}
+
+.news-card ul {
+    list-style-type: disc;
+}
+
+.news-card ol {
+    list-style-type: decimal;
+}
+
+.news-card li {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+}
+
+/* ✅ Глобальная поддержка списков (например, в контенте страницы) */
+ul, ol {
+    list-style-position: inside;
+    padding-left: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+ul {
+    list-style-type: disc;
+}
+
+ol {
+    list-style-type: decimal;
+}
+
+ul li,
+ol li {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+}
+
+/* ✅ Поддержка выравнивания через классы text-left, text-center, text-right */
+ul.text-center,
+ol.text-center {
+    text-align: center;
+}
+
+ul.text-right,
+ol.text-right {
+    text-align: right;
+}
+
+ul.text-left,
+ol.text-left {
+    text-align: left;
+}
+
+/* ✅ Списки в dark-режиме (если используется dark) */
+.dark ul,
+.dark ol {
+    color: #e5e7eb; /* Tailwind's gray-200 */
+}

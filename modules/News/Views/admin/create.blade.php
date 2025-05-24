@@ -100,6 +100,20 @@
             extended_valid_elements: 'iframe[src|frameborder|style|scrolling|class|width|height|name|align|allow|allowfullscreen|sandbox]',
             valid_children: '+body[iframe]',
             file_picker_types: 'image media',
+
+            content_style: `
+                body { font-family: system-ui; line-height: 1.6; }
+                ul, ol {
+                    list-style-position: inside;
+                    text-align: left;
+                    padding-left: 0;
+                    margin-left: 0;
+                }
+                li {
+                    margin: 0.25rem 0;
+                }
+            `,
+
             file_picker_callback: function(callback, value, meta) {
                 const input = document.createElement('input');
                 input.type = 'file';
