@@ -69,8 +69,11 @@ php artisan migrate --seed
 
 php artisan key:generate
 
-php artisan modules:sync
+<!-- Регистрирует все модули в системе из папки modules -->
+php artisan modules:sync 
 
+<!-- Автогенерация sitemap.xml в папку public -->
 php artisan sitemap:generate
 
+<!-- Автогенерация robots.txt в папку public -->
 php artisan robots:generate
