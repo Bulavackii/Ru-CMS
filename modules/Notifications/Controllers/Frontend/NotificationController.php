@@ -23,39 +23,28 @@ class NotificationController extends Controller
      */
     public function getActiveNotifications(Request $request)
     {
-        // 👤 Получаем текущего пользователя
         $user = Auth::user();
+        $route = Route::currentRouteName();
+        $url = '/' . ltrim($request->path(), '/');
 
-        // 🌐 Текущий маршрут и URL
-        $route = Route::currentRouteName(); // пример: news.show
-        $url = $request->path();            // пример: news/3
-
-        // 📦 Запрос к базе данных
         $notifications = Notification::query()
-            ->where('active', true) // ✅ Только активные уведомления
-
-            // 🎯 Фильтрация по целевой аудитории
+            ->where('enabled', true)
             ->where(function ($query) use ($user) {
-                $query->where('audience', 'all');
-
+                $query->where('target', 'all');
                 if ($user && $user->is_admin) {
-                    $query->orWhere('audience', 'admin');
+                    $query->orWhere('target', 'admin');
                 } elseif ($user) {
-                    $query->orWhere('audience', 'user');
+                    $query->orWhere('target', 'user');
                 }
             })
-
-            // 🌐 Фильтрация по URL или названию маршрута
             ->where(function ($query) use ($route, $url) {
-                $query->whereNull('url')                  // если не указан маршрут — показываем везде
-                      ->orWhere('url', $url)              // точное совпадение с URL
-                      ->orWhere('url', $route);           // или с именем маршрута
+                $query->whereNull('route_filter')
+                    ->orWhere('route_filter', $url)
+                    ->orWhere('route_filter', $route);
             })
-
-            ->latest() // 🕓 По убыванию даты
+            ->latest()
             ->get();
 
-        // 🔄 Ответ в формате JSON
         return response()->json($notifications);
     }
 }

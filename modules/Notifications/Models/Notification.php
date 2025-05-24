@@ -24,11 +24,10 @@ class Notification extends Model
         'text_color',   // 🖋️ Цвет текста (HEX)
     ];
 
-    /**
-     * 🔧 Здесь можно добавить касты, если нужно:
-     * protected $casts = [
-     *     'enabled' => 'boolean',
-     *     'duration' => 'integer',
-     * ];
-     */
+    /* 🔧 Здесь можно добавить касты, если нужно:*/
+    protected $casts = [
+        'enabled' => 'boolean',
+        'duration' => 'integer',
+        'is_admin' => 'boolean',
+    ];
 }

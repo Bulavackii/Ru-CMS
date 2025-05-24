@@ -15,62 +15,67 @@ class NotificationsComponent extends Component
     public function __construct()
     {
         $user = Auth::user();
-        $currentPath = '/' . ltrim(Request::path(), '/'); // 🔍 Текущий путь, например: /news/123
+        $currentPath = '/' . ltrim(Request::path(), '/');
 
-        // 🧠 Получаем уведомления, отфильтрованные по включённости, цели и маршруту
         $this->notifications = Notification::query()
             ->where('enabled', true)
-
-            // 🎯 Учитываем целевую аудиторию
-            ->where(function ($query) use ($user) {
-                if (!$user) {
-                    $query->where('target', 'all');
-                } elseif ($user->is_admin) {
-                    $query->whereIn('target', ['all', 'admin']);
-                } else {
-                    $query->whereIn('target', ['all', 'user']);
-                }
-            })
-
             ->get()
+            ->filter(function (Notification $notification) use ($user, $currentPath) {
+                // ✅ Аудитория: только для админов
+                if ($notification->target === 'admin') {
+                    if (!$user || !boolval($user->is_admin)) {
+                        return false;
+                    }
+                }
 
-            // 🌐 Фильтруем по маршруту
-            ->filter(function (Notification $notification) use ($currentPath) {
+                // ✅ Аудитория: только для пользователей
+                if ($notification->target === 'user') {
+                    if (!$user || boolval($user->is_admin)) {
+                        return false;
+                    }
+                }
+
+                // ✅ Аудитория: all — проходит всегда (в том числе без авторизации)
+
+                // ✅ Проверка маршрута
                 return $this->matchesRouteFilter($notification->route_filter, $currentPath);
             })
-
-            ->values(); // 🔄 Сбрасываем индексы коллекции
+            ->values(); // 🔄 Сброс ключей
     }
 
     /**
-     * 🔍 Проверяет соответствие фильтра маршруту
+     * 🔍 Проверяет, подходит ли route_filter под текущий путь
      */
     protected function matchesRouteFilter(?string $filter, string $currentPath): bool
     {
-        $filter = trim($filter ?? '', '/');
-        $cleanPath = trim($currentPath, '/');
+        $filter = trim($filter ?? '');
 
-        // 📌 Если маршрут пустой — отображаем только на главной
-        if ($filter === '' || $filter === '/') {
-            return $cleanPath === '';
+        // 🚫 Пустой фильтр — не показывать
+        if ($filter === '') {
+            return false;
         }
 
-        // 🌟 Wildcard-поддержка: например, /news/* будет соответствовать /news/123
-        if ($filter === '*') {
-            return true;
+        // 🧹 Нормализация путей
+        $filterPath = '/' . ltrim($filter, '/');
+        $currentPath = '/' . ltrim($currentPath, '/');
+
+        // 🏠 Главная страница
+        if ($filterPath === '/') {
+            return $currentPath === '/';
         }
 
-        if (str_contains($filter, '*')) {
-            $pattern = '#^' . str_replace('\*', '.*', preg_quote($filter, '#')) . '$#i';
-            return (bool)preg_match($pattern, $cleanPath);
+        // 🌟 Wildcard-поддержка: /news/* и т.п.
+        if (str_contains($filterPath, '*')) {
+            $pattern = '#^' . str_replace('\*', '.*', preg_quote($filterPath, '#')) . '$#i';
+            return (bool) preg_match($pattern, $currentPath);
         }
 
-        // 📎 Строгое совпадение
-        return $cleanPath === $filter;
+        // 🔁 Строгое сравнение
+        return $currentPath === $filterPath;
     }
 
     /**
-     * 🧾 Отображаем Blade-представление
+     * 📄 Рендер компонента
      */
     public function render()
     {
