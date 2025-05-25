@@ -40,7 +40,7 @@ class AppServiceProvider extends ServiceProvider
         }
 
         News::observe(NewsObserver::class);
-        
+
         /**
          * 🔁 Загрузка всех активных модулей
          */
@@ -117,6 +117,11 @@ class AppServiceProvider extends ServiceProvider
         View::composer('*', function ($view) {
             $view->with('notifications', Notification::where('enabled', true)->get());
         });
+
+        //JWT
+        if (file_exists(base_path('routes/api.php'))) {
+            $this->loadRoutesFrom(base_path('routes/api.php'));
+        }
     }
 
     /**
