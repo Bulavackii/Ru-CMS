@@ -1,0 +1,8 @@
+{
+  "name": "Accessibility",
+  "version": "1.0.0",
+  "description": "Модуль специальных возможностей (увеличение текста, цветовая схема, озвучивание)",
+  "namespace": "Modules\\Accessibility",
+  "provider": "Modules\\Accessibility\\AccessibilityServiceProvider",
+  "active": true
+}

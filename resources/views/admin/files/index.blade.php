@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', '📁 Управление файлами')
+{{-- @section('title', '📁 Управление файлами') --}}
 
 @section('content')
     {{-- 🔷 Заголовок и панель управления --}}

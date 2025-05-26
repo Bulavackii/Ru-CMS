@@ -21,7 +21,7 @@ use Modules\Slideshow\Models\Slideshow;
 use Modules\Messages\Controllers\Admin\MessageController;
 use Modules\Users\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\FileController;
-use App\Http\Controllers\Admin\CategoryController;
+use Modules\Categories\Controllers\Admin\CategoryController;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Modules\Payments\Models\Order;
 use App\Http\Controllers\Frontend\PasswordController;
@@ -32,6 +32,9 @@ use Modules\Menu\Models\Menu;
 use Modules\Install\Controllers\InstallController;
 use App\Http\Middleware\RedirectIfInstalled;
 use App\Http\Controllers\SitemapController;
+
+// 🔁 Обработка POST-запроса для сброса пароля
+Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('password.store');
 
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 
@@ -52,6 +55,7 @@ Route::get('/', function () {
     $slideshows = Slideshow::with('items')->get();
 
     $templateKeys = [
+        'about',
         'default',
         'products',
         'reviews',
@@ -129,7 +133,7 @@ Route::middleware('guest')->group(function () {
     Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
 
     Route::get('/reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
-    Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('password.update');
+    Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('password.store'); 
 });
 
 // 🔒 Выход
@@ -251,5 +255,14 @@ Route::get('/slideshow/{slug}', [PublicController::class, 'show'])->name('slides
 Route::view('/about', 'frontend.pages.about')->name('pages.about');
 Route::view('/faq', 'frontend.pages.faq')->name('pages.faq');
 Route::view('/contacts', 'frontend.pages.contacts')->name('pages.contacts');
+// 🔐 Статическая страница "Политика конфиденциальности"
+Route::view('/privacy', 'frontend.pages.privacy')->name('pages.privacy');
+// 📄 Навигационные страницы
+Route::view('/terms', 'frontend.pages.terms')->name('pages.terms'); // Соглашение
+Route::view('/partnership', 'frontend.pages.partnership')->name('pages.partnership'); // Сотрудничество
+Route::view('/developers', 'frontend.pages.developers')->name('pages.developers'); // Разработчикам
+Route::view('/concept', 'frontend.pages.concept')->name('pages.concept'); // Концепция
+Route::view('/sitemap', 'frontend.pages.sitemap')->name('pages.sitemap'); // Карта сайта
+Route::view('/donate', 'frontend.pages.donate')->name('pages.donate'); // Пожертвовать
 
 Route::get('/search', [FrontendSearchController::class, 'index'])->name('frontend.search');

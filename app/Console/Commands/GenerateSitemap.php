@@ -4,10 +4,11 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Spatie\Sitemap\Sitemap;
-use Spatie\Sitemap\Tags\Url;
+use Illuminate\Support\Facades\URL as LaravelURL;
 use Modules\News\Models\News;
 use Modules\Categories\Models\Category;
 use Modules\Menu\Models\Page;
+use Spatie\Sitemap\Tags\Url;
 
 class GenerateSitemap extends Command
 {

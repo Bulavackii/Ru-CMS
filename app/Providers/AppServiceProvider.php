@@ -24,58 +24,53 @@ class AppServiceProvider extends ServiceProvider
     {
         $modulesPath = base_path('modules');
 
-        // ✅ Синхронизация title и priority из module.json
-        $this->syncModuleMetadata();
-
-        /**
-         * 🛑 Редирект на /install, если нет install.lock
-         */
+        // 👀 Проверка: если установка не завершена
         \View::addNamespace('Install', base_path('modules/Install/Views'));
-
         if (!app()->runningInConsole() && !file_exists(storage_path('install.lock'))) {
             if (!request()->is('install*')) {
-                redirect('/install')->send(); // принудительный переход
+                redirect('/install')->send(); // принудительный редирект
             }
-            return;
+            return; // ⛔ прекращаем загрузку остальных сервисов до завершения установки
         }
 
+        // ✅ Только если установка завершена:
+        if (file_exists(storage_path('install.lock'))) {
+            // 📦 Синхронизация мета-данных модулей
+            $this->syncModuleMetadata();
+        }
+
+        // 🧩 Наблюдатель
         News::observe(NewsObserver::class);
 
-        /**
-         * 🔁 Загрузка всех активных модулей
-         */
-        if (class_exists(Module::class) && Schema::hasTable('modules')) {
+        // 🔁 Загрузка активных модулей (если таблица есть и установка завершена)
+        if (
+            file_exists(storage_path('install.lock')) &&
+            class_exists(Module::class) &&
+            Schema::hasTable('modules')
+        ) {
             $activeModules = Module::where('active', true)->pluck('name');
-
             foreach ($activeModules as $moduleName) {
                 $base = $modulesPath . '/' . $moduleName;
-
                 if (is_dir($base)) {
                     if (file_exists("{$base}/Routes/web.php")) {
                         $this->loadRoutesFrom("{$base}/Routes/web.php");
                     }
-
                     if (is_dir("{$base}/Views")) {
                         $this->loadViewsFrom("{$base}/Views", $moduleName);
                     }
-
                     if (is_dir("{$base}/Migrations")) {
                         $this->loadMigrationsFrom("{$base}/Migrations");
                     }
-
                     if (is_dir("{$base}/Lang")) {
                         $this->loadTranslationsFrom("{$base}/Lang", $moduleName);
                     }
                 } else {
-                    // 🧹 Чистим базу, если модуль удалён с диска
-                    Module::where('name', $moduleName)->delete();
+                    Module::where('name', $moduleName)->delete(); // 🧹 Чистим записи модулей, которых нет
                 }
             }
         }
 
-        /**
-         * 🔧 Ручная регистрация модулей
-         */
+        // 🔧 Ручная регистрация модулей (работает и без install.lock)
         $this->loadRoutesFrom("{$modulesPath}/Users/Routes/web.php");
         $this->loadViewsFrom("{$modulesPath}/Users/Views", 'users');
 
@@ -105,28 +100,23 @@ class AppServiceProvider extends ServiceProvider
         $this->loadViewsFrom("{$modulesPath}/Menu/Views", 'Menu');
         $this->loadMigrationsFrom("{$modulesPath}/Menu/Migrations");
 
-        /**
-         * 🔔 Уведомления — компоненты и шаблоны
-         */
+        // 🔔 Компоненты уведомлений
         $this->loadViewsFrom("{$modulesPath}/Notifications/Resources/views", 'Notifications');
         Blade::component('frontend-notifications', NotificationsComponent::class);
 
-        /**
-         * 📩 View composer для глобального подключения уведомлений
-         */
+        // 📩 Глобальные уведомления (view composer)
         View::composer('*', function ($view) {
             $view->with('notifications', Notification::where('enabled', true)->get());
         });
 
-        //JWT
+        // ✅ JWT API маршруты
         if (file_exists(base_path('routes/api.php'))) {
             $this->loadRoutesFrom(base_path('routes/api.php'));
         }
     }
 
     /**
-     * 🔁 Синхронизирует поля title и priority всех модулей
-     * из файлов module.json (если существуют и валидны)
+     * 🔁 Синхронизирует title и priority модулей из module.json
      */
     protected function syncModuleMetadata(): void
     {
@@ -136,9 +126,7 @@ class AppServiceProvider extends ServiceProvider
             $moduleName = basename($modulePath);
             $moduleJsonPath = $modulePath . DIRECTORY_SEPARATOR . 'module.json';
 
-            if (!File::exists($moduleJsonPath)) {
-                continue;
-            }
+            if (!File::exists($moduleJsonPath)) continue;
 
             try {
                 $jsonContent = File::get($moduleJsonPath);
@@ -147,18 +135,11 @@ class AppServiceProvider extends ServiceProvider
                 continue;
             }
 
-            if (json_last_error() !== JSON_ERROR_NONE || !is_array($metadata)) {
-                continue;
-            }
-
-            if (!isset($metadata['title']) || !isset($metadata['priority'])) {
-                continue;
-            }
+            if (json_last_error() !== JSON_ERROR_NONE || !is_array($metadata)) continue;
+            if (!isset($metadata['title']) || !isset($metadata['priority'])) continue;
 
             $module = Module::where('name', $moduleName)->first();
-            if (!$module) {
-                continue;
-            }
+            if (!$module) continue;
 
             $module->title = $metadata['title'];
             $module->priority = $metadata['priority'];

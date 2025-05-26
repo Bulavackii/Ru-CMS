@@ -47,7 +47,7 @@ return Application::configure(basePath: dirname(__DIR__))
         web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',
         api: __DIR__.'/../routes/api.php',
-        health: '/up', 
+        health: '/up',
     )
 
     // 🛡️ Middleware-алиасы (короткие имена)
@@ -74,3 +74,4 @@ $app->register(Modules\Messages\Providers\MessagesServiceProvider::class);
 $app->register(Modules\Notifications\Providers\NotificationsServiceProvider::class);
 $app->register(Modules\Menu\Providers\MenuServiceProvider::class);
 $app->register(Modules\Install\InstallServiceProvider::class);
+$app->register(Modules\Accessibility\Providers\AccessibilityServiceProvider::class);

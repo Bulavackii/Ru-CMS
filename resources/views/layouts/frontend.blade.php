@@ -5,13 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    {{-- ✅ SEO мета-теги --}}
-    <title>{{ $meta_title ?? ($title ?? 'RuShop CMS') }}</title>
+    <title>{{ $meta_title ?? ($title ?? 'RU CMS') }}</title>
 
     @if (!empty($meta_description))
         <meta name="description" content="{{ $meta_description }}">
     @endif
-
     @if (!empty($meta_keywords))
         <meta name="keywords" content="{{ $meta_keywords }}">
     @endif
@@ -19,8 +17,11 @@
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ url()->current() }}">
 
+    {{-- Favicon --}}
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+
     {{-- 🟦 Open Graph --}}
-    <meta property="og:title" content="{{ $meta_title ?? ($title ?? 'RuShop CMS') }}">
+    <meta property="og:title" content="{{ $meta_title ?? ($title ?? 'RU CMS') }}">
     @if (!empty($meta_description))
         <meta property="og:description" content="{{ $meta_description }}">
     @endif
@@ -30,14 +31,13 @@
 
     {{-- 🐦 Twitter --}}
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="{{ $meta_title ?? ($title ?? 'RuShop CMS') }}">
+    <meta name="twitter:title" content="{{ $meta_title ?? ($title ?? 'RU CMS') }}">
     @if (!empty($meta_description))
         <meta name="twitter:description" content="{{ $meta_description }}">
     @endif
 
-    {{-- 🎨 Стили --}}
+    {{-- Стили --}}
     @stack('styles')
-
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"

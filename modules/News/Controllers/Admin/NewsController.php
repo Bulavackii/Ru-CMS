@@ -207,17 +207,19 @@ class NewsController extends Controller
 
     private function loadTemplates(): array
     {
-        $templates = ['default' => 'Новости'];
-
         $customLabels = [
+            'about'     => 'О CMS',
+            'default'   => 'Новости',
             'products'  => 'Товары',
             'contacts'  => 'Контакты',
             'faq'       => 'Вопросы',
             'reviews'   => 'Отзывы',
-            'default'   => 'Новости',
             'slideshow' => 'Слайдшоу',
+            'gallery'   => 'Галерея',
             'test'      => 'Тест',
         ];
+
+        $templates = [];
 
         $templatePath = resource_path('views/frontend/templates');
 
@@ -230,6 +232,18 @@ class NewsController extends Controller
                 }
             }
         }
+
+        // ✅ Добавим все customLabels, даже если файл не был найден по какой-то причине
+        foreach ($customLabels as $key => $label) {
+            if (!isset($templates[$key])) {
+                $file = $templatePath . DIRECTORY_SEPARATOR . $key . '.blade.php';
+                if (File::exists($file)) {
+                    $templates[$key] = $label;
+                }
+            }
+        }
+
+        ksort($templates); // сортировка по ключу (опционально)
 
         return $templates;
     }

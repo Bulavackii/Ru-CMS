@@ -98,6 +98,18 @@
                 </div>
             </div>
 
+            {{-- 📜 Согласие с условиями --}}
+            <div class="flex items-start">
+                <input type="checkbox" id="terms_agree" name="terms_agree" required
+                       class="mt-1 mr-2 border-black focus:ring-blue-300">
+                <label for="terms_agree" class="text-sm text-gray-700">
+                    Я соглашаюсь с <a href="{{ url('/terms') }}" class="text-blue-600 hover:underline font-medium" target="_blank">
+                        пользовательским соглашением
+                    </a>
+                    и принимаю условия использования сайта.
+                </label>
+            </div>
+
             {{-- ✅ Кнопка --}}
             <div>
                 <button type="submit"
