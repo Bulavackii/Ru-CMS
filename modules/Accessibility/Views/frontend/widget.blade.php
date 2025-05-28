@@ -23,7 +23,7 @@
             </span>
             <div class="flex items-center gap-2">
                 <button @click="decreaseFontSize"
-                    class="px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded text-xs font-semibold">&#8722;</button>
+                    class="px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded text-xs font-semibold">−</button>
                 <span x-text="fontSize + 'px'" class="text-xs w-10 text-center"></span>
                 <button @click="increaseFontSize"
                     class="px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded text-xs font-semibold">+</button>
@@ -60,11 +60,10 @@
 
     .reading-mask {
         position: fixed;
-        top: 30%;
+        top: 25%;
         left: 0;
         width: 100%;
-        height: 12em;
-        /* увеличено в 3 раза */
+        height: 15em;
         background-color: rgba(0, 0, 0, 0.2);
         z-index: 9999;
         pointer-events: none;
@@ -86,7 +85,8 @@
             init() {
                 this.applyFontSize();
 
-                this.options = [{
+                this.options = [
+                    {
                         label: 'Озвучить выделенный текст',
                         icon: 'fas fa-comment-dots',
                         active: false,
@@ -145,7 +145,8 @@
                         disableText: 'Отключить',
                         enabled: this.settings.enable_contrast,
                         action: () => {
-                            document.body.classList.toggle('contrast');
+                            const wrapper = document.getElementById('wrapper');
+                            wrapper.classList.toggle('contrast');
                             this.options[2].active = !this.options[2].active;
                         }
                     },
