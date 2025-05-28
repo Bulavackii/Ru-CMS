@@ -110,6 +110,30 @@
             @endforeach
         </div>
 
+        {{-- 🧩 Доступность --}}
+        @php
+            $accessibilityLinks = [
+                [
+                    'url' => '/admin/accessibility',
+                    'check' => request()->is('admin/accessibility*'),
+                    'icon' => 'fa-universal-access',
+                    'label' => 'Спецвозможности',
+                ],
+            ];
+        @endphp
+        <div>
+            <p x-show="!collapsed"
+                class="text-[11px] uppercase text-gray-400 dark:text-gray-500 font-semibold px-2 mb-1">Доступность</p>
+            @foreach ($accessibilityLinks as $link)
+                <a href="{{ $link['url'] }}"
+                    class="flex items-center gap-3 px-3 py-2 rounded-md transition group
+                   {{ $link['check'] ? 'bg-black text-white font-semibold shadow-md' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-black dark:hover:text-white' }}">
+                    <i class="fas {{ $link['icon'] }} w-5 text-center"></i>
+                    <span x-show="!collapsed">{{ $link['label'] }}</span>
+                </a>
+            @endforeach
+        </div>
+
         {{-- 💳 Оплата --}}
         @php
             $paymentLinks = [

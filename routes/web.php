@@ -133,7 +133,7 @@ Route::middleware('guest')->group(function () {
     Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
 
     Route::get('/reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
-    Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('password.store'); 
+    Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('password.store');
 });
 
 // 🔒 Выход
@@ -241,9 +241,6 @@ Route::middleware(['web', 'auth', 'admin'])->group(function () {
     require_once base_path('modules/Categories/Routes/web.php');
     require_once base_path('modules/Slideshow/Routes/web.php');
     require_once base_path('modules/Notifications/Routes/web.php');
-
-    Route::get('/admin', fn() => view('admin'))->name('admin');
-    Route::get('/admin/{any}', fn() => view('admin'))->where('any', '.*');
 });
 
 // 🌐 Публичные маршруты
@@ -266,3 +263,6 @@ Route::view('/sitemap', 'frontend.pages.sitemap')->name('pages.sitemap'); // К�
 Route::view('/donate', 'frontend.pages.donate')->name('pages.donate'); // Пожертвовать
 
 Route::get('/search', [FrontendSearchController::class, 'index'])->name('frontend.search');
+
+Route::get('/admin', fn() => view('admin'))->name('admin');
+Route::get('/admin/{any}', fn() => view('admin'))->where('any', '.*');

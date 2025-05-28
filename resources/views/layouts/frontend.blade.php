@@ -17,7 +17,6 @@
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ url()->current() }}">
 
-    {{-- Favicon --}}
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
 
     {{-- 🟦 Open Graph --}}
@@ -36,44 +35,70 @@
         <meta name="twitter:description" content="{{ $meta_description }}">
     @endif
 
-    {{-- Стили --}}
     @stack('styles')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
     @vite('resources/css/app.css')
+
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        #wrapper {
+            transition: filter 0.3s ease;
+        }
+
+        .accessibility-button,
+        .scroll-to-top {
+            position: fixed;
+            z-index: 9999;
+        }
+
+        .accessibility-button {
+            bottom: 1.5rem;
+            left: 1.5rem;
+        }
+
+        .scroll-to-top {
+            bottom: 1.5rem;
+            right: 1.5rem;
+        }
+    </style>
 </head>
 
 <body class="relative text-gray-800 min-h-screen flex flex-col border-l border-r border-black overflow-x-hidden">
 
-    {{-- 🖼️ Фоновое изображение (как в header) --}}
+    {{-- 🖼️ Фон --}}
     <div class="absolute inset-0 z-0 opacity-10 pointer-events-none"
-        style="background-image: url('{{ asset('images/fon.jpg') }}'); background-repeat: repeat; background-size: auto;">
+         style="background-image: url('{{ asset('images/fon.jpg') }}'); background-repeat: repeat; background-size: auto;">
     </div>
 
-    {{-- 📦 Весь остальной контент поверх --}}
-    <div class="relative z-10 flex flex-col min-h-screen">
+    {{-- 📦 Контент в wrapper для фильтров --}}
+    <div id="wrapper" class="relative z-10 flex flex-col min-h-screen">
 
-        {{-- 🔝 Верхняя панель --}}
         @include('layouts.partials.header')
-
-        {{-- 🔔 Уведомления --}}
         <x-frontend-notifications />
 
-        {{-- 📄 Контент страницы --}}
         <main class="flex-grow py-10">
             <div class="container mx-auto px-4">
                 @yield('content')
             </div>
         </main>
 
-        {{-- 📌 Подвал --}}
         @include('layouts.partials.footer')
     </div>
 
-    {{-- 📜 JS --}}
+    {{-- ♿ Спецвозможности — за пределами wrapper, чтобы не фильтровались --}}
+    @if (!empty($accessibility) && $accessibility->enabled)
+        @include('Accessibility::frontend.widget', ['settings' => $accessibility])
+    @endif
+
+    {{-- ⬆️ Кнопка "наверх", если есть --}}
+    @includeIf('components.scroll-to-top')
+
     @stack('scripts')
+    <script src="{{ asset('js/accessibility.js') }}"></script>
 </body>
 
 </html>

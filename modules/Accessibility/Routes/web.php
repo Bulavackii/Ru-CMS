@@ -1,6 +1,12 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Accessibility\Controllers\Frontend\AccessibilityController;
+use Modules\Accessibility\Controllers\Admin\AccessibilityAdminController;
 
-Route::get('/accessibility/script.js', [AccessibilityController::class, 'script'])->name('accessibility.script');
+Route::middleware(['web', 'auth', 'admin'])
+    ->prefix('admin/accessibility')
+    ->name('admin.accessibility.')
+    ->group(function () {
+        Route::get('/', [AccessibilityAdminController::class, 'index'])->name('index');
+        Route::post('/update', [AccessibilityAdminController::class, 'update'])->name('update');
+    });

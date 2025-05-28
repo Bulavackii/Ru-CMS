@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Blade;
 use Modules\System\Models\Module;
 use Modules\Notifications\Models\Notification;
 use Modules\Notifications\View\Components\Frontend\NotificationsComponent;
+use Modules\Accessibility\View\Components\AccessibilityWidget;
 use Modules\News\Models\News;
 use App\Observers\NewsObserver;
 
@@ -104,9 +105,33 @@ class AppServiceProvider extends ServiceProvider
         $this->loadViewsFrom("{$modulesPath}/Notifications/Resources/views", 'Notifications');
         Blade::component('frontend-notifications', NotificationsComponent::class);
 
-        // 📩 Глобальные уведомления (view composer)
+        // ♿ Accessibility модуль
+        $this->loadRoutesFrom("{$modulesPath}/Accessibility/Routes/web.php");
+        $this->loadViewsFrom("{$modulesPath}/Accessibility/Views", 'Accessibility');
+        if (is_dir("{$modulesPath}/Accessibility/Migrations")) {
+            $this->loadMigrationsFrom("{$modulesPath}/Accessibility/Migrations");
+        }
+        Blade::component('accessibility-widget', AccessibilityWidget::class);
+
+        // 📩 Глобальные уведомления + доступность
         View::composer('*', function ($view) {
+            // Уведомления
             $view->with('notifications', Notification::where('enabled', true)->get());
+
+            // Доступность (без падения, если таблицы нет)
+            try {
+                if (
+                    class_exists(\Modules\Accessibility\Models\AccessibilitySetting::class) &&
+                    Schema::hasTable('accessibility_settings')
+                ) {
+                    $settings = \Modules\Accessibility\Models\AccessibilitySetting::settings();
+                    $view->with('accessibility', $settings);
+                } else {
+                    $view->with('accessibility', null);
+                }
+            } catch (\Throwable $e) {
+                $view->with('accessibility', null);
+            }
         });
 
         // ✅ JWT API маршруты
