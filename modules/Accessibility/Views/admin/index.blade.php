@@ -72,7 +72,7 @@
             <div class="pt-6 text-right">
                 <button type="submit"
                     class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded shadow text-sm font-semibold transition duration-300 ease-in-out">
-                    <i class="fas fa-save"></i> Сохранить настройки
+                    <i class="fas fa-save"></i> Сохранить
                 </button>
             </div>
         </form>
