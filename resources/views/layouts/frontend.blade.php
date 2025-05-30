@@ -39,7 +39,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-          crossorigin="anonymous" referrerpolicy="no-referrer" />
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     @vite('resources/css/app.css')
 
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -64,6 +64,21 @@
             bottom: 1.5rem;
             right: 1.5rem;
         }
+
+        .scroll-to-top-container {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 9999;
+            filter: none !important;
+            backdrop-filter: none !important;
+            isolation: isolate;
+        }
+
+        .accessibility-button {
+            filter: none !important;
+            isolation: isolate;
+        }
     </style>
 </head>
 
@@ -71,7 +86,7 @@
 
     {{-- 🖼️ Фон --}}
     <div class="absolute inset-0 z-0 opacity-10 pointer-events-none"
-         style="background-image: url('{{ asset('images/fon.jpg') }}'); background-repeat: repeat; background-size: auto;">
+        style="background-image: url('{{ asset('images/fon.jpg') }}'); background-repeat: repeat; background-size: auto;">
     </div>
 
     {{-- 📦 Контент в wrapper для фильтров --}}
@@ -94,8 +109,10 @@
         @include('Accessibility::frontend.widget', ['settings' => $accessibility])
     @endif
 
-    {{-- ⬆️ Кнопка "наверх", если есть --}}
-    @includeIf('components.scroll-to-top')
+    {{-- ⬆️ Кнопка "наверх" вне wrapper, чтобы не фильтровалась --}}
+    <div class="scroll-to-top-container">
+        @includeIf('components.scroll-to-top')
+    </div>
 
     @stack('scripts')
     <script src="{{ asset('js/accessibility.js') }}"></script>

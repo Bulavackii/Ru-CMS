@@ -24,6 +24,14 @@
                    class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 bg-white dark:bg-gray-800 text-sm shadow-sm">
         </div>
 
+        {{-- 🔗 Ссылка --}}
+        <div>
+            <label for="link" class="block font-semibold mb-1 text-gray-700 dark:text-gray-300">🔗 Ссылка при клике (необязательно)</label>
+            <input type="url" name="link" id="link"
+                   placeholder="https://example.com"
+                   class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 bg-white dark:bg-gray-800 text-sm shadow-sm">
+        </div>
+
         {{-- 🔢 Порядок --}}
         <div>
             <label for="order" class="block font-semibold mb-1 text-gray-700 dark:text-gray-300">🔢 Порядок</label>
@@ -64,8 +72,19 @@
                         </video>
                     @endif
 
-                    <div class="p-3 text-sm border-t dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-200">
-                        <strong>📝 Подпись:</strong> {{ $slide->caption ?: '—' }}
+                    <div class="p-3 text-sm border-t dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-200 space-y-1">
+                        <div>
+                            <strong>📝 Подпись:</strong>
+                            {{ $slide->caption ?: '—' }}
+                        </div>
+                        <div>
+                            <strong>🔗 Ссылка:</strong>
+                            @if ($slide->link)
+                                <a href="{{ $slide->link }}" class="text-blue-600 hover:underline" target="_blank">{{ $slide->link }}</a>
+                            @else
+                                —
+                            @endif
+                        </div>
                     </div>
 
                     {{-- 🗑️ Удаление --}}

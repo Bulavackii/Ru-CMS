@@ -18,11 +18,24 @@
                         </video>
                     @endif
 
-                    {{-- 💬 Подпись к слайду --}}
+                    {{-- 💬 Подпись/ссылка --}}
                     @if ($item->caption)
-                        <div
-                            class="absolute bottom-2 left-1/2 transform -translate-x-1/2 max-w-[90%] bg-black/60 text-white text-[11px] sm:text-xs md:text-sm font-medium px-3 py-1 rounded-lg shadow backdrop-blur">
-                            {{ $item->caption }}
+                        @php
+                            $isLink = !empty($item->link);
+                        @endphp
+
+                        <div class="absolute bottom-5 right-5 z-20">
+                            @if ($isLink)
+                                <a href="{{ $item->link }}" target="_blank" rel="noopener noreferrer"
+                                    class="inline-block bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold px-4 py-1.5 rounded-full shadow-md shadow-blue-300/40 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    {{ $item->caption }}
+                                </a>
+                            @else
+                                <span
+                                    class="inline-block bg-blue-600 text-white text-xs sm:text-sm font-semibold px-4 py-1.5 rounded-full shadow-md shadow-blue-300/40 transition-all duration-200">
+                                    {{ $item->caption }}
+                                </span>
+                            @endif
                         </div>
                     @endif
                 </div>
@@ -68,7 +81,6 @@
 
         .swiper-pagination-bullet-active {
             background-color: #2563eb;
-            /* Tailwind blue-600 */
             transform: scale(1.3);
             box-shadow: 0 0 4px rgba(37, 99, 235, 0.5);
         }

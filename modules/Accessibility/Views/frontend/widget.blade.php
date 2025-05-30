@@ -146,7 +146,7 @@
                         enabled: this.settings.enable_contrast,
                         action: () => {
                             const wrapper = document.getElementById('wrapper');
-                            wrapper.classList.toggle('contrast');
+                            document.getElementById('wrapper').classList.toggle('contrast');
                             this.options[2].active = !this.options[2].active;
                         }
                     },

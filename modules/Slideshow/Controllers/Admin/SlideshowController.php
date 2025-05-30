@@ -70,6 +70,7 @@ class SlideshowController extends Controller
             'slideshow_id' => 'required|exists:slideshows,id',
             'media'        => 'required|file|mimes:jpeg,png,webp,mp4,webm|max:20480',
             'caption'      => 'nullable|string|max:255',
+            'link'         => 'nullable|url|max:500',
             'order'        => 'nullable|integer',
             'position'     => 'nullable|in:top,bottom',
         ]);
@@ -82,6 +83,7 @@ class SlideshowController extends Controller
             'file_path'    => $path,
             'media_type'   => str_contains($file->getMimeType(), 'video') ? 'video' : 'image',
             'caption'      => $request->caption,
+            'link'         => $request->link,
             'order'        => $request->order ?? 0,
         ]);
 
