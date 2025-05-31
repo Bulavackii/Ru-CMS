@@ -157,4 +157,21 @@ class SlideshowController extends Controller
     {
         dd($request->all());
     }
+
+    public function updateSlide(Request $request, $id)
+    {
+        $slide = SlideshowItem::findOrFail($id);
+
+        $request->validate([
+            'caption' => 'nullable|string|max:255',
+            'link' => 'nullable|url|max:500',
+        ]);
+
+        $slide->update([
+            'caption' => $request->caption,
+            'link' => $request->link,
+        ]);
+
+        return response()->json(['success' => true]);
+    }
 }

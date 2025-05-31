@@ -34,4 +34,7 @@ Route::prefix('admin/slideshow')->middleware(['web', 'auth', 'admin'])->group(fu
 
     Route::delete('/{slideshow}', [SlideshowController::class, 'destroy'])
         ->name('admin.slideshow.destroy'); // ❌ Полное удаление слайдшоу
+
+    Route::post('/slides/{id}/update', [SlideshowController::class, 'updateSlide'])
+        ->name('admin.slides.update');
 });
