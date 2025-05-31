@@ -16,6 +16,9 @@ Route::prefix('admin/slideshow')->middleware(['web', 'auth', 'admin'])->group(fu
     Route::delete('/slides/{id}', [SlideshowController::class, 'deleteSlide'])
         ->name('admin.slides.destroy'); // ❌ Удаление слайда
 
+    Route::post('/slides/sort', [SlideshowController::class, 'sort'])
+        ->name('admin.slides.sort'); // 🔃 Сортировка слайдов (drag-n-drop)
+
     // 🖼️ Управление слайдшоу
     Route::get('/', [SlideshowController::class, 'index'])
         ->name('admin.slideshow.index'); // 📄 Список всех слайдшоу

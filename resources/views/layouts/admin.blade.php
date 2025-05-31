@@ -33,9 +33,6 @@
         @include('layouts.admin.footer')
     </div>
 
-    {{-- Подключение JS для слайдшоу --}}
-    <script src="{{ asset('admin-assets/js/slideshow.js') }}"></script>
-
     {{-- Подключение alpinejs --}}
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 

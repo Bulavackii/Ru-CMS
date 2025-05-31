@@ -99,23 +99,6 @@ class SlideshowController extends Controller
     }
 
     /**
-     * 🗑️ Удаление всего слайдшоу и его слайдов
-     */
-    public function destroy(Slideshow $slideshow)
-    {
-        $slideshow->items->each(function ($item) {
-            Storage::disk('public')->delete($item->file_path);
-            $item->delete();
-        });
-
-        $slideshow->delete();
-
-        return redirect()
-            ->route('admin.slideshow.index')
-            ->with('success', 'Слайдшоу удалено');
-    }
-
-    /**
      * ❌ Удаление отдельного слайда
      */
     public function deleteSlide($id)
@@ -133,11 +116,45 @@ class SlideshowController extends Controller
     }
 
     /**
-     * 🧹 Массовое удаление слайдшоу и их слайдов
-     * (в разработке — вывод для отладки)
+     * 🗑️ Удаление всего слайдшоу и его слайдов
+     */
+    public function destroy(Slideshow $slideshow)
+    {
+        $slideshow->items->each(function ($item) {
+            Storage::disk('public')->delete($item->file_path);
+            $item->delete();
+        });
+
+        $slideshow->delete();
+
+        return redirect()
+            ->route('admin.slideshow.index')
+            ->with('success', 'Слайдшоу удалено');
+    }
+
+    /**
+     * 🔃 Сохранение нового порядка слайдов (drag-n-drop)
+     */
+    public function sort(Request $request)
+    {
+        $request->validate([
+            'order' => 'required|array',
+            'order.*' => 'integer|exists:slideshow_items,id',
+        ]);
+
+        foreach ($request->input('order') as $index => $id) {
+            SlideshowItem::where('id', $id)->update(['order' => $index]);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+
+    /**
+     * 🚧 Массовое удаление слайдшоу (в разработке)
      */
     public function bulkDelete(Request $request)
     {
-        dd($request->all()); // 🔧 Отладочная заглушка
+        dd($request->all());
     }
 }
