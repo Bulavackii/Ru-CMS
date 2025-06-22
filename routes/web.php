@@ -62,6 +62,7 @@ Route::get('/', function () {
         'faq',
         'gallery',
         'slideshow',
+        'base-php',
         'test',
         'test2',
         'contacts'

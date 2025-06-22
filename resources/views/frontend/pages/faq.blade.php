@@ -98,7 +98,7 @@
                 </li>
                 <li>
                     В контроллере <code class="text-xs">NewsController@index()</code> добавьте строку в массив
-                    шаблонов:
+                    шаблонов в $customLabels в private function loadTemplates():
                     <code class="bg-gray-100 px-2 py-1 rounded text-xs block mt-1">'custom' => 'Пользовательский
                         шаблон'</code>
                 </li>

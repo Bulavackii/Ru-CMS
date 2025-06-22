@@ -39,6 +39,7 @@ class NewsController extends Controller
             'faq'       => 'Вопросы',
             'reviews'   => 'Отзывы',
             'test'      => 'Тест',
+            'base-php'  => 'Уроки PHP база',
         ];
 
         $usedTemplates = News::select('template')->distinct()->pluck('template')->toArray();
@@ -210,6 +211,7 @@ class NewsController extends Controller
         $customLabels = [
             'about'     => 'О CMS',
             'default'   => 'Новости',
+            'base-php'  => 'Уроки PHP база',
             'products'  => 'Товары',
             'contacts'  => 'Контакты',
             'faq'       => 'Вопросы',
