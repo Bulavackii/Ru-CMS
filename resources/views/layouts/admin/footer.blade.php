@@ -17,17 +17,17 @@
         {{-- 📚 Полезные ссылки --}}
         <div class="flex flex-col space-y-1 items-center md:items-start">
             <a href="/terms" class="hover:underline hover:text-blue-600 transition">📄 Условия использования</a>
-            <a href="https://github.com/Bulavackii/mycms" target="_blank" class="hover:underline hover:text-blue-600 transition">🔧 GitHub проекта</a>
+            <a href="https://github.com/Bulavackii/Ru-CMS" target="_blank" class="hover:underline hover:text-blue-600 transition">🔧 GitHub проекта</a>
             <a href="/admin/help" class="hover:underline hover:text-blue-600 transition">💬 Поддержка и помощь</a>
         </div>
 
         {{-- 🌙 Переключатель темы и соцсети --}}
         <div class="flex flex-col items-center md:items-end space-y-2">
             <div class="flex space-x-4 text-xl">
-                <a href="https://t.me/username" title="Telegram" class="hover:text-blue-500 transition" target="_blank">
+                <a href="https://t.me/ru_cms" title="Telegram" class="hover:text-blue-500 transition" target="_blank">
                     <i class="fab fa-telegram-plane"></i>
                 </a>
-                <a href="https://vk.com/username" title="VK" class="hover:text-blue-700 transition" target="_blank">
+                <a href="https://vk.com/ru_cms" title="VK" class="hover:text-blue-700 transition" target="_blank">
                     <i class="fab fa-vk"></i>
                 </a>
             </div>

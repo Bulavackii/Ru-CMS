@@ -15,10 +15,10 @@
         @csrf
 
         {{-- Заголовок --}}
-        <x-admin.input label="📰 Заголовок" name="title" required />
+        <x-admin.input label="📰 Заголовок" name="title" required hint="Название новости. Отображается в заголовке и списке." />
 
         {{-- Meta Title --}}
-        <x-admin.input label="🔖 Meta Title" name="meta_title" hint="До 60 символов. Используйте «|» или «—»." />
+        <x-admin.input label="🔖 Meta Title" name="meta_title" hint="До 60 символов. Отображается в заголовке вкладки и в поисковых системах." />
 
         {{-- Meta Description --}}
         <div>
@@ -26,18 +26,19 @@
             <textarea name="meta_description" id="meta_description" rows="3"
                       class="w-full border border-gray-300 dark:border-gray-700 rounded px-3 py-2 dark:bg-gray-800 dark:text-gray-100"
                       placeholder="Краткое описание до 160 символов.">{{ old('meta_description') }}</textarea>
-            <p class="text-xs text-gray-500 mt-1">Отображается в поисковой выдаче. Используйте ключевые слова.</p>
+            <p class="text-xs text-gray-500 mt-1">Отображается в поисковой выдаче. Включите ключевые фразы.</p>
         </div>
 
         {{-- Meta Keywords --}}
-        <x-admin.input label="🔑 Ключевые слова" name="meta_keywords" hint="Через запятую: вода, природа" />
+        <x-admin.input label="🔑 Ключевые слова" name="meta_keywords" hint="Через запятую: вода, природа, защита" />
 
         {{-- Шаблон --}}
-        <x-admin.select label="🧩 Шаблон" name="template" :options="$templates" />
+        <x-admin.select label="🧩 Шаблон" name="template" :options="$templates" hint="Выберите шаблон отображения: стандартный, товары, отзывы и др." />
 
         {{-- Категории --}}
         <div>
             <label class="block font-semibold mb-2 text-gray-700 dark:text-gray-300">📂 Категории</label>
+            <p class="text-sm text-gray-500 mb-2">Можно выбрать одну или несколько категорий для фильтрации и навигации.</p>
             <div class="flex flex-wrap gap-3">
                 @foreach ($categories as $category)
                     <label class="flex items-center px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-full cursor-pointer text-sm hover:bg-blue-50 dark:hover:bg-gray-700 transition">
@@ -52,8 +53,8 @@
 
         {{-- Поля для "Товары" --}}
         <div id="product-fields" class="mb-6 hidden animate-fade-in">
-            <x-admin.input label="💰 Цена (₽)" name="price" type="number" step="0.01" />
-            <x-admin.input label="📦 Остаток" name="stock" type="number" />
+            <x-admin.input label="💰 Цена (₽)" name="price" type="number" step="0.01" hint="Цена в рублях. Используется только в шаблоне 'Товары'." />
+            <x-admin.input label="📦 Остаток" name="stock" type="number" hint="Количество товара на складе. Целое число." />
             <label class="inline-flex items-center text-sm text-gray-700 dark:text-gray-300">
                 <input type="checkbox" name="is_promo" value="1" {{ old('is_promo') ? 'checked' : '' }} class="mr-2">
                 🏷️ Акционный товар
@@ -66,12 +67,13 @@
             <textarea name="content" id="editor"
                       class="w-full border border-gray-300 dark:border-gray-700 rounded px-3 py-2 dark:bg-gray-800 dark:text-gray-100"
                       rows="14">{{ old('content') }}</textarea>
+            <p class="text-xs text-gray-500 mt-1">Основной текст новости. Поддерживает форматирование, изображения и видео.</p>
         </div>
 
         {{-- Публикация --}}
         <label class="inline-flex items-center text-sm text-gray-700 dark:text-gray-300">
             <input type="checkbox" name="published" value="1" class="mr-2" checked>
-            ✅ Опубликовать сразу
+            Опубликовать сразу
         </label>
 
         {{-- Кнопка --}}

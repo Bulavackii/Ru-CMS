@@ -15,17 +15,18 @@
         @csrf
         @method('PUT')
 
-        <x-admin.input label="🔔 Заголовок" name="title" :value="$news->title" required />
-        <x-admin.input label="🔖 Meta Title" name="meta_title" :value="$news->meta_title" hint="До 60 символов. Используйте «|» или «—»." />
-        <x-admin.input label="📄 Meta Description" name="meta_description" :value="$news->meta_description" hint="До 160 символов." />
-        <x-admin.input label="🔑 Ключевые слова" name="meta_keywords" :value="$news->meta_keywords" hint="Через запятую: акции, доставка" />
-        <x-admin.select label="🧹 Шаблон" name="template" :options="$templates" :selected="$news->template" />
+        <x-admin.input label="🔔 Заголовок" name="title" :value="$news->title" required hint="Название новости. Отображается в заголовке и списке." />
+        <x-admin.input label="🔖 Meta Title" name="meta_title" :value="$news->meta_title" hint="До 60 символов. Используется в заголовке вкладки и SEO." />
+        <x-admin.input label="📄 Meta Description" name="meta_description" :value="$news->meta_description" hint="До 160 символов. Краткое описание для поисковой выдачи." />
+        <x-admin.input label="🔑 Ключевые слова" name="meta_keywords" :value="$news->meta_keywords" hint="Через запятую: новости, мероприятия, экология" />
+        <x-admin.select label="🧹 Шаблон" name="template" :options="$templates" :selected="$news->template" hint="Выберите тип отображения: стандарт, товары и т.д." />
 
         <div>
-            <label class="block mb-2 font-semibold">📂 Категории</label>
+            <label class="block mb-2 font-semibold text-gray-700 dark:text-gray-300">📂 Категории</label>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Выберите одну или несколько категорий, чтобы классифицировать новость.</p>
             <div class="flex flex-wrap gap-3">
                 @foreach ($categories as $category)
-                    <label class="flex items-center px-3 py-1 border border-gray-300 rounded-full cursor-pointer text-sm hover:bg-blue-50 transition">
+                    <label class="flex items-center px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-full cursor-pointer text-sm hover:bg-blue-50 dark:hover:bg-gray-700 transition">
                         <input type="checkbox" name="categories[]" value="{{ $category->id }}" class="form-checkbox text-blue-600 mr-2" {{ $news->categories->contains($category->id) ? 'checked' : '' }}>
                         {{ $category->title }}
                     </label>
@@ -33,23 +34,24 @@
             </div>
         </div>
 
-        <div id="product-fields" class="mb-6 hidden">
-            <x-admin.input label="💰 Цена" name="price" type="number" step="0.01" :value="$news->price" />
-            <x-admin.input label="📦 Остаток" name="stock" type="number" :value="$news->stock" />
-            <label class="inline-flex items-center text-sm text-gray-700">
+        <div id="product-fields" class="mb-6 hidden animate-fade-in">
+            <x-admin.input label="💰 Цена" name="price" type="number" step="0.01" :value="$news->price" hint="Укажите цену товара в рублях." />
+            <x-admin.input label="📦 Остаток" name="stock" type="number" :value="$news->stock" hint="Сколько единиц товара доступно." />
+            <label class="inline-flex items-center text-sm text-gray-700 dark:text-gray-300">
                 <input type="checkbox" name="is_promo" value="1" class="mr-2" {{ $news->is_promo ? 'checked' : '' }}>
                 🏷️ Акционный товар
             </label>
         </div>
 
         <div>
-            <label for="editor" class="block mb-1 font-semibold">📝 Содержимое</label>
-            <textarea name="content" id="editor" rows="14" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200">{{ old('content', $news->content) }}</textarea>
+            <label for="editor" class="block mb-1 font-semibold text-gray-700 dark:text-gray-300">📝 Содержимое</label>
+            <textarea name="content" id="editor" rows="14" class="w-full border border-gray-300 dark:border-gray-700 rounded px-3 py-2 dark:bg-gray-800 dark:text-gray-100 focus:outline-none focus:ring focus:ring-blue-200">{{ old('content', $news->content) }}</textarea>
+            <p class="text-sm text-gray-500 mt-1">Основной текст публикации. Можно вставлять изображения, таблицы и видео.</p>
         </div>
 
-        <label class="inline-flex items-center">
+        <label class="inline-flex items-center text-sm text-gray-700 dark:text-gray-300">
             <input type="checkbox" name="published" value="1" class="mr-2" {{ $news->published ? 'checked' : '' }}>
-            ✅ Опубликовать
+            Опубликовать
         </label>
 
         <div class="pt-4">

@@ -50,7 +50,7 @@
             <div>
                 <h3 class="text-base font-semibold text-gray-800 dark:text-white mb-4 text-center">Мы в соцсетях</h3>
                 <div class="flex justify-center flex-wrap gap-3 text-[18px] text-gray-600 dark:text-gray-300">
-                    <a href="https://vk.com/visitorsec" target="_blank"
+                    <a href="https://vk.com/ru_cms" target="_blank"
                         class="hover:text-blue-700 transition transform hover:scale-110" aria-label="VK">
                         <i class="fab fa-vk"></i>
                     </a>
