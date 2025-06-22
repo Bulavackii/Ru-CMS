@@ -13,4 +13,5 @@ Route::prefix('admin/categories')
         Route::get('/{id}/edit', [CategoryController::class, 'edit'])->name('edit');
         Route::put('/{id}/update', [CategoryController::class, 'update'])->name('update');
         Route::delete('/{id}', [CategoryController::class, 'destroy'])->name('destroy');
+        Route::post('/bulk-delete', [CategoryController::class, 'bulkDelete'])->name('admin.categories.bulkDelete');
     });

@@ -33,7 +33,7 @@
                 <div class="relative flex flex-col p-5 border border-gray-100 hover:border-gray-300 shadow-md hover:shadow-lg transition-all bg-white rounded-2xl max-w-xs w-full">
                     {{-- 📘 бейдж "Урок" --}}
                     <div class="absolute -top-3 right-3 z-10 bg-white border-2 border-green-600 text-green-600 text-xs font-bold px-3 py-1 rounded-full shadow-md select-none">
-                        📘 Урок
+                        📘 PHP
                     </div>
 
                     {{-- Категории --}}

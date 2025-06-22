@@ -55,18 +55,19 @@ Route::get('/', function () {
     $slideshows = Slideshow::with('items')->get();
 
     $templateKeys = [
-        'about',
-        'default',
-        'products',
-        'reviews',
-        'faq',
-        'gallery',
-        'slideshow',
-        'base-php',
-        'test',
-        'test2',
-        'contacts'
-    ];
+    'about',
+    'default',
+    'base-php',
+    'base-html',
+    'base-css',
+    'base-js',
+    'products',
+    'reviews',
+    'faq',
+    'gallery',
+    'slideshow',
+    'test',
+];
 
     $menus = Menu::with(['items' => function ($q) {
         $q->whereNull('parent_id')->orderBy('order')

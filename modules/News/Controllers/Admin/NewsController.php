@@ -31,15 +31,18 @@ class NewsController extends Controller
         $newsList = $query->orderByDesc('id')->paginate(10);
 
         $allTemplates = [
-            'default'   => 'Новости',
-            'products'  => 'Товары',
-            'contacts'  => 'Контакты',
-            'gallery'   => 'Галерея',
-            'slideshow' => 'Слайдшоу',
-            'faq'       => 'Вопросы',
-            'reviews'   => 'Отзывы',
-            'test'      => 'Тест',
-            'base-php'  => 'Уроки PHP база',
+            'default'    => 'Новости',
+            'products'   => 'Товары',
+            'contacts'   => 'Контакты',
+            'gallery'    => 'Галерея',
+            'slideshow'  => 'Слайдшоу',
+            'faq'        => 'Вопросы',
+            'reviews'    => 'Отзывы',
+            'test'       => 'Тест',
+            'base-php'   => 'Уроки PHP база',
+            'base-html'  => 'Уроки HTML база',
+            'base-css'   => 'Уроки CSS база',
+            'base-js'    => 'Уроки JS база',
         ];
 
         $usedTemplates = News::select('template')->distinct()->pluck('template')->toArray();
@@ -212,6 +215,9 @@ class NewsController extends Controller
             'about'     => 'О CMS',
             'default'   => 'Новости',
             'base-php'  => 'Уроки PHP база',
+            'base-html' => 'Уроки HTML',
+            'base-css'  => 'Уроки CSS',
+            'base-js'   => 'Уроки JS база',
             'products'  => 'Товары',
             'contacts'  => 'Контакты',
             'faq'       => 'Вопросы',

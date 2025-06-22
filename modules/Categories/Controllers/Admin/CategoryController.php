@@ -108,15 +108,10 @@ class CategoryController extends Controller
         $ids = explode(',', $request->input('category_ids'));
 
         if (!empty($ids)) {
-            \App\Models\Category::whereIn('id', $ids)->delete();
-
-            return redirect()
-                ->route('admin.categories.index')
-                ->with('success', 'Выбранные категории удалены.');
+            Category::whereIn('id', $ids)->delete();
+            return response()->json(['success' => true]);
         }
 
-        return redirect()
-            ->route('admin.categories.index')
-            ->with('error', 'Вы не выбрали ни одной категории.');
+        return response()->json(['error' => 'Не выбраны категории.'], 422);
     }
 }

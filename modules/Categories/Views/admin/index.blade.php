@@ -29,68 +29,62 @@
     </div>
 
     {{-- 📋 Таблица категорий --}}
-    <form id="bulk-delete-form" method="POST" action="{{ route('admin.categories.bulkDelete') }}">
-        @csrf
-        @method('DELETE')
-        <input type="hidden" name="category_ids" id="bulk-delete-ids">
+    <div class="overflow-x-auto rounded-lg shadow">
+        <table id="categoriesTable"
+            class="min-w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-sm sm:text-base">
+            <thead class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 uppercase text-xs sm:text-sm">
+                <tr>
+                    <th class="px-4 py-3 w-10 text-left">
+                        <input type="checkbox" id="check-all" class="form-checkbox h-4 w-4 text-blue-600">
+                    </th>
+                    <th class="px-4 py-3 text-left">🏷️ Название</th>
+                    <th class="px-4 py-3 text-center">⚙️ Действия</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                @forelse ($categories as $category)
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition" data-id="{{ $category->id }}">
+                        {{-- ✅ Выбор --}}
+                        <td class="px-4 py-3">
+                            <input type="checkbox" class="row-checkbox form-checkbox h-4 w-4 text-blue-600"
+                                value="{{ $category->id }}">
+                        </td>
 
-        <div class="overflow-x-auto rounded-lg shadow">
-            <table id="categoriesTable"
-                class="min-w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-sm sm:text-base">
-                <thead class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 uppercase text-xs sm:text-sm">
-                    <tr>
-                        <th class="px-4 py-3 w-10 text-left">
-                            <input type="checkbox" id="check-all" class="form-checkbox h-4 w-4 text-blue-600">
-                        </th>
-                        <th class="px-4 py-3 text-left">🏷️ Название</th>
-                        <th class="px-4 py-3 text-center">⚙️ Действия</th>
+                        {{-- 🏷️ Название + метка --}}
+                        <td class="px-4 py-3 font-medium text-gray-800 dark:text-white category-title">
+                            <div class="flex items-center gap-2">
+                                @if ($category->icon)
+                                    <span class="text-xl">{{ $category->icon }}</span>
+                                @else
+                                    <i class="fas fa-tag text-gray-400"></i>
+                                @endif
+
+                                <span
+                                    class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                    {{ $category->title }}
+                                </span>
+                            </div>
+                        </td>
+
+                        {{-- 🛠️ Действия --}}
+                        <td class="px-4 py-3 text-center whitespace-nowrap">
+                            <a href="{{ route('admin.categories.edit', $category->id) }}"
+                                class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md shadow text-xs font-medium transition"
+                                title="Редактировать категорию" aria-label="Редактировать категорию">
+                                <i class="fas fa-edit"></i> Редактировать
+                            </a>
+                        </td>
                     </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                    @forelse ($categories as $category)
-                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition" data-id="{{ $category->id }}">
-                            {{-- ✅ Выбор --}}
-                            <td class="px-4 py-3">
-                                <input type="checkbox" class="row-checkbox form-checkbox h-4 w-4 text-blue-600"
-                                    value="{{ $category->id }}">
-                            </td>
-
-                            {{-- 🏷️ Название + метка --}}
-                            <td class="px-4 py-3 font-medium text-gray-800 dark:text-white category-title">
-                                <div class="flex items-center gap-2">
-                                    @if ($category->icon)
-                                        <span class="text-xl">{{ $category->icon }}</span>
-                                    @else
-                                        <i class="fas fa-tag text-gray-400"></i>
-                                    @endif
-
-                                    <span
-                                        class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                                        {{ $category->title }}
-                                    </span>
-                                </div>
-                            </td>
-
-                            {{-- 🛠️ Действия --}}
-                            <td class="px-4 py-3 text-center whitespace-nowrap">
-                                <a href="{{ route('admin.categories.edit', $category->id) }}"
-                                    class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md shadow text-xs font-medium transition"
-                                    title="Редактировать категорию" aria-label="Редактировать категорию">
-                                    <i class="fas fa-edit"></i> Редактировать
-                                </a>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="3" class="text-center text-gray-500 dark:text-gray-400 py-6">
-                                📭 Категорий пока нет.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </form>
+                @empty
+                    <tr>
+                        <td colspan="3" class="text-center text-gray-500 dark:text-gray-400 py-6">
+                            📭 Категорий пока нет.
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 
     {{-- 📄 Пагинация --}}
     <div class="mt-6">
@@ -99,6 +93,8 @@
 
     {{-- 📜 JS --}}
     <script>
+        const csrfToken = '{{ csrf_token() }}';
+
         function filterCategories() {
             const search = document.getElementById('searchInput').value.toLowerCase();
             const rows = document.querySelectorAll('#categoriesTable tbody tr');
@@ -114,7 +110,6 @@
             if (!selected.length) return alert('Выберите категории для удаления.');
             if (!confirm('Удалить выбранные категории?')) return;
 
-            // 🎞️ Анимация удаления
             selected.forEach(id => {
                 const row = document.querySelector(`tr[data-id='${id}']`);
                 if (row) {
@@ -122,8 +117,22 @@
                 }
             });
 
-            document.getElementById('bulk-delete-ids').value = selected.join(',');
-            setTimeout(() => document.getElementById('bulk-delete-form').submit(), 300);
+            fetch("{{ route('admin.categories.bulkDelete') }}", {
+
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify({ category_ids: selected.join(',') })
+            })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Ошибка при удалении категорий.');
+                }
+            });
         }
 
         document.getElementById('check-all')?.addEventListener('change', e => {
