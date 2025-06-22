@@ -16,9 +16,13 @@
     {{-- 🎯 Font Awesome 6.5.0 --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
         crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    {{-- ⛔ Убираем "мелькание" до загрузки Alpine --}}
+    <style>[x-cloak] { display: none !important; }</style>
 </head>
 
-<body class="bg-gray-100 text-gray-800 flex">
+<body class="bg-gray-100 text-gray-800 pl-16 lg:pl-64 transition-all duration-300">
+
     @include('layouts.admin.sidebar')
 
     <div class="flex-1 flex flex-col">

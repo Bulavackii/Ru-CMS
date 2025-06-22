@@ -54,7 +54,7 @@
                         class="hover:text-blue-700 transition transform hover:scale-110" aria-label="VK">
                         <i class="fab fa-vk"></i>
                     </a>
-                    <a href="https://t.me/DBulav" target="_blank"
+                    <a href="https://t.me/ru_cms" target="_blank"
                         class="hover:text-blue-500 transition transform hover:scale-110" aria-label="Telegram">
                         <i class="fab fa-telegram-plane"></i>
                     </a>
@@ -62,7 +62,7 @@
                         class="hover:text-green-500 transition transform hover:scale-110" aria-label="WhatsApp">
                         <i class="fab fa-whatsapp"></i>
                     </a>
-                    <a href="#" class="hover:text-gray-800 transition transform hover:scale-110"
+                    <a href="https://github.com/Bulavackii/Ru-CMS" class="hover:text-gray-800 transition transform hover:scale-110"
                         aria-label="GitHub">
                         <i class="fab fa-github"></i>
                     </a>

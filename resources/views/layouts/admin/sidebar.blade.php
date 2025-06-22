@@ -1,5 +1,8 @@
-<aside x-data="{ collapsed: window.innerWidth < 768 }" x-init="window.addEventListener('resize', () => collapsed = window.innerWidth < 768)" x-bind:class="collapsed ? 'w-20' : 'w-64'"
-    class="h-screen bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 shadow-lg flex flex-col z-40 transition-all duration-300">
+<aside x-data="{ collapsed: window.innerWidth < 1024 }"
+       x-init="collapsed = window.innerWidth < 1024; window.addEventListener('resize', () => collapsed = window.innerWidth < 1024)"
+       x-cloak
+       x-bind:class="collapsed ? 'w-16' : 'w-64'"
+       class="fixed top-0 left-0 h-screen bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 shadow-lg flex flex-col z-40 transition-all duration-300">
 
     {{-- 🔷 Верхняя панель --}}
     <div class="flex items-center px-4 py-4 border-b border-gray-200 dark:border-gray-800 bg-gray-900">
