@@ -1,140 +1,130 @@
 @extends('layouts.frontend-install')
 
 @section('content')
-<div class="max-w-3xl mx-auto px-2">
-    <div class="text-center space-y-8">
+<div class="w-full max-w-3xl max-h-full flex flex-col">
+    <div class="rounded-3xl border border-gray-200 bg-white/90 backdrop-blur-xl shadow-[0_24px_60px_-24px_rgba(0,0,0,.25)] flex flex-col max-h-full overflow-hidden">
 
-        {{-- Лого + заголовок --}}
-        <div class="inline-flex items-center gap-4">
-            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-500 shadow-xl shadow-blue-500/25 grid place-items-center text-2xl font-bold text-white">
-                RU
-            </div>
-            <div class="text-left">
-                <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-gray-900">
-                    Ru&nbsp;CMS <span class="text-blue-600">· Установка</span>
-                </h1>
-                <p class="text-sm text-gray-500">Быстрый старт. Минимум шагов. Готово к продакшену.</p>
-            </div>
-        </div>
-
-        {{-- Основная карточка --}}
-        <div class="relative rounded-3xl border border-gray-200/70 bg-white/80 backdrop-blur-xl px-6 py-10 md:px-12 md:py-12 shadow-[0_24px_60px_-24px_rgba(59,130,246,.35)]">
-
-            <div class="flex flex-col items-center gap-4">
-                <div class="grid place-items-center w-14 h-14 rounded-2xl bg-blue-600/10 text-blue-600">
-                    <i data-lucide="rocket" class="w-7 h-7"></i>
+        {{-- Шапка: логотип + название (монохром) --}}
+        <div class="px-6 sm:px-10 pt-6 pb-4 text-center shrink-0">
+            <div class="inline-flex items-center gap-3">
+                {{-- Логотип: чёрный квадрат с «слоями» — намёк на модульность CMS --}}
+                <div class="w-12 h-12 rounded-2xl bg-gray-900 shadow-lg shadow-gray-900/25 grid place-items-center text-white">
+                    <i data-lucide="layers" class="w-6 h-6"></i>
                 </div>
-
-                <h2 class="text-xl md:text-2xl font-semibold text-gray-900">Добро пожаловать! До запуска — всего пару шагов</h2>
-                <p class="text-gray-600 max-w-2xl">
-                    Мы проведём вас через проверку окружения, подключение базы данных и создание администратора.
-                    Это займёт всего пару минут.
-                </p>
-
-                {{-- 🌍 Выбор страны и языка --}}
-                <div class="w-full mt-4">
-                    <div class="bg-blue-50/70 border border-blue-100 rounded-2xl p-4">
-                        <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
-                            <i data-lucide="globe" class="w-4 h-4 text-blue-600"></i>
-                            Выберите страну и язык
-                        </label>
-                        <form method="GET" action="{{ route('install.welcome') }}">
-                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                @foreach($presetCountries as $code => $country)
-                                    <button type="submit"
-                                            name="country_code"
-                                            value="{{ $code }}"
-                                            class="country-select-btn p-3 rounded-xl border-2 transition-all text-left
-                                                   {{ ($currentCountry ?? 'RU') === $code
-                                                       ? 'border-blue-500 bg-blue-50 shadow-sm'
-                                                       : 'border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50/60' }}">
-                                        <div class="flex items-center gap-2 mb-1">
-                                            <span class="text-xl">{{ $country['flag'] ?? '🌍' }}</span>
-                                            <span class="font-semibold text-xs text-gray-900">{{ $code }}</span>
-                                        </div>
-                                        <div class="text-xs text-gray-600">{{ $country['name'] ?? $code }}</div>
-                                        @if(($currentCountry ?? 'RU') === $code)
-                                            <div class="mt-1.5 text-[11px] text-blue-600 font-medium flex items-center gap-1">
-                                                <i data-lucide="check" class="w-3 h-3"></i> Выбрано
-                                            </div>
-                                        @endif
-                                    </button>
-                                @endforeach
-                            </div>
-                            <p class="text-xs text-gray-500 mt-3 text-center">
-                                Выбранная страна определит язык интерфейса, формат дат, валюту и часовой пояс системы.
-                            </p>
-                        </form>
-                    </div>
-                </div>
-
-                {{-- Шаги установки --}}
-                <div class="mt-2 w-full">
-                    @include('Install::partials.steps', ['current' => 'welcome'])
-                </div>
-
-                {{-- «Фичи» --}}
-                <div class="mt-2 grid grid-cols-1 sm:grid-cols-3 gap-3 text-left w-full">
-                    <div class="rounded-2xl bg-white border border-gray-200 p-4">
-                        <div class="w-8 h-8 rounded-lg bg-blue-600/10 text-blue-600 grid place-items-center mb-2">
-                            <i data-lucide="gauge" class="w-4 h-4"></i>
-                        </div>
-                        <div class="text-sm font-semibold text-gray-900">Лёгкий мастер</div>
-                        <div class="text-xs text-gray-500 mt-0.5">Минимально нужные поля без перегруза.</div>
-                    </div>
-                    <div class="rounded-2xl bg-white border border-gray-200 p-4">
-                        <div class="w-8 h-8 rounded-lg bg-blue-600/10 text-blue-600 grid place-items-center mb-2">
-                            <i data-lucide="shield-check" class="w-4 h-4"></i>
-                        </div>
-                        <div class="text-sm font-semibold text-gray-900">Безопасность</div>
-                        <div class="text-xs text-gray-500 mt-0.5">Корректная и бережная генерация .env.</div>
-                    </div>
-                    <div class="rounded-2xl bg-white border border-gray-200 p-4">
-                        <div class="w-8 h-8 rounded-lg bg-blue-600/10 text-blue-600 grid place-items-center mb-2">
-                            <i data-lucide="zap" class="w-4 h-4"></i>
-                        </div>
-                        <div class="text-sm font-semibold text-gray-900">Скорость</div>
-                        <div class="text-xs text-gray-500 mt-0.5">Установка проходит буквально за минуты.</div>
-                    </div>
-                </div>
-
-                {{-- CTA-кнопки --}}
-                <div class="mt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
-                    <a href="{{ route('install.requirements') }}"
-                       class="group inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/30 transition-colors">
-                        <span>Начать установку</span>
-                        <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5"></i>
-                    </a>
-                    <a href="{{ route('install.features') }}"
-                       class="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-100 transition-colors">
-                        <i data-lucide="star" class="w-4 h-4"></i><span>Возможности</span>
-                    </a>
-                    <a href="https://github.com/Bulavackii/Ru-CMS" target="_blank" rel="noopener"
-                       class="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-colors">
-                        <i data-lucide="github" class="w-4 h-4"></i><span>GitHub</span>
-                    </a>
-                </div>
-
-                {{-- Подсказка --}}
-                <div class="mt-2 text-xs">
-                    <span class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-50 text-blue-700 border border-blue-100">
-                        <i data-lucide="keyboard" class="w-3.5 h-3.5"></i>
-                        <span>Держите под рукой реквизиты БД: хост, порт, база, пользователь, пароль.</span>
-                    </span>
+                <div class="text-left">
+                    <h1 class="text-2xl font-bold tracking-tight text-gray-900">
+                        Ru&nbsp;CMS <span class="text-gray-400 font-semibold">· Установка</span>
+                    </h1>
+                    <p class="text-xs text-gray-500">Быстрый старт · Минимум шагов · Готово к продакшену</p>
                 </div>
             </div>
         </div>
 
-        {{-- Мини-футер --}}
-        <div class="text-center text-xs text-gray-400">
-            © {{ date('Y') }} Ru CMS. Сделано с любовью к скорости и аккуратности.
+        {{-- Прокручиваемая середина (на маленьких экранах), обычно всё влезает --}}
+        <div class="px-6 sm:px-10 overflow-y-auto install-scroll min-h-0 space-y-4">
+
+            {{-- 🌍 Выбор страны и языка: флаг — главный элемент --}}
+            <div class="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+                <div class="flex items-center justify-center gap-2 text-sm font-semibold text-gray-800 mb-3">
+                    <i data-lucide="languages" class="w-4 h-4"></i>
+                    Язык и страна системы
+                </div>
+                @php
+                    // Инлайн-SVG флаги: Windows не отображает эмодзи флагов вообще
+                    // (Segoe UI Emoji их не содержит), поэтому эмодзи из COUNTRY_PRESETS
+                    // здесь бесполезны. SVG — локально, без единого внешнего запроса.
+                    $flagSvg = [
+                        'RU' => '<svg viewBox="0 0 30 20" class="w-9 h-6 rounded shadow-sm"><rect width="30" height="20" fill="#fff"/><rect y="6.67" width="30" height="6.67" fill="#0039A6"/><rect y="13.33" width="30" height="6.67" fill="#D52B1E"/><rect width="30" height="20" fill="none" stroke="#00000022" stroke-width=".5"/></svg>',
+                        'BY' => '<svg viewBox="0 0 30 20" class="w-9 h-6 rounded shadow-sm"><rect width="30" height="20" fill="#CE1720"/><rect y="13.33" width="30" height="6.67" fill="#007C30"/><rect width="3.3" height="20" fill="#fff"/><path d="M.8 1.5h1.7v2H.8zM.8 5.5h1.7v2H.8zM.8 9.5h1.7v2H.8zM.8 13.5h1.7v2H.8zM.8 17h1.7v2H.8z" fill="#CE1720"/><rect width="30" height="20" fill="none" stroke="#00000022" stroke-width=".5"/></svg>',
+                        'KZ' => '<svg viewBox="0 0 30 20" class="w-9 h-6 rounded shadow-sm"><rect width="30" height="20" fill="#00AFCA"/><circle cx="15" cy="9" r="3.4" fill="#FEC50C"/><g stroke="#FEC50C" stroke-width=".7"><line x1="15" y1="3.6" x2="15" y2="5"/><line x1="15" y1="13" x2="15" y2="14.4"/><line x1="9.6" y1="9" x2="11" y2="9"/><line x1="19" y1="9" x2="20.4" y2="9"/><line x1="11.2" y1="5.2" x2="12.2" y2="6.2"/><line x1="17.8" y1="11.8" x2="18.8" y2="12.8"/><line x1="18.8" y1="5.2" x2="17.8" y2="6.2"/><line x1="12.2" y1="11.8" x2="11.2" y2="12.8"/></g><rect width="30" height="20" fill="none" stroke="#00000022" stroke-width=".5"/></svg>',
+                        'UA' => '<svg viewBox="0 0 30 20" class="w-9 h-6 rounded shadow-sm"><rect width="30" height="10" fill="#005BBB"/><rect y="10" width="30" height="10" fill="#FFD500"/><rect width="30" height="20" fill="none" stroke="#00000022" stroke-width=".5"/></svg>',
+                        'US' => '<svg viewBox="0 0 30 20" class="w-9 h-6 rounded shadow-sm"><rect width="30" height="20" fill="#fff"/><g fill="#B22234"><rect width="30" height="1.54"/><rect y="3.08" width="30" height="1.54"/><rect y="6.15" width="30" height="1.54"/><rect y="9.23" width="30" height="1.54"/><rect y="12.31" width="30" height="1.54"/><rect y="15.38" width="30" height="1.54"/><rect y="18.46" width="30" height="1.54"/></g><rect width="12" height="10.77" fill="#3C3B6E"/><g fill="#fff"><circle cx="2" cy="1.8" r=".55"/><circle cx="5" cy="1.8" r=".55"/><circle cx="8" cy="1.8" r=".55"/><circle cx="11" cy="1.8" r=".55"/><circle cx="3.5" cy="3.6" r=".55"/><circle cx="6.5" cy="3.6" r=".55"/><circle cx="9.5" cy="3.6" r=".55"/><circle cx="2" cy="5.4" r=".55"/><circle cx="5" cy="5.4" r=".55"/><circle cx="8" cy="5.4" r=".55"/><circle cx="11" cy="5.4" r=".55"/><circle cx="3.5" cy="7.2" r=".55"/><circle cx="6.5" cy="7.2" r=".55"/><circle cx="9.5" cy="7.2" r=".55"/><circle cx="2" cy="9" r=".55"/><circle cx="5" cy="9" r=".55"/><circle cx="8" cy="9" r=".55"/><circle cx="11" cy="9" r=".55"/></g><rect width="30" height="20" fill="none" stroke="#00000022" stroke-width=".5"/></svg>',
+                        'DE' => '<svg viewBox="0 0 30 20" class="w-9 h-6 rounded shadow-sm"><rect width="30" height="6.67" fill="#000"/><rect y="6.67" width="30" height="6.67" fill="#DD0000"/><rect y="13.33" width="30" height="6.67" fill="#FFCE00"/><rect width="30" height="20" fill="none" stroke="#00000022" stroke-width=".5"/></svg>',
+                    ];
+                @endphp
+                <form method="GET" action="{{ route('install.welcome') }}">
+                    <div class="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                        @foreach($presetCountries as $code => $country)
+                            @php $isSel = ($currentCountry ?? 'RU') === $code; @endphp
+                            <button type="submit"
+                                    name="country_code"
+                                    value="{{ $code }}"
+                                    title="{{ $country['name'] ?? $code }} — язык: {{ strtoupper($country['locale'] ?? 'ru') }}, {{ $country['currency_code'] ?? '' }}"
+                                    class="country-select-btn rounded-xl border-2 p-2.5 text-center transition-all
+                                           {{ $isSel
+                                               ? 'border-gray-900 bg-white shadow-md'
+                                               : 'border-gray-200 bg-white hover:border-gray-400' }}">
+                                <div class="flex justify-center mb-1.5">{!! $flagSvg[$code] ?? '<span class="text-2xl leading-none">🌍</span>' !!}</div>
+                                <div class="text-[11px] font-semibold {{ $isSel ? 'text-gray-900' : 'text-gray-600' }}">{{ $country['name'] ?? $code }}</div>
+                                @if ($isSel)
+                                    <div class="mt-1 inline-flex items-center justify-center gap-0.5 text-[10px] text-gray-900 font-medium">
+                                        <i data-lucide="check" class="w-3 h-3"></i> Выбрано
+                                    </div>
+                                @endif
+                            </button>
+                        @endforeach
+                    </div>
+                    <p class="text-[11px] text-gray-400 mt-2 text-center flex items-center justify-center gap-1">
+                        <i data-lucide="info" class="w-3 h-3"></i>
+                        Определяет язык интерфейса, формат дат, валюту и часовой пояс. Можно изменить позже в админ-панели.
+                    </p>
+                </form>
+            </div>
+
+            {{-- Шаги --}}
+            @include('Install::partials.steps', ['current' => 'welcome'])
+
+            {{-- Три мини-фичи в одну строку --}}
+            <div class="grid grid-cols-3 gap-2">
+                <div class="rounded-xl border border-gray-200 bg-white p-3 text-center" title="Только нужные поля, ничего лишнего">
+                    <i data-lucide="gauge" class="w-4 h-4 mx-auto mb-1 text-gray-700"></i>
+                    <div class="text-xs font-semibold text-gray-900">Лёгкий мастер</div>
+                    <div class="text-[10px] text-gray-400 hidden sm:block">5 минут до запуска</div>
+                </div>
+                <div class="rounded-xl border border-gray-200 bg-white p-3 text-center" title="Аккуратная генерация .env, проверка подключения к БД до записи">
+                    <i data-lucide="shield-check" class="w-4 h-4 mx-auto mb-1 text-gray-700"></i>
+                    <div class="text-xs font-semibold text-gray-900">Безопасность</div>
+                    <div class="text-[10px] text-gray-400 hidden sm:block">Бережный .env</div>
+                </div>
+                <div class="rounded-xl border border-gray-200 bg-white p-3 text-center" title="Все ресурсы локальные — ни одного обращения к внешним CDN">
+                    <i data-lucide="hard-drive" class="w-4 h-4 mx-auto mb-1 text-gray-700"></i>
+                    <div class="text-xs font-semibold text-gray-900">Без CDN</div>
+                    <div class="text-[10px] text-gray-400 hidden sm:block">Всё локально</div>
+                </div>
+            </div>
+
+            {{-- Подсказка про реквизиты БД --}}
+            <div class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-[11px] text-gray-600 flex items-center justify-center gap-2">
+                <i data-lucide="database" class="w-3.5 h-3.5 shrink-0"></i>
+                <span>Понадобятся реквизиты PostgreSQL: хост, порт, имя базы, пользователь и пароль.</span>
+            </div>
+        </div>
+
+        {{-- Кнопки: прижаты к низу карточки --}}
+        <div class="px-6 sm:px-10 py-4 shrink-0 border-t border-gray-100 mt-4">
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-2">
+                <a href="{{ route('install.requirements') }}"
+                   class="group w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-white bg-gray-900 hover:bg-black shadow-lg shadow-gray-900/25 transition-colors">
+                    <i data-lucide="play" class="w-4 h-4"></i>
+                    <span>Начать установку</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5"></i>
+                </a>
+                <a href="{{ route('install.features') }}"
+                   class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-800 bg-white hover:bg-gray-50 border border-gray-300 transition-colors">
+                    <i data-lucide="star" class="w-4 h-4"></i><span>Возможности</span>
+                </a>
+                <a href="https://github.com/Bulavackii/Ru-CMS" target="_blank" rel="noopener"
+                   class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-500 bg-gray-100 hover:bg-gray-200 border border-gray-200 transition-colors">
+                    <i data-lucide="github" class="w-4 h-4"></i><span>GitHub</span>
+                </a>
+            </div>
         </div>
     </div>
 </div>
 
 @push('styles')
 <style>
-    .country-select-btn { transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease, background-color .15s ease; }
+    .country-select-btn { transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
     .country-select-btn:hover { transform: translateY(-2px); }
     .country-select-btn:active { transform: translateY(0); }
 </style>

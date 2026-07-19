@@ -1,136 +1,143 @@
 @extends('layouts.frontend-install')
 
 @section('content')
-<div class="mx-auto w-full max-w-xl">
+<div class="w-full max-w-xl max-h-full flex flex-col">
     <form method="POST" action="{{ route('install.database') }}"
-          class="rounded-3xl border border-gray-200/70 bg-white/80 backdrop-blur-xl shadow-[0_24px_60px_-24px_rgba(0,0,0,.15)] p-6 sm:p-10 space-y-6"
+          class="rounded-3xl border border-gray-200 bg-white/90 backdrop-blur-xl shadow-[0_24px_60px_-24px_rgba(0,0,0,.25)] flex flex-col max-h-full overflow-hidden"
           x-data="{showPass:false, submitting:false}"
           x-on:submit="submitting=true">
         @csrf
 
-        @include('Install::partials.steps', ['current' => 'database'])
-
-        {{-- Ошибки валидации/подключения --}}
-        @if ($errors->any())
-            <div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-2xl p-4">
-                <ul class="list-disc pl-5 space-y-1">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
+        {{-- Шапка --}}
+        <div class="px-6 sm:px-8 pt-5 pb-3 shrink-0 space-y-3">
+            @include('Install::partials.steps', ['current' => 'database'])
+            <div class="text-center">
+                <div class="mx-auto w-10 h-10 rounded-xl bg-gray-900 text-white grid place-items-center mb-2">
+                    <i data-lucide="database" class="w-5 h-5"></i>
+                </div>
+                <h2 class="text-lg font-bold text-gray-900 inline-flex items-center gap-2">
+                    Настройка базы данных
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 text-[10px] font-semibold border border-gray-200" title="Единственная поддерживаемая СУБД — открытая и бесплатная">
+                        <i data-lucide="database-zap" class="w-3 h-3"></i> PostgreSQL
+                    </span>
+                </h2>
+                <p class="text-gray-500 text-xs">Данные будут записаны в <span class="font-mono">.env</span> — подключение проверяется до записи</p>
             </div>
-        @endif
-
-        {{-- Заголовок --}}
-        <div class="text-center space-y-2">
-            <div class="mx-auto w-12 h-12 rounded-2xl bg-blue-600/10 text-blue-600 grid place-items-center">
-                <i data-lucide="database" class="w-6 h-6"></i>
-            </div>
-            <h2 class="text-xl font-bold text-gray-900">Настройка базы данных</h2>
-            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold border border-blue-100">
-                <i data-lucide="database" class="w-3.5 h-3.5"></i>
-                PostgreSQL
-            </div>
-            <p class="text-gray-500 text-sm">
-                Укажите параметры подключения к вашей базе PostgreSQL. Эти данные будут записаны в <span class="font-mono">.env</span>.
-            </p>
         </div>
 
         {{-- Поля --}}
-        <div class="space-y-4">
-            <div class="grid grid-cols-3 gap-3">
+        <div class="px-6 sm:px-8 overflow-y-auto install-scroll min-h-0 space-y-3">
+            @if ($errors->any())
+                <div class="bg-gray-900 text-white text-xs rounded-2xl p-3">
+                    <div class="flex items-center gap-1.5 font-semibold mb-1"><i data-lucide="octagon-alert" class="w-3.5 h-3.5"></i> Не получилось</div>
+                    <ul class="list-disc pl-5 space-y-0.5 text-gray-200">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <div class="grid grid-cols-3 gap-2.5">
                 <div class="col-span-2">
-                    <label for="host" class="block mb-1 text-sm font-medium text-gray-700">Хост</label>
+                    <label for="host" class="mb-1 text-xs font-medium text-gray-700 flex items-center gap-1">
+                        <i data-lucide="server" class="w-3 h-3 text-gray-400"></i> Хост
+                    </label>
                     <input type="text" name="host" id="host"
                            value="{{ old('host', '127.0.0.1') }}"
                            autocomplete="off"
                            placeholder="127.0.0.1"
-                           class="w-full px-4 py-2 rounded-xl border border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500"
+                           title="Обычно 127.0.0.1 (локальный сервер) или адрес сервера БД"
+                           class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-sm text-gray-900 focus:ring-2 focus:ring-gray-900/20 focus:border-gray-900"
                            required autofocus>
                 </div>
                 <div>
-                    <label for="port" class="block mb-1 text-sm font-medium text-gray-700">Порт</label>
+                    <label for="port" class="mb-1 text-xs font-medium text-gray-700 flex items-center gap-1">
+                        <i data-lucide="plug" class="w-3 h-3 text-gray-400"></i> Порт
+                    </label>
                     <input type="text" name="port" id="port"
                            value="{{ old('port', $defaultPort) }}"
                            inputmode="numeric" pattern="[0-9]*" autocomplete="off"
-                           class="w-full px-4 py-2 rounded-xl border border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500"
+                           title="Стандартный порт PostgreSQL — 5432"
+                           class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-sm text-gray-900 focus:ring-2 focus:ring-gray-900/20 focus:border-gray-900"
                            required>
                 </div>
             </div>
-            <p class="text-xs text-gray-500 -mt-2">Стандартный порт PostgreSQL — <span class="font-mono">5432</span>.</p>
 
             <div>
-                <label for="database" class="block mb-1 text-sm font-medium text-gray-700">База данных</label>
+                <label for="database" class="mb-1 text-xs font-medium text-gray-700 flex items-center gap-1">
+                    <i data-lucide="database" class="w-3 h-3 text-gray-400"></i> База данных
+                </label>
                 <input type="text"
                        name="database" id="database"
                        value="{{ old('database') }}"
                        placeholder="имя существующей базы"
                        autocomplete="off"
-                       class="w-full px-4 py-2 rounded-xl border border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500"
+                       title="База должна быть создана заранее: CREATE DATABASE имя OWNER пользователь;"
+                       class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-sm text-gray-900 focus:ring-2 focus:ring-gray-900/20 focus:border-gray-900"
                        required>
-                <p class="mt-1 text-xs text-gray-500">
-                    База должна быть создана заранее и доступна пользователю ниже.
+                <p class="mt-1 text-[11px] text-gray-400 flex items-center gap-1">
+                    <i data-lucide="info" class="w-3 h-3 shrink-0"></i>
+                    Создаётся заранее: <span class="font-mono">CREATE DATABASE имя OWNER пользователь;</span>
                 </p>
             </div>
 
-            <div>
-                <label for="username" class="block mb-1 text-sm font-medium text-gray-700">Пользователь</label>
-                <input type="text" name="username" id="username"
-                       value="{{ old('username') }}"
-                       autocomplete="username"
-                       class="w-full px-4 py-2 rounded-xl border border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500"
-                       required>
-            </div>
-
-            <div>
-                <label for="password" class="block mb-1 text-sm font-medium text-gray-700">Пароль</label>
-                <div class="relative">
-                    <input :type="showPass ? 'text' : 'password'"
-                           name="password" id="password"
-                           value="{{ old('password') }}"
-                           placeholder="●●●●●●"
-                           autocomplete="new-password"
-                           class="w-full pr-24 px-4 py-2 rounded-xl border border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500">
-                    <button type="button"
-                            class="absolute right-2 top-1/2 -translate-y-1/2 text-xs px-2 py-1 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100"
-                            x-on:click="showPass=!showPass">
-                        <span x-show="!showPass">Показать</span>
-                        <span x-show="showPass">Скрыть</span>
-                    </button>
+            <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                    <label for="username" class="mb-1 text-xs font-medium text-gray-700 flex items-center gap-1">
+                        <i data-lucide="user" class="w-3 h-3 text-gray-400"></i> Пользователь
+                    </label>
+                    <input type="text" name="username" id="username"
+                           value="{{ old('username') }}"
+                           autocomplete="username"
+                           title="Роль PostgreSQL с правом LOGIN и доступом к базе"
+                           class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-sm text-gray-900 focus:ring-2 focus:ring-gray-900/20 focus:border-gray-900"
+                           required>
+                </div>
+                <div>
+                    <label for="password" class="mb-1 text-xs font-medium text-gray-700 flex items-center gap-1">
+                        <i data-lucide="lock" class="w-3 h-3 text-gray-400"></i> Пароль
+                    </label>
+                    <div class="relative">
+                        <input :type="showPass ? 'text' : 'password'"
+                               name="password" id="password"
+                               value="{{ old('password') }}"
+                               placeholder="●●●●●●"
+                               autocomplete="new-password"
+                               class="w-full pr-10 px-3 py-2 rounded-xl border border-gray-300 bg-white text-sm text-gray-900 focus:ring-2 focus:ring-gray-900/20 focus:border-gray-900">
+                        <button type="button"
+                                class="absolute right-1.5 inset-y-0 my-auto w-7 h-7 grid place-items-center rounded-lg text-gray-400 hover:text-gray-800 hover:bg-gray-100"
+                                x-on:click="showPass=!showPass"
+                                :title="showPass ? 'Скрыть пароль' : 'Показать пароль'">
+                            {{-- x-show на span-обёртке: Lucide заменяет <i> на <svg> и теряет Alpine-атрибуты --}}
+                            <span x-show="!showPass" class="grid place-items-center"><i data-lucide="eye" class="w-4 h-4"></i></span>
+                            <span x-show="showPass" x-cloak class="grid place-items-center"><i data-lucide="eye-off" class="w-4 h-4"></i></span>
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        {{-- Подсказка --}}
-        <div class="rounded-xl bg-gray-50 border border-gray-200 p-3 text-xs text-gray-600">
-            <div class="flex items-start gap-2">
-                <i data-lucide="info" class="w-4 h-4 mt-0.5 text-blue-500 shrink-0"></i>
-                <p>
-                    Если подключение не удаётся: проверьте правильность хоста, порта и прав пользователя,
-                    а также доступ на запись в <span class="font-mono">storage/</span> (логи/кэш).
-                    Вы можете вернуться к <a href="{{ route('install.requirements') }}" class="text-blue-600 hover:underline">проверке требований</a>.
-                </p>
+            <div class="rounded-xl bg-gray-50 border border-gray-200 px-3 py-2 text-[11px] text-gray-500 flex items-start gap-1.5">
+                <i data-lucide="life-buoy" class="w-3.5 h-3.5 mt-0.5 shrink-0 text-gray-600"></i>
+                <span>Не подключается? Проверьте, что служба PostgreSQL запущена, порт верный, а у пользователя есть доступ к базе. Требования можно <a href="{{ route('install.requirements') }}" class="underline hover:text-gray-800">перепроверить</a>.</span>
             </div>
         </div>
 
-        {{-- Кнопка --}}
-        <div class="text-center pt-1">
+        {{-- Кнопки --}}
+        <div class="px-6 sm:px-8 py-4 shrink-0 border-t border-gray-100 mt-3 flex items-center justify-between">
+            <a href="{{ route('install.requirements') }}" class="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-600 transition-colors">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Назад
+            </a>
             <button type="submit"
-                    class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed text-white px-6 py-3 rounded-xl text-sm font-semibold shadow-lg shadow-blue-500/30 transition-colors"
+                    class="inline-flex items-center gap-2 bg-gray-900 hover:bg-black disabled:opacity-60 disabled:cursor-not-allowed text-white px-6 py-2.5 rounded-xl text-sm font-semibold shadow-lg shadow-gray-900/25 transition-colors"
                     :disabled="submitting">
                 <svg x-show="submitting" x-cloak viewBox="0 0 24 24" class="animate-spin h-4 w-4">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" fill="none" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4A4 4 0 008 12H4z"></path>
                 </svg>
-                <i data-lucide="arrow-right" class="w-4 h-4" x-show="!submitting"></i>
-                <span x-text="submitting ? 'Сохраняем…' : 'Продолжить'"></span>
+                <i data-lucide="cable" class="w-4 h-4" x-show="!submitting"></i>
+                <span x-text="submitting ? 'Проверяем подключение…' : 'Проверить и продолжить'"></span>
             </button>
-
-            <div class="mt-3 text-xs">
-                <a href="{{ route('install.requirements') }}" class="text-gray-500 hover:text-gray-700 hover:underline">
-                    ← Вернуться к требованиям
-                </a>
-            </div>
         </div>
     </form>
 </div>
