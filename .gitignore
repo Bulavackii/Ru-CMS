@@ -18,6 +18,7 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+/.claude
 
 # Storage
 /storage/app/*
@@ -92,6 +93,8 @@ error_log
 # Module archives
 /modules/archives/*.zip
 
+# Memory
+/CLAUDE.md
 
 
 

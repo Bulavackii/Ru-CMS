@@ -8,12 +8,14 @@
  * font_provider='local' в настройках темы, значение — CSS font-family
  * и подпись для UI.
  */
-const LOCAL_FONTS = [
-    'inter' => ['family' => 'Inter', 'label' => 'Inter'],
-    'roboto' => ['family' => 'Roboto', 'label' => 'Roboto'],
-    'pt-sans' => ['family' => 'PT Sans', 'label' => 'PT Sans'],
-    'manrope' => ['family' => 'Manrope', 'label' => 'Manrope'],
-];
+if (!defined('LOCAL_FONTS')) {
+    define('LOCAL_FONTS', [
+        'inter' => ['family' => 'Inter', 'label' => 'Inter'],
+        'roboto' => ['family' => 'Roboto', 'label' => 'Roboto'],
+        'pt-sans' => ['family' => 'PT Sans', 'label' => 'PT Sans'],
+        'manrope' => ['family' => 'Manrope', 'label' => 'Manrope'],
+    ]);
+}
 
 /**
  * 🧩 module_path()

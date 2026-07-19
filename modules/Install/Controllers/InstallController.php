@@ -4,18 +4,58 @@ namespace Modules\Install\Controllers;
 
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
+use App\Models\User;
 use App\Services\SecurityService;
 use App\Services\SubscriptionService;
 
 class InstallController extends Controller
 {
+    /**
+     * Страны, доступные на экране приветствия. Не берём это из
+     * config('localization.*') — там другая структура (supported_countries,
+     * без flag/native_name/currency_code), рассчитанная на нужды самого
+     * приложения, а не мастера установки.
+     */
+    private const COUNTRY_PRESETS = [
+        'RU' => ['name' => 'Россия', 'native_name' => 'Россия', 'flag' => '🇷🇺', 'locale' => 'ru', 'timezone' => 'Europe/Moscow', 'currency_code' => 'RUB', 'currency_symbol' => '₽', 'date_format' => 'd.m.Y', 'time_format' => 'H:i', 'decimal_separator' => ',', 'thousands_separator' => ' ', 'decimal_places' => 2],
+        'BY' => ['name' => 'Беларусь', 'native_name' => 'Беларусь', 'flag' => '🇧🇾', 'locale' => 'ru', 'timezone' => 'Europe/Minsk', 'currency_code' => 'BYN', 'currency_symbol' => 'Br', 'date_format' => 'd.m.Y', 'time_format' => 'H:i', 'decimal_separator' => ',', 'thousands_separator' => ' ', 'decimal_places' => 2],
+        'KZ' => ['name' => 'Казахстан', 'native_name' => 'Қазақстан', 'flag' => '🇰🇿', 'locale' => 'ru', 'timezone' => 'Asia/Almaty', 'currency_code' => 'KZT', 'currency_symbol' => '₸', 'date_format' => 'd.m.Y', 'time_format' => 'H:i', 'decimal_separator' => ',', 'thousands_separator' => ' ', 'decimal_places' => 2],
+        'UA' => ['name' => 'Украина', 'native_name' => 'Україна', 'flag' => '🇺🇦', 'locale' => 'ru', 'timezone' => 'Europe/Kyiv', 'currency_code' => 'UAH', 'currency_symbol' => '₴', 'date_format' => 'd.m.Y', 'time_format' => 'H:i', 'decimal_separator' => ',', 'thousands_separator' => ' ', 'decimal_places' => 2],
+        'US' => ['name' => 'США', 'native_name' => 'United States', 'flag' => '🇺🇸', 'locale' => 'en', 'timezone' => 'America/New_York', 'currency_code' => 'USD', 'currency_symbol' => '$', 'date_format' => 'm/d/Y', 'time_format' => 'h:i A', 'decimal_separator' => '.', 'thousands_separator' => ',', 'decimal_places' => 2],
+        'DE' => ['name' => 'Германия', 'native_name' => 'Deutschland', 'flag' => '🇩🇪', 'locale' => 'en', 'timezone' => 'Europe/Berlin', 'currency_code' => 'EUR', 'currency_symbol' => '€', 'date_format' => 'd.m.Y', 'time_format' => 'H:i', 'decimal_separator' => ',', 'thousands_separator' => '.', 'decimal_places' => 2],
+    ];
+
+    /**
+     * Драйверы БД, которые мастер умеет настроить через форму.
+     * Postgres — первым/рекомендуемым по умолчанию.
+     */
+    private const DB_DRIVERS = [
+        'pgsql' => ['label' => 'PostgreSQL', 'note' => 'Рекомендуется', 'port' => '5432'],
+        'mysql' => ['label' => 'MySQL / MariaDB', 'note' => null, 'port' => '3306'],
+        'sqlite' => ['label' => 'SQLite (файл, для теста)', 'note' => 'Без сервера БД', 'port' => ''],
+    ];
+
+    /**
+     * Порядок шагов и флаг сессии, наличие которого обязательно для
+     * доступа к шагу. null — шаг всегда доступен.
+     */
+    private const STEP_PREREQUISITES = [
+        'welcome' => null,
+        'requirements' => null,
+        'features' => null,
+        'database' => null,
+        'admin' => 'database',
+        'license' => 'admin',
+        'demo' => 'license',
+        'finish' => 'demo',
+    ];
+
     private SecurityService $securityService;
     private SubscriptionService $subscriptionService;
 
@@ -28,34 +68,11 @@ class InstallController extends Controller
     /** 🚀 Стартовая страница с выбором языка и страны */
     public function welcome(Request $request)
     {
-        // Получаем предустановленные страны из конфига Localization
-        $presetCountries = config('localization.preset_countries', []);
-        
-        // Если конфиг недоступен, используем базовые языки
-        if (empty($presetCountries)) {
-            $presetCountries = [
-                'RU' => [
-                    'name' => 'Россия',
-                    'native_name' => 'Россия',
-                    'flag' => '🇷🇺',
-                    'locale' => 'ru',
-                    'timezone' => 'Europe/Moscow',
-                ],
-                'US' => [
-                    'name' => 'США',
-                    'native_name' => 'United States',
-                    'flag' => '🇺🇸',
-                    'locale' => 'en',
-                    'timezone' => 'America/New_York',
-                ],
-            ];
-        }
+        $presetCountries = self::COUNTRY_PRESETS;
 
-        // Сохранение выбранной страны в сессии
         if ($request->has('country_code')) {
             $countryCode = strtoupper($request->get('country_code'));
-            
-            // Проверяем, что страна существует в предустановленных
+
             if (isset($presetCountries[$countryCode])) {
                 $country = $presetCountries[$countryCode];
                 session([
@@ -63,12 +80,10 @@ class InstallController extends Controller
                     'install_locale' => $country['locale'] ?? 'ru',
                     'install_timezone' => $country['timezone'] ?? 'Europe/Moscow',
                 ]);
-                
-                // Устанавливаем локаль для интерфейса установки
+
                 app()->setLocale($country['locale'] ?? 'ru');
             }
         } else {
-            // Загружаем из сессии или используем по умолчанию
             $countryCode = session('install_country_code', 'RU');
             $country = $presetCountries[$countryCode] ?? $presetCountries['RU'];
             app()->setLocale($country['locale'] ?? 'ru');
@@ -110,64 +125,64 @@ class InstallController extends Controller
     {
         $features = [
             [
-                'icon' => '🧩',
+                'icon' => 'blocks',
                 'title' => 'Модульная архитектура',
                 'description' => 'HMVC архитектура с независимыми модулями. Легко подключайте, отключайте и создавайте собственные модули.',
                 'highlight' => true,
             ],
             [
-                'icon' => '🔒',
+                'icon' => 'shield-check',
                 'title' => 'Безопасность',
                 'description' => '2FA аутентификация, защита от SQL injection и XSS, rate limiting, автоматическая блокировка подозрительных IP, аудит-лог действий.',
                 'highlight' => true,
             ],
             [
-                'icon' => '⚡',
+                'icon' => 'zap',
                 'title' => 'Производительность',
                 'description' => 'Оптимизация БД, расширенное кэширование, оптимизация изображений, Gzip сжатие, устранение N+1 проблем.',
             ],
             [
-                'icon' => '🌍',
+                'icon' => 'globe',
                 'title' => 'Мультиязычность',
                 'description' => 'Поддержка русского и английского языков. Автоматическое определение языка, форматирование валют и дат для РФ/СНГ.',
             ],
             [
-                'icon' => '💾',
+                'icon' => 'database-backup',
                 'title' => 'Автоматические бэкапы',
                 'description' => 'Ежедневное резервное копирование БД, еженедельное копирование файлов, загрузка в облако, управление через админ-панель.',
             ],
             [
-                'icon' => '🔄',
+                'icon' => 'refresh-cw',
                 'title' => 'Централизованные обновления',
                 'description' => 'Автоматическая проверка обновлений, безопасная установка с проверкой целостности, автоматические бэкапы перед обновлением.',
             ],
             [
-                'icon' => '💳',
+                'icon' => 'credit-card',
                 'title' => 'Система подписок',
                 'description' => 'Гибкие тарифы (Basic, Pro, Enterprise), промокоды со скидками, лицензионные ключи, ограничения по тарифам.',
             ],
             [
-                'icon' => '📊',
+                'icon' => 'bar-chart-3',
                 'title' => 'Аналитика',
                 'description' => 'Отслеживание просмотров, статистика посетителей, популярный контент, интеграция с Яндекс.Метрикой, графики и отчеты.',
             ],
             [
-                'icon' => '🔌',
+                'icon' => 'plug',
                 'title' => 'REST API',
                 'description' => 'Полноценный REST API с JWT аутентификацией, Swagger документация, версионирование API, rate limiting.',
             ],
             [
-                'icon' => '📱',
+                'icon' => 'smartphone',
                 'title' => 'Адаптивный дизайн',
-                'description' => 'Современный интерфейс на TailwindCSS, работает на всех устройствах. Темная тема, настраиваемые темы и фрагменты.',
+                'description' => 'Современный интерфейс на TailwindCSS, работает на всех устройствах. Тёмная тема, настраиваемые темы и фрагменты.',
             ],
             [
-                'icon' => '💬',
+                'icon' => 'message-square',
                 'title' => 'Комментарии и модерация',
                 'description' => 'Система комментариев с модерацией, вложенные комментарии, интеграция с Captcha, система голосования.',
             ],
             [
-                'icon' => '🔔',
+                'icon' => 'bell',
                 'title' => 'Web Push уведомления',
                 'description' => 'Push-уведомления в браузере, уведомления в админ-панели, настраиваемые типы и приоритеты уведомлений.',
             ],
@@ -180,17 +195,20 @@ class InstallController extends Controller
     public function database(Request $request)
     {
         if ($request->isMethod('get')) {
-            return view('Install::database');
+            return view('Install::database', ['drivers' => self::DB_DRIVERS]);
         }
 
         // POST
+        $conn = $request->input('connection', 'pgsql');
+        $isSqlite = $conn === 'sqlite';
+
         $v = Validator::make($request->all(), [
-            'host'       => ['required','string','max:255'],
-            'port'       => ['required','numeric'],
-            'database'   => ['required','string','max:191'],
-            'username'   => ['required','string','max:191'],
-            'password'   => ['nullable','string','max:191'],
-            'connection' => ['sometimes','in:mysql,pgsql,sqlite,sqlsrv'],
+            'connection' => ['required', 'in:' . implode(',', array_keys(self::DB_DRIVERS))],
+            'host'       => [$isSqlite ? 'nullable' : 'required', 'string', 'max:255'],
+            'port'       => [$isSqlite ? 'nullable' : 'required', 'nullable', 'numeric'],
+            'database'   => ['required', 'string', 'max:191'],
+            'username'   => [$isSqlite ? 'nullable' : 'required', 'string', 'max:191'],
+            'password'   => ['nullable', 'string', 'max:191'],
         ], [], [
             'host'     => 'Хост',
             'port'     => 'Порт',
@@ -203,37 +221,51 @@ class InstallController extends Controller
             return back()->withErrors($v)->withInput();
         }
 
-        $conn = $request->input('connection', 'mysql');
-        $host = $request->input('host');
-        $port = $request->input('port');
-        $db   = $request->input('database');
-        $user = $request->input('username');
+        $host = (string) $request->input('host');
+        $port = (string) $request->input('port');
+        $db   = (string) $request->input('database');
+        $user = (string) $request->input('username');
         $pass = $request->input('password');
 
-        // Проверка на SQL injection
+        // Проверка на SQL injection (для sqlite host/user не используются)
         if ($this->securityService->detectSqlInjection($host . $db . $user)) {
             return back()->withErrors(['security' => 'Обнаружена попытка SQL инъекции'])->withInput();
         }
 
+        // Для SQLite "база данных" — это имя файла в database/
+        $sqlitePath = null;
+        if ($isSqlite) {
+            $filename = trim($db) !== '' ? trim($db) : 'database.sqlite';
+            if (!str_ends_with($filename, '.sqlite')) {
+                $filename .= '.sqlite';
+            }
+            // Прямые слэши: и PHP, и SQLite прекрасно понимают их на
+            // Windows, а вот запись пути с обратными слэшами в .env —
+            // источник постоянных проблем с экранированием.
+            $sqlitePath = str_replace('\\', '/', database_path($filename));
+            if (!File::exists($sqlitePath)) {
+                File::ensureDirectoryExists(dirname($sqlitePath));
+                File::put($sqlitePath, '');
+            }
+        }
+
         // 1) Тест соединения БД
-        $ok = $this->testConnection($conn, $host, $port, $db, $user, $pass, $err);
+        $ok = $this->testConnection($conn, $host, $port, $isSqlite ? $sqlitePath : $db, $user, $pass, $err);
         if (!$ok) {
-            return back()->withErrors(['database' => "Не удалось подключиться к БД: ".$err])->withInput();
+            return back()->withErrors(['database' => "Не удалось подключиться к БД: " . $err])->withInput();
         }
 
         // 2) Запись .env
         try {
-            // Получаем выбранную страну из сессии
             $countryCode = session('install_country_code', 'RU');
             $locale = session('install_locale', 'ru');
             $timezone = session('install_timezone', 'Europe/Moscow');
-            
-            // Генерируем APP_KEY если его нет
+
             $appKey = config('app.key');
-            if (empty($appKey) || $appKey === '') {
-                $appKey = 'base64:'.base64_encode(random_bytes(32));
+            if (empty($appKey)) {
+                $appKey = 'base64:' . base64_encode(random_bytes(32));
             }
-            
+
             $this->writeEnv([
                 'APP_URL'          => rtrim($request->getSchemeAndHttpHost(), '/'),
                 'APP_KEY'          => $appKey,
@@ -241,17 +273,17 @@ class InstallController extends Controller
                 'APP_TIMEZONE'     => $timezone,
                 'LOCALIZATION_DEFAULT_COUNTRY' => $countryCode,
                 'DB_CONNECTION'    => $conn,
-                'DB_HOST'          => $host,
-                'DB_PORT'          => $port,
-                'DB_DATABASE'      => $db,
-                'DB_USERNAME'      => $user,
-                'DB_PASSWORD'      => $pass,
+                'DB_HOST'          => $isSqlite ? '' : $host,
+                'DB_PORT'          => $isSqlite ? '' : $port,
+                'DB_DATABASE'      => $isSqlite ? $sqlitePath : $db,
+                'DB_USERNAME'      => $isSqlite ? '' : $user,
+                'DB_PASSWORD'      => $isSqlite ? '' : $pass,
                 'SESSION_DRIVER'   => 'file', // Временно file до завершения установки
                 'CACHE_STORE'      => 'file', // Временно file до завершения установки
                 'QUEUE_CONNECTION' => 'sync', // Временно sync до завершения установки
             ]);
         } catch (\Throwable $e) {
-            return back()->withErrors(['env' => 'Ошибка записи .env: '.$e->getMessage()])->withInput();
+            return back()->withErrors(['env' => 'Ошибка записи .env: ' . $e->getMessage()])->withInput();
         }
 
         // 3) Очистка конфигов/кэша
@@ -264,21 +296,27 @@ class InstallController extends Controller
             // не фатально
         }
 
+        session(['install.completed.database' => true]);
+
         return redirect()->route('install.admin');
     }
 
     /** 👤 Создание администратора + миграции */
     public function admin(Request $request)
     {
+        if ($redirect = $this->guardStep('admin')) {
+            return $redirect;
+        }
+
         if ($request->isMethod('get')) {
             return view('Install::admin');
         }
 
         // POST
         $v = Validator::make($request->all(), [
-            'name'     => ['required','string','max:191'],
-            'email'    => ['required','email','max:191'],
-            'password' => ['required','string','min:8','max:191'],
+            'name'     => ['required', 'string', 'max:191'],
+            'email'    => ['required', 'email', 'max:191'],
+            'password' => ['required', 'string', 'min:8', 'max:191'],
         ], [], [
             'name'     => 'Имя',
             'email'    => 'Email',
@@ -297,7 +335,10 @@ class InstallController extends Controller
 
         try {
             // 1) Core миграции
-            try { Artisan::call('session:table'); } catch (\Throwable $e) {}
+            try {
+                Artisan::call('session:table');
+            } catch (\Throwable $e) {
+            }
             Artisan::call('migrate', ['--force' => true]);
 
             // 2) Миграции модулей
@@ -308,58 +349,59 @@ class InstallController extends Controller
                 ]);
             }
 
-            // 3) Проверка таблиц
+            // 3) Проверка обязательных таблиц (без них система нежизнеспособна)
             $missing = $this->verifyInstalledTables();
             if (!empty($missing)) {
                 $output = trim(Artisan::output());
                 return back()->withErrors([
-                    'migrations' => 'Не найдены таблицы: ' . implode(', ', $missing),
+                    'migrations' => 'Не найдены обязательные таблицы: ' . implode(', ', $missing),
                     'artisan'    => $output ?: 'Нет вывода Artisan',
                 ])->withInput();
+            }
+
+            // Опциональные таблицы модулей — не блокируем установку, но
+            // предупредим пользователя на финальном экране.
+            if ($warning = $this->optionalModuleTablesWarning()) {
+                $this->pushInstallWarning($warning);
             }
         } catch (\Throwable $e) {
             $output = trim(Artisan::output());
             return back()->withErrors([
-                'migrate' => 'Ошибка миграции: '.$e->getMessage(),
+                'migrate' => 'Ошибка миграции: ' . $e->getMessage(),
                 'artisan' => $output ?: 'Нет вывода Artisan',
                 'trace' => config('app.debug') ? $e->getTraceAsString() : null,
             ])->withInput();
         }
 
         try {
-            // 4) Создание администратора
-            $exists = DB::table('users')->where('email', $request->email)->exists();
-            if (!$exists) {
-                // Получаем настройки из сессии установки
+            // 4) Создание администратора через модель — не в обход
+            // кастов/хуков (пароль хэшируется через cast 'password' => 'hashed')
+            $admin = User::where('email', $request->email)->first();
+            if (!$admin) {
                 $countryCode = session('install_country_code', 'RU');
                 $locale = session('install_locale', 'ru');
-                
-                // Базовые данные администратора
+
                 $userData = [
-                    'name'        => $request->name,
-                    'email'       => $request->email,
-                    'password'    => Hash::make($request->password),
-                    'is_admin'    => true,
-                    'created_at'  => now(),
-                    'updated_at'  => now(),
+                    'name'     => $request->name,
+                    'email'    => $request->email,
+                    'password' => $request->password,
+                    'is_admin' => true,
                 ];
-                
-                // Добавляем поля локализации, если они существуют в таблице
+
                 if (Schema::hasColumn('users', 'country_code')) {
                     $userData['country_code'] = $countryCode;
                 }
                 if (Schema::hasColumn('users', 'locale')) {
                     $userData['locale'] = $locale;
                 }
-                
-                DB::table('users')->insert($userData);
+
+                User::create($userData);
             }
         } catch (\Throwable $e) {
-            return back()->withErrors(['user' => 'Не удалось создать администратора: '.$e->getMessage()])->withInput();
+            return back()->withErrors(['user' => 'Не удалось создать администратора: ' . $e->getMessage()])->withInput();
         }
 
-        // Сохранение выбора демо-данных
-        session(['install_demo_data' => $request->boolean('demo_data', false)]);
+        session(['install.completed.admin' => true]);
 
         return redirect()->route('install.license');
     }
@@ -367,6 +409,10 @@ class InstallController extends Controller
     /** 🔑 Ввод лицензионного ключа или промокода */
     public function license(Request $request)
     {
+        if ($redirect = $this->guardStep('license')) {
+            return $redirect;
+        }
+
         if ($request->isMethod('get')) {
             return view('Install::license');
         }
@@ -387,12 +433,10 @@ class InstallController extends Controller
         $licenseKey = $request->input('license_key');
         $promoCode = $request->input('promo_code');
 
-        // Должен быть указан либо лицензионный ключ, либо промокод
         if (empty($licenseKey) && empty($promoCode)) {
             return back()->withErrors(['license' => 'Укажите лицензионный ключ или промокод'])->withInput();
         }
 
-        // Если указан промокод, проверяем его
         if (!empty($promoCode)) {
             $promoResult = $this->subscriptionService->applyPromoCode($promoCode, 'basic');
             if (!$promoResult['success']) {
@@ -402,24 +446,21 @@ class InstallController extends Controller
             session(['install_promo_id' => $promoResult['promo_id']]);
         }
 
-        // Если указан лицензионный ключ, проверяем его формат
         if (!empty($licenseKey)) {
-            // Проверка формата лицензионного ключа (XXXX-XXXX-XXXX-XXXX)
             if (!preg_match('/^[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}$/i', $licenseKey)) {
                 return back()->withErrors(['license_key' => 'Неверный формат лицензионного ключа'])->withInput();
             }
             session(['install_license_key' => strtoupper($licenseKey)]);
         }
 
-        // Сохранение лицензии в .env
         try {
-            $envLicenseKey = $licenseKey ?: 'PENDING'; // Если промокод, лицензия будет создана позже
-            $this->writeEnv([
-                'LICENSE_KEY' => $envLicenseKey,
-            ]);
+            $envLicenseKey = $licenseKey ?: 'PENDING';
+            $this->writeEnv(['LICENSE_KEY' => $envLicenseKey]);
         } catch (\Throwable $e) {
-            return back()->withErrors(['env' => 'Ошибка записи лицензии в .env: '.$e->getMessage()])->withInput();
+            return back()->withErrors(['env' => 'Ошибка записи лицензии в .env: ' . $e->getMessage()])->withInput();
         }
+
+        session(['install.completed.license' => true]);
 
         return redirect()->route('install.demo');
     }
@@ -427,6 +468,10 @@ class InstallController extends Controller
     /** 📦 Установка демо-данных */
     public function demo(Request $request)
     {
+        if ($redirect = $this->guardStep('demo')) {
+            return $redirect;
+        }
+
         if ($request->isMethod('get')) {
             $installDemo = session('install_demo_data', false);
             return view('Install::demo', compact('installDemo'));
@@ -437,9 +482,11 @@ class InstallController extends Controller
             try {
                 $this->installDemoData();
             } catch (\Throwable $e) {
-                return back()->withErrors(['demo' => 'Ошибка установки демо-данных: '.$e->getMessage()]);
+                return back()->withErrors(['demo' => 'Ошибка установки демо-данных: ' . $e->getMessage()]);
             }
         }
+
+        session(['install.completed.demo' => true]);
 
         return redirect()->route('install.finish');
     }
@@ -447,231 +494,109 @@ class InstallController extends Controller
     /** 🏁 Завершение */
     public function finish()
     {
-        try {
-            // Создание подписки на основе лицензии или промокода
-            $this->createSubscriptionFromInstall();
+        if ($redirect = $this->guardStep('finish')) {
+            return $redirect;
+        }
 
-            // Применение выбранной страны/языка из установки
+        try {
+            $this->createSubscriptionFromInstall();
             $this->applyLocalizationSettings();
 
             File::put(storage_path('install.lock'), 'Installed at ' . now()->toDateTimeString());
-            
-            // Очистка кеша
+
             Artisan::call('config:clear');
             Artisan::call('cache:clear');
         } catch (\Throwable $e) {
-            // не фатально, но логируем
             \Log::warning('Install finish error', ['error' => $e->getMessage()]);
+            $this->pushInstallWarning('Не всё удалось завершить автоматически: ' . $e->getMessage() . '. Установка всё равно считается выполненной — проверьте настройки в админ-панели.');
         }
-        
-        return view('Install::finish');
-    }
 
-    /**
-     * Применение настроек локализации после установки
-     */
-    private function applyLocalizationSettings(): void
-    {
-        try {
-            $countryCode = session('install_country_code', 'RU');
-            $presetCountries = config('localization.preset_countries', []);
-            
-            if (!isset($presetCountries[$countryCode])) {
-                return; // Страна не найдена в предустановленных
-            }
+        $warnings = session('install.warnings', []);
+        session()->forget('install.warnings');
 
-            $countryData = $presetCountries[$countryCode];
+        $countryCode = session('install_country_code', 'RU');
 
-            // Проверяем, существует ли таблица countries (модуль Localization установлен)
-            if (!Schema::hasTable('countries')) {
-                return; // Модуль Localization не установлен
-            }
-
-            // Создаём или обновляем страну в базе данных
-            $country = DB::table('countries')->where('code', $countryCode)->first();
-            
-            if (!$country) {
-                // Создаём страну
-                DB::table('countries')->insert([
-                    'code' => $countryCode,
-                    'name' => $countryData['name'] ?? $countryCode,
-                    'native_name' => $countryData['native_name'] ?? $countryData['name'] ?? $countryCode,
-                    'flag' => $countryData['flag'] ?? '🌍',
-                    'currency_code' => $countryData['currency_code'] ?? 'USD',
-                    'currency_symbol' => $countryData['currency_symbol'] ?? '$',
-                    'locale' => $countryData['locale'] ?? 'ru',
-                    'timezone' => $countryData['timezone'] ?? 'UTC',
-                    'date_format' => $countryData['date_format'] ?? 'd.m.Y',
-                    'time_format' => $countryData['time_format'] ?? 'H:i',
-                    'decimal_separator' => $countryData['decimal_separator'] ?? '.',
-                    'thousands_separator' => $countryData['thousands_separator'] ?? ',',
-                    'decimal_places' => $countryData['decimal_places'] ?? 2,
-                    'active' => true,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-            } else {
-                // Обновляем существующую страну, делаем её активной
-                DB::table('countries')
-                    ->where('code', $countryCode)
-                    ->update([
-                        'active' => true,
-                        'locale' => $countryData['locale'] ?? $country->locale ?? 'ru',
-                        'timezone' => $countryData['timezone'] ?? $country->timezone ?? 'UTC',
-                        'updated_at' => now(),
-                    ]);
-            }
-
-            // Если есть таблица localization_settings, создаём базовые настройки
-            if (Schema::hasTable('localization_settings')) {
-                $countryId = DB::table('countries')->where('code', $countryCode)->value('id');
-                
-                if ($countryId) {
-                    // Базовые переводы из seeder
-                    $translations = [
-                        'RU' => ['welcome' => 'Добро пожаловать', 'home' => 'Главная'],
-                        'KZ' => ['welcome' => 'Қош келдіңіз', 'home' => 'Басты'],
-                        'US' => ['welcome' => 'Welcome', 'home' => 'Home'],
-                        'GB' => ['welcome' => 'Welcome', 'home' => 'Home'],
-                        'DE' => ['welcome' => 'Willkommen', 'home' => 'Startseite'],
-                        'FR' => ['welcome' => 'Bienvenue', 'home' => 'Accueil'],
-                        'IT' => ['welcome' => 'Benvenuto', 'home' => 'Casa'],
-                    ];
-
-                    $countryTranslations = $translations[$countryCode] ?? $translations['RU'];
-                    
-                    // Создаём базовые настройки, если их нет
-                    $existing = DB::table('localization_settings')
-                        ->where('country_id', $countryId)
-                        ->where('key', 'welcome_message')
-                        ->exists();
-                    
-                    if (!$existing) {
-                        DB::table('localization_settings')->insert([
-                            'country_id' => $countryId,
-                            'key' => 'welcome_message',
-                            'value' => $countryTranslations['welcome'] ?? 'Welcome',
-                            'type' => 'string',
-                            'group' => 'translation',
-                            'description' => 'Приветственное сообщение',
-                            'is_system' => true,
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ]);
-                    }
-                }
-            }
-
-            // Обновляем .env с финальными настройками
-            $this->writeEnv([
-                'LOCALIZATION_DEFAULT_COUNTRY' => $countryCode,
-                'APP_LOCALE' => $countryData['locale'] ?? 'ru',
-                'APP_TIMEZONE' => $countryData['timezone'] ?? 'UTC',
-            ]);
-
-        } catch (\Throwable $e) {
-            \Log::warning('Failed to apply localization settings', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-        }
-    }
-
-    /**
-     * Создание подписки на основе лицензии или промокода из установки
-     */
-    private function createSubscriptionFromInstall(): void
-    {
-        try {
-            $userId = DB::table('users')->where('is_admin', true)->value('id');
-            if (!$userId) {
-                return;
-            }
-
-            $licenseKey = session('install_license_key');
-            $promoCode = session('install_promo_code');
-            $promoId = session('install_promo_id');
-
-            // Если есть лицензионный ключ, создаем подписку с ним
-            if ($licenseKey) {
-                // Проверяем, не существует ли уже подписка с таким ключом
-                $existing = DB::table('subscriptions')
-                    ->where('license_key', $licenseKey)
-                    ->first();
-
-                if ($existing) {
-                    // Если ключ уже используется, просто обновляем .env
-                    $this->writeEnv(['LICENSE_KEY' => $licenseKey]);
-                    return;
-                }
-
-                // Создаем новую подписку с указанным ключом
-                DB::table('subscriptions')->insert([
-                    'user_id' => $userId,
-                    'plan' => 'basic', // По умолчанию basic, можно изменить позже
-                    'license_key' => $licenseKey,
-                    'starts_at' => now(),
-                    'expires_at' => now()->addYear(), // По умолчанию 1 год
-                    'is_active' => true,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-
-                // Обновляем .env с реальным ключом
-                $this->writeEnv(['LICENSE_KEY' => $licenseKey]);
-            } 
-            // Если есть промокод, создаем подписку с применением промокода
-            elseif ($promoCode && $promoId) {
-                $licenseKey = $this->subscriptionService->generateLicenseKey();
-                
-                DB::table('subscriptions')->insert([
-                    'user_id' => $userId,
-                    'plan' => 'basic',
-                    'license_key' => $licenseKey,
-                    'starts_at' => now(),
-                    'expires_at' => now()->addYear(),
-                    'is_active' => true,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-
-                // Активируем промокод
-                $this->subscriptionService->activatePromoCode($promoId, $userId);
-
-                // Обновляем .env с сгенерированным ключом
-                $this->writeEnv(['LICENSE_KEY' => $licenseKey]);
-            }
-        } catch (\Throwable $e) {
-            \Log::error('Failed to create subscription during install', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-        }
+        return view('Install::finish', [
+            'warnings' => $warnings,
+            'selectedCountry' => self::COUNTRY_PRESETS[$countryCode] ?? null,
+        ]);
     }
 
     // ─────────────────────────────────────────────────────────────────────
     // ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ
     // ─────────────────────────────────────────────────────────────────────
 
+    /**
+     * Не даёт открыть шаг напрямую по URL, пока не пройден обязательный
+     * предыдущий шаг (например /install/admin без настроенной БД).
+     */
+    private function guardStep(string $step): ?RedirectResponse
+    {
+        $prerequisite = self::STEP_PREREQUISITES[$step] ?? null;
+        if ($prerequisite === null) {
+            return null;
+        }
+
+        if (session("install.completed.{$prerequisite}")) {
+            return null;
+        }
+
+        $routeMap = [
+            'database' => 'install.database',
+            'admin'    => 'install.admin',
+            'license'  => 'install.license',
+            'demo'     => 'install.demo',
+        ];
+
+        return redirect()
+            ->route($routeMap[$prerequisite] ?? 'install.welcome')
+            ->with('install_notice', 'Сначала завершите предыдущий шаг установки.');
+    }
+
+    private function pushInstallWarning(string $message): void
+    {
+        $warnings = session('install.warnings', []);
+        $warnings[] = $message;
+        session(['install.warnings' => $warnings]);
+    }
+
     private function testConnection(
         string $connection,
         string $host,
         string $port,
-        string $db,
+        ?string $db,
         string $user,
         ?string $pass,
         ?string &$err = null
     ): bool {
-        $tmp = [
-            'driver'   => $connection,
-            'host'     => $host,
-            'port'     => $port,
-            'database' => $db,
-            'username' => $user,
-            'password' => $pass,
-            'charset'  => 'utf8mb4',
-            'collation'=> 'utf8mb4_unicode_ci',
-        ];
+        $tmp = match ($connection) {
+            'sqlite' => [
+                'driver' => 'sqlite',
+                'database' => $db,
+                'foreign_key_constraints' => true,
+            ],
+            'pgsql' => [
+                'driver' => 'pgsql',
+                'host' => $host,
+                'port' => $port,
+                'database' => $db,
+                'username' => $user,
+                'password' => $pass,
+                'charset' => 'utf8',
+                'search_path' => 'public',
+                'sslmode' => 'prefer',
+            ],
+            default => [
+                'driver' => 'mysql',
+                'host' => $host,
+                'port' => $port,
+                'database' => $db,
+                'username' => $user,
+                'password' => $pass,
+                'charset' => 'utf8mb4',
+                'collation' => 'utf8mb4_unicode_ci',
+            ],
+        };
 
         $origDefault = config('database.default');
 
@@ -685,7 +610,10 @@ class InstallController extends Controller
             return false;
         } finally {
             config(['database.default' => $origDefault]);
-            try { DB::purge('__install__'); } catch (\Throwable $e) {}
+            try {
+                DB::purge('__install__');
+            } catch (\Throwable $e) {
+            }
         }
     }
 
@@ -697,7 +625,6 @@ class InstallController extends Controller
             if (File::exists($envExamplePath)) {
                 File::copy($envExamplePath, $envPath);
             } else {
-                // Создаем минимальный .env файл если .env.example отсутствует
                 File::put($envPath, "APP_NAME=\"RU CMS\"\nAPP_ENV=local\nAPP_KEY=\nAPP_DEBUG=true\n");
             }
         }
@@ -706,24 +633,28 @@ class InstallController extends Controller
 
         foreach ($pairs as $key => $value) {
             $value = (string) $value;
-            // Для APP_KEY не используем кавычки, если он уже начинается с base64:
             if ($key === 'APP_KEY' && str_starts_with($value, 'base64:')) {
-                $line = $key.'='.$value;
+                $line = $key . '=' . $value;
             } else {
-                // Экранируем кавычки и другие специальные символы
                 $escapedValue = str_replace(['\\', '"', '$'], ['\\\\', '\\"', '\\$'], $value);
-                $line = $key.'="'.$escapedValue.'"';
+                $line = $key . '="' . $escapedValue . '"';
             }
             $pattern = "/^{$key}=.*$/m";
             if (preg_match($pattern, $content)) {
-                $content = preg_replace($pattern, $line, $content);
+                // preg_replace_callback, а не preg_replace: обычный
+                // preg_replace() трактует \1, \2 и т.п. в СТРОКЕ ЗАМЕНЫ как
+                // backreference-подстановки, так что любой бэкслэш в
+                // значении (например, путь Windows C:\...) ломает и портит
+                // результат ещё до того, как файл вообще дойдёт до dotenv-
+                // парсера.
+                $content = preg_replace_callback($pattern, fn () => $line, $content);
             } else {
-                $content .= PHP_EOL.$line;
+                $content .= PHP_EOL . $line;
             }
         }
 
-        @File::copy($envPath, $envPath.'.bak');
-        $tmp = $envPath.'.tmp';
+        @File::copy($envPath, $envPath . '.bak');
+        $tmp = $envPath . '.tmp';
         File::put($tmp, $content);
         @rename($tmp, $envPath);
     }
@@ -733,7 +664,9 @@ class InstallController extends Controller
         $paths = [];
         $base = base_path('modules');
 
-        if (!is_dir($base)) return $paths;
+        if (!is_dir($base)) {
+            return $paths;
+        }
 
         foreach (scandir($base) as $dir) {
             if ($dir === '.' || $dir === '..') continue;
@@ -752,13 +685,15 @@ class InstallController extends Controller
         return array_values(array_unique($paths));
     }
 
+    /**
+     * Жёстко обязательные таблицы — без них система в принципе не
+     * загрузится. Раньше сюда были захардкожены таблицы конкретных
+     * опциональных модулей (news/categories/menus/...), из-за чего мастер
+     * ложно "падал" на урезанных сборках без части модулей.
+     */
     private function verifyInstalledTables(): array
     {
-        $required = [
-            'migrations', 'users', 'sessions',
-            'news', 'categories', 'menus', 'files',
-            'modules', 'subscriptions', 'promo_codes', 'security_logs',
-        ];
+        $required = ['migrations', 'users', 'sessions', 'modules'];
 
         $missing = [];
         foreach ($required as $t) {
@@ -771,28 +706,53 @@ class InstallController extends Controller
         return $missing;
     }
 
+    /**
+     * Таблицы опциональных модулей — их отсутствие не блокирует установку,
+     * но стоит показать пользователю на финальном экране.
+     */
+    private function optionalModuleTablesWarning(): ?string
+    {
+        $optional = ['news', 'categories', 'menus', 'files', 'subscriptions', 'promo_codes', 'security_logs'];
+        $missing = [];
+        foreach ($optional as $t) {
+            try {
+                if (!Schema::hasTable($t)) $missing[] = $t;
+            } catch (\Throwable $e) {
+                $missing[] = $t;
+            }
+        }
+
+        if (empty($missing)) {
+            return null;
+        }
+
+        return 'Некоторые опциональные модули не создали свои таблицы: ' . implode(', ', $missing) . '. Это ожидаемо, если соответствующие модули отключены.';
+    }
+
     /** 📦 Установка демо-данных */
     private function installDemoData(): void
     {
         $userId = DB::table('users')->where('is_admin', true)->value('id');
-        
+
         if (!$userId) {
             return;
         }
 
-        // Демо-категории
+        // Демо-категории (колонка называется title, не name; template на
+        // categories не существует — это отдельное поле только у News)
         $categoryIds = [];
         $categories = [
-            ['name' => 'Новости', 'slug' => 'news', 'template' => 'default'],
-            ['name' => 'Товары', 'slug' => 'products', 'template' => 'products'],
-            ['name' => 'Услуги', 'slug' => 'services', 'template' => 'ourworks'],
+            ['title' => 'Новости', 'slug' => 'news', 'type' => 'news'],
+            ['title' => 'Товары', 'slug' => 'products', 'type' => 'product'],
+            ['title' => 'Услуги', 'slug' => 'services', 'type' => 'page'],
         ];
 
         foreach ($categories as $cat) {
             $id = DB::table('categories')->insertGetId([
-                'name' => $cat['name'],
+                'title' => $cat['title'],
                 'slug' => $cat['slug'],
-                'template' => $cat['template'],
+                'type' => $cat['type'],
+                'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -828,7 +788,6 @@ class InstallController extends Controller
                 'updated_at' => now(),
             ]);
 
-            // Привязка к категории
             if (!empty($categoryIds)) {
                 DB::table('news_category')->insert([
                     'news_id' => $newsId,
@@ -864,5 +823,161 @@ class InstallController extends Controller
                 'updated_at' => now(),
             ],
         ]);
+    }
+
+    /**
+     * Применение настроек локализации после установки.
+     * Возвращает предупреждение вместо тихого поглощения ошибки.
+     */
+    private function applyLocalizationSettings(): void
+    {
+        try {
+            $countryCode = session('install_country_code', 'RU');
+            $countryData = self::COUNTRY_PRESETS[$countryCode] ?? null;
+
+            if (!$countryData || !Schema::hasTable('countries')) {
+                return;
+            }
+
+            $country = DB::table('countries')->where('code', $countryCode)->first();
+
+            if (!$country) {
+                DB::table('countries')->insert([
+                    'code' => $countryCode,
+                    'name' => $countryData['name'],
+                    'native_name' => $countryData['native_name'],
+                    'flag' => $countryData['flag'],
+                    'currency_code' => $countryData['currency_code'],
+                    'currency_symbol' => $countryData['currency_symbol'],
+                    'locale' => $countryData['locale'],
+                    'timezone' => $countryData['timezone'],
+                    'date_format' => $countryData['date_format'],
+                    'time_format' => $countryData['time_format'],
+                    'decimal_separator' => $countryData['decimal_separator'],
+                    'thousands_separator' => $countryData['thousands_separator'],
+                    'decimal_places' => $countryData['decimal_places'],
+                    'active' => true,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            } else {
+                DB::table('countries')
+                    ->where('code', $countryCode)
+                    ->update([
+                        'active' => true,
+                        'locale' => $countryData['locale'],
+                        'timezone' => $countryData['timezone'],
+                        'updated_at' => now(),
+                    ]);
+            }
+
+            if (Schema::hasTable('localization_settings')) {
+                $countryId = DB::table('countries')->where('code', $countryCode)->value('id');
+
+                if ($countryId) {
+                    $translations = [
+                        'RU' => 'Добро пожаловать',
+                        'BY' => 'Сардэчна запрашаем',
+                        'KZ' => 'Қош келдіңіз',
+                        'UA' => 'Ласкаво просимо',
+                        'US' => 'Welcome',
+                        'DE' => 'Willkommen',
+                    ];
+
+                    $existing = DB::table('localization_settings')
+                        ->where('country_id', $countryId)
+                        ->where('key', 'welcome_message')
+                        ->exists();
+
+                    if (!$existing) {
+                        DB::table('localization_settings')->insert([
+                            'country_id' => $countryId,
+                            'key' => 'welcome_message',
+                            'value' => $translations[$countryCode] ?? 'Welcome',
+                            'type' => 'string',
+                            'group' => 'translation',
+                            'description' => 'Приветственное сообщение',
+                            'is_system' => true,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
+                }
+            }
+
+            $this->writeEnv([
+                'LOCALIZATION_DEFAULT_COUNTRY' => $countryCode,
+                'APP_LOCALE' => $countryData['locale'],
+                'APP_TIMEZONE' => $countryData['timezone'],
+            ]);
+        } catch (\Throwable $e) {
+            \Log::warning('Failed to apply localization settings', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            $this->pushInstallWarning('Не удалось применить настройки локализации: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Создание подписки на основе лицензии или промокода из установки.
+     */
+    private function createSubscriptionFromInstall(): void
+    {
+        try {
+            $userId = DB::table('users')->where('is_admin', true)->value('id');
+            if (!$userId) {
+                return;
+            }
+
+            $licenseKey = session('install_license_key');
+            $promoCode = session('install_promo_code');
+            $promoId = session('install_promo_id');
+
+            if ($licenseKey) {
+                $existing = DB::table('subscriptions')->where('license_key', $licenseKey)->first();
+
+                if ($existing) {
+                    $this->writeEnv(['LICENSE_KEY' => $licenseKey]);
+                    return;
+                }
+
+                DB::table('subscriptions')->insert([
+                    'user_id' => $userId,
+                    'plan' => 'basic',
+                    'license_key' => $licenseKey,
+                    'starts_at' => now(),
+                    'expires_at' => now()->addYear(),
+                    'is_active' => true,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                $this->writeEnv(['LICENSE_KEY' => $licenseKey]);
+            } elseif ($promoCode && $promoId) {
+                $licenseKey = $this->subscriptionService->generateLicenseKey();
+
+                DB::table('subscriptions')->insert([
+                    'user_id' => $userId,
+                    'plan' => 'basic',
+                    'license_key' => $licenseKey,
+                    'starts_at' => now(),
+                    'expires_at' => now()->addYear(),
+                    'is_active' => true,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                $this->subscriptionService->activatePromoCode($promoId, $userId);
+
+                $this->writeEnv(['LICENSE_KEY' => $licenseKey]);
+            }
+        } catch (\Throwable $e) {
+            \Log::error('Failed to create subscription during install', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            $this->pushInstallWarning('Не удалось оформить подписку/лицензию автоматически: ' . $e->getMessage());
+        }
     }
 }

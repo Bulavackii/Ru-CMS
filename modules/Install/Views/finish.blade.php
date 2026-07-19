@@ -1,22 +1,15 @@
 @extends('layouts.frontend-install')
 
 @section('content')
-<div class="min-h-screen flex items-center justify-center px-6 py-12 bg-gray-100">
-    <div class="bg-white shadow-xl rounded-2xl w-full max-w-xl border border-gray-200 animate-fade-in">
-        {{-- 🧭 Шаги мастера --}}
+<div class="mx-auto w-full max-w-xl">
+    <div class="rounded-3xl border border-gray-200/70 bg-white/80 backdrop-blur-xl shadow-[0_24px_60px_-24px_rgba(0,0,0,.15)] animate-fade-in overflow-hidden">
         <div class="px-6 sm:px-10 pt-6">
-            <ol class="flex items-center justify-center gap-2 text-xs text-gray-500">
-                <li class="px-2 py-1 rounded bg-gray-100 font-medium">1. Приветствие</li>
-                <li class="px-2 py-1 rounded bg-gray-100 font-medium">2. Требования/БД</li>
-                <li class="px-2 py-1 rounded bg-gray-100 font-medium">3. Администратор</li>
-                <li class="px-2 py-1 rounded bg-green-600 text-white font-semibold">4. Готово</li>
-            </ol>
+            @include('Install::partials.steps', ['current' => 'finish'])
         </div>
 
-        {{-- ✅ Экран успеха --}}
         <div class="p-6 sm:p-10 text-center space-y-6">
-            <div class="text-green-500 text-5xl">
-                <i class="fas fa-check-circle"></i>
+            <div class="mx-auto w-16 h-16 rounded-full bg-green-500/10 text-green-600 grid place-items-center">
+                <i data-lucide="check-circle-2" class="w-9 h-9"></i>
             </div>
 
             <h2 class="text-2xl font-bold text-gray-900">Установка завершена!</h2>
@@ -26,140 +19,122 @@
                 Далее вы можете открыть сайт или перейти в админ-панель для продолжения настройки.
             </p>
 
-            @php
-                $countryCode = session('install_country_code', 'RU');
-                $presetCountries = config('localization.preset_countries', []);
-                $selectedCountry = $presetCountries[$countryCode] ?? null;
-            @endphp
-            @if($selectedCountry)
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-left">
+            @if (!empty($warnings))
+                <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-left">
+                    <div class="text-sm font-semibold text-amber-800 mb-2 flex items-center gap-2">
+                        <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                        Установка завершена, но кое-что стоит проверить
+                    </div>
+                    <ul class="text-xs text-amber-800 space-y-1.5 list-disc pl-5">
+                        @foreach ($warnings as $warning)
+                            <li>{{ $warning }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            @if ($selectedCountry)
+                <div class="rounded-2xl border border-blue-100 bg-blue-50/70 p-4 text-left">
                     <div class="text-sm font-semibold text-blue-900 mb-2 flex items-center gap-2">
-                        <span class="text-xl">{{ $selectedCountry['flag'] ?? '🌍' }}</span>
+                        <span class="text-lg">{{ $selectedCountry['flag'] ?? '🌍' }}</span>
                         <span>Настройки локализации применены</span>
                     </div>
-                    <div class="text-xs text-blue-800 space-y-1">
-                        <div><strong>Страна:</strong> {{ $selectedCountry['name'] ?? $countryCode }}</div>
-                        <div><strong>Язык:</strong> {{ $selectedCountry['locale'] ?? 'ru' }}</div>
-                        <div><strong>Часовой пояс:</strong> {{ $selectedCountry['timezone'] ?? 'UTC' }}</div>
-                        <div><strong>Валюта:</strong> {{ $selectedCountry['currency_code'] ?? '' }} ({{ $selectedCountry['currency_symbol'] ?? '' }})</div>
-                    </div>
-                    <div class="text-xs text-blue-600 mt-2">
-                        ✓ Эти настройки применены к системе и администратору
+                    <div class="text-xs text-blue-800 grid grid-cols-2 gap-y-1">
+                        <div><strong>Страна:</strong> {{ $selectedCountry['name'] }}</div>
+                        <div><strong>Язык:</strong> {{ $selectedCountry['locale'] }}</div>
+                        <div><strong>Часовой пояс:</strong> {{ $selectedCountry['timezone'] }}</div>
+                        <div><strong>Валюта:</strong> {{ $selectedCountry['currency_code'] }} ({{ $selectedCountry['currency_symbol'] }})</div>
                     </div>
                 </div>
             @endif
 
-            {{-- 🔘 Основные действия --}}
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
                 <a href="/"
-                   class="inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-lg text-sm font-semibold shadow transition">
-                    <i class="fas fa-house"></i> На сайт
+                   class="inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-xl text-sm font-semibold shadow-lg shadow-green-500/25 transition-colors">
+                    <i data-lucide="home" class="w-4 h-4"></i> На сайт
                 </a>
                 <a href="{{ url('/admin') }}"
-                   class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-lg text-sm font-semibold shadow transition">
-                    <i class="fas fa-gauge-high"></i> В админ-панель
+                   class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl text-sm font-semibold shadow-lg shadow-blue-500/25 transition-colors">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> В админ-панель
                 </a>
                 <button type="button"
                         id="copy-admin-url"
                         data-url="{{ url('/admin') }}"
-                        class="inline-flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-800 px-5 py-3 rounded-lg text-sm font-semibold border border-gray-200 transition">
-                    <i class="fas fa-clipboard"></i> Скопировать URL админки
+                        class="inline-flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-800 px-5 py-3 rounded-xl text-sm font-semibold border border-gray-200 transition-colors">
+                    <i data-lucide="clipboard" class="w-4 h-4"></i> Скопировать URL админки
                 </button>
             </div>
 
             {{-- ✨ Краткий обзор возможностей --}}
-            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-6 mt-6">
-                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <span class="text-2xl">✨</span>
+            <div class="bg-blue-50/60 border border-blue-100 rounded-2xl p-6 mt-2">
+                <h3 class="text-base font-bold text-gray-900 mb-4 flex items-center justify-center gap-2">
+                    <i data-lucide="sparkles" class="w-5 h-5 text-blue-600"></i>
                     <span>Ключевые возможности системы</span>
                 </h3>
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
-                    <div class="flex items-center gap-2">
-                        <span class="text-lg">🧩</span>
-                        <span class="text-gray-700">Модульная архитектура</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-lg">🔒</span>
-                        <span class="text-gray-700">Безопасность 2FA</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-lg">⚡</span>
-                        <span class="text-gray-700">Высокая производительность</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-lg">🌍</span>
-                        <span class="text-gray-700">Мультиязычность</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-lg">💾</span>
-                        <span class="text-gray-700">Автоматические бэкапы</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-lg">🔌</span>
-                        <span class="text-gray-700">REST API + Swagger</span>
-                    </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm text-left">
+                    <div class="flex items-center gap-2"><i data-lucide="blocks" class="w-4 h-4 text-blue-600"></i><span class="text-gray-700">Модульная архитектура</span></div>
+                    <div class="flex items-center gap-2"><i data-lucide="shield-check" class="w-4 h-4 text-blue-600"></i><span class="text-gray-700">Безопасность 2FA</span></div>
+                    <div class="flex items-center gap-2"><i data-lucide="zap" class="w-4 h-4 text-blue-600"></i><span class="text-gray-700">Высокая производительность</span></div>
+                    <div class="flex items-center gap-2"><i data-lucide="globe" class="w-4 h-4 text-blue-600"></i><span class="text-gray-700">Мультиязычность</span></div>
+                    <div class="flex items-center gap-2"><i data-lucide="database-backup" class="w-4 h-4 text-blue-600"></i><span class="text-gray-700">Автоматические бэкапы</span></div>
+                    <div class="flex items-center gap-2"><i data-lucide="plug" class="w-4 h-4 text-blue-600"></i><span class="text-gray-700">REST API + Swagger</span></div>
                 </div>
             </div>
 
             {{-- 🧩 Следующие шаги (рекомендации) --}}
-            <div class="text-left bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3">
+            <div class="text-left bg-gray-50 border border-gray-200 rounded-2xl p-4 space-y-3">
                 <h3 class="text-sm font-semibold text-gray-800 flex items-center gap-2">
-                    <i class="fas fa-list-check text-blue-500"></i> Рекомендации после установки
+                    <i data-lucide="list-checks" class="w-4 h-4 text-blue-500"></i> Рекомендации после установки
                 </h3>
                 <ul class="text-sm text-gray-600 space-y-2">
                     <li class="flex items-start gap-2">
-                        <i class="fas fa-file-lines mt-0.5 text-gray-400"></i>
-                        Проверьте <span class="font-mono">.env</span>: <span class="font-mono">APP_NAME</span>, <span class="font-mono">APP_URL</span>, <span class="font-mono">TIMEZONE</span>.
+                        <i data-lucide="file-text" class="w-4 h-4 mt-0.5 text-gray-400 shrink-0"></i>
+                        Проверьте <span class="font-mono">.env</span>: <span class="font-mono">APP_NAME</span>, <span class="font-mono">APP_URL</span>, <span class="font-mono">APP_TIMEZONE</span>.
                     </li>
                     <li class="flex items-start gap-2">
-                        <i class="fas fa-envelope mt-0.5 text-gray-400"></i>
+                        <i data-lucide="mail" class="w-4 h-4 mt-0.5 text-gray-400 shrink-0"></i>
                         Настройте почту (<span class="font-mono">MAIL_MAILER</span>, <span class="font-mono">MAIL_HOST</span>, <span class="font-mono">MAIL_FROM_ADDRESS</span>) для отправки уведомлений.
                     </li>
                     <li class="flex items-start gap-2">
-                        <i class="fas fa-broom mt-0.5 text-gray-400"></i>
-                        Включите кэш и очередь (рекомендуется Redis) — см. <span class="font-mono">CACHE_DRIVER</span>, <span class="font-mono">QUEUE_CONNECTION</span>.
+                        <i data-lucide="refresh-cw" class="w-4 h-4 mt-0.5 text-gray-400 shrink-0"></i>
+                        Включите кэш и очередь (рекомендуется Redis) — см. <span class="font-mono">CACHE_STORE</span>, <span class="font-mono">QUEUE_CONNECTION</span>.
                     </li>
                     <li class="flex items-start gap-2">
-                        <i class="fas fa-clock mt-0.5 text-gray-400"></i>
+                        <i data-lucide="clock" class="w-4 h-4 mt-0.5 text-gray-400 shrink-0"></i>
                         Добавьте CRON: <span class="font-mono">* * * * * php /path/to/artisan schedule:run &gt;&gt; /dev/null 2&gt;&1</span>.
                     </li>
                     <li class="flex items-start gap-2">
-                        <i class="fas fa-shield-halved mt-0.5 text-gray-400"></i>
+                        <i data-lucide="shield" class="w-4 h-4 mt-0.5 text-gray-400 shrink-0"></i>
                         Проверьте права на <span class="font-mono">storage/</span> и <span class="font-mono">bootstrap/cache</span>, а также режим <span class="font-mono">APP_ENV</span>/<span class="font-mono">APP_DEBUG</span>.
                     </li>
                     <li class="flex items-start gap-2">
-                        <i class="fas fa-image mt-0.5 text-gray-400"></i>
+                        <i data-lucide="image" class="w-4 h-4 mt-0.5 text-gray-400 shrink-0"></i>
                         В админке откройте «Темы» и примените/настройте активную тему и набор иконок.
                     </li>
                 </ul>
             </div>
 
-            {{-- 🔒 Примечание про блокировку установщика --}}
-            <p class="text-xs text-gray-500">
+            <p class="text-xs text-gray-400">
                 Мастер установки автоматически заблокирован (создан <span class="font-mono">storage/install.lock</span>).
             </p>
         </div>
     </div>
 </div>
 
-{{-- 📋 Копирование ссылки админки --}}
+@push('scripts')
 <script>
     (function(){
         var btn = document.getElementById('copy-admin-url');
         if (!btn) return;
         btn.addEventListener('click', function(){
             var url = btn.getAttribute('data-url') || '{{ url('/admin') }}';
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(url).then(function(){
-                    btn.innerHTML = '<i class="fas fa-check"></i> Скопировано';
-                    setTimeout(function(){
-                        btn.innerHTML = '<i class="fas fa-clipboard"></i> Скопировать URL админки';
-                    }, 1800);
-                }).catch(function(){
-                    fallback(url);
-                });
-            } else {
-                fallback(url);
+            function done() {
+                btn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i> Скопировано';
+                if (window.lucide) window.lucide.createIcons();
+                setTimeout(function(){
+                    btn.innerHTML = '<i data-lucide="clipboard" class="w-4 h-4"></i> Скопировать URL админки';
+                    if (window.lucide) window.lucide.createIcons();
+                }, 1800);
             }
             function fallback(text){
                 var ta = document.createElement('textarea');
@@ -167,12 +142,15 @@
                 document.body.appendChild(ta);
                 ta.select(); document.execCommand('copy');
                 document.body.removeChild(ta);
-                btn.innerHTML = '<i class="fas fa-check"></i> Скопировано';
-                setTimeout(function(){
-                    btn.innerHTML = '<i class="fas fa-clipboard"></i> Скопировать URL админки';
-                }, 1800);
+                done();
+            }
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(done).catch(function(){ fallback(url); });
+            } else {
+                fallback(url);
             }
         });
     })();
 </script>
+@endpush
 @endsection

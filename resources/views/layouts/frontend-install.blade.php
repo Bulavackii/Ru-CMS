@@ -6,66 +6,75 @@
     <title>@yield('title', 'Установка Ru CMS')</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    {{-- 🌙 Применяем dark-mode до загрузки Tailwind --}}
-    <script>
-        (function () {
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
-        })();
-    </script>
-
     {{-- 🎨 Tailwind CSS (локально) --}}
     <link href="{{ local_css('tailwind.min.css') }}" rel="stylesheet">
-
-    {{-- 🌐 Font Awesome --}}
-    <link rel="stylesheet"
-          href="{{ local_css('font-awesome/all.min.css') }}"
-          crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     {{-- ⚡ Alpine.js для интерактивности (показ/скрытие пароля и т.д.) --}}
     <script defer src="{{ local_js('alpine.min.js') }}"></script>
 
-    {{-- 💫 Анимации --}}
+    {{-- 🧭 Lucide — лёгкие line-иконки в духе SF Symbols, без единого
+         обращения к CDN (вендорено локально в public/assets/js) --}}
+    <script src="{{ local_js('lucide.min.js') }}"></script>
+
     <style>
-        .animate-fade-in {
-            animation: fadeIn 0.4s ease-in-out;
+        /*
+         * Мастер установки всегда светлый (без переключателя тёмной темы) —
+         * это разовый, короткий флоу, где предсказуемость важнее персонализации.
+         *
+         * Шрифтовой стек в духе macOS: на самой macOS/iOS -apple-system и
+         * BlinkMacSystemFont резолвятся в настоящий San Francisco БЕЗ единого
+         * сетевого запроса (это системный шрифт ОС). На остальных платформах —
+         * локально захостенный Inter (ближайший по начертанию, уже используется
+         * во всём проекте).
+         */
+        :root, body {
+            font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, ui-sans-serif, system-ui, sans-serif;
         }
 
+        .animate-fade-in { animation: fadeIn .45s cubic-bezier(.16,1,.3,1); }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Мягкая «Big Sur»-подложка: едва заметные размытые пятна на светлом фоне */
+        .install-backdrop {
+            background-color: #f5f6fa;
+            background-image:
+                radial-gradient(60rem 60rem at -10% -10%, rgba(59,130,246,.10), transparent 60%),
+                radial-gradient(50rem 50rem at 110% 10%, rgba(99,102,241,.08), transparent 55%),
+                radial-gradient(40rem 40rem at 50% 120%, rgba(14,165,233,.07), transparent 55%);
         }
     </style>
+
+    @stack('styles')
 </head>
-<body class="h-full bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 antialiased">
+<body class="h-full text-gray-900 antialiased">
 
-{{-- 📦 Контент --}}
-<main class="min-h-screen flex items-center justify-center p-6 animate-fade-in">
-    @yield('content')
-</main>
+<div class="install-backdrop min-h-screen">
+    <main class="min-h-screen flex items-center justify-center p-4 sm:p-6 animate-fade-in">
+        <div class="w-full">
+            @if (session('install_notice'))
+                <div class="max-w-xl mx-auto mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 flex items-start gap-2">
+                    <i data-lucide="alert-triangle" class="w-4 h-4 mt-0.5 shrink-0"></i>
+                    <span>{{ session('install_notice') }}</span>
+                </div>
+            @endif
 
-{{-- 🌗 Скрипт переключения темы --}}
+            @yield('content')
+        </div>
+    </main>
+</div>
+
 <script>
-    function toggleTheme() {
-        const html = document.documentElement;
-        const isDark = html.classList.toggle('dark');
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    }
-</script>
-
-{{-- ✅ Проверка загрузки Alpine.js --}}
-<script>
-    window.addEventListener('load', function() {
-        if (typeof Alpine === 'undefined') {
-            console.warn('Alpine.js не загружен. Функция показа/скрытия пароля может не работать.');
+    document.addEventListener('DOMContentLoaded', function () {
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons();
         }
     });
 </script>
+
+@stack('scripts')
 
 </body>
 </html>

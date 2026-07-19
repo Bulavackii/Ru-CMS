@@ -5,6 +5,7 @@ namespace Modules\Seo\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 use Modules\Seo\Models\RedirectRule;
 
 class RedirectMiddleware
@@ -16,9 +17,17 @@ class RedirectMiddleware
             return $next($request);
         }
 
-        // Не вмешиваемся в админку
+        // Не вмешиваемся в админку и в сам мастер установки (там ещё может
+        // не быть таблицы redirect_rules — миграции модулей запускаются
+        // только на шаге /install/admin).
         $path = '/' . ltrim($request->getPathInfo(), '/');
-        if (str_starts_with($path, '/admin')) {
+        if (str_starts_with($path, '/admin') || str_starts_with($path, '/install')) {
+            return $next($request);
+        }
+
+        // Защита на случай, если middleware отработает раньше, чем
+        // применятся миграции (свежая установка, откат и т.п.).
+        if (!Schema::hasTable('redirect_rules')) {
             return $next($request);
         }
 
