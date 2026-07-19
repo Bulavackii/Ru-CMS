@@ -19,8 +19,7 @@ class UsersServiceProvider extends ServiceProvider
         // 🌐 Маршруты
         $this->loadRoutesFrom(__DIR__ . '/../Routes/web.php');
 
-        // 🗃️ Миграции
-        $this->loadMigrationsFrom(__DIR__ . '/../Migrations');
+        // Миграции модуля живут в единой database/migrations/.
 
         // 🖼️ Представления (Views)
         $this->loadViewsFrom(module_path('Users', 'Resources/views'), 'users');

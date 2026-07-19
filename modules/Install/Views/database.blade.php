@@ -1,26 +1,10 @@
 @extends('layouts.frontend-install')
 
 @section('content')
-@php
-    $__oldConnection = old('connection', 'pgsql');
-    $__ports = collect($drivers)->pluck('port', null)->all();
-@endphp
 <div class="mx-auto w-full max-w-xl">
     <form method="POST" action="{{ route('install.database') }}"
           class="rounded-3xl border border-gray-200/70 bg-white/80 backdrop-blur-xl shadow-[0_24px_60px_-24px_rgba(0,0,0,.15)] p-6 sm:p-10 space-y-6"
-          x-data="{
-              showPass: false,
-              submitting: false,
-              driver: '{{ $__oldConnection }}',
-              ports: {{ json_encode(array_map(fn($d) => $d['port'], $drivers)) }},
-              setDriver(d) {
-                  this.driver = d;
-                  const portField = $refs.port;
-                  if (portField && this.ports[d] !== undefined) {
-                      portField.value = this.ports[d];
-                  }
-              },
-          }"
+          x-data="{showPass:false, submitting:false}"
           x-on:submit="submitting=true">
         @csrf
 
@@ -43,38 +27,17 @@
                 <i data-lucide="database" class="w-6 h-6"></i>
             </div>
             <h2 class="text-xl font-bold text-gray-900">Настройка базы данных</h2>
-            <p class="text-gray-500 text-sm">
-                Укажите параметры подключения. Эти данные будут записаны в <span class="font-mono">.env</span>.
-            </p>
-        </div>
-
-        {{-- Драйвер --}}
-        <div>
-            <label class="block mb-2 text-sm font-medium text-gray-700">СУБД</label>
-            <div class="grid grid-cols-3 gap-2">
-                @foreach ($drivers as $driverKey => $driverInfo)
-                    <label class="relative flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 cursor-pointer transition-colors text-center"
-                           :class="driver === '{{ $driverKey }}' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white hover:border-blue-200'">
-                        <input type="radio" name="connection" value="{{ $driverKey }}"
-                               class="sr-only"
-                               {{ $__oldConnection === $driverKey ? 'checked' : '' }}
-                               x-on:change="setDriver('{{ $driverKey }}')">
-                        <i data-lucide="{{ $driverKey === 'sqlite' ? 'file-box' : 'database' }}" class="w-5 h-5"
-                           :class="driver === '{{ $driverKey }}' ? 'text-blue-600' : 'text-gray-400'"></i>
-                        <span class="text-xs font-semibold text-gray-900">{{ $driverInfo['label'] }}</span>
-                        @if ($driverInfo['note'])
-                            <span class="text-[10px] font-medium {{ $driverKey === 'pgsql' ? 'text-blue-600' : 'text-gray-400' }}">{{ $driverInfo['note'] }}</span>
-                        @endif
-                    </label>
-                @endforeach
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold border border-blue-100">
+                <i data-lucide="database" class="w-3.5 h-3.5"></i>
+                PostgreSQL
             </div>
-            <p class="mt-2 text-xs text-gray-500">
-                Рекомендуем PostgreSQL. MySQL/MariaDB — тоже полноценно поддерживается. SQLite подходит для теста без отдельного сервера БД.
+            <p class="text-gray-500 text-sm">
+                Укажите параметры подключения к вашей базе PostgreSQL. Эти данные будут записаны в <span class="font-mono">.env</span>.
             </p>
         </div>
 
-        {{-- Поля для серверных БД (PostgreSQL/MySQL) --}}
-        <div class="space-y-4" x-show="driver !== 'sqlite'" x-cloak>
+        {{-- Поля --}}
+        <div class="space-y-4">
             <div class="grid grid-cols-3 gap-3">
                 <div class="col-span-2">
                     <label for="host" class="block mb-1 text-sm font-medium text-gray-700">Хост</label>
@@ -82,15 +45,32 @@
                            value="{{ old('host', '127.0.0.1') }}"
                            autocomplete="off"
                            placeholder="127.0.0.1"
-                           class="w-full px-4 py-2 rounded-xl border border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500">
+                           class="w-full px-4 py-2 rounded-xl border border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500"
+                           required autofocus>
                 </div>
                 <div>
                     <label for="port" class="block mb-1 text-sm font-medium text-gray-700">Порт</label>
-                    <input type="text" name="port" id="port" x-ref="port"
-                           value="{{ old('port', $drivers[$__oldConnection]['port'] ?? '5432') }}"
+                    <input type="text" name="port" id="port"
+                           value="{{ old('port', $defaultPort) }}"
                            inputmode="numeric" pattern="[0-9]*" autocomplete="off"
-                           class="w-full px-4 py-2 rounded-xl border border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500">
+                           class="w-full px-4 py-2 rounded-xl border border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500"
+                           required>
                 </div>
+            </div>
+            <p class="text-xs text-gray-500 -mt-2">Стандартный порт PostgreSQL — <span class="font-mono">5432</span>.</p>
+
+            <div>
+                <label for="database" class="block mb-1 text-sm font-medium text-gray-700">База данных</label>
+                <input type="text"
+                       name="database" id="database"
+                       value="{{ old('database') }}"
+                       placeholder="имя существующей базы"
+                       autocomplete="off"
+                       class="w-full px-4 py-2 rounded-xl border border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500"
+                       required>
+                <p class="mt-1 text-xs text-gray-500">
+                    База должна быть создана заранее и доступна пользователю ниже.
+                </p>
             </div>
 
             <div>
@@ -98,7 +78,8 @@
                 <input type="text" name="username" id="username"
                        value="{{ old('username') }}"
                        autocomplete="username"
-                       class="w-full px-4 py-2 rounded-xl border border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500">
+                       class="w-full px-4 py-2 rounded-xl border border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500"
+                       required>
             </div>
 
             <div>
@@ -118,24 +99,6 @@
                     </button>
                 </div>
             </div>
-        </div>
-
-        {{-- Имя БД / файл --}}
-        <div>
-            <label for="database" class="block mb-1 text-sm font-medium text-gray-700" x-text="driver === 'sqlite' ? 'Имя файла БД' : 'База данных'"></label>
-            <input type="text"
-                   name="database" id="database"
-                   value="{{ old('database') }}"
-                   x-bind:placeholder="driver === 'sqlite' ? 'database.sqlite' : 'имя существующей базы'"
-                   autocomplete="off"
-                   class="w-full px-4 py-2 rounded-xl border border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500"
-                   required>
-            <p class="mt-1 text-xs text-gray-500" x-show="driver !== 'sqlite'" x-cloak>
-                База должна быть создана заранее и доступна пользователю выше.
-            </p>
-            <p class="mt-1 text-xs text-gray-500" x-show="driver === 'sqlite'" x-cloak>
-                Файл будет создан автоматически в <span class="font-mono">database/</span>, если ещё не существует.
-            </p>
         </div>
 
         {{-- Подсказка --}}

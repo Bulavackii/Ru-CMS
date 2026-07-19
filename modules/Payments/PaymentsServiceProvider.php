@@ -22,18 +22,6 @@ class PaymentsServiceProvider extends ServiceProvider
         // 👁️ Указываем расположение представлений модуля
         $this->loadViewsFrom(__DIR__ . '/Views', 'Payments');
 
-        // 🧩 Загружаем миграции модуля
-        $migrationPaths = [
-            __DIR__ . '/Migrations',
-            __DIR__ . '/migrations',
-            __DIR__ . '/Database/Migrations',
-        ];
-        
-        foreach ($migrationPaths as $path) {
-            if (is_dir($path)) {
-                $this->loadMigrationsFrom($path);
-                break;
-            }
-        }
+        // Миграции модуля живут в единой database/migrations/.
     }
 }

@@ -24,8 +24,7 @@ class DeliveryServiceProvider extends ServiceProvider
         // 👁️ Указываем расположение представлений модуля
         $this->loadViewsFrom(__DIR__ . '/../Views', 'Delivery');
 
-        // 🧩 Загружаем миграции модуля
-        $this->loadMigrationsFrom(__DIR__ . '/../Migrations');
+        // Миграции модуля живут в единой database/migrations/.
     }
 
     public function register()

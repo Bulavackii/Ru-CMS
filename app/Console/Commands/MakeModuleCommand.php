@@ -36,7 +36,6 @@ class MakeModuleCommand extends Command
             'Views/admin',
             'Views/frontend',
             'Routes',
-            'Migrations',
             'Config',
             'Lang/ru',
         ];
@@ -59,7 +58,7 @@ class MakeModuleCommand extends Command
         $this->line("\nСледующие шаги:");
         $this->line("1. Зарегистрируйте модуль в bootstrap/app.php:");
         $this->line("   \$app->register(Modules\\{$name}\\Providers\\{$name}ServiceProvider::class);");
-        $this->line("2. Создайте миграции: php artisan make:migration create_{$this->getTableName($name)}_table --path=modules/{$name}/Migrations");
+        $this->line("2. Создайте миграцию: php artisan make:migration create_{$this->getTableName($name)}_table (миграции всех модулей живут в единой database/migrations/)");
         $this->line("3. Настройте маршруты в modules/{$name}/Routes/web.php");
 
         return 0;
@@ -112,10 +111,7 @@ class {$name}ServiceProvider extends ServiceProvider
             \$this->loadViewsFrom(\$modulePath . '/Views', '{$name}');
         }
 
-        // Загрузка миграций
-        if (is_dir(\$modulePath . '/Migrations')) {
-            \$this->loadMigrationsFrom(\$modulePath . '/Migrations');
-        }
+        // Миграции модуля живут в единой database/migrations/.
 
         // Загрузка переводов
         if (is_dir(\$modulePath . '/Lang')) {

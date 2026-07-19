@@ -18,8 +18,7 @@ class LocalizationServiceProvider extends ServiceProvider
         // 🖼️ Подключение Blade-представлений с namespace 'Localization'
         $this->loadViewsFrom(__DIR__ . '/../Views', 'Localization');
 
-        // 🗃️ Подключение миграций
-        $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
+        // Миграции модуля живут в единой database/migrations/.
 
         // 🌍 Подключение переводов
         $this->loadTranslationsFrom(__DIR__ . '/../Lang', 'Localization');
@@ -28,11 +27,6 @@ class LocalizationServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../Config/localization.php' => config_path('localization.php'),
         ], 'localization-config');
-
-        // 📦 Публикация миграций (если нужно)
-        $this->publishes([
-            __DIR__ . '/../Database/Migrations/' => database_path('migrations'),
-        ], 'localization-migrations');
     }
 
     /**

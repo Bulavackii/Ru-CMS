@@ -39,9 +39,8 @@ class SeoServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__ . '/../Routes/web.php');
         $this->loadViewsFrom(__DIR__ . '/../Views', 'seo');
 
-        // --- Миграции/публикации
+        // --- Публикации (миграции модуля живут в единой database/migrations/)
         if ($this->app->runningInConsole()) {
-            $this->loadMigrationsFrom(__DIR__ . '/../Migrations');
             $this->publishes([__DIR__ . '/../Config/seo.php' => config_path('seo.php')], 'seo-config');
         }
 

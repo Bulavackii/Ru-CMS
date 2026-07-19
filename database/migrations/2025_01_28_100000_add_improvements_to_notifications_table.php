@@ -3,7 +3,6 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Добавление улучшений в таблицу notifications:
@@ -181,45 +180,34 @@ return new class extends Migration
     }
 
     /**
-     * Проверка существования индекса
+     * Проверка существования индекса. Schema::hasIndex() — штатный,
+     * кросс-СУБД способ (PostgreSQL/MySQL/SQLite), без самодельных
+     * запросов к information_schema, завязанных на MySQL.
      */
     private function hasIndex(string $table, string $indexName): bool
     {
         try {
-            $connection = Schema::getConnection();
-            $database = $connection->getDatabaseName();
-            $driver = $connection->getDriverName();
-            
-            if ($driver === 'mysql') {
-                $result = DB::select(
-                    "SELECT COUNT(*) as count FROM information_schema.statistics 
-                     WHERE table_schema = ? AND table_name = ? AND index_name = ?",
-                    [$database, $table, $indexName]
-                );
-                return $result[0]->count > 0;
-            }
-        } catch (\Throwable $e) {}
-        
-        return false;
+            return Schema::hasIndex($table, $indexName);
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     /**
-     * Проверка существования внешнего ключа
+     * Проверка существования внешнего ключа через Schema::getForeignKeys()
+     * (кросс-СУБД, доступно с Laravel 11).
      */
     private function hasForeignKey(string $table, string $fkName): bool
     {
         try {
-            $connection = Schema::getConnection();
-            $database = $connection->getDatabaseName();
-            
-            $result = DB::select(
-                "SELECT COUNT(*) as count FROM information_schema.TABLE_CONSTRAINTS 
-                 WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND CONSTRAINT_NAME = ? AND CONSTRAINT_TYPE = 'FOREIGN KEY'",
-                [$database, $table, $fkName]
-            );
-            return $result[0]->count > 0;
-        } catch (\Throwable $e) {}
-        
+            foreach (Schema::getForeignKeys($table) as $fk) {
+                if (($fk['name'] ?? null) === $fkName) {
+                    return true;
+                }
+            }
+        } catch (\Throwable $e) {
+        }
+
         return false;
     }
 };

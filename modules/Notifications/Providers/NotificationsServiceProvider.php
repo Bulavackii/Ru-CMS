@@ -19,8 +19,7 @@ class NotificationsServiceProvider extends ServiceProvider
         // 🛣️ Загрузка маршрутов модуля
         $this->loadRoutesFrom(__DIR__ . '/../Routes/web.php');
 
-        // 🧬 Загрузка миграций
-        $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
+        // Миграции модуля живут в единой database/migrations/.
 
         // 🧩 Регистрация Blade-компонента <x-frontend-notifications />
         Blade::component('frontend-notifications', NotificationsComponent::class);

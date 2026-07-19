@@ -26,13 +26,7 @@ class NewsServiceProvider extends ServiceProvider
             }
         }
 
-        // 🗃️ Подключение миграций
-        foreach (["$modulePath/Migrations", "$modulePath/Database/Migrations"] as $dir) {
-            if (is_dir($dir)) {
-                $this->loadMigrationsFrom($dir);
-                break;
-            }
-        }
+        // Миграции модуля живут в единой database/migrations/.
 
         // 🌐 Подключение переводов
         foreach (["$modulePath/Lang", "$modulePath/Resources/lang"] as $dir) {

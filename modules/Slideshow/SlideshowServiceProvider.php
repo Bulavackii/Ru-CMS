@@ -21,7 +21,6 @@ class SlideshowServiceProvider extends ServiceProvider
             $this->loadRoutesFrom(__DIR__ . '/Routes/web.php');
         }
 
-        // Подключаем миграции
-        $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
+        // Миграции модуля живут в единой database/migrations/.
     }
 }

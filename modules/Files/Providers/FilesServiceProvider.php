@@ -23,13 +23,7 @@ class FilesServiceProvider extends ServiceProvider
             $this->loadViewsFrom($modulePath . '/Views', 'Files');
         }
 
-        // 🗃️ Подключение миграций
-        foreach (["$modulePath/Migrations", "$modulePath/Database/Migrations"] as $dir) {
-            if (is_dir($dir)) {
-                $this->loadMigrationsFrom($dir);
-                break;
-            }
-        }
+        // Миграции модуля живут в единой database/migrations/.
     }
 
     public function register(): void

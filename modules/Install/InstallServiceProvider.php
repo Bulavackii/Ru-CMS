@@ -38,9 +38,7 @@ class InstallServiceProvider extends ServiceProvider
             $this->loadViewsFrom($base . '/Views', 'Install');
         }
 
-        // 🔐 Миграции (если появятся в будущем)
-        if (is_dir($base . '/Migrations')) {
-            $this->loadMigrationsFrom($base . '/Migrations');
-        }
+        // Миграции проекта (в т.ч. модульные) живут в единой
+        // database/migrations/ и подхватываются Laravel автоматически.
     }
 }

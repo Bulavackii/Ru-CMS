@@ -24,8 +24,6 @@ class AccessibilityServiceProvider extends ServiceProvider
             $this->loadViewsFrom($modulePath . '/Views', 'Accessibility');
         }
 
-        if (is_dir($modulePath . '/Migrations')) {
-            $this->loadMigrationsFrom($modulePath . '/Migrations');
-        }
+        // Миграции модуля живут в единой database/migrations/.
     }
 }

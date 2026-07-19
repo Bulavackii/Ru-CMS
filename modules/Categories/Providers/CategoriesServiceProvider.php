@@ -39,14 +39,7 @@ class CategoriesServiceProvider extends ServiceProvider
         */
         $this->loadRoutesFrom(base_path('modules/Categories/Routes/web.php'));
 
-        /*
-        |--------------------------------------------------------------------------
-        | 🗃️ Подключение миграций
-        |--------------------------------------------------------------------------
-        |
-        | Laravel будет видеть миграции в модуле и выполнять их при `php artisan migrate`.
-        |
-        */
-        $this->loadMigrationsFrom(base_path('modules/Categories/Migrations'));
+        // Миграции модуля живут в единой database/migrations/ вместе со
+        // всеми остальными и подхватываются Laravel автоматически.
     }
 }

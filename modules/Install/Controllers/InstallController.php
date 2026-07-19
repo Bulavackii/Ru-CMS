@@ -32,14 +32,12 @@ class InstallController extends Controller
     ];
 
     /**
-     * Драйверы БД, которые мастер умеет настроить через форму.
-     * Postgres — первым/рекомендуемым по умолчанию.
+     * Единственная поддерживаемая мастером СУБД. PostgreSQL — открытая,
+     * бесплатная и не завязанная ни на один вендор; MySQL/MariaDB и SQLite
+     * сознательно убраны из установщика, чтобы не плодить конфигурации,
+     * которые никто не тестирует.
      */
-    private const DB_DRIVERS = [
-        'pgsql' => ['label' => 'PostgreSQL', 'note' => 'Рекомендуется', 'port' => '5432'],
-        'mysql' => ['label' => 'MySQL / MariaDB', 'note' => null, 'port' => '3306'],
-        'sqlite' => ['label' => 'SQLite (файл, для теста)', 'note' => 'Без сервера БД', 'port' => ''],
-    ];
+    private const DB_DEFAULT_PORT = '5432';
 
     /**
      * Порядок шагов и флаг сессии, наличие которого обязательно для
@@ -101,7 +99,7 @@ class InstallController extends Controller
     {
         $requirements = [
             'PHP >= 8.5' => version_compare(PHP_VERSION, '8.5.0', '>='),
-            'PDO'                       => extension_loaded('pdo'),
+            'PDO PostgreSQL (pdo_pgsql)' => extension_loaded('pdo') && extension_loaded('pdo_pgsql'),
             'OpenSSL'                   => extension_loaded('openssl'),
             'Mbstring'                  => extension_loaded('mbstring'),
             'Tokenizer'                 => extension_loaded('tokenizer'),
@@ -195,19 +193,15 @@ class InstallController extends Controller
     public function database(Request $request)
     {
         if ($request->isMethod('get')) {
-            return view('Install::database', ['drivers' => self::DB_DRIVERS]);
+            return view('Install::database', ['defaultPort' => self::DB_DEFAULT_PORT]);
         }
 
         // POST
-        $conn = $request->input('connection', 'pgsql');
-        $isSqlite = $conn === 'sqlite';
-
         $v = Validator::make($request->all(), [
-            'connection' => ['required', 'in:' . implode(',', array_keys(self::DB_DRIVERS))],
-            'host'       => [$isSqlite ? 'nullable' : 'required', 'string', 'max:255'],
-            'port'       => [$isSqlite ? 'nullable' : 'required', 'nullable', 'numeric'],
+            'host'       => ['required', 'string', 'max:255'],
+            'port'       => ['required', 'numeric'],
             'database'   => ['required', 'string', 'max:191'],
-            'username'   => [$isSqlite ? 'nullable' : 'required', 'string', 'max:191'],
+            'username'   => ['required', 'string', 'max:191'],
             'password'   => ['nullable', 'string', 'max:191'],
         ], [], [
             'host'     => 'Хост',
@@ -227,30 +221,13 @@ class InstallController extends Controller
         $user = (string) $request->input('username');
         $pass = $request->input('password');
 
-        // Проверка на SQL injection (для sqlite host/user не используются)
+        // Проверка на SQL injection
         if ($this->securityService->detectSqlInjection($host . $db . $user)) {
             return back()->withErrors(['security' => 'Обнаружена попытка SQL инъекции'])->withInput();
         }
 
-        // Для SQLite "база данных" — это имя файла в database/
-        $sqlitePath = null;
-        if ($isSqlite) {
-            $filename = trim($db) !== '' ? trim($db) : 'database.sqlite';
-            if (!str_ends_with($filename, '.sqlite')) {
-                $filename .= '.sqlite';
-            }
-            // Прямые слэши: и PHP, и SQLite прекрасно понимают их на
-            // Windows, а вот запись пути с обратными слэшами в .env —
-            // источник постоянных проблем с экранированием.
-            $sqlitePath = str_replace('\\', '/', database_path($filename));
-            if (!File::exists($sqlitePath)) {
-                File::ensureDirectoryExists(dirname($sqlitePath));
-                File::put($sqlitePath, '');
-            }
-        }
-
         // 1) Тест соединения БД
-        $ok = $this->testConnection($conn, $host, $port, $isSqlite ? $sqlitePath : $db, $user, $pass, $err);
+        $ok = $this->testConnection($host, $port, $db, $user, $pass, $err);
         if (!$ok) {
             return back()->withErrors(['database' => "Не удалось подключиться к БД: " . $err])->withInput();
         }
@@ -272,12 +249,12 @@ class InstallController extends Controller
                 'APP_LOCALE'       => $locale,
                 'APP_TIMEZONE'     => $timezone,
                 'LOCALIZATION_DEFAULT_COUNTRY' => $countryCode,
-                'DB_CONNECTION'    => $conn,
-                'DB_HOST'          => $isSqlite ? '' : $host,
-                'DB_PORT'          => $isSqlite ? '' : $port,
-                'DB_DATABASE'      => $isSqlite ? $sqlitePath : $db,
-                'DB_USERNAME'      => $isSqlite ? '' : $user,
-                'DB_PASSWORD'      => $isSqlite ? '' : $pass,
+                'DB_CONNECTION'    => 'pgsql',
+                'DB_HOST'          => $host,
+                'DB_PORT'          => $port,
+                'DB_DATABASE'      => $db,
+                'DB_USERNAME'      => $user,
+                'DB_PASSWORD'      => $pass,
                 'SESSION_DRIVER'   => 'file', // Временно file до завершения установки
                 'CACHE_STORE'      => 'file', // Временно file до завершения установки
                 'QUEUE_CONNECTION' => 'sync', // Временно sync до завершения установки
@@ -334,22 +311,12 @@ class InstallController extends Controller
         }
 
         try {
-            // 1) Core миграции
-            try {
-                Artisan::call('session:table');
-            } catch (\Throwable $e) {
-            }
+            // Все миграции проекта (включая модульные) живут в единой
+            // database/migrations/ — одного вызова достаточно, отдельный
+            // проход по путям модулей больше не нужен.
             Artisan::call('migrate', ['--force' => true]);
 
-            // 2) Миграции модулей
-            foreach ($this->moduleMigrationPaths() as $path) {
-                Artisan::call('migrate', [
-                    '--force' => true,
-                    '--path'  => $path,
-                ]);
-            }
-
-            // 3) Проверка обязательных таблиц (без них система нежизнеспособна)
+            // Проверка обязательных таблиц (без них система нежизнеспособна)
             $missing = $this->verifyInstalledTables();
             if (!empty($missing)) {
                 $output = trim(Artisan::output());
@@ -561,42 +528,24 @@ class InstallController extends Controller
     }
 
     private function testConnection(
-        string $connection,
         string $host,
         string $port,
-        ?string $db,
+        string $db,
         string $user,
         ?string $pass,
         ?string &$err = null
     ): bool {
-        $tmp = match ($connection) {
-            'sqlite' => [
-                'driver' => 'sqlite',
-                'database' => $db,
-                'foreign_key_constraints' => true,
-            ],
-            'pgsql' => [
-                'driver' => 'pgsql',
-                'host' => $host,
-                'port' => $port,
-                'database' => $db,
-                'username' => $user,
-                'password' => $pass,
-                'charset' => 'utf8',
-                'search_path' => 'public',
-                'sslmode' => 'prefer',
-            ],
-            default => [
-                'driver' => 'mysql',
-                'host' => $host,
-                'port' => $port,
-                'database' => $db,
-                'username' => $user,
-                'password' => $pass,
-                'charset' => 'utf8mb4',
-                'collation' => 'utf8mb4_unicode_ci',
-            ],
-        };
+        $tmp = [
+            'driver' => 'pgsql',
+            'host' => $host,
+            'port' => $port,
+            'database' => $db,
+            'username' => $user,
+            'password' => $pass,
+            'charset' => 'utf8',
+            'search_path' => 'public',
+            'sslmode' => 'prefer',
+        ];
 
         $origDefault = config('database.default');
 
@@ -657,32 +606,6 @@ class InstallController extends Controller
         $tmp = $envPath . '.tmp';
         File::put($tmp, $content);
         @rename($tmp, $envPath);
-    }
-
-    private function moduleMigrationPaths(): array
-    {
-        $paths = [];
-        $base = base_path('modules');
-
-        if (!is_dir($base)) {
-            return $paths;
-        }
-
-        foreach (scandir($base) as $dir) {
-            if ($dir === '.' || $dir === '..') continue;
-            $moduleBase = $base . DIRECTORY_SEPARATOR . $dir;
-            if (!is_dir($moduleBase)) continue;
-
-            foreach (['Migrations', 'Database' . DIRECTORY_SEPARATOR . 'Migrations'] as $sub) {
-                $full = $moduleBase . DIRECTORY_SEPARATOR . $sub;
-                if (is_dir($full)) {
-                    $rel = str_replace(base_path() . DIRECTORY_SEPARATOR, '', $full);
-                    $paths[] = $rel;
-                }
-            }
-        }
-
-        return array_values(array_unique($paths));
     }
 
     /**

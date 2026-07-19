@@ -23,8 +23,7 @@ class ReviewsServiceProvider extends ServiceProvider
         // Представления
         $this->loadViewsFrom(__DIR__ . '/../Views', 'Reviews');
 
-        // Миграции
-        $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
+        // Миграции модуля живут в единой database/migrations/.
 
         // Переводы
         $this->loadTranslationsFrom(__DIR__ . '/../Lang', 'Reviews');

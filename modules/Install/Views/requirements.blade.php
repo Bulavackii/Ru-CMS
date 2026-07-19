@@ -38,8 +38,8 @@
                             @case('PHP >= 8.5')
                                 Требуется PHP 8.5 для поддержки Laravel 12. Текущая версия: <span class="font-mono">{{ PHP_VERSION }}</span>.
                                 @break
-                            @case('PDO')
-                                Необходимо для работы с базами данных (MySQL, PostgreSQL, SQLite). Установите расширение <span class="font-mono">pdo_mysql</span> или <span class="font-mono">pdo_pgsql</span> в зависимости от выбранной БД.
+                            @case('PDO PostgreSQL (pdo_pgsql)')
+                                Необходимо для работы с PostgreSQL. Установите/включите расширение <span class="font-mono">pdo_pgsql</span>.
                                 @break
                             @case('Fileinfo')
                                 Нужен для корректной обработки загружаемых файлов/медиа. Установите/включите расширение <span class="font-mono">fileinfo</span>.

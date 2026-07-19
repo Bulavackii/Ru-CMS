@@ -22,8 +22,7 @@ class SystemServiceProvider extends ServiceProvider
         // 🖼️ Подключение Blade-представлений с namespace 'System'
         $this->loadViewsFrom(__DIR__ . '/../Views', 'System');
 
-        // 🗃️ Подключение миграций
-        $this->loadMigrationsFrom(__DIR__ . '/../Migrations');
+        // Миграции модуля живут в единой database/migrations/.
 
         // 🌍 Подключение переводов
         $this->loadTranslationsFrom(__DIR__ . '/../Lang', 'System');

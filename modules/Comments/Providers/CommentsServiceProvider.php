@@ -32,10 +32,7 @@ class CommentsServiceProvider extends ServiceProvider
             $this->loadViewsFrom($modulePath . '/Views', 'Comments');
         }
 
-        // Загрузка миграций
-        if (is_dir($modulePath . '/Migrations')) {
-            $this->loadMigrationsFrom($modulePath . '/Migrations');
-        }
+        // Миграции модуля живут в единой database/migrations/.
 
         // Загрузка переводов
         if (is_dir($modulePath . '/Lang')) {

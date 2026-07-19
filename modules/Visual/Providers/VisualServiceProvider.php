@@ -10,7 +10,7 @@ class VisualServiceProvider extends ServiceProvider
     {
         $this->loadRoutesFrom(__DIR__.'/../Routes/web.php');
         $this->loadViewsFrom(__DIR__.'/../Resources/views', 'Visual');
-        $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
+        // Миграции модуля живут в единой database/migrations/.
     }
 
     public function register(): void

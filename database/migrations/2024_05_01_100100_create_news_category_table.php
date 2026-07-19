@@ -2,34 +2,44 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class CreateNewsCategoryTable extends Migration
 {
-    /** Проверка: есть ли уже PK у таблицы */
+    /**
+     * Проверка: есть ли уже PK у таблицы. Через Schema::getIndexes() —
+     * кросс-СУБД (PostgreSQL/MySQL/SQLite), без запросов к
+     * information_schema, завязанных на MySQL (и вообще не работавших на
+     * остальных драйверах — DB::table('information_schema...') не
+     * существует ни в PostgreSQL, ни тем более в SQLite).
+     */
     protected function hasPrimaryKey(string $table): bool
     {
-        $db = DB::getDatabaseName();
+        try {
+            foreach (Schema::getIndexes($table) as $index) {
+                if ($index['primary'] ?? false) {
+                    return true;
+                }
+            }
+        } catch (\Throwable $e) {
+        }
 
-        return DB::table('information_schema.TABLE_CONSTRAINTS')
-            ->where('TABLE_SCHEMA', $db)
-            ->where('TABLE_NAME', $table)
-            ->where('CONSTRAINT_TYPE', 'PRIMARY KEY')
-            ->exists();
+        return false;
     }
 
-    /** Проверка: существует ли уже FK по имени */
+    /** Проверка: существует ли уже FK по имени (кросс-СУБД, Laravel 11+) */
     protected function hasForeignKey(string $table, string $fkName): bool
     {
-        $db = DB::getDatabaseName();
+        try {
+            foreach (Schema::getForeignKeys($table) as $fk) {
+                if (($fk['name'] ?? null) === $fkName) {
+                    return true;
+                }
+            }
+        } catch (\Throwable $e) {
+        }
 
-        return DB::table('information_schema.TABLE_CONSTRAINTS')
-            ->where('TABLE_SCHEMA', $db)
-            ->where('TABLE_NAME', $table)
-            ->where('CONSTRAINT_NAME', $fkName)
-            ->where('CONSTRAINT_TYPE', 'FOREIGN KEY')
-            ->exists();
+        return false;
     }
 
     public function up(): void

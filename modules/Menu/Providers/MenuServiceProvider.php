@@ -19,9 +19,7 @@ class MenuServiceProvider extends ServiceProvider
         if (File::exists($modulePath . '/Views')) {
             $this->loadViewsFrom($modulePath . '/Views', 'Menu');
         }
-        if (File::exists($modulePath . '/Database/Migrations')) {
-            $this->loadMigrationsFrom($modulePath . '/Database/Migrations');
-        }
+        // Миграции модуля живут в единой database/migrations/.
 
         // Подаём активные хедер-меню с родителями и детьми (сортировка по order)
         View::composer('Menu::frontend.header', function ($view) {
