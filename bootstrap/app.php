@@ -3,7 +3,6 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Support\Facades\Log;
 
 $envPath = __DIR__ . '/../.env';
 $envExamplePath = __DIR__ . '/../.env.example';
@@ -33,7 +32,7 @@ if (
     $key = 'base64:' . base64_encode(random_bytes(32));
 
     if (preg_match('/^APP_KEY=.*$/m', $env)) {
-        $env = preg_replace('/^APP_KEY=.*$/m', "APP_KEY={$key}", $env);
+        $env = preg_replace('/^APP_KEY=.*$/m', "APP_KEY={$key}", $env, 1);
     } else {
         $env .= "\nAPP_KEY={$key}";
     }
@@ -174,68 +173,3 @@ return Application::configure(basePath: dirname(__DIR__))
 
     // 🧱 Создание приложения (возвращает Application)
     ->create();
-
-// 🧩 Регистрация модульных провайдеров (некритичные модули)
-// Критичные модули уже зарегистрированы через withProviders() выше
-try {
-    $app = app();
-
-    // Автоматическая регистрация модулей из module.json файлов
-    $modulesPath = base_path('modules');
-    if (is_dir($modulesPath)) {
-        $moduleDirs = array_filter(glob($modulesPath . '/*'), function($path) {
-            return is_dir($path);
-        });
-        $modules = [];
-
-        foreach ($moduleDirs as $moduleDir) {
-            $moduleJsonPath = $moduleDir . '/module.json';
-            if (file_exists($moduleJsonPath)) {
-                try {
-                    $moduleData = json_decode(file_get_contents($moduleJsonPath), true);
-                    if ($moduleData && isset($moduleData['providers']) && is_array($moduleData['providers'])) {
-                        $priority = $moduleData['priority'] ?? 50;
-                        $active = $moduleData['active'] ?? true;
-
-                        if ($active) {
-                            foreach ($moduleData['providers'] as $providerClass) {
-                                $modules[] = [
-                                    'provider' => $providerClass,
-                                    'priority' => $priority,
-                                    'name' => $moduleData['name'] ?? basename($moduleDir),
-                                ];
-                            }
-                        }
-                    }
-                } catch (\Throwable $e) {
-                    Log::warning("Failed to parse module.json: {$moduleJsonPath}", [
-                        'error' => $e->getMessage()
-                    ]);
-                }
-            }
-        }
-
-        // Сортировка по приоритету
-        usort($modules, fn($a, $b) => $a['priority'] <=> $b['priority']);
-
-        // Регистрация модулей
-        foreach ($modules as $module) {
-            try {
-                if (class_exists($module['provider'])) {
-                    $app->register($module['provider']);
-                }
-            } catch (\Throwable $e) {
-                Log::error("Failed to register module: {$module['name']}", [
-                    'provider' => $module['provider'],
-                    'error' => $e->getMessage()
-                ]);
-            }
-        }
-    }
-} catch (\Throwable $e) {
-    // Логируем ошибку, но не прерываем загрузку приложения
-    Log::error('Module registration failed', [
-        'error' => $e->getMessage(),
-        'trace' => $e->getTraceAsString()
-    ]);
-}
