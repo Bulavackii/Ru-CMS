@@ -11,11 +11,6 @@ use Illuminate\Support\Facades\DB;
  */
 class NotificationController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('admin');
-    }
-
     /**
      * 📋 Список уведомлений
      */

@@ -16,7 +16,6 @@ class UpdateController extends Controller
 
     public function __construct(UpdateService $updateService)
     {
-        $this->middleware('admin');
         $this->updateService = $updateService;
     }
 

@@ -23,7 +23,6 @@ class DashboardController extends Controller
 
     public function __construct(SubscriptionService $subscriptionService)
     {
-        $this->middleware('admin');
         $this->subscriptionService = $subscriptionService;
     }
 

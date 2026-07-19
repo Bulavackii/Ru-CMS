@@ -19,6 +19,15 @@
                 Далее вы можете открыть сайт или перейти в админ-панель для продолжения настройки.
             </p>
 
+            <div x-data="{ seconds: 5, cancelled: false }"
+                 x-init="const t = setInterval(() => { if (cancelled) { clearInterval(t); return; } seconds--; if (seconds <= 0) { clearInterval(t); window.location.href = @js(url('/admin')); } }, 1000)"
+                 x-show="!cancelled" x-cloak
+                 class="rounded-xl bg-gray-50 border border-gray-200 px-4 py-2.5 text-xs text-gray-500 flex items-center justify-center gap-2">
+                <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>
+                <span>Переходим в панель управления через <span class="font-semibold text-gray-700" x-text="seconds"></span> с…</span>
+                <button type="button" class="text-blue-600 hover:underline font-medium" x-on:click="cancelled = true">Остаться на странице</button>
+            </div>
+
             @if (!empty($warnings))
                 <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-left">
                     <div class="text-sm font-semibold text-amber-800 mb-2 flex items-center gap-2">

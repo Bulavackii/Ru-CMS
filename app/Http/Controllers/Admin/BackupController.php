@@ -14,11 +14,6 @@ use Illuminate\Support\Facades\File;
  */
 class BackupController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('admin');
-    }
-
     /**
      * 📋 Список бэкапов
      */

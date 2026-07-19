@@ -15,11 +15,6 @@ use Modules\Menu\Models\Menu;
  */
 class GlobalSearchController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('admin');
-    }
-
     /**
      * 🔍 Глобальный поиск
      */
