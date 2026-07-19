@@ -32,14 +32,14 @@
     <h1 class="text-3xl md:text-4xl font-extrabold text-blue-800">💻 Разработчикам</h1>
     <p class="lead text-gray-600">
       <strong>Ru-CMS</strong> — модульная CMS на <span class="font-medium">Laravel&nbsp;12.x</span> и <span class="font-medium">PHP&nbsp;8.5</span>
-      с архитектурой HMVC, темизацией и редактором TinyMCE&nbsp;7. Эта страница — быстрый «onboarding» по структуре, модулям и расширению.
+      с архитектурой HMVC, темизацией и редактором TinyMCE&nbsp;8. Эта страница — быстрый «onboarding» по структуре, модулям и расширению.
     </p>
 
     <div class="inline-flex flex-wrap items-center justify-center gap-2 text-xs text-gray-600">
       <span class="kbd">HMVC</span>
       <span class="kbd">Blade</span>
       <span class="kbd">Tailwind</span>
-      <span class="kbd">TinyMCE&nbsp;7</span>
+      <span class="kbd">TinyMCE&nbsp;8</span>
       <span class="kbd">Prism</span>
     </div>
 
@@ -210,7 +210,7 @@ Route::get('/blog', [PostController::class, 'index'])->name('blog.index');
 
   {{-- 7. TinyMCE --}}
   <section id="editor" class="section space-y-3">
-    <h2 class="text-xl font-bold text-blue-700">7. TinyMCE 7 в админ-редакторе</h2>
+    <h2 class="text-xl font-bold text-blue-700">7. TinyMCE 8 в админ-редакторе</h2>
     <ul class="list-disc pl-6">
       <li>Загрузка медиа — через модуль файлов; публичные пути — <code>storage:link</code>.</li>
       <li>На фронте для превью чистим HTML: <code>Str::limit(strip_tags(...))</code>.</li>

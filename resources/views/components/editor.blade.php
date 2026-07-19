@@ -41,11 +41,12 @@
                 language_url: '{{ asset('admin/tinymce/langs/ru.js') }}',
                 branding: false,
                 promotion: false,
+                license_key: 'gpl',
                 plugins: [
                     'advlist', 'anchor', 'autolink', 'autosave', 'charmap', 'code', 'codesample',
                     'directionality', 'emoticons', 'fullscreen', 'help', 'image', 'insertdatetime',
                     'link', 'lists', 'media', 'nonbreaking', 'pagebreak', 'preview', 'quickbars',
-                    'save', 'searchreplace', 'table', 'template', 'visualblocks', 'visualchars', 'wordcount'
+                    'save', 'searchreplace', 'table', 'visualblocks', 'visualchars', 'wordcount'
                 ],
                 toolbar: 'undo redo | blocks | ' +
                     'bold italic forecolor | alignleft aligncenter ' +

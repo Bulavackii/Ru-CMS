@@ -244,7 +244,7 @@
 @endsection
 
 @section('scripts')
-  {{-- TinyMCE 7 (локально) --}}
+  {{-- TinyMCE 8 (локально) --}}
   <script src="{{ asset('admin/tinymce/tinymce.min.js') }}"></script>
 
   <script>
@@ -274,11 +274,12 @@
     tinymce.init({
       selector: '#fragment-editor',
       height: 520,
-      plugins: 'code link image media table lists advlist fullscreen preview hr anchor charmap emoticons template visualblocks',
+      plugins: 'code link image media table lists advlist fullscreen preview anchor charmap emoticons visualblocks',
       toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline forecolor backcolor | ' +
                'alignleft aligncenter alignright | bullist numlist | link image media table | code fullscreen preview',
       menubar: 'file edit view insert format tools table help',
       branding: false,
+      license_key: 'gpl',
       relative_urls: false,
       convert_urls: false,
       images_upload_url: '{{ route('admin.visual.upload.image') }}',

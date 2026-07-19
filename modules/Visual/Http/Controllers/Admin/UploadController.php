@@ -15,7 +15,7 @@ class UploadController extends Controller
 
     public function image(Request $request)
     {
-        // TinyMCE 7 шлёт файл в поле "file"
+        // TinyMCE 8 шлёт файл в поле "file"
         $request->validate([
             'file' => ['required','file','mimes:jpeg,jpg,png,gif,webp,svg','max:10240'], // до 10Мб
         ]);

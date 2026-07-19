@@ -105,9 +105,10 @@
             language_url: '{{ asset('admin/tinymce/langs/ru.js') }}',
             height: 600,
             branding: false,
+            license_key: 'gpl',
             convert_urls: false,
-            plugins: 'image media mediaembed link lists table code visualblocks wordcount',
-            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media mediaembed table | code | removeformat',
+            plugins: 'image media link lists table code visualblocks wordcount',
+            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media table | code | removeformat',
             file_picker_callback: function(callback, value, meta) {
                 const input = document.createElement('input');
                 input.type = 'file';

@@ -21,8 +21,10 @@ export function initEditor(selector = 'textarea.editor', options = {}) {
             'advlist', 'anchor', 'autolink', 'autosave', 'charmap', 'code', 'codesample',
             'directionality', 'emoticons', 'fullscreen', 'help', 'image', 'insertdatetime',
             'link', 'lists', 'media', 'nonbreaking', 'pagebreak', 'preview', 'quickbars',
-            'save', 'searchreplace', 'table', 'template', 'visualblocks', 'visualchars', 'wordcount'
+            'save', 'searchreplace', 'table', 'visualblocks', 'visualchars', 'wordcount'
         ],
+        // Самостоятельный хостинг (GPL) — без этого TinyMCE 8 уходит в read-only
+        license_key: 'gpl',
         toolbar: 'undo redo | blocks | ' +
             'bold italic forecolor | alignleft aligncenter ' +
             'alignright alignjustify | bullist numlist outdent indent | ' +
