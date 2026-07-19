@@ -1,205 +1,225 @@
-# 💎 RU CMS — Модульная CMS для России и СНГ
+<div align="center">
 
-> Современная модульная CMS на **Laravel 12** с архитектурой **HMVC**, встроенной безопасностью, системой подписок и централизованными обновлениями.
+# 💎 RU CMS
 
-<p align="center">
-  <img src="https://img.shields.io/badge/PHP-8.5-777BB4?logo=php&logoColor=white" alt="PHP">
-  <img src="https://img.shields.io/badge/Laravel-12%2B-ff2d20?logo=laravel&logoColor=white" alt="Laravel">
-  <img src="https://img.shields.io/badge/TailwindCSS-UI-38bdf8?logo=tailwindcss&logoColor=white" alt="Tailwind">
-  <img src="https://img.shields.io/badge/License-MIT-10b981" alt="License">
-</p>
+### Модульная CMS для России и СНГ на Laravel 12
 
----
+<sub>HMVC-архитектура · Локальные ассеты, без CDN · PostgreSQL · Встроенная безопасность</sub>
 
-## ✨ Что это?
+<br>
 
-**RU CMS** — модульная система управления сайтом, где каждая функция — самостоятельный модуль (архитектура **HMVC**).  
-Вы свободно подключаете/отключаете модули, создаёте свои и быстро собираете продукт под конкретные задачи.
+<img src="https://img.shields.io/badge/PHP-8.5-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP 8.5">
+<img src="https://img.shields.io/badge/Laravel-12-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel 12">
+<img src="https://img.shields.io/badge/PostgreSQL-only-336791?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL">
+<img src="https://img.shields.io/badge/License-MIT-10b981?style=for-the-badge" alt="MIT License">
 
-**Подходит для:**
-- 📰 Блогов и новостных порталов
-- 💼 Сайтов компаний и организаций
-- 📄 Лендингов и контент-страниц
-- 🛒 Витрин товаров и простых магазинов
-- 🛡 Клан-порталов и комьюнити-хабов
+<br><br>
 
----
+[Возможности](#-возможности) · [Модули](#-модули) · [Установка](#-установка) · [Команды](#-командная-строка) · [Структура](#-структура-проекта) · [FAQ](#-частые-проблемы)
 
-## 🚀 Ключевые возможности
+</div>
 
-### 🔒 Безопасность
-- **2FA аутентификация** через Google Authenticator
-- **Rate limiting** — защита от брутфорса
-- **Автоматическая блокировка** подозрительных IP
-- **Защита от SQL injection и XSS**
-- **Content Security Policy (CSP)** — защита от XSS атак
-- **Валидация сложности паролей**
-- **Логирование** всех событий безопасности
-- **API Rate Limiting** — защита API от перегрузки
-- **Мониторинг ошибок** — централизованное отслеживание (Telegram уведомления)
+<br>
 
-### 💾 Автоматические бэкапы
-- Ежедневное резервное копирование БД
-- Еженедельное резервное копирование файлов
-- Автоматическое сжатие и очистка старых бэкапов
-- Загрузка в облако (S3, Yandex Object Storage)
-- Управление через админ-панель
+> [!NOTE]
+> **Философия проекта:** всё работает локально и офлайн-дружелюбно. Шрифты, иконки, JS-библиотеки, Swagger UI — всё вендорено в `public/assets/`, ни одного обращения к внешним CDN на публичных страницах[^1]. Единственная поддерживаемая СУБД — **PostgreSQL**[^2].
 
-### ⚡ Производительность
-- **Оптимизация БД** — составные индексы для частых запросов (ускорение в 2-5 раз)
-- **Расширенное кэширование** — tagged cache, автоматическая инвалидация
-- **Оптимизация запросов** — устранение N+1 проблем, eager loading
-- **Lazy loading изображений** — ускорение загрузки страниц на 20-40%
-- **Оптимизация изображений** — автоматические thumbnails, WebP, сжатие
-- **Gzip сжатие** — уменьшение размера HTTP ответов
+<br>
 
-### 🔄 Централизованные обновления
-- Автоматическая проверка обновлений через API
-- Безопасная установка с проверкой целостности
-- Автоматическое создание бэкапов
-- Откат при ошибках
+## 🧭 Что это
 
-### 💳 Система подписок
-- Гибкие тарифы (Basic, Pro, Enterprise)
-- Промокоды со скидками
-- Лицензионные ключи
-- Ограничения по тарифам
+**RU CMS** — модульная система управления сайтом на архитектуре **HMVC**: каждая функция (новости, платежи, меню, SEO...) — независимый модуль в `modules/`. Модули можно свободно включать, отключать и создавать свои — командой [`make:module`](#-командная-строка).
 
-### 💳 Платежные системы (РФ/СНГ)
-- **ЮKassa (Яндекс.Касса)** — полная интеграция
-- **СБП (Система быстрых платежей)** — QR-коды для оплаты
-- **Тинькофф** — поддержка webhook
-- **Сбербанк** — базовая поддержка
-- Универсальная архитектура гейтвеев
+<table>
+<tr>
+<td width="25%" align="center">📰<br><b>Блоги и новости</b></td>
+<td width="25%" align="center">💼<br><b>Сайты компаний</b></td>
+<td width="25%" align="center">🛒<br><b>Витрины и магазины</b></td>
+<td width="25%" align="center">🛡<br><b>Комьюнити-порталы</b></td>
+</tr>
+</table>
+
+<br>
+
+## ✨ Возможности
+
+<details open>
+<summary><b>🔒 Безопасность</b></summary>
+<br>
+
+| | |
+|---|---|
+| 🔐 | 2FA-аутентификация (Google Authenticator) |
+| 🚦 | Rate limiting и защита от брутфорса |
+| 🚫 | Автоблокировка подозрительных IP |
+| 🧪 | Защита от SQL-инъекций и XSS |
+| 🛡️ | Content Security Policy (CSP), HSTS и другие security-заголовки |
+| 🔑 | Валидация сложности паролей |
+| 📋 | Аудит-лог событий безопасности |
+| ⏱️ | Rate limiting для API |
+| 📡 | Мониторинг ошибок с уведомлениями в Telegram |
+
+</details>
+
+<details>
+<summary><b>⚡ Производительность</b></summary>
+<br>
+
+- Составные индексы БД под частые запросы
+- Тегированное кэширование с автоинвалидацией
+- Устранение N+1 через eager loading
+- Lazy loading изображений, автоматические thumbnails и WebP
+- Gzip-сжатие ответов
+
+</details>
+
+<details>
+<summary><b>💾 Бэкапы и обновления</b></summary>
+<br>
+
+- Ежедневный бэкап БД, еженедельный — файлов (`php artisan backup:run`)
+- Автосжатие и очистка старых копий, выгрузка в облако (S3 / Yandex Object Storage)
+- Централизованная проверка обновлений с откатом при ошибке
+
+</details>
+
+<details>
+<summary><b>💳 Платежи и подписки (РФ/СНГ)</b></summary>
+<br>
+
+- ЮKassa, СБП (QR-коды), Тинькофф, Сбербанк — единый интерфейс гейтвеев
 - Обработка возвратов
+- Тарифы Basic / Pro / Enterprise, промокоды, лицензионные ключи
 
-### 🌍 Мультиязычность
-- Поддержка русского и английского языков
-- Адаптация для СНГ (Россия, Беларусь, Казахстан, Украина)
-- Автоматическое определение языка
-- Форматирование валют, дат, чисел
+</details>
 
-### 📦 Модульная архитектура
-- Независимые модули (HMVC)
-- Легкое подключение/отключение
-- Создание собственных модулей
-- **Команда `make:module`** — автоматическая генерация структуры модуля
+<details>
+<summary><b>🌍 Локализация</b></summary>
+<br>
 
-### 🎨 UX/UI улучшения
-- **Темная тема (Dark Mode)** — переключение темы, автоопределение системной темы
-- **Дашборд аналитики** — графики посещаемости, популярный контент, интеграция с Яндекс.Метрикой
-- **Web Push уведомления** — push-уведомления в браузере
-- **Расширенная аналитика** — статистика по контенту, география посетителей
+- Русский и английский интерфейс
+- Пресеты для России, Беларуси, Казахстана, Украины
+- Автоопределение языка, форматирование валют/дат/чисел под страну
 
-### 🐳 Docker поддержка
-- Готовая конфигурация Docker
-- Docker Compose для полной инфраструктуры
-- Быстрое развертывание
+</details>
 
-### 🔄 CI/CD
-- GitHub Actions workflow
-- Автоматическое тестирование
-- Code quality checks
+<details>
+<summary><b>🎨 Интерфейс</b></summary>
+<br>
 
----
+- Тёмная/светлая тема с автоопределением системной
+- Дашборд аналитики (посещаемость, популярный контент, интеграция с Яндекс.Метрикой)
+- Web Push-уведомления в браузере
+- Локально захостенные шрифты (латиница + кириллица) и иконки — ничего не подгружается с CDN[^1]
 
-## 🧩 Готовые модули
+</details>
 
-| Модуль | Описание |
-|--------|----------|
-| 📋 **Меню** | GUI-редактор меню до 3 уровней вложенности |
-| 📰 **Новости** | CRUD, фильтры, поиск, SEO-мета, категории |
-| 📰 **Импорт/Экспорт** | Массовый импорт или экспорт новостей |
-| 🏷 **Категории** | Категоризация контента и товаров |
-| 📄 **Страницы** | Контентные страницы с шаблонами |
-| 🖼 **Слайдшоу** | Позиции (header/footer), оформление |
-| 📁 **Файлы** | Загрузка/скачивание, категории |
-| 🔍 **Поиск** | Глобальный поиск в админке |
-| 🔔 **Уведомления** | Цвет, иконка, тип, позиция, Web Push |
-| 💬 **Комментарии** | Модерация, вложенные комментарии, интеграция с Captcha |
-| 👤 **Пользователи** | Роли, пароли, поиск |
-| 💳 **Оплата** | Методы оплаты, интеграция с ЮKassa, СБП, Тинькофф |
-| 📦 **Заказы** | История заказов, состав корзины |
-| 🚚 **Доставка** | Способы доставки |
-| 🎨 **Темы/Фрагменты** | Визуальный редактор |
-| 🔐 **Captcha** | Изображения, слайдер, математика, вопросы |
+<details>
+<summary><b>🐳 Docker и CI/CD</b></summary>
+<br>
 
----
+- Готовый `Dockerfile` и `docker-compose.yml`
+- GitHub Actions workflow под автоматические проверки
 
-## 📖 Установка
+</details>
 
-### Требования
+<br>
 
-- **PHP 8.5** (обязательно)
-- **Laravel 12+**
-- Composer 2.0+
-- Node.js 18+ и npm
-- MySQL 8.0+ или MariaDB 10.6+
-- Nginx
-- Расширения PHP: PDO, OpenSSL, Mbstring, Tokenizer, XML, Ctype, JSON, Fileinfo, Zip, GD или Imagick
-- Redis (рекомендуется для production)
+## 🧩 Модули
 
-### Быстрая установка
+<div align="center">
 
-Подробная инструкция по установке находится в файле [`docs/INSTALLATION.md`](docs/INSTALLATION.md).
+| | Модуль | Что делает |
+|:---:|---|---|
+| 📰 | **News** | CRUD новостей, фильтры, поиск, SEO-мета, категории, шаблоны |
+| 📢 | **NewsIO** | Массовый импорт/экспорт новостей |
+| 🗂️ | **Categories** | Категоризация контента и товаров |
+| 📊 | **Menu** | GUI-редактор меню до 3 уровней вложенности |
+| 🖼️ | **Slideshow** | Слайдшоу с позициями (header/footer) и оформлением |
+| 📁 | **Files** | Загрузка, скачивание, категории файлов |
+| 🔎 | **Search** | Глобальный поиск по всем модулям |
+| 💬 | **Notifications** | Цвет, иконка, тип, позиция, Web Push |
+| 💬 | **Comments** | Модерация, вложенные комментарии, интеграция с Captcha |
+| 📝 | **Reviews** | Отзывы и оценки с модерацией |
+| 📑 | **Messages** | Обращения и сообщения от пользователей |
+| 👨‍💻 | **Users** | Роли, права доступа, управление пользователями |
+| 💰 | **Payments** | Методы оплаты: ЮKassa, СБП, Тинькофф |
+| 🚚 | **Delivery** | Способы доставки (российские службы) |
+| 🎨 | **Visual** | Визуальный редактор тем и фрагментов |
+| 🛡️ | **Captcha** | Картинка, слайдер, математика, вопросы |
+| 🔍 | **Seo** | SEO-модуль (Yandex-first) для РФ/СНГ |
+| 🌍 | **Localization** | Переводы, форматы даты/времени/валюты |
+| ♿ | **Accessibility** | Настройки доступности |
+| 💻 | **System** | Управление модулями и их состоянием |
 
-Для автоматической установки на Ubuntu 24.04.3 LTS используйте скрипт:
+</div>
+
+<br>
+
+## 📦 Установка
+
+> [!TIP]
+> Всё делается через графический мастер установки на `/install` — заполнять `.env` руками не нужно (кроме шага с клонированием и зависимостями).
+
+### 1 · Требования
+
+<table>
+<tr><td><b>PHP</b></td><td><code>8.5</code>[^3]</td></tr>
+<tr><td><b>СУБД</b></td><td>PostgreSQL[^2]</td></tr>
+<tr><td><b>Composer</b></td><td><code>2.0+</code></td></tr>
+<tr><td><b>Node.js</b></td><td><code>18+</code> и npm</td></tr>
+<tr><td><b>Веб-сервер</b></td><td>Nginx (рекомендуется)</td></tr>
+<tr><td><b>PHP-расширения</b></td><td><code>pdo_pgsql</code>, openssl, mbstring, tokenizer, xml, ctype, json, fileinfo, zip, gd/imagick</td></tr>
+<tr><td><b>Redis</b></td><td>рекомендуется для production (кэш/очередь/сессии)</td></tr>
+</table>
+
+### 2 · Клонирование и зависимости
 
 ```bash
-sudo ./install-server.sh
-```
-
-Скрипт автоматически установит все необходимое программное обеспечение и настроит сервер.
-
-### Быстрая установка
-
-1. **Клонируйте репозиторий:**
-```bash
-git clone <repository-url> cms
+git clone https://github.com/Bulavackii/Ru-CMS.git cms
 cd cms
-```
 
-2. **Установите зависимости:**
-```bash
 composer install
-npm install
+npm install && npm run build
 ```
 
-3. **Запустите инсталлятор:**
-Откройте в браузере: `http://your-domain.com/install`
+### 3 · Мастер установки
 
-Инсталлятор проведет вас через шаги:
-- ✅ Приветствие (выбор языка RU/EN)
-- ✅ Проверка требований
-- ✅ Презентация возможностей
-- ✅ Настройка базы данных
-- ✅ Создание администратора
-- ✅ Установка демо-данных (опционально)
-- ✅ Завершение
+Откройте `http://your-domain.com/install` в браузере — дальше всё делается кликами:
 
-4. **После установки:**
+```
+🌍 Приветствие (страна/язык)  →  ✅ Проверка требований  →  💾 База данных
+        →  👤 Администратор  →  🔑 Лицензия/промокод  →  📦 Демо-данные  →  🏁 Готово
+```
+
+На шаге «База данных» укажите хост/порт/имя базы/пользователя PostgreSQL — мастер сам протестирует соединение, сгенерирует `APP_KEY`, запишет `.env` и накатит все миграции[^4].
+
+<details>
+<summary><b>Что делать, если что-то пошло не так</b></summary>
+<br>
 
 ```bash
-# Установите зависимость для 2FA
-composer require pragmarx/google2fa
+# Права на запись
+chmod -R 775 storage bootstrap/cache
 
-# Запустите миграции (если не были запущены автоматически)
-php artisan migrate
+# Проверить версию PHP и расширения
+php -v
+php -m | grep -E "pdo_pgsql|openssl|mbstring|zip"
 
-# Очистите кеш
+# Сбросить кэш конфигурации
 php artisan config:clear
 php artisan cache:clear
 php artisan view:clear
 ```
 
-5. **Настройте обновления и бэкапы в `.env`:**
-```env
-UPDATE_SERVER_URL=https://updates.rucms.ru/api
-LICENSE_KEY=your-license-key-here
-APP_LOCALE=ru
-APP_TIMEZONE=Europe/Moscow
+</details>
 
-# Redis (рекомендуется)
+### 4 · После установки (production)
+
+Донастройте в `.env`:
+
+```env
+# Redis — рекомендуется вместо file/sync
 CACHE_STORE=redis
 QUEUE_CONNECTION=redis
 SESSION_DRIVER=redis
@@ -210,358 +230,183 @@ BACKUP_FILES_SCHEDULE=weekly
 BACKUP_RETENTION_DAYS=30
 BACKUP_CLOUD_DRIVER=s3
 
-# Web Push уведомления
-VAPID_PUBLIC_KEY=your-vapid-public-key
-VAPID_PRIVATE_KEY=your-vapid-private-key
+# Web Push (см. `php artisan webpush:generate-keys`)
+VAPID_PUBLIC_KEY=
+VAPID_PRIVATE_KEY=
 VAPID_SUBJECT=https://your-domain.com
 
-# Платежные системы
-# ЮKassa
-YOOKASSA_SHOP_ID=your-shop-id
-YOOKASSA_SECRET_KEY=your-secret-key
+# Платёжные системы
+YOOKASSA_SHOP_ID=
+YOOKASSA_SECRET_KEY=
 
-# Мониторинг (Telegram)
-MONITORING_TELEGRAM_BOT_TOKEN=your-bot-token
-MONITORING_TELEGRAM_CHAT_ID=your-chat-id
+# Мониторинг ошибок (Telegram)
+MONITORING_TELEGRAM_BOT_TOKEN=
+MONITORING_TELEGRAM_CHAT_ID=
 ```
 
-6. **Установите дополнительные зависимости:**
-```bash
-composer require intervention/image
-```
+<br>
 
-7. **Сгенерируйте VAPID ключи для Web Push:**
-```bash
-php artisan webpush:generate-keys
-# Или используйте библиотеку minishlink/web-push
-composer require minishlink/web-push
-vendor/bin/generate-vapid-keys
-```
+## ⌨️ Командная строка
 
-8. **Запустите миграции:**
-```bash
-php artisan migrate
-```
+<div align="center">
 
----
+| Команда | Что делает |
+|---|---|
+| `php artisan make:module {Name}` | Сгенерировать структуру нового модуля |
+| `php artisan modules:sync` | Синхронизировать метаданные модулей с БД |
+| `php artisan backup:run {all\|database\|files}` | Ручной запуск бэкапа |
+| `php artisan webpush:generate-keys` | Сгенерировать VAPID-ключи для Web Push |
+| `php artisan sitemap:generate` | Пересобрать `sitemap.xml` |
+| `php artisan robots:generate` | Пересобрать `robots.txt` |
+| `php artisan api:docs:generate` | Пересобрать Swagger-документацию API |
+| `php artisan license:generate` | Сгенерировать лицензионный ключ |
+| `php artisan cms:optimize` | Прогнать оптимизации (кэш конфигов/роутов/вью) |
 
-## 🛠️ Использование
+</div>
 
-### Бэкапы
-
-```bash
-# Ручной запуск
-php artisan backup:run all
-php artisan backup:run database
-php artisan backup:run files
-
-# Через админ-панель
-/admin/backups
-```
-
-### Безопасность
+<details>
+<summary><b>🧑‍💻 Примеры использования сервисов из кода</b></summary>
+<br>
 
 ```php
-use App\Services\SecurityService;
+// 🔐 Безопасность — 2FA
+$secret = app('security')->generate2FASecret();
+app('security')->verify2FACode($secret, $code);
 
-$security = app('security');
+// ⚡ Кэш с тегами
+app('cacheService')->rememberMenu('header', fn () => Menu::where('position', 'header')->get(), 3600);
 
-// Генерация 2FA секрета
-$secret = $security->generate2FASecret();
-
-// Проверка 2FA кода
-if ($security->verify2FACode($secret, $code)) {
-    // Код верный
-}
-```
-
-### Кэширование
-
-```php
-use App\Services\CacheService;
-
-$cache = app('cacheService');
-
-// Кэширование с тегами
-$menu = $cache->rememberMenu('header', function() {
-    return Menu::where('position', 'header')->get();
-}, 3600);
-
-// Инвалидация
-$cache->invalidateMenu('header');
-```
-
-### Оптимизация изображений
-
-```php
-use App\Services\ImageOptimizationService;
-
-$optimizer = app('imageOptimizer');
-$result = $optimizer->optimize('path/to/image.jpg', [
-    'max_width' => 1920,
-    'max_height' => 1080,
-    'quality' => 85,
-    'thumbnail' => true,
-    'webp' => true,
+// 🖼️ Оптимизация изображений
+app('imageOptimizer')->optimize('path/to/image.jpg', [
+    'max_width' => 1920, 'quality' => 85, 'thumbnail' => true, 'webp' => true,
 ]);
-```
 
-### Обновления
+// 💳 Платежи
+$gateway = app(\Modules\Payments\Services\PaymentGatewayService::class);
+$result = $gateway->createPayment($order, $paymentMethod);
 
-```php
-use App\Services\UpdateService;
-
-$updates = app('updates');
-$info = $updates->checkForUpdates();
-
-if ($info['available']) {
-    // Есть обновление
-}
-```
-
-### Подписки
-
-```php
-use App\Services\SubscriptionService;
-
-$subscription = app('subscription');
-
-// Проверка подписки
-if ($subscription->hasActiveSubscription()) {
-    // Подписка активна
-}
-
-// Применение промокода
-$result = $subscription->applyPromoCode('PROMO2024', 'pro');
-```
-
-### Локализация
-
-```php
-// Переводы
+// 🌍 Локализация
 echo __t('welcome.message');
-
-// Форматирование валюты
-echo format_currency(1000); // "1 000,00 ₽"
-
-// Форматирование даты
-echo format_date(now()); // "27.01.2025"
+echo format_currency(1000); // «1 000,00 ₽»
 ```
 
-### Платежные системы
+</details>
 
-```php
-use Modules\Payments\Services\PaymentGatewayService;
-use Modules\Payments\Models\Order;
-use Modules\Payments\Models\PaymentMethod;
+<details>
+<summary><b>🎨 Создание собственного шаблона новости</b></summary>
+<br>
 
-$gatewayService = app(PaymentGatewayService::class);
-$paymentMethod = PaymentMethod::where('code', 'yookassa')->first();
+1. Создайте `resources/views/frontend/templates/your-template.blade.php`
+2. Добавьте ключ в `$templateKeys` в `app/Http/Controllers/Frontend/HomeController.php`
+3. Добавьте подпись в `$customLabels` в `modules/News/Controllers/Admin/NewsController.php`
+4. Выберите шаблон при создании новости в админке
 
-// Создание платежа
-$result = $gatewayService->createPayment($order, $paymentMethod);
-
-if ($result['success']) {
-    // Редирект на страницу оплаты
-    return redirect($result['confirmation_url']);
-}
-```
-
-### Web Push уведомления
-
-```php
-use App\Services\NotificationService;
-
-$notificationService = app(NotificationService::class);
-
-// Отправить уведомление с Web Push
-$notificationService->create([
-    'user_id' => auth()->id(),
-    'type' => 'info',
-    'title' => 'Новое уведомление',
-    'message' => 'У вас новое сообщение',
-    'send_web_push' => true, // Отправить Web Push
-]);
-```
-
-### Мониторинг
-
-```php
-use App\Services\MonitoringService;
-
-$monitoring = app(MonitoringService::class);
-
-// Отправить ошибку в Telegram
-$monitoring->reportError(new \Exception('Ошибка'), [
-    'context' => 'Дополнительная информация',
-]);
-```
-
-### Docker
-
-```bash
-# Запуск всей инфраструктуры
-docker-compose up -d
-
-# Остановка
-docker-compose down
-
-# Просмотр логов
-docker-compose logs -f app
-```
-
----
-
-## 🎨 Создание шаблонов
-
-1. Создайте файл: `resources/views/frontend/templates/your-template.blade.php`
-2. Добавьте в массив `$templateKeys` в `routes/web.php`
-3. Добавьте в `$customLabels` в `modules/News/Controllers/Admin/NewsController.php`
-4. Выберите шаблон при создании новости
-
-Пример:
 ```blade
 {{-- resources/views/frontend/templates/release.blade.php --}}
 <div class="max-w-screen-xl mx-auto px-4 my-12">
-  <h2 class="text-3xl font-extrabold text-center mb-10">🚀 Релизы</h2>
-  {{-- Вывод записей --}}
+    <h2 class="text-3xl font-extrabold text-center mb-10">🚀 Релизы</h2>
+    {{-- вывод записей --}}
 </div>
 ```
 
----
+</details>
 
-## 🔧 Настройка
+<br>
 
-### Безопасность
+## 🗂 Структура проекта
 
-В `app/Services/SecurityService.php`:
-- `$maxLoginAttempts` — максимальное количество попыток (по умолчанию: 5)
-- `$lockoutDuration` — длительность блокировки в секундах (по умолчанию: 900)
-
-### Локализация
-
-В `config/localization.php` настраиваются:
-- Поддерживаемые страны СНГ
-- Форматы дат и чисел
-- Валюты
-
-### Тарифы
-
-Система поддерживает 3 тарифа:
-- **Basic** (990₽/мес) — до 10 модулей, базовая поддержка
-- **Pro** (2990₽/мес) — неограниченные модули, приоритетная поддержка
-- **Enterprise** (9990₽/мес) — все возможности + персональный менеджер
-
----
-
-## 📁 Структура проекта
-
-```
+```text
 cms/
-├── app/                    # Ядро приложения
-│   ├── Http/              # Контроллеры, Middleware, Requests
-│   ├── Services/          # Сервисы (Security, Update, Subscription, Monitoring, WebPush)
-│   ├── Models/            # Eloquent модели
-│   └── Providers/         # Service Providers
-├── modules/               # Модули HMVC
-│   ├── News/              # Модуль новостей
-│   ├── Menu/              # Модуль меню
-│   ├── Comments/          # Модуль комментариев
-│   ├── Payments/          # Модуль платежей
-│   │   └── Gateways/      # Платежные гейтвеи (ЮKassa, СБП)
-│   ├── Localization/      # Модуль локализации
-│   └── ...                # Другие модули
-├── database/              # Миграции и сидеры
-├── resources/             # Views, CSS, JS
-│   └── js/                # JavaScript (webpush.js)
-├── routes/                # Маршруты
-├── config/                # Конфигурация
-│   ├── webpush.php        # Настройки Web Push
-│   └── monitoring.php     # Настройки мониторинга
-└── public/                # Публичные файлы
-    └── sw.js              # Service Worker для Web Push
+├── app/                     Ядро приложения
+│   ├── Http/                Контроллеры, Middleware, Requests
+│   ├── Services/            Security, Update, Subscription, Monitoring, WebPush…
+│   ├── Models/               Eloquent-модели
+│   └── Providers/           Service Providers
+├── modules/                 Модули HMVC (Views/Routes/Controllers/Providers)
+│   ├── News/  Payments/  Menu/  Seo/  Localization/  …
+├── database/
+│   └── migrations/          Единое место ВСЕХ миграций — и ядра, и модулей[^4]
+├── resources/                Blade-шаблоны, CSS, JS
+├── public/assets/            Локальные шрифты, иконки, JS-библиотеки (без CDN)[^1]
+├── routes/                   web.php / api.php / console.php
+├── config/                   Конфигурация приложения
+└── docs/                     Подробная документация (см. ниже)
 ```
 
----
+<br>
 
-## 🐛 Troubleshooting
+## 🩹 Частые проблемы
 
-### Ошибка при установке
+<details>
+<summary><b>Инсталлятор не открывается / 500 при установке</b></summary>
+<br>
 
-1. Проверьте права на папки:
 ```bash
 chmod -R 775 storage bootstrap/cache
+php -v   # должна быть 8.5
+php -m | grep pdo_pgsql
 ```
 
-2. Проверьте версию PHP:
-```bash
-php -v  # Должна быть 8.5
-```
+</details>
 
-3. Проверьте расширения PHP:
-```bash
-php -m | grep -E "pdo|openssl|mbstring|zip"
-```
+<details>
+<summary><b>Ошибка подключения к PostgreSQL на шаге «База данных»</b></summary>
+<br>
 
-### Ошибка с обновлениями
+Проверьте, что база создана заранее и пользователь имеет права `SELECT/INSERT/UPDATE/DELETE/CREATE/ALTER`. Хост/порт по умолчанию — `127.0.0.1:5432`.
 
-1. Проверьте настройки в `.env`:
-```env
-UPDATE_SERVER_URL=https://updates.rucms.ru/api
-LICENSE_KEY=your-license-key
-```
+</details>
 
-2. Проверьте доступность сервера обновлений
+<details>
+<summary><b>Не применяются переводы/локаль</b></summary>
+<br>
 
-### Проблемы с локализацией
-
-1. Очистите кеш:
 ```bash
 php artisan cache:clear
 php artisan config:clear
 ```
 
----
+</details>
 
-## 📝 Лицензия
-
-MIT License — свободное использование и модификация.
-
----
-
-## 📞 Поддержка
-
-- **GitHub:** [Ваш репозиторий]
-- **Email:** support@rucms.ru
-- **Документация:** См. комментарии в коде
-
----
-
-## 🆕 Что нового в версии 2.0
-
-- ✅ **Интеграция российских платежных систем** (ЮKassa, СБП)
-- ✅ **Web Push уведомления** — push-уведомления в браузере
-- ✅ **Темная тема** — переключение темы, автоопределение
-- ✅ **Оптимизация производительности** — индексы БД, кэширование, lazy loading
-- ✅ **Модуль комментариев** — с модерацией и интеграцией Captcha
-- ✅ **Мониторинг ошибок** — централизованное отслеживание с Telegram уведомлениями
-- ✅ **Дашборд аналитики** — графики, статистика, интеграция с Яндекс.Метрикой
-- ✅ **Content Security Policy** — защита от XSS атак
-- ✅ **Команда make:module** — автоматическая генерация модулей
-
----
-
-**Версия:** 2.0.0  
-**Дата:** 2025-01-28  
-**Laravel:** 12.x  
-**PHP:** 8.5
-
----
+<br>
 
 ## 📚 Документация
 
-Полная документация находится в папке [`docs/`](docs/):
+<div align="center">
 
-- **[Инструкция по установке](docs/INSTALLATION.md)** — пошаговая инструкция для Ubuntu 24.04.3 LTS
-- **[Руководство разработчика](docs/DEVELOPER_GUIDE.md)** — подробная документация для разработчиков
-- **[Описание модулей](docs/modules/)** — документация по каждому модулю
+| | |
+|---|---|
+| 📘 | [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md) — руководство разработчика |
+| 🚀 | [`docs/INSTALLATION.md`](docs/INSTALLATION.md) — установка на выделенный сервер |
+| 🔑 | [`docs/LICENSE_GENERATION_GUIDE.md`](docs/LICENSE_GENERATION_GUIDE.md) — генерация лицензий |
+| 🧩 | [`docs/modules/`](docs/modules/) — документация по каждому модулю |
+
+</div>
+
+<br>
+
+## 📄 Лицензия
+
+Проект распространяется по лицензии **MIT** — свободное использование и модификация.
+
+<br>
+
+---
+
+<br>
+
+### Примечания
+
+[^1]: **CDN-независимость.** Все шрифты (латиница + кириллица), Font Awesome/Lucide/Tabler-иконки, Alpine.js, Swagger UI вендорены локально в `public/assets/` через `local_css()`/`local_js()`/`local_font_css()` (`app/helpers.php`). Единственные внешние интеграции — опциональные и явно согласуемые пользователем (Яндекс.Карты открываются только по клику, Яндекс.Метрика включается через конфиг).
+
+[^2]: **Почему только PostgreSQL.** Мастер установки (`/install`) сознательно предлагает только PostgreSQL — открытую СУБД без вендор-лока. Миграции написаны через Laravel Schema Builder (не сырой SQL), поэтому корректно работают и на PostgreSQL в проде, и на SQLite при локальном тестировании.
+
+[^3]: **PHP 8.5.** Требование действительно строгое (не 8.2/8.3) — так зафиксировано в `composer.json` (`"php": "^8.5"`) и проверяется мастером установки на шаге «Требования».
+
+[^4]: **Миграции — в одном месте.** Все 70+ миграций (и ядра, и каждого модуля) лежат в `database/migrations/` и подхватываются Laravel автоматически — никакой ручной регистрации путей по модулям не требуется. Создавая миграцию для нового модуля, кладите её сразу туда: `php artisan make:migration create_your_table`.
+
+<br>
+
+<div align="center">
+<sub>Сделано с любовью к скорости, аккуратности и локальному хостингу 🇷🇺</sub>
+</div>
