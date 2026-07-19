@@ -522,9 +522,20 @@
                     @themeIcon('map', 'w-4 h-4') Открыть в картах
                 </a>
             </div>
-            <div class="map-wrap">
-                <iframe class="map-frame" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
-                    src="https://yandex.ru/map-widget/v1/?text=%D0%9A%D1%83%D1%80%D1%81%D0%BA%2C%20%D0%BF%D1%80%D0%BE%D1%81%D0%BF%D0%B5%D0%BA%D1%82%20%D0%92%D1%8F%D1%87%D0%B5%D1%81%D0%BB%D0%B0%D0%B2%D0%B0%20%D0%9A%D0%BB%D1%8B%D0%BA%D0%BE%D0%B2%D0%B0%2C%2073&z=16"
+            <div class="map-wrap"
+                x-data="{ loaded: false }"
+                x-init="loaded = sessionStorage.getItem('yandexMapConsent') === '1'">
+                <template x-if="!loaded">
+                    <button type="button" class="map-consent-placeholder"
+                        @click="loaded = true; sessionStorage.setItem('yandexMapConsent', '1')"
+                        style="width:100%; min-height:320px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.5rem; background:var(--color-bg-muted,#f3f4f6); border:1px dashed var(--color-border,#d1d5db); border-radius:.5rem; cursor:pointer;">
+                        <span aria-hidden="true">@themeIcon('map', 'w-8 h-8 text-blue-600')</span>
+                        <span class="font-medium no-italic">Курск, проспект Вячеслава Клыкова, 73</span>
+                        <span class="help no-italic">Показать карту (загрузит виджет Яндекс.Карт)</span>
+                    </button>
+                </template>
+                <iframe x-show="loaded" x-cloak class="map-frame" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+                    :src="loaded ? 'https://yandex.ru/map-widget/v1/?text=%D0%9A%D1%83%D1%80%D1%81%D0%BA%2C%20%D0%BF%D1%80%D0%BE%D1%81%D0%BF%D0%B5%D0%BA%D1%82%20%D0%92%D1%8F%D1%87%D0%B5%D1%81%D0%BB%D0%B0%D0%B2%D0%B0%20%D0%9A%D0%BB%D1%8B%D0%BA%D0%BE%D0%B2%D0%B0%2C%2073&z=16' : ''"
                     title="Курск, проспект Вячеслава Клыкова, 73"></iframe>
             </div>
         </section>

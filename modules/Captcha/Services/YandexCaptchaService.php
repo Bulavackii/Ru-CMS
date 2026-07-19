@@ -67,12 +67,14 @@ class YandexCaptchaService
         $size = $options['size'] ?? 'normal';
         $lang = $options['lang'] ?? 'ru';
 
-        $html = '<div class="yandex-captcha" id="yandex-captcha-' . uniqid() . '"></div>';
+        $widgetId = 'yandex-captcha-' . uniqid();
+
+        $html = '<div class="yandex-captcha" id="' . $widgetId . '"></div>';
         $html .= '<script src="https://smartcaptcha.yandexcloud.net/captcha.js" defer></script>';
         $html .= '<script>
             document.addEventListener("DOMContentLoaded", function() {
                 if (typeof window.smartCaptcha !== "undefined") {
-                    window.smartCaptcha.render("yandex-captcha-' . uniqid() . '", {
+                    window.smartCaptcha.render("' . $widgetId . '", {
                         sitekey: "' . $this->clientKey . '",
                         theme: "' . $theme . '",
                         size: "' . $size . '",

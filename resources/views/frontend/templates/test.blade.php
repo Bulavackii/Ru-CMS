@@ -64,10 +64,16 @@
         </div>
     </div>
 
-    {{-- Встраиваемая карта с адаптивной высотой --}}
-    <div class="mt-12 w-full h-64 md:h-80 rounded-xl overflow-hidden shadow-md">
-        <iframe
-            src="https://yandex.ru/map-widget/v1/?um=constructor%3A08f5e9a0b44d8f2c0f3b7e1ae591a4fd2b7c2a0b3d1c70e1b1c3e2c9dfdfeb96&amp;source=constructor"
+    {{-- Встраиваемая карта с адаптивной высотой (грузится только по клику — без обращений к Яндексу до согласия пользователя) --}}
+    <div class="mt-12 w-full h-64 md:h-80 rounded-xl overflow-hidden shadow-md"
+         x-data="{ loaded: false }">
+        <button type="button" x-show="!loaded" @click="loaded = true"
+                class="w-full h-full flex flex-col items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 transition text-gray-600">
+            <span class="text-2xl select-none">🗺️</span>
+            <span>Показать карту</span>
+        </button>
+        <iframe x-show="loaded" x-cloak
+            :src="loaded ? 'https://yandex.ru/map-widget/v1/?um=constructor%3A08f5e9a0b44d8f2c0f3b7e1ae591a4fd2b7c2a0b3d1c70e1b1c3e2c9dfdfeb96&amp;source=constructor' : ''"
             width="100%" height="100%" frameborder="0" style="border:0;" allowfullscreen
             loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
     </div>
