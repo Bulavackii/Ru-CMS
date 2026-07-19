@@ -103,21 +103,30 @@
         </div>
 
         <div class="mt-3">
-          <label class="block text-sm font-medium mb-1">Онлайн-шрифт (опционально)</label>
+          <label class="block text-sm font-medium mb-1">Шрифт сайта (опционально)</label>
           @php
             $provider = old('config.font_provider', data_get($cfg,'font_provider'));
             $fname    = old('config.font_name',     data_get($cfg,'font_name'));
           @endphp
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <select name="config[font_provider]" class="border rounded px-3 py-2 w-full">
-              <option value="">— не использовать —</option>
-              <option value="google" @selected($provider==='google')>Google Fonts</option>
-              <option value="bunny"  @selected($provider==='bunny')>Bunny Fonts</option>
+              <option value="">— не использовать (системный шрифт) —</option>
+              <option value="local" @selected($provider==='local')>Локально — без внешних CDN (рекомендуется)</option>
+              <option value="google" @selected($provider==='google')>Google Fonts (внешний CDN)</option>
+              <option value="bunny"  @selected($provider==='bunny')>Bunny Fonts (внешний CDN)</option>
             </select>
             <input type="text" name="config[font_name]" class="border rounded px-3 py-2 w-full"
-                   placeholder="Напр. Inter, Roboto…" value="{{ $fname }}">
+                   list="local-fonts-list" placeholder="Напр. Inter, Roboto…" value="{{ $fname }}">
+            <datalist id="local-fonts-list">
+              @foreach (LOCAL_FONTS as $slug => $font)
+                <option value="{{ $font['label'] }}"></option>
+              @endforeach
+            </datalist>
           </div>
-          <p class="text-xs text-gray-500 mt-1">Если указан онлайн-шрифт, он будет подключён и использован поверх локального.</p>
+          <p class="text-xs text-gray-500 mt-1">
+            «Локально» отдаёт шрифт с вашего сервера (сейчас доступны: {{ implode(', ', array_column(LOCAL_FONTS, 'label')) }}) —
+            ничего не запрашивается у Google/Bunny. Google Fonts и Bunny Fonts подключаются с внешнего CDN.
+          </p>
         </div>
       </div>
 

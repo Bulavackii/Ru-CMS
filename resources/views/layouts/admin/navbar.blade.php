@@ -21,13 +21,23 @@
         $fontProvider = data_get($config,'font_provider');
         $fontName     = trim((string) data_get($config,'font_name',''));
         $iconsPath    = rtrim((string) data_get($config,'icons_path',''),'/');
+
+        $localFontSlug = null;
+        if ($fontProvider === 'local' && $fontName !== '') {
+            $slug = \Illuminate\Support\Str::slug($fontName);
+            $localFontSlug = array_key_exists($slug, LOCAL_FONTS) ? $slug : null;
+        }
     @endphp
 
-    {{-- Подключение шрифта/иконок --}}
-    @if ($fontProvider === 'google' && $fontName !== '')
+    {{-- Подключение шрифта/иконок: локальный (по умолчанию — Inter), без внешних CDN --}}
+    @if ($localFontSlug)
+        <link rel="stylesheet" href="{{ local_font_css($localFontSlug) }}">
+    @elseif ($fontProvider === 'google' && $fontName !== '')
         <link href="https://fonts.googleapis.com/css2?family={{ urlencode($fontName) }}:wght@400;500;600;700&display=swap" rel="stylesheet">
     @elseif($fontProvider === 'bunny' && $fontName !== '')
         <link href="https://fonts.bunny.net/css?family={{ urlencode(str_replace(' ', '-', $fontName)) }}:400,500,600,700" rel="stylesheet">
+    @else
+        <link rel="stylesheet" href="{{ local_font_css('inter') }}">
     @endif
 
     @php

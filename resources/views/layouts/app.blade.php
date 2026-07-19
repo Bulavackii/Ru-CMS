@@ -7,8 +7,7 @@
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ local_font_css('inter') }}">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -22,7 +21,7 @@
       style="
         background:  var(--color-bg, var(--colors-bg, #f8fafc));
         color:       var(--color-text, var(--colors-text, #1e293b));
-        font-family: var(--font-base, 'Figtree', sans-serif);
+        font-family: var(--font-base, 'Inter', sans-serif);
       ">
 
     <div class="min-h-screen flex flex-col">

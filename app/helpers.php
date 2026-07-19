@@ -1,6 +1,21 @@
 <?php
 
 /**
+ * 📚 LOCAL_FONTS — реестр самохостящихся шрифтов (latin + cyrillic).
+ *
+ * Файлы вендорятся из @fontsource в public/assets/fonts/{slug}/ и не
+ * требуют обращения к Google Fonts/Bunny Fonts. Ключ — slug для
+ * font_provider='local' в настройках темы, значение — CSS font-family
+ * и подпись для UI.
+ */
+const LOCAL_FONTS = [
+    'inter' => ['family' => 'Inter', 'label' => 'Inter'],
+    'roboto' => ['family' => 'Roboto', 'label' => 'Roboto'],
+    'pt-sans' => ['family' => 'PT Sans', 'label' => 'PT Sans'],
+    'manrope' => ['family' => 'Manrope', 'label' => 'Manrope'],
+];
+
+/**
  * 🧩 module_path()
  *
  * Возвращает абсолютный путь к указанному модулю в директории `modules/`.
@@ -224,5 +239,25 @@ if (!function_exists('local_font')) {
     {
         $path = $family ? "assets/fonts/{$family}/{$name}" : "assets/fonts/{$name}";
         return asset($path);
+    }
+}
+
+/**
+ * 🔤 local_font_css() - Получить путь к CSS локально захостенного шрифта
+ *
+ * Семейства из public/assets/fonts/{slug}/{slug}.css (latin + cyrillic,
+ * без обращений к Google Fonts/Bunny Fonts). См. LOCAL_FONTS в helpers.php.
+ *
+ * @param string $slug Идентификатор шрифта (например: 'inter', 'roboto')
+ * @return string URL к CSS файлу шрифта или '' если такого шрифта нет локально
+ */
+if (!function_exists('local_font_css')) {
+    function local_font_css(string $slug): string
+    {
+        if (!array_key_exists($slug, LOCAL_FONTS)) {
+            return '';
+        }
+
+        return asset("assets/fonts/{$slug}/{$slug}.css");
     }
 }

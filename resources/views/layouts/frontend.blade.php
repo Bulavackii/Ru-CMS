@@ -19,19 +19,22 @@
     <link rel="canonical" href="{{ url()->current() }}">
     <link rel="icon" type="image/svg" sizes="120x120" href="{{ asset('favicon.svg') }}">
 
-<!-- Yandex.Metrika counter -->
-<script type="text/javascript">
-    (function(m,e,t,r,i,k,a){
-        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-        m[i].l=1*new Date();
-        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=104475262', 'ym');
+@if (config('seo.features.metrica') && config('seo.metrica.counter_id'))
+    @php($metricaCounterId = (int) config('seo.metrica.counter_id'))
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+        (function(m,e,t,r,i,k,a){
+            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id={{ $metricaCounterId }}', 'ym');
 
-    ym(104475262, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
-</script>
-<noscript><div><img src="https://mc.yandex.ru/watch/104475262" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-<!-- /Yandex.Metrika counter -->
+        ym({{ $metricaCounterId }}, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/{{ $metricaCounterId }}" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter -->
+@endif
 
     {{-- OG/Twitter --}}
     <meta property="og:title" content="{{ $meta_title ?? ($title ?? 'RU CMS') }}">
@@ -106,12 +109,20 @@
 
         $iconMode = data_get($config, 'icon_mode', 'fa');
 
-        $fontProvider = data_get($config, 'font_provider'); // 'google' | 'bunny' | null
+        $fontProvider = data_get($config, 'font_provider'); // 'local' | 'google' | 'bunny' | null
         $fontName = trim((string) data_get($config, 'font_name', ''));
+
+        $localFontSlug = null;
+        if ($fontProvider === 'local' && $fontName !== '') {
+            $slug = \Illuminate\Support\Str::slug($fontName);
+            $localFontSlug = array_key_exists($slug, LOCAL_FONTS) ? $slug : null;
+        }
     @endphp
 
-    {{-- Онлайн-шрифт --}}
-    @if ($fontProvider === 'google' && $fontName !== '')
+    {{-- Шрифт: локальный (по умолчанию — Inter), без обращений к внешним CDN --}}
+    @if ($localFontSlug)
+        <link rel="stylesheet" href="{{ local_font_css($localFontSlug) }}">
+    @elseif ($fontProvider === 'google' && $fontName !== '')
         <link
             href="https://fonts.googleapis.com/css2?family={{ urlencode($fontName) }}:wght@400;500;600;700&display=swap"
             rel="stylesheet">
@@ -119,6 +130,8 @@
         <link
             href="https://fonts.bunny.net/css?family={{ urlencode(str_replace(' ', '-', $fontName)) }}:400,500,600,700"
             rel="stylesheet">
+    @else
+        <link rel="stylesheet" href="{{ local_font_css('inter') }}">
     @endif
 
     {{-- Иконки по режиму (локальные) --}}
