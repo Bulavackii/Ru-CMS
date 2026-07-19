@@ -114,15 +114,6 @@
 
 </details>
 
-<details>
-<summary><b>🐳 Docker и CI/CD</b></summary>
-<br>
-
-- Готовый `Dockerfile` и `docker-compose.yml`
-- GitHub Actions workflow под автоматические проверки
-
-</details>
-
 <br>
 
 ## 🧩 Модули

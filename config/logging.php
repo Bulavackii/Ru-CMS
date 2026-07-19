@@ -93,7 +93,7 @@ return [
             'processors' => [PsrLogMessageProcessor::class],
         ],
 
-        // 📤 stderr — вывод ошибок в стандартный поток (для Docker, CI/CD)
+        // 📤 stderr — вывод ошибок в стандартный поток (для CI/CD)
         'stderr' => [
             'driver' => 'monolog',
             'level' => env('LOG_LEVEL', 'debug'),
