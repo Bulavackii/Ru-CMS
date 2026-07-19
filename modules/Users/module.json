@@ -1,0 +1,11 @@
+{
+  "name": "Users",
+  "title": "👨‍💻 Пользователи",
+  "version": "1.0.0",
+  "active": true,
+  "priority": 6,
+  "description": "Управление пользователями, ролями и правами доступа",
+  "providers": [
+    "Modules\\Users\\Providers\\UsersServiceProvider"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "Reviews",
+  "title": "📝 Отзывы",
+  "version": "1.0.0",
+  "active": true,
+  "priority": 50,
+  "description": "Система отзывов и оценок с модерацией",
+  "providers": [
+    "Modules\\Reviews\\Providers\\ReviewsServiceProvider"
+  ]
+}

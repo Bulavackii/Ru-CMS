@@ -1,0 +1,9 @@
+{
+  "name": "modules/visual",
+  "description": "Visual editor and theme manager for RussiaCMS",
+  "autoload": {
+    "psr-4": {
+      "Modules\\\\Visual\\\\": ""
+    }
+  }
+}

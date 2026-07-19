@@ -1,0 +1,9 @@
+{
+  "name": "modules/seo",
+  "description": "SEO module for RussiaCMS",
+  "autoload": {
+    "psr-4": {
+      "Modules\\Seo\\": ""
+    }
+  }
+}

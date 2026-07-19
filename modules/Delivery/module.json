@@ -1,0 +1,11 @@
+{
+  "name": "Delivery",
+  "title": "🚚 Доставка",
+  "version": "1.0.0",
+  "active": true,
+  "priority": 11,
+  "description": "Управление способами доставки с поддержкой российских служб",
+  "providers": [
+    "Modules\\Delivery\\Providers\\DeliveryServiceProvider"
+  ]
+}

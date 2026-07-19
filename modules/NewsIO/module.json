@@ -1,0 +1,11 @@
+{
+  "name": "NewsIO",
+  "title": "📢 Импорт/Экспорт",
+  "version": "1.0.0",
+  "active": true,
+  "priority": 4,
+  "description": "Массовый импорт и экспорт новостей",
+  "providers": [
+    "Modules\\NewsIO\\Providers\\NewsIOServiceProvider"
+  ]
+}

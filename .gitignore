@@ -1,0 +1,99 @@
+# Laravel
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/vendor
+/.env
+/.env.backup
+/.env.production
+/.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+auth.json
+npm-debug.log
+yarn-error.log
+/.fleet
+/.idea
+/.vscode
+
+# Storage
+/storage/app/*
+!/storage/app/.gitignore
+!/storage/app/public
+/storage/app/public/*
+!/storage/app/public/.gitignore
+
+/storage/framework/*
+!/storage/framework/.gitignore
+!/storage/framework/cache
+!/storage/framework/cache/*
+!/storage/framework/cache/data
+!/storage/framework/cache/data/*
+!/storage/framework/sessions
+!/storage/framework/sessions/*
+!/storage/framework/testing
+!/storage/framework/testing/*
+!/storage/framework/views
+!/storage/framework/views/*
+
+/storage/logs/*
+!/storage/logs/.gitignore
+
+# Bootstrap cache
+/bootstrap/cache/*
+!/bootstrap/cache/.gitignore
+
+# Database
+/database/*.sqlite
+/database/*.sqlite-journal
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build files
+/public/build
+/public/mix-manifest.json
+
+# Lock files (optional - можно оставить для стабильности)
+# /composer.lock
+# /package-lock.json
+/pnpm-lock.yaml
+
+# Temporary files
+error_log
+*.log
+*.tmp
+*.bak
+*.cache
+
+# Installation files
+/storage/install.lock
+
+# Test files
+/phpunit.xml.bak
+/.phpunit.result.cache
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+
+# Module archives
+/modules/archives/*.zip
+
+
+
+
+
+
+

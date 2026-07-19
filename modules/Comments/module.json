@@ -1,0 +1,15 @@
+{
+  "name": "Comments",
+  "title": "💬 Комментарии",
+  "version": "1.0.0",
+  "active": true,
+  "priority": 60,
+  "description": "Система комментариев с модерацией, вложенными комментариями и интеграцией с каптчей",
+  "providers": [
+    "Modules\\Comments\\Providers\\CommentsServiceProvider"
+  ],
+  "dependencies": [
+    "Captcha"
+  ]
+}
+

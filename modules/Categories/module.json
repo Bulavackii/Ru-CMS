@@ -1,0 +1,11 @@
+{
+  "name": "Categories",
+  "title": "🗂️ Категории",
+  "version": "1.0.0",
+  "active": true,
+  "priority": 3,
+  "description": "Категоризация контента и товаров",
+  "providers": [
+    "Modules\\Categories\\Providers\\CategoriesServiceProvider"
+  ]
+}

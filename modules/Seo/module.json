@@ -1,0 +1,11 @@
+{
+  "name": "Seo",
+  "title": "🔍 SEO",
+  "version": "1.0.0",
+  "active": true,
+  "priority": 120,
+  "description": "SEO модуль (Yandex-first) для России и СНГ",
+  "providers": [
+    "Modules\\Seo\\Providers\\SeoServiceProvider"
+  ]
+}

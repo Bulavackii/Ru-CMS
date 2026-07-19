@@ -1,0 +1,8 @@
+{
+  "name": "Search",
+  "title": "🔎 Поиск",
+  "version": "1.0.0",
+  "active": true,
+  "priority": 12,
+  "description": "Глобальный поиск по всем модулям системы"
+}

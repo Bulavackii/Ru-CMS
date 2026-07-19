@@ -1,0 +1,11 @@
+{
+  "name": "Accessibility",
+  "title": "♿ Спецвозможности",
+  "version": "1.0.0",
+  "active": true,
+  "priority": 14,
+  "description": "Настройки доступности для людей с ограниченными возможностями",
+  "providers": [
+    "Modules\\Accessibility\\Providers\\AccessibilityServiceProvider"
+  ]
+}

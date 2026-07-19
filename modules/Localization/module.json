@@ -1,0 +1,11 @@
+{
+  "name": "Localization",
+  "title": "🌍 Локализация",
+  "version": "1.0.0",
+  "active": true,
+  "priority": 50,
+  "description": "Управление переводами, форматами даты, времени и валюты для разных стран",
+  "providers": [
+    "Modules\\\\Localization\\\\Providers\\\\LocalizationServiceProvider"
+  ]
+}

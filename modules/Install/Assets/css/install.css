@@ -1,0 +1,76 @@
+:root{
+  --bg:#f8fafc;
+  --text:#1f2937;
+  --card:#ffffff;
+  --muted:#6b7280;
+  --primary:#2563eb;
+  --radius:16px;
+  --shadow:0 10px 30px rgba(0,0,0,.06);
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:sans-serif;
+  margin:0;
+  background-color:var(--bg);
+  color:var(--text);
+}
+
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#0f172a; --text:#e5e7eb; --card:#111827; --muted:#9ca3af; --shadow:0 10px 30px rgba(0,0,0,.35); }
+}
+.dark body{ background-color:var(--bg); color:var(--text); }
+
+.install-container{
+  min-height:100vh;
+  display:flex; align-items:center; justify-content:center;
+  padding:3rem 1.25rem;
+}
+
+.install-box{
+  width:100%; max-width:520px;
+  background:var(--card); color:var(--text);
+  padding:2rem; border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  text-align:center;
+  animation:fade-in .35s ease-out both;
+}
+
+.logo-title{display:flex;align-items:center;justify-content:center;gap:.75rem}
+.logo-circle{
+  width:56px; height:56px; border-radius:50%;
+  background:var(--primary); color:#fff; font-size:1.5rem; font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+}
+.logo-text{font-size:2rem;font-weight:800}
+
+.welcome-title{margin-top:1rem;font-size:1.25rem;display:flex;align-items:center;justify-content:center;gap:.5rem}
+.rocket-icon{color:#3b82f6}
+.welcome-text{margin-top:.5rem;font-size:1rem;line-height:1.6;color:var(--muted)}
+
+.btn-start{
+  display:inline-flex;align-items:center;gap:.5rem;
+  background:var(--primary); color:#fff;
+  padding:.75rem 1.5rem; border-radius:.5rem; font-weight:600;
+  text-decoration:none; margin-top:1rem; box-shadow:0 6px 18px rgba(37,99,235,.25);
+  transition:transform .12s ease, filter .12s ease, background .12s ease;
+}
+.btn-start:hover{ filter:brightness(1.02) }
+.btn-start:active{ transform:translateY(1px) }
+
+.btn-theme{
+  font-size:.75rem; margin-top:1rem; background:none; border:none; color:var(--muted); cursor:pointer;
+}
+.btn-theme:hover{ color:var(--text) }
+
+input,select,button,textarea,a{
+  outline:none;
+}
+input:focus,select:focus,textarea:focus,.btn-start:focus,.btn-theme:focus{
+  box-shadow:0 0 0 3px rgba(37,99,235,.35);
+  border-radius:.5rem;
+}
+
+@keyframes fade-in{from{opacity:0; transform:translateY(4px)} to{opacity:1; transform:none}}
+.animate-fade-in{animation:fade-in .35s ease-out both}

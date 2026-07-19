@@ -1,0 +1,11 @@
+{
+  "name": "Messages",
+  "title": "📑 Сообщения",
+  "version": "1.0.0",
+  "active": true,
+  "priority": 8,
+  "description": "Обработка сообщений и обращений от пользователей",
+  "providers": [
+    "Modules\\Messages\\Providers\\MessagesServiceProvider"
+  ]
+}

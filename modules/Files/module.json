@@ -1,0 +1,11 @@
+{
+  "name": "Files",
+  "title": "📁 Файлы",
+  "version": "1.0.0",
+  "active": true,
+  "priority": 5,
+  "description": "Управление файлами: загрузка, скачивание, категории",
+  "providers": [
+    "Modules\\Files\\Providers\\FilesServiceProvider"
+  ]
+}

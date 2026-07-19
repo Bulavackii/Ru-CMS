@@ -1,0 +1,187 @@
+/* 🌐 Общая карточка новости/товара */
+.news-card {
+    background: #ffffff;
+    border-radius: 1rem;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+    width: 100%;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+@media (min-width: 640px) {
+    .news-card {
+        padding: 1.25rem;
+        border-radius: 1.25rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .news-card {
+        padding: 1.75rem;
+        border-radius: 1.5rem;
+    }
+}
+
+/* 💨 Эффект при наведении */
+.news-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.10);
+}
+
+/* 🎯 Бейдж в правом верхнем углу */
+.news-badge,
+.promo-badge,
+.new-badge {
+    position: absolute;
+    top: -0.75rem;
+    padding: 0.4rem 0.7rem;
+    font-size: 0.75rem;
+    font-weight: bold;
+    border-radius: 9999px;
+    background: #fff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+    animation: pulse 2s infinite;
+    z-index: 10;
+}
+
+/* 🔷 Стандартный бейдж */
+.news-badge {
+    right: 0.75rem;
+    border: 2px solid #2563eb;
+    color: #2563eb;
+}
+
+/* 🔴 Бейдж "Акция" */
+.promo-badge {
+    right: 0.75rem;
+    border: 2px solid #dc2626;
+    color: #dc2626;
+}
+
+/* 🟣 Бейдж "Новинка" */
+.new-badge {
+    right: 3.5rem;
+    border: 2px solid #9333ea;
+    color: #9333ea;
+}
+
+/* 💫 Анимация "пульса" для бейджей */
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* 🏷️ Категории — в левом верхнем углу */
+.category-badges {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    z-index: 10;
+}
+
+.category-badge {
+    background-color: #eff6ff;
+    color: #2563eb;
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    border: 1px solid #bfdbfe;
+    white-space: nowrap;
+    transition: background-color 0.2s ease;
+}
+
+.category-badge:hover {
+    background-color: #dbeafe;
+    text-decoration: underline;
+}
+
+/* 🖼️ Обложка */
+.card-media {
+    width: 100%;
+    height: 190px;
+    object-fit: cover;
+    border-radius: 1rem;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 1rem;
+}
+
+/* 📰 Заголовок карточки */
+.card-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+}
+
+/* 📅 Дата */
+.card-date {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-bottom: 0.75rem;
+}
+
+/* 📄 Описание */
+.card-description {
+    font-size: 0.9rem;
+    color: #374151;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+    max-height: 4.5rem;
+    overflow: hidden;
+}
+
+/* 🌙 Поддержка тёмной темы (если применяешь Tailwind dark mode через класс) */
+.dark .news-card {
+    background: #1f2937;
+    border-color: #374151;
+}
+
+.dark .card-title,
+.dark .card-description,
+.dark .card-date {
+    color: #f3f4f6;
+}
+
+.dark .category-badge {
+    background-color: #1e3a8a;
+    color: #dbeafe;
+    border-color: #3b82f6;
+}
+
+.dark .category-badge:hover {
+    background-color: #2563eb;
+}
+
+/* Адаптивные улучшения для темной темы */
+@media (prefers-color-scheme: dark) {
+    .news-card {
+        background: #1f2937;
+        border-color: #374151;
+    }
+    
+    .card-title,
+    .card-description,
+    .card-date {
+        color: #f3f4f6;
+    }
+    
+    .category-badge {
+        background-color: #1e3a8a;
+        color: #dbeafe;
+        border-color: #3b82f6;
+    }
+    
+    .category-badge:hover {
+        background-color: #2563eb;
+    }
+}

@@ -1,0 +1,169 @@
+/* ============================== */
+/* 🛒 Блок: Карточки товаров      */
+/* ============================== */
+
+/* 📦 Обертка над всеми карточками */
+.products-wrapper {
+    padding: 3rem 0;
+    background: #f9fafb;
+}
+
+/* 📐 Сетка товаров */
+.products-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* 🧱 Карточка */
+.product-card {
+    background: #fff;
+    border-radius: 1.5rem;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    border: 1px solid #e5e7eb;
+    position: relative;
+    width: 100%;
+    max-width: 280px;
+    transition: all 0.3s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* 🖼️ Обложка */
+.product-image {
+    height: 200px;
+    width: 100%;
+    object-fit: cover;
+    border-radius: 1rem;
+    border: 1px solid #ddd;
+    margin: 2rem 0 1rem;
+}
+
+/* 🏷️ Заголовок */
+.product-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+/* 🗓️ Дата */
+.product-date {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-bottom: 0.75rem;
+}
+
+/* 📄 Описание */
+.product-description {
+    font-size: 0.95rem;
+    color: #374151;
+    line-height: 1.5;
+    max-height: 5rem;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+/* ℹ️ Инфо: Цена, Остаток */
+.product-info {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.product-info .price,
+.product-info .stock {
+    display: inline-block;
+    padding: 0.5rem 0.75rem;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    margin-bottom: 0.3rem;
+}
+
+.product-info .price {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.product-info .stock {
+    background-color: #fef9c3;
+    color: #854d0e;
+}
+
+/* 🧭 Кнопки действий */
+.product-buttons {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: auto;
+}
+
+.product-buttons a {
+    flex: 1;
+    text-align: center;
+    padding: 0.6rem 1rem;
+    border-radius: 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.btn-cart {
+    background-color: #facc15;
+    color: #1f2937;
+}
+
+.btn-cart:hover {
+    background-color: #fde047;
+}
+
+.btn-buy {
+    background-color: #3b82f6;
+    color: #fff;
+}
+
+.btn-buy:hover {
+    background-color: #2563eb;
+}
+
+/* 🔖 Акция */
+.promo-badge {
+    position: absolute;
+    top: -0.75rem;
+    right: 0.75rem;
+    background: #fff;
+    border: 2px solid #dc2626;
+    color: #dc2626;
+    font-size: 0.75rem;
+    font-weight: bold;
+    padding: 0.4rem 0.7rem;
+    border-radius: 9999px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+    animation: pulse 2s infinite;
+}
+
+/* 💫 Пульс-анимация */
+@keyframes pulse {
+    0%   { transform: scale(1); opacity: 1; }
+    50%  { transform: scale(1.1); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* 📱 Адаптивность */
+@media (max-width: 768px) {
+    .products-grid {
+        gap: 1rem;
+    }
+    .product-card {
+        max-width: 100%;
+    }
+}

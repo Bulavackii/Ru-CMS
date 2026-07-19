@@ -1,0 +1,11 @@
+{
+  "name": "System",
+  "title": "💻 Система",
+  "version": "1.1.0",
+  "active": true,
+  "priority": 1,
+  "description": "Системный модуль для управления модулями",
+  "providers": [
+    "Modules\\System\\Providers\\SystemServiceProvider"
+  ]
+}

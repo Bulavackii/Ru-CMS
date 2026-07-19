@@ -1,0 +1,11 @@
+{
+  "name": "Payments",
+  "title": "💰 Платежи",
+  "version": "1.0.0",
+  "active": true,
+  "priority": 10,
+  "description": "Управление методами оплаты и заказами",
+  "providers": [
+    "Modules\\Payments\\PaymentsServiceProvider"
+  ]
+}

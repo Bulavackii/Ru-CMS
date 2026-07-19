@@ -1,0 +1,11 @@
+{
+  "name": "Slideshow",
+  "title": "🖼️ Слайдшоу",
+  "version": "1.2.0",
+  "active": true,
+  "priority": 9,
+  "description": "Управление слайдшоу с позициями и оформлением",
+  "providers": [
+    "Modules\\Slideshow\\SlideshowServiceProvider"
+  ]
+}

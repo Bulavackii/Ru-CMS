@@ -1,0 +1,11 @@
+{
+  "name": "News",
+  "title": "📰 Новости",
+  "version": "1.0.0",
+  "active": true,
+  "priority": 4,
+  "description": "CRUD новостей, фильтры, поиск, SEO-мета, категории, шаблоны",
+  "providers": [
+    "Modules\\News\\Providers\\NewsServiceProvider"
+  ]
+}

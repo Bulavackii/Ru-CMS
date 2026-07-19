@@ -1,0 +1,11 @@
+{
+  "name": "Visual",
+  "title": "🎨 Визуальный редактор",
+  "version": "1.1.0",
+  "active": true,
+  "priority": 100,
+  "description": "Визуальный редактор тем и фрагментов",
+  "providers": [
+    "Modules\\Visual\\Providers\\VisualServiceProvider"
+  ]
+}

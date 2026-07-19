@@ -1,0 +1,11 @@
+{
+  "name": "Notifications",
+  "title": "💬 Уведомления",
+  "version": "1.0.0",
+  "active": true,
+  "priority": 7,
+  "description": "Система уведомлений с различными типами и позициями",
+  "providers": [
+    "Modules\\Notifications\\Providers\\NotificationsServiceProvider"
+  ]
+}

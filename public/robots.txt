@@ -1,0 +1,73 @@
+# robots.txt — kursk-manipulator.ru
+
+# --- Блок по умолчанию (все поисковики) ---
+User-agent: *
+# Служебные разделы
+Disallow: /admin/
+Disallow: /login
+Disallow: /register
+Disallow: /password
+Disallow: /password/*
+
+# Нежелательные к индексации страницы
+Disallow: /search
+Disallow: /cart
+Disallow: /checkout
+
+# Типовые «хвосты» от рекламы/меток (чтобы не плодить дубликаты URL)
+Disallow: /*?*utm_source=
+Disallow: /*?*utm_medium=
+Disallow: /*?*utm_campaign=
+Disallow: /*?*utm_term=
+Disallow: /*?*utm_content=
+Disallow: /*?*gclid=
+Disallow: /*?*fbclid=
+Disallow: /*?*yclid=
+Disallow: /*?*ymclid=
+Disallow: /*?*openstat=
+
+# Явно разрешаем статику и медиа
+Allow: /storage/
+Allow: /images/
+Allow: /img/
+Allow: /css/
+Allow: /js/
+Allow: /fonts/
+
+# Карта сайта (HTTPS и реальный домен)
+Sitemap: https://kursk-manipulator.ru/sitemap.xml
+
+
+# --- Блок для Яндекса (нужен, чтобы применился Clean-param) ---
+User-agent: Yandex
+# Повторяем правила Disallow (иначе Яндекс возьмёт только этот блок)
+Disallow: /admin/
+Disallow: /login
+Disallow: /register
+Disallow: /password
+Disallow: /password/*
+Disallow: /search
+Disallow: /cart
+Disallow: /checkout
+Disallow: /*?*utm_source=
+Disallow: /*?*utm_medium=
+Disallow: /*?*utm_campaign=
+Disallow: /*?*utm_term=
+Disallow: /*?*utm_content=
+Disallow: /*?*gclid=
+Disallow: /*?*fbclid=
+Disallow: /*?*yclid=
+Disallow: /*?*ymclid=
+Disallow: /*?*openstat=
+Allow: /storage/
+Allow: /images/
+Allow: /img/
+Allow: /css/
+Allow: /js/
+Allow: /fonts/
+
+# Чистим дубль-параметры (Яндекс-специфика)
+Clean-param: utm_source&utm_medium&utm_campaign&utm_term&utm_content&gclid&fbclid&yclid&ymclid&openstat /
+
+# Хост для Яндекса (если сайт доступен только по одному домену)
+Host: kursk-manipulator.ru

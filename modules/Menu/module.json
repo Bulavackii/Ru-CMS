@@ -1,0 +1,11 @@
+{
+  "name": "Menu",
+  "title": "📊 Меню",
+  "version": "1.0.0",
+  "active": true,
+  "priority": 2,
+  "description": "GUI-редактор меню до 3 уровней вложенности",
+  "providers": [
+    "Modules\\Menu\\Providers\\MenuServiceProvider"
+  ]
+}

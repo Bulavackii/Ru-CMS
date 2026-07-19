@@ -1,0 +1,11 @@
+{
+  "name": "Captcha",
+  "title": "🛡️ Каптча",
+  "version": "1.0.0",
+  "active": false,
+  "priority": 80,
+  "description": "Гибкая система каптчи с возможностью встраивания в любое место",
+  "providers": [
+    "Modules\\Captcha\\Providers\\CaptchaServiceProvider"
+  ]
+}

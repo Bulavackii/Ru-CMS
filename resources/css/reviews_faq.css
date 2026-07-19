@@ -1,0 +1,142 @@
+/* =============================== */
+/* 💬 Карточки: отзывы и вопросы   */
+/* =============================== */
+
+/* 🧱 Базовая карточка */
+.review-card, .faq-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 1.5rem;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    padding: 1.75rem;
+    position: relative;
+    max-width: 340px;
+    width: 100%;
+    overflow: hidden;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.review-card:hover, .faq-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.10);
+}
+
+/* 🟢/🔵 Бейдж: Отзыв или Вопрос */
+.review-badge, .faq-badge {
+    position: absolute;
+    top: -0.75rem;
+    right: 0.75rem;
+    font-size: 0.75rem;
+    font-weight: bold;
+    padding: 0.4rem 0.7rem;
+    background: #fff;
+    border-radius: 9999px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+    animation: pulse 2s infinite;
+    z-index: 10;
+}
+
+.review-badge {
+    border: 2px solid #10b981;
+    color: #10b981;
+}
+
+.faq-badge {
+    border: 2px solid #3b82f6;
+    color: #3b82f6;
+}
+
+/* 💫 Анимация "пульс" */
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* 🏷️ Категории */
+.category-badges {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    z-index: 10;
+}
+
+.category-badge {
+    background-color: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #2563eb;
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    white-space: nowrap;
+    transition: background-color 0.2s ease;
+}
+
+.category-badge:hover {
+    background-color: #dbeafe;
+    text-decoration: underline;
+}
+
+/* 🖼️ Изображение */
+.card-media {
+    width: 100%;
+    height: 190px;
+    object-fit: cover;
+    border-radius: 1rem;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 1rem;
+}
+
+/* 🧑 Заголовок и имя */
+.faq-question, .review-author {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* 📄 Ответ или содержание */
+.faq-answer, .review-content {
+    font-size: 0.95rem;
+    color: #374151;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+/* 📅 Автор и дата */
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-bottom: 0.75rem;
+}
+
+/* ⭐ Рейтинг */
+.review-rating {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #15803d;
+    background-color: #dcfce7;
+    padding: 0.4rem 0.75rem;
+    border-radius: 0.5rem;
+    display: inline-block;
+    margin-top: 0.25rem;
+    align-self: flex-start;
+}
+
+/* 📱 Адаптивность */
+@media (max-width: 768px) {
+    .review-card, .faq-card {
+        max-width: 100%;
+    }
+}
