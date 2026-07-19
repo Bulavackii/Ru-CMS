@@ -2,6 +2,8 @@
 
 Laravel 12 HMVC modular CMS ("RuShop CMS" / "RU CMS"). Modules live in `modules/<Name>/` (Controllers/Models/Providers/Migrations/Views/Routes), loaded by `app/Providers/ModuleServiceProvider.php`. GitHub: `Bulavackii/Ru-CMS` (public), remote `origin` already configured, pushes go straight to `master` (no PR flow set up).
 
+> **Commit messages: always in Russian.** Standing instruction from the user, applies to every commit in this repo. (The `Co-Authored-By:` trailer line stays as-is — it's a fixed format, not prose.)
+
 ## Where things stand (as of 2026-07-19)
 
 - **Test suite: 151/151 passing, 0 errors, 0 failures** (`php vendor/bin/phpunit --no-coverage`). Got there from a starting point of "couldn't even boot" → 142 errors → 30 errors/48 failures → 0/0, across two work sessions. See commits `61648cf` and `dcb8329` for the detailed reasoning — both have long, specific commit messages explaining root causes, worth reading with `git show <sha>` before re-deriving the same things.
