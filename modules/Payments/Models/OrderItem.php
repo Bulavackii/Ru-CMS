@@ -2,11 +2,15 @@
 
 namespace Modules\Payments\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Modules\News\Models\News;
 
 class OrderItem extends Model
 {
+    use HasFactory;
+
+
     /**
      * 🧾 Разрешённые поля для массового заполнения
      */

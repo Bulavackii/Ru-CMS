@@ -6,6 +6,12 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     public function up(): void {
+        // 2025_01_11_000000_create_menus_table.php уже создаёт эту таблицу —
+        // на свежей установке она приходит первой и эта миграция тут лишняя.
+        if (Schema::hasTable('menu_items')) {
+            return;
+        }
+
         Schema::create('menu_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('menu_id')->constrained('menus')->onDelete('cascade');

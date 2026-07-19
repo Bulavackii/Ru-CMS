@@ -11,31 +11,37 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Визуальные темы
-        Schema::create('visual_themes', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('slug')->unique();
-            $table->text('description')->nullable();
-            $table->json('tokens')->nullable(); // Цвета, шрифты и т.д.
-            $table->boolean('is_default')->default(false);
-            $table->boolean('active')->default(true);
-            $table->timestamps();
-        });
+        // Визуальные темы (modules/Visual/Database/Migrations/..._create_visual_themes.php
+        // и ..._create_visual_fragments.php создают их раньше по времени — на свежей
+        // установке эти две здесь лишние)
+        if (!Schema::hasTable('visual_themes')) {
+            Schema::create('visual_themes', function (Blueprint $table) {
+                $table->id();
+                $table->string('name');
+                $table->string('slug')->unique();
+                $table->text('description')->nullable();
+                $table->json('tokens')->nullable(); // Цвета, шрифты и т.д.
+                $table->boolean('is_default')->default(false);
+                $table->boolean('active')->default(true);
+                $table->timestamps();
+            });
+        }
 
         // Визуальные фрагменты
-        Schema::create('visual_fragments', function (Blueprint $table) {
-            $table->id();
-            $table->string('slug')->unique();
-            $table->string('title')->nullable();
-            $table->longText('content')->nullable();
-            $table->json('meta')->nullable();
-            $table->string('zone')->nullable(); // header, footer, sidebar и т.д.
-            $table->string('type')->default('html'); // html, css, js
-            $table->integer('order')->default(0);
-            $table->boolean('active')->default(true);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('visual_fragments')) {
+            Schema::create('visual_fragments', function (Blueprint $table) {
+                $table->id();
+                $table->string('slug')->unique();
+                $table->string('title')->nullable();
+                $table->longText('content')->nullable();
+                $table->json('meta')->nullable();
+                $table->string('zone')->nullable(); // header, footer, sidebar и т.д.
+                $table->string('type')->default('html'); // html, css, js
+                $table->integer('order')->default(0);
+                $table->boolean('active')->default(true);
+                $table->timestamps();
+            });
+        }
 
         // Ревизии фрагментов (если еще не создана в модуле Visual)
         if (!Schema::hasTable('visual_revisions')) {

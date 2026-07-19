@@ -1,7 +1,8 @@
-﻿<?php
+<?php
 
 namespace Modules\Payments\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -18,6 +19,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class PaymentMethod extends Model
 {
+    use HasFactory;
+
     // ?? Название таблицы в БД
     protected $table = 'payment_methods';
 

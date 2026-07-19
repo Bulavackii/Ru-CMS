@@ -11,26 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('localization_settings', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('country_id')->constrained('countries')->onDelete('cascade');
-            $table->string('context')->default('frontend'); // frontend, admin, api, etc.
-            $table->string('date_format')->default('d.m.Y');
-            $table->string('time_format')->default('H:i');
-            $table->string('decimal_separator')->default('.');
-            $table->string('thousands_separator')->default(' ');
-            $table->integer('decimal_places')->default(2);
-            $table->string('currency_code')->nullable();
-            $table->string('currency_symbol')->nullable();
-            $table->string('locale')->default('ru_RU');
-            $table->string('timezone')->default('UTC');
-            $table->boolean('active')->default(true);
-            $table->json('translations')->nullable();
-            $table->timestamps();
-            $table->softDeletes();
-
-            $table->index(['country_id', 'context', 'active']);
-        });
+        // Эта миграция создавала более раннюю, per-country схему таблицы
+        // (date_format/time_format/currency_code/...), которую заменили на
+        // общую key-value схему из 2025_12_27_100001_create_localization_settings_table.php
+        // (см. Modules\Localization\Models\LocalizationSetting — использует
+        // именно key/value/type/group). Оставлена как no-op, чтобы не терять
+        // историю миграций для баз, где она уже применена.
     }
 
     /**
@@ -38,6 +24,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('localization_settings');
+        // No-op — см. комментарий в up(). Таблицу создаёт и удаляет
+        // 2025_12_27_100001_create_localization_settings_table.php.
     }
 };

@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Factories\Modules\News\Models;
 
 use Modules\News\Models\News;
 use Illuminate\Database\Eloquent\Factories\Factory;

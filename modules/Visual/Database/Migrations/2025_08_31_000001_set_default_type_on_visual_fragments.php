@@ -1,18 +1,23 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     public function up(): void
     {
-        // под MySQL
-        DB::statement("ALTER TABLE `visual_fragments` MODIFY `type` VARCHAR(100) NOT NULL DEFAULT 'html'");
+        // Schema::change() вместо сырого "MySQL-only" ALTER ... MODIFY —
+        // тот падал под SQLite (используется в тестах).
+        Schema::table('visual_fragments', function (Blueprint $table) {
+            $table->string('type', 100)->default('html')->change();
+        });
     }
 
     public function down(): void
     {
-        // вернём без дефолта (если надо)
-        DB::statement("ALTER TABLE `visual_fragments` MODIFY `type` VARCHAR(100) NOT NULL");
+        Schema::table('visual_fragments', function (Blueprint $table) {
+            $table->string('type', 100)->change();
+        });
     }
 };

@@ -9,14 +9,45 @@ use Modules\System\Models\Module;
 
 class ModuleServiceProvider extends ServiceProvider
 {
+    /**
+     * Модули из loadLegacyModules(), для которых нужно грузить миграции.
+     * Вынесено в константу, чтобы список был доступен и до установки
+     * (см. loadLegacyModuleMigrations()), и после (loadLegacyModules()).
+     */
+    private const LEGACY_MIGRATION_MODULES = [
+        'Categories', 'News', 'Slideshow', 'Messages', 'Payments',
+        'Delivery', 'Menu', 'Accessibility', 'NewsIO', 'Visual',
+    ];
+
     public function boot(): void
     {
+        // Миграции легаси-модулей регистрируем всегда, даже до установки:
+        // isInstalled() требует существования таблицы modules, а её как раз
+        // создают миграции — без этого вызова свежая БД никогда не увидит
+        // миграции модулей вроде Categories/News на первом migrate:fresh.
+        // Повторная регистрация той же директории (уже после установки, из
+        // loadActiveModules()) безвредна — Laravel определяет "к выполнению"
+        // миграции по имени файла, что уже отмечено выполненным, не запускает.
+        $this->loadLegacyModuleMigrations(base_path('modules'));
+
         if (!$this->isInstalled()) {
             return;
         }
 
         $this->syncModuleMetadata();
         $this->loadActiveModules();
+    }
+
+    private function loadLegacyModuleMigrations(string $modulesPath): void
+    {
+        foreach (self::LEGACY_MIGRATION_MODULES as $module) {
+            $base = $modulesPath . '/' . $module;
+            foreach (["$base/Migrations", "$base/Database/Migrations"] as $dir) {
+                if (is_dir($dir)) {
+                    $this->loadMigrationsFrom($dir);
+                }
+            }
+        }
     }
 
     private function isInstalled(): bool
@@ -141,8 +172,8 @@ class ModuleServiceProvider extends ServiceProvider
         $legacyModules = [
             'Users' => ['routes' => true, 'views' => true],
             'Search' => ['routes' => true, 'views' => true],
-            'Categories' => ['views' => true],
-            'News' => ['views' => true],
+            'Categories' => ['views' => true, 'migrations' => true],
+            'News' => ['views' => true, 'migrations' => true],
             'Slideshow' => ['routes' => true, 'views' => true, 'migrations' => true],
             'Messages' => ['routes' => true, 'views' => true, 'migrations' => true],
             'Payments' => ['routes' => true, 'views' => true, 'migrations' => true],

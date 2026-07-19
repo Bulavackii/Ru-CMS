@@ -1,11 +1,15 @@
-﻿<?php
+<?php
 
 namespace Modules\Delivery\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class DeliveryMethod extends Model
 {
+    use HasFactory;
+
+
     /**
      * 📦 Указываем, какие поля можно массово заполнять (mass assignment).
      * Это нужно для методов вроде create() и update().

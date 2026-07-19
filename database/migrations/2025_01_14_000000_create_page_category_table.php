@@ -6,6 +6,12 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     public function up(): void {
+        // 2025_01_13_000000_create_pages_table.php уже создаёт эту таблицу —
+        // на свежей установке она приходит первой и эта миграция тут лишняя.
+        if (Schema::hasTable('page_category')) {
+            return;
+        }
+
         Schema::create('page_category', function (Blueprint $table) {
             $table->id();
             $table->foreignId('page_id')->constrained('pages')->onDelete('cascade');

@@ -11,6 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Консолидированная 2025_01_06_000000_create_slideshows_table.php уже
+        // создаёт колонку link — на свежей установке добавлять её второй раз не нужно.
+        if (Schema::hasColumn('slideshow_items', 'link')) {
+            return;
+        }
+
         Schema::table('slideshow_items', function (Blueprint $table) {
             $table->string('link')->nullable()->after('caption');
         });

@@ -122,8 +122,12 @@ return new class extends Migration
             } catch (\Throwable $e) {}
 
             // Базовые индексы
+            // 'published' сюда не входит: индекс news_published_index уже
+            // создаёт modules/News/Migrations/2024_05_01_100000_create_news_table.php.
+            // (try/catch вокруг $table->index() тут не спасает от "already exists" —
+            // Schema::table() выполняет накопленные команды блюпринта уже после
+            // возврата из этого замыкания, вне зоны действия try/catch.)
             $indexes = [
-                ['published', 'news_published_index'],
                 ['template', 'news_template_index'],
                 ['created_at', 'news_created_at_index'],
             ];

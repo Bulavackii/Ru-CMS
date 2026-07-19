@@ -6,6 +6,12 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     public function up(): void {
+        // 2025_01_09_000000_create_orders_table.php уже создаёт эту таблицу —
+        // на свежей установке она приходит первой и эта миграция тут лишняя.
+        if (Schema::hasTable('order_items')) {
+            return;
+        }
+
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('order_id')->constrained('orders')->cascadeOnDelete();
