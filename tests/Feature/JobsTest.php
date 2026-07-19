@@ -8,9 +8,12 @@ use App\Jobs\ClearOldCache;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class JobsTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_generate_sitemap_job_can_be_dispatched()
     {
         Bus::fake();
@@ -51,16 +54,17 @@ class JobsTest extends TestCase
 
     public function test_cache_clear_job_works()
     {
-        // Устанавливаем тестовый кэш
-        Cache::put('test_key', 'test_value', 60);
-        Cache::put('home_data', ['test'], 60);
+        // ClearOldCache чистит кэш по тегам (home/news/theme/modules), а не
+        // произвольные ключи — обычный Cache::put() без тега им не затронется.
+        Cache::tags(['home'])->put('test_key', 'test_value', 60);
+        Cache::tags(['home'])->put('home_data', ['test'], 60);
 
         $job = new ClearOldCache();
         $job->handle();
 
         // Проверяем, что кэш очищен
-        $this->assertNull(Cache::get('test_key'));
-        $this->assertNull(Cache::get('home_data'));
+        $this->assertNull(Cache::tags(['home'])->get('test_key'));
+        $this->assertNull(Cache::tags(['home'])->get('home_data'));
     }
 
     public function test_jobs_have_correct_timeout()

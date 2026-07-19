@@ -30,7 +30,7 @@ class HomeController extends Controller
 
         // Кэшируем статические данные на 1 час с оптимизацией запросов
         $categories = Cache::remember('home_categories', 3600, function () {
-            return Category::select('id', 'name', 'slug', 'template')->get();
+            return Category::select('id', 'title', 'slug')->get();
         });
 
         $slideshows = Cache::remember('home_slideshows', 3600, function () {
@@ -96,7 +96,7 @@ class HomeController extends Controller
             $templates[$key] = Cache::remember($cacheKey, 300, function () use ($key, $cart, $request) {
                 // Оптимизация: выбираем только нужные поля и используем eager loading
                 $query = News::with(['categories' => function ($q) {
-                        $q->select('categories.id', 'categories.name', 'categories.slug');
+                        $q->select('categories.id', 'categories.title', 'categories.slug');
                     }])
                     ->select('id', 'title', 'slug', 'content', 'template', 'price', 'stock', 'is_promo', 'created_at', 'updated_at')
                     ->where('published', true)

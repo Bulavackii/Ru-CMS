@@ -111,7 +111,9 @@ class NewsTest extends TestCase
 
         $response->assertStatus(204);
 
-        $this->assertDatabaseMissing('news', [
+        // News использует SoftDeletes: delete() ставит deleted_at, а не
+        // удаляет строку физически.
+        $this->assertSoftDeleted('news', [
             'id' => $news->id,
         ]);
     }

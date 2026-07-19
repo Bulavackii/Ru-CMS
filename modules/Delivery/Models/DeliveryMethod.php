@@ -107,13 +107,15 @@ class DeliveryMethod extends Model
      */
     public function getDeliveryDaysAttribute()
     {
-        if ($this->min_days && $this->max_days) {
+        // !== null, а не truthy-проверка: 0 — легитимное значение
+        // (например, доставка "в тот же день"), но falsy в PHP.
+        if ($this->min_days !== null && $this->max_days !== null) {
             return "{$this->min_days}-{$this->max_days} дн.";
         }
-        if ($this->min_days) {
+        if ($this->min_days !== null) {
             return "от {$this->min_days} дн.";
         }
-        if ($this->max_days) {
+        if ($this->max_days !== null) {
             return "до {$this->max_days} дн.";
         }
         return '—';

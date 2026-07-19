@@ -70,7 +70,21 @@ $providers = array_merge(
 return Application::configure(basePath: dirname(__DIR__))
 
     // 🧩 Регистрация провайдеров (включая критичные модули)
-    ->withProviders($providers)
+    // withBootstrapProviders=false: $providers уже включает содержимое
+    // bootstrap/providers.php (через require выше) — по умолчанию
+    // withProviders() читает этот же файл ЕЩЁ раз и мёрджит без дедупа,
+    // из-за чего каждый провайдер (и, как следствие, каждый Event::listen()
+    // в его boot()) регистрировался дважды.
+    ->withProviders($providers, false)
+
+    // 📣 События: авто-обнаружение слушателей отключено — App\Providers\
+    // EventServiceProvider уже задаёт явный $listen (в т.ч. избирательно:
+    // NewsDeleted нарочно не слушает UpdateSeoForNews). Без этого вызова
+    // Laravel 11+ по умолчанию ВСЁ РАВНО сканирует app/Listeners через
+    // отдельный, независимый от нашего shouldDiscoverEvents() экземпляр
+    // провайдера — те же слушатели регистрировались дважды и выполнялись
+    // по два раза на каждое событие.
+    ->withEvents(discover: false)
 
     // 🔁 Маршруты: web, console, health-check
     ->withRouting(

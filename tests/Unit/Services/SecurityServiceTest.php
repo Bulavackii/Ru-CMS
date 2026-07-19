@@ -28,7 +28,9 @@ class SecurityServiceTest extends TestCase
 
         $this->assertNotEmpty($secret);
         $this->assertIsString($secret);
-        $this->assertGreaterThan(16, strlen($secret));
+        // Google2FA::generateSecretKey() default length is 16 (80 bits,
+        // standard TOTP/Google Authenticator secret strength).
+        $this->assertGreaterThanOrEqual(16, strlen($secret));
     }
 
     /** @test */

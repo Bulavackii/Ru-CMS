@@ -18,11 +18,14 @@ class RegistrationTest extends TestCase
 
     public function test_new_users_can_register(): void
     {
+        // RegisterRequest требует согласие с условиями (terms_agree) и
+        // "сильный" пароль (верхний+нижний регистр, цифры, спецсимволы).
         $response = $this->post('/register', [
             'name' => 'Test User',
             'email' => 'test@example.com',
-            'password' => 'password',
-            'password_confirmation' => 'password',
+            'password' => 'StrongP@ssw0rd',
+            'password_confirmation' => 'StrongP@ssw0rd',
+            'terms_agree' => '1',
         ]);
 
         $this->assertAuthenticated();

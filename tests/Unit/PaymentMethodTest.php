@@ -14,7 +14,9 @@ class PaymentMethodTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed(); // Запускаем сидер для базовых данных
+        // Не сидируем: PaymentDeliverySeeder создаёт реальные строки
+        // PaymentMethod, которые ломают точные assertCount() в scope-тестах
+        // ниже. Все тесты создают собственные фикстуры через фабрику.
     }
 
     /** @test */
@@ -268,11 +270,10 @@ class PaymentMethodTest extends TestCase
     /** @test */
     public function it_has_default_values()
     {
-        $paymentMethod = PaymentMethod::factory()->create([
-            'active' => null,
-            'is_russian' => null,
-            'test_mode' => null,
-        ]);
+        // Не передаём active/is_russian/test_mode явно: колонки NOT NULL
+        // с DB-default, а explicit null в INSERT игнорирует DEFAULT — так
+        // что дефолты проверяем, полагаясь на собственные значения фабрики.
+        $paymentMethod = PaymentMethod::factory()->create();
 
         // Проверяем, что значения по умолчанию применяются
         $this->assertNotNull($paymentMethod->active);

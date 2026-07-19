@@ -34,6 +34,12 @@ use App\Http\Middleware\RedirectIfInstalled;
 use App\Http\Controllers\SitemapController;
 use Modules\Visual\Http\Controllers\Admin\FragmentsController;
 use App\Http\Controllers\Frontend\HomeController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Auth\ConfirmablePasswordController;
+use App\Http\Controllers\Auth\PasswordController as AuthPasswordController;
+use App\Http\Controllers\Auth\EmailVerificationPromptController;
+use App\Http\Controllers\Auth\EmailVerificationNotificationController;
+use App\Http\Controllers\Auth\VerifyEmailController;
 
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 
@@ -113,6 +119,25 @@ Route::middleware(['web', 'auth'])->group(function () {
 
         return view('frontend.dashboard.orders', compact('orders'));
     })->name('dashboard.orders');
+
+    // 👤 Профиль пользователя (стандартный Breeze-контроллер)
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // ✅ Подтверждение email
+    Route::get('/verify-email', EmailVerificationPromptController::class)->name('verification.notice');
+    Route::get('/verify-email/{id}/{hash}', VerifyEmailController::class)
+        ->middleware(['signed', 'throttle:6,1'])
+        ->name('verification.verify');
+    Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
+        ->middleware('throttle:6,1')
+        ->name('verification.send');
+
+    // 🔐 Повторное подтверждение пароля перед чувствительными действиями
+    Route::get('/confirm-password', [ConfirmablePasswordController::class, 'show'])->name('password.confirm');
+    Route::post('/confirm-password', [ConfirmablePasswordController::class, 'store']);
+    Route::put('/password', [AuthPasswordController::class, 'update'])->name('password.update');
 });
 
 // 🛠️ Админка и модули
@@ -256,15 +281,20 @@ Route::middleware(['web', 'auth', 'admin'])->group(function () {
     Route::delete('/admin/categories/bulk-delete', [\Modules\Categories\Controllers\Admin\CategoryController::class, 'bulkDelete'])
         ->name('admin.categories.bulkDelete');
 
-    require_once base_path('modules/Categories/Routes/web.php');
-    require_once base_path('modules/Slideshow/Routes/web.php');
-    require_once base_path('modules/Notifications/Routes/web.php');
-    require_once base_path('modules/NewsIO/Routes/web.php');
-    require_once base_path('modules/Comments/Routes/web.php');
+    // require (not require_once): route files are re-executed on every fresh
+    // app boot (each PHPUnit test, each Octane/Swoole worker request). Since
+    // require_once tracks included files at the PHP-process level rather than
+    // per-application, it silently no-ops on the 2nd+ boot within one process
+    // and these routes vanish from every router after the first boot.
+    require base_path('modules/Categories/Routes/web.php');
+    require base_path('modules/Slideshow/Routes/web.php');
+    require base_path('modules/Notifications/Routes/web.php');
+    require base_path('modules/NewsIO/Routes/web.php');
+    require base_path('modules/Comments/Routes/web.php');
 
     // 🚚 💳 Подключение маршрутов модулей Delivery и Payments
-    require_once base_path('modules/Delivery/Routes/web.php');
-    require_once base_path('modules/Payments/Routes/web.php');
+    require base_path('modules/Delivery/Routes/web.php');
+    require base_path('modules/Payments/Routes/web.php');
 });
 
 // 🌐 Публичные маршруты

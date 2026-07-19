@@ -8,11 +8,18 @@ use Modules\Categories\Models\Category;
 use Modules\Slideshow\Models\Slideshow;
 use Modules\Menu\Models\Menu;
 use Modules\Menu\Models\Page;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class HomeControllerTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_home_page_loads_successfully()
     {
+        // Публикация новости нужна, иначе HomeController показывает
+        // приветственную страницу для пустых установок (frontend.welcome).
+        News::factory()->create(['published' => true]);
+
         $response = $this->get('/');
 
         $response->assertStatus(200);
@@ -59,6 +66,9 @@ class HomeControllerTest extends TestCase
 
     public function test_home_page_caching()
     {
+        News::factory()->create(['published' => true]);
+        Category::factory()->create();
+
         // Первый запрос
         $response1 = $this->get('/');
         $this->assertGreaterThan(0, $response1->viewData('categories')->count());

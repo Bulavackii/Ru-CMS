@@ -20,7 +20,9 @@
     <link rel="icon" type="image/svg" sizes="120x120" href="{{ asset('favicon.svg') }}">
 
 @if (config('seo.features.metrica') && config('seo.metrica.counter_id'))
-    @php($metricaCounterId = (int) config('seo.metrica.counter_id'))
+    @php
+        $metricaCounterId = (int) config('seo.metrica.counter_id');
+    @endphp
     <!-- Yandex.Metrika counter -->
     <script type="text/javascript">
         (function(m,e,t,r,i,k,a){

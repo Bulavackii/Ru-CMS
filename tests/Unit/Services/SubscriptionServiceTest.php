@@ -59,9 +59,11 @@ class SubscriptionServiceTest extends TestCase
     /** @test */
     public function it_can_validate_license_key()
     {
+        $user = User::factory()->create();
+
         // Создаем тестовую подписку
         \DB::table('subscriptions')->insert([
-            'user_id' => 1,
+            'user_id' => $user->id,
             'plan' => 'basic',
             'license_key' => 'TEST-LICENSE-KEY-1234',
             'starts_at' => now(),

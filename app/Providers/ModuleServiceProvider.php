@@ -14,21 +14,24 @@ class ModuleServiceProvider extends ServiceProvider
      * Вынесено в константу, чтобы список был доступен и до установки
      * (см. loadLegacyModuleMigrations()), и после (loadLegacyModules()).
      */
-    private const LEGACY_MIGRATION_MODULES = [
-        'Categories', 'News', 'Slideshow', 'Messages', 'Payments',
-        'Delivery', 'Menu', 'Accessibility', 'NewsIO', 'Visual',
-    ];
-
     public function boot(): void
     {
-        // Миграции легаси-модулей регистрируем всегда, даже до установки:
-        // isInstalled() требует существования таблицы modules, а её как раз
-        // создают миграции — без этого вызова свежая БД никогда не увидит
-        // миграции модулей вроде Categories/News на первом migrate:fresh.
-        // Повторная регистрация той же директории (уже после установки, из
-        // loadActiveModules()) безвредна — Laravel определяет "к выполнению"
-        // миграции по имени файла, что уже отмечено выполненным, не запускает.
-        $this->loadLegacyModuleMigrations(base_path('modules'));
+        // Легаси-модули (Categories/News/Slideshow/Messages/Payments/Delivery/
+        // Menu/Notifications/Accessibility/NewsIO/Visual/Seo/Localization и т.д.)
+        // грузим безусловно, а не только после isInstalled(). Причины:
+        // 1) isInstalled() сам требует существования таблицы modules, а её
+        //    создают миграции этих же модулей — без безусловной загрузки
+        //    свежая БД никогда не увидит миграции Categories/News и т.п. на
+        //    первом migrate:fresh.
+        // 2) Базовый layout (frontend.blade.php) и глобальные Blade-компоненты
+        //    (ThemeServiceProvider) обращаются к Menu::/Notifications:: и т.п.
+        //    на КАЖДОЙ странице, включая страницы до установки — без этого
+        //    view-namespace не существует и любой GET / падает с 500.
+        // Повторная регистрация той же директории (например, ещё раз внутри
+        // loadActiveModules() после установки) безвредна: миграции Laravel
+        // дедуплицирует по имени файла, а loadRoutesFrom()/loadViewsFrom()
+        // просто добавляют ту же пару путь/namespace ещё раз.
+        $this->loadLegacyModules(base_path('modules'));
 
         if (!$this->isInstalled()) {
             return;
@@ -36,18 +39,6 @@ class ModuleServiceProvider extends ServiceProvider
 
         $this->syncModuleMetadata();
         $this->loadActiveModules();
-    }
-
-    private function loadLegacyModuleMigrations(string $modulesPath): void
-    {
-        foreach (self::LEGACY_MIGRATION_MODULES as $module) {
-            $base = $modulesPath . '/' . $module;
-            foreach (["$base/Migrations", "$base/Database/Migrations"] as $dir) {
-                if (is_dir($dir)) {
-                    $this->loadMigrationsFrom($dir);
-                }
-            }
-        }
     }
 
     private function isInstalled(): bool
@@ -182,6 +173,7 @@ class ModuleServiceProvider extends ServiceProvider
             'Notifications' => ['views' => true],
             'Accessibility' => ['routes' => true, 'views' => true, 'migrations' => true],
             'NewsIO' => ['routes' => true, 'views' => true, 'migrations' => true],
+            'Localization' => ['routes' => true, 'views' => true, 'migrations' => true],
         ];
 
         foreach ($legacyModules as $module => $config) {
@@ -202,7 +194,14 @@ class ModuleServiceProvider extends ServiceProvider
                 $viewDirs = ["$base/Views", "$base/Resources/views"];
                 foreach ($viewDirs as $dir) {
                     if (is_dir($dir)) {
-                        $this->loadViewsFrom($dir, strtolower($module));
+                        // Регистрируем namespace в обоих регистрах: одни
+                        // контроллеры ссылаются на view('Categories::...')
+                        // (как в файловой системе), другие — на 'messages::'
+                        // в нижнем регистре. Дублирование безвредно.
+                        $this->loadViewsFrom($dir, $module);
+                        if (strtolower($module) !== $module) {
+                            $this->loadViewsFrom($dir, strtolower($module));
+                        }
                     }
                 }
             }

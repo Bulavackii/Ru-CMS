@@ -26,7 +26,7 @@ class UpdateServiceTest extends TestCase
         Http::fake([
             '*' => Http::response([
                 'latest_version' => '2.0.1',
-                'update_available' => true,
+                'available' => true,
                 'changelog' => 'Bug fixes',
             ], 200),
         ]);
@@ -34,7 +34,7 @@ class UpdateServiceTest extends TestCase
         $result = $this->service->checkForUpdates();
 
         $this->assertIsArray($result);
-        $this->assertArrayHasKey('update_available', $result);
+        $this->assertArrayHasKey('available', $result);
     }
 
     /** @test */
@@ -47,7 +47,7 @@ class UpdateServiceTest extends TestCase
         $result = $this->service->checkForUpdates();
 
         $this->assertIsArray($result);
-        $this->assertFalse($result['update_available'] ?? false);
+        $this->assertFalse($result['available'] ?? false);
     }
 
     /** @test */
@@ -56,7 +56,7 @@ class UpdateServiceTest extends TestCase
         Http::fake([
             '*' => Http::response([
                 'latest_version' => '2.0.1',
-                'update_available' => true,
+                'available' => true,
             ], 200),
         ]);
 

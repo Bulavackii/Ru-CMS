@@ -78,14 +78,20 @@ class DeliveryMethodFactory extends Factory
     public function withApi(): static
     {
         return $this->state(function (array $attributes) {
+            $settings = [
+                'api_key' => $this->faker->uuid(),
+                'api_login' => $this->faker->userName(),
+                'calculate_delivery' => true,
+                'track_number' => true,
+            ];
+
+            if (($attributes['type'] ?? null) === 'pickup') {
+                $settings['pvz'] = true;
+            }
+
             return [
                 'api_enabled' => true,
-                'api_settings' => [
-                    'api_key' => $this->faker->uuid(),
-                    'api_login' => $this->faker->userName(),
-                    'calculate_delivery' => true,
-                    'track_number' => true,
-                ],
+                'api_settings' => $settings,
             ];
         });
     }
@@ -178,9 +184,16 @@ class DeliveryMethodFactory extends Factory
     public function withExtremeDays(): static
     {
         return $this->state(function (array $attributes) {
+            $min = $this->faker->randomElement([0, 1, 7]);
+            // max_days выбирается только из значений >= min, иначе получаем
+            // логически бессмысленные комбинации вроде min=7/max=1.
+            $max = $this->faker->randomElement(
+                array_values(array_filter([1, 7, 14, 30], fn ($v) => $v >= $min))
+            );
+
             return [
-                'min_days' => $this->faker->randomElement([0, 1, 7]),
-                'max_days' => $this->faker->randomElement([1, 14, 30]),
+                'min_days' => $min,
+                'max_days' => $max,
             ];
         });
     }

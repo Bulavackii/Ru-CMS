@@ -63,12 +63,18 @@ abstract class BaseApiController extends Controller
         return $validator->validated();
     }
 
-    protected function resource($data, JsonResource $resource): JsonResponse
+    /**
+     * @param  class-string<JsonResource>  $resource
+     */
+    protected function resource($data, string $resource): JsonResponse
     {
         return $this->success($resource::make($data));
     }
 
-    protected function resourceCollection($data, JsonResource $resource): JsonResponse
+    /**
+     * @param  class-string<JsonResource>  $resource
+     */
+    protected function resourceCollection($data, string $resource): JsonResponse
     {
         return $this->success($resource::collection($data));
     }

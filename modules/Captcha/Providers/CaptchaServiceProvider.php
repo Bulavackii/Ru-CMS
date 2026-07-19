@@ -9,6 +9,12 @@ class CaptchaServiceProvider extends ServiceProvider
 {
     public function register()
     {
+        // Без mergeConfigFrom() config('captcha.*') всегда падает на
+        // fallback-значение из самого вызова config(), а не читает
+        // modules/Captcha/Config/captcha.php — CAPTCHA_ENABLED в .env
+        // тогда попросту ни на что не влияет.
+        $this->mergeConfigFrom(__DIR__ . '/../Config/captcha.php', 'captcha');
+
         // Регистрация сервиса
         $this->app->bind('captcha', function ($app) {
             return new \Modules\Captcha\Services\CaptchaService();

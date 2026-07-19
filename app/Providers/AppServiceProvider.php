@@ -46,6 +46,15 @@ class AppServiceProvider extends ServiceProvider
         // Проверка установки обрабатывается через middleware RedirectIfInstalled
         // Не нужно делать редирект здесь, так как это нарушает жизненный цикл Laravel
 
+        // Captcha: формы регистрации/входа безусловно вызывают app('captcha')
+        // (guard в blade — config('captcha.enabled', true) && class_exists(...) —
+        // фактически всегда true), так что биндинг обязан быть доступен вне
+        // зависимости от того, включён ли модуль Captcha через таблицу modules.
+        // Регистрируем именно в boot(), не в register(): CaptchaServiceProvider
+        // вызывает Validator::extend() в своём register(), а 'validator' ещё
+        // не забинжен на момент register()-фазы других провайдеров.
+        $this->app->register(\Modules\Captcha\Providers\CaptchaServiceProvider::class);
+
         // Наблюдатели
         News::observe(NewsObserver::class);
         Page::observe(PageObserver::class);
