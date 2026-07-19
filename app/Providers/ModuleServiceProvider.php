@@ -76,7 +76,7 @@ class ModuleServiceProvider extends ServiceProvider
         }
 
         // Загрузка неавтоматизированных модулей
-        $this->loadLegacyModules($modulesPath);
+        $this->loadLegacyModules($modulesPath, $activeModules->all());
     }
 
     private function loadModule(string $base, string $moduleName): void
@@ -127,7 +127,15 @@ class ModuleServiceProvider extends ServiceProvider
         }
     }
 
-    private function loadLegacyModules(string $modulesPath): void
+    /**
+     * @param string[] $alreadyActiveModules Модули, уже обработанные в loadActiveModules()
+     *   через loadModule() — их миграции грузить второй раз нельзя (упадёт
+     *   "table already exists"). Routes/views грузим повторно и для них тоже:
+     *   loadModule() и этот метод регистрируют view-неймспейс в разном
+     *   регистре (например 'Messages' vs 'messages::' в контроллерах),
+     *   так что вторая регистрация тут иногда единственная рабочая.
+     */
+    private function loadLegacyModules(string $modulesPath, array $alreadyActiveModules = []): void
     {
         // Модули, которые требуют особой обработки
         $legacyModules = [
@@ -168,7 +176,7 @@ class ModuleServiceProvider extends ServiceProvider
                 }
             }
 
-            if ($config['migrations'] ?? false) {
+            if (($config['migrations'] ?? false) && !in_array($module, $alreadyActiveModules, true)) {
                 $migrationDirs = ["$base/Migrations", "$base/Database/Migrations"];
                 foreach ($migrationDirs as $dir) {
                     if (is_dir($dir)) {
@@ -179,13 +187,13 @@ class ModuleServiceProvider extends ServiceProvider
         }
 
         // Особый случай: Visual (ручная регистрация)
-        $this->loadVisualModule($modulesPath);
+        $this->loadVisualModule($modulesPath, $alreadyActiveModules);
 
         // Особый случай: Seo (если не активирован через БД)
         $this->loadSeoModule($modulesPath);
     }
 
-    private function loadVisualModule(string $modulesPath): void
+    private function loadVisualModule(string $modulesPath, array $alreadyActiveModules = []): void
     {
         $visualBase = $modulesPath . '/Visual';
 
@@ -203,9 +211,11 @@ class ModuleServiceProvider extends ServiceProvider
             }
         }
 
-        foreach (["$visualBase/Migrations", "$visualBase/Database/Migrations"] as $dir) {
-            if (is_dir($dir)) {
-                $this->loadMigrationsFrom($dir);
+        if (!in_array('Visual', $alreadyActiveModules, true)) {
+            foreach (["$visualBase/Migrations", "$visualBase/Database/Migrations"] as $dir) {
+                if (is_dir($dir)) {
+                    $this->loadMigrationsFrom($dir);
+                }
             }
         }
 
