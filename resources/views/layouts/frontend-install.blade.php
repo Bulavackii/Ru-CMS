@@ -52,7 +52,7 @@
 <body class="h-full text-gray-900 antialiased">
 
 <div class="install-backdrop min-h-screen">
-    <main class="min-h-screen flex items-center justify-center p-4 sm:p-6 animate-fade-in">
+    <main class="min-h-screen flex items-start justify-center p-4 sm:p-6 py-8 sm:py-12 animate-fade-in">
         <div class="w-full">
             @if (session('install_notice'))
                 <div class="max-w-xl mx-auto mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 flex items-start gap-2">

@@ -373,6 +373,17 @@ class InstallController extends Controller
         return redirect()->route('install.license');
     }
 
+    /**
+     * DEVELOPER_MODE=true в .env — значит это твоя собственная копия CMS,
+     * а не инсталляция для клиента. В этом случае шаг лицензии можно
+     * полностью пропустить: доступ к php artisan license:generate уже
+     * гейтится тем же флагом, так что связь смысловая, не только косметика.
+     */
+    private function isDeveloperMode(): bool
+    {
+        return env('DEVELOPER_MODE', false) === true || env('DEVELOPER_MODE') === 'true';
+    }
+
     /** 🔑 Ввод лицензионного ключа или промокода */
     public function license(Request $request)
     {
@@ -381,7 +392,13 @@ class InstallController extends Controller
         }
 
         if ($request->isMethod('get')) {
-            return view('Install::license');
+            return view('Install::license', ['developerMode' => $this->isDeveloperMode()]);
+        }
+
+        // POST — пропуск шага разработчиком
+        if ($request->boolean('developer_skip') && $this->isDeveloperMode()) {
+            session(['install.completed.license' => true]);
+            return redirect()->route('install.demo');
         }
 
         // POST

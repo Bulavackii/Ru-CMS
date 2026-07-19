@@ -60,10 +60,10 @@
                 <input type="text"
                        name="license_key" id="license_key"
                        value="{{ old('license_key') }}"
-                       placeholder="XXXX-XXXX-XXXX-XXXX"
+                       placeholder="XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX"
                        class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 text-gray-900 font-mono text-sm"
                        autocomplete="off">
-                <p class="mt-2 text-xs text-gray-500">Формат: XXXX-XXXX-XXXX-XXXX</p>
+                <p class="mt-2 text-xs text-gray-500">Формат: XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX (латиница/цифры)</p>
             </div>
 
             <div x-show="type === 'promo'" x-cloak>
@@ -97,6 +97,22 @@
                 </button>
             </div>
         </form>
+
+        @if ($developerMode ?? false)
+            <form method="POST" action="{{ route('install.license') }}" class="pt-1">
+                @csrf
+                <input type="hidden" name="developer_skip" value="1">
+                <button type="submit"
+                        class="w-full inline-flex items-center justify-center gap-2 bg-gray-900 hover:bg-black text-white px-6 py-3 rounded-xl text-sm font-semibold shadow-lg shadow-gray-900/20 transition-colors">
+                    <i data-lucide="terminal" class="w-4 h-4"></i>
+                    <span>Пропустить — я разработчик</span>
+                </button>
+                <p class="mt-2 text-center text-xs text-gray-400">
+                    Показано только потому, что в <span class="font-mono">.env</span> стоит <span class="font-mono">DEVELOPER_MODE=true</span>.
+                    В обычной установке для клиента эту переменную выставлять не нужно.
+                </p>
+            </form>
+        @endif
     </div>
 </div>
 @endsection

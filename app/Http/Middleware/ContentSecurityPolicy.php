@@ -61,8 +61,11 @@ class ContentSecurityPolicy
     {
         $policies = [];
 
-        // Для админки - более мягкие правила (нужен inline JS для редакторов)
-        if ($request->is('admin/*')) {
+        // Для админки и мастера установки - более мягкие правила (нужен inline JS
+        // для редакторов, а Alpine.js в принципе не работает без 'unsafe-eval' —
+        // он вычисляет x-data/x-on/:bind выражения через new Function(), это
+        // и есть eval с точки зрения CSP)
+        if ($request->is('admin/*') || $request->is('install*')) {
             $policies = [
                 "default-src 'self'",
                 "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
@@ -77,10 +80,12 @@ class ContentSecurityPolicy
                 "frame-ancestors 'none'",
             ];
         } else {
-            // Для фронтенда - строгие правила
+            // Для фронтенда - строгие правила, но с 'unsafe-eval': Alpine.js
+            // используется и здесь (переключатель темы, дропдауны, формы и т.д.)
+            // и без этого молча не работает вообще ничего интерактивное
             $policies = [
                 "default-src 'self'",
-                "script-src 'self' 'unsafe-inline'",
+                "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
                 "style-src 'self' 'unsafe-inline'",
                 "img-src 'self' data: https:",
                 "font-src 'self' data:",
