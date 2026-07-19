@@ -22,10 +22,10 @@ class ContentSecurityPolicy
 
         // CSP политика
         $policy = $this->buildPolicy($request);
-        
+
         if (!empty($policy)) {
             $response->headers->set('Content-Security-Policy', $policy);
-            
+
             // Отчеты о нарушениях (только в development)
             if (app()->environment('local')) {
                 try {
@@ -37,6 +37,18 @@ class ContentSecurityPolicy
                     // Игнорируем, если маршрут не определен
                 }
             }
+        }
+
+        // Остальные стандартные security-заголовки
+        $response->headers->set('X-Content-Type-Options', 'nosniff');
+        $response->headers->set('X-Frame-Options', 'DENY');
+        $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
+        $response->headers->set('Permissions-Policy', 'geolocation=(), microphone=(), camera=(), payment=()');
+
+        // HSTS — только по HTTPS: браузеры игнорируют этот заголовок по HTTP,
+        // но выставлять его на локальном/HTTP-окружении незачем
+        if ($request->secure()) {
+            $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
         }
 
         return $response;
