@@ -15,7 +15,9 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                // macOS-стек: на Mac/iOS резолвится в системный San Francisco без сети,
+                // на остальных платформах — локально захостенный Inter (см. resources/views/layouts)
+                sans: ['-apple-system', 'BlinkMacSystemFont', 'Inter', ...defaultTheme.fontFamily.sans],
             },
             screens: {
                 'xs': '475px',

@@ -70,18 +70,10 @@
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    {{-- Автоматическое определение системной темы --}}
+    {{-- Светлая тема всегда по умолчанию: системную dark-preference не учитываем, только явный выбор пользователя --}}
     <script>
         (function() {
-            const saved = localStorage.getItem('darkMode');
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            
-            if (saved === null) {
-                // Используем системную тему, если нет сохраненной
-                if (prefersDark) {
-                    document.documentElement.classList.add('dark');
-                }
-            } else if (saved === 'true') {
+            if (localStorage.getItem('darkMode') === 'true') {
                 document.documentElement.classList.add('dark');
             }
         })();
@@ -94,7 +86,7 @@
         $tokens = $activeTheme->tokens ?? [];
         $config = $activeTheme->config ?? [];
 
-        $fontBase = data_get($tokens, 'font.base', 'Inter, system-ui, sans-serif');
+        $fontBase = data_get($tokens, 'font.base', '-apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif');
         $radiusMd = data_get($tokens, 'radius.md', '12px');
 
         $cBg = data_get($tokens, 'colors.bg', '#ffffff');
@@ -109,7 +101,7 @@
             (data_get($config, 'bg_url') ??
                 (data_get($config, 'pattern_url') ?? (data_get($config, 'bg_image') ?? null)));
 
-        $iconMode = data_get($config, 'icon_mode', 'fa');
+        $iconMode = data_get($config, 'icon_mode', 'lucide');
 
         $fontProvider = data_get($config, 'font_provider'); // 'local' | 'google' | 'bunny' | null
         $fontName = trim((string) data_get($config, 'font_name', ''));
@@ -243,7 +235,7 @@
 </head>
 
 <body class="relative text-gray-800 dark:text-gray-100 min-h-screen flex flex-col border-l border-r border-black dark:border-gray-700 overflow-x-hidden bg-white dark:bg-gray-900 transition-colors duration-200"
-    style="font-family: var(--font-base, Inter, system-ui, sans-serif)">
+    style="font-family: var(--font-base, -apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif)">
 
     {{-- ЕДИНЫЙ фон-паттерн из темы --}}
     <div class="absolute inset-0 z-0 opacity-10 dark:opacity-5 pointer-events-none"

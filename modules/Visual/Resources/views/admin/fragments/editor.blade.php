@@ -5,11 +5,11 @@
 @php
     $isSystem = in_array($fragment->slug, ['site-header','site-footer'], true);
     $themeCfg = ($activeTheme->config ?? []);
-    $iconMode = data_get($themeCfg, 'icon_mode', 'fa');                 // fa | bootstrap | remix | tabler | lucide | svg
+    $iconMode = data_get($themeCfg, 'icon_mode', 'lucide');             // fa | bootstrap | remix | tabler | lucide | svg
     $iconsPath = rtrim((string) data_get($themeCfg, 'icons_path', ''), '/'); // /storage/themes/{id}/icons
     $tokens = $activeTheme->tokens ?? [];
 
-    $fontBase = data_get($tokens, 'font.base', 'Inter, system-ui, sans-serif');
+    $fontBase = data_get($tokens, 'font.base', '-apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif');
     $radiusMd = data_get($tokens, 'radius.md', '12px');
     $cBg      = data_get($tokens, 'colors.bg',      '#ffffff');
     $cText    = data_get($tokens, 'colors.text',    '#111827');

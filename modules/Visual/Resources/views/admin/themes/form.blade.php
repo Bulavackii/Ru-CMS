@@ -48,11 +48,12 @@
       <div>
         <label class="block text-sm font-medium mb-1">Шрифт (base, локальный фолбэк)</label>
         @php
-          $font = old('tokens.font.base', data_get($t,'font.base','Inter, system-ui, sans-serif'));
+          $font = old('tokens.font.base', data_get($t,'font.base','-apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif'));
         @endphp
         <select name="tokens[font][base]" class="border rounded px-3 py-2 w-full" id="fontBase">
           @php
             $presetFonts = [
+              '-apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif' => '🍎 macOS (системный San Francisco + Inter)',
               'Inter, system-ui, sans-serif' => 'Inter',
               'Roboto, system-ui, sans-serif' => 'Roboto',
               'Open Sans, system-ui, sans-serif' => 'Open Sans',
@@ -227,16 +228,16 @@
 
     <div>
       <label class="block text-sm font-medium mb-1">Режим иконок</label>
-      @php $iconMode = old('config.icon_mode', data_get($cfg,'icon_mode','fa')); @endphp
+      @php $iconMode = old('config.icon_mode', data_get($cfg,'icon_mode','lucide')); @endphp
       <select name="config[icon_mode]" class="border rounded px-3 py-2 w-full">
-        <option value="fa"        @selected($iconMode==='fa')>Font Awesome (CDN)</option>
-        <option value="bootstrap" @selected($iconMode==='bootstrap')>Bootstrap Icons (CDN)</option>
-        <option value="tabler"    @selected($iconMode==='tabler')>Tabler Icons (CDN)</option>
-        <option value="remix"     @selected($iconMode==='remix')>Remix Icons (CDN)</option>
-        <option value="lucide"    @selected($iconMode==='lucide')>Lucide (JS)</option>
-        <option value="heroicons" @selected($iconMode==='heroicons')>Heroicons</option>
+        <option value="lucide"    @selected($iconMode==='lucide')>🍎 Lucide — тонкие линии в стиле macOS/SF Symbols (рекомендуется)</option>
+        <option value="fa"        @selected($iconMode==='fa')>Font Awesome</option>
+        <option value="bootstrap" @selected($iconMode==='bootstrap')>Bootstrap Icons</option>
+        <option value="tabler"    @selected($iconMode==='tabler')>Tabler Icons</option>
+        <option value="remix"     @selected($iconMode==='remix')>Remix Icons</option>
         <option value="svg"       @selected($iconMode==='svg')>Локальные SVG из ZIP</option>
       </select>
+      <p class="text-xs text-gray-500 mt-1">Все наборы захостены локально — ни один не обращается к внешним CDN.</p>
     </div>
 
     <div>
@@ -262,7 +263,7 @@
     <div class="sticky top-4">
       <h3 class="font-semibold mb-3">Превью</h3>
       <div id="preview" class="rounded-lg border p-4"
-           style="background: var(--color-bg,#fff); color: var(--color-text,#111827); font-family: var(--font-base,Inter,system-ui,sans-serif)">
+           style="background: var(--color-bg,#fff); color: var(--color-text,#111827); font-family: var(--font-base,-apple-system,BlinkMacSystemFont,Inter,system-ui,sans-serif)">
         <div id="pvHeaderWrap"
              class="py-2 px-3 rounded mb-3"
              style="background: var(--color-header,#fff); display:flex; gap:.75rem; align-items:center; justify-content:flex-start;">
@@ -300,7 +301,7 @@
     setVar('--color-header', get('tokens[colors][header]','#ffffff'));
     setVar('--color-footer', get('tokens[colors][footer]','#ffffff'));
 
-    setVar('--font-base', document.getElementById('fontBase')?.value || 'Inter, system-ui, sans-serif');
+    setVar('--font-base', document.getElementById('fontBase')?.value || '-apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif');
 
     const r = document.getElementById('radiusValue')?.value || '12px';
     setVar('--radius-md', r);

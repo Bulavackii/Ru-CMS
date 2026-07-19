@@ -15,17 +15,10 @@
   @vite(['resources/js/app.js'])
   
   {{-- Инициализация темы до загрузки Alpine.js (предотвращает мерцание) --}}
+  {{-- Светлая тема всегда по умолчанию: системную dark-preference не учитываем, только явный выбор пользователя --}}
   <script>
     (function() {
-      const saved = localStorage.getItem('darkMode');
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      
-      if (saved === null) {
-        // Используем системную тему, если нет сохраненной
-        if (prefersDark) {
-          document.documentElement.classList.add('dark');
-        }
-      } else if (saved === 'true') {
+      if (localStorage.getItem('darkMode') === 'true') {
         document.documentElement.classList.add('dark');
       }
     })();
@@ -103,6 +96,15 @@
       window.addEventListener('resize', apply, { passive: true });
       document.addEventListener('DOMContentLoaded', apply);
     })();
+  </script>
+
+  {{-- Финальный проход Lucide после полной загрузки DOM — подхватывает иконки из @yield('content') и всех компонентов --}}
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        try { window.lucide.createIcons(); } catch (e) {}
+      }
+    });
   </script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 <nav class="bg-gray-900 dark:bg-gray-800 text-white shadow z-30 w-full transition-colors duration-200"
-     style="font-family: {{ data_get(optional(\Modules\Visual\Models\Theme::where('is_default',true)->first())->tokens,'font.base','Inter, system-ui, sans-serif') }}">
+     style="font-family: {{ data_get(optional(\Modules\Visual\Models\Theme::where('is_default',true)->first())->tokens,'font.base','-apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif') }}">
 
     @php
         // Оставляем только получение темы для шрифта (иконки — через @themeIcon)

@@ -135,7 +135,7 @@ class ThemeServiceProvider extends ServiceProvider
         try {
             $theme = self::getTheme();
             $cfg = $theme?->config ?? [];
-            $mode = data_get($cfg, 'icon_mode', 'fa');
+            $mode = data_get($cfg, 'icon_mode', 'lucide');
 
             return self::renderIcon($name, $class, $mode, $cfg);
         } catch (\Throwable $e) {

@@ -5,8 +5,8 @@
     use Illuminate\Support\Facades\Schema;
 
     $theme     = \Modules\Visual\Models\Theme::where('is_default', true)->first();
-    $fontBase  = data_get($theme?->tokens,'font.base','Inter, system-ui, sans-serif');
-    $iconMode  = data_get($theme?->config,'icon_mode','fa');
+    $fontBase  = data_get($theme?->tokens,'font.base','-apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif');
+    $iconMode  = data_get($theme?->config,'icon_mode','lucide');
     $iconsPath = rtrim((string) data_get($theme?->config,'icons_path',''),'/');
 
     /**

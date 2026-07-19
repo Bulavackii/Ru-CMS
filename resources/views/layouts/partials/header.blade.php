@@ -103,13 +103,8 @@
         <button x-data="{
             darkMode: false,
             init() {
-                const saved = localStorage.getItem('darkMode');
-                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                if (saved === null) {
-                    this.darkMode = prefersDark;
-                } else {
-                    this.darkMode = saved === 'true';
-                }
+                // Светлая тема по умолчанию — включаем тёмную только по явному выбору пользователя
+                this.darkMode = localStorage.getItem('darkMode') === 'true';
                 this.applyTheme();
             },
             toggle() {

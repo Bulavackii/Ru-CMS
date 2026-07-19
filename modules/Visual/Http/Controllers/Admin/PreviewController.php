@@ -76,7 +76,7 @@ class PreviewController extends Controller
         $css .= '--radius-md: ' . (string) data_get($tokens, 'radius.md', '12px') . ';';
 
         // font.base
-        $fontBase = (string) data_get($tokens, 'font.base', 'Inter, system-ui, sans-serif');
+        $fontBase = (string) data_get($tokens, 'font.base', '-apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif');
         $css .= '--font-base: ' . $fontBase . ';';
 
         $css .= '}';

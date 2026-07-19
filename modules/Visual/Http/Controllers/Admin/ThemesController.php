@@ -242,7 +242,7 @@ class ThemesController extends Controller
         $cfg['font_name']     = $r->input('config.font_name',     $cfg['font_name'] ?? null);
 
         // Режим иконок
-        $cfg['icon_mode']     = $r->input('config.icon_mode', $cfg['icon_mode'] ?? 'fa');
+        $cfg['icon_mode']     = $r->input('config.icon_mode', $cfg['icon_mode'] ?? 'lucide');
 
         // Пользовательский CSS (не трогаем, если поле пустое и не прислано)
         if ($r->exists('config.css')) {
@@ -280,7 +280,7 @@ class ThemesController extends Controller
         $css .= '--radius-md: ' . (string) data_get($tokens, 'radius.md', '12px') . ';';
 
         // font.base
-        $fontBase = (string) data_get($tokens, 'font.base', 'Inter, system-ui, sans-serif');
+        $fontBase = (string) data_get($tokens, 'font.base', '-apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif');
         $css .= '--font-base: ' . $fontBase . ';';
 
         $css .= '}';

@@ -14,7 +14,7 @@
 }" x-cloak :class="collapsed ? 'w-16' : 'w-72'"
     class="fixed top-0 left-0 h-screen bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 shadow-lg flex flex-col z-40 transition-[width] duration-300 ease-in-out">
     @php
-    $fontBase = data_get(($activeTheme ?? null)?->tokens ?? [], 'font.base', 'Inter, system-ui, sans-serif');
+    $fontBase = data_get(($activeTheme ?? null)?->tokens ?? [], 'font.base', '-apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif');
 @endphp
 
     <div class="px-3 py-3 border-b border-gray-200 dark:border-gray-800 bg-gray-900"

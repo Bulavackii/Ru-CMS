@@ -2,18 +2,8 @@
 <div x-data="{
         darkMode: false,
         init() {
-            // Проверяем сохраненное значение или системную тему
-            const saved = localStorage.getItem('darkMode');
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            
-            if (saved === null) {
-                // Если нет сохраненного значения, используем системную тему
-                this.darkMode = prefersDark;
-            } else {
-                this.darkMode = saved === 'true';
-            }
-            
-            // Применяем тему сразу
+            // Светлая тема по умолчанию — включаем тёмную только по явному выбору пользователя
+            this.darkMode = localStorage.getItem('darkMode') === 'true';
             this.applyTheme();
         },
         toggle() {

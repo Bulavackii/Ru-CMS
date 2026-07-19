@@ -1,12 +1,7 @@
 <header
     x-data="{
         searchOpen: false,
-        q: '',
-        toggleTheme(){
-            const html = document.documentElement;
-            html.classList.toggle('dark');
-            localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
-        }
+        q: ''
     }"
     @keydown.window.prevent.ctrl.k="searchOpen = !searchOpen; $nextTick(()=> $refs.search?.focus())"
     class="z-30 w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur border-b shadow text-sm text-gray-700 dark:text-gray-300"
@@ -16,8 +11,8 @@
         $activeTheme = \Modules\Visual\Models\Theme::where('is_default', true)->first();
         $tokens   = $activeTheme->tokens ?? [];
         $config   = $activeTheme->config ?? [];
-        $fontBase = data_get($tokens, 'font.base', 'Inter, system-ui, sans-serif');
-        $iconMode = data_get($config, 'icon_mode', 'fa');
+        $fontBase = data_get($tokens, 'font.base', '-apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif');
+        $iconMode = data_get($config, 'icon_mode', 'lucide');
         $fontProvider = data_get($config,'font_provider');
         $fontName     = trim((string) data_get($config,'font_name',''));
         $iconsPath    = rtrim((string) data_get($config,'icons_path',''),'/');
@@ -41,7 +36,7 @@
     @endif
 
     @php
-        $iconAsset = theme_icon_asset($iconMode ?: 'fa');
+        $iconAsset = theme_icon_asset($iconMode ?: 'lucide');
     @endphp
     @if($iconAsset)
         @if($iconMode === 'lucide')
@@ -162,15 +157,6 @@
             @themeIcon('search')
         </button>
 
-        <button
-            class="ml-1 w-9 h-9 grid place-items-center rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800"
-            @click="toggleTheme()"
-            :title="document.documentElement.classList.contains('dark') ? 'Светлая тема' : 'Тёмная тема'"
-            aria-label="Переключить тему"
-        >
-            <i class="fa-solid" :class="document.documentElement.classList.contains('dark') ? 'fa-sun' : 'fa-moon'"></i>
-        </button>
-
         @php
             $unread = 0; $newOrders = 0; $unreadMessages = 0; $licenseWarning = null;
             try { if (class_exists(\Modules\Notifications\Models\Notification::class)) $unread = \Modules\Notifications\Models\Notification::where('enabled',1)->count(); } catch (\Throwable $e) {}
@@ -235,10 +221,7 @@
 
     <script>
         (function(){
-            if (localStorage.getItem('theme') === 'dark') {
-                document.documentElement.classList.add('dark');
-            }
-            // Lucide (если выбран)
+            // Lucide (если выбран режимом темы) — начальный проход, финальный идёт в конце layout после полной загрузки DOM
             if (window.lucide && typeof window.lucide.createIcons === 'function') {
                 try { window.lucide.createIcons(); } catch (e) {}
             }
