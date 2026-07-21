@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
@@ -281,6 +282,37 @@ class InstallController extends Controller
             // database/migrations/ — одного вызова достаточно, отдельный
             // проход по путям модулей больше не нужен.
             Artisan::call('migrate', ['--force' => true]);
+
+            // Регистрация модулей в таблице `modules`. Без этого шага таблица
+            // после установки остаётся пустой: миграции её только создают, а
+            // наполняет отдельная команда. Пустая таблица = пустая вкладка
+            // «Модули» в админке и незагруженные модули (работали бы только
+            // те, что перечислены в $legacyModules у ModuleServiceProvider).
+            try {
+                Artisan::call('modules:sync');
+            } catch (\Throwable $e) {
+                // Не блокируем установку: ModuleServiceProvider доведёт
+                // синхронизацию сам при следующем запросе.
+                Log::warning('Не удалось выполнить modules:sync при установке', [
+                    'error' => $e->getMessage(),
+                ]);
+            }
+
+            // Симлинк public/storage → storage/app/public. Без него любой
+            // загруженный файл (картинки новостей, вложения, медиа визуального
+            // редактора) отдаёт 404: ссылки строятся через asset('storage/...').
+            try {
+                if (!file_exists(public_path('storage'))) {
+                    Artisan::call('storage:link');
+                }
+            } catch (\Throwable $e) {
+                // На части хостингов симлинки запрещены — это не повод
+                // прерывать установку, предупредим на финальном экране.
+                $this->pushInstallWarning(__('install.errors.storage_link'));
+                Log::warning('Не удалось создать симлинк storage', [
+                    'error' => $e->getMessage(),
+                ]);
+            }
 
             // Проверка обязательных таблиц (без них система нежизнеспособна)
             $missing = $this->verifyInstalledTables();
@@ -565,7 +597,7 @@ class InstallController extends Controller
             Artisan::call('config:clear');
             Artisan::call('cache:clear');
         } catch (\Throwable $e) {
-            \Log::warning('Install finish error', ['error' => $e->getMessage()]);
+            Log::warning('Install finish error', ['error' => $e->getMessage()]);
             $this->pushInstallWarning(__('install.errors.finish_partial', ['error' => $e->getMessage()]));
         }
 
@@ -584,7 +616,7 @@ class InstallController extends Controller
                 request()->session()->regenerate();
             }
         } catch (\Throwable $e) {
-            \Log::warning('Install auto-login failed', ['error' => $e->getMessage()]);
+            Log::warning('Install auto-login failed', ['error' => $e->getMessage()]);
         }
 
         return view('Install::finish', [
@@ -1035,7 +1067,7 @@ class InstallController extends Controller
                 'APP_TIMEZONE' => $countryData['timezone'],
             ]);
         } catch (\Throwable $e) {
-            \Log::warning('Failed to apply localization settings', [
+            Log::warning('Failed to apply localization settings', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
@@ -1097,7 +1129,7 @@ class InstallController extends Controller
                 $this->writeEnv(['LICENSE_KEY' => $licenseKey]);
             }
         } catch (\Throwable $e) {
-            \Log::error('Failed to create subscription during install', [
+            Log::error('Failed to create subscription during install', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);

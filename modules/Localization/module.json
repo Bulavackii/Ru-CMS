@@ -6,6 +6,6 @@
   "priority": 50,
   "description": "Управление переводами, форматами даты, времени и валюты для разных стран",
   "providers": [
-    "Modules\\\\Localization\\\\Providers\\\\LocalizationServiceProvider"
+    "Modules\\Localization\\Providers\\LocalizationServiceProvider"
   ]
 }

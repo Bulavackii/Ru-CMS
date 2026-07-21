@@ -255,7 +255,9 @@
 <script>
     window.dashboardCharts = @json($stats['charts'] ?? []);
 </script>
-<script src="{{ asset('js/admin/dashboard.js') }}"></script>
+{{-- Обычный vanilla-скрипт: зависит от глобальных Chart и Sortable выше,
+     поэтому лежит рядом с ними в public/assets/js, а не в сборке Vite. --}}
+<script src="{{ local_js('admin-dashboard.js') }}"></script>
 @endpush
 @endsection
 

@@ -6,7 +6,8 @@
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>@yield('title', 'Панель управления')</title>
 
-  <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+  {{-- favicon.png в проекте нет — иконка лежит в SVG, как и на фронтенде --}}
+  <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
   <link href="{{ local_css('tailwind.min.css') }}" rel="stylesheet">
   <link rel="stylesheet" href="{{ local_css('font-awesome/all.min.css') }}" crossorigin="anonymous" referrerpolicy="no-referrer"/>
   <style>[x-cloak]{display:none!important}</style>

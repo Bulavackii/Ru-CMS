@@ -304,6 +304,7 @@ return [
         'demo'               => 'Failed to install demo data: :error',
         'finish_partial'     => 'Not everything could be finished automatically: :error. The installation still counts as complete — check the settings in the admin panel.',
         'optional_tables'    => 'Some optional modules did not create their tables: :tables. That is expected if those modules are disabled.',
+        'storage_link'       => 'Could not create the public/storage link — uploaded files and images will not open. Run it manually: php artisan storage:link (some hosts disallow symlinks — contact support).',
         'step_order'         => 'Please complete the previous installation step first.',
     ],
 

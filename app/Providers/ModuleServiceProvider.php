@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Modules\System\Models\Module;
 
@@ -51,11 +52,30 @@ class ModuleServiceProvider extends ServiceProvider
         }
     }
 
+    /**
+     * Синхронизация modules/<Name>/module.json с таблицей `modules`.
+     *
+     * Раньше метод умел только ОБНОВЛЯТЬ уже существующие записи и делал
+     * continue, если модуля в БД нет. После чистой установки таблица пустая
+     * (мастер накатывает миграции, но не сидит модули), поэтому она такой и
+     * оставалась: админка «Модули» была пуста, а loadActiveModules() ничего
+     * не грузил — работали только модули из жёсткого списка $legacyModules.
+     * Теперь недостающие записи заводятся, то есть уже установленные системы
+     * чинятся сами при первом же запросе.
+     *
+     * Читаем таблицу одним запросом и пишем только при реальных изменениях:
+     * boot() выполняется на каждый запрос, а прежний безусловный save()
+     * давал два десятка UPDATE на каждую страницу.
+     */
     private function syncModuleMetadata(): void
     {
-        $moduleDirectories = File::directories(base_path('modules'));
+        try {
+            $existing = Module::all()->keyBy('name');
+        } catch (\Throwable $e) {
+            return;
+        }
 
-        foreach ($moduleDirectories as $modulePath) {
+        foreach (File::directories(base_path('modules')) as $modulePath) {
             $moduleName = basename($modulePath);
             $moduleJsonPath = $modulePath . DIRECTORY_SEPARATOR . 'module.json';
 
@@ -63,24 +83,38 @@ class ModuleServiceProvider extends ServiceProvider
                 continue;
             }
 
-            try {
-                $metadata = json_decode(File::get($moduleJsonPath), true);
-            } catch (\Throwable $e) {
+            $metadata = json_decode(File::get($moduleJsonPath), true);
+            if (!is_array($metadata)) {
                 continue;
             }
 
-            if (!is_array($metadata) || !isset($metadata['title'], $metadata['priority'])) {
-                continue;
+            $module = $existing->get($moduleName) ?? new Module(['name' => $moduleName]);
+
+            // Версию и активность берём из манифеста только при первом
+            // появлении модуля. Дальше активностью управляет админка —
+            // манифест не должен переключать её обратно на каждом запросе.
+            if (!$module->exists) {
+                $module->version = $metadata['version'] ?? '1.0.0';
+                $module->active = (bool) ($metadata['active'] ?? false);
+                $module->installed_at = now();
             }
 
-            $module = Module::where('name', $moduleName)->first();
-            if (!$module) {
-                continue;
+            if (isset($metadata['title'])) {
+                $module->title = $metadata['title'];
+            }
+            if (isset($metadata['priority'])) {
+                $module->priority = (int) $metadata['priority'];
             }
 
-            $module->title = $metadata['title'];
-            $module->priority = $metadata['priority'];
-            $module->save();
+            if (!$module->exists || $module->isDirty()) {
+                try {
+                    $module->save();
+                } catch (\Throwable $e) {
+                    Log::warning("Не удалось синхронизировать модуль {$moduleName}", [
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
         }
     }
 
@@ -138,7 +172,7 @@ class ModuleServiceProvider extends ServiceProvider
                     }
                 }
             } catch (\Throwable $e) {
-                \Log::error("Failed to register module providers for {$moduleName}", [
+                Log::error("Failed to register module providers for {$moduleName}", [
                     'error' => $e->getMessage()
                 ]);
             }
@@ -265,7 +299,7 @@ class ModuleServiceProvider extends ServiceProvider
                 $this->app->register(\Modules\Seo\Providers\SeoServiceProvider::class);
             }
         } catch (\Throwable $e) {
-            \Log::error("Failed to load SEO module", ['error' => $e->getMessage()]);
+            Log::error('Failed to load SEO module', ['error' => $e->getMessage()]);
         }
     }
 }
