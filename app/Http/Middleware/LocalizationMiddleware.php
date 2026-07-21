@@ -21,10 +21,23 @@ class LocalizationMiddleware
         $this->localizationService = $localizationService;
     }
 
+    /** Локали, которые интерфейс реально умеет отображать. */
+    public const SUPPORTED_LOCALES = ['ru', 'en', 'be', 'kk'];
+
     public function handle(Request $request, Closure $next): Response
     {
-        // Пропускаем маршруты установки
+        // Маршруты установки: язык берём из выбора на 1-м шаге мастера
+        // (session install_locale). БД тут не трогаем — она может быть ещё
+        // не настроена. Так переключение языка на welcome применяется ко
+        // всем последующим шагам установщика.
         if ($request->is('install*')) {
+            $installLocale = session('install_locale', config('app.locale', 'ru'));
+            if (!in_array($installLocale, self::SUPPORTED_LOCALES, true)) {
+                $installLocale = 'ru';
+            }
+            App::setLocale($installLocale);
+            Session::put('locale', $installLocale);
+            view()->share('currentLocale', $installLocale);
             return $next($request);
         }
 
@@ -132,7 +145,7 @@ class LocalizationMiddleware
         // 1. Из параметра запроса
         if ($request->has('lang')) {
             $lang = $request->get('lang');
-            if (in_array($lang, ['ru', 'en'])) {
+            if (in_array($lang, self::SUPPORTED_LOCALES)) {
                 return $lang;
             }
         }
@@ -140,7 +153,7 @@ class LocalizationMiddleware
         // 2. Из сессии
         if (Session::has('locale')) {
             $lang = Session::get('locale');
-            if (in_array($lang, ['ru', 'en'])) {
+            if (in_array($lang, self::SUPPORTED_LOCALES)) {
                 return $lang;
             }
         }
@@ -151,7 +164,7 @@ class LocalizationMiddleware
         }
 
         // 4. Из Accept-Language заголовка
-        $preferredLang = $request->getPreferredLanguage(['ru', 'en']);
+        $preferredLang = $request->getPreferredLanguage(self::SUPPORTED_LOCALES);
         if ($preferredLang) {
             return $preferredLang;
         }

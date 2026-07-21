@@ -9,6 +9,9 @@
             <p class="text-muted mb-0">Настройка стран, валют, форматов даты и времени</p>
         </div>
         <div class="btn-group">
+            <a href="{{ route('admin.localization.translations.index') }}" class="btn btn-dark">
+                <i class="fas fa-language"></i> Переводы интерфейса
+            </a>
             <a href="{{ route('admin.localization.create') }}" class="btn btn-primary">
                 <i class="fas fa-plus"></i> Добавить страну
             </a>

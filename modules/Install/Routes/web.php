@@ -16,6 +16,7 @@ Route::middleware(['web', 'skip.install.db', 'block.if.installed'])->prefix('ins
     Route::get('/features', [InstallController::class, 'features'])->name('install.features');
     Route::match(['get', 'post'], '/database', [InstallController::class, 'database'])->name('install.database');
     Route::match(['get', 'post'], '/admin', [InstallController::class, 'admin'])->name('install.admin');
+    Route::match(['get', 'post'], '/smtp', [InstallController::class, 'smtp'])->name('install.smtp');
     Route::match(['get', 'post'], '/license', [InstallController::class, 'license'])->name('install.license');
     Route::match(['get', 'post'], '/demo', [InstallController::class, 'demo'])->name('install.demo');
     Route::get('/finish', [InstallController::class, 'finish'])->name('install.finish');

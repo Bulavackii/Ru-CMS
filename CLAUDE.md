@@ -1,44 +1,277 @@
-# RU CMS — project notes for Claude
+# RU CMS — рабочая памятка для Claude
 
-Laravel 12 HMVC modular CMS ("RuShop CMS" / "RU CMS"). Modules live in `modules/<Name>/` (Controllers/Models/Providers/Views/Routes), loaded by `app/Providers/ModuleServiceProvider.php`. **Migrations are NOT per-module** — all of them (core + every module's) live in the single `database/migrations/`, see below. GitHub: `Bulavackii/Ru-CMS` (public), remote `origin` already configured, pushes go straight to `master` (no PR flow set up).
+> **Этот файл — точка входа в сессию.** Прочитай его целиком до первой правки кода.
+> Здесь: как работать, чего не делать, что уже сделано и на чём остановились.
+> Держи файл актуальным — дописывай сюда итоги каждой сессии.
 
-**Database: PostgreSQL only.** The install wizard's DB step offers only PostgreSQL (no MySQL/MariaDB/SQLite picker) — deliberate choice by the user ("opensource DB"). `config/database.php` still has other driver configs defined (harmless), but nothing in the app should assume/require MySQL-only syntax. The test suite still runs against SQLite (`phpunit.xml`) for speed — that's a separate, intentional choice; migrations must stay driver-agnostic (Laravel Schema Builder, not raw SQL) so both work.
+**Что за проект:** Laravel 12, модульная HMVC-CMS («RuShop CMS» / «RU CMS»).
+Репозиторий: `Bulavackii/Ru-CMS` (публичный, GitHub), remote `origin` настроен.
 
-> **Commit messages: always in Russian.** Standing instruction from the user, applies to every commit in this repo. (The `Co-Authored-By:` trailer line stays as-is — it's a fixed format, not prose.)
+---
 
-## Where things stand (as of 2026-07-19)
+## 🔴 Железные правила
 
-- **Test suite: 151/151 passing, 0 errors, 0 failures** (`php vendor/bin/phpunit --no-coverage`). Got there from a starting point of "couldn't even boot" → 142 errors → 30 errors/48 failures → 0/0, across two work sessions. See commits `61648cf` and `dcb8329` for the detailed reasoning — both have long, specific commit messages explaining root causes, worth reading with `git show <sha>` before re-deriving the same things.
-- Dependencies (composer + npm) were updated to latest **within existing major-version constraints** in the earlier session. These were **deliberately NOT bumped** (breaking changes, needs dedicated migration effort, not started): Laravel 12→13, Tailwind 3→4, Vite 6→8, PHPUnit 11→13, laravel/tinker 2→3, spatie/laravel-sitemap 7→8.
-- CDN-independence pass done: local webfonts (`@fontsource`, latin+cyrillic), local swagger-ui, Yandex Maps consent-gated (click-to-load), Yandex Metrika config-gated, security headers (CSP/HSTS/etc) added in `app/Http/Middleware/ContentSecurityPolicy.php` and `bootstrap/app.php`.
-- Install wizard (`modules/Install/`) redesigned: macOS-inspired light theme (`-apple-system`/`BlinkMacSystemFont` font stack, real San Francisco on an actual Mac, local Inter fallback everywhere else), Lucide icons instead of Font Awesome, a shared step-indicator partial (`Install::partials.steps`) instead of 8 pages of hand-copied, drifting step counts. Step order is now enforced server-side via session flags (`session("install.completed.$step")`) — can't jump ahead by hitting a later route directly.
+Нарушать нельзя — это прямые указания владельца проекта.
 
-## Sandbox environment gotcha (read this before debugging weird failures)
+| Правило | Подробности |
+|---|---|
+| **Коммиты только по-русски** | Заголовок и тело коммита пишутся на русском. Трейлер `Co-Authored-By:` — фиксированный формат, его не переводим. |
+| **Общение и тексты — по-русски** | Ответы пользователю, комментарии в коде, строки интерфейса, сообщения об ошибках. |
+| **Пуш напрямую в `master`** | PR-флоу не настроен. Коммит → `git push origin master`. |
+| **БД — только PostgreSQL** | Осознанный выбор («опенсорсная БД»). В мастере установки нет выбора MySQL/SQLite. Конфиги других драйверов в `config/database.php` остались — они безвредны. Ничего в приложении не должно опираться на MySQL-специфичный синтаксис. Тесты при этом гоняются на SQLite (`phpunit.xml`) ради скорости — отдельное осознанное решение, поэтому миграции обязаны быть драйвер-нейтральными (Schema Builder, а не сырой SQL). |
+| **Миграции — только в `database/migrations/`** | НЕ по модулям. Подробности ниже. |
 
-This dev sandbox has **no working `pdo_mysql` driver**. `php artisan <anything>` fails immediately with "could not find driver" because `ModuleServiceProvider::boot()` touches the DB (`Schema::hasTable('modules')`) unconditionally at boot, and the real `.env` points at MySQL. Workarounds used throughout:
-- For one-off artisan commands: prefix with `APP_ENV=testing DB_CONNECTION=sqlite DB_DATABASE=:memory:` env vars.
-- For the test suite: just use `php vendor/bin/phpunit --no-coverage` directly — `phpunit.xml` already overrides `DB_CONNECTION`/`DB_DATABASE`/`CACHE_STORE`/`SESSION_DRIVER`/`CAPTCHA_ENABLED` etc. Don't use `php artisan test` (boots via the real `.env` first).
-- If you edit a `.blade.php` file, run `rm -rf storage/framework/views/*.php` before the next `phpunit` run — stale compiled views can mask fixes (bit us once with a Blade compile bug).
+---
 
-`storage/install.lock` exists on this sandbox (git-ignored, machine-local) and is **load-bearing for the test suite** — its absence makes `RedirectIfNotInstalled` middleware redirect every request to `/install`, breaking nearly everything. Don't delete it. If it's ever missing, recreate with `printf 'Installed' > storage/install.lock`.
+## ⚡ С чего начать сессию
 
-## Architecture landmines found this session (fixed, but good to know)
+```bash
+git log --oneline -5                    # что было в прошлый раз
+git status --short                      # незакоммиченное
+php vendor/bin/phpunit --no-coverage    # базовая линия: должно быть 166/166
+```
 
-- **`require_once` in route files is wrong in this codebase.** `routes/web.php` used to `require_once` module route files (Categories/Slideshow/Delivery/Payments/etc). Since PHPUnit runs all tests in one PHP process, the first app boot "used up" the `require_once` and every later app boot silently lost those routes. Same bug would hit Octane/RoadRunner in production. Fixed → always use plain `require` for anything that needs to re-run per app-instance boot.
-- **`bootstrap/app.php`'s provider registration was double-counting.** It manually `require`s `bootstrap/providers.php` into `$providers`, then called `->withProviders($providers)` — which by default *also* re-merges that same file. Every provider's `boot()` ran twice (including `EventServiceProvider`'s `Event::listen()` calls). Now calls `->withProviders($providers, false)` and explicitly `->withEvents(discover: false)` (Laravel 11's implicit event auto-discovery was independently re-discovering the same listeners a second way).
-- **`ModuleServiceProvider`'s `isInstalled()` gate was too broad.** It used to gate *all* module route/view/migration loading behind `isInstalled()` (which itself needs the `modules` DB table, which migrations create — chicken/egg). But the base layout (`resources/views/layouts/frontend.blade.php`) and globally-shared Blade components (`<x-frontend-notifications />` etc, registered unconditionally in `ThemeServiceProvider`) reference `Menu::`/`Notifications::`/`Categories::` view namespaces on *every* page regardless of install status. Fixed: `loadLegacyModules()` (routes+views for the legacy module list) now runs unconditionally at the top of `boot()`, not just after install. If you add a new legacy module that needs to work pre-install, add it to the `$legacyModules` array in that method. (No `migrations` flag anymore — see the migrations-consolidation entry below, that mechanism was removed entirely.)
-- **Captcha module never merged its own config.** `CaptchaServiceProvider::register()` didn't call `mergeConfigFrom()`, so `config('captcha.enabled')` always silently fell back to the `config()` helper's own default (`true`) — the `.env` var `CAPTCHA_ENABLED` had zero effect anywhere. Fixed.
-- **`bootstrap/cache/services.php` is regenerable — if something looks doubled, check it first.** `composer dump-autoload -o` runs `php artisan package:discover` as a post-hook, which needs a working DB connection env (see sandbox gotcha above) or it silently fails to regenerate and leaves stale/partial cache. Regenerate with: `rm bootstrap/cache/services.php bootstrap/cache/packages.php && APP_ENV=testing DB_CONNECTION=sqlite DB_DATABASE=:memory: php artisan package:discover`.
-- **All migrations were consolidated into `database/migrations/`** (previously scattered across 14 different `modules/<Name>/Migrations` or `modules/<Name>/Database/Migrations` folders, inconsistently named — one was even lowercase `database/migrations`). `ModuleServiceProvider` and all 17 per-module `*ServiceProvider`s used to call `loadMigrationsFrom()` on their own folder; all of that is gone now — Laravel finds everything in the default location without any registration. **If you add a migration for a module, put it directly in `database/migrations/`, not in the module's own directory** — a module-local `Migrations/` folder will silently never run. Along the way, 5 migrations that did hand-rolled MySQL-only `information_schema` queries to check for existing indexes/FKs were rewritten to use `Schema::hasIndex()`/`Schema::getForeignKeys()` (both cross-DB, Laravel 11+) — one of them (`news_category`) had no try/catch around the broken query and would have hard-crashed on Postgres/SQLite if its code path were ever actually reached.
+Если падает много тестов и в диффах мелькает редирект на `/install` —
+**не ищи регрессию**, скорее всего просто пропал `storage/install.lock`
+(см. «Особенности песочницы»).
 
-## Known remaining work (not started, no one has asked for it yet)
+---
 
-- The 4 major-version dependency bumps listed above (Laravel 13, Tailwind 4, Vite 8, PHPUnit 13, tinker 3, spatie/laravel-sitemap 8) — each needs its own migration pass, don't attempt casually.
-- `resources/views/frontend/pages/footer.blade.php` (a *different* file from `layouts/partials/footer.blade.php`, the one actually used by the main layout) uses `<x-country-switcher />` and looks like it might be an orphaned/unused duplicate — never verified whether it's dead code or used by some other layout. Didn't touch it, wasn't in scope.
-- `routes/auth.php` is Laravel Breeze's stock scaffold file and is **not** loaded from anywhere (`routes/web.php` doesn't `require` it). The app has its own custom login/register controllers instead. It's currently harmless dead code, but if anyone goes looking for "why doesn't X Breeze route work," this is why — the file exists but is never wired in. The few routes from it that *are* actually needed (`verification.*`, `password.confirm`, `password.update`, `profile.*`) were individually re-added to `routes/web.php` directly (cherry-picked, not by requiring the whole file, since that file's `login`/`register`/`password.*` routes would collide with the custom controllers).
+## 🗺️ Архитектура: где что лежит
 
-## Testing conventions in this repo
+- **Модули:** `modules/<Name>/` — `Controllers/`, `Models/`, `Providers/`, `Views/`, `Routes/`.
+  Подключаются через `app/Providers/ModuleServiceProvider.php`.
+- **Миграции:** все до единой в `database/migrations/` — и ядра, и модулей.
+  Раньше были раскиданы по 14 папкам внутри модулей; всё консолидировано.
+  **Миграция, положенная в `modules/<Name>/Migrations/`, молча никогда не выполнится.**
+  Ни `ModuleServiceProvider`, ни модульные провайдеры больше не зовут `loadMigrationsFrom()`.
+- **Переводы:** `resources/lang/<locale>/<group>.php` (см. отдельный раздел).
+- **Лейаут админки:** `resources/views/layouts/admin.blade.php` — **Tailwind + Font Awesome + Alpine**.
+  Bootstrap в проекте **нет**. Доступен только `@stack('scripts')`, стека `styles` нет.
+  ⚠️ Часть старых вьюх модуля Localization (`admin/index|create|edit|settings.blade.php`)
+  свёрстана на Bootstrap-классах и потому рендерится без стилей. Новые вьюхи пиши на Tailwind.
+- **`System::Views.admin.modules` — это не лейаут, а страница «Модули».** Старые вьюхи
+  расширяют её и перекрывают `@section('content')`, что срабатывает случайно. Для новых
+  страниц наследуйся напрямую от `layouts.admin`.
 
-- Always `use RefreshDatabase;` in any Feature test that touches the DB or renders a page (LocalizationMiddleware queries `countries` on every request) — several tests were missing this and it silently no-op'd instead of failing loudly.
-- Don't call `$this->seed()` in Unit tests that assert exact row counts via model scopes — `PaymentDeliverySeeder` inserts ~20 real rows and will blow up any `assertCount(1, Model::someScope()->get())`.
-- Truthy checks (`if ($model->some_nullable_int)`) are a recurring bug pattern in this codebase for fields where `0` is a legitimate value (delivery days, etc) — use `!== null` instead when you see this pattern.
+---
+
+## 🌍 Локализация (ключевая подсистема)
+
+**Языки интерфейса:** `ru` (эталон), `en`, `be`, `kk`.
+Дополнительно есть частичные наборы `de`, `fr`, `it` (только `admin/messages/pagination/validation`).
+
+- `config/app.php`: `locale` = `ru`, **`fallback_locale` = `en`**.
+  Отсутствующий ключ уезжает в английский, а не в русский — помни об этом.
+- `app()->langPath()` → `resources/lang` (каталога `lang/` в корне нет).
+- **`resources/lang/ru/install.php` — эталонный словарь.** Структура ключей задаётся там,
+  остальные три языка обязаны повторять её один-в-один (сейчас по 245 ключей).
+  Добавляешь ключ — добавляй сразу во все четыре файла.
+- Часть строк содержит разметку (`<span class="font-mono">`, `<strong>`, `<a href=":url">`)
+  и выводится через `{!! __() !!}`. Это осознанно и безопасно: файлы пишет разработчик,
+  пользовательских данных там нет. Ссылки получают адрес параметром `:url`.
+- Строки для Alpine-биндингов прокидываются через `@js(__('...'))`, например
+  `x-text="submitting ? @js(__('install.database.submitting')) : @js(...)"`.
+
+### Графический редактор переводов
+
+`/admin/localization/translations` — правка словарей прямо из админки.
+
+- `modules/Localization/Services/TranslationFileService.php` — чтение/запись языковых
+  файлов, dot-нотация, статистика, создание и удаление локалей.
+- `modules/Localization/Controllers/Admin/TranslationController.php` — контроллер.
+- `modules/Localization/Views/admin/translations/{index,edit}.blade.php` — Tailwind + Alpine.
+- Тесты: `tests/Unit/Services/TranslationFileServiceTest.php` (15 шт.).
+
+Что важно про него знать:
+- Пишет **в те же файлы**, что и разработчик руками. Отдельного хранилища в БД нет —
+  двух источников правды не возникает, переводы версионируются в git.
+- **Шапка файла сохраняется** при перезаписи: всё до `return` (включая `<?php` и
+  комментарии-пояснения) переносится в новый файл.
+- Перед записью создаётся `.bak`, запись атомарная (tmp + rename).
+- Пустое поле = ключ удаляется из файла (текст уедет в `fallback_locale`), а не пишется
+  пустая строка.
+- Прогресс считается по ключам эталона. «Не переведено» = ключ отсутствует **либо**
+  значение дословно совпадает с эталонным. Это эвристика: «Email» законно одинаков
+  в русском и английском, поэтому проценты — ориентир, а не точная метрика.
+- Коды локалей и имена групп валидируются регуляркой — защита от выхода за пределы
+  `resources/lang` через `../`. Эталон (`ru`) и fallback (`en`) защищены от удаления.
+
+---
+
+## 🧙 Мастер установки (`modules/Install/`)
+
+**Порядок шагов:** welcome → requirements → database → admin → **smtp** → license → demo → finish.
+(`features` — необязательная страница-«отступление», в счётчике шагов не участвует.)
+
+- Порядок форсируется на сервере флагами сессии `install.completed.<step>` —
+  перепрыгнуть вперёд по прямому URL нельзя (`STEP_PREREQUISITES` + `guardStep()`).
+- Индикатор шагов — общий партиал `Install::partials.steps`, а не копипаста по страницам.
+- **Шаг SMTP необязательный:** есть кнопка «Пропустить», плашка «Необязательный шаг»
+  у заголовка, поясняющая сноска и точка-маркер в чипе шага. Без почты CMS ставится
+  и работает — теряется только восстановление пароля по e-mail.
+- Первый шаг = выбор языка (4 флага, инлайн-SVG: Windows вообще не рисует эмодзи флагов,
+  их нет в Segoe UI Emoji). Выбор кладётся в `session('install_locale')`,
+  `LocalizationMiddleware` применяет его ко всем последующим шагам, не трогая БД
+  (её может ещё не быть).
+- На шаге admin запоминается `install_admin_id`; на finish админ логинится
+  автоматически и попадает сразу в `/admin`.
+- Дизайн: светлое «стекло», у каждого шага свой акцентный цвет через
+  `@section('accent', '#hex')` → CSS-переменная `--accent`. Тултипы свои, через
+  `data-tip`, а не нативный `title`.
+- Названия системных требований (`PHP >= 8.5`, `GD / Imagick`, `Writable: storage/`) —
+  **технические идентификаторы**: они же служат ключами для выбора подсказки во вьюхе.
+  Переводятся только расшифровки, сами названия одинаковы на всех языках.
+
+---
+
+## 🩹 Особенности песочницы (читать до отладки странных падений)
+
+- **Нет рабочего `pdo_mysql`.** `php artisan <что угодно>` падает с «could not find driver»:
+  `ModuleServiceProvider::boot()` дёргает БД, а реальный `.env` смотрит в MySQL.
+  Обход для разовых команд:
+  ```bash
+  APP_ENV=testing DB_CONNECTION=sqlite DB_DATABASE=:memory: php artisan <cmd>
+  ```
+  В PowerShell: `$env:APP_ENV='testing'; $env:DB_CONNECTION='sqlite'; $env:DB_DATABASE=':memory:'; php artisan ...`
+- **Тесты гоняй через `php vendor/bin/phpunit --no-coverage`,** а не `php artisan test`
+  (последний сначала грузится с реальным `.env`). `phpunit.xml` уже переопределяет
+  `DB_CONNECTION`/`DB_DATABASE`/`CACHE_STORE`/`SESSION_DRIVER`/`CAPTCHA_ENABLED`.
+- **Правил `.blade.php` — почисти кеш вьюх перед прогоном:**
+  `rm -rf storage/framework/views/*.php`. Устаревшие скомпилированные вьюхи однажды
+  уже маскировали починенный баг компиляции Blade.
+- **`storage/install.lock` несущий для тестов.** Файл git-ignored и машинно-локальный.
+  Без него middleware `RedirectIfNotInstalled` уводит *каждый* запрос на `/install`,
+  и валится ~36 тестов. Восстановить:
+  ```bash
+  printf 'Installed' > storage/install.lock
+  ```
+  (В сессию 21.07.2026 он пропадал и дал ровно такую картину. Симптом в диффе теста:
+  `-'http://127.0.0.1:8000'` / `+'http://127.0.0.1:8000/install'`.)
+- **`bootstrap/cache/services.php` регенерируемый** — если что-то выглядит задвоенным,
+  сначала проверь его:
+  ```bash
+  rm bootstrap/cache/services.php bootstrap/cache/packages.php
+  APP_ENV=testing DB_CONNECTION=sqlite DB_DATABASE=:memory: php artisan package:discover
+  ```
+  (`composer dump-autoload -o` дёргает `package:discover` пост-хуком, а тому нужна рабочая
+  БД-конфигурация — иначе кеш молча остаётся протухшим.)
+- **Диагностика IDE врёт про `$errors`.** На `$errors->any()` во вьюхах анализатор пишет
+  «Call to a member function any() on a non-object of type array». Ложное срабатывание:
+  `$errors` — это `ViewErrorBag`. Игнорируй.
+
+---
+
+## 🧨 Архитектурные грабли (найдены и починены — не наступай снова)
+
+- **`require_once` в файлах маршрутов — ошибка.** PHPUnit гоняет все тесты в одном
+  процессе: первый бут «расходует» `require_once`, и все последующие инстансы приложения
+  молча теряют маршруты. Та же беда была бы на Octane/RoadRunner. Всегда `require`.
+- **Двойная регистрация провайдеров в `bootstrap/app.php`.** Файл вручную `require`-ил
+  `bootstrap/providers.php`, а потом отдавал его же в `->withProviders($providers)`,
+  который по умолчанию домешивает тот же файл ещё раз — `boot()` каждого провайдера
+  выполнялся дважды (включая `Event::listen()` в `EventServiceProvider`). Теперь
+  `->withProviders($providers, false)` и явный `->withEvents(discover: false)`.
+- **Гейт `isInstalled()` был слишком широким.** Он закрывал загрузку *всех* модульных
+  маршрутов и вьюх, но базовый лейаут и глобальные Blade-компоненты ссылаются на
+  неймспейсы `Menu::`/`Notifications::`/`Categories::` на каждой странице, независимо от
+  статуса установки. Теперь `loadLegacyModules()` отрабатывает безусловно в начале `boot()`.
+  Новый legacy-модуль, нужный до установки, добавляй в массив `$legacyModules`.
+- **`isInstalled()` ронял boot при недоступной БД.** `Schema::hasTable()` открывает
+  соединение; во время установки реквизиты в `.env` могут вести в никуда, и PDO бросал
+  `QueryException` — 500 получал даже сам мастер `/install/*`. Теперь обёрнуто в try/catch.
+- **Модуль Captcha не мёржил свой конфиг.** `mergeConfigFrom()` не вызывался, поэтому
+  `config('captcha.enabled')` всегда падал в дефолт `true`, а `CAPTCHA_ENABLED` из `.env`
+  не влиял ни на что. Починено.
+- **5 миграций делали MySQL-only запросы в `information_schema`** для проверки индексов и
+  FK. Переписаны на `Schema::hasIndex()` / `Schema::getForeignKeys()` (кросс-БД, Laravel 11+).
+  У одной (`news_category`) не было try/catch — на Postgres/SQLite она бы жёстко упала.
+- **Truthy-проверки на нулевых значениях** — устойчивый баг-паттерн в этом коде:
+  `if ($model->some_nullable_int)` там, где `0` — легитимное значение (дни доставки и т.п.).
+  Пиши `!== null`.
+
+---
+
+## 🧪 Тесты
+
+**Текущее состояние: 166/166 проходят, 0 ошибок, 0 падений.**
+(151 было до сессии 21.07.2026 + 15 новых на редактор переводов.)
+
+```bash
+php vendor/bin/phpunit --no-coverage
+php vendor/bin/phpunit --no-coverage --filter ИмяТеста
+```
+
+Конвенции:
+- **`use RefreshDatabase;` обязателен** в любом Feature-тесте, который трогает БД или
+  рендерит страницу: `LocalizationMiddleware` дёргает `countries` на каждом запросе.
+  Несколько тестов раньше его не имели и молча ничего не проверяли.
+- **Не зови `$this->seed()`** в юнит-тестах, проверяющих точное число строк:
+  `PaymentDeliverySeeder` вставляет ~20 реальных записей и ломает `assertCount(1, ...)`.
+- **`phpunit.xml` подхватывает только `tests/Unit` и `tests/Feature`.**
+  Тесты внутри `modules/<Name>/Tests/` **не запускаются** (например,
+  `modules/Localization/Tests/LocalizationServiceTest.php` — мёртвый груз).
+  Новые тесты клади в `tests/`.
+- Тесты, трогающие файлы переводов, обязаны переопределять путь через
+  `$this->app->useLangPath($tmp)` — не правь реальный `resources/lang`.
+
+---
+
+## 📌 Где остановились (сессия 21.07.2026)
+
+Сделано и проверено тестами:
+
+1. **Полная локализация мастера установки на 4 языка.** Словари `install.php`
+   (ru/en/be/kk, по 245 ключей, структура сверена скриптом), все 10 вьюх переведены
+   на `__()` — захардкоженного текста не осталось (проверено скриптом, игнорирующим
+   комментарии). Локализованы и строки контроллера: карточки возможностей, тексты
+   ошибок, имена атрибутов валидации.
+2. **Создан каталог `resources/lang/be/`** с нуля: `install`, `validation`, `messages`,
+   `pagination`, `admin`. До этого беларуского в проекте не было вообще, и при выборе
+   беларуского интерфейс уехал бы в английский fallback.
+3. **Графический редактор переводов** в модуле Localization + создание любых новых
+   локалей из админки (см. раздел «Локализация»).
+4. **Флаг EN вернули на американский** (был Union Jack), пресет `US` снова
+   `name = США`, `native_name = United States`.
+5. **Шаг SMTP явно оформлен как необязательный.**
+
+Что редактор сразу показал (реальные пробелы, не последствия правок):
+`en` и `kk` не дотягивают по 10 ключей — русский `validation.php` (12 КБ) богаче
+английского (6.7 КБ), в нём есть секции, которых нет в остальных языках.
+Стоит выровнять, но в задачу сессии это не входило.
+
+---
+
+## 🚧 Не сделано (никто пока не просил)
+
+- **Мажорные апгрейды зависимостей.** Сознательно НЕ трогали, каждый требует отдельного
+  прохода: Laravel 12→13, Tailwind 3→4, Vite 6→8, PHPUnit 11→13, laravel/tinker 2→3,
+  spatie/laravel-sitemap 7→8. Остальное подтянуто до свежего в рамках текущих мажоров.
+- **Старые вьюхи модуля Localization на Bootstrap-разметке** (`admin/index`, `create`,
+  `edit`, `settings`) — рендерятся без стилей, Bootstrap в проекте нет. Просятся на Tailwind.
+- **Выравнивание `validation.php` между языками** (см. выше про 10 ключей).
+- **Демо-контент при установке остаётся русским** независимо от выбранного языка
+  (`installDemoData()` в `InstallController`): это данные в БД, а не строки интерфейса.
+- `resources/views/frontend/pages/footer.blade.php` — похоже на осиротевший дубликат
+  (настоящий футер лейаута лежит в `layouts/partials/footer.blade.php`). Использует
+  `<x-country-switcher />`. Мёртвый он или нет — не проверяли.
+- `routes/auth.php` — стоковый файл Laravel Breeze, **ниоткуда не подключается**
+  (`routes/web.php` его не `require`-ит). У приложения свои контроллеры логина/регистрации.
+  Безвредный мёртвый код, но если кто-то ищет «почему не работает Breeze-маршрут X» —
+  вот почему. Реально нужные маршруты оттуда (`verification.*`, `password.confirm`,
+  `password.update`, `profile.*`) перенесены в `routes/web.php` поштучно: подключать файл
+  целиком нельзя, его `login`/`register`/`password.*` конфликтуют с кастомными.
+- **CDN-независимость** уже сделана в более ранней сессии: локальные веб-шрифты
+  (`@fontsource`, latin+cyrillic), локальный swagger-ui, Яндекс.Карты по клику-согласию,
+  Метрика за конфиг-флагом, security-заголовки (CSP/HSTS) в
+  `app/Http/Middleware/ContentSecurityPolicy.php` и `bootstrap/app.php`.
+
+---
+
+## 🧾 Полезная археология
+
+У двух коммитов длинные содержательные сообщения с разбором первопричин —
+прочитай `git show <sha>` прежде чем заново выводить те же выводы:
+
+- `61648cf` и `dcb8329` — путь тестов от «не грузится вообще» → 142 ошибки →
+  30 ошибок / 48 падений → 0/0.

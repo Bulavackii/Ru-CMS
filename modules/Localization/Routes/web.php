@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\Localization\Controllers\Admin\LocalizationController as AdminController;
+use Modules\Localization\Controllers\Admin\TranslationController;
 use Modules\Localization\Controllers\Frontend\LocalizationController as FrontendController;
 
 /*
@@ -31,6 +32,15 @@ Route::prefix('admin')->middleware(['web', 'admin'])->group(function () {
         Route::get('/settings/{code}', [AdminController::class, 'settings'])->name('admin.localization.settings');
         Route::post('/settings/{code}/save', [AdminController::class, 'saveSetting'])->name('admin.localization.settings.save');
         Route::delete('/settings/{code}/delete', [AdminController::class, 'deleteSetting'])->name('admin.localization.settings.delete');
+
+        // 📝 Графический редактор переводов (resources/lang/<locale>/*.php)
+        Route::prefix('translations')->name('admin.localization.translations.')->group(function () {
+            Route::get('/', [TranslationController::class, 'index'])->name('index');
+            Route::post('/', [TranslationController::class, 'store'])->name('store');
+            Route::get('/{locale}/{group?}', [TranslationController::class, 'edit'])->name('edit');
+            Route::put('/{locale}/{group}', [TranslationController::class, 'update'])->name('update');
+            Route::delete('/{locale}', [TranslationController::class, 'destroy'])->name('destroy');
+        });
 
         // 📋 Импорт и утилиты
         Route::post('/import-presets', [AdminController::class, 'importPresets'])->name('admin.localization.import.presets');

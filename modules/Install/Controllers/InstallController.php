@@ -6,6 +6,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
@@ -23,12 +24,10 @@ class InstallController extends Controller
      * приложения, а не мастера установки.
      */
     private const COUNTRY_PRESETS = [
-        'RU' => ['name' => 'Россия', 'native_name' => 'Россия', 'flag' => '🇷🇺', 'locale' => 'ru', 'timezone' => 'Europe/Moscow', 'currency_code' => 'RUB', 'currency_symbol' => '₽', 'date_format' => 'd.m.Y', 'time_format' => 'H:i', 'decimal_separator' => ',', 'thousands_separator' => ' ', 'decimal_places' => 2],
-        'BY' => ['name' => 'Беларусь', 'native_name' => 'Беларусь', 'flag' => '🇧🇾', 'locale' => 'ru', 'timezone' => 'Europe/Minsk', 'currency_code' => 'BYN', 'currency_symbol' => 'Br', 'date_format' => 'd.m.Y', 'time_format' => 'H:i', 'decimal_separator' => ',', 'thousands_separator' => ' ', 'decimal_places' => 2],
-        'KZ' => ['name' => 'Казахстан', 'native_name' => 'Қазақстан', 'flag' => '🇰🇿', 'locale' => 'ru', 'timezone' => 'Asia/Almaty', 'currency_code' => 'KZT', 'currency_symbol' => '₸', 'date_format' => 'd.m.Y', 'time_format' => 'H:i', 'decimal_separator' => ',', 'thousands_separator' => ' ', 'decimal_places' => 2],
-        'UA' => ['name' => 'Украина', 'native_name' => 'Україна', 'flag' => '🇺🇦', 'locale' => 'ru', 'timezone' => 'Europe/Kyiv', 'currency_code' => 'UAH', 'currency_symbol' => '₴', 'date_format' => 'd.m.Y', 'time_format' => 'H:i', 'decimal_separator' => ',', 'thousands_separator' => ' ', 'decimal_places' => 2],
-        'US' => ['name' => 'США', 'native_name' => 'United States', 'flag' => '🇺🇸', 'locale' => 'en', 'timezone' => 'America/New_York', 'currency_code' => 'USD', 'currency_symbol' => '$', 'date_format' => 'm/d/Y', 'time_format' => 'h:i A', 'decimal_separator' => '.', 'thousands_separator' => ',', 'decimal_places' => 2],
-        'DE' => ['name' => 'Германия', 'native_name' => 'Deutschland', 'flag' => '🇩🇪', 'locale' => 'en', 'timezone' => 'Europe/Berlin', 'currency_code' => 'EUR', 'currency_symbol' => '€', 'date_format' => 'd.m.Y', 'time_format' => 'H:i', 'decimal_separator' => ',', 'thousands_separator' => '.', 'decimal_places' => 2],
+        'RU' => ['name' => 'Россия', 'native_name' => 'Россия', 'flag' => '🇷🇺', 'lang' => 'Русский', 'locale' => 'ru', 'timezone' => 'Europe/Moscow', 'currency_code' => 'RUB', 'currency_symbol' => '₽', 'date_format' => 'd.m.Y', 'time_format' => 'H:i', 'decimal_separator' => ',', 'thousands_separator' => ' ', 'decimal_places' => 2],
+        'BY' => ['name' => 'Беларусь', 'native_name' => 'Беларусь', 'flag' => '🇧🇾', 'lang' => 'Беларуская', 'locale' => 'be', 'timezone' => 'Europe/Minsk', 'currency_code' => 'BYN', 'currency_symbol' => 'Br', 'date_format' => 'd.m.Y', 'time_format' => 'H:i', 'decimal_separator' => ',', 'thousands_separator' => ' ', 'decimal_places' => 2],
+        'KZ' => ['name' => 'Казахстан', 'native_name' => 'Қазақстан', 'flag' => '🇰🇿', 'lang' => 'Қазақша', 'locale' => 'kk', 'timezone' => 'Asia/Almaty', 'currency_code' => 'KZT', 'currency_symbol' => '₸', 'date_format' => 'd.m.Y', 'time_format' => 'H:i', 'decimal_separator' => ',', 'thousands_separator' => ' ', 'decimal_places' => 2],
+        'US' => ['name' => 'США', 'native_name' => 'United States', 'flag' => '🇺🇸', 'lang' => 'English', 'locale' => 'en', 'timezone' => 'America/New_York', 'currency_code' => 'USD', 'currency_symbol' => '$', 'date_format' => 'm/d/Y', 'time_format' => 'h:i A', 'decimal_separator' => '.', 'thousands_separator' => ',', 'decimal_places' => 2],
     ];
 
     /**
@@ -49,7 +48,8 @@ class InstallController extends Controller
         'features' => null,
         'database' => null,
         'admin' => 'database',
-        'license' => 'admin',
+        'smtp' => 'admin',
+        'license' => 'smtp',
         'demo' => 'license',
         'finish' => 'demo',
     ];
@@ -108,7 +108,10 @@ class InstallController extends Controller
             'JSON'                      => extension_loaded('json'),
             'Fileinfo'                  => extension_loaded('fileinfo'),
             'Zip'                       => extension_loaded('zip'),
-            'GD или Imagick'            => extension_loaded('gd') || extension_loaded('imagick'),
+            // Названия требований — технические идентификаторы: они же служат
+            // ключами для подсказок во вьюхе, поэтому остаются нейтральными и
+            // одинаковыми на всех языках. Переводятся только расшифровки.
+            'GD / Imagick'              => extension_loaded('gd') || extension_loaded('imagick'),
             'Writable: storage/'        => is_writable(storage_path()),
             'Writable: bootstrap/cache' => is_writable(base_path('bootstrap/cache')),
         ];
@@ -118,73 +121,36 @@ class InstallController extends Controller
         return view('Install::requirements', compact('requirements', 'allPassed'));
     }
 
-    /** 🎯 Презентация возможностей */
+    /**
+     * 🎯 Презентация возможностей.
+     *
+     * Иконка и признак «ключевая» живут в коде, а заголовок с описанием —
+     * в resources/lang/<locale>/install.php (секция features.items), чтобы
+     * страница переводилась вместе со всем мастером.
+     */
+    private const FEATURE_CARDS = [
+        ['key' => 'modular',       'icon' => 'blocks',          'highlight' => true],
+        ['key' => 'security',      'icon' => 'shield-check',    'highlight' => true],
+        ['key' => 'performance',   'icon' => 'zap'],
+        ['key' => 'i18n',          'icon' => 'globe'],
+        ['key' => 'backups',       'icon' => 'database-backup'],
+        ['key' => 'updates',       'icon' => 'refresh-cw'],
+        ['key' => 'subscriptions', 'icon' => 'credit-card'],
+        ['key' => 'analytics',     'icon' => 'bar-chart-3'],
+        ['key' => 'api',           'icon' => 'plug'],
+        ['key' => 'responsive',    'icon' => 'smartphone'],
+        ['key' => 'comments',      'icon' => 'message-square'],
+        ['key' => 'push',          'icon' => 'bell'],
+    ];
+
     public function features()
     {
-        $features = [
-            [
-                'icon' => 'blocks',
-                'title' => 'Модульная архитектура',
-                'description' => 'HMVC архитектура с независимыми модулями. Легко подключайте, отключайте и создавайте собственные модули.',
-                'highlight' => true,
-            ],
-            [
-                'icon' => 'shield-check',
-                'title' => 'Безопасность',
-                'description' => '2FA аутентификация, защита от SQL injection и XSS, rate limiting, автоматическая блокировка подозрительных IP, аудит-лог действий.',
-                'highlight' => true,
-            ],
-            [
-                'icon' => 'zap',
-                'title' => 'Производительность',
-                'description' => 'Оптимизация БД, расширенное кэширование, оптимизация изображений, Gzip сжатие, устранение N+1 проблем.',
-            ],
-            [
-                'icon' => 'globe',
-                'title' => 'Мультиязычность',
-                'description' => 'Поддержка русского и английского языков. Автоматическое определение языка, форматирование валют и дат для РФ/СНГ.',
-            ],
-            [
-                'icon' => 'database-backup',
-                'title' => 'Автоматические бэкапы',
-                'description' => 'Ежедневное резервное копирование БД, еженедельное копирование файлов, загрузка в облако, управление через админ-панель.',
-            ],
-            [
-                'icon' => 'refresh-cw',
-                'title' => 'Централизованные обновления',
-                'description' => 'Автоматическая проверка обновлений, безопасная установка с проверкой целостности, автоматические бэкапы перед обновлением.',
-            ],
-            [
-                'icon' => 'credit-card',
-                'title' => 'Система подписок',
-                'description' => 'Гибкие тарифы (Basic, Pro, Enterprise), промокоды со скидками, лицензионные ключи, ограничения по тарифам.',
-            ],
-            [
-                'icon' => 'bar-chart-3',
-                'title' => 'Аналитика',
-                'description' => 'Отслеживание просмотров, статистика посетителей, популярный контент, интеграция с Яндекс.Метрикой, графики и отчеты.',
-            ],
-            [
-                'icon' => 'plug',
-                'title' => 'REST API',
-                'description' => 'Полноценный REST API с JWT аутентификацией, Swagger документация, версионирование API, rate limiting.',
-            ],
-            [
-                'icon' => 'smartphone',
-                'title' => 'Адаптивный дизайн',
-                'description' => 'Современный интерфейс на TailwindCSS, работает на всех устройствах. Тёмная тема, настраиваемые темы и фрагменты.',
-            ],
-            [
-                'icon' => 'message-square',
-                'title' => 'Комментарии и модерация',
-                'description' => 'Система комментариев с модерацией, вложенные комментарии, интеграция с Captcha, система голосования.',
-            ],
-            [
-                'icon' => 'bell',
-                'title' => 'Web Push уведомления',
-                'description' => 'Push-уведомления в браузере, уведомления в админ-панели, настраиваемые типы и приоритеты уведомлений.',
-            ],
-        ];
+        $features = array_map(static fn (array $card): array => [
+            'icon'        => $card['icon'],
+            'title'       => __("install.features.items.{$card['key']}.title"),
+            'description' => __("install.features.items.{$card['key']}.desc"),
+            'highlight'   => $card['highlight'] ?? false,
+        ], self::FEATURE_CARDS);
 
         return view('Install::features', compact('features'));
     }
@@ -204,11 +170,11 @@ class InstallController extends Controller
             'username'   => ['required', 'string', 'max:191'],
             'password'   => ['nullable', 'string', 'max:191'],
         ], [], [
-            'host'     => 'Хост',
-            'port'     => 'Порт',
-            'database' => 'База данных',
-            'username' => 'Пользователь',
-            'password' => 'Пароль',
+            'host'     => __('install.attributes.host'),
+            'port'     => __('install.attributes.port'),
+            'database' => __('install.attributes.database'),
+            'username' => __('install.attributes.username'),
+            'password' => __('install.attributes.password'),
         ]);
 
         if ($v->fails()) {
@@ -223,13 +189,13 @@ class InstallController extends Controller
 
         // Проверка на SQL injection
         if ($this->securityService->detectSqlInjection($host . $db . $user)) {
-            return back()->withErrors(['security' => 'Обнаружена попытка SQL инъекции'])->withInput();
+            return back()->withErrors(['security' => __('install.errors.sql_injection')])->withInput();
         }
 
         // 1) Тест соединения БД
         $ok = $this->testConnection($host, $port, $db, $user, $pass, $err);
         if (!$ok) {
-            return back()->withErrors(['database' => "Не удалось подключиться к БД: " . $err])->withInput();
+            return back()->withErrors(['database' => __('install.errors.db_connect', ['error' => $err])])->withInput();
         }
 
         // 2) Запись .env
@@ -260,7 +226,7 @@ class InstallController extends Controller
                 'QUEUE_CONNECTION' => 'sync', // Временно sync до завершения установки
             ]);
         } catch (\Throwable $e) {
-            return back()->withErrors(['env' => 'Ошибка записи .env: ' . $e->getMessage()])->withInput();
+            return back()->withErrors(['env' => __('install.errors.env_write', ['error' => $e->getMessage()])])->withInput();
         }
 
         // 3) Очистка конфигов/кэша
@@ -295,9 +261,9 @@ class InstallController extends Controller
             'email'    => ['required', 'email', 'max:191'],
             'password' => ['required', 'string', 'min:8', 'max:191'],
         ], [], [
-            'name'     => 'Имя',
-            'email'    => 'Email',
-            'password' => 'Пароль',
+            'name'     => __('install.attributes.name'),
+            'email'    => __('install.attributes.email'),
+            'password' => __('install.attributes.password'),
         ]);
 
         if ($v->fails()) {
@@ -321,8 +287,8 @@ class InstallController extends Controller
             if (!empty($missing)) {
                 $output = trim(Artisan::output());
                 return back()->withErrors([
-                    'migrations' => 'Не найдены обязательные таблицы: ' . implode(', ', $missing),
-                    'artisan'    => $output ?: 'Нет вывода Artisan',
+                    'migrations' => __('install.errors.migrations_missing', ['tables' => implode(', ', $missing)]),
+                    'artisan'    => $output ?: __('install.errors.artisan_empty'),
                 ])->withInput();
             }
 
@@ -334,8 +300,8 @@ class InstallController extends Controller
         } catch (\Throwable $e) {
             $output = trim(Artisan::output());
             return back()->withErrors([
-                'migrate' => 'Ошибка миграции: ' . $e->getMessage(),
-                'artisan' => $output ?: 'Нет вывода Artisan',
+                'migrate' => __('install.errors.migrate', ['error' => $e->getMessage()]),
+                'artisan' => $output ?: __('install.errors.artisan_empty'),
                 'trace' => config('app.debug') ? $e->getTraceAsString() : null,
             ])->withInput();
         }
@@ -362,13 +328,121 @@ class InstallController extends Controller
                     $userData['locale'] = $locale;
                 }
 
-                User::create($userData);
+                $admin = User::create($userData);
+            }
+
+            // Запоминаем созданного администратора: на финальном шаге он будет
+            // авторизован автоматически, чтобы после установки попасть сразу
+            // в админку, а не на страницу входа.
+            if ($admin) {
+                session(['install_admin_id' => $admin->id]);
             }
         } catch (\Throwable $e) {
-            return back()->withErrors(['user' => 'Не удалось создать администратора: ' . $e->getMessage()])->withInput();
+            return back()->withErrors(['user' => __('install.errors.user_create', ['error' => $e->getMessage()])])->withInput();
         }
 
         session(['install.completed.admin' => true]);
+
+        return redirect()->route('install.smtp');
+    }
+
+    /**
+     * ✉️ Настройка почты (SMTP). Реквизиты пишутся в .env (MAIL_*) и затем
+     * используются приложением для отправки писем — в первую очередь для
+     * восстановления доступа к админке по e-mail («забыли пароль»). Шаг
+     * необязателен: можно пропустить и настроить почту позже в .env/админке.
+     */
+    public function smtp(Request $request)
+    {
+        if ($redirect = $this->guardStep('smtp')) {
+            return $redirect;
+        }
+
+        if ($request->isMethod('get')) {
+            return view('Install::smtp', [
+                'mail' => [
+                    'host'         => env('MAIL_HOST', ''),
+                    'port'         => env('MAIL_PORT', '587'),
+                    'username'     => env('MAIL_USERNAME', ''),
+                    'encryption'   => $this->currentMailEncryption(),
+                    'from_address' => env('MAIL_FROM_ADDRESS', ''),
+                    'from_name'    => env('MAIL_FROM_NAME', config('app.name', 'RU CMS')),
+                ],
+                'adminEmail' => optional(User::where('is_admin', true)->first())->email,
+            ]);
+        }
+
+        // POST — пропуск шага (почту настроим позже)
+        if ($request->boolean('smtp_skip')) {
+            session(['install.completed.smtp' => true]);
+            return redirect()->route('install.license');
+        }
+
+        // POST — сохранение реквизитов
+        $v = Validator::make($request->all(), [
+            'mail_host'         => ['required', 'string', 'max:255'],
+            'mail_port'         => ['required', 'numeric'],
+            'mail_username'     => ['nullable', 'string', 'max:255'],
+            'mail_password'     => ['nullable', 'string', 'max:500'],
+            'mail_encryption'   => ['required', 'in:tls,ssl,none'],
+            'mail_from_address' => ['required', 'email', 'max:255'],
+            'mail_from_name'    => ['nullable', 'string', 'max:255'],
+        ], [], [
+            'mail_host'         => __('install.attributes.mail_host'),
+            'mail_port'         => __('install.attributes.mail_port'),
+            'mail_username'     => __('install.attributes.mail_username'),
+            'mail_password'     => __('install.attributes.mail_password'),
+            'mail_encryption'   => __('install.attributes.mail_encryption'),
+            'mail_from_address' => __('install.attributes.mail_from_address'),
+            'mail_from_name'    => __('install.attributes.mail_from_name'),
+        ]);
+
+        if ($v->fails()) {
+            return back()->withErrors($v)->withInput();
+        }
+
+        $host       = (string) $request->input('mail_host');
+        $port       = (string) $request->input('mail_port');
+        $username   = $request->input('mail_username');
+        $password   = $request->input('mail_password');
+        $encryption = (string) $request->input('mail_encryption'); // tls|ssl|none
+        $fromAddr   = (string) $request->input('mail_from_address');
+        $fromName   = (string) ($request->input('mail_from_name') ?: config('app.name', 'RU CMS'));
+
+        // Проверка подключения к SMTP (можно отключить галочкой) — чтобы не
+        // записать в .env заведомо нерабочие реквизиты.
+        if ($request->boolean('smtp_verify', true)) {
+            $err = null;
+            if (!$this->testSmtp($host, $port, $username, $password, $encryption, $err)) {
+                return back()->withErrors([
+                    'smtp' => __('install.errors.smtp_connect', ['error' => $err]),
+                ])->withInput();
+            }
+        }
+
+        // Запись в .env. Laravel 12 определяет шифрование по MAIL_SCHEME
+        // (smtp — STARTTLS/без, smtps — неявный TLS на 465), поэтому пишем
+        // именно его; MAIL_ENCRYPTION дублируем для наглядности.
+        try {
+            $scheme = $encryption === 'ssl' ? 'smtps' : 'smtp';
+            $this->writeEnv([
+                'MAIL_MAILER'       => 'smtp',
+                'MAIL_HOST'         => $host,
+                'MAIL_PORT'         => $port,
+                'MAIL_USERNAME'     => (string) $username,
+                'MAIL_PASSWORD'     => (string) $password,
+                'MAIL_SCHEME'       => $scheme,
+                'MAIL_ENCRYPTION'   => $encryption === 'none' ? '' : $encryption,
+                'MAIL_FROM_ADDRESS' => $fromAddr,
+                'MAIL_FROM_NAME'    => $fromName,
+            ]);
+
+            Artisan::call('config:clear');
+        } catch (\Throwable $e) {
+            return back()->withErrors(['env' => __('install.errors.env_write', ['error' => $e->getMessage()])])->withInput();
+        }
+
+        session(['install.completed.smtp' => true]);
 
         return redirect()->route('install.license');
     }
@@ -406,8 +480,8 @@ class InstallController extends Controller
             'license_key' => ['nullable', 'string', 'max:255'],
             'promo_code' => ['nullable', 'string', 'max:255'],
         ], [], [
-            'license_key' => 'Лицензионный ключ',
-            'promo_code' => 'Промокод',
+            'license_key' => __('install.attributes.license_key'),
+            'promo_code' => __('install.attributes.promo_code'),
         ]);
 
         if ($v->fails()) {
@@ -418,7 +492,7 @@ class InstallController extends Controller
         $promoCode = $request->input('promo_code');
 
         if (empty($licenseKey) && empty($promoCode)) {
-            return back()->withErrors(['license' => 'Укажите лицензионный ключ или промокод'])->withInput();
+            return back()->withErrors(['license' => __('install.errors.license_required')])->withInput();
         }
 
         if (!empty($promoCode)) {
@@ -432,7 +506,7 @@ class InstallController extends Controller
 
         if (!empty($licenseKey)) {
             if (!preg_match('/^[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}$/i', $licenseKey)) {
-                return back()->withErrors(['license_key' => 'Неверный формат лицензионного ключа'])->withInput();
+                return back()->withErrors(['license_key' => __('install.errors.license_format')])->withInput();
             }
             session(['install_license_key' => strtoupper($licenseKey)]);
         }
@@ -441,7 +515,7 @@ class InstallController extends Controller
             $envLicenseKey = $licenseKey ?: 'PENDING';
             $this->writeEnv(['LICENSE_KEY' => $envLicenseKey]);
         } catch (\Throwable $e) {
-            return back()->withErrors(['env' => 'Ошибка записи лицензии в .env: ' . $e->getMessage()])->withInput();
+            return back()->withErrors(['env' => __('install.errors.license_env', ['error' => $e->getMessage()])])->withInput();
         }
 
         session(['install.completed.license' => true]);
@@ -466,7 +540,7 @@ class InstallController extends Controller
             try {
                 $this->installDemoData();
             } catch (\Throwable $e) {
-                return back()->withErrors(['demo' => 'Ошибка установки демо-данных: ' . $e->getMessage()]);
+                return back()->withErrors(['demo' => __('install.errors.demo', ['error' => $e->getMessage()])]);
             }
         }
 
@@ -492,13 +566,26 @@ class InstallController extends Controller
             Artisan::call('cache:clear');
         } catch (\Throwable $e) {
             \Log::warning('Install finish error', ['error' => $e->getMessage()]);
-            $this->pushInstallWarning('Не всё удалось завершить автоматически: ' . $e->getMessage() . '. Установка всё равно считается выполненной — проверьте настройки в админ-панели.');
+            $this->pushInstallWarning(__('install.errors.finish_partial', ['error' => $e->getMessage()]));
         }
 
         $warnings = session('install.warnings', []);
         session()->forget('install.warnings');
 
         $countryCode = session('install_country_code', 'RU');
+
+        // Авто-вход администратора, созданного на шаге /install/admin. Так
+        // после завершения установки редирект уходит прямо в админку (/admin),
+        // минуя страницу входа и личный кабинет пользователя на фронтенде.
+        try {
+            $adminId = session('install_admin_id');
+            if ($adminId && !Auth::check()) {
+                Auth::loginUsingId($adminId);
+                request()->session()->regenerate();
+            }
+        } catch (\Throwable $e) {
+            \Log::warning('Install auto-login failed', ['error' => $e->getMessage()]);
+        }
 
         return view('Install::finish', [
             'warnings' => $warnings,
@@ -528,13 +615,14 @@ class InstallController extends Controller
         $routeMap = [
             'database' => 'install.database',
             'admin'    => 'install.admin',
+            'smtp'     => 'install.smtp',
             'license'  => 'install.license',
             'demo'     => 'install.demo',
         ];
 
         return redirect()
             ->route($routeMap[$prerequisite] ?? 'install.welcome')
-            ->with('install_notice', 'Сначала завершите предыдущий шаг установки.');
+            ->with('install_notice', __('install.errors.step_order'));
     }
 
     private function pushInstallWarning(string $message): void
@@ -581,6 +669,71 @@ class InstallController extends Controller
             } catch (\Throwable $e) {
             }
         }
+    }
+
+    /**
+     * Проверка подключения к SMTP-серверу «вживую»: открываем соединение и
+     * (если заданы) проверяем логин/пароль. Работает напрямую через Symfony
+     * Mailer, не завися от текущего mail-конфига приложения.
+     */
+    private function testSmtp(
+        string $host,
+        string $port,
+        ?string $user,
+        ?string $pass,
+        string $encryption,
+        ?string &$err = null
+    ): bool {
+        try {
+            // ssl → неявный TLS; tls → STARTTLS (auto); none → без шифрования
+            $tls = $encryption === 'ssl' ? true : ($encryption === 'tls' ? null : false);
+
+            $transport = new \Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport(
+                $host,
+                (int) $port,
+                $tls
+            );
+
+            if (!empty($user)) {
+                $transport->setUsername($user);
+            }
+            if (!empty($pass)) {
+                $transport->setPassword($pass);
+            }
+
+            // Ограничиваем ожидание, чтобы форма не «висела» на глухом хосте.
+            $stream = $transport->getStream();
+            if (method_exists($stream, 'setTimeout')) {
+                $stream->setTimeout(10);
+            }
+
+            $transport->start();
+            $transport->stop();
+
+            return true;
+        } catch (\Throwable $e) {
+            $err = $e->getMessage();
+            return false;
+        }
+    }
+
+    /**
+     * Текущее «человеческое» шифрование из .env для предзаполнения формы:
+     * MAIL_SCHEME=smtps → ssl, иначе смотрим MAIL_ENCRYPTION, по умолчанию tls.
+     */
+    private function currentMailEncryption(): string
+    {
+        $scheme = strtolower((string) env('MAIL_SCHEME', ''));
+        if ($scheme === 'smtps') {
+            return 'ssl';
+        }
+
+        $enc = strtolower((string) env('MAIL_ENCRYPTION', ''));
+        if (in_array($enc, ['ssl', 'tls'], true)) {
+            return $enc;
+        }
+
+        return 'tls';
     }
 
     private function writeEnv(array $pairs): void
@@ -666,7 +819,7 @@ class InstallController extends Controller
             return null;
         }
 
-        return 'Некоторые опциональные модули не создали свои таблицы: ' . implode(', ', $missing) . '. Это ожидаемо, если соответствующие модули отключены.';
+        return __('install.errors.optional_tables', ['tables' => implode(', ', $missing)]);
     }
 
     /** 📦 Установка демо-данных */
@@ -678,8 +831,15 @@ class InstallController extends Controller
             return;
         }
 
+        // Весь демо-контент создаётся в одной транзакции: либо появляется
+        // целиком (категории + новости + меню), либо — при сбое на любой из
+        // таблиц — откатывается полностью, не оставляя «половины» данных.
+        DB::transaction(function () {
         // Демо-категории (колонка называется title, не name; template на
-        // categories не существует — это отдельное поле только у News)
+        // categories не существует — это отдельное поле только у News).
+        // Идемпотентно: если категория с таким slug уже есть (повторный заход
+        // на шаг демо-данных), переиспользуем её id, а не вставляем дубль —
+        // slug уникален, иначе была бы ошибка 23505 (unique violation).
         $categoryIds = [];
         $categories = [
             ['title' => 'Новости', 'slug' => 'news', 'type' => 'news'],
@@ -688,7 +848,12 @@ class InstallController extends Controller
         ];
 
         foreach ($categories as $cat) {
-            $id = DB::table('categories')->insertGetId([
+            $existingId = DB::table('categories')->where('slug', $cat['slug'])->value('id');
+            if ($existingId) {
+                $categoryIds[] = $existingId;
+                continue;
+            }
+            $categoryIds[] = DB::table('categories')->insertGetId([
                 'title' => $cat['title'],
                 'slug' => $cat['slug'],
                 'type' => $cat['type'],
@@ -696,7 +861,6 @@ class InstallController extends Controller
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
-            $categoryIds[] = $id;
         }
 
         // Демо-новости
@@ -718,51 +882,71 @@ class InstallController extends Controller
         ];
 
         foreach ($newsItems as $news) {
-            $newsId = DB::table('news')->insertGetId([
-                'title' => $news['title'],
-                'content' => $news['content'],
-                'slug' => $news['slug'],
-                'published' => $news['published'],
-                'template' => $news['template'],
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+            $newsId = DB::table('news')->where('slug', $news['slug'])->value('id');
+            if (!$newsId) {
+                $newsId = DB::table('news')->insertGetId([
+                    'title' => $news['title'],
+                    'content' => $news['content'],
+                    'slug' => $news['slug'],
+                    'published' => $news['published'],
+                    'template' => $news['template'],
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
 
             if (!empty($categoryIds)) {
-                DB::table('news_category')->insert([
-                    'news_id' => $newsId,
-                    'category_id' => $categoryIds[0],
-                ]);
+                $alreadyLinked = DB::table('news_category')
+                    ->where('news_id', $newsId)
+                    ->where('category_id', $categoryIds[0])
+                    ->exists();
+                if (!$alreadyLinked) {
+                    DB::table('news_category')->insert([
+                        'news_id' => $newsId,
+                        'category_id' => $categoryIds[0],
+                    ]);
+                }
             }
         }
 
-        // Демо-меню
-        $menuId = DB::table('menus')->insertGetId([
-            'title' => 'Главное меню',
-            'position' => 'header',
-            'active' => true,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // Демо-меню (идемпотентно по паре title+position)
+        $menuId = DB::table('menus')
+            ->where('title', 'Главное меню')
+            ->where('position', 'header')
+            ->value('id');
+        if (!$menuId) {
+            $menuId = DB::table('menus')->insertGetId([
+                'title' => 'Главное меню',
+                'position' => 'header',
+                'active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
 
-        DB::table('menu_items')->insert([
-            [
+        // Пункты меню — вставляем только отсутствующие (по menu_id + url)
+        $menuItems = [
+            ['title' => 'Главная', 'url' => '/', 'order' => 1],
+            ['title' => 'Новости', 'url' => '/news', 'order' => 2],
+        ];
+        foreach ($menuItems as $item) {
+            $exists = DB::table('menu_items')
+                ->where('menu_id', $menuId)
+                ->where('url', $item['url'])
+                ->exists();
+            if ($exists) {
+                continue;
+            }
+            DB::table('menu_items')->insert([
                 'menu_id' => $menuId,
-                'title' => 'Главная',
-                'url' => '/',
-                'order' => 1,
+                'title' => $item['title'],
+                'url' => $item['url'],
+                'order' => $item['order'],
                 'created_at' => now(),
                 'updated_at' => now(),
-            ],
-            [
-                'menu_id' => $menuId,
-                'title' => 'Новости',
-                'url' => '/news',
-                'order' => 2,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-        ]);
+            ]);
+        }
+        });
     }
 
     /**

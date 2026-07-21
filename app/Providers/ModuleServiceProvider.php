@@ -34,9 +34,21 @@ class ModuleServiceProvider extends ServiceProvider
 
     private function isInstalled(): bool
     {
-        return file_exists(storage_path('install.lock'))
-            && class_exists(Module::class)
-            && Schema::hasTable('modules');
+        if (!file_exists(storage_path('install.lock')) || !class_exists(Module::class)) {
+            return false;
+        }
+
+        // Schema::hasTable открывает соединение с БД. Во время (или до)
+        // установки реквизиты в .env могут указывать на недоступную/ещё не
+        // настроенную базу — тогда PDO бросает QueryException. Ловим его, а не
+        // даём уронить boot() всего фреймворка: без этого любой запрос (включая
+        // сам мастер установки /install/*) падал бы с 500 «connection failed».
+        // Недоступная БД просто значит «модули из БД пока не грузим».
+        try {
+            return Schema::hasTable('modules');
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     private function syncModuleMetadata(): void
