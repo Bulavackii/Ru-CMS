@@ -8,17 +8,19 @@
 
         {{-- Шапка: логотип + название --}}
         <div class="px-6 sm:px-10 pt-7 pb-4 text-center shrink-0">
-            <div class="inline-flex items-center gap-3">
+            {{-- max-w-full + min-w-0: inline-flex ужимается по содержимому,
+                 поэтому длинный слоган на некоторых языках распирал шапку. --}}
+            <div class="inline-flex items-center gap-3 max-w-full">
                 {{-- Логотип: акцентный квадрат со «слоями» — намёк на модульность CMS --}}
-                <div class="accent-badge w-12 h-12 rounded-2xl grid place-items-center text-white"
+                <div class="accent-badge w-12 h-12 shrink-0 rounded-2xl grid place-items-center text-white"
                      data-tip="{{ __('install.welcome.logo_tip') }}">
                     <i data-lucide="layers" class="w-6 h-6"></i>
                 </div>
-                <div class="text-left">
-                    <h1 class="text-2xl font-bold tracking-tight text-gray-900">
+                <div class="text-left min-w-0">
+                    <h1 class="text-2xl font-bold tracking-tight text-gray-900 break-words">
                         Ru&nbsp;CMS <span class="text-gray-400 font-semibold">· {{ __('install.welcome.suffix') }}</span>
                     </h1>
-                    <p class="text-xs text-gray-500">{{ __('install.welcome.tagline') }}</p>
+                    <p class="text-xs text-gray-500 break-words">{{ __('install.welcome.tagline') }}</p>
                 </div>
             </div>
         </div>
@@ -29,8 +31,10 @@
             {{-- 🌍 Выбор языка: флаг — главный элемент --}}
             <div class="rounded-2xl border border-white/60 bg-white/40 backdrop-blur p-4"
                  style="box-shadow: inset 0 1px 0 rgba(255,255,255,.6)">
-                <div class="flex items-center justify-center gap-2 text-sm font-semibold text-gray-800 mb-3">
-                    <i data-lucide="languages" class="w-4 h-4 hint-ico"></i>
+                {{-- flex-wrap: в разных языках подпись заметно разной длины,
+                     без переноса строка распирала бы карточку по ширине. --}}
+                <div class="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm font-semibold text-gray-800 mb-3 text-center">
+                    <i data-lucide="languages" class="w-4 h-4 shrink-0 hint-ico"></i>
                     {{ __('install.welcome.lang_title') }}
                     <span class="text-gray-400 font-normal">{{ __('install.welcome.lang_change') }}</span>
                 </div>
@@ -54,15 +58,15 @@
                                     value="{{ $code }}"
                                     data-tip="{{ $country['name'] ?? $code }} · {{ $country['currency_code'] ?? '' }} · {{ $country['timezone'] ?? '' }}"
                                     data-tip-pos="bottom"
-                                    class="country-select-btn rounded-2xl border-2 p-3 text-center bg-white/60"
+                                    class="country-select-btn rounded-2xl border-2 p-3 text-center bg-white/60 min-w-0"
                                     style="{{ $isSel
                                         ? 'border-color:var(--accent); box-shadow:0 12px 26px -12px color-mix(in srgb, var(--accent) 60%, transparent), inset 0 1px 0 rgba(255,255,255,.7)'
                                         : 'border-color:rgba(0,0,0,.08)' }}">
                                 <div class="flex justify-center mb-2">{!! $flagSvg[$code] ?? '<span class="text-2xl leading-none">🌍</span>' !!}</div>
-                                <div class="text-[13px] font-bold {{ $isSel ? 'text-gray-900' : 'text-gray-700' }}">{{ $country['lang'] ?? $country['name'] ?? $code }}</div>
+                                <div class="text-[13px] font-bold break-words {{ $isSel ? 'text-gray-900' : 'text-gray-700' }}">{{ $country['lang'] ?? $country['name'] ?? $code }}</div>
                                 {{-- Страна — на её собственном языке: под флагом это читается
                                      естественно на любой локали интерфейса. --}}
-                                <div class="text-[10px] text-gray-400">{{ $country['native_name'] ?? $country['name'] ?? $code }}</div>
+                                <div class="text-[10px] text-gray-400 break-words">{{ $country['native_name'] ?? $country['name'] ?? $code }}</div>
                                 @if ($isSel)
                                     <div class="mt-1.5 inline-flex items-center justify-center gap-0.5 text-[10px] font-semibold"
                                          style="color:var(--accent)">
@@ -72,8 +76,8 @@
                             </button>
                         @endforeach
                     </div>
-                    <p class="text-[11px] text-gray-400 mt-2.5 text-center flex items-center justify-center gap-1">
-                        <i data-lucide="info" class="w-3 h-3"></i>
+                    <p class="text-[11px] text-gray-400 mt-2.5 text-center flex flex-wrap items-center justify-center gap-x-1 gap-y-0.5">
+                        <i data-lucide="info" class="w-3 h-3 shrink-0"></i>
                         {{ __('install.welcome.lang_note') }}
                     </p>
                 </form>
@@ -84,33 +88,36 @@
 
             {{-- Три мини-фичи в одну строку --}}
             <div class="grid grid-cols-3 gap-2.5">
-                <div class="hint rounded-2xl p-3 text-center" data-tip="{{ __('install.welcome.f_easy_tip') }}">
+                {{-- min-w-0 + break-words: колонок три, а слова в разных языках
+                     длинные и неразрывные («Безопасность», «Қауіпсіздік»).
+                     Без этого min-content колонки распирал бы сетку. --}}
+                <div class="hint rounded-2xl p-3 text-center min-w-0" data-tip="{{ __('install.welcome.f_easy_tip') }}">
                     <i data-lucide="gauge" class="w-4 h-4 mx-auto mb-1 hint-ico"></i>
-                    <div class="text-xs font-semibold text-gray-900">{{ __('install.welcome.f_easy') }}</div>
-                    <div class="text-[10px] text-gray-400 hidden sm:block">{{ __('install.welcome.f_easy_sub') }}</div>
+                    <div class="text-xs font-semibold text-gray-900 break-words">{{ __('install.welcome.f_easy') }}</div>
+                    <div class="text-[10px] text-gray-400 hidden sm:block break-words">{{ __('install.welcome.f_easy_sub') }}</div>
                 </div>
-                <div class="hint rounded-2xl p-3 text-center" data-tip="{{ __('install.welcome.f_secure_tip') }}">
+                <div class="hint rounded-2xl p-3 text-center min-w-0" data-tip="{{ __('install.welcome.f_secure_tip') }}">
                     <i data-lucide="shield-check" class="w-4 h-4 mx-auto mb-1 hint-ico"></i>
-                    <div class="text-xs font-semibold text-gray-900">{{ __('install.welcome.f_secure') }}</div>
-                    <div class="text-[10px] text-gray-400 hidden sm:block">{{ __('install.welcome.f_secure_sub') }}</div>
+                    <div class="text-xs font-semibold text-gray-900 break-words">{{ __('install.welcome.f_secure') }}</div>
+                    <div class="text-[10px] text-gray-400 hidden sm:block break-words">{{ __('install.welcome.f_secure_sub') }}</div>
                 </div>
-                <div class="hint rounded-2xl p-3 text-center" data-tip="{{ __('install.welcome.f_nocdn_tip') }}">
+                <div class="hint rounded-2xl p-3 text-center min-w-0" data-tip="{{ __('install.welcome.f_nocdn_tip') }}">
                     <i data-lucide="hard-drive" class="w-4 h-4 mx-auto mb-1 hint-ico"></i>
-                    <div class="text-xs font-semibold text-gray-900">{{ __('install.welcome.f_nocdn') }}</div>
-                    <div class="text-[10px] text-gray-400 hidden sm:block">{{ __('install.welcome.f_nocdn_sub') }}</div>
+                    <div class="text-xs font-semibold text-gray-900 break-words">{{ __('install.welcome.f_nocdn') }}</div>
+                    <div class="text-[10px] text-gray-400 hidden sm:block break-words">{{ __('install.welcome.f_nocdn_sub') }}</div>
                 </div>
             </div>
 
             {{-- Подсказка про реквизиты БД --}}
             <div class="hint rounded-2xl px-3 py-2 text-[11px] text-gray-600 flex items-center justify-center gap-2">
                 <i data-lucide="database" class="w-3.5 h-3.5 shrink-0 hint-ico"></i>
-                <span>{{ __('install.welcome.db_hint') }}</span>
+                <span class="min-w-0 break-words">{{ __('install.welcome.db_hint') }}</span>
             </div>
         </div>
 
         {{-- Кнопки: прижаты к низу карточки --}}
         <div class="px-6 sm:px-10 py-4 shrink-0 border-t border-white/50 mt-4">
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-2">
+            <div class="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-2">
                 <a href="{{ route('install.requirements') }}"
                    class="ui-btn ui-btn-primary group w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-white bg-gray-900 hover:bg-black">
                     <i data-lucide="play" class="w-4 h-4"></i>

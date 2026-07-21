@@ -31,14 +31,16 @@
 <div class="space-y-2.5" aria-label="{{ __('install.steps.aria') }}">
     {{-- Заголовок прогресса + полоса на всю ширину --}}
     <div>
-        <div class="flex items-center justify-between mb-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
-            <span class="flex items-center gap-1">
-                <span style="color:var(--accent)">{{ __('install.steps.step') }} {{ $__installCurrentIndex + 1 }}</span>
-                <span>{{ __('install.steps.of') }} {{ $__installTotal + 1 }}</span>
-                <span class="hidden sm:inline text-gray-300">·</span>
-                <span class="hidden sm:inline normal-case tracking-normal text-gray-500">{{ $__installSteps[$__installStepKeys[$__installCurrentIndex]]['label'] }}</span>
+        {{-- min-w-0 + truncate: название шага в разных языках сильно разной
+             длины, длинное не должно распирать строку по ширине. --}}
+        <div class="flex items-center justify-between gap-2 mb-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+            <span class="flex items-center gap-1 min-w-0">
+                <span class="shrink-0" style="color:var(--accent)">{{ __('install.steps.step') }} {{ $__installCurrentIndex + 1 }}</span>
+                <span class="shrink-0">{{ __('install.steps.of') }} {{ $__installTotal + 1 }}</span>
+                <span class="hidden sm:inline text-gray-300 shrink-0">·</span>
+                <span class="hidden sm:inline normal-case tracking-normal text-gray-500 truncate">{{ $__installSteps[$__installStepKeys[$__installCurrentIndex]]['label'] }}</span>
             </span>
-            <span style="color:var(--accent)">{{ $__installProgress }}%</span>
+            <span class="shrink-0" style="color:var(--accent)">{{ $__installProgress }}%</span>
         </div>
         <div class="h-1.5 w-full bg-black/[.06] overflow-hidden">
             <div class="h-full transition-all duration-500 ease-out"

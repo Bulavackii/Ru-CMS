@@ -242,8 +242,14 @@
             to   { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        /* Компактный скроллбар для внутренних прокручиваемых областей карточек */
-        .install-scroll { scrollbar-width: thin; scrollbar-color: #cbd0dc transparent; }
+        /* Компактный скроллбар для внутренних прокручиваемых областей карточек.
+           overflow-x: hidden здесь обязателен: у элемента стоит overflow-y-auto,
+           а по спецификации CSS, если одна ось не visible, вторая из visible
+           превращается в auto. Без этой строки карточка получала ещё и
+           горизонтальную полосу прокрутки, стоило тексту не влезть по ширине
+           хотя бы на пиксель (ловилось на длинных русских и беларуских
+           строках). Прокрутка внутри карточки задумана только вертикальной. */
+        .install-scroll { overflow-x: hidden; scrollbar-width: thin; scrollbar-color: #cbd0dc transparent; }
         .install-scroll::-webkit-scrollbar { width: 6px; }
         .install-scroll::-webkit-scrollbar-thumb { background: #cbd0dc; border-radius: 999px; }
         .install-scroll::-webkit-scrollbar-track { background: transparent; }
