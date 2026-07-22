@@ -14,7 +14,10 @@
   
   {{-- Vite для основного JS (Alpine и другие) --}}
   @vite(['resources/js/app.js'])
-  
+
+  {{-- Стек стилей для страниц с собственным точечным CSS (например, дашборда) --}}
+  @stack('styles')
+
   {{-- Инициализация темы до загрузки Alpine.js (предотвращает мерцание) --}}
   {{-- Светлая тема всегда по умолчанию: системную dark-preference не учитываем, только явный выбор пользователя --}}
   <script>
@@ -50,9 +53,6 @@
 
     @include('layouts.admin.footer')
   </div>
-
-  {{-- Плавающая кнопка быстрых действий --}}
-  @include('components.admin.quick-actions')
 
   <script defer src="{{ local_js('alpine.min.js') }}"></script>
   <script src="{{ asset('js/admin/notifications.js') }}"></script>

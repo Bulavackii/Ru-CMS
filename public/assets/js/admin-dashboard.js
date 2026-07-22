@@ -10,8 +10,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initCharts() {
-    const ctx = document.getElementById('activityChart');
-    if (!ctx) return;
+    const canvas = document.getElementById('activityChart');
+    if (!canvas) return;
 
     const Chart = window.Chart;
     if (!Chart) {
@@ -19,7 +19,21 @@ function initCharts() {
         return;
     }
 
-    new Chart(ctx, {
+    const isDark = document.documentElement.classList.contains('dark');
+    const textColor = isDark ? '#9ca3af' : '#6b7280';
+    const gridColor = isDark ? 'rgba(255,255,255,.06)' : 'rgba(15,23,42,.06)';
+
+    // Градиентная заливка «под линией» — та же палитра, что и у карточек
+    // статистики на дашборде (синий/зелёный/оранжевый), только мягче.
+    const ctx = canvas.getContext('2d');
+    function fade(hex, top, bottom) {
+        const g = ctx.createLinearGradient(0, 0, 0, canvas.clientHeight || 260);
+        g.addColorStop(0, top);
+        g.addColorStop(1, bottom);
+        return g;
+    }
+
+    new Chart(canvas, {
         type: 'line',
         data: {
             labels: window.dashboardCharts.labels,
@@ -27,41 +41,74 @@ function initCharts() {
                 {
                     label: 'Новости',
                     data: window.dashboardCharts.news,
-                    borderColor: 'rgb(59, 130, 246)',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    tension: 0.4
+                    borderColor: '#3b82f6',
+                    backgroundColor: fade('#3b82f6', 'rgba(59,130,246,.28)', 'rgba(59,130,246,0)'),
+                    pointBackgroundColor: '#3b82f6',
+                    tension: 0.4,
+                    fill: true,
                 },
                 {
                     label: 'Пользователи',
                     data: window.dashboardCharts.users,
-                    borderColor: 'rgb(16, 185, 129)',
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                    tension: 0.4
+                    borderColor: '#10b981',
+                    backgroundColor: fade('#10b981', 'rgba(16,185,129,.24)', 'rgba(16,185,129,0)'),
+                    pointBackgroundColor: '#10b981',
+                    tension: 0.4,
+                    fill: true,
                 },
                 {
                     label: 'Заказы',
                     data: window.dashboardCharts.orders,
-                    borderColor: 'rgb(249, 115, 22)',
-                    backgroundColor: 'rgba(249, 115, 22, 0.1)',
-                    tension: 0.4
+                    borderColor: '#f97316',
+                    backgroundColor: fade('#f97316', 'rgba(249,115,22,.2)', 'rgba(249,115,22,0)'),
+                    pointBackgroundColor: '#f97316',
+                    tension: 0.4,
+                    fill: true,
                 }
-            ]
+            ].map(function (ds) {
+                return Object.assign({
+                    borderWidth: 2.5,
+                    pointRadius: 0,
+                    pointHoverRadius: 5,
+                    pointBorderWidth: 2,
+                    pointBorderColor: isDark ? '#111827' : '#ffffff',
+                    pointHoverBackgroundColor: ds.pointBackgroundColor,
+                    borderCapStyle: 'round',
+                    borderJoinStyle: 'round',
+                }, ds);
+            })
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
             plugins: {
                 legend: {
                     position: 'top',
+                    align: 'end',
+                    labels: { color: textColor, usePointStyle: true, boxWidth: 8, boxHeight: 8, padding: 16 }
                 },
-                title: {
-                    display: true,
-                    text: 'Активность за последние 7 дней'
+                tooltip: {
+                    backgroundColor: isDark ? 'rgba(17,24,39,.92)' : 'rgba(17,24,39,.92)',
+                    titleColor: '#f9fafb',
+                    bodyColor: '#e5e7eb',
+                    borderColor: 'rgba(255,255,255,.1)',
+                    borderWidth: 1,
+                    padding: 10,
+                    cornerRadius: 10,
+                    displayColors: true,
+                    boxPadding: 4,
                 }
             },
             scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { color: textColor },
+                },
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    grid: { color: gridColor },
+                    ticks: { color: textColor, precision: 0 },
                 }
             }
         }

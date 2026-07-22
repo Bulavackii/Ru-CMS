@@ -18,6 +18,18 @@
     $icon = function (string $name, string $cls='') use ($iconMode,$iconsPath) {
         $cls = trim($cls);
 
+        // ---------- Кастомные бренд-глифы вне любых наборов иконок ----------
+        // MAX (мессенджер) и Rutube — российские сервисы, их нет ни в Font Awesome,
+        // ни в Bootstrap/Remix/Tabler/Lucide. Рисуем сами: обобщённый глиф
+        // (диалоговое облако / плеер в рамке), а не точный логотип бренда.
+        $customSvg = [
+            'max' => '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" class="inline-block align-[-0.125em] '.e($cls).'"><path d="M12 3C6.98 3 3 6.58 3 11c0 2.24 1.02 4.26 2.68 5.7-.12.98-.5 2.1-1.4 3.3-.16.2-.02.5.24.48 1.7-.12 3.28-.72 4.5-1.5A11.6 11.6 0 0 0 12 19c5.02 0 9-3.58 9-8s-3.98-8-9-8Z"/></svg>',
+            'rutube' => '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.6" class="inline-block align-[-0.125em] '.e($cls).'"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 8.7v6.6l5.7-3.3-5.7-3.3Z" fill="currentColor" stroke="none"/></svg>',
+        ];
+        if (isset($customSvg[$name])) {
+            return $customSvg[$name];
+        }
+
         // ---------- SVG ----------
         if ($iconMode === 'svg') {
             if ($iconsPath) {
@@ -91,14 +103,6 @@
         return '<i class="'.$prefix.' fa-'.e($fa).' '.e($cls).'"></i>';
     };
 
-    $env = app()->environment();
-    $envCls = match ($env) {
-        'production' => 'bg-emerald-600',
-        'staging'    => 'bg-amber-500',
-        'testing'    => 'bg-blue-600',
-        default      => 'bg-rose-600',
-    };
-
     // Статистика
     $stats = [];
     try { if (class_exists(\Modules\System\Models\Module::class) && Schema::hasTable('modules')) {
@@ -119,11 +123,10 @@
 
     // Ссылки (пилюли переменной ширины — как на фронте)
     $linkPills = [
-        ['href'=>'https://vk.com/ru_cms',                'label'=>'VK',        'icon'=>'vk'],
-        ['href'=>'https://t.me/ru_cms',                  'label'=>'Telegram',  'icon'=>'telegram-plane'],
-        ['href'=>'https://wa.me/79856204400',            'label'=>'WhatsApp',  'icon'=>'whatsapp'],
-        ['href'=>'https://github.com/Bulavackii/Ru-CMS', 'label'=>'GitHub',    'icon'=>'github'],
-        ['href'=>'#',                                    'label'=>'YouTube',   'icon'=>'youtube'],
+        ['href'=>'https://vk.com/ru_cms',                'label'=>'VK',       'icon'=>'vk'],
+        ['href'=>'#',                                    'label'=>'MAX',      'icon'=>'max'],
+        ['href'=>'#',                                    'label'=>'Rutube',   'icon'=>'rutube'],
+        ['href'=>'https://github.com/Bulavackii/Ru-CMS', 'label'=>'GitHub',   'icon'=>'github'],
     ];
 @endphp
 
@@ -131,7 +134,6 @@
     {{-- 1) Сводка (с фолбэком иконок) --}}
     <section class="space-y-2">
         <div class="flex flex-wrap items-center gap-2">
-            <span class="px-2 py-0.5 rounded-full text-[11px] text-white {{ $envCls }}">{{ strtoupper($env) }}</span>
             <span class="text-xs">v1.0.0</span>
             <span class="text-xs">· PHP {{ PHP_VERSION }}</span>
             <span class="text-xs">· Laravel {{ app()->version() }}</span>

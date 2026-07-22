@@ -74,14 +74,6 @@
             foreach ($map as $prefix => $label) {
                 if (str_starts_with($route, $prefix)) { $section = $label; break; }
             }
-
-            $env = app()->environment();
-            $envCls = match ($env) {
-                'production' => 'bg-emerald-600',
-                'staging'    => 'bg-amber-500',
-                'testing'    => 'bg-blue-600',
-                default      => 'bg-rose-600',
-            };
         @endphp
 
         <nav class="hidden md:flex items-center gap-2 text-[12px] text-gray-500 dark:text-gray-400">
@@ -92,10 +84,6 @@
                 <span class="text-gray-300">/</span>
                 <span class="text-gray-800 dark:text-gray-200 font-medium">{{ $section }}</span>
             @endif
-
-            <span class="ml-2 px-2 py-0.5 rounded-full text-[11px] text-white {{ $envCls }}">
-                {{ strtoupper($env) }}
-            </span>
 
             <div x-data="{open:false}" class="relative">
                 <button type="button" @click="open=!open"
