@@ -19,6 +19,10 @@
        «стеклянные» полосы шапки/подвала админки задаём литеральным CSS. */
     .admin-glass{background:rgba(255,255,255,.82);backdrop-filter:blur(16px) saturate(160%);-webkit-backdrop-filter:blur(16px) saturate(160%)}
     .dark .admin-glass{background:rgba(17,24,39,.82)}
+    /* Тёмный вариант — для единой шапки (header.blade.php), она всегда
+       тёмная независимо от переключателя темы: под неё уже сделаны
+       components.admin.global-search/notifications-center/dark-mode-toggle. */
+    .admin-glass-dark{background:rgba(17,24,39,.9);backdrop-filter:blur(16px) saturate(160%);-webkit-backdrop-filter:blur(16px) saturate(160%)}
   </style>
   
   {{-- Vite для основного JS (Alpine и другие) --}}
@@ -51,7 +55,6 @@
     {{-- ⬇️ Новый общий липкий контейнер для header + navbar --}}
     <div class="sticky top-0 z-50">
       @include('layouts.admin.header')
-      @include('layouts.admin.navbar')
     </div>
     {{-- ⬆️ Конец липкого контейнера --}}
 

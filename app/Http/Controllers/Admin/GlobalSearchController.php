@@ -9,6 +9,7 @@ use Modules\Menu\Models\Page;
 use App\Models\User;
 use Modules\Categories\Models\Category;
 use Modules\Menu\Models\Menu;
+use Illuminate\Support\Facades\Log;
 
 /**
  * 🔍 GlobalSearchController - Глобальный поиск в админке
@@ -45,7 +46,7 @@ class GlobalSearchController extends Controller
                     ];
                 }
             } catch (\Exception $e) {
-                \Log::warning('Ошибка поиска новостей: ' . $e->getMessage());
+                Log::warning('Ошибка поиска новостей: ' . $e->getMessage());
             }
 
             // Поиск страниц
@@ -64,7 +65,7 @@ class GlobalSearchController extends Controller
                     ];
                 }
             } catch (\Exception $e) {
-                \Log::warning('Ошибка поиска страниц: ' . $e->getMessage());
+                Log::warning('Ошибка поиска страниц: ' . $e->getMessage());
             }
 
             // Поиск пользователей
@@ -83,25 +84,25 @@ class GlobalSearchController extends Controller
                     ];
                 }
             } catch (\Exception $e) {
-                \Log::warning('Ошибка поиска пользователей: ' . $e->getMessage());
+                Log::warning('Ошибка поиска пользователей: ' . $e->getMessage());
             }
 
             // Поиск категорий
             try {
-                $categories = Category::where('name', 'like', "%{$query}%")
+                $categories = Category::where('title', 'like', "%{$query}%")
                     ->limit(5)
                     ->get();
-                
+
                 foreach ($categories as $item) {
                     $results[] = [
                         'type' => 'Категория',
-                        'title' => $item->name,
+                        'title' => $item->title,
                         'url' => route('admin.categories.edit', $item->id),
                         'icon' => 'fas fa-folder text-orange-500',
                     ];
                 }
             } catch (\Exception $e) {
-                \Log::warning('Ошибка поиска категорий: ' . $e->getMessage());
+                Log::warning('Ошибка поиска категорий: ' . $e->getMessage());
             }
 
             // Поиск меню
@@ -119,12 +120,12 @@ class GlobalSearchController extends Controller
                     ];
                 }
             } catch (\Exception $e) {
-                \Log::warning('Ошибка поиска меню: ' . $e->getMessage());
+                Log::warning('Ошибка поиска меню: ' . $e->getMessage());
             }
 
             return response()->json(['results' => $results]);
         } catch (\Exception $e) {
-            \Log::error('Ошибка глобального поиска: ' . $e->getMessage());
+            Log::error('Ошибка глобального поиска: ' . $e->getMessage());
             return response()->json(['results' => [], 'error' => 'Произошла ошибка при поиске'], 500);
         }
     }
