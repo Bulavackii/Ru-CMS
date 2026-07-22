@@ -1,5 +1,5 @@
 <footer
-    class="mt-auto border-t bg-white/95 dark:bg-gray-900/95 backdrop-blur text-sm text-gray-600 dark:text-gray-400"
+    class="admin-glass mt-auto border-t text-sm text-gray-600 dark:text-gray-400"
 >
 @php
     use Illuminate\Support\Facades\Schema;
@@ -23,8 +23,8 @@
         // ни в Bootstrap/Remix/Tabler/Lucide. Рисуем сами: обобщённый глиф
         // (диалоговое облако / плеер в рамке), а не точный логотип бренда.
         $customSvg = [
-            'max' => '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" class="inline-block align-[-0.125em] '.e($cls).'"><path d="M12 3C6.98 3 3 6.58 3 11c0 2.24 1.02 4.26 2.68 5.7-.12.98-.5 2.1-1.4 3.3-.16.2-.02.5.24.48 1.7-.12 3.28-.72 4.5-1.5A11.6 11.6 0 0 0 12 19c5.02 0 9-3.58 9-8s-3.98-8-9-8Z"/></svg>',
-            'rutube' => '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.6" class="inline-block align-[-0.125em] '.e($cls).'"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 8.7v6.6l5.7-3.3-5.7-3.3Z" fill="currentColor" stroke="none"/></svg>',
+            'max' => '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" class="inline-block align-middle '.e($cls).'"><path d="M12 3C6.98 3 3 6.58 3 11c0 2.24 1.02 4.26 2.68 5.7-.12.98-.5 2.1-1.4 3.3-.16.2-.02.5.24.48 1.7-.12 3.28-.72 4.5-1.5A11.6 11.6 0 0 0 12 19c5.02 0 9-3.58 9-8s-3.98-8-9-8Z"/></svg>',
+            'rutube' => '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.6" class="inline-block align-middle '.e($cls).'"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 8.7v6.6l5.7-3.3-5.7-3.3Z" fill="currentColor" stroke="none"/></svg>',
         ];
         if (isset($customSvg[$name])) {
             return $customSvg[$name];

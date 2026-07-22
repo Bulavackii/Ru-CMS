@@ -34,7 +34,7 @@
             </div>
         </div>
 
-        <div class="relative z-10 mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-gray-900/5 pt-4 text-xs text-gray-500 dark:border-white/10 dark:text-gray-400">
+        <div class="relative z-10 mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-gray-200 pt-4 text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400">
             <span class="inline-flex items-center gap-1.5">
                 <i class="fas fa-clock hint-ico"></i>
                 <span class="font-mono" x-text="clock"></span>
@@ -152,7 +152,7 @@
             <div class="space-y-1.5">
                 @forelse($recentActivity as $activity)
                     <a href="{{ $activity['url'] }}" class="dash-activity-row flex items-center gap-3 rounded-xl p-2.5">
-                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                        <span class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
                             <i class="fas fa-{{ $activity['icon'] }}"></i>
                         </span>
                         <div class="min-w-0 flex-1">
@@ -187,7 +187,7 @@
                     </div>
                 </div>
                 <div class="space-y-3">
-                    <div class="flex items-center gap-3 rounded-xl bg-gray-50 p-3 dark:bg-gray-800/60">
+                    <div class="flex items-center gap-3 rounded-xl bg-gray-50 p-3 dark:bg-gray-800">
                         <span class="dash-badge dash-badge--{{ $licenseColor['bg'] }} dash-badge--sm"><i class="fas fa-crown"></i></span>
                         <div class="min-w-0">
                             <p class="truncate text-sm font-medium text-gray-900 dark:text-white">
@@ -214,7 +214,7 @@
                         <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Истекает: {{ $licenseInfo['formatted_expires_at'] }}</p>
                     </div>
 
-                    <div class="rounded-xl bg-gray-50 p-3 dark:bg-gray-800/60">
+                    <div class="rounded-xl bg-gray-50 p-3 dark:bg-gray-800">
                         <p class="mb-1 text-xs text-gray-500 dark:text-gray-400">Лицензионный ключ</p>
                         <p class="break-all font-mono text-xs text-gray-900 dark:text-white">{{ $licenseInfo['subscription']->license_key }}</p>
                     </div>
@@ -257,7 +257,7 @@
                             default => 'gray',
                         };
                     @endphp
-                    <div class="flex items-center gap-3 rounded-xl bg-gray-50 p-3 dark:bg-gray-800/60">
+                    <div class="flex items-center gap-3 rounded-xl bg-gray-50 p-3 dark:bg-gray-800">
                         <span class="dash-badge dash-badge--{{ $statusColor }} dash-badge--sm"><i class="fas fa-{{ $status['icon'] }}"></i></span>
                         <div class="min-w-0 flex-1">
                             <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $systemLabels[$key] ?? ucfirst($key) }}</p>

@@ -4,7 +4,7 @@
         q: ''
     }"
     @keydown.window.prevent.ctrl.k="searchOpen = !searchOpen; $nextTick(()=> $refs.search?.focus())"
-    class="z-30 w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur border-b shadow text-sm text-gray-700 dark:text-gray-300"
+    class="admin-glass z-30 w-full border-b shadow text-sm text-gray-700 dark:text-gray-300"
 >
     @php
         // Подключаем тему в админке: шрифт + набор иконок

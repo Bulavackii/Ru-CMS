@@ -10,7 +10,16 @@
   <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
   <link href="{{ local_css('tailwind.min.css') }}" rel="stylesheet">
   <link rel="stylesheet" href="{{ local_css('font-awesome/all.min.css') }}" crossorigin="anonymous" referrerpolicy="no-referrer"/>
-  <style>[x-cloak]{display:none!important}</style>
+  <style>
+    [x-cloak]{display:none!important}
+    /* Утилиты Tailwind с /NN-прозрачностью (bg-white/80 и т.п.) отсутствуют в
+       собранном public/assets/css/tailwind.min.css — это статическая сборка без
+       JIT-сканирования содержимого, в неё вошли только полные стандартные
+       классы, а не opacity-модификаторы и произвольные значения. Поэтому
+       «стеклянные» полосы шапки/подвала админки задаём литеральным CSS. */
+    .admin-glass{background:rgba(255,255,255,.82);backdrop-filter:blur(16px) saturate(160%);-webkit-backdrop-filter:blur(16px) saturate(160%)}
+    .dark .admin-glass{background:rgba(17,24,39,.82)}
+  </style>
   
   {{-- Vite для основного JS (Alpine и другие) --}}
   @vite(['resources/js/app.js'])
@@ -37,7 +46,7 @@
   @include('layouts.admin.sidebar')
 
   {{-- каркас с липким верхом и обычным футером --}}
-  <div id="admin-wrap" class="min-h-screen flex flex-col lg:pl-64 transition-all duration-300">
+  <div id="admin-wrap" class="min-h-screen flex flex-col lg:pl-60 transition-all duration-300">
 
     {{-- ⬇️ Новый общий липкий контейнер для header + navbar --}}
     <div class="sticky top-0 z-50">
