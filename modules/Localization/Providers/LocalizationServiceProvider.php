@@ -23,6 +23,15 @@ class LocalizationServiceProvider extends ServiceProvider
         // 🌍 Подключение переводов
         $this->loadTranslationsFrom(__DIR__ . '/../Lang', 'Localization');
 
+        // ⚙️ Домёрживаем конфиг модуля с config/localization.php (тот же баг,
+        // что чинили у Captcha: без mergeConfigFrom() ключи, которых нет в
+        // опубликованном конфиге — например preset_countries, — тихо
+        // возвращали дефолт [], и импорт стран/автозаполнение пресетов не
+        // работали). Ключи, уже объявленные в config/localization.php
+        // (date_formats, time_formats и т.д.), приоритета не теряют —
+        // array_merge оставляет их как есть.
+        $this->mergeConfigFrom(__DIR__ . '/../Config/localization.php', 'localization');
+
         // ⚙️ Публикация конфигурации
         $this->publishes([
             __DIR__ . '/../Config/localization.php' => config_path('localization.php'),

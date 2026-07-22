@@ -1,4 +1,6 @@
-@extends('System::Views.admin.modules')
+@extends('layouts.admin')
+
+@section('title', 'Локализация')
 
 @section('content')
 <div class="container-fluid py-4">

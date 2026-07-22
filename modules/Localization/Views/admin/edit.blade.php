@@ -1,4 +1,6 @@
-@extends('System::Views.admin.modules')
+@extends('layouts.admin')
+
+@section('title', 'Редактирование страны')
 
 @section('content')
 <div class="container-fluid py-4">
@@ -309,6 +311,7 @@
         </div>
     </div>
 </div>
+@endsection
 
 @push('scripts')
 <script>

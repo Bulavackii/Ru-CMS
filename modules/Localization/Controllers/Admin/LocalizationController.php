@@ -39,7 +39,13 @@ class LocalizationController extends Controller
      */
     public function create()
     {
-        return view('Localization::admin.create');
+        return view('Localization::admin.create', [
+            'presets' => config('localization.preset_countries', []),
+            'dateFormats' => $this->dateFormatOptions(),
+            'timeFormats' => $this->timeFormatOptions(),
+            'decimalSeparators' => $this->decimalSeparatorOptions(),
+            'thousandsSeparators' => $this->thousandsSeparatorOptions(),
+        ]);
     }
 
     /**
@@ -48,7 +54,15 @@ class LocalizationController extends Controller
     public function edit(string $code)
     {
         $country = Country::where('code', $code)->firstOrFail();
-        return view('Localization::admin.edit', compact('country'));
+
+        return view('Localization::admin.edit', [
+            'country' => $country,
+            'settings' => LocalizationSetting::getAllForCountry($country->id),
+            'dateFormats' => $this->dateFormatOptions(),
+            'timeFormats' => $this->timeFormatOptions(),
+            'decimalSeparators' => $this->decimalSeparatorOptions(),
+            'thousandsSeparators' => $this->thousandsSeparatorOptions(),
+        ]);
     }
 
     /**
@@ -57,13 +71,95 @@ class LocalizationController extends Controller
     public function settings(string $code)
     {
         $country = Country::where('code', $code)->firstOrFail();
-        $settings = LocalizationSetting::where('country_id', $country->id)
-            ->orderBy('group')
-            ->orderBy('key')
-            ->get()
-            ->groupBy('group');
 
-        return view('Localization::admin.settings', compact('country', 'settings'));
+        // Плоский массив key => value (как отдаёт API countrySettings) —
+        // именно в таком виде его ждёт вьюха (экспорт в JSON, быстрые настройки
+        // по ключу и т.д.). Группировка по полю 'group' тут не нужна.
+        $settings = LocalizationSetting::getAllForCountry($country->id);
+
+        return view('Localization::admin.settings', [
+            'country' => $country,
+            'settings' => $settings,
+            'types' => $this->settingTypeOptions(),
+            'groups' => $this->settingGroupOptions(),
+        ]);
+    }
+
+    /**
+     * Варианты форматов даты для выпадающего списка в формах создания/редактирования страны
+     */
+    private function dateFormatOptions(): array
+    {
+        return [
+            'd.m.Y' => '31.12.2026',
+            'Y-m-d' => '2026-12-31',
+            'd/m/Y' => '31/12/2026',
+            'm/d/Y' => '12/31/2026',
+            'd F Y' => '31 декабря 2026',
+        ];
+    }
+
+    /**
+     * Варианты форматов времени
+     */
+    private function timeFormatOptions(): array
+    {
+        return [
+            'H:i' => '14:30',
+            'H:i:s' => '14:30:00',
+            'h:i A' => '02:30 PM',
+        ];
+    }
+
+    /**
+     * Варианты разделителя дробной части числа
+     */
+    private function decimalSeparatorOptions(): array
+    {
+        return [
+            ',' => 'Запятая — 1,5',
+            '.' => 'Точка — 1.5',
+        ];
+    }
+
+    /**
+     * Варианты разделителя разрядов числа
+     */
+    private function thousandsSeparatorOptions(): array
+    {
+        return [
+            ' ' => 'Пробел — 1 000',
+            ',' => 'Запятая — 1,000',
+            '.' => 'Точка — 1.000',
+            '' => 'Без разделителя — 1000',
+        ];
+    }
+
+    /**
+     * Типы значений для произвольных настроек локализации
+     */
+    private function settingTypeOptions(): array
+    {
+        return [
+            'string' => 'Строка',
+            'number' => 'Число',
+            'boolean' => 'Логическое (да/нет)',
+            'json' => 'JSON',
+            'array' => 'Массив',
+        ];
+    }
+
+    /**
+     * Группы произвольных настроек локализации
+     */
+    private function settingGroupOptions(): array
+    {
+        return [
+            'general' => 'Общие',
+            'date' => 'Дата и время',
+            'currency' => 'Валюта',
+            'translation' => 'Переводы',
+        ];
     }
 
     /**
