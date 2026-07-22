@@ -6,8 +6,16 @@
       рядом с полноценным центром уведомлений (components.admin.notifications-center);
     — загрузка шрифта/иконок темы была объявлена только в navbar.blade.php.
     Теперь это один бар, каждая функция — в одном месте.
+
+    22.07.2026: перекомпоновка на прямые края (без скруглений — общий рубильник
+    в layouts/admin.blade.php) + акцентная градиентная полоса сверху и группировка
+    правого кластера разделителями по смыслу (уведомления/деньги · инструменты ·
+    персонализация · аккаунт), чтобы плотный ряд иконок читался блоками, а не
+    сплошной лентой.
 --}}
 <header class="admin-glass-dark z-30 w-full border-b border-gray-800 shadow text-sm text-gray-300">
+    <div class="admin-accent-bar" aria-hidden="true"></div>
+
     @php
         // Шрифт и набор иконок темы — общие на всю админку.
         $activeTheme = \Modules\Visual\Models\Theme::where('is_default', true)->first();
@@ -97,48 +105,53 @@
         } catch (\Throwable $e) {}
 
         $badge = 'absolute -top-1.5 -right-1.5 w-5 h-5 flex items-center justify-center text-xs text-white rounded-full shadow';
-        $btn   = 'relative w-9 h-9 grid place-items-center rounded-lg border border-gray-700 hover:bg-gray-800 hover:border-gray-600 transition';
+        $btn   = 'relative w-9 h-9 grid place-items-center border border-gray-700 hover:bg-gray-800 hover:border-gray-600 transition';
+        $sep   = 'w-px h-6 bg-gray-800 mx-1 hidden sm:block';
     @endphp
 
-    <div class="max-w-screen-2xl mx-auto px-4 py-2.5 flex flex-wrap items-center gap-2">
+    <div class="max-w-screen-2xl mx-auto px-4 py-2.5 flex flex-wrap items-center gap-3">
 
         {{-- ── Левый кластер: где я / быстрое создание ──────────────────── --}}
-        <div class="flex items-center gap-2 flex-wrap">
-            <nav class="flex items-center gap-1.5 text-xs text-gray-400">
-                <a href="{{ url('/admin/news') }}" class="inline-flex items-center gap-1 hover:text-white transition">
-                    @themeIcon('home') Панель
+        <div class="flex items-center gap-3 flex-wrap">
+            <nav class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider"
+                 style="font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;" aria-label="Текущий раздел">
+                <a href="{{ url('/admin/news') }}" class="inline-flex items-center gap-1.5 text-gray-500 hover:text-white transition">
+                    <span class="w-1.5 h-1.5 bg-indigo-500" aria-hidden="true"></span>
+                    Панель
                 </a>
                 @if($section)
-                    <span class="text-gray-600">/</span>
-                    <span class="text-gray-200 font-medium">{{ $section }}</span>
+                    <span class="text-gray-700">/</span>
+                    <span class="text-white">{{ $section }}</span>
                 @endif
             </nav>
 
+            <div class="{{ $sep }}" aria-hidden="true"></div>
+
             <div x-data="{open:false}" class="relative">
                 <button type="button" @click="open=!open"
-                        class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition">
+                        class="admin-clip-corner inline-flex items-center gap-1.5 pl-2.5 pr-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition">
                     @themeIcon('plus') <span>Создать</span>
                 </button>
                 <div x-cloak x-show="open" @click.outside="open=false"
-                     class="absolute left-0 mt-2 w-56 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-xl p-1 z-20 text-gray-700 dark:text-gray-200">
+                     class="absolute left-0 mt-2 w-56 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-xl p-1 z-20 text-gray-700 dark:text-gray-200">
                     @if(Route::has('admin.news.create'))
-                        <a class="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
+                        <a class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800"
                            href="{{ route('admin.news.create') }}">@themeIcon('file-text','w-4 text-center') Новость</a>
                     @endif
                     @if(Route::has('admin.pages.create'))
-                        <a class="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
+                        <a class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800"
                            href="{{ route('admin.pages.create') }}">@themeIcon('file-text','w-4 text-center') Страницу</a>
                     @endif
                     @if(Route::has('admin.categories.create'))
-                        <a class="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
+                        <a class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800"
                            href="{{ route('admin.categories.create') }}">@themeIcon('folder','w-4 text-center') Категорию</a>
                     @endif
                     @if(Route::has('admin.slideshow.create'))
-                        <a class="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
+                        <a class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800"
                            href="{{ route('admin.slideshow.create') }}">@themeIcon('image','w-4 text-center') Слайдшоу</a>
                     @endif
                     @if(Route::has('admin.visual.fragments.create'))
-                        <a class="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
+                        <a class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800"
                            href="{{ route('admin.visual.fragments.create') }}">@themeIcon('puzzle','w-4 text-center') Фрагмент</a>
                     @endif
                 </div>
@@ -150,54 +163,67 @@
             @include('components.admin.global-search')
         </div>
 
-        {{-- ── Правый кластер: инструменты и аккаунт ─────────────────────── --}}
-        <div class="ml-auto sm:ml-0 flex items-center gap-1.5 flex-wrap">
-            @include('components.admin.notifications-center')
+        {{-- ── Правый кластер: инструменты и аккаунт, блоками через разделители ── --}}
+        <div class="ml-auto sm:ml-0 flex items-center gap-1 flex-wrap">
 
-            {{-- Лицензия --}}
-            @if($licenseWarning)
-                <a href="{{ route('admin.subscriptions.index') }}"
-                   class="{{ $btn }} {{ $licenseWarning['is_expired'] || $licenseWarning['is_critical'] ? 'border-red-500' : 'border-yellow-500' }}"
-                   title="Лицензия {{ $licenseWarning['is_expired'] ? 'истекла' : 'истекает через ' . $licenseWarning['days_left'] . ' ' . ($licenseWarning['days_left'] === 1 ? 'день' : ($licenseWarning['days_left'] < 5 ? 'дня' : 'дней')) }}"
-                   aria-label="Лицензия">
-                    <i class="fas fa-key {{ $licenseWarning['is_expired'] || $licenseWarning['is_critical'] ? 'text-red-400' : 'text-yellow-400' }}"></i>
-                    <span class="{{ $badge }} {{ $licenseWarning['is_expired'] || $licenseWarning['is_critical'] ? 'bg-red-500 animate-pulse' : 'bg-yellow-500' }}">
-                        {{ $licenseWarning['is_expired'] ? '!' : $licenseWarning['days_left'] }}
-                    </span>
+            {{-- Блок 1: уведомления / деньги / лицензия --}}
+            <div class="flex items-center gap-1.5">
+                @include('components.admin.notifications-center')
+
+                <a href="{{ route('admin.orders.index') }}" class="{{ $btn }}" title="Новые заказы" aria-label="Новые заказы">
+                    @themeIcon('shopping-cart')
+                    @if($newOrders>0)<span class="{{ $badge }} bg-green-600">{{ $newOrders }}</span>@endif
                 </a>
-            @endif
 
-            <a href="{{ route('admin.orders.index') }}" class="{{ $btn }}" title="Новые заказы" aria-label="Новые заказы">
-                @themeIcon('shopping-cart')
-                @if($newOrders>0)<span class="{{ $badge }} bg-green-600">{{ $newOrders }}</span>@endif
-            </a>
+                <a href="{{ route('admin.messages.index') }}" class="{{ $btn }}" title="Сообщения" aria-label="Сообщения">
+                    @themeIcon('message')
+                    @if($unreadMessages>0)<span class="{{ $badge }} bg-indigo-500">{{ $unreadMessages }}</span>@endif
+                </a>
 
-            <a href="{{ route('admin.messages.index') }}" class="{{ $btn }}" title="Сообщения" aria-label="Сообщения">
-                @themeIcon('message')
-                @if($unreadMessages>0)<span class="{{ $badge }} bg-indigo-500">{{ $unreadMessages }}</span>@endif
-            </a>
+                @if($licenseWarning)
+                    <a href="{{ route('admin.subscriptions.index') }}"
+                       class="{{ $btn }} {{ $licenseWarning['is_expired'] || $licenseWarning['is_critical'] ? 'border-red-500' : 'border-yellow-500' }}"
+                       title="Лицензия {{ $licenseWarning['is_expired'] ? 'истекла' : 'истекает через ' . $licenseWarning['days_left'] . ' ' . ($licenseWarning['days_left'] === 1 ? 'день' : ($licenseWarning['days_left'] < 5 ? 'дня' : 'дней')) }}"
+                       aria-label="Лицензия">
+                        <i class="fas fa-key {{ $licenseWarning['is_expired'] || $licenseWarning['is_critical'] ? 'text-red-400' : 'text-yellow-400' }}"></i>
+                        <span class="{{ $badge }} {{ $licenseWarning['is_expired'] || $licenseWarning['is_critical'] ? 'bg-red-500 animate-pulse' : 'bg-yellow-500' }}">
+                            {{ $licenseWarning['is_expired'] ? '!' : $licenseWarning['days_left'] }}
+                        </span>
+                    </a>
+                @endif
+            </div>
 
-            <a href="{{ route('admin.error.report') }}" class="{{ $btn }}" title="Сообщить об ошибке" aria-label="Сообщить об ошибке">
-                @themeIcon('bug')
-            </a>
+            <div class="{{ $sep }}" aria-hidden="true"></div>
 
-            <a href="{{ route('admin.geolocation') }}" class="{{ $btn }}" title="Геолокация пользователей" aria-label="Геолокация">
-                @themeIcon('globe')
-            </a>
+            {{-- Блок 2: служебные инструменты --}}
+            <div class="flex items-center gap-1.5">
+                <a href="{{ route('admin.error.report') }}" class="{{ $btn }}" title="Сообщить об ошибке" aria-label="Сообщить об ошибке">
+                    @themeIcon('bug')
+                </a>
 
-            <a href="{{ route('admin.system_info') }}" class="{{ $btn }}" title="Информация о сервере и конфигурации" aria-label="Система">
-                @themeIcon('cog')
-            </a>
+                <a href="{{ route('admin.geolocation') }}" class="{{ $btn }}" title="Геолокация пользователей" aria-label="Геолокация">
+                    @themeIcon('globe')
+                </a>
 
-            @if(class_exists(\Modules\Localization\Views\Components\CountrySwitcher::class))
-                <div class="hidden sm:block">
-                    <x-country-switcher />
-                </div>
-            @endif
+                <a href="{{ route('admin.system_info') }}" class="{{ $btn }}" title="Информация о сервере и конфигурации" aria-label="Система">
+                    @themeIcon('cog')
+                </a>
+            </div>
 
-            @include('components.admin.dark-mode-toggle')
+            <div class="{{ $sep }}" aria-hidden="true"></div>
 
-            <div class="w-px h-6 bg-gray-700 mx-1 hidden sm:block" aria-hidden="true"></div>
+            {{-- Блок 3: персонализация --}}
+            <div class="flex items-center gap-1.5">
+                @if(class_exists(\Modules\Localization\Views\Components\CountrySwitcher::class))
+                    <div class="hidden sm:block">
+                        <x-country-switcher />
+                    </div>
+                @endif
+
+                @include('components.admin.dark-mode-toggle')
+            </div>
+
+            <div class="{{ $sep }}" aria-hidden="true"></div>
 
             <x-user-dropdown />
         </div>

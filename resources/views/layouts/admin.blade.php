@@ -23,6 +23,21 @@
        тёмная независимо от переключателя темы: под неё уже сделаны
        components.admin.global-search/notifications-center/dark-mode-toggle. */
     .admin-glass-dark{background:rgba(17,24,39,.9);backdrop-filter:blur(16px) saturate(160%);-webkit-backdrop-filter:blur(16px) saturate(160%)}
+
+    /* Дизайн-язык админки: только прямые края, скруглений быть не должно нигде.
+       Вместо правки rounded-* по десяткам вьюх и компонентов — один глобальный
+       "рубильник", гарантированно перекрывающий и Tailwind-утилиты, и
+       литеральный CSS (border-radius в собственном стек-стиле того же дашборда),
+       т.к. !important побеждает специфичность независимо от порядка подключения.
+       Область действия — только страницы админки (класс на <body> этого лейаута,
+       фронтенд и письма его не подключают и не затрагиваются). */
+    body.admin-sharp, body.admin-sharp * { border-radius: 0 !important; }
+
+    /* Общие акценты шапки/подвала: полоса-градиент (визуально скрепляет верх
+       и низ страницы) и срезанный угол вместо скругления — тот же "прямой,
+       но не скучный" приём, что и у кнопки «Создать» в шапке. */
+    .admin-accent-bar{height:3px;background:linear-gradient(90deg,#6366f1,#a855f7,#ec4899)}
+    .admin-clip-corner{clip-path:polygon(0 0,100% 0,100% 100%,10px 100%,0 calc(100% - 10px))}
   </style>
   
   {{-- Vite для основного JS (Alpine и другие) --}}
@@ -42,7 +57,7 @@
   </script>
 </head>
 
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-colors duration-200 min-h-screen">
+<body class="admin-sharp bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-colors duration-200 min-h-screen">
   {{-- Мобильное меню --}}
   @include('layouts.admin.mobile-menu')
   
