@@ -232,9 +232,48 @@
             color-scheme: light dark;
         }
     </style>
+
+    {{-- ===== Единый дизайн-слой фронтенда (стиль админки/Install) ===== --}}
+    <style>
+        :root{
+            --fx-a:#6366f1; --fx-a2:#8b5cf6; --fx-a-ink:#4338ca;
+            --fx-grad:linear-gradient(135deg,#6366f1,#8b5cf6);
+            --fx-bar:linear-gradient(90deg,#6366f1,#8b5cf6,#ec4899);
+        }
+        /* Тонкая градиентная акцент-полоса (верх страницы, над подвалом, у секций) */
+        .fx-topbar{ height:3px; background:var(--fx-bar); }
+        .fx-accent-bar{ height:3px; width:100%; background:var(--fx-bar); border:0; border-radius:2px; }
+        /* Градиентный бейдж-иконка у заголовков (как .admin-icon-badge) */
+        .fx-badge{ width:2.5rem; height:2.5rem; border-radius:.75rem; display:inline-flex; align-items:center;
+            justify-content:center; background:var(--fx-grad); color:#fff; flex:0 0 auto;
+            box-shadow:0 10px 24px -10px rgba(99,102,241,.65); }
+        .fx-badge svg,.fx-badge i{ width:1.3rem; height:1.3rem; font-size:1.3rem; line-height:1; }
+        /* Стеклянная карточка */
+        .fx-card{ background:rgba(255,255,255,.82); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+            border:1px solid rgba(17,24,39,.08); border-radius:16px; box-shadow:0 1px 2px rgba(17,24,39,.05);
+            transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+        .fx-card:hover{ transform:translateY(-3px); box-shadow:0 22px 44px -22px rgba(79,70,229,.4);
+            border-color:rgba(99,102,241,.35); }
+        :root.dark .fx-card{ background:rgba(15,23,42,.72); border-color:rgba(255,255,255,.08); }
+        /* Indigo-кнопка (градиент) */
+        .fx-btn{ display:inline-flex; align-items:center; justify-content:center; gap:.4rem;
+            background:var(--fx-grad); color:#fff; font-weight:500; border-radius:10px; text-decoration:none;
+            box-shadow:0 10px 22px -12px rgba(99,102,241,.75); transition:filter .15s ease, transform .15s ease; }
+        .fx-btn:hover{ filter:brightness(1.07); transform:translateY(-1px); color:#fff; }
+        /* Чип-пилюля */
+        .fx-chip{ display:inline-flex; align-items:center; gap:.3rem; padding:.15rem .6rem; border-radius:999px;
+            background:rgba(99,102,241,.12); color:var(--fx-a-ink); font-size:.72rem; font-weight:500; line-height:1.5; }
+        :root.dark .fx-chip{ background:rgba(99,102,241,.22); color:#c7d2fe; }
+        /* Заголовок секции */
+        .fx-section-title{ font-weight:600; letter-spacing:-.01em; color:#111827; }
+        :root.dark .fx-section-title{ color:#f3f4f6; }
+        .fx-section-sub{ font-size:.85rem; color:#6b7280; }
+        :root.dark .fx-section-sub{ color:#9ca3af; }
+        .fx-ico{ color:var(--fx-a); }
+    </style>
 </head>
 
-<body class="relative text-gray-800 dark:text-gray-100 min-h-screen flex flex-col border-l border-r border-black dark:border-gray-700 overflow-x-hidden bg-white dark:bg-gray-900 transition-colors duration-200"
+<body class="relative text-gray-800 dark:text-gray-100 min-h-screen flex flex-col overflow-x-hidden bg-white dark:bg-gray-900 transition-colors duration-200"
     style="font-family: var(--font-base, -apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif)">
 
     {{-- ЕДИНЫЙ фон-паттерн из темы --}}
@@ -242,6 +281,8 @@
         style="background-image: var(--bg-image); background-repeat:repeat; background-size:auto"></div>
 
     <div id="wrapper" class="relative z-10 flex flex-col min-h-screen">
+        {{-- Верхняя градиентная акцент-полоса (единый стиль с админкой/Install) --}}
+        <div class="fx-topbar"></div>
         @include('layouts.partials.header')
 
         {{-- Модульное меню (позиция header) теперь встроено в саму шапку

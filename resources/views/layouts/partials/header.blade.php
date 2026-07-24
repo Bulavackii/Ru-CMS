@@ -80,8 +80,8 @@
               class="inline-block align-middle"
               onerror="this.style.display='none'">
           @else
-            <div class="text-white font-bold w-8 h-8 flex items-center justify-center shadow-inner text-sm tracking-wide rounded"
-                 style="background:var(--color-primary,#2563eb)">RU</div>
+            <div class="text-white font-bold w-8 h-8 flex items-center justify-center text-sm tracking-wide rounded-lg"
+                 style="background:var(--fx-grad); box-shadow:0 8px 18px -8px rgba(99,102,241,.6)">RU</div>
             <span class="hidden sm:inline">CMS</span>
           @endif
         </a>

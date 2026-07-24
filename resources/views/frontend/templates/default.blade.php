@@ -1,9 +1,12 @@
 <div class="my-8 sm:my-10 md:my-12 max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16">
-    {{-- Заголовок раздела с иконкой новости --}}
-    <h2 class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-center mb-6 sm:mb-8 md:mb-10 text-gray-800 tracking-tight flex items-center justify-center gap-2 select-none">
-        <i class="fas fa-newspaper text-blue-600"></i>
-        {{ $title ?? 'Новости' }}
-    </h2>
+    {{-- Заголовок раздела: градиентный бейдж-иконка + название + подзаголовок --}}
+    <div class="mb-6 sm:mb-8 md:mb-10 flex items-center justify-center gap-3 select-none">
+        <span class="fx-badge"><i class="fas fa-newspaper"></i></span>
+        <div class="text-left">
+            <h2 class="fx-section-title text-xl sm:text-2xl md:text-3xl leading-tight">{{ $title ?? 'Новости' }}</h2>
+            <div class="fx-section-sub">Последние публикации проекта</div>
+        </div>
+    </div>
 
     @if ($newsList->count())
         {{-- Контейнер карточек новостей: flex с переносом и отступами --}}
@@ -86,59 +89,60 @@
                     $vMime = $mimeMap[$vExt] ?? 'video/mp4';
                 @endphp
 
-                {{-- Карточка новости --}}
-                <div class="news-card relative flex flex-col p-4 sm:p-5 md:p-6 border border-gray-100 hover:border-gray-300 shadow-md hover:shadow-lg transition-all bg-white rounded-xl sm:rounded-2xl w-full max-w-xs sm:max-w-sm">
-                    {{-- 📰 Бейдж "NEWS" в правом верхнем углу --}}
-                    <div class="absolute -top-3 right-3 z-10 bg-white border-2 border-blue-600 text-blue-600 text-xs font-bold px-3 py-1 rounded-full shadow-md animate-pulse select-none" title="Новости">
-                        📰 NEWS
-                    </div>
+                {{-- Карточка новости (стеклянная, indigo-акцент) --}}
+                <div class="news-card fx-card relative flex flex-col p-4 sm:p-5 w-full max-w-xs sm:max-w-sm">
 
-                    {{-- Категории слева сверху --}}
-                    @if ($news->categories->count())
-                        <div class="absolute top-3 left-3 z-10 flex flex-wrap gap-1">
-                            @foreach ($news->categories as $category)
-                                <a href="{{ url('/?category_' . $news->template . '=' . $category->id) }}"
-                                   class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full hover:underline select-none" title="{{ $category->title }}">
-                                    {{ $category->title }}
-                                </a>
-                            @endforeach
-                        </div>
-                    @endif
-
-                    {{-- Обложка или видео (UI НЕ менял: те же классы/контейнер) --}}
-                    <div class="w-full h-40 sm:h-44 md:h-48 lg:h-52 overflow-hidden mb-3 sm:mb-4 rounded-lg sm:rounded-xl border border-gray-200 pt-4 sm:pt-6 relative">
+                    {{-- Обложка/видео + чипы поверх неё --}}
+                    <div class="relative w-full h-40 sm:h-44 md:h-48 lg:h-52 overflow-hidden mb-3 sm:mb-4 rounded-xl border border-gray-100 dark:border-gray-700">
                         @if ($isVideo)
-                            <video class="w-full h-full object-cover rounded-xl" muted autoplay loop playsinline controls
+                            <video class="w-full h-full object-cover" muted autoplay loop playsinline controls
                                    @if($coverAbs && in_array($extOf($coverAbs), $IMG_EXT, true)) poster="{{ $coverAbs }}" @endif>
                                 <source src="{{ $videoSrc }}" type="{{ $vMime }}">
                                 Ваш браузер не поддерживает видео.
                             </video>
                         @else
-                            <img src="{{ $imageSrc }}" alt="{{ $news->title }}" class="w-full h-full object-cover rounded-xl" loading="lazy" />
+                            <img src="{{ $imageSrc }}" alt="{{ $news->title }}" class="w-full h-full object-cover" loading="lazy" />
                         @endif
+
+                        {{-- Категории (слева сверху) --}}
+                        @if ($news->categories->count())
+                            <div class="absolute top-2.5 left-2.5 z-10 flex flex-wrap gap-1">
+                                @foreach ($news->categories as $category)
+                                    <a href="{{ url('/?category_' . $news->template . '=' . $category->id) }}"
+                                       class="fx-chip hover:brightness-95 select-none" title="{{ $category->title }}">
+                                        {{ $category->title }}
+                                    </a>
+                                @endforeach
+                            </div>
+                        @endif
+
+                        {{-- Бейдж «NEWS» (справа сверху) --}}
+                        <div class="absolute top-2.5 right-2.5 z-10 fx-chip select-none" title="Новости">
+                            <i class="fas fa-newspaper" style="font-size:.65rem"></i> NEWS
+                        </div>
                     </div>
 
                     {{-- Заголовок новости с ссылкой --}}
-                    <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-1 sm:mb-2 leading-tight break-words line-clamp-2">
-                        <a href="{{ route('news.show', $news->slug) }}" class="hover:text-blue-600 transition" title="{{ $news->title }}">
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-1 sm:mb-2 leading-tight break-words line-clamp-2">
+                        <a href="{{ route('news.show', $news->slug) }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition" title="{{ $news->title }}">
                             {{ $news->title }}
                         </a>
                     </h3>
 
-                    {{-- 📅 Дата публикации с иконкой --}}
-                    <p class="text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3 flex items-center gap-1 select-none" title="Дата публикации">
-                        <i class="far fa-calendar-alt"></i> {{ $news->created_at->format('d.m.Y') }}
+                    {{-- Дата публикации --}}
+                    <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-2 sm:mb-3 flex items-center gap-1.5 select-none" title="Дата публикации">
+                        <i class="far fa-calendar-alt fx-ico"></i> {{ $news->created_at->format('d.m.Y') }}
                     </p>
 
-                    {{-- Краткое содержание (ограничено 220 символами, HTML удалён) --}}
-                    <div class="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4 line-clamp-3 sm:line-clamp-4 break-words" title="Превью новости">
-                        💬 {!! Str::limit(strip_tags($news->content), 200) !!}
+                    {{-- Краткое содержание --}}
+                    <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-3 sm:mb-4 line-clamp-3 sm:line-clamp-4 break-words" title="Превью новости">
+                        {!! Str::limit(strip_tags($news->content), 200) !!}
                     </div>
 
-                    {{-- Кнопка "Читать далее" --}}
+                    {{-- Кнопка «Читать далее» --}}
                     <a href="{{ route('news.show', $news->slug) }}"
-                       class="mt-auto block text-center text-xs sm:text-sm bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 sm:py-2.5 rounded-lg transition shadow select-none" aria-label="Читать подробнее новость {{ $news->title }}">
-                        Читать далее →
+                       class="fx-btn mt-auto w-full py-2 sm:py-2.5 text-xs sm:text-sm select-none" aria-label="Читать подробнее новость {{ $news->title }}">
+                        Читать далее <i class="fas fa-arrow-right" style="font-size:.65rem"></i>
                     </a>
                 </div>
             @endforeach
@@ -154,29 +158,29 @@
                 </div>
                 <nav class="flex items-center space-x-2 rtl:space-x-reverse" role="navigation" aria-label="Навигация по страницам">
                     @if ($newsList->onFirstPage())
-                        <span class="px-3 py-1.5 bg-gray-200 text-gray-500 rounded-md text-sm cursor-not-allowed"> ← Назад </span>
+                        <span class="px-3 py-1.5 bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-md text-sm cursor-not-allowed"> ← Назад </span>
                     @else
-                        <a href="{{ $newsList->previousPageUrl() }}" class="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-md text-sm transition" rel="prev"> ← Назад </a>
+                        <a href="{{ $newsList->previousPageUrl() }}" class="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-indigo-400 hover:text-indigo-600 rounded-md text-sm transition" rel="prev"> ← Назад </a>
                     @endif
 
                     @foreach ($newsList->getUrlRange(1, $newsList->lastPage()) as $page => $url)
                         @if ($page == $newsList->currentPage())
-                            <span class="px-3 py-1.5 bg-blue-600 text-white rounded-md text-sm font-semibold shadow">{{ $page }}</span>
+                            <span class="px-3 py-1.5 text-white rounded-md text-sm font-semibold shadow" style="background:var(--fx-grad)">{{ $page }}</span>
                         @else
-                            <a href="{{ $url }}" class="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-md text-sm transition">{{ $page }}</a>
+                            <a href="{{ $url }}" class="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-indigo-400 hover:text-indigo-600 rounded-md text-sm transition">{{ $page }}</a>
                         @endif
                     @endforeach
 
                     @if ($newsList->hasMorePages())
-                        <a href="{{ $newsList->nextPageUrl() }}" class="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-md text-sm transition" rel="next"> Вперёд → </a>
+                        <a href="{{ $newsList->nextPageUrl() }}" class="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-indigo-400 hover:text-indigo-600 rounded-md text-sm transition" rel="next"> Вперёд → </a>
                     @else
-                        <span class="px-3 py-1.5 bg-gray-200 text-gray-500 rounded-md text-sm cursor-not-allowed"> Вперёд → </span>
+                        <span class="px-3 py-1.5 bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-md text-sm cursor-not-allowed"> Вперёд → </span>
                     @endif
                 </nav>
             </div>
         @endif
     @else
         {{-- Сообщение, если новостей нет --}}
-        <p class="text-center text-gray-500 select-none">Нет опубликованных новостей.</p>
+        <p class="text-center text-gray-500 dark:text-gray-400 select-none">Нет опубликованных новостей.</p>
     @endif
 </div>

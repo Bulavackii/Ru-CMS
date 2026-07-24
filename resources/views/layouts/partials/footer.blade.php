@@ -6,6 +6,9 @@
     <div class="relative z-10 backdrop-blur-md border-t border-gray-200/80 dark:border-gray-700/80 shadow-inner bg-white dark:bg-gray-800 transition-colors duration-200"
         style="background:var(--color-footer,#ffffff)">
 
+        {{-- Верхняя градиентная акцент-полоса подвала (единый стиль) --}}
+        <div class="fx-accent-bar"></div>
+
         {{-- ===== Колонки подвала. Число столбцов авто-подстраивается: слева
              «Разработчик», справа «Контакты», между ними — по одному столбцу на
              каждое footer-меню (одно меню = один столбец). ===== --}}
@@ -18,8 +21,8 @@
             <!-- 1) О разработчике (без изменений) -->
             <section aria-labelledby="dev-info" class="text-center">
                 <div class="flex items-center gap-2 mb-3 justify-center">
-                    <div class="text-white font-bold w-9 h-9 flex items-center justify-center shadow-inner text-sm tracking-wide rounded"
-                        style="background:var(--color-primary,#2563eb)">RU</div>
+                    <div class="text-white font-bold w-9 h-9 flex items-center justify-center text-sm tracking-wide rounded-lg"
+                        style="background:var(--fx-grad); box-shadow:0 8px 18px -8px rgba(99,102,241,.6)">RU</div>
                     <div>
                         <h2 id="dev-info" class="text-lg font-bold leading-tight text-gray-900 dark:text-gray-100">CMS</h2>
                         <div class="text-[11px] leading-tight opacity-70">Laravel {{ app()->version() }}</div>
