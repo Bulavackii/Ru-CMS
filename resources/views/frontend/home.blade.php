@@ -3,9 +3,11 @@
 @section('title', 'Главная')
 
 @section('content')
-{{-- Не перекрываем общий фон: используем цвета темы --}}
+{{-- Контейнер прозрачный: фоновый паттерн темы просвечивает под контентом,
+     а карточки внутри — стеклянные (.fx-card). Раньше здесь был сплошной
+     bg-white, из-за чего центр страницы был белым «блоком» без фона. --}}
 <div class="px-4 sm:px-6 md:px-8 py-6 sm:py-8 md:py-10">
-  <div class="max-w-screen-2xl mx-auto backdrop-blur-sm rounded-theme p-4 sm:p-6 md:p-8 bg-white dark:bg-gray-800 transition-colors duration-200">
+  <div class="max-w-screen-2xl mx-auto p-4 sm:p-6 md:p-8">
     @php
       $titles = [
           'default'   => 'Новости',
