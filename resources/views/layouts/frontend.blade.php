@@ -270,6 +270,13 @@
         .fx-section-sub{ font-size:.85rem; color:#6b7280; }
         :root.dark .fx-section-sub{ color:#9ca3af; }
         .fx-ico{ color:var(--fx-a); }
+        /* Заглушка «Нет изображения» — в тон редизайну (мягкий indigo-градиент) */
+        .fx-noimg{ width:100%; height:100%; display:flex; flex-direction:column; align-items:center;
+            justify-content:center; gap:.45rem; background:linear-gradient(135deg,#eef2ff,#faf5ff); }
+        :root.dark .fx-noimg{ background:linear-gradient(135deg,#1e1b4b,#312e81); }
+        .fx-noimg .fx-noimg-ico{ font-size:2.1rem; color:#a5b4fc; }
+        :root.dark .fx-noimg .fx-noimg-ico{ color:#6366f1; }
+        .fx-noimg span{ font-size:.72rem; font-weight:500; letter-spacing:.04em; color:#818cf8; text-transform:uppercase; }
     </style>
 </head>
 

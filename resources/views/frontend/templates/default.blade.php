@@ -70,7 +70,7 @@
                     } elseif (preg_match('~<img[^>]+src=[\'"]([^\'">]+)[\'"]~i', $news->content, $m)) {
                         $imageSrc = $m[1];
                     } else {
-                        $imageSrc = asset('images/no-image.png');
+                        $imageSrc = null; // нет картинки → покажем стеклянную заглушку .fx-noimg
                     }
 
                     $isVideo = (bool) $videoSrc;
@@ -100,8 +100,10 @@
                                 <source src="{{ $videoSrc }}" type="{{ $vMime }}">
                                 Ваш браузер не поддерживает видео.
                             </video>
-                        @else
+                        @elseif ($imageSrc)
                             <img src="{{ $imageSrc }}" alt="{{ $news->title }}" class="w-full h-full object-cover" loading="lazy" />
+                        @else
+                            <div class="fx-noimg"><i class="fas fa-image fx-noimg-ico"></i><span>Нет изображения</span></div>
                         @endif
 
                         {{-- Категории (слева сверху) --}}
