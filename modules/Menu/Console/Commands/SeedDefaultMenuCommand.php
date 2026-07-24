@@ -41,24 +41,27 @@ class SeedDefaultMenuCommand extends Command
                 ],
             ],
             'footer' => [
-                'title' => 'Меню подвала',
+                // Заголовок = видимая шапка столбца в подвале (одно меню = один столбец).
+                // Подвал — справочно-мета ссылки.
+                'title' => 'Навигация',
                 'items' => [
-                    ['title' => 'Соглашение',        'url' => '/terms',       'icon' => 'home'],
-                    ['title' => 'Сотрудничество',    'url' => '/partnership', 'icon' => 'search'],
+                    ['title' => 'О проекте',         'url' => '/concept',     'icon' => 'info'],
                     ['title' => 'Разработчикам',     'url' => '/developers',  'icon' => 'code'],
-                    ['title' => 'О проекте',         'url' => '/concept',     'icon' => 'star'],
+                    ['title' => 'Сотрудничество',    'url' => '/partnership', 'icon' => 'users'],
                     ['title' => 'Карта сайта',       'url' => '/sitemap',     'icon' => 'map'],
+                    ['title' => 'Соглашение',        'url' => '/terms',       'icon' => 'file-text'],
                     ['title' => 'Поддержать проект', 'url' => '/donate',      'icon' => 'heart'],
                 ],
             ],
             'sidebar' => [
+                // Боковая панель — быстрый доступ к основным разделам сайта.
                 'title' => 'Боковое меню',
                 'items' => [
-                    ['title' => 'Новости',           'url' => '/news',        'icon' => 'newspaper'],
-                    ['title' => 'О проекте',         'url' => '/concept',     'icon' => 'info'],
-                    ['title' => 'Разработчикам',     'url' => '/developers',  'icon' => 'code'],
-                    ['title' => 'Карта сайта',       'url' => '/sitemap',     'icon' => 'map'],
-                    ['title' => 'Поддержать проект', 'url' => '/donate',      'icon' => 'heart'],
+                    ['title' => 'Главная',  'url' => '/',         'icon' => 'home'],
+                    ['title' => 'Новости',  'url' => '/news',     'icon' => 'newspaper'],
+                    ['title' => 'О нас',    'url' => '/about',    'icon' => 'info'],
+                    ['title' => 'Вопросы',  'url' => '/faq',      'icon' => 'help-circle'],
+                    ['title' => 'Контакты', 'url' => '/contacts', 'icon' => 'mail'],
                 ],
             ],
         ];

@@ -454,10 +454,14 @@ php vendor/bin/phpunit --no-coverage --filter ИмяТеста
   массив по позициям; `seed($reset)` идемпотентно проходит по всем трём;
   `--reset` пересоздаёт пункты всех трёх. `InstallController::seedDefaultMenu` без
   изменений (зовёт `::seed(false)`).
-- **Footer-меню → колонка «Навигация».** `layouts/partials/footer.blade.php` вместо
-  захардкоженного `$navLinks` подключает `@include('Menu::frontend.footer')`. Партиал
-  берёт `Menu::cachedByPosition('footer')`, рисует 2-колоночную сетку иконок-ссылок,
-  **fallback** на прежние ссылки, если footer-меню пусто.
+- **Footer-меню → столбцы подвала. ОДНО footer-меню = ОДИН столбец** (заголовок
+  столбца = название меню, пункты вертикально). Несколько footer-меню = несколько
+  столбцов — так число столбцов регулируется количеством меню. `Menu::frontend.footer`
+  выводит по одному `<nav.footer-col>` на меню (из `Menu::cachedByPosition('footer')`),
+  сетка подвала (`.footer-grid`, literal CSS `repeat(auto-fit,minmax(200px,1fr))`)
+  сама подстраивает число столбцов: слева «Разработчик», справа «Контакты», между —
+  столбцы footer-меню. **Fallback** — один столбец «Навигация», если footer-меню пусто.
+  Дефолт footer-меню назван «Навигация» (его title = видимая шапка столбца).
 - **Sidebar-меню → выдвижная панель.** Постоянной боковой колонки на фронте нет,
   поэтому `Menu::frontend.sidebar` — off-canvas: кнопка-язычок у левого края + панель
   (Alpine `x-data{open}`, слайд, затемнение с блюром, Esc/клик по фону закрывают).

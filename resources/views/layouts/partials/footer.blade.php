@@ -6,8 +6,14 @@
     <div class="relative z-10 backdrop-blur-md border-t border-gray-200/80 dark:border-gray-700/80 shadow-inner bg-white dark:bg-gray-800 transition-colors duration-200"
         style="background:var(--color-footer,#ffffff)">
 
-        <!-- ===== 3 колонки ===== -->
-        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-8 sm:py-10 md:py-12 grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10 md:gap-12">
+        {{-- ===== Колонки подвала. Число столбцов авто-подстраивается: слева
+             «Разработчик», справа «Контакты», между ними — по одному столбцу на
+             каждое footer-меню (одно меню = один столбец). ===== --}}
+        <style>
+            .footer-grid{ display:grid; grid-template-columns:1fr; }
+            @media (min-width:768px){ .footer-grid{ grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); } }
+        </style>
+        <div class="footer-grid max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-8 sm:py-10 md:py-12 gap-8 sm:gap-10 md:gap-12">
 
             <!-- 1) О разработчике (без изменений) -->
             <section aria-labelledby="dev-info" class="text-center">
@@ -41,13 +47,11 @@
                 </ul>
             </section>
 
-            <!-- 2) Навигация -->
-            <nav aria-labelledby="footer-nav">
-                <h2 id="footer-nav" class="text-base font-semibold mb-4 text-center text-gray-900 dark:text-gray-100">Навигация</h2>
-                {{-- Колонка «Навигация» теперь из меню позиции footer (с фолбэком
-                     на прежние ссылки, если footer-меню не заполнено). --}}
-                @include('Menu::frontend.footer')
-            </nav>
+            {{-- 2) Столбцы из меню позиции footer (одно меню = один столбец).
+                 Партиал сам выводит по одному <nav.footer-col> на меню — они
+                 встают отдельными столбцами сетки между «Разработчиком» и
+                 «Контактами». Fallback на прежние ссылки, если footer-меню пусто. --}}
+            @include('Menu::frontend.footer')
 
             <!-- 3) Контакты и соцсети -->
             <section aria-labelledby="footer-links">
