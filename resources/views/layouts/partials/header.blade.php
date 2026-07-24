@@ -48,47 +48,38 @@
   $logoWrapCls = $logoPos === 'center'
       ? 'sm:mx-auto'
       : ($logoPos === 'right' ? 'sm:ml-auto' : '');
-
-  // цвета
-  $headerBg = 'var(--color-header,#ffffff)';
-  $textCol  = 'var(--color-text,#111827)';
 @endphp
 
-<header class="relative text-sm text-gray-800 leading-tight z-10">
+{{--
+    UI шапки переработан в общий стиль проекта (стекло + indigo-акцент .fx-*).
+    ВАЖНО: логика (лого/тема/корзина/авторизация/поиск) и подключение навигации
+    из модуля Меню (@include('Menu::frontend.header')) НЕ менялись — только
+    компоновка и оформление самой шапки.
+--}}
+<header class="fx-header relative text-sm z-10">
   {{-- фон-паттерн берём из темы --}}
   <div class="absolute inset-0 z-[-10] opacity-10"
        style="background-image: var(--bg-image); background-repeat:repeat; background-size:auto;"></div>
 
-    <div class="relative z-[999] backdrop-blur-md shadow border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 transition-colors duration-200"
-       style="color:{{ $textCol }}">
+  <div class="hdr-glass relative z-[999] border-b border-gray-200 dark:border-gray-700 transition-colors duration-200">
 
-    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-3 sm:py-4 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
-      {{-- ========= ЛОГОТИП (из темы) ========= --}}
-      <div class="flex items-center gap-3 {{ $logoWrapCls }}">
-        <a href="{{ url('/') }}"
-           class="flex items-center gap-2 text-2xl font-extrabold hover:opacity-90 transition"
-           aria-label="На главную"
-           style="color:var(--color-primary,#2563eb)">
+    {{-- ═══════════ Ряд 1: логотип + действия ═══════════ --}}
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
 
-          @if($logoAbs)
-            <img
-              src="{{ $logoAbs }}"
-              alt="Логотип"
-              loading="lazy"
-              decoding="async"
-              style="width: {{ $logoW }}; max-width: 100%; height: auto;"
-              class="inline-block align-middle"
-              onerror="this.style.display='none'">
-          @else
-            <div class="text-white font-bold w-8 h-8 flex items-center justify-center text-sm tracking-wide rounded-lg"
-                 style="background:var(--fx-grad); box-shadow:0 8px 18px -8px rgba(99,102,241,.6)">RU</div>
-            <span class="hidden sm:inline">CMS</span>
-          @endif
-        </a>
-
-        <span class="text-xs opacity-70 hidden sm:inline">Контент & Управление</span>
-      </div>
-      {{-- ======== /ЛОГОТИП ======== --}}
+      {{-- ЛОГОТИП --}}
+      <a href="{{ url('/') }}" class="hdr-logo flex items-center gap-2.5 {{ $logoWrapCls }}" aria-label="На главную">
+        @if($logoAbs)
+          <img src="{{ $logoAbs }}" alt="Логотип" loading="lazy" decoding="async"
+               style="width: {{ $logoW }}; max-width:100%; height:auto;" class="inline-block align-middle"
+               onerror="this.style.display='none'">
+        @else
+          <span class="hdr-logo-badge">RU</span>
+          <span class="leading-tight">
+            <span class="hdr-logo-name block">CMS</span>
+            <span class="hdr-logo-sub hidden sm:block">Контент &amp; Управление</span>
+          </span>
+        @endif
+      </a>
 
       @php
         // Корзина, если используется шаблон products
@@ -97,13 +88,13 @@
         $hasProducts = \Modules\News\Models\News::where('template', 'products')->exists();
       @endphp
 
-      {{-- ========= ПРАВЫЕ ССЫЛКИ ========= --}}
-      <div class="hdr-actions">
-        {{-- Переключатель темы --}}
+      {{-- ДЕЙСТВИЯ --}}
+      <div class="hdr-actions flex items-center flex-wrap justify-center gap-1.5">
+
+        {{-- Переключатель темы (логика Alpine не менялась) --}}
         <button x-data="{
             darkMode: false,
             init() {
-                // Светлая тема по умолчанию — включаем тёмную только по явному выбору пользователя
                 this.darkMode = localStorage.getItem('darkMode') === 'true';
                 this.applyTheme();
             },
@@ -119,166 +110,121 @@
                     document.documentElement.classList.remove('dark');
                 }
             }
-        }" @click="toggle()" class="hdr-link" title="Переключить тему" style="color:var(--color-text,#111827)">
-          <i class="fas" :class="darkMode ? 'fa-sun text-yellow-500' : 'fa-moon'"></i>
-          <span class="hidden sm:inline" x-text="darkMode ? 'Светлая' : 'Тёмная'"></span>
+        }" @click="toggle()" type="button" class="hdr-icon-btn" title="Переключить тему">
+          <i class="fas" :class="darkMode ? 'fa-sun' : 'fa-moon'"></i>
+          <span class="hidden lg:inline" x-text="darkMode ? 'Светлая' : 'Тёмная'"></span>
         </button>
-        
+
         @if ($hasProducts)
-          <a href="{{ route('cart.index') }}" class="hdr-link" title="Корзина" style="color:var(--color-text,#111827)">
+          <a href="{{ route('cart.index') }}" class="hdr-pill" title="Корзина">
             <span class="cart-ico">
-              <span class="cart-ico__glyph">@themeIcon('shopping-cart')</span>
-              <span id="cart-count" class="cart-ico__badge {{ $cartCount == 0 ? 'hidden' : '' }}">
-                {{ $cartCount }}
-              </span>
+              <span class="cart-ico__glyph"><i class="fas fa-cart-shopping"></i></span>
+              <span id="cart-count" class="cart-ico__badge {{ $cartCount == 0 ? 'hidden' : '' }}">{{ $cartCount }}</span>
             </span>
-            <span>Корзина</span>
+            <span class="hidden lg:inline">Корзина</span>
           </a>
         @endif
 
         @auth
-          <a href="{{ route('dashboard') }}" class="hdr-link" title="Личный кабинет" style="color:var(--color-text,#111827)">
-            @themeIcon('user') <span>Кабинет</span>
+          <a href="{{ route('dashboard') }}" class="hdr-pill" title="Личный кабинет">
+            <i class="fas fa-user"></i><span class="hidden md:inline">Кабинет</span>
           </a>
 
           @if (($user->is_admin ?? false))
-            <a href="{{ url('/admin/modules') }}" class="hdr-link" title="Панель администратора" style="color:var(--color-text,#111827)">
-              @themeIcon('mail') <span>Админка</span>
+            <a href="{{ url('/admin/modules') }}" class="hdr-pill hdr-pill--accent" title="Панель администратора">
+              <i class="fas fa-gauge-high"></i><span class="hidden md:inline">Админка</span>
             </a>
           @endif
 
           <form method="POST" action="{{ route('logout') }}" class="inline">
             @csrf
-            <button type="submit" class="hdr-link text-red-500" title="Выйти">
-              @themeIcon('login') <span>Выйти</span>
+            <button type="submit" class="hdr-pill hdr-pill--danger" title="Выйти">
+              <i class="fas fa-right-from-bracket"></i><span class="hidden md:inline">Выйти</span>
             </button>
           </form>
         @else
-          <a href="{{ route('login') }}" class="hdr-link" style="color:var(--color-text,#111827)">
-            @themeIcon('user') <span>Войти</span>
+          <a href="{{ route('login') }}" class="hdr-pill" title="Войти">
+            <i class="fas fa-right-to-bracket"></i><span class="hidden md:inline">Войти</span>
           </a>
-          <a href="{{ route('register') }}" class="hdr-link" style="color:var(--color-text,#111827)">
-            @themeIcon('user') <span>Регистрация</span>
+          <a href="{{ route('register') }}" class="hdr-pill hdr-pill--accent" title="Регистрация">
+            <i class="fas fa-user-plus"></i><span class="hidden md:inline">Регистрация</span>
           </a>
         @endauth
       </div>
-      {{-- ======== /ПРАВЫЕ ССЫЛКИ ======== --}}
     </div>
 
-    <div class="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 transition-colors duration-200" style="color:{{ $textCol }};">
-      <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-3 sm:py-4 flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4">
-        {{-- Основная навигация теперь берётся из модуля Меню (позиция header),
-             а не из захардкоженного массива: единая строка «меню из БД + поиск».
-             Компонент сам ничего не рисует, если активных пунктов нет (тогда в
-             шапке остаётся только поиск). Отдельного бара Menu::frontend.header
-             во frontend.blade.php больше нет — он встроен сюда. --}}
+    {{-- ═══════════ Ряд 2: навигация (модуль Меню) + поиск ═══════════ --}}
+    <div class="hdr-row2 border-t border-gray-200 dark:border-gray-700">
+      <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-2.5 sm:py-3 flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4">
+
+        {{-- НАВИГАЦИЯ: меню из модуля Меню (позиция header). НЕ ТРОГАЕМ. --}}
         @include('Menu::frontend.header')
 
-        <form method="GET" action="{{ route('frontend.search') }}" class="flex items-center gap-2 w-full md:w-auto md:ml-auto">
-          <input type="text" name="q" value="{{ request('q') }}"
-                 class="px-3 py-1.5 border rounded shadow-sm text-sm w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-colors
-                        border-gray-300 dark:border-gray-600 
-                        bg-white dark:bg-gray-700 
-                        text-gray-900 dark:text-gray-100 
-                        placeholder-gray-500 dark:placeholder-gray-400"
-                 placeholder="Поиск...">
-          {{-- Инлайн-SVG лупа: не зависит от темы/Lucide и от фолбэка «пустых»
-               иконок в шапке (тот подменял недорисованную @themeIcon('search')
-               нейтральной точкой — отсюда была чёрная точка справа от поиска). --}}
-          <button type="submit" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" title="Поиск" aria-label="Искать">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path>
-            </svg>
-          </button>
+        {{-- Поиск --}}
+        <form method="GET" action="{{ route('frontend.search') }}" class="w-full md:w-auto md:ml-auto">
+          <div class="hdr-search relative w-full md:w-72">
+            <button type="submit" class="hdr-search-btn" title="Поиск" aria-label="Искать">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path>
+              </svg>
+            </button>
+            <input type="text" name="q" value="{{ request('q') }}" class="hdr-search-input" placeholder="Поиск…">
+          </div>
         </form>
       </div>
     </div>
   </div>
 
-  {{-- Стили --}}
+  {{-- ===== Оформление шапки (стиль проекта .fx-*) ===== --}}
   <style>
-    .header-nav a:hover{
-      color: var(--color-primary,#2563eb);
-      background: rgba(37,99,235,.08);
-    }
-    .dark .header-nav a:hover{ background: rgba(255,255,255,.06); }
-    .header-nav a.active-link{ color: var(--color-primary,#2563eb); }
+    .hdr-glass{ background:rgba(255,255,255,.82); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); }
+    :root.dark .hdr-glass{ background:rgba(15,23,42,.8); }
 
-    /* === Единая высота и выравнивание правых ссылок === */
-    .hdr-actions{
-      display:flex; flex-wrap:wrap; align-items:center; justify-content:center;
-      gap:.75rem;
-    }
-    .hdr-link{
-      display:inline-flex; align-items:center; gap:.4rem;
-      height:30px; line-height:30px;
-      padding:0 .1rem; white-space:nowrap;
-      transition:opacity .15s ease;
-    }
-    .hdr-link:hover{ opacity:.9; }
+    /* Логотип */
+    .hdr-logo{ text-decoration:none; }
+    .hdr-logo-badge{ width:2rem; height:2rem; border-radius:.6rem; display:inline-flex; align-items:center;
+        justify-content:center; background:var(--fx-grad,#6366f1); color:#fff; font-weight:700; font-size:.8rem;
+        letter-spacing:.02em; flex:0 0 auto; box-shadow:0 8px 18px -8px rgba(99,102,241,.6); }
+    .hdr-logo-name{ font-weight:800; font-size:1.3rem; line-height:1.05; color:#6366f1;
+        background:var(--fx-grad,#6366f1); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+    .hdr-logo-sub{ font-size:.66rem; color:#6b7280; font-weight:500; letter-spacing:.02em; margin-top:1px; }
+    :root.dark .hdr-logo-sub{ color:#9ca3af; }
 
-    .hdr-link > i, .hdr-link > svg{
-      width:1.4rem; height:1.4rem; font-size:1.25rem; line-height:1; display:inline-block;
-    }
-    @media (min-width:768px){
-      .hdr-link{ height:32px; line-height:32px; }
-      .hdr-link > i, .hdr-link > svg{ width:1.5rem; height:1.5rem; font-size:1.35rem; }
-    }
+    /* Пилюли-действия */
+    .hdr-actions .hdr-pill, .hdr-actions .hdr-icon-btn{
+        display:inline-flex; align-items:center; gap:.4rem; padding:.42rem .72rem; border-radius:9px;
+        font-size:.82rem; font-weight:500; line-height:1; color:#374151; background:transparent; border:0;
+        cursor:pointer; text-decoration:none; white-space:nowrap;
+        transition:background .14s ease, color .14s ease, filter .14s ease; }
+    :root.dark .hdr-actions .hdr-pill, :root.dark .hdr-actions .hdr-icon-btn{ color:#d1d5db; }
+    .hdr-actions .hdr-icon-btn{ padding:.42rem .58rem; }
+    .hdr-actions .hdr-pill i, .hdr-actions .hdr-icon-btn i{ font-size:1rem; line-height:1; }
+    .hdr-actions .hdr-pill:hover, .hdr-actions .hdr-icon-btn:hover{ background:rgba(99,102,241,.1); color:#4f46e5; }
+    :root.dark .hdr-actions .hdr-pill:hover, :root.dark .hdr-actions .hdr-icon-btn:hover{ background:rgba(99,102,241,.2); color:#c7d2fe; }
+    .hdr-actions .hdr-pill--accent{ background:var(--fx-grad,#6366f1); color:#fff; box-shadow:0 8px 18px -10px rgba(99,102,241,.7); }
+    .hdr-actions .hdr-pill--accent:hover{ background:var(--fx-grad,#6366f1); color:#fff; filter:brightness(1.08); }
+    .hdr-actions .hdr-pill--danger{ color:#e11d48; }
+    .hdr-actions .hdr-pill--danger:hover{ background:rgba(244,63,94,.12); color:#e11d48; }
 
-    /* === Корзина === */
-    .cart-ico{ position: relative; display:inline-flex; align-items:center; }
-    .cart-ico__glyph{ display:inline-flex; line-height:1; font-size:1.35rem; }
-    @media (min-width:768px){ .cart-ico__glyph{ font-size:1.5rem; } }
-    .cart-ico__badge{
-      position:absolute; top:-7px; left:-7px;
-      min-width:1.15rem; height:1.15rem; padding:0 .18rem;
-      display:flex; align-items:center; justify-content:center;
-      font-size:.72rem; line-height:1; color:#fff;
-      background:var(--color-primary,#2563eb);
-      border-radius:999px; box-shadow:0 0 0 2px #fff;
-    }
-    @media (max-width:767px){
-      .cart-ico__badge{ top:-6px; left:-6px; min-width:1.05rem; height:1.05rem; font-size:.70rem; }
-    }
+    /* Поиск */
+    .hdr-search-input{ width:100%; padding:.55rem .9rem .55rem 2.3rem; border-radius:10px; font-size:.85rem; line-height:1.2;
+        border:1px solid rgba(17,24,39,.14); background:rgba(255,255,255,.7); color:#111827;
+        transition:border-color .15s ease, box-shadow .15s ease, background .15s ease; }
+    :root.dark .hdr-search-input{ background:rgba(30,41,59,.7); border-color:rgba(255,255,255,.12); color:#f3f4f6; }
+    .hdr-search-input::placeholder{ color:#9ca3af; }
+    .hdr-search-input:focus{ outline:none; border-color:#818cf8; box-shadow:0 0 0 3px rgba(99,102,241,.18); background:#fff; }
+    :root.dark .hdr-search-input:focus{ background:rgba(30,41,59,.96); }
+    .hdr-search-btn{ position:absolute; left:.6rem; top:50%; transform:translateY(-50%); z-index:2; display:inline-flex;
+        padding:0; border:0; background:transparent; color:#9ca3af; cursor:pointer; transition:color .15s ease; }
+    .hdr-search-btn:hover{ color:#6366f1; }
 
-    /* ========= FORCE LIGHT только для хэдера ========= */
-    @media (prefers-color-scheme: dark){
-      .dark\:border-gray-700{ border-color:#e5e7eb !important; }
-      .dark\:bg-gray-800{ background-color:#f3f4f6 !important; }
-    }
+    /* Корзина */
+    .cart-ico{ position:relative; display:inline-flex; align-items:center; }
+    .cart-ico__glyph{ display:inline-flex; line-height:1; font-size:1rem; }
+    .cart-ico__badge{ position:absolute; top:-7px; left:-7px; min-width:1.05rem; height:1.05rem; padding:0 .18rem;
+        display:flex; align-items:center; justify-content:center; font-size:.68rem; line-height:1; color:#fff;
+        background:var(--fx-a,#6366f1); border-radius:999px; box-shadow:0 0 0 2px #fff; }
+    :root.dark .cart-ico__badge{ box-shadow:0 0 0 2px #0f172a; }
   </style>
-
-  {{-- JS: фолбэк для «пустых» иконок темы --}}
-  <script>
-    (function(){
-      var root = document.currentScript.closest('header');
-      if(!root) return;
-
-      var DOT_SIZE = 8;
-      var fallbackSVG =
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8" width="'+DOT_SIZE+'" height="'+DOT_SIZE+'" '+
-        'style="display:inline-block;vertical-align:middle;margin-right:6px" aria-hidden="true">'+
-        '<circle cx="4" cy="4" r="4" fill="#111827"/></svg>';
-
-      function tryReplace(el){
-        try{
-          // Не трогаем иконки навигации модуля Меню (у них свои дефолтные иконки),
-          // и вообще пропускаем скрытые элементы: пункты подменю на момент замера
-          // display:none → ширина 0 → раньше им ошибочно ставились «точки».
-          if (el.closest && el.closest('.header-nav')) return;
-          if (el.getClientRects().length === 0) return;
-          var box = el.getBoundingClientRect();
-          if (box.width < 6) {
-            var span = document.createElement('span');
-            span.innerHTML = fallbackSVG;
-            el.replaceWith(span.firstElementChild);
-          }
-        }catch(e){}
-      }
-
-      root.querySelectorAll('i, svg').forEach(tryReplace);
-      setTimeout(function(){ root.querySelectorAll('i, svg').forEach(tryReplace); }, 600);
-    })();
-  </script>
 </header>
