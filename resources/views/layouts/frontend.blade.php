@@ -248,6 +248,10 @@
              (layouts.partials.header) одной строкой с поиском — отдельного
              бара здесь больше нет, чтобы не было двух навигационных полос. --}}
 
+        {{-- Меню позиции sidebar — выдвижная боковая панель (кнопка у левого края).
+             Показывается только если sidebar-меню заполнено. --}}
+        @include('Menu::frontend.sidebar')
+
         <x-frontend-notifications />
 
         <main class="flex-grow py-6 sm:py-8 md:py-10">

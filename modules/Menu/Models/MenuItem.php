@@ -102,6 +102,35 @@ class MenuItem extends Model
         return $this->belongsTo(\Modules\Categories\Models\Category::class, 'linked_id');
     }
 
+    /**
+     * Готовая ссылка пункта для фронтенда (url / страница / категория).
+     * Общая для всех позиций меню (header/footer/sidebar) — чтобы не дублировать
+     * логику по партиалам.
+     */
+    public function frontendUrl(): string
+    {
+        return match ($this->type) {
+            'url'      => $this->url ?: '#',
+            'page'     => optional($this->linkedPage)?->slug
+                            ? route('frontend.pages.show', $this->linkedPage->slug)
+                            : '#',
+            'category' => url('/?category=' . $this->linked_id),
+            default    => '#',
+        };
+    }
+
+    /**
+     * Имя иконки для показа: своя, либо дефолтная по типу (валидные имена Lucide).
+     */
+    public function displayIcon(): string
+    {
+        return $this->icon ?: match ($this->type) {
+            'page'     => 'file-text',
+            'category' => 'tag',
+            default    => 'link',
+        };
+    }
+
     /* Автосброс кеша при изменениях пунктов меню */
     protected static function booted()
     {

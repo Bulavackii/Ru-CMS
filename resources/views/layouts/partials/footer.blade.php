@@ -44,31 +44,9 @@
             <!-- 2) Навигация -->
             <nav aria-labelledby="footer-nav">
                 <h2 id="footer-nav" class="text-base font-semibold mb-4 text-center text-gray-900 dark:text-gray-100">Навигация</h2>
-                @php
-                    $navLinks = [
-                        ['url' => '/terms', 'icon' => 'home', 'text' => 'Соглашение'],
-                        ['url' => '/partnership', 'icon' => 'search', 'text' => 'Сотрудничество'],
-                        ['url' => '/developers', 'icon' => 'code', 'text' => 'Разработчикам'],
-                        ['url' => '/concept', 'icon' => 'star', 'text' => 'О проекте'],
-                        ['url' => '/sitemap', 'icon' => 'phone', 'text' => 'Карта сайта'],
-                        ['url' => '/donate', 'icon' => 'heart', 'text' => 'Поддержать проект'],
-                    ];
-                @endphp
-                <ul class="grid grid-cols-2 gap-y-2 gap-x-6 list-none m-0 p-0">
-                    @foreach ($navLinks as $link)
-                        <li>
-                            <a href="{{ url($link['url']) }}"
-                                class="inline-flex items-center gap-2 px-2 py-1 rounded transition
-                                       hover:bg-gray-50 dark:hover:bg-gray-700
-                                       text-gray-700 dark:text-gray-300
-                                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
-                                       focus-visible:ring-blue-500 dark:focus-visible:ring-blue-400">
-                                @themeIcon($link['icon'])
-                                <span class="text-[13px]">{{ $link['text'] }}</span>
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
+                {{-- Колонка «Навигация» теперь из меню позиции footer (с фолбэком
+                     на прежние ссылки, если footer-меню не заполнено). --}}
+                @include('Menu::frontend.footer')
             </nav>
 
             <!-- 3) Контакты и соцсети -->
