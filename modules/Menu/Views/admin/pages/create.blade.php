@@ -3,22 +3,38 @@
 @section('title', 'Создать страницу')
 
 @section('content')
-    {{-- 📝 Заголовок и подзаголовок --}}
-    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">📝 Создание страницы</h1>
-        <span class="text-sm text-gray-500 dark:text-gray-400">📄 Новая статическая или контентная страница</span>
+    {{-- ── Шапка страницы ── --}}
+    <div class="admin-accent-bar mb-0"></div>
+    <div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
+                flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3 min-w-0">
+            <span class="admin-icon-badge"><i class="fa-solid fa-file-circle-plus"></i></span>
+            <div class="min-w-0">
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">Создание страницы</h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Новая статическая или контентная страница.</p>
+            </div>
+        </div>
+        <a href="{{ route('admin.pages.index') }}"
+           class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 shrink-0">
+            <i class="fa-solid fa-arrow-left"></i> К списку
+        </a>
     </div>
 
     {{-- ⚠️ Ошибки валидации --}}
     @if ($errors->any())
-        <div class="bg-red-100 border border-red-300 text-red-800 px-4 py-3 mb-6 rounded shadow animate-pulse">
-            ⚠️ {{ $errors->first() }}
+        <div class="border-l-4 border-red-500 bg-red-50 dark:bg-red-900 text-red-800 dark:text-red-100 px-4 py-3 mb-6">
+            <i class="fa-solid fa-triangle-exclamation"></i> {{ $errors->first() }}
         </div>
     @endif
 
     {{-- 🧾 Форма создания страницы --}}
     <form method="POST" action="{{ route('admin.pages.store') }}" class="space-y-6">
         @csrf
+        {{-- Маркер отправки: отличаем первую загрузку (галочка «Опубликовать»
+             по умолчанию стоит) от возврата после ошибки валидации со снятой
+             галочкой. Без него old('published') == null на первой загрузке и
+             после снятия галочки неразличимы, и снять публикацию было нельзя. --}}
+        <input type="hidden" name="_submitted" value="1">
 
         {{-- 📄 Заголовок страницы --}}
         <x-admin.input label="📄 Заголовок" name="title" :value="old('title')" required
@@ -45,9 +61,9 @@
             <div class="flex flex-wrap gap-3">
                 @foreach ($categories as $category)
                     <label
-                        class="flex items-center px-3 py-1 border border-gray-300 rounded-full cursor-pointer text-sm hover:bg-blue-50 dark:border-gray-600 dark:hover:bg-gray-700 transition">
+                        class="flex items-center px-3 py-1 border border-gray-300 cursor-pointer text-sm hover:bg-indigo-50 hover:border-indigo-400 dark:border-gray-600 dark:hover:bg-gray-700 transition">
                         <input type="checkbox" name="categories[]" value="{{ $category->id }}"
-                            class="form-checkbox text-blue-600 mr-2"
+                            class="form-checkbox text-indigo-600 mr-2"
                             {{ in_array($category->id, old('categories', [])) ? 'checked' : '' }}>
                         {{ $category->title }}
                     </label>
@@ -69,7 +85,7 @@
                 {{-- ✅ Опубликовать --}}
                 <label class="inline-flex items-center text-gray-700 dark:text-gray-300">
                     <input type="checkbox" name="published" value="1" class="mr-2"
-                        {{ is_null(old('published')) ? 'checked' : (old('published') ? 'checked' : '') }}>
+                        {{ old('_submitted') ? (old('published') ? 'checked' : '') : 'checked' }}>
                      Опубликовать страницу
                 </label>
 
@@ -89,8 +105,8 @@
             {{-- 💾 Кнопка сохранения --}}
             <div class="text-right">
                 <button type="submit"
-                    class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded shadow text-sm">
-                    💾 Сохранить страницу
+                    class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 shadow-sm text-sm font-semibold transition">
+                    <i class="fa-solid fa-floppy-disk"></i> Сохранить страницу
                 </button>
             </div>
         </div>

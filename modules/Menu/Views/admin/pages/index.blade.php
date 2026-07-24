@@ -5,18 +5,20 @@
 @push('scripts')
   {{-- Поиск + превью + фронтовая сортировка --}}
   <script>
-    // --- live-поиск по заголовку и содержимому
-    function filterPages() {
-      const q = (document.getElementById('searchInput').value || '').toLowerCase().trim();
-      const rows = document.querySelectorAll('#pagesTable tbody tr.page-row');
-
-      rows.forEach(row => {
-        const title = (row.querySelector('.page-title')?.textContent || '').toLowerCase();
-        const next = row.nextElementSibling?.classList.contains('page-content') ? row.nextElementSibling : null;
-        const content = (next?.dataset?.content || '').toLowerCase();
-        const match = !q || title.includes(q) || content.includes(q);
-        row.style.display = match ? '' : 'none';
-        if (next) next.style.display = match && !next.classList.contains('hidden') ? '' : (match ? 'none' : 'none');
+    // --- серверный поиск с debounce
+    // Раньше тут была filterPages(), прятавшая строки на КЛИЕНТЕ: она
+    // фильтровала только текущие 10 строк страницы, а серверный ?q= (который
+    // index() уже умеет) не вызывался вовсе — страницы за пределами первой
+    // десятки в поиск не попадали. Теперь поле — часть GET-формы, и ввод с
+    // задержкой отправляет реальный запрос на сервер (поиск по всей таблице).
+    function initSearch() {
+      const input = document.getElementById('searchInput');
+      const form  = document.getElementById('searchForm');
+      if (!input || !form) return;
+      let timer;
+      input.addEventListener('input', () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => form.submit(), 400);
       });
     }
 
@@ -48,6 +50,7 @@
 
     // --- простая фронтовая сортировка (по колонке)
     document.addEventListener('DOMContentLoaded', () => {
+      initSearch();
       const table = document.getElementById('pagesTable');
       const body  = table.querySelector('tbody');
 
@@ -77,8 +80,8 @@
         let dir = 1;
         th.style.cursor = 'pointer';
         th.addEventListener('click', () => {
-          headers.forEach(h => h.classList.remove('text-blue-700','dark:text-blue-300'));
-          th.classList.add('text-blue-700','dark:text-blue-300');
+          headers.forEach(h => h.classList.remove('text-indigo-700','dark:text-indigo-300'));
+          th.classList.add('text-indigo-700','dark:text-indigo-300');
           const key = th.dataset.sort;
           if (key === 'title')      sortBy(tr => (tr.querySelector('.page-title')?.textContent || ''), dir *= -1);
           else if (key === 'slug')  sortBy(tr => (tr.querySelector('[data-slug]')?.dataset.slug || ''), dir *= -1);
@@ -99,23 +102,44 @@
 @endpush
 
 @section('content')
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-    <h1 class="text-2xl font-bold text-gray-800 dark:text-white">📄 Страницы</h1>
+  {{-- ── Шапка страницы: акцентная полоса + бейдж + поиск + действие ── --}}
+  <div class="admin-accent-bar mb-0"></div>
+  <div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
+              flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+    <div class="flex items-center gap-3 min-w-0">
+      <span class="admin-icon-badge"><i class="fa-solid fa-file-lines"></i></span>
+      <div class="min-w-0">
+        <h1 class="text-xl font-bold text-gray-900 dark:text-white">Страницы</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Статические и контентные страницы сайта.</p>
+      </div>
+    </div>
 
-    <div class="flex flex-col sm:flex-row gap-3 sm:items-center w-full sm:w-auto">
-      <input id="searchInput"
-             type="text"
-             placeholder="🔍 Поиск по заголовку и содержимому…"
-             oninput="filterPages()"
-             class="border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 rounded-md shadow-sm w-full sm:w-80 text-sm" />
+    <div class="flex flex-col sm:flex-row gap-3 sm:items-center w-full lg:w-auto">
+      <form method="GET" action="{{ route('admin.pages.index') }}" id="searchForm"
+            class="relative w-full sm:w-80" role="search">
+        <input id="searchInput"
+               name="q"
+               type="text"
+               value="{{ $query }}"
+               placeholder="🔍 Поиск по заголовку и содержимому…"
+               autocomplete="off"
+               class="border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 pr-9 shadow-sm w-full text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+        @if ($query)
+          <a href="{{ route('admin.pages.index') }}"
+             class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+             title="Сбросить поиск" aria-label="Сбросить поиск">
+            <i class="fa-solid fa-xmark"></i>
+          </a>
+        @endif
+      </form>
       <a href="{{ route('admin.pages.create') }}"
-         class="inline-flex items-center gap-2 bg-black text-white hover:bg-gray-800 px-4 py-2 rounded-md shadow text-sm font-semibold transition">
+         class="inline-flex items-center justify-center gap-2 bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2 shadow-sm text-sm font-semibold transition shrink-0">
         <i class="fa-solid fa-plus"></i> Новая
       </a>
     </div>
   </div>
 
-  <div class="overflow-x-auto rounded-md border border-gray-300 dark:border-gray-700 shadow">
+  <div class="overflow-x-auto border border-gray-200 dark:border-gray-700 shadow-sm">
     <table id="pagesTable" class="min-w-full bg-white dark:bg-gray-900 text-sm">
       <thead class="sticky top-0 z-10 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 uppercase text-xs">
         <tr>
@@ -129,16 +153,16 @@
         </tr>
       </thead>
 
-      <tbody class="divide-y divide-gray-100 dark:divide-gray-800 [&>tr:nth-child(odd)]:bg-white [&>tr:nth-child(even)]:bg-gray-50 dark:[&>tr:nth-child(odd)]:bg-gray-900 dark:[&>tr:nth-child(even)]:bg-gray-850">
-        @foreach ($pages as $page)
+      <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+        @forelse ($pages as $page)
           {{-- основная строка --}}
           <tr id="page-row-{{ $page->id }}"
-              class="page-row hover:bg-gray-100/60 dark:hover:bg-gray-800/60 transition"
+              class="page-row hover:bg-indigo-50 dark:hover:bg-gray-800 transition"
               data-published="{{ $page->published ? 1 : 0 }}"
               data-home="{{ $page->show_on_homepage ? 1 : 0 }}">
             <td class="px-4 py-2.5 font-medium text-gray-800 dark:text-white page-title">
               <a href="{{ route('frontend.pages.show', $page->slug) }}" target="_blank"
-                 class="text-blue-600 dark:text-blue-400" title="Открыть страницу на сайте">
+                 class="text-indigo-600 dark:text-indigo-400 hover:underline" title="Открыть страницу на сайте">
                 {{ $page->title }}
               </a>
               <div class="text-xs text-gray-500 dark:text-gray-400 block md:hidden">
@@ -153,7 +177,7 @@
             <td class="px-4 py-2.5 text-gray-600 dark:text-gray-400 hidden md:table-cell"
                 data-cats="{{ $page->categories->pluck('title')->join(', ') }}">
               @forelse ($page->categories as $cat)
-                <span class="inline-block bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 text-[11px] rounded-full px-2 py-0.5 mr-1 mb-1">
+                <span class="inline-block bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 text-xs px-2 py-0.5 mr-1 mb-1">
                   🏷️ {{ $cat->title }}
                 </span>
               @empty
@@ -164,22 +188,22 @@
             {{-- Опубликовано --}}
             <td class="px-4 py-2.5 text-center hidden sm:table-cell">
               @if($page->published)
-                <span class="inline-flex items-center justify-center h-6 px-2 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 text-[11px] gap-1">
-                  <i class="fa-solid fa-check text-[10px]"></i> Да
+                <span class="inline-flex items-center justify-center h-6 px-2 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 text-xs gap-1">
+                  <i class="fa-solid fa-check text-xs"></i> Да
                 </span>
               @else
-                <span class="inline-flex items-center justify-center h-6 px-2 rounded-full bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300 text-[11px]">Нет</span>
+                <span class="inline-flex items-center justify-center h-6 px-2 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300 text-xs">Нет</span>
               @endif
             </td>
 
             {{-- Домой --}}
             <td class="px-4 py-2.5 text-center hidden sm:table-cell">
               @if($page->show_on_homepage)
-                <span class="inline-flex items-center justify-center h-6 px-2 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-200 text-[11px] gap-1">
-                  <i class="fa-solid fa-house text-[10px]"></i> Да
+                <span class="inline-flex items-center justify-center h-6 px-2 bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300 text-xs gap-1">
+                  <i class="fa-solid fa-house text-xs"></i> Да
                 </span>
               @else
-                <span class="inline-flex items-center justify-center h-6 px-2 rounded-full bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300 text-[11px]">Нет</span>
+                <span class="inline-flex items-center justify-center h-6 px-2 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300 text-xs">Нет</span>
               @endif
             </td>
 
@@ -187,8 +211,8 @@
             <td class="px-4 py-2.5 text-center">
               <button
                 onclick="toggleContent({{ $page->id }}, this)"
-                class="inline-flex items-center gap-1 rounded-md border border-gray-300 dark:border-gray-700 px-2.5 h-7 text-xs text-blue-700 dark:text-blue-300 hover:bg-gray-50 dark:hover:bg-gray-800">
-                <i class="fa-regular fa-eye text-[12px]"></i> <span>Показать</span>
+                class="inline-flex items-center gap-1 border border-gray-300 dark:border-gray-700 px-2.5 h-7 text-xs text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-gray-800">
+                <i class="fa-regular fa-eye text-xs"></i> <span>Показать</span>
               </button>
             </td>
 
@@ -196,7 +220,7 @@
             <td class="px-4 py-2.5 text-center">
               <div class="inline-flex items-center gap-2">
                 <a href="{{ route('admin.pages.edit', $page) }}"
-                   class="text-blue-600 hover:text-blue-800"
+                   class="text-indigo-600 hover:text-indigo-800"
                    title="Редактировать">
                   <i class="fa-regular fa-pen-to-square"></i>
                 </a>
@@ -224,7 +248,22 @@
               </div>
             </td>
           </tr>
-        @endforeach
+        @empty
+          {{-- Пустое состояние: разное для «поиск ничего не нашёл» и «страниц ещё нет» --}}
+          <tr>
+            <td colspan="7" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+              @if ($query)
+                <i class="fa-regular fa-face-frown text-2xl mb-2 block"></i>
+                По запросу «<b>{{ $query }}</b>» ничего не найдено.
+                <a href="{{ route('admin.pages.index') }}" class="text-indigo-600 dark:text-indigo-400 underline">Сбросить поиск</a>
+              @else
+                <i class="fa-regular fa-file-lines text-2xl mb-2 block"></i>
+                Пока нет ни одной страницы.
+                <a href="{{ route('admin.pages.create') }}" class="text-indigo-600 dark:text-indigo-400 underline">Создать первую</a>
+              @endif
+            </td>
+          </tr>
+        @endforelse
       </tbody>
     </table>
   </div>

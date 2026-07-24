@@ -167,20 +167,14 @@
 
     <div class="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 transition-colors duration-200" style="color:{{ $textCol }};">
       <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-3 sm:py-4 flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4">
-        <nav class="header-nav flex flex-wrap justify-center md:justify-start items-center gap-1 sm:gap-2 text-sm font-medium">
-          @foreach ([['/', 'home', 'Главная'], ['/about', 'eye', 'О нас'], ['/faq', 'book', 'Вопросы'], ['/contacts', 'user', 'Контакты']] as [$url, $icon, $title])
-            <a href="{{ $url }}"
-               class="px-2 py-1 rounded-md transition
-                      {{ request()->is(ltrim($url, '/')) ? 'bg-gray-100 dark:bg-gray-800 ring-1 ring-gray-200 dark:ring-gray-700 active-link' : '' }}"
-               style="color:var(--color-text,#111827)"
-               {{ request()->is(ltrim($url, '/')) ? 'aria-current=page' : '' }}
-               title="{{ $title }}">
-              @themeIcon($icon) {{ $title }}
-            </a>
-          @endforeach
-        </nav>
+        {{-- Основная навигация теперь берётся из модуля Меню (позиция header),
+             а не из захардкоженного массива: единая строка «меню из БД + поиск».
+             Компонент сам ничего не рисует, если активных пунктов нет (тогда в
+             шапке остаётся только поиск). Отдельного бара Menu::frontend.header
+             во frontend.blade.php больше нет — он встроен сюда. --}}
+        @include('Menu::frontend.header')
 
-        <form method="GET" action="{{ route('frontend.search') }}" class="flex items-center gap-2 w-full md:w-auto">
+        <form method="GET" action="{{ route('frontend.search') }}" class="flex items-center gap-2 w-full md:w-auto md:ml-auto">
           <input type="text" name="q" value="{{ request('q') }}"
                  class="px-3 py-1.5 border rounded shadow-sm text-sm w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-colors
                         border-gray-300 dark:border-gray-600 
@@ -188,8 +182,14 @@
                         text-gray-900 dark:text-gray-100 
                         placeholder-gray-500 dark:placeholder-gray-400"
                  placeholder="Поиск...">
-          <button type="submit" class="text-xl text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" title="Поиск">
-            @themeIcon('search')
+          {{-- Инлайн-SVG лупа: не зависит от темы/Lucide и от фолбэка «пустых»
+               иконок в шапке (тот подменял недорисованную @themeIcon('search')
+               нейтральной точкой — отсюда была чёрная точка справа от поиска). --}}
+          <button type="submit" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" title="Поиск" aria-label="Искать">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path>
+            </svg>
           </button>
         </form>
       </div>
@@ -263,6 +263,11 @@
 
       function tryReplace(el){
         try{
+          // Не трогаем иконки навигации модуля Меню (у них свои дефолтные иконки),
+          // и вообще пропускаем скрытые элементы: пункты подменю на момент замера
+          // display:none → ширина 0 → раньше им ошибочно ставились «точки».
+          if (el.closest && el.closest('.header-nav')) return;
+          if (el.getClientRects().length === 0) return;
           var box = el.getBoundingClientRect();
           if (box.width < 6) {
             var span = document.createElement('span');

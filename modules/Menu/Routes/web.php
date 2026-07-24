@@ -17,10 +17,11 @@ Route::middleware(['web', 'auth', 'admin'])->prefix('admin')->group(function () 
     Route::get('menus/{menu}/edit', [MenuController::class, 'edit'])->name('admin.menus.edit');
     Route::patch('menus/{menu}/toggle', [MenuController::class, 'toggle'])->name('admin.menus.toggle');
     Route::post('menus/{menu}/items/update-order', [MenuController::class, 'updateOrder'])->name('admin.menus.updateOrder');
-    Route::delete('/{menu}', [MenuController::class, 'destroy'])->name('admin.menus.destroy');
+    Route::delete('menus/{menu}', [MenuController::class, 'destroy'])->name('admin.menus.destroy');
 
     // 🧷 Пункты меню
     Route::post('menus/{menu}/items', [MenuItemController::class, 'store'])->name('admin.menu_items.store');
+    Route::post('menus/{menu}/items/bulk', [MenuItemController::class, 'bulk'])->name('admin.menu_items.bulk');
     Route::put('menus/{menu}/items/{item}', [MenuItemController::class, 'update'])->name('admin.menu_items.update');
     Route::delete('menus/{menu}/items/{item}', [MenuItemController::class, 'destroy'])->name('admin.menu_items.destroy');
 

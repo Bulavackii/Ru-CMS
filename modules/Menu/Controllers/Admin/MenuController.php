@@ -46,7 +46,11 @@ class MenuController extends Controller
     /** ✏️ Редактирование меню и его пунктов */
     public function edit(Menu $menu)
     {
-        $items = $menu->items()->with('children')->whereNull('parent_id')->get();
+        // Вложенность до 3 уровней (0,1,2) — 'children.children' грузит и
+        // прямых потомков, и их детей. Раньше грузился только один уровень
+        // ('children' без вложенной цепочки), из-за чего пункты третьего
+        // уровня существовали в БД, но молча пропадали из дерева в редакторе.
+        $items = $menu->items()->with('children.children')->whereNull('parent_id')->get();
         return view('Menu::admin.menu.edit', compact('menu', 'items'));
     }
 

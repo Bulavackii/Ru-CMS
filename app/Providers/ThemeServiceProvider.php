@@ -287,6 +287,7 @@ class ThemeServiceProvider extends ServiceProvider
                 'image' => 'image', 'file-text' => 'file-text', 'puzzle' => 'puzzle',
                 'home' => 'house', 'user' => 'person', 'logout' => 'box-arrow-right',
                 'login' => 'box-arrow-in-right', 'mail' => 'envelope', 'dashboard' => 'grid',
+                'globe' => 'globe',
             ],
             'remix' => [
                 'bell' => 'notification-3-line', 'shopping-cart' => 'shopping-cart-2-line',
@@ -294,19 +295,21 @@ class ThemeServiceProvider extends ServiceProvider
                 'folder' => 'folder-3-line', 'image' => 'image-line', 'file-text' => 'file-text-line',
                 'puzzle' => 'puzzle-2-line', 'home' => 'home-2-line', 'user' => 'user-3-line',
                 'logout' => 'logout-box-r-line', 'login' => 'login-box-line', 'mail' => 'mail-line',
-                'dashboard' => 'dashboard-2-line',
+                'dashboard' => 'dashboard-2-line', 'globe' => 'earth-line',
             ],
             'tabler' => [
                 'bell' => 'bell', 'shopping-cart' => 'shopping-cart', 'message' => 'message',
                 'search' => 'search', 'plus' => 'plus', 'folder' => 'folder', 'image' => 'photo',
                 'file-text' => 'file-text', 'puzzle' => 'puzzle', 'home' => 'home', 'user' => 'user',
                 'logout' => 'logout', 'login' => 'login', 'mail' => 'mail', 'dashboard' => 'layout-dashboard',
+                'globe' => 'world',
             ],
             'lucide' => [
                 'bell' => 'bell', 'shopping-cart' => 'shopping-cart', 'message' => 'message-circle',
                 'search' => 'search', 'plus' => 'plus', 'folder' => 'folder', 'image' => 'image',
                 'file-text' => 'file-text', 'puzzle' => 'puzzle', 'home' => 'home', 'user' => 'user',
                 'logout' => 'log-out', 'login' => 'log-in', 'mail' => 'mail', 'dashboard' => 'layout-dashboard',
+                'globe' => 'globe',
             ],
         ];
     }

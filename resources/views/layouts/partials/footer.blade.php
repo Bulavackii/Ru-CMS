@@ -46,7 +46,7 @@
                 <h2 id="footer-nav" class="text-base font-semibold mb-4 text-center text-gray-900 dark:text-gray-100">Навигация</h2>
                 @php
                     $navLinks = [
-                        ['url' => '/terms', 'icon' => 'house', 'text' => 'Соглашение'],
+                        ['url' => '/terms', 'icon' => 'home', 'text' => 'Соглашение'],
                         ['url' => '/partnership', 'icon' => 'search', 'text' => 'Сотрудничество'],
                         ['url' => '/developers', 'icon' => 'code', 'text' => 'Разработчикам'],
                         ['url' => '/concept', 'icon' => 'star', 'text' => 'О проекте'],
@@ -86,7 +86,7 @@
                                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
                                focus-visible:ring-blue-500 dark:focus-visible:ring-blue-400">
                         <span class="inline-flex items-center gap-2 text-gray-900 dark:text-gray-100">
-                            <span class="text-xl leading-none">@themeIcon('envelope')</span> E-mail
+                            <span class="text-xl leading-none">@themeIcon('mail')</span> E-mail
                         </span>
                         <span class="text-gray-600 dark:text-gray-400">@themeIcon('arrow-up-right-from-square')</span>
                     </a>
@@ -128,7 +128,7 @@
                                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
                                focus-visible:ring-blue-500 dark:focus-visible:ring-blue-400">
                         <span class="inline-flex items-center gap-2 text-green-600 dark:text-green-400">
-                            <span class="text-xl leading-none">@themeIcon('whatsapp')</span> WhatsApp
+                            <span class="text-xl leading-none">@themeIcon('message-circle')</span> WhatsApp
                         </span>
                         <span class="text-gray-600 dark:text-gray-400">@themeIcon('arrow-up-right-from-square')</span>
                     </a>
@@ -144,7 +144,7 @@
                                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
                                focus-visible:ring-blue-500 dark:focus-visible:ring-blue-400">
                         <span class="inline-flex items-center gap-2 text-blue-500 dark:text-blue-400">
-                            <span class="text-xl leading-none">@themeIcon('telegram')</span> Telegram
+                            <span class="text-xl leading-none">@themeIcon('send')</span> Telegram
                         </span>
                         <span class="text-gray-600 dark:text-gray-400">@themeIcon('arrow-up-right-from-square')</span>
                     </a>

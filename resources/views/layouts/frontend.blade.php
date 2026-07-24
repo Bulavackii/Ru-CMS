@@ -244,8 +244,9 @@
     <div id="wrapper" class="relative z-10 flex flex-col min-h-screen">
         @include('layouts.partials.header')
 
-        {{-- Модульное меню (позиция: header) --}}
-        @include('Menu::frontend.header')
+        {{-- Модульное меню (позиция header) теперь встроено в саму шапку
+             (layouts.partials.header) одной строкой с поиском — отдельного
+             бара здесь больше нет, чтобы не было двух навигационных полос. --}}
 
         <x-frontend-notifications />
 

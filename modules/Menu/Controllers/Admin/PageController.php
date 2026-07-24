@@ -47,7 +47,9 @@ class PageController extends Controller
     {
         // Кэшируем категории на 1 час
         $categories = \Illuminate\Support\Facades\Cache::remember('admin_categories_list', 3600, function () {
-            return Category::select('id', 'name', 'slug')->orderBy('name')->get();
+            // В таблице categories заголовок хранится в title, колонки name нет:
+            // выборка по 'name' роняла форму страницы с ошибкой SQL.
+            return Category::select('id', 'title', 'slug')->orderBy('title')->get();
         });
 
         // 🔧 Значения по умолчанию
@@ -72,14 +74,20 @@ class PageController extends Controller
             'title' => 'required|string|max:255',
             'slug' => 'nullable|string|max:255|unique:pages',
             'content' => 'nullable|string',
-            'published' => 'boolean',
-            'show_on_homepage' => 'boolean',
             'homepage_order' => 'nullable|integer',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:255',
             'meta_keywords' => 'nullable|string|max:255',
             'categories' => 'array',
         ]);
+
+        // 🧩 Чекбоксы: браузер присылает поле только когда галочка стоит — иначе
+        // его в запросе нет вовсе. Приводим к явному boolean через has(), как и
+        // update(). Раньше store() полагался на дефолт БД (false у обеих колонок):
+        // happy-path совпадал случайно, но значение зависело от схемы, а не от
+        // формы, и логика расходилась с update().
+        $data['published'] = $request->has('published');
+        $data['show_on_homepage'] = $request->has('show_on_homepage');
 
         // 🔗 Генерация slug, если не указан
         $data['slug'] = $data['slug'] ?? Str::slug($data['title']) . '-' . uniqid();
@@ -102,7 +110,9 @@ class PageController extends Controller
     {
         // Кэшируем категории на 1 час
         $categories = \Illuminate\Support\Facades\Cache::remember('admin_categories_list', 3600, function () {
-            return Category::select('id', 'name', 'slug')->orderBy('name')->get();
+            // В таблице categories заголовок хранится в title, колонки name нет:
+            // выборка по 'name' роняла форму страницы с ошибкой SQL.
+            return Category::select('id', 'title', 'slug')->orderBy('title')->get();
         });
         return view('Menu::admin.pages.edit', compact('page', 'categories'));
     }

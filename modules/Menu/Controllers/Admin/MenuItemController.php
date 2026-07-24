@@ -33,11 +33,29 @@ class MenuItemController extends Controller
             }
         }
 
+        // Новый пункт должен вставать в конец своего уровня (как и обещает
+        // подсказка в форме), а не оставаться с order=0 по умолчанию схемы —
+        // иначе он оказывался среди первых пунктов, а не последним.
+        $validated['order'] = $this->nextOrder($menu->id, $validated['parent_id'] ?? null);
+
         $menu->items()->create($validated);
 
         return redirect()
             ->route('admin.menus.edit', $menu)
             ->with('success', 'Пункт меню добавлен.');
+    }
+
+    /**
+     * Следующий порядковый номер для пункта на указанном уровне
+     * (среди пунктов с тем же menu_id и parent_id).
+     */
+    private function nextOrder(int $menuId, ?int $parentId): int
+    {
+        $max = MenuItem::where('menu_id', $menuId)
+            ->where('parent_id', $parentId)
+            ->max('order');
+
+        return $max === null ? 0 : $max + 1;
     }
 
     /**
@@ -77,6 +95,13 @@ class MenuItemController extends Controller
                     'parent_id' => 'Пункт не может быть родителем своего потомка.'
                 ])->withInput();
             }
+        }
+
+        // При смене родителя пункт должен встать в конец списка НОВЫХ
+        // братьев/сестёр, а не сохранять свой старый order (который относился
+        // к прежнему уровню и мог случайно совпасть с чужим пунктом там).
+        if ($validated['parent_id'] != $item->parent_id) {
+            $validated['order'] = $this->nextOrder($menu->id, $validated['parent_id'] ?? null);
         }
 
         $item->update($validated);
@@ -146,6 +171,17 @@ class MenuItemController extends Controller
         // Обработка чекбокса active
         $validated['active'] = $request->has('active');
 
+        // Нормализуем parent_id к явному null. Правило 'nullable' НЕ кладёт
+        // отсутствующее поле в validated(), поэтому без этой строки обращение
+        // $validated['parent_id'] ниже (и в store(), и в update()) роняло
+        // "Undefined array key", а Laravel конвертирует это в ErrorException —
+        // из-за чего добавление любого КОРНЕВОГО пункта (без родителя) отдавало
+        // 500. Пустую строку из <select> тоже приводим к null.
+        $validated['parent_id'] = $validated['parent_id'] ?? null;
+        if ($validated['parent_id'] === '') {
+            $validated['parent_id'] = null;
+        }
+
         // Если тип url, очищаем linked_id
         if ($validated['type'] === 'url') {
             $validated['linked_id'] = null;
@@ -199,5 +235,47 @@ class MenuItemController extends Controller
             $this->deleteBranch($child);
         }
         $item->delete();
+    }
+
+    /**
+     * 📦 Массовые действия над пунктами меню (активировать/деактивировать/удалить).
+     *
+     * Раньше кнопки «Активировать»/«Деактивировать» во вьюхе были no-op —
+     * показывали тост об успехе и просто перезагружали страницу, ничего не
+     * меняя в БД. Теперь один запрос реально применяет действие ко всем
+     * выбранным пунктам (с проверкой принадлежности текущему меню).
+     */
+    public function bulk(Request $request, Menu $menu)
+    {
+        $validated = $request->validate([
+            'action' => 'required|in:activate,deactivate,delete',
+            'ids'    => 'required|array|min:1',
+            'ids.*'  => 'integer',
+        ]);
+
+        $items = MenuItem::with('children')
+            ->where('menu_id', $menu->id)
+            ->whereIn('id', $validated['ids'])
+            ->get();
+
+        if ($items->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'Пункты не найдены.'], 404);
+        }
+
+        switch ($validated['action']) {
+            case 'activate':
+                MenuItem::where('menu_id', $menu->id)->whereIn('id', $items->pluck('id'))->update(['active' => true]);
+                break;
+            case 'deactivate':
+                MenuItem::where('menu_id', $menu->id)->whereIn('id', $items->pluck('id'))->update(['active' => false]);
+                break;
+            case 'delete':
+                foreach ($items as $item) {
+                    $this->deleteBranch($item);
+                }
+                break;
+        }
+
+        return response()->json(['success' => true, 'count' => $items->count()]);
     }
 }

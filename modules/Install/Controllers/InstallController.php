@@ -591,6 +591,7 @@ class InstallController extends Controller
         try {
             $this->createSubscriptionFromInstall();
             $this->applyLocalizationSettings();
+            $this->seedDefaultMenu();
 
             File::put(storage_path('install.lock'), 'Installed at ' . now()->toDateTimeString());
 
@@ -941,44 +942,35 @@ class InstallController extends Controller
             }
         }
 
-        // Демо-меню (идемпотентно по паре title+position)
-        $menuId = DB::table('menus')
-            ->where('title', 'Главное меню')
-            ->where('position', 'header')
-            ->value('id');
-        if (!$menuId) {
-            $menuId = DB::table('menus')->insertGetId([
-                'title' => 'Главное меню',
-                'position' => 'header',
-                'active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        }
-
-        // Пункты меню — вставляем только отсутствующие (по menu_id + url)
-        $menuItems = [
-            ['title' => 'Главная', 'url' => '/', 'order' => 1],
-            ['title' => 'Новости', 'url' => '/news', 'order' => 2],
-        ];
-        foreach ($menuItems as $item) {
-            $exists = DB::table('menu_items')
-                ->where('menu_id', $menuId)
-                ->where('url', $item['url'])
-                ->exists();
-            if ($exists) {
-                continue;
-            }
-            DB::table('menu_items')->insert([
-                'menu_id' => $menuId,
-                'title' => $item['title'],
-                'url' => $item['url'],
-                'order' => $item['order'],
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        }
+        // Меню-хедер по умолчанию (Главная/О нас/Вопросы/Контакты) сидируется
+        // отдельным идемпотентным методом seedDefaultMenu(), который ВСЕГДА
+        // вызывается на шаге finish — вне зависимости от того, ставились ли
+        // демо-данные. Дублировать его тут не нужно: одно определение меню.
+        $this->seedDefaultMenu();
         });
+    }
+
+    /**
+     * Дефолтное меню-хедер после установки.
+     *
+     * Вызывается ВСЕГДА на шаге finish (и заодно из installDemoData), поэтому
+     * навигация на фронте есть сразу после установки, даже без демо-данных —
+     * во фронтовой шапке статичного fallback больше нет, источник правды только
+     * БД. Идемпотентно: «Главное меню» (header) переиспользуется, если уже есть;
+     * пункты вставляются только отсутствующие (по паре menu_id + url), так что
+     * повторный вызов ничего не дублирует и не затирает правки владельца.
+     *
+     * type='url' и active=true проставляются явно: фронтовая шапка строит ссылку
+     * через match($item->type) (без type ссылка ушла бы в '#'), а список фильтрует
+     * по active.
+     */
+    private function seedDefaultMenu(): void
+    {
+        // Единый источник дефолтного меню-хедера (Главная/О нас/Вопросы/Контакты
+        // с валидными Lucide-иконками) — команда модуля Menu. Тот же код доступен
+        // владельцу вручную: `php artisan menu:seed-default [--reset]`. Здесь без
+        // --reset: идемпотентное дозаполнение, чужие пункты не трогаем.
+        \Modules\Menu\Console\Commands\SeedDefaultMenuCommand::seed(false);
     }
 
     /**

@@ -21,15 +21,26 @@ class MenuServiceProvider extends ServiceProvider
         }
         // Миграции модуля живут в единой database/migrations/.
 
-        // Подаём активные хедер-меню с родителями и детьми (сортировка по order)
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \Modules\Menu\Console\Commands\SeedDefaultMenuCommand::class,
+            ]);
+        }
+
+        // Подаём активные хедер-меню с деревом до 3 уровней (сортировка по order).
+        // Грузим activeChildren.activeChildren — иначе 3-й уровень существует в БД,
+        // но на фронте молча не рисуется (частая жалоба: «вложенность как будто зря»).
         View::composer('Menu::frontend.header', function ($view) {
             $menus = Menu::query()
                 ->where('active', true)
                 ->where('position', 'header')
                 ->with([
                     'items' => fn($q) => $q->where('active', true)->whereNull('parent_id')->orderBy('order'),
-                    'items.activeChildren' => fn($q) => $q->where('active', true)->orderBy('order'),
                     'items.linkedPage',
+                    'items.activeChildren' => fn($q) => $q->where('active', true)->orderBy('order'),
+                    'items.activeChildren.linkedPage',
+                    'items.activeChildren.activeChildren' => fn($q) => $q->where('active', true)->orderBy('order'),
+                    'items.activeChildren.activeChildren.linkedPage',
                 ])
                 ->get();
 

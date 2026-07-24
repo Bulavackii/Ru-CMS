@@ -4,39 +4,44 @@
 
 @section('content')
     {{-- ───────────────────────── Header ───────────────────────── --}}
-    <div class="mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
-        <div class="space-y-1">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-                🧩 Меню: <span class="underline decoration-blue-400/50">{{ $menu->title }}</span>
-            </h1>
-            <div class="flex flex-wrap items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
-                <span>📍 Позиция: <b>{{ $menu->position }}</b></span>
-                <span class="inline-flex items-center gap-1">
-                    Статус:
-                    @if($menu->active)
-                        <span class="inline-flex items-center gap-1 text-green-600">
-                            <span class="h-2 w-2 rounded-full bg-green-500 inline-block"></span> Включено
-                        </span>
-                    @else
-                        <span class="inline-flex items-center gap-1 text-gray-500">
-                            <span class="h-2 w-2 rounded-full bg-gray-400 inline-block"></span> Выключено
-                        </span>
-                    @endif
-                </span>
+    <div class="admin-accent-bar mb-0"></div>
+    <div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
+                flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+            <span class="admin-icon-badge">@themeIcon('bars')</span>
+            <div class="min-w-0 space-y-1">
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white truncate">
+                    {{ $menu->title }}
+                </h1>
+                <div class="flex flex-wrap items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
+                    <span>📍 Позиция: <b>{{ $menu->position }}</b></span>
+                    <span class="inline-flex items-center gap-1">
+                        Статус:
+                        @if($menu->active)
+                            <span class="inline-flex items-center gap-1 text-green-600">
+                                <span class="h-2 w-2 rounded-full bg-green-500 inline-block"></span> Включено
+                            </span>
+                        @else
+                            <span class="inline-flex items-center gap-1 text-gray-500">
+                                <span class="h-2 w-2 rounded-full bg-gray-400 inline-block"></span> Выключено
+                            </span>
+                        @endif
+                    </span>
+                </div>
             </div>
         </div>
 
         <a href="{{ route('admin.menus.index') }}"
-           class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:underline">
+           class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 shrink-0">
             @themeIcon('arrow-left') Назад к списку
         </a>
     </div>
 
     {{-- ───────────────────── Help block ───────────────────── --}}
-    <div class="mb-6 rounded-xl border border-blue-200/70 dark:border-blue-900/40 bg-blue-50 dark:bg-blue-900/30 p-4 text-sm text-blue-900 dark:text-blue-100">
+    <div class="admin-hint mb-6 p-4 text-sm">
         @themeIcon('lightbulb')
         Перетаскивайте пункты мышью за «ручку» слева, чтобы менять порядок и вложенность. Нажмите
-        <kbd class="px-1.5 py-0.5 rounded border border-blue-300/60 bg-white/60 dark:bg-blue-900/50">Ctrl</kbd> + <kbd class="px-1.5 py-0.5 rounded border border-blue-300/60 bg-white/60 dark:bg-blue-900/50">S</kbd> — быстрое сохранение порядка.
+        <kbd class="px-1.5 py-0.5 border border-indigo-300 bg-white dark:bg-gray-800">Ctrl</kbd> + <kbd class="px-1.5 py-0.5 border border-indigo-300 bg-white dark:bg-gray-800">S</kbd> — быстрое сохранение порядка.
     </div>
 
     {{-- ─────────────────── Add Item Form ─────────────────── --}}
@@ -51,7 +56,7 @@
                 <div>
                     <label class="block text-sm font-semibold mb-1 text-gray-800 dark:text-gray-200">🏷️ Название</label>
                     <input type="text" name="title" id="mi-title" maxlength="80" required
-                           class="w-full border border-gray-300 dark:border-gray-700 rounded-md px-4 py-2 text-sm dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500"
+                           class="w-full border border-gray-300 dark:border-gray-700 rounded-md px-4 py-2 text-sm dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                            placeholder="Например: Тестовая ссылка">
                     <div class="mt-1 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                         <span>Понятное имя, видимое на сайте.</span>
@@ -73,10 +78,10 @@
                     <div class="grid sm:grid-cols-3 gap-3">
                         @foreach($typeCards as $c)
                             <button type="button" data-type="{{ $c['key'] }}"
-                                    class="type-card relative text-left rounded-xl border p-4 transition border-blue-500 ring-2 ring-blue-200 dark:ring-blue-900/40"
-                                    @if($loop->index>0) style="border-color: var(--tw-border-opacity) !important" @endif>
+                                    class="type-card relative text-left border p-4 transition
+                                           {{ $loop->first ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900' : 'border-gray-300 dark:border-gray-700 hover:border-indigo-400' }}">
                                 <div class="flex items-start gap-3">
-                                    <span class="text-xl text-blue-600 dark:text-blue-400">@themeIcon($c['icon'])</span>
+                                    <span class="text-xl text-indigo-600 dark:text-indigo-400">@themeIcon($c['icon'])</span>
                                     <div>
                                         <div class="font-semibold text-gray-900 dark:text-white">{{ $c['title'] }}</div>
                                         <div class="text-xs text-gray-500 dark:text-gray-400">{{ $c['desc'] }}</div>
@@ -87,11 +92,42 @@
                     </div>
                 </div>
 
+                {{-- Родительский пункт --}}
+                <div>
+                    <label class="block text-sm font-semibold mb-1 text-gray-800 dark:text-gray-200">🗂️ Родительский пункт</label>
+                    <select name="parent_id" id="mi-parent"
+                            class="w-full border border-gray-300 dark:border-gray-700 rounded-md px-4 py-2 text-sm dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="">— Без родителя (корневой уровень) —</option>
+                        @php
+                            $flattenItems = function ($nodes, $depth = 0) use (&$flattenItems) {
+                                $out = [];
+                                foreach ($nodes as $node) {
+                                    $out[] = ['item' => $node, 'depth' => $depth];
+                                    if ($node->children && $node->children->count()) {
+                                        $out = array_merge($out, $flattenItems($node->children, $depth + 1));
+                                    }
+                                }
+                                return $out;
+                            };
+                            $flatMenuItems = $flattenItems($items);
+                        @endphp
+                        @foreach($flatMenuItems as $row)
+                            <option value="{{ $row['item']->id }}">
+                                {{ str_repeat('— ', $row['depth']) }}{{ $row['item']->title }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        Оставьте пустым для корневого уровня. Пункт встанет последним среди пунктов выбранного уровня.
+                        Максимальная вложенность — 3 уровня.
+                    </div>
+                </div>
+
                 {{-- Поле URL --}}
                 <div id="field-url">
                     <label class="block text-sm font-semibold mb-1 text-gray-800 dark:text-gray-200">🌐 URL</label>
                     <input type="text" name="url" id="mi-url"
-                           class="w-full border border-gray-300 dark:border-gray-700 rounded-md px-4 py-2 text-sm dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500"
+                           class="w-full border border-gray-300 dark:border-gray-700 rounded-md px-4 py-2 text-sm dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                            placeholder="https://example.com или /contacts">
                     <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">Поддерживаются абсолютные и относительные адреса.</div>
                 </div>
@@ -100,7 +136,7 @@
                 <div id="field-linked" class="hidden">
                     <label class="block text-sm font-semibold mb-1 text-gray-800 dark:text-gray-200">🔍 Связанный объект</label>
                     <select name="linked_id" id="linked-id"
-                            class="w-full border border-gray-300 dark:border-gray-700 rounded-md px-4 py-2 text-sm dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500">
+                            class="w-full border border-gray-300 dark:border-gray-700 rounded-md px-4 py-2 text-sm dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                         <option value="">— Выберите —</option>
                     </select>
                     <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">Список подгружается автоматически по выбранному типу.</div>
@@ -110,15 +146,15 @@
                 <div class="grid sm:grid-cols-2 gap-4 border-t pt-4 border-gray-200 dark:border-gray-700">
                     {{-- Активность --}}
                     <div>
-                        <label class="inline-flex items-center gap-3 select-none cursor-pointer">
-                            <input type="checkbox" name="active" value="1" checked
-                                   class="peer sr-only">
-                            <span class="relative inline-flex h-6 w-11 items-center rounded-full bg-green-500 peer-checked:bg-green-500 transition-all">
-                                <span class="absolute left-1 peer-checked:left-6 h-4 w-4 rounded-full bg-white transition-all"></span>
+                        <label class="inline-flex items-center gap-2.5 select-none cursor-pointer">
+                            <span class="admin-toggle">
+                                <input type="checkbox" name="active" value="1" checked>
+                                <span class="track"></span>
+                                <span class="knob"></span>
                             </span>
-                            <span class="text-sm text-gray-800 dark:text-gray-200">✅ Активен</span>
+                            <span class="text-sm font-medium text-gray-800 dark:text-gray-200">Показывать на сайте</span>
                         </label>
-                        <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">Показывать на сайте</div>
+                        <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">Выключенный пункт остаётся в меню, но не отображается посетителям.</div>
                     </div>
 
                     {{-- Иконка --}}
@@ -196,8 +232,8 @@
                 </div>
 
                 <button type="submit"
-                        class="w-full bg-black hover:bg-gray-800 text-white px-5 py-2 rounded-md text-sm shadow transition">
-                    ➕ Добавить пункт
+                        class="w-full inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 text-sm font-semibold shadow-sm transition">
+                    @themeIcon('plus') Добавить пункт
                 </button>
             </aside>
         </div>
@@ -239,16 +275,19 @@
     </div>
 
     {{-- ─────────────────── Tree / Drag&Drop ─────────────────── --}}
-    <div class="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-2xl p-6 relative">
+    <div class="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 p-6">
         <ul id="menu-tree" class="space-y-2"></ul>
 
-        {{-- Sticky actions --}}
-        <div class="sticky bottom-3 mt-6 flex flex-col sm:flex-row items-center justify-between gap-3 rounded-xl border bg-white/90 dark:bg-gray-900/90 backdrop-blur px-4 py-3 border-gray-300 dark:border-gray-700">
+        {{-- Панель сохранения порядка. РАНЬШЕ была sticky bottom-3 и висела над
+             нижними пунктами дерева, перехватывая мышь — из-за чего их нельзя
+             было перетащить. Теперь статична, под списком: drag-and-drop работает
+             по всей высоте, а быстрое сохранение — по Ctrl+S из любого места. --}}
+        <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row items-center justify-between gap-3">
             <div class="text-xs text-gray-500 dark:text-gray-400">
                 @themeIcon('keyboard') Горячая клавиша: <b>Ctrl + S</b> — сохранить порядок
             </div>
             <button id="save-order"
-                    class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-md text-sm shadow transition inline-flex items-center gap-2">
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 text-sm font-semibold shadow-sm transition inline-flex items-center gap-2">
                 @themeIcon('save') Сохранить порядок
             </button>
         </div>
@@ -270,6 +309,13 @@
     @endif
 @endsection
 
+@php
+    // Нужен клиенту, чтобы правильно рисовать иконку каждого пункта в дереве
+    // (см. пояснение у iconMarkup() ниже — @themeIcon внутри JS-шаблона
+    // компилировался бы один раз на сервере, а не по данным конкретного пункта).
+    $activeIconTheme = \Modules\Visual\Models\Theme::where('is_default', true)->first();
+    $iconMode = data_get($activeIconTheme?->config, 'icon_mode', 'lucide');
+@endphp
 @push('scripts')
 <script src="{{ local_js('sortable.min.js') }}"></script>
 <script>
@@ -277,11 +323,52 @@
 const $  = (sel, root=document) => root.querySelector(sel);
 const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
 const menuData = @json($items);
+const iconMode = @json($iconMode);
 
 /* ✅ Шаблоны URL (будем подставлять ID на клиенте) */
 const destroyUrlTmpl = @json(route('admin.menu_items.destroy', [$menu, '__ID__']));
 const updateUrlTmpl = @json(route('admin.menu_items.update', [$menu, '__ID__']));
 const csrf = @json(csrf_token());
+
+// Экранирование перед вставкой пользовательских строк (title/icon) в innerHTML —
+// title пункта меню вводит администратор, значит доверять ему как готовому
+// HTML нельзя (иначе кавычки/теги в названии сломают вёрстку или выполнят JS).
+function escapeHtml(str) {
+    return String(str ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// Рендер иконки пункта на клиенте по имени, введённому в поле «Иконка».
+// Раньше тут стояло `@themeIcon('${item.icon}')` — но это Blade-директива,
+// она компилируется В ОДИН PHP-вызов на сервере при рендере страницы, ещё до
+// того как в браузере появится конкретный item из JS-цикла. В итоге сервер
+// один раз резолвил иконку для буквальной строки "${item.icon}" (такой иконки
+// не существует) и этот же результат подставлялся всем пунктам без разбора.
+// Теперь имя иконки достаётся из данных пункта в момент отрисовки в браузере,
+// а не на сервере, и учитывает активный icon_mode темы (так же, как и
+// @themeIcon делает на бэкенде для остальных иконок этой же страницы).
+function iconMarkup(name, cls) {
+    const n = String(name || '').trim();
+    if (!n) return '';
+    const safeName = escapeHtml(n);
+    if (iconMode === 'lucide')    return `<i data-lucide="${safeName}" class="${cls}"></i>`;
+    if (iconMode === 'bootstrap') return `<i class="bi bi-${safeName} ${cls}"></i>`;
+    if (iconMode === 'remix')     return `<i class="ri-${safeName} ${cls}"></i>`;
+    if (iconMode === 'tabler')    return `<i class="ti ti-${safeName} ${cls}"></i>`;
+    return `<i class="fa-solid fa-${safeName} ${cls}"></i>`;
+}
+
+// Lucide рисует иконки, заменяя <i data-lucide="…"> на SVG вызовом
+// createIcons(). Header/footer вызывают его один раз при загрузке страницы —
+// но дерево меню и модалка строятся JS-ом ПОЗЖЕ (innerHTML), поэтому их
+// data-lucide элементы этот ранний вызов не застаёт и под дефолтной темой
+// (icon_mode = lucide) иконки дерева оставались невидимыми. Дёргаем повторно
+// после каждой динамической вставки. Для FA/bootstrap/remix/tabler это no-op
+// (они рисуются по CSS-классам без JS), для отсутствующего lucide — тоже.
+function refreshThemeIcons() {
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        try { window.lucide.createIcons(); } catch (e) {}
+    }
+}
 
 /* --------- live preview + counters --------- */
 const titleInput = $('#mi-title'), titleCount = $('#mi-title-count');
@@ -302,10 +389,11 @@ $$('.type-card').forEach(btn=>{
         pvType.textContent = key;
 
         $$('.type-card').forEach(b=>{
-            b.classList.remove('border-blue-500','ring-2','ring-blue-200','dark:ring-blue-900/40');
+            b.classList.remove('border-indigo-500','bg-indigo-50','dark:bg-indigo-900');
             b.classList.add('border-gray-300','dark:border-gray-700');
         });
-        btn.classList.add('border-blue-500','ring-2','ring-blue-200','dark:ring-blue-900/40');
+        btn.classList.remove('border-gray-300','dark:border-gray-700');
+        btn.classList.add('border-indigo-500','bg-indigo-50','dark:bg-indigo-900');
 
         if (key === 'url') {
             fieldUrl.classList.remove('hidden');
@@ -342,13 +430,13 @@ function renderList(items, depth=0){
 
         const hasChildren = item.children && item.children.length;
 
-        const activeBadge = item.active !== false ? 
-          '<span class="text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">Активен</span>' :
-          '<span class="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400">Скрыт</span>';
-        const iconDisplay = item.icon ? `<span class="text-xs text-gray-400">@themeIcon('${item.icon}')</span>` : '';
+        const activeBadge = item.active !== false ?
+          '<span class="text-xs px-1.5 py-0.5 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">Активен</span>' :
+          '<span class="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400">Скрыт</span>';
+        const iconDisplay = item.icon ? `<span class="text-xs text-gray-400">${iconMarkup(item.icon, 'text-xs text-gray-400')}</span>` : '';
 
         li.innerHTML = `
-          <div class="handle flex items-center justify-between px-3 py-2 ${hasChildren ? 'bg-blue-50 dark:bg-blue-900/40' : ''} ${item.active === false ? 'opacity-60' : ''}">
+          <div class="handle flex items-center justify-between px-3 py-2 ${hasChildren ? 'bg-indigo-50 dark:bg-indigo-900' : ''} ${item.active === false ? 'opacity-60' : ''}">
             <div class="flex items-center gap-2 flex-1 min-w-0">
               <input type="checkbox" class="item-checkbox" data-item-id="${item.id}" title="Выбрать для массовых операций">
               <span class="text-gray-400 cursor-move">@themeIcon('grip-vertical')</span>
@@ -356,17 +444,17 @@ function renderList(items, depth=0){
                 @themeIcon('chevron-down')
               </button>
               ${iconDisplay}
-              <span class="font-medium truncate">${item.title}</span>
+              <span class="font-medium truncate">${escapeHtml(item.title)}</span>
               <span class="text-xs text-gray-500">(${item.type})</span>
               ${activeBadge}
-              ${depth >= 2 ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">Макс. уровень</span>' : ''}
+              ${depth >= 2 ? '<span class="text-xs px-1.5 py-0.5 bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">Макс. уровень</span>' : ''}
             </div>
 
             <div class="flex items-center gap-1">
-              <button type="button" class="edit-item-btn text-blue-600 hover:text-blue-700 text-sm" data-item-id="${item.id}" title="Редактировать">
+              <button type="button" class="edit-item-btn text-indigo-600 hover:text-indigo-700 text-sm" data-item-id="${item.id}" title="Редактировать">
                 @themeIcon('edit')
               </button>
-              <form method="POST" class="mi-del-form inline" onsubmit="return confirm('Удалить пункт «${item.title}»?')">
+              <form method="POST" class="mi-del-form inline">
                 <input type="hidden" name="_token" value="${csrf}">
                 <input type="hidden" name="_method" value="DELETE">
                 <button type="submit" class="text-red-600 hover:text-red-700 text-sm" title="Удалить">
@@ -380,8 +468,18 @@ function renderList(items, depth=0){
         // ✅ корректный action
         li.querySelector('.mi-del-form').action = destroyUrlTmpl.replace('__ID__', item.id);
 
+        // Пустой список-приёмник под каждым пунктом — это зона, куда можно
+        // ВЛОЖИТЬ другой пункт (создать новый уровень). Раньше у листьев он был
+        // 'hidden' (display:none) → у SortableJS не было хитбокса, и вложение в
+        // лист было невозможно: работало только переупорядочивание среди уже
+        // видимых соседей. Теперь помечаем приёмник классом '.mi-childlist' и во
+        // время перетаскивания показываем как drop-зону (CSS внизу файла).
+        // Помечаем только там, где вложение ещё разрешено по глубине: пункт на
+        // depth<=1 может принять ребёнка (это станет уровнем 2 или 3); у пункта
+        // на depth==2 ребёнок был бы уже 4-м уровнем — такой приёмник оставляем
+        // скрытым, чтобы не предлагать недопустимое вложение.
         const child = document.createElement('ul');
-        child.className = 'pl-4 space-y-2 ' + (hasChildren ? '' : 'hidden');
+        child.className = 'pl-4 space-y-2 ' + (depth <= 1 ? 'mi-childlist' : 'hidden');
         li.appendChild(child);
 
         if (hasChildren) child.replaceWith(renderList(item.children, depth+1));
@@ -392,6 +490,19 @@ function renderList(items, depth=0){
 
 const rootTree = renderList(menuData);
 document.getElementById('menu-tree').replaceWith(rootTree);
+refreshThemeIcons(); // отрисовать lucide-иконки только что построенного дерева
+
+// Подтверждение удаления — читаем название прямо из DOM (textContent уже
+// безопасно декодирован браузером), а не пересобираем строку с title пункта
+// заново: так не нужно отдельно экранировать её ещё и для контекста confirm().
+rootTree.addEventListener('submit', (e) => {
+    const form = e.target.closest('.mi-del-form');
+    if (!form) return;
+    const title = form.closest('li')?.querySelector('.handle .font-medium')?.textContent?.trim() || 'этот пункт';
+    if (!confirm(`Удалить пункт «${title}»?`)) {
+        e.preventDefault();
+    }
+});
 
 // expand / collapse controls
 document.getElementById('expand-all').addEventListener('click', ()=>{
@@ -428,13 +539,36 @@ document.getElementById('filter-input').addEventListener('input', (e)=>{
         group: 'nested',
         animation: 150,
         handle: '.handle',
+        // forceFallback: тащим мышью силами самого SortableJS, а не нативным
+        // HTML5 drag-and-drop. Нативный DnD здесь не запускался (пункты не
+        // перетаскивались вовсе): он требует draggable=true НА МОМЕНТ mousedown,
+        // а SortableJS выставляет его уже после нажатия — в ряде браузеров жест
+        // при этом не стартует. fallbackOnBody уже стоял, но без forceFallback
+        // был мёртвой опцией — теперь замысел на fallback-режим завершён.
+        forceFallback: true,
+        fallbackTolerance: 3,
         fallbackOnBody: true,
         swapThreshold: 0.65,
-        ghostClass: 'opacity-50 bg-blue-100 dark:bg-blue-900',
-        chosenClass: 'bg-blue-50 dark:bg-blue-900/40 border-blue-400',
-        dragClass: 'opacity-50',
+        // Позволяет «уронить» пункт в ПУСТОЙ дочерний список (вложение под лист):
+        // курсор должен оказаться в пределах этого числа px от пустого приёмника.
+        // Без этого пустой <ul> у SortableJS не считается целью для drop.
+        emptyInsertThreshold: 15,
+        // ⚠️ SortableJS применяет каждый из этих классов через
+        // classList.add()/remove(), а тот принимает РОВНО ОДИН токен: класс с
+        // пробелами кидает InvalidCharacterError прямо в _onDragStart и обрывает
+        // перетаскивание — ровно поэтому drag-and-drop не работал (раньше здесь
+        // стояли многосложные Tailwind-строки вида 'bg-indigo-50 dark:... border-...').
+        // Поэтому тут только односложные имена, а вся раскраска — литеральным CSS
+        // в блоке стилей внизу файла (в этой Tailwind-сборке bg-indigo-*/opacity
+        // всё равно рендерятся не полностью — см. CLAUDE.md).
+        ghostClass: 'mi-ghost',
+        chosenClass: 'mi-chosen',
+        dragClass: 'mi-drag',
         onStart: function(evt) {
             evt.item.classList.add('dragging');
+            // Подсветить пустые списки-приёмники на всё время перетаскивания —
+            // чтобы было видно, куда можно вложить пункт (см. CSS .mi-childlist).
+            document.body.classList.add('mi-dragging');
             // Показываем индикатор глубины
             const currentDepth = getDepth(evt.item);
             if (currentDepth >= 2) {
@@ -444,6 +578,7 @@ document.getElementById('filter-input').addEventListener('input', (e)=>{
         },
         onEnd: function(evt) {
             evt.item.classList.remove('dragging');
+            document.body.classList.remove('mi-dragging');
             // Удаляем индикатор
             evt.item.querySelector('.handle .text-red-600')?.remove();
             
@@ -539,7 +674,7 @@ document.addEventListener('keydown', e=>{
 // tiny toast
 function toast(msg, err=false){
     const t = document.createElement('div');
-    t.className = 'fixed bottom-6 right-6 z-[100] px-3 py-2 rounded-md shadow text-sm text-white ' +
+    t.className = 'fixed bottom-6 right-6 z-50 px-3 py-2 shadow text-sm text-white ' +
         (err ? 'bg-red-600' : 'bg-green-600');
     t.textContent = msg;
     document.body.appendChild(t);
@@ -550,9 +685,10 @@ function toast(msg, err=false){
 let editingItemId = null;
 const editModal = document.createElement('div');
 editModal.id = 'edit-modal';
-editModal.className = 'fixed inset-0 z-[200] hidden items-center justify-center bg-black/50';
+editModal.className = 'fixed inset-0 z-50 hidden items-center justify-center';
+editModal.style.background = 'rgba(0,0,0,.5)'; // bg-black/50 не рендерится в этой Tailwind-сборке
 editModal.innerHTML = `
-    <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <div class="bg-white dark:bg-gray-900 p-6 max-w-2xl w-full mx-4 overflow-y-auto" style="max-height:90vh">
         <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-bold text-gray-900 dark:text-white">✏️ Редактировать пункт меню</h3>
             <button type="button" class="close-edit-modal text-gray-400 hover:text-gray-600">@themeIcon('times')</button>
@@ -583,6 +719,12 @@ editModal.innerHTML = `
                         <option value="">— Выберите —</option>
                     </select>
                 </div>
+                <div class="sm:col-span-2">
+                    <label class="block text-sm font-semibold mb-1">🗂️ Родительский пункт</label>
+                    <select name="parent_id" id="edit-parent" class="w-full border rounded-md px-3 py-2 text-sm">
+                        <option value="">— Без родителя (корневой уровень) —</option>
+                    </select>
+                </div>
                 <div>
                     <label class="block text-sm font-semibold mb-1">🎨 Иконка</label>
                     <input type="text" name="icon" id="edit-icon" class="w-full border rounded-md px-3 py-2 text-sm">
@@ -604,20 +746,25 @@ editModal.innerHTML = `
                     <input type="text" name="rel" id="edit-rel" class="w-full border rounded-md px-3 py-2 text-sm">
                 </div>
                 <div class="sm:col-span-2">
-                    <label class="inline-flex items-center gap-2">
-                        <input type="checkbox" name="active" value="1" id="edit-active" class="rounded">
-                        <span>✅ Активен</span>
+                    <label class="inline-flex items-center gap-2.5 cursor-pointer select-none">
+                        <span class="admin-toggle">
+                            <input type="checkbox" name="active" value="1" id="edit-active">
+                            <span class="track"></span>
+                            <span class="knob"></span>
+                        </span>
+                        <span class="text-sm font-medium">Показывать на сайте</span>
                     </label>
                 </div>
             </div>
             <div class="flex gap-2 justify-end mt-6">
                 <button type="button" class="close-edit-modal px-4 py-2 rounded-md border text-sm">Отмена</button>
-                <button type="submit" class="px-4 py-2 rounded-md bg-blue-600 text-white text-sm">Сохранить</button>
+                <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition">Сохранить</button>
             </div>
         </form>
     </div>
 `;
 document.body.appendChild(editModal);
+refreshThemeIcons(); // иконки внутри только что вставленной модалки
 
 // Обработчики для модального окна
 rootTree.addEventListener('click', (e) => {
@@ -643,6 +790,30 @@ function findItemInTree(items, id) {
     return null;
 }
 
+// Плоский список пунктов (с глубиной — для отступов в <select>)
+function flattenTree(items, depth = 0) {
+    const out = [];
+    items.forEach(item => {
+        out.push({ item, depth });
+        if (item.children && item.children.length) {
+            out.push(...flattenTree(item.children, depth + 1));
+        }
+    });
+    return out;
+}
+
+// Сам пункт и все его потомки нельзя выбрать себе в родители — иначе
+// получится цикл (то же самое server-side уже проверяет update(), но
+// на клиенте эти варианты лучше вообще не показывать в списке).
+function collectDescendantIds(item) {
+    const ids = [];
+    (item.children || []).forEach(child => {
+        ids.push(child.id);
+        ids.push(...collectDescendantIds(child));
+    });
+    return ids;
+}
+
 function openEditModal(item) {
     $('#edit-title').value = item.title || '';
     $('#edit-type').value = item.type || 'url';
@@ -653,7 +824,16 @@ function openEditModal(item) {
     $('#edit-rel').value = item.rel || '';
     $('#edit-active').checked = item.active !== false;
     $('#edit-linked-id').value = item.linked_id || '';
-    
+
+    const excluded = new Set([item.id, ...collectDescendantIds(item)]);
+    const parentSelect = $('#edit-parent');
+    parentSelect.innerHTML = '<option value="">— Без родителя (корневой уровень) —</option>' +
+        flattenTree(menuData)
+            .filter(row => !excluded.has(row.item.id))
+            .map(row => `<option value="${row.item.id}">${'— '.repeat(row.depth)}${escapeHtml(row.item.title)}</option>`)
+            .join('');
+    parentSelect.value = item.parent_id || '';
+
     // Показать/скрыть поля в зависимости от типа
     if (item.type === 'url') {
         $('#edit-url-field').classList.remove('hidden');
@@ -770,44 +950,38 @@ $('#deselect-all').addEventListener('click', () => {
     updateBulkActions();
 });
 
+// Раньше активация/деактивация тут были no-op: показывали тост об успехе и
+// просто перезагружали страницу, ничего не меняя в БД (комментарий так и
+// гласил: «Пока просто перезагружаем страницу»). Теперь один запрос к
+// admin.menu_items.bulk реально применяет действие на сервере.
+const bulkUrlTmpl = @json(route('admin.menu_items.bulk', $menu));
+
 async function bulkAction(action) {
     if (selectedItems.size === 0) {
         toast('Выберите хотя бы один пункт', true);
         return;
     }
-    
+
     const itemIds = Array.from(selectedItems);
     const actionText = action === 'activate' ? 'активировать' : action === 'deactivate' ? 'деактивировать' : 'удалить';
-    
+
     if (!confirm(`Вы уверены, что хотите ${actionText} ${itemIds.length} пункт(ов)?`)) {
         return;
     }
-    
+
     try {
-        for (const itemId of itemIds) {
-            if (action === 'delete') {
-                const form = rootTree.querySelector(`.item-checkbox[data-item-id="${itemId}"]`)?.closest('li')?.querySelector('.mi-del-form');
-                if (form) {
-                    await fetch(form.action, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': csrf,
-                        },
-                        body: new FormData(form)
-                    });
-                }
-            } else {
-                // Для активации/деактивации нужно обновить через API
-                // Пока просто перезагружаем страницу
-            }
-        }
-        
-        if (action === 'delete') {
-            toast(`${itemIds.length} пункт(ов) удалено`);
-            setTimeout(() => location.reload(), 500);
+        const response = await fetch(bulkUrlTmpl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf },
+            body: JSON.stringify({ action, ids: itemIds }),
+        });
+        const result = await response.json().catch(() => ({}));
+
+        if (response.ok && result.success) {
+            toast(`Готово: ${result.count ?? itemIds.length} пункт(ов)`);
+            setTimeout(() => location.reload(), 600);
         } else {
-            toast(`Операция выполнена для ${itemIds.length} пункт(ов)`);
-            setTimeout(() => location.reload(), 1000);
+            toast(result.message || 'Ошибка при выполнении операции', true);
         }
     } catch (err) {
         toast('Ошибка при выполнении операции', true);
@@ -818,6 +992,7 @@ $('#bulk-activate').addEventListener('click', () => bulkAction('activate'));
 $('#bulk-deactivate').addEventListener('click', () => bulkAction('deactivate'));
 $('#bulk-delete').addEventListener('click', () => bulkAction('delete'));
 </script>
+@endpush
 
 @push('styles')
 <style>
@@ -825,14 +1000,33 @@ $('#bulk-delete').addEventListener('click', () => bulkAction('delete'));
         opacity: 0.5;
         transform: rotate(2deg);
     }
-    .sortable-ghost {
-        opacity: 0.4;
-        background: #dbeafe;
+    /* Односложные классы для SortableJS (ghostClass / chosenClass / dragClass).
+       Раскраска держится тут литеральным CSS: имя класса с пробелами ломает
+       classList.add()/remove() внутри Sortable, а indigo-утилиты с прозрачностью
+       в этой Tailwind-сборке всё равно не все рендерятся. */
+    .mi-ghost {
+        opacity: 0.5;
+        background: #e0e7ff;   /* indigo-100 */
     }
-    .sortable-chosen {
-        background: #eff6ff;
-        border-color: #60a5fa;
+    .mi-chosen {
+        background: #eef2ff;   /* indigo-50  */
+        border-color: #818cf8; /* indigo-400 */
+    }
+    .mi-drag {
+        opacity: 0.5;
+    }
+    /* Пустой список-приёмник для вложения. Обычно схлопнут (0px, не мешает
+       вёрстке), а во время перетаскивания (body.mi-dragging) проявляется
+       пунктирной зоной, куда можно вложить пункт и создать новый уровень.
+       display:block !important перебивает .hidden, если приёмник свернули
+       кнопкой «Свернуть всё». */
+    .mi-childlist:empty { min-height: 0; }
+    body.mi-dragging .mi-childlist:empty {
+        display: block !important;
+        min-height: 30px;
+        margin-top: 4px;
+        border: 1px dashed #a5b4fc;   /* indigo-300 */
+        background: #eef2ff;          /* indigo-50  */
     }
 </style>
-@endpush
 @endpush

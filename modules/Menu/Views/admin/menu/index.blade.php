@@ -2,144 +2,154 @@
 
 @section('title', 'Меню')
 
-@push('styles')
-<style>
-    .hint {
-        border-left: 3px solid #60a5fa;
-        background: #f0f9ff;
-        color:#0f172a;
-    }
-</style>
-@endpush
-
 @section('content')
-    {{-- Заголовок + действие --}}
-    <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-6">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">📋 Меню</h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400">
-                Создавайте навигацию для шапки, подвала и боковых панелей. Поддерживается вложенность и произвольные ссылки.
-            </p>
+    {{-- ── Шапка страницы: акцентная полоса + бейдж-иконка + действие ── --}}
+    <div class="admin-accent-bar mb-0"></div>
+    <div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
+                flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div class="flex items-center gap-3 min-w-0">
+            <span class="admin-icon-badge">@themeIcon('bars')</span>
+            <div class="min-w-0">
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">Меню</h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                    Навигация для шапки, подвала и боковых панелей. Вложенность и произвольные ссылки.
+                </p>
+            </div>
         </div>
 
-        <div class="flex gap-2">
-            <a href="{{ route('admin.menus.create') }}"
-               class="inline-flex items-center gap-2 bg-black hover:bg-gray-900 text-white px-4 py-2 rounded-md text-sm shadow transition"
-               title="Создать новое меню">
-                @themeIcon('plus') Создать меню
-            </a>
-        </div>
+        <a href="{{ route('admin.menus.create') }}"
+           class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition shrink-0"
+           title="Создать новое меню">
+            @themeIcon('plus') Создать меню
+        </a>
     </div>
 
-    {{-- Панель подсказок / быстрого старта --}}
-    <div class="hint rounded-xl px-4 py-3 mb-6 text-sm">
+    {{-- ── Подсказка / быстрый старт ── --}}
+    <div class="admin-hint px-4 py-3 mb-6 text-sm">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div class="flex items-center gap-2 font-medium">
                 @themeIcon('lightbulb')
-                <span>Совет: меню отображается на сайте, только если оно <b>Активировано</b> и у него есть хотя бы один пункт.</span>
+                <span>Меню показывается на сайте, только если оно <b>активно</b> и содержит хотя бы один пункт.</span>
             </div>
             <ul class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-                <li class="bg-white/70 dark:bg-gray-900/50 rounded px-2 py-1">Вложенность — drag & drop</li>
-                <li class="bg-white/70 dark:bg-gray-900/50 rounded px-2 py-1">URL / Страницы / Категории</li>
-                <li class="bg-white/70 dark:bg-gray-900/50 rounded px-2 py-1">SEO поля для пунктов</li>
-                <li class="bg-white/70 dark:bg-gray-900/50 rounded px-2 py-1">Быстрое включение/выключение</li>
+                <li class="bg-white dark:bg-gray-900 border border-indigo-100 dark:border-gray-700 px-2 py-1">Drag &amp; drop</li>
+                <li class="bg-white dark:bg-gray-900 border border-indigo-100 dark:border-gray-700 px-2 py-1">URL / Страницы / Категории</li>
+                <li class="bg-white dark:bg-gray-900 border border-indigo-100 dark:border-gray-700 px-2 py-1">SEO-поля пунктов</li>
+                <li class="bg-white dark:bg-gray-900 border border-indigo-100 dark:border-gray-700 px-2 py-1">Быстрое вкл/выкл</li>
             </ul>
         </div>
     </div>
 
-    {{-- Поиск/фильтр по названию/позиции (клиентский) --}}
-    <div class="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-        <div class="flex items-center gap-2 w-full md:w-80">
+    {{-- ── Поиск + фильтр по позиции (клиентский) ── --}}
+    <div class="mb-5 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div class="relative w-full md:w-80">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">@themeIcon('search')</span>
             <input id="menu-search" type="text" placeholder="Поиск по названию…"
-                   class="w-full px-3 py-2 border rounded-md text-sm dark:bg-gray-800 dark:text-white dark:border-gray-700">
+                   class="w-full pl-9 pr-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white text-sm">
         </div>
 
         <div class="flex gap-2 text-xs">
-            <button data-pos="all" class="pos-filter bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded">Все</button>
-            <button data-pos="header" class="pos-filter bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">Header</button>
-            <button data-pos="footer" class="pos-filter bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">Footer</button>
-            <button data-pos="sidebar" class="pos-filter bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">Sidebar</button>
+            <button data-pos="all"     class="pos-filter is-active bg-indigo-600 text-white px-3 py-1.5 font-medium transition">Все</button>
+            <button data-pos="header"  class="pos-filter bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-3 py-1.5 font-medium transition">Header</button>
+            <button data-pos="footer"  class="pos-filter bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-3 py-1.5 font-medium transition">Footer</button>
+            <button data-pos="sidebar" class="pos-filter bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-3 py-1.5 font-medium transition">Sidebar</button>
         </div>
     </div>
 
-    {{-- Карточки меню --}}
-    <div id="menu-grid" class="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+    {{-- ── Карточки меню ── --}}
+    <div id="menu-grid" class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
         @forelse ($menus as $menu)
-            @php
-                $itemsCount = $menu->items()->count();
-            @endphp
+            @php $itemsCount = $menu->items()->count(); @endphp
 
-            <div class="menu-card relative group bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-5 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200"
+            <div class="menu-card admin-card relative overflow-hidden flex flex-col"
                  data-title="{{ Str::lower($menu->title) }}"
                  data-pos="{{ $menu->position }}">
+                <div class="admin-accent-bar"></div>
 
-                {{-- Статус/позиция --}}
-                <div class="absolute top-3 right-3 flex gap-2">
-                    <span class="text-[11px] px-2 py-1 rounded-full font-semibold
-                        {{ $menu->active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-700' }}">
-                        {{ $menu->active ? 'Включено' : 'Отключено' }}
-                    </span>
-                    <span class="text-[11px] px-2 py-1 rounded-full bg-blue-50 text-blue-800 capitalize">
-                        {{ $menu->position }}
-                    </span>
-                </div>
+                <div class="p-5 flex flex-col flex-1">
+                    {{-- Заголовок: бейдж-иконка + название, статус/позиция в потоке под ним --}}
+                    <div class="flex items-start gap-3 mb-4">
+                        <span class="admin-icon-badge shrink-0">@themeIcon('bars')</span>
+                        <div class="min-w-0 flex-1">
+                            <h2 class="font-semibold text-gray-900 dark:text-white break-words leading-tight">
+                                {{ $menu->title }}
+                            </h2>
+                            <div class="mt-1.5 flex flex-wrap items-center gap-1.5">
+                                <span class="text-xs px-2 py-0.5 font-semibold
+                                    {{ $menu->active ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300' }}">
+                                    {{ $menu->active ? 'Активно' : 'Отключено' }}
+                                </span>
+                                <span class="text-xs px-2 py-0.5 font-semibold bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300 capitalize">
+                                    {{ $menu->position }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
 
-                {{-- Название --}}
-                <div class="flex items-center gap-2 mb-3">
-                    @themeIcon('bars','text-blue-500')
-                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white break-words">
-                        {{ $menu->title }}
-                    </h2>
-                </div>
+                    {{-- Счётчики: чипы «N пунктов» и «ID» --}}
+                    @php
+                        // Русское склонение: 1 пункт, 2–4 пункта, 5+ пунктов (с учётом 11–14).
+                        $m10 = $itemsCount % 10; $m100 = $itemsCount % 100;
+                        $itemsWord = ($m10 === 1 && $m100 !== 11) ? 'пункт'
+                            : (($m10 >= 2 && $m10 <= 4 && !($m100 >= 12 && $m100 <= 14)) ? 'пункта' : 'пунктов');
+                    @endphp
+                    <div class="flex flex-wrap items-center gap-2 text-xs">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 font-semibold
+                                     {{ $itemsCount > 0 ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300' : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400' }}"
+                              title="Количество пунктов в меню">
+                            @themeIcon('list') {{ $itemsCount }} {{ $itemsWord }}
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 font-medium bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"
+                              title="Идентификатор меню в базе">
+                            @themeIcon('hashtag') ID {{ $menu->id }}
+                        </span>
+                    </div>
 
-                {{-- Счётчики / доп. сведения --}}
-                <div class="mb-5 text-sm text-gray-600 dark:text-gray-400 flex flex-wrap items-center gap-4">
-                    <span title="Количество пунктов">@themeIcon('list') {{ $itemsCount }} пункт(ов)</span>
-                    <span title="ID меню">@themeIcon('hashtag') ID: {{ $menu->id }}</span>
-                </div>
+                    {{-- Действия: три кнопки одинакового размера (grid = равная ширина,
+                         stretch = равная высота), прижаты к низу карточки --}}
+                    <div class="mt-auto pt-4 grid grid-cols-3 gap-2 text-xs border-t border-gray-100 dark:border-gray-800">
+                        <a href="{{ route('admin.menus.edit', $menu) }}"
+                           class="inline-flex items-center justify-center gap-1.5 w-full px-2 py-2 font-semibold whitespace-nowrap bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition"
+                           title="Открыть редактор и управлять пунктами">
+                            @themeIcon('edit') <span>Изменить</span>
+                        </a>
 
-                {{-- Действия --}}
-                <div class="flex flex-wrap gap-2 text-xs">
-                    <a href="{{ route('admin.menus.edit', $menu) }}"
-                       class="inline-flex items-center gap-1 bg-gray-800 hover:bg-gray-900 text-white px-3 py-1.5 rounded-md shadow transition"
-                       title="Открыть редактор и управлять пунктами">
-                        @themeIcon('edit') Редактировать
-                    </a>
+                        <form method="POST" action="{{ route('admin.menus.toggle', $menu) }}" class="flex"
+                              title="{{ $menu->active ? 'Отключить отображение на сайте' : 'Включить отображение на сайте' }}">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit"
+                                    class="inline-flex items-center justify-center gap-1.5 w-full px-2 py-2 font-semibold whitespace-nowrap shadow-sm transition
+                                           {{ $menu->active ? 'bg-yellow-500 hover:bg-yellow-600 text-white' : 'bg-gray-200 dark:bg-gray-700 hover:bg-green-600 text-gray-800 dark:text-gray-200 hover:text-white' }}">
+                                @themeIcon('power-off') <span>{{ $menu->active ? 'Выключить' : 'Включить' }}</span>
+                            </button>
+                        </form>
 
-                    <form method="POST" action="{{ route('admin.menus.toggle', $menu) }}"
-                          title="{{ $menu->active ? 'Отключить отображение на сайте' : 'Включить отображение на сайте' }}">
-                        @csrf
-                        @method('PATCH')
-                        <button type="submit"
-                                class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md font-medium shadow transition
-                                       {{ $menu->active ? 'bg-yellow-500 hover:bg-yellow-600 text-white' : 'bg-gray-200 hover:bg-green-600 text-gray-800 hover:text-white' }}">
-                            @themeIcon('power-off')
-                            {{ $menu->active ? 'Отключить' : 'Включить' }}
-                        </button>
-                    </form>
-
-                    <form method="POST" action="{{ route('admin.menus.destroy', $menu) }}"
-                          onsubmit="return confirm('Удалить это меню вместе с пунктами?')"
-                          title="Безвозвратное удаление меню и всех его пунктов">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit"
-                                class="inline-flex items-center gap-1 bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-md shadow transition">
-                            @themeIcon('trash-alt') Удалить
-                        </button>
-                    </form>
+                        <form method="POST" action="{{ route('admin.menus.destroy', $menu) }}" class="flex"
+                              onsubmit="return confirm('Удалить это меню вместе с пунктами?')"
+                              title="Безвозвратное удаление меню и всех его пунктов">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit"
+                                    class="inline-flex items-center justify-center gap-1.5 w-full px-2 py-2 font-semibold whitespace-nowrap bg-red-600 hover:bg-red-700 text-white shadow-sm transition">
+                                @themeIcon('trash-alt') <span>Удалить</span>
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         @empty
-            <div class="text-gray-600 dark:text-gray-400 text-sm">
-                ❗ Пока нет ни одного меню. Нажмите «Создать меню» выше.
+            <div class="admin-card p-10 text-center sm:col-span-2 xl:col-span-3">
+                <span class="admin-icon-badge mx-auto mb-3">@themeIcon('bars')</span>
+                <p class="text-gray-600 dark:text-gray-300 font-medium">Пока нет ни одного меню.</p>
+                <a href="{{ route('admin.menus.create') }}" class="text-indigo-600 dark:text-indigo-400 underline text-sm">Создать первое меню</a>
             </div>
         @endforelse
     </div>
 
     @push('scripts')
     <script>
-        // Фильтр по названию/позиции на клиенте — быстро и удобно
+        // Клиентский фильтр по названию/позиции — быстро и без перезагрузки
         const search = document.getElementById('menu-search');
         const cards  = [...document.querySelectorAll('.menu-card')];
         const posButtons = [...document.querySelectorAll('.pos-filter')];
@@ -157,7 +167,16 @@
         posButtons.forEach(btn => btn.addEventListener('click', e => {
             e.preventDefault();
             currentPos = btn.dataset.pos;
-            posButtons.forEach(b => b.classList.toggle('bg-gray-200', b.dataset.pos==='all' ? currentPos!=='all' : false));
+            // подсветка активного фильтра индиго-акцентом
+            posButtons.forEach(b => {
+                const on = b.dataset.pos === currentPos;
+                b.classList.toggle('bg-indigo-600', on);
+                b.classList.toggle('text-white', on);
+                b.classList.toggle('bg-gray-100', !on);
+                b.classList.toggle('dark:bg-gray-800', !on);
+                b.classList.toggle('text-gray-700', !on);
+                b.classList.toggle('dark:text-gray-300', !on);
+            });
             applyFilter();
         }));
     </script>

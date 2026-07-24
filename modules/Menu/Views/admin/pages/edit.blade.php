@@ -3,16 +3,34 @@
 @section('title', 'Редактировать страницу')
 
 @section('content')
-    {{-- ✏️ Заголовок страницы --}}
-    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">✏️ Редактировать страницу</h1>
-        <span class="text-sm text-gray-500 dark:text-gray-400">🛠️ Внесите изменения в содержимое или SEO</span>
+    {{-- ── Шапка страницы ── --}}
+    <div class="admin-accent-bar mb-0"></div>
+    <div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
+                flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3 min-w-0">
+            <span class="admin-icon-badge"><i class="fa-solid fa-pen-to-square"></i></span>
+            <div class="min-w-0">
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white truncate">Редактировать страницу</h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400 truncate">{{ $page->title }}</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-4 shrink-0">
+            <a href="{{ route('frontend.pages.show', $page->slug) }}" target="_blank"
+               class="hidden sm:inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400"
+               title="Открыть страницу на сайте">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> На сайте
+            </a>
+            <a href="{{ route('admin.pages.index') }}"
+               class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400">
+                <i class="fa-solid fa-arrow-left"></i> К списку
+            </a>
+        </div>
     </div>
 
     {{-- ⚠️ Сообщение об ошибке валидации --}}
     @if ($errors->any())
-        <div class="bg-red-100 border border-red-300 text-red-800 px-4 py-3 mb-6 rounded shadow animate-pulse">
-            ⚠️ {{ $errors->first() }}
+        <div class="border-l-4 border-red-500 bg-red-50 dark:bg-red-900 text-red-800 dark:text-red-100 px-4 py-3 mb-6">
+            <i class="fa-solid fa-triangle-exclamation"></i> {{ $errors->first() }}
         </div>
     @endif
 
@@ -45,9 +63,9 @@
             <p class="text-sm text-gray-500 mb-2">Выберите категории, к которым относится эта страница. Можно выбрать несколько.</p>
             <div class="flex flex-wrap gap-3">
                 @foreach ($categories as $category)
-                    <label class="flex items-center px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-full cursor-pointer text-sm hover:bg-blue-50 dark:hover:bg-gray-700 transition">
+                    <label class="flex items-center px-3 py-1 border border-gray-300 dark:border-gray-600 cursor-pointer text-sm hover:bg-indigo-50 hover:border-indigo-400 dark:hover:bg-gray-700 transition">
                         <input type="checkbox" name="categories[]" value="{{ $category->id }}"
-                               class="form-checkbox text-blue-600 mr-2"
+                               class="form-checkbox text-indigo-600 mr-2"
                                {{ in_array($category->id, old('categories', $page->categories->pluck('id')->toArray())) ? 'checked' : '' }}>
                         {{ $category->title }}
                     </label>
@@ -89,8 +107,8 @@
             {{-- 💾 Кнопка сохранения --}}
             <div class="text-right">
                 <button type="submit"
-                    class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded shadow text-sm">
-                    💾 Сохранить изменения
+                    class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 shadow-sm text-sm font-semibold transition">
+                    <i class="fa-solid fa-floppy-disk"></i> Сохранить изменения
                 </button>
             </div>
         </div>

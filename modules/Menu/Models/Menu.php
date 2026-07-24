@@ -45,11 +45,25 @@ class Menu extends Model
 
     /* ── Кеш: helpers + авто-инвалидация ─────────────────────── */
 
+    /**
+     * Поддерживает ли текущий кэш-стор теги.
+     *
+     * Теги умеют только array/redis/memcached (наследники TaggableStore).
+     * Боевые file/database — НЕ умеют и бросают BadMethodCallException
+     * «This cache store does not support tagging». В тестах стор array
+     * (taggable), поэтому проблема ловилась только вживую на проде.
+     */
+    protected static function cacheSupportsTags(): bool
+    {
+        return Cache::getStore() instanceof \Illuminate\Cache\TaggableStore;
+    }
+
     /** Быстрый доступ с кешем по позиции */
     public static function cachedByPosition(string $position, int $minutes = 60)
     {
         $key = "menu.$position";
-        return Cache::tags(['menus'])->remember($key, $minutes * 60, function () use ($position) {
+        $ttl = $minutes * 60;
+        $builder = function () use ($position) {
             return static::query()
                 ->active()
                 ->position($position)
@@ -59,16 +73,26 @@ class Menu extends Model
                     'items.linkedPage',
                 ])
                 ->get();
-        });
+        };
+
+        // На taggable-сторе — с тегом (эффективная групповая инвалидация),
+        // иначе обычный remember по тому же ключу (его снимет flushCache()).
+        return static::cacheSupportsTags()
+            ? Cache::tags(['menus'])->remember($key, $ttl, $builder)
+            : Cache::remember($key, $ttl, $builder);
     }
 
     /** Сброс кеша для всех стандартных позиций */
     public static function flushCache(): void
     {
-        // Используем теги кэша для более эффективной инвалидации
-        Cache::tags(['menus'])->flush();
-        
-        // Также очищаем старые ключи для обратной совместимости
+        // Групповая инвалидация по тегу — только если стор её поддерживает,
+        // иначе Cache::tags() роняет 500 на любом save/delete/toggle меню.
+        if (static::cacheSupportsTags()) {
+            Cache::tags(['menus'])->flush();
+        }
+
+        // Точечная инвалидация известных позиций — работает на ЛЮБОМ сторе
+        // (и как fallback для file/database, и для обратной совместимости).
         Cache::forget('menu.header');
         Cache::forget('menu.footer');
         Cache::forget('menu.sidebar');
