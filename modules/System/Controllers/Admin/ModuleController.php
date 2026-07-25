@@ -4,6 +4,7 @@ namespace Modules\System\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Modules\System\Models\Module;
+use Modules\System\Models\ModuleSignature;
 use Modules\System\Services\ModuleSecurityService;
 use Modules\System\Services\ProtectedModulesService;
 use Illuminate\View\View;
@@ -93,9 +94,21 @@ class ModuleController extends Controller
                 return back()->withErrors(['module' => "⚠️ Модуль «{$module->title}» является системным и должен быть всегда активен!"]);
             }
 
-            // Проверка подписи перед активацией (только для незащищенных модулей)
-            if (!$module->active && !ModuleSecurityService::verifyModule($modulePath, $module->name)) {
-                return back()->withErrors(['module' => "⚠️ Модуль «{$module->title}» не имеет валидной подписи или был изменен!"]);
+            // Проверка подписи перед активацией.
+            //
+            // ⚠️ Раньше здесь стояло просто !verifyModule(), а verifyModule()
+            // возвращает false и когда подписи НЕТ вовсе. Подписей в системе не
+            // создаётся (таблица module_signatures пуста), поэтому включить
+            // обратно любой отключённый модуль было НЕВОЗМОЖНО: «выключить» была
+            // односторонняя дверь, вернуть модуль можно было только правкой БД.
+            //
+            // Подпись должна защищать от ПОДМЕНЫ подписанного модуля, а не
+            // запрещать неподписанные: если запись о подписи есть — она обязана
+            // сойтись, если её нет — модуль считается локальным и включается.
+            if (!$module->active && ModuleSignature::where('module_name', $module->name)->exists()) {
+                if (!ModuleSecurityService::verifyModule($modulePath, $module->name)) {
+                    return back()->withErrors(['module' => "⚠️ Модуль «{$module->title}» подписан, но его файлы изменены — включение отменено!"]);
+                }
             }
 
             $module->active = !$module->active;
@@ -169,9 +182,22 @@ class ModuleController extends Controller
                 for ($i = 0; $i < $zip->numFiles; $i++) {
                     $entry = $zip->getNameIndex($i);
 
-                    // Защита от Zip Slip
-                    $entryPath = realpath($extractPath . '/' . $entry);
-                    if (strpos($entryPath, realpath($extractPath)) !== 0) {
+                    // Защита от Zip Slip.
+                    //
+                    // ⚠️ Раньше здесь вызывался realpath() для ЕЩЁ НЕ РАСПАКОВАННОГО
+                    // файла. realpath() возвращает false для несуществующего пути,
+                    // strpos(false, …) никогда не даёт 0 — и условие срабатывало на
+                    // КАЖДОЙ записи любого архива. Установка модулей была сломана
+                    // полностью: любой корректный ZIP отвергался с «опасным путём».
+                    //
+                    // Проверяем путь строкой, до распаковки: запрещаем выход вверх
+                    // (..), абсолютные пути и Windows-диски.
+                    $normalized = str_replace('\\', '/', (string) $entry);
+                    $isAbsolute = str_starts_with($normalized, '/')
+                        || preg_match('~^[a-zA-Z]:/~', $normalized) === 1;
+                    $escapesRoot = in_array('..', explode('/', $normalized), true);
+
+                    if ($isAbsolute || $escapesRoot) {
                         $zip->close();
                         File::deleteDirectory($extractPath);
                         File::delete($zipPath);
