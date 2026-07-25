@@ -595,6 +595,7 @@ class InstallController extends Controller
             $this->seedDefaultPages();
             $this->seedDefaultSlideshows();
             $this->seedDefaultFiles();
+            $this->seedRolesAndPermissions();
             $this->hardenPublicStorage();
 
             File::put(storage_path('install.lock'), 'Installed at ' . now()->toDateTimeString());
@@ -1010,6 +1011,20 @@ class InstallController extends Controller
     private function seedDefaultFiles(): void
     {
         \Modules\Files\Console\Commands\SeedDefaultFilesCommand::seed(false);
+    }
+
+    /**
+     * Роли и права доступа (RBAC).
+     *
+     * RbacSeeder создаёт 4 базовые роли (Администратор/Редактор/Автор/Просмотр)
+     * и 18 прав, но раньше не вызывался НИГДЕ: ни из DatabaseSeeder, ни при
+     * установке. Из-за этого таблица roles оставалась пустой, а в разделе
+     * «Пользователи» действие «Назначить роль» вело в тупик — выбирать было
+     * нечего. Сидер идемпотентен (firstOrCreate по slug).
+     */
+    private function seedRolesAndPermissions(): void
+    {
+        (new \Database\Seeders\RbacSeeder())->run();
     }
 
     /**

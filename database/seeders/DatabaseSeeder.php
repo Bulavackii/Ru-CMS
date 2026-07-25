@@ -64,6 +64,7 @@ class DatabaseSeeder extends Seeder
         |
         */
         $this->call([
+            RbacSeeder::class,               // 🔐 Роли и права доступа
             UsersTableSeeder::class,         // 👥 Дополнительные пользователи
             PaymentDeliverySeeder::class,    // 💳🚚 Платежные системы и службы доставки
         ]);
