@@ -3,154 +3,258 @@
 @section('title', 'Редактировать пользователя')
 
 @section('content')
-    {{-- 🧩 Заголовок страницы --}}
-    <div class="mb-8 text-center">
-        <h1 class="text-3xl font-extrabold text-gray-800 dark:text-white">
-            ✏️ Редактировать пользователя
-        </h1>
-        <p class="text-gray-600 dark:text-gray-400 mt-2">{{ $user->name }} ({{ $user->email }})</p>
+    @php
+        // Склонение «право/права/прав» считаем явно: trans_choice зависит от текущей локали
+        $plural = function (int $n) {
+            $mod10 = $n % 10;
+            $mod100 = $n % 100;
+            if ($mod10 === 1 && $mod100 !== 11) return 'право';
+            if ($mod10 >= 2 && $mod10 <= 4 && ($mod100 < 12 || $mod100 > 14)) return 'права';
+            return 'прав';
+        };
+    @endphp
+
+    {{-- ── Шапка страницы ── --}}
+    <div class="admin-accent-bar mb-0"></div>
+    <div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
+                flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div class="flex items-center gap-3 min-w-0">
+            <span class="admin-icon-badge"><i class="fas fa-user-pen"></i></span>
+            <div class="min-w-0">
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">Редактировать пользователя</h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400 truncate">
+                    {{ $user->name }} · {{ $user->email }}
+                </p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 flex-shrink-0">
+            <a href="{{ route('admin.users.password.edit', $user) }}"
+               class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+                      hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition">
+                <i class="fas fa-key"></i> Сменить пароль
+            </a>
+            <a href="{{ route('admin.users.index') }}"
+               class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+                      hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition">
+                <i class="fas fa-arrow-left"></i> К списку
+            </a>
+        </div>
     </div>
 
-    {{-- 📝 Форма редактирования --}}
-    <div class="max-w-3xl mx-auto p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md">
-        <form method="POST" action="{{ route('admin.users.update', $user) }}" class="space-y-6">
-            @csrf
-            @method('PUT')
+    @if($errors->any())
+        <div class="admin-card border-l-4 border-red-500 p-4 mb-5">
+            <p class="text-sm font-semibold text-red-700 dark:text-red-400 mb-1">
+                <i class="fas fa-triangle-exclamation mr-1"></i> Проверьте заполнение формы
+            </p>
+            <ul class="text-sm text-red-600 dark:text-red-400 list-disc list-inside">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
-            {{-- 🧑 Имя --}}
-            <div>
-                <label for="name" class="block text-sm font-medium text-gray-800 dark:text-gray-200">
-                    <i class="fas fa-user mr-1"></i> Имя
-                </label>
-                <input type="text" id="name" name="name" value="{{ old('name', $user->name) }}" required
-                       placeholder="Введите имя"
-                       class="mt-1 w-full px-4 py-2 border rounded-md shadow-sm bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-black">
-                @error('name')
-                    <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
-                @enderror
-            </div>
+    <form method="POST" action="{{ route('admin.users.update', $user) }}" id="userForm">
+        @csrf
+        @method('PUT')
 
-            {{-- 📧 Email --}}
-            <div>
-                <label for="email" class="block text-sm font-medium text-gray-800 dark:text-gray-200">
-                    <i class="fas fa-envelope mr-1"></i> Email
-                </label>
-                <input type="email" id="email" name="email" value="{{ old('email', $user->email) }}" required
-                       placeholder="example@domain.com"
-                       class="mt-1 w-full px-4 py-2 border rounded-md shadow-sm bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-black">
-                @error('email')
-                    <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
-                @enderror
-            </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
 
-            {{-- 🔐 Администратор --}}
-            <div class="flex items-center">
-                <input type="checkbox" id="is_admin" name="is_admin" value="1" 
-                       {{ old('is_admin', $user->is_admin) ? 'checked' : '' }}
-                       class="rounded border-gray-400 dark:border-gray-600">
-                <label for="is_admin" class="ml-2 text-sm font-medium text-gray-800 dark:text-gray-200">
-                    <i class="fas fa-shield-alt mr-1"></i> Администратор
-                </label>
-            </div>
+            {{-- ── Левая колонка: данные ── --}}
+            <div class="lg:col-span-2 space-y-5">
 
-            {{-- 📞 Телефон --}}
-            <div>
-                <label for="phone" class="block text-sm font-medium text-gray-800 dark:text-gray-200">
-                    <i class="fas fa-phone mr-1"></i> Телефон
-                </label>
-                <input type="text" id="phone" name="phone" value="{{ old('phone', $user->phone) }}"
-                       placeholder="+7 (999) 123-45-67"
-                       class="mt-1 w-full px-4 py-2 border rounded-md shadow-sm bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-black">
-                @error('phone')
-                    <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
-                @enderror
-            </div>
+                {{-- Основное --}}
+                <div class="admin-card p-5">
+                    <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+                        <i class="fas fa-id-card text-indigo-500"></i> Основные данные
+                    </h2>
 
-            {{-- 📍 Адрес --}}
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label for="postal_code" class="block text-sm font-medium text-gray-800 dark:text-gray-200">
-                        Почтовый индекс
-                    </label>
-                    <input type="text" id="postal_code" name="postal_code" value="{{ old('postal_code', $user->postal_code) }}"
-                           placeholder="123456"
-                           class="mt-1 w-full px-4 py-2 border rounded-md shadow-sm bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-black">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="name" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                                Имя <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="name" name="name" value="{{ old('name', $user->name) }}" required
+                                   placeholder="Иван Иванов"
+                                   class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
+                                          focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                            @error('name')<p class="text-sm text-red-500 mt-1">{{ $message }}</p>@enderror
+                        </div>
+
+                        <div>
+                            <label for="email" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                                Email <span class="text-red-500">*</span>
+                            </label>
+                            <input type="email" id="email" name="email" value="{{ old('email', $user->email) }}" required
+                                   placeholder="example@domain.com"
+                                   class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
+                                          focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                            @error('email')<p class="text-sm text-red-500 mt-1">{{ $message }}</p>@enderror
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label for="phone" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Телефон</label>
+                            <input type="text" id="phone" name="phone" value="{{ old('phone', $user->phone) }}"
+                                   placeholder="+7 (999) 123-45-67"
+                                   class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
+                                          focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                            @error('phone')<p class="text-sm text-red-500 mt-1">{{ $message }}</p>@enderror
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <label for="region" class="block text-sm font-medium text-gray-800 dark:text-gray-200">
-                        Регион
-                    </label>
-                    <input type="text" id="region" name="region" value="{{ old('region', $user->region) }}"
-                           placeholder="Московская область"
-                           class="mt-1 w-full px-4 py-2 border rounded-md shadow-sm bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-black">
-                </div>
-                <div>
-                    <label for="city" class="block text-sm font-medium text-gray-800 dark:text-gray-200">
-                        Город
-                    </label>
-                    <input type="text" id="city" name="city" value="{{ old('city', $user->city) }}"
-                           placeholder="Москва"
-                           class="mt-1 w-full px-4 py-2 border rounded-md shadow-sm bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-black">
-                </div>
-                <div>
-                    <label for="address" class="block text-sm font-medium text-gray-800 dark:text-gray-200">
-                        Адрес
-                    </label>
-                    <input type="text" id="address" name="address" value="{{ old('address', $user->address) }}"
-                           placeholder="ул. Примерная, д. 1"
-                           class="mt-1 w-full px-4 py-2 border rounded-md shadow-sm bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-black">
+
+                {{-- Адрес --}}
+                <div class="admin-card p-5">
+                    <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+                        <i class="fas fa-location-dot text-indigo-500"></i> Адрес
+                        <span class="normal-case font-normal tracking-normal text-gray-400">— необязательно</span>
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="postal_code" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Почтовый индекс</label>
+                            <input type="text" id="postal_code" name="postal_code" value="{{ old('postal_code', $user->postal_code) }}"
+                                   placeholder="123456" inputmode="numeric"
+                                   class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
+                                          focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                            @error('postal_code')<p class="text-sm text-red-500 mt-1">{{ $message }}</p>@enderror
+                        </div>
+
+                        <div>
+                            <label for="region" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Регион</label>
+                            <input type="text" id="region" name="region" value="{{ old('region', $user->region) }}"
+                                   placeholder="Московская область"
+                                   class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
+                                          focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                            @error('region')<p class="text-sm text-red-500 mt-1">{{ $message }}</p>@enderror
+                        </div>
+
+                        <div>
+                            <label for="city" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Город</label>
+                            <input type="text" id="city" name="city" value="{{ old('city', $user->city) }}"
+                                   placeholder="Москва"
+                                   class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
+                                          focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                            @error('city')<p class="text-sm text-red-500 mt-1">{{ $message }}</p>@enderror
+                        </div>
+
+                        <div>
+                            <label for="address" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Улица, дом</label>
+                            <input type="text" id="address" name="address" value="{{ old('address', $user->address) }}"
+                                   placeholder="ул. Примерная, д. 1"
+                                   class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
+                                          focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                            @error('address')<p class="text-sm text-red-500 mt-1">{{ $message }}</p>@enderror
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {{-- 🔐 Роли (только для не-админов) --}}
-            @if(!$user->is_admin)
-            <div>
-                <label class="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-2">
-                    <i class="fas fa-user-tag mr-1"></i> Роли
-                </label>
-                <div class="space-y-2 max-h-48 overflow-y-auto border border-gray-300 dark:border-gray-600 rounded-md p-3">
-                    @foreach($roles as $role)
-                        <label class="flex items-center">
-                            <input type="checkbox" name="roles[]" value="{{ $role->id }}"
-                                   {{ $user->roles->contains($role->id) ? 'checked' : '' }}
-                                   class="rounded border-gray-400 dark:border-gray-600">
-                            <span class="ml-2 text-sm text-gray-800 dark:text-gray-200">
-                                {{ $role->name }}
+            {{-- ── Правая колонка: доступ ── --}}
+            <div class="space-y-5">
+
+                {{-- Тип учётной записи --}}
+                <div class="admin-card p-5">
+                    <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+                        <i class="fas fa-shield-halved text-indigo-500"></i> Доступ
+                    </h2>
+
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <span class="admin-toggle">
+                            <input type="checkbox" id="is_admin" name="is_admin" value="1"
+                                   {{ old('is_admin', $user->is_admin) ? 'checked' : '' }}>
+                            <span class="track"></span>
+                            <span class="knob"></span>
+                        </span>
+                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200">Администратор</span>
+                    </label>
+
+                    <p class="admin-hint mt-3">
+                        Администратор получает полный доступ ко всем разделам панели — роли ему
+                        не нужны и не применяются. Обычному пользователю доступ выдаётся ролями.
+                    </p>
+
+                    @if($user->id === auth()->id())
+                        <p class="mt-3 text-xs text-yellow-700 dark:text-yellow-500 flex items-start gap-2">
+                            <i class="fas fa-circle-exclamation mt-1"></i>
+                            <span>Это ваша учётная запись — сняв флаг, вы потеряете доступ к панели.</span>
+                        </p>
+                    @endif
+                </div>
+
+                {{-- Роли --}}
+                <div class="admin-card p-5" id="rolesSection">
+                    <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+                        <i class="fas fa-user-tag text-indigo-500"></i> Роли
+                    </h2>
+
+                    @forelse($roles->sortByDesc('priority') as $role)
+                        @php
+                            $checked = old('roles') !== null
+                                ? in_array($role->id, (array) old('roles'))
+                                : $user->roles->contains($role->id);
+                        @endphp
+                        <label class="flex items-start gap-3 border border-gray-200 dark:border-gray-700 p-3 mb-2 cursor-pointer
+                                      hover:border-indigo-400 transition">
+                            <input type="checkbox" name="roles[]" value="{{ $role->id }}" {{ $checked ? 'checked' : '' }}
+                                   class="mt-1 border-gray-400 dark:border-gray-600">
+                            <span class="min-w-0">
+                                <span class="flex items-center gap-2 flex-wrap">
+                                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $role->name }}</span>
+                                    <span class="text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 px-2 py-0.5">
+                                        {{ $role->permissions_count }} {{ $plural($role->permissions_count) }}
+                                    </span>
+                                </span>
                                 @if($role->description)
-                                    <span class="text-gray-500 dark:text-gray-400">({{ $role->description }})</span>
+                                    <span class="block text-xs text-gray-500 dark:text-gray-400 mt-1">{{ $role->description }}</span>
                                 @endif
                             </span>
                         </label>
-                    @endforeach
-                </div>
-            </div>
-            @else
-                <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md text-sm text-blue-800 dark:text-blue-200">
-                    <i class="fas fa-info-circle mr-1"></i> Администраторы имеют все права доступа
-                </div>
-            @endif
+                    @empty
+                        <p class="admin-hint">
+                            Роли не созданы — их добавляет сидер <span class="font-mono">RbacSeeder</span>
+                            при установке системы.
+                        </p>
+                    @endforelse
 
-            {{-- 🕹️ Кнопки --}}
-            <div class="flex justify-between items-center pt-4">
-                <a href="{{ route('admin.users.index') }}"
-                   class="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
-                    <i class="fas fa-arrow-left"></i> Назад
-                </a>
-                <div class="flex gap-3">
-                    <a href="{{ route('admin.users.password.edit', $user) }}"
-                       class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow text-sm font-semibold transition">
-                        <i class="fas fa-key"></i> Сменить пароль
-                    </a>
+                    @if($roles->isNotEmpty())
+                        <p class="admin-hint mt-3">
+                            Можно выбрать несколько ролей — права складываются.
+                        </p>
+                    @endif
+                </div>
+
+                {{-- Действия --}}
+                <div class="admin-card p-4 flex items-center gap-2">
                     <button type="submit"
-                            class="inline-flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-5 py-2 rounded-md shadow-md text-sm font-semibold transition">
+                            class="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white
+                                   px-4 py-2 text-sm font-semibold shadow-sm transition flex-1">
                         <i class="fas fa-save"></i> Сохранить
                     </button>
+                    <a href="{{ route('admin.users.index') }}"
+                       class="inline-flex items-center justify-center gap-2 border border-gray-300 dark:border-gray-600
+                              text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800
+                              px-4 py-2 text-sm font-semibold transition">
+                        Отмена
+                    </a>
                 </div>
             </div>
-        </form>
-    </div>
+        </div>
+    </form>
 @endsection
 
+@push('scripts')
+<script>
+    // Блок ролей не нужен администратору — он и так получает полный доступ
+    (function () {
+        const isAdmin = document.getElementById('is_admin');
+        const roles = document.getElementById('rolesSection');
+        if (!isAdmin || !roles) return;
 
-
-
+        const sync = () => { roles.style.display = isAdmin.checked ? 'none' : ''; };
+        isAdmin.addEventListener('change', sync);
+        sync();
+    })();
+</script>
+@endpush

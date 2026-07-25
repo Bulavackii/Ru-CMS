@@ -3,45 +3,126 @@
 @section('title', 'Изменение пароля')
 
 @section('content')
-    {{-- 🔐 Заголовок --}}
-    <div class="max-w-xl mx-auto bg-white dark:bg-gray-900 p-6 rounded-xl shadow-md">
-        <h1 class="text-2xl font-bold text-center text-gray-800 dark:text-white mb-6">
-            🔒 Изменение пароля<br>
-            <span class="text-base font-normal text-gray-500 dark:text-gray-400">для пользователя: <strong>{{ $user->name }}</strong></span>
-        </h1>
+    {{-- ── Шапка страницы ── --}}
+    <div class="admin-accent-bar mb-0"></div>
+    <div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
+                flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div class="flex items-center gap-3 min-w-0">
+            <span class="admin-icon-badge"><i class="fas fa-key"></i></span>
+            <div class="min-w-0">
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">Смена пароля</h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400 truncate">
+                    {{ $user->name }} · {{ $user->email }}
+                </p>
+            </div>
+        </div>
 
-        {{-- 📝 Форма смены пароля --}}
-        <form action="{{ route('admin.users.password.update', $user->id) }}" method="POST" class="space-y-5">
-            @csrf
-            @method('PUT')
+        <a href="{{ route('admin.users.edit', $user) }}"
+           class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+                  hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition flex-shrink-0">
+            <i class="fas fa-arrow-left"></i> К пользователю
+        </a>
+    </div>
 
-            {{-- 🔑 Новый пароль --}}
-            <div>
-                <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                    <i class="fas fa-lock mr-1"></i> Новый пароль
-                </label>
-                <input type="password" name="password" id="password" required
-                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
-                       placeholder="Введите новый пароль">
+    @if($errors->any())
+        <div class="admin-card border-l-4 border-red-500 p-4 mb-5">
+            <ul class="text-sm text-red-600 dark:text-red-400 list-disc list-inside">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <form action="{{ route('admin.users.password.update', $user->id) }}" method="POST"
+          class="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
+        @csrf
+        @method('PUT')
+
+        <div class="lg:col-span-2 admin-card p-5">
+            <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+                <i class="fas fa-lock text-indigo-500"></i> Новый пароль
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="password" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                        Пароль <span class="text-red-500">*</span>
+                    </label>
+                    <input type="password" name="password" id="password" required autocomplete="new-password"
+                           placeholder="Минимум 8 символов"
+                           class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
+                                  focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                    @error('password')<p class="text-sm text-red-500 mt-1">{{ $message }}</p>@enderror
+                </div>
+
+                <div>
+                    <label for="password_confirmation" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                        Повторите пароль <span class="text-red-500">*</span>
+                    </label>
+                    <input type="password" name="password_confirmation" id="password_confirmation" required autocomplete="new-password"
+                           placeholder="Ещё раз"
+                           class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
+                                  focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                </div>
             </div>
 
-            {{-- 🔁 Подтверждение --}}
-            <div>
-                <label for="password_confirmation" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                    <i class="fas fa-key mr-1"></i> Подтверждение пароля
-                </label>
-                <input type="password" name="password_confirmation" id="password_confirmation" required
-                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
-                       placeholder="Повторите новый пароль">
+            <label class="inline-flex items-center gap-2 mt-3 text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
+                <input type="checkbox" id="showPassword" class="border-gray-400 dark:border-gray-600">
+                Показать введённый пароль
+            </label>
+        </div>
+
+        <div class="space-y-5">
+            <div class="admin-card p-5">
+                <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-2">
+                    <i class="fas fa-circle-info text-indigo-500"></i> Что произойдёт
+                </h2>
+                <ul class="text-sm text-gray-600 dark:text-gray-400 space-y-2">
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-check text-green-500 mt-1"></i>
+                        <span>Старый пароль будет заменён — подтверждать его не нужно.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-check text-green-500 mt-1"></i>
+                        <span>Пользователь не получит уведомление — передайте новый пароль сами.</span>
+                    </li>
+                </ul>
+                <p class="admin-hint mt-3">
+                    Пользователь может сменить пароль и сам — через восстановление по e-mail,
+                    если в системе настроена отправка почты.
+                </p>
             </div>
 
-            {{-- 🕹️ Кнопка сохранения --}}
-            <div class="text-center pt-4">
+            <div class="admin-card p-4 flex items-center gap-2">
                 <button type="submit"
-                        class="inline-flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-6 py-2 rounded-md shadow text-sm font-semibold transition">
+                        class="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white
+                               px-4 py-2 text-sm font-semibold shadow-sm transition flex-1">
                     <i class="fas fa-save"></i> Обновить пароль
                 </button>
+                <a href="{{ route('admin.users.edit', $user) }}"
+                   class="inline-flex items-center justify-center gap-2 border border-gray-300 dark:border-gray-600
+                          text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800
+                          px-4 py-2 text-sm font-semibold transition">
+                    Отмена
+                </a>
             </div>
-        </form>
-    </div>
+        </div>
+    </form>
 @endsection
+
+@push('scripts')
+<script>
+    (function () {
+        const show = document.getElementById('showPassword');
+        if (!show) return;
+        show.addEventListener('change', function () {
+            const type = this.checked ? 'text' : 'password';
+            ['password', 'password_confirmation'].forEach(id => {
+                const field = document.getElementById(id);
+                if (field) field.type = type;
+            });
+        });
+    })();
+</script>
+@endpush

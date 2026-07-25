@@ -113,6 +113,8 @@ class UserController extends Controller
             'region' => 'nullable|string|max:100',
             'city' => 'nullable|string|max:100',
             'address' => 'nullable|string|max:255',
+            'roles' => 'nullable|array',
+            'roles.*' => 'exists:roles,id',
         ]);
 
         $user = User::create([
@@ -129,9 +131,10 @@ class UserController extends Controller
             'country_code' => $request->input('country_code'),
         ]);
 
-        // Назначение ролей (только если не админ)
-        if (!$user->is_admin && $request->has('roles')) {
-            $user->roles()->sync($request->input('roles'));
+        // Роли — только обычным пользователям: админ и так имеет полный доступ.
+        // sync (а не проверка has) — иначе снять все роли было бы невозможно.
+        if (!$user->is_admin) {
+            $user->roles()->sync($request->input('roles', []));
         }
 
         \App\Models\ActivityLog::log('user_created', $user, "Создан пользователь: {$user->name}");
@@ -164,6 +167,8 @@ class UserController extends Controller
             'address' => 'nullable|string|max:255',
             'locale' => 'nullable|string|max:10',
             'country_code' => 'nullable|string|max:2',
+            'roles' => 'nullable|array',
+            'roles.*' => 'exists:roles,id',
         ]);
 
         $user->update([
@@ -179,9 +184,11 @@ class UserController extends Controller
             'country_code' => $validated['country_code'] ?? null,
         ]);
 
-        // Назначение ролей (только если не админ)
-        if (!$user->is_admin && $request->has('roles')) {
-            $user->roles()->sync($request->input('roles'));
+        // Роли — только обычным пользователям: админ и так имеет полный доступ.
+        // sync (а не проверка has) — иначе снять все роли было бы невозможно:
+        // при пустом наборе чекбоксов ключ roles в запрос просто не попадает.
+        if (!$user->is_admin) {
+            $user->roles()->sync($request->input('roles', []));
         }
 
         \App\Models\ActivityLog::log('user_updated', $user, "Обновлен пользователь: {$user->name}");
@@ -221,7 +228,8 @@ class UserController extends Controller
     public function updatePassword(Request $request, $id)
     {
         $request->validate([
-            'password' => 'required|string|min:6|confirmed',
+            // 8 символов — как при создании пользователя, иначе форма обещала одно, а принимала другое
+            'password' => 'required|string|min:8|confirmed',
         ]);
 
         $user = User::findOrFail($id);
