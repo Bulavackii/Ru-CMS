@@ -87,166 +87,166 @@
         id="catEditForm"
         method="POST"
         action="{{ route('admin.categories.update', ['id' => $category->id]) }}"
-        class="relative bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow p-6 max-w-2xl">
+        class="w-full space-y-5">
 
         @csrf
         @method('PUT')
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {{-- Title --}}
-            <div class="md:col-span-2">
-                <label for="title" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
-                    @themeIcon('label') Название категории <span class="text-red-500">*</span>
-                </label>
-                <input
-                    type="text"
-                    name="title"
-                    id="title"
-                    value="{{ old('title', $category->title) }}"
-                    maxlength="255"
-                    autofocus
-                    class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    placeholder="Например: Новости" required>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    Рекомендуется до 60 символов.
-                </p>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
+
+            {{-- ── Левая колонка: основное ── --}}
+            <div class="admin-card p-5 lg:col-span-2">
+                <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+                    <i class="fas fa-tag text-indigo-500"></i> Основное
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    {{-- Title --}}
+                    <div class="md:col-span-2">
+                        <label for="title" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
+                            Название категории <span class="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="title"
+                            id="title"
+                            value="{{ old('title', $category->title) }}"
+                            maxlength="255"
+                            autofocus
+                            class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                            placeholder="Например: Новости" required>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Рекомендуется до 60 символов.</p>
+                    </div>
+
+                    {{-- Slug --}}
+                    <div>
+                        <label for="slug" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">URL (slug)</label>
+                        <input
+                            type="text"
+                            name="slug"
+                            id="slug"
+                            value="{{ old('slug', $category->slug) }}"
+                            pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+                            class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-4 py-2.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                            placeholder="Будет сгенерирован автоматически">
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            Латинские буквы, цифры и дефисы. Изменение обновит ссылки в меню.
+                        </p>
+                    </div>
+
+                    {{-- Type --}}
+                    <div>
+                        <label for="type" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">Тип</label>
+                        <input
+                            type="text"
+                            name="type"
+                            id="type"
+                            value="{{ old('type', $category->type) }}"
+                            maxlength="50"
+                            class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                            placeholder="Например: news, product">
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Для группировки категорий.</p>
+                    </div>
+
+                    {{-- Description --}}
+                    <div class="md:col-span-2">
+                        <label for="description" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">Описание</label>
+                        <textarea
+                            name="description"
+                            id="description"
+                            rows="4"
+                            maxlength="1000"
+                            class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                            placeholder="Краткое описание категории">{{ old('description', $category->description) }}</textarea>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Максимум 1000 символов.</p>
+                    </div>
+                </div>
             </div>
 
-            {{-- Slug --}}
-            <div class="md:col-span-2">
-                <label for="slug" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
-                    @themeIcon('link') URL (slug)
-                </label>
-                <input
-                    type="text"
-                    name="slug"
-                    id="slug"
-                    value="{{ old('slug', $category->slug) }}"
-                    pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
-                    class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    placeholder="Будет сгенерирован автоматически">
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    Только латинские буквы, цифры и дефисы. Изменение slug обновит ссылки в меню.
-                </p>
-            </div>
+            {{-- ── Правая колонка: параметры ── --}}
+            <div class="admin-card p-5">
+                <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+                    <i class="fas fa-sliders text-indigo-500"></i> Параметры
+                </h2>
 
-            {{-- Description --}}
-            <div class="md:col-span-2">
-                <label for="description" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
-                    @themeIcon('file-text') Описание
-                </label>
-                <textarea
-                    name="description"
-                    id="description"
-                    rows="3"
-                    maxlength="1000"
-                    class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    placeholder="Краткое описание категории">{{ old('description', $category->description) }}</textarea>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    Максимум 1000 символов.
-                </p>
-            </div>
+                <div class="space-y-5">
+                    {{-- Parent --}}
+                    <div>
+                        <label for="parent_id" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">Родительская категория</label>
+                        <select
+                            name="parent_id"
+                            id="parent_id"
+                            class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                            <option value="">Корневая категория</option>
+                            @foreach($parentCategories ?? [] as $parent)
+                                <option value="{{ $parent->id }}" {{ old('parent_id', $category->parent_id) == $parent->id ? 'selected' : '' }}>
+                                    {{ $parent->title }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            Нельзя выбрать саму категорию или её потомка.
+                        </p>
+                    </div>
 
-            {{-- Type --}}
-            <div>
-                <label for="type" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
-                    @themeIcon('tag') Тип
-                </label>
-                <input
-                    type="text"
-                    name="type"
-                    id="type"
-                    value="{{ old('type', $category->type) }}"
-                    maxlength="50"
-                    class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    placeholder="Например: news, product">
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    Для группировки категорий.
-                </p>
-            </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        {{-- Icon --}}
+                        <div>
+                            <label for="icon" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">Иконка</label>
+                            <input
+                                type="text"
+                                name="icon"
+                                id="icon"
+                                value="{{ old('icon', $category->icon) }}"
+                                maxlength="100"
+                                class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                                placeholder="Эмодзи / HTML">
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Эмодзи или HTML.</p>
+                        </div>
 
-            {{-- Icon --}}
-            <div>
-                <label for="icon" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
-                    @themeIcon('image') Иконка
-                </label>
-                <input
-                    type="text"
-                    name="icon"
-                    id="icon"
-                    value="{{ old('icon', $category->icon) }}"
-                    maxlength="100"
-                    class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    placeholder="Эмодзи или HTML">
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    Эмодзи или HTML код иконки.
-                </p>
-            </div>
+                        {{-- Sort Order --}}
+                        <div>
+                            <label for="sort_order" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">Порядок</label>
+                            <input
+                                type="number"
+                                name="sort_order"
+                                id="sort_order"
+                                value="{{ old('sort_order', $category->sort_order) }}"
+                                min="0"
+                                class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Меньше — выше.</p>
+                        </div>
+                    </div>
 
-            {{-- Parent --}}
-            <div>
-                <label for="parent_id" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
-                    @themeIcon('folder') Родительская категория
-                </label>
-                <select
-                    name="parent_id"
-                    id="parent_id"
-                    class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
-                    <option value="">Корневая категория</option>
-                    @foreach($parentCategories ?? [] as $parent)
-                        <option value="{{ $parent->id }}" {{ old('parent_id', $category->parent_id) == $parent->id ? 'selected' : '' }}>
-                            {{ $parent->title }}
-                        </option>
-                    @endforeach
-                </select>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    Для создания иерархии категорий. Нельзя выбрать саму категорию или её потомка.
-                </p>
-            </div>
-
-            {{-- Sort Order --}}
-            <div>
-                <label for="sort_order" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
-                    @themeIcon('sort') Порядок сортировки
-                </label>
-                <input
-                    type="number"
-                    name="sort_order"
-                    id="sort_order"
-                    value="{{ old('sort_order', $category->sort_order) }}"
-                    min="0"
-                    class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    Меньшее значение = выше в списке.
-                </p>
-            </div>
-
-            {{-- Is Active --}}
-            <div class="md:col-span-2">
-                <label class="inline-flex items-center">
-                    <input
-                        type="checkbox"
-                        name="is_active"
-                        value="1"
-                        {{ old('is_active', $category->is_active) ? 'checked' : '' }}
-                        class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                        @themeIcon('check') Активна (категория будет видна на сайте)
-                    </span>
-                </label>
+                    {{-- Is Active --}}
+                    <div class="pt-1 border-t border-gray-100 dark:border-gray-800">
+                        <label class="inline-flex items-start gap-2 mt-4 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                name="is_active"
+                                value="1"
+                                {{ old('is_active', $category->is_active) ? 'checked' : '' }}
+                                class="mt-0.5">
+                            <span class="text-sm text-gray-700 dark:text-gray-300">
+                                Активна
+                                <span class="block text-xs text-gray-500 dark:text-gray-400">Категория будет видна на сайте.</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
             </div>
         </div>
 
         {{-- Actions --}}
-        <div class="mt-6 flex flex-col sm:flex-row gap-3 sm:items-center pt-6 border-t border-gray-200 dark:border-gray-700">
+        <div class="admin-card p-5 flex flex-col sm:flex-row gap-3 sm:items-center">
             <button type="submit" id="submitBtn"
-                    class="inline-flex items-center justify-center gap-2 w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg text-sm shadow transition disabled:opacity-50">
-                @themeIcon('save') Сохранить
+                    class="inline-flex items-center justify-center gap-2 w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 text-sm font-semibold shadow-sm transition disabled:opacity-50">
+                <i class="fas fa-floppy-disk"></i> Сохранить
             </button>
 
             <a href="{{ route('admin.categories.index') }}"
-               class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-5 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800">
-                @themeIcon('xmark') Отмена
+               class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-5 py-2.5 border border-gray-300 dark:border-gray-600 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                Отмена
             </a>
 
             <span class="text-xs text-gray-500 dark:text-gray-400 sm:ml-auto">
