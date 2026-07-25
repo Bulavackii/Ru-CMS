@@ -463,11 +463,20 @@ class ModuleController extends Controller
      */
     public function reorder(Request $request)
     {
-        foreach ($request->input('order') as $item) {
+        // Раньше массив брался как есть: пустой/кривой запрос ронял метод
+        // (foreach по null, обращение к $item['id'] у скаляра) — 500 вместо
+        // внятного ответа. Теперь состав данных проверяется.
+        $data = $request->validate([
+            'order'            => 'required|array|min:1',
+            'order.*.id'       => 'required|integer|exists:modules,id',
+            'order.*.priority' => 'required|integer|min:0|max:9999',
+        ]);
+
+        foreach ($data['order'] as $item) {
             Module::where('id', $item['id'])->update(['priority' => $item['priority']]);
         }
 
-        return response()->json(['status' => 'ok']);
+        return response()->json(['status' => 'ok', 'updated' => count($data['order'])]);
     }
 
     /**
