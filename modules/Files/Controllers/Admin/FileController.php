@@ -262,6 +262,9 @@ class FileController extends Controller
             'file' => [
                 'id' => $file->id,
                 'name' => $file->original_name,
+                // Дублируем под привычным именем: карточка файла во вьюхе читает
+                // original_name, и без этого ключа заголовок модалки был пустым.
+                'original_name' => $file->original_name,
                 'url' => $file->url,
                 'mime_type' => $file->mime_type,
                 'size' => $file->size,
@@ -273,7 +276,8 @@ class FileController extends Controller
                 'description' => $file->description,
                 'category' => $file->category ? [
                     'id' => $file->category->id,
-                    'name' => $file->category->name,
+                    // У модели Categories поле называется title (не name).
+                    'name' => $file->category->title,
                 ] : null,
                 'user' => $file->user ? [
                     'id' => $file->user->id,

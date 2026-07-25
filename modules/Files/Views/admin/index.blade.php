@@ -281,31 +281,111 @@ document.getElementById('uploadForm').addEventListener('submit', async function(
     }
 });
 
+/* Экранирование значений, приходящих с сервера, перед вставкой в innerHTML. */
+function escFile(str) {
+    return String(str ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
 function openFileModal(fileId) {
     // Загрузка информации о файле через AJAX
     fetch(`/admin/files/${fileId}`)
         .then(r => r.json())
         .then(data => {
+            const f = data.file;
+            // Абсолютный URL — его удобно вставлять в редактор или отдавать наружу
+            const absUrl = new URL(f.url, window.location.origin).href;
+
             document.getElementById('fileModalContent').innerHTML = `
-                <h2 class="text-2xl font-bold mb-4">${data.file.original_name}</h2>
-                ${data.file.is_image ? `<img src="${data.file.url}" class="w-full rounded mb-4">` : ''}
-                <div class="space-y-2">
-                    <div><strong>Размер:</strong> ${data.file.human_size}</div>
-                    <div><strong>Тип:</strong> ${data.file.mime_type}</div>
-                    <div><strong>Загружен:</strong> ${data.file.created_at}</div>
+                <div class="flex items-start justify-between gap-4 mb-5">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <span class="admin-icon-badge shrink-0"><i class="fas fa-file-image"></i></span>
+                        <div class="min-w-0">
+                            <h2 class="text-lg font-bold text-gray-900 dark:text-white truncate">${escFile(f.original_name)}</h2>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">
+                                ${escFile(f.human_size)} · ${escFile(f.mime_type)} · ${escFile(f.created_at)}
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" onclick="closeFileModal()" title="Закрыть (Esc)" aria-label="Закрыть"
+                            class="shrink-0 inline-flex items-center justify-center w-9 h-9 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                        <i class="fas fa-xmark text-lg"></i>
+                    </button>
                 </div>
-                <div class="flex gap-3 mt-4">
-                    <a href="/admin/files/${fileId}/download" class="px-4 py-2 bg-blue-600 text-white rounded-lg">
-                        Скачать
+
+                ${f.is_image ? `<div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-3 mb-5 flex items-center justify-center">
+                    <img src="${escFile(f.url)}" alt="${escFile(f.alt_text || f.original_name)}" class="max-w-full" style="max-height:52vh">
+                </div>` : ''}
+
+                <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1">Ссылка на файл</label>
+                <div class="flex gap-2 mb-5">
+                    <input id="fileUrlInput" type="text" readonly value="${escFile(absUrl)}"
+                           onclick="this.select()"
+                           class="flex-1 border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm font-mono
+                                  focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                    <button type="button" onclick="copyFileUrl()"
+                            class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition whitespace-nowrap">
+                        <i class="fa-regular fa-copy"></i> Копировать
+                    </button>
+                </div>
+
+                <div class="flex flex-wrap gap-2">
+                    <a href="/admin/files/${fileId}/download"
+                       class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium
+                              text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                        <i class="fas fa-download"></i> Скачать
                     </a>
-                    <button onclick="deleteFile(${fileId})" class="px-4 py-2 bg-red-600 text-white rounded-lg">
-                        Удалить
+                    <a href="${escFile(f.url)}" target="_blank" rel="noopener"
+                       class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium
+                              text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                        <i class="fas fa-arrow-up-right-from-square"></i> Открыть
+                    </a>
+                    <button onclick="deleteFile(${fileId})"
+                            class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition ml-auto">
+                        <i class="fa-regular fa-trash-can"></i> Удалить
                     </button>
                 </div>
             `;
             document.getElementById('fileModal').classList.remove('hidden');
         });
 }
+
+/* Закрытие карточки файла. Раньше её нельзя было закрыть вообще: не было ни
+   крестика, ни обработчика Esc, ни клика по подложке. */
+function closeFileModal() {
+    document.getElementById('fileModal').classList.add('hidden');
+}
+
+/* Копирование ссылки: сначала Clipboard API, иначе — выделение поля. */
+function copyFileUrl() {
+    const input = document.getElementById('fileUrlInput');
+    if (!input) return;
+
+    const done = () => {
+        const btn = document.querySelector('#fileModalContent button[onclick="copyFileUrl()"]');
+        if (!btn) return;
+        const html = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> Скопировано';
+        setTimeout(() => (btn.innerHTML = html), 1500);
+    };
+
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(input.value).then(done).catch(() => { input.select(); });
+    } else {
+        input.select();
+        try { document.execCommand('copy'); done(); } catch (e) {}
+    }
+}
+
+/* Esc закрывает любую открытую модалку; клик по подложке — только карточку файла. */
+document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    closeFileModal();
+    if (typeof closeUploadModal === 'function') closeUploadModal();
+});
+
+document.getElementById('fileModal')?.addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeFileModal();
+});
 
 function deleteFile(fileId) {
     if (!confirm('Удалить этот файл?')) return;
