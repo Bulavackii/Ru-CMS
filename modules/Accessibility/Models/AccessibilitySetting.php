@@ -32,7 +32,9 @@ class AccessibilitySetting extends Model
     {
         return \Cache::remember('accessibility_settings', 3600, function () {
             return static::firstOrCreate([], [
-                'enabled' => true,
+                // По умолчанию ВЫКЛЮЧЕНО: кнопка спецвозможностей на фронте
+                // появляется только если её включить в модуле «Спецвозможности».
+                'enabled' => false,
                 'enable_font_size' => true,
                 'enable_speech' => true,
                 'enable_contrast' => true,

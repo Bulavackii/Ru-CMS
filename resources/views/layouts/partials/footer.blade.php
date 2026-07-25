@@ -19,28 +19,38 @@
         </style>
         <div class="footer-grid max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-9 sm:py-11 md:py-12 gap-8 sm:gap-10 md:gap-12">
 
-            {{-- 1) Бренд / разработчик --}}
+            {{-- 1) Бренд / разработчик — карточка --}}
             <section aria-labelledby="dev-info" class="footer-brand">
-                <div class="flex items-center gap-3 mb-4 justify-center md:justify-start">
-                    <span class="f-brand-badge">RU</span>
-                    <div class="text-left">
-                        <h2 id="dev-info" class="text-lg font-bold leading-tight text-gray-900 dark:text-white">RU CMS</h2>
-                        <div class="text-[11px] leading-tight text-gray-500 dark:text-gray-400">Laravel {{ app()->version() }}</div>
+                <div class="f-brand-card">
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="f-brand-badge">RU</span>
+                        <div>
+                            <h2 id="dev-info" class="text-lg font-bold leading-tight text-gray-900 dark:text-white">RU CMS</h2>
+                            <div class="text-[11px] leading-tight text-gray-500 dark:text-gray-400">Модульная CMS · Laravel {{ app()->version() }}</div>
+                        </div>
                     </div>
+
+                    <p class="text-[13px] text-gray-500 dark:text-gray-400 leading-relaxed mb-3">
+                        Гибкая и быстрая CMS с удобной админкой и модульной архитектурой.
+                    </p>
+
+                    <div class="flex flex-wrap gap-1.5 mb-4">
+                        <span class="f-tag">Модульная</span>
+                        <span class="f-tag">Открытый код</span>
+                        <span class="f-tag">PostgreSQL</span>
+                        <span class="f-tag">Адаптивная</span>
+                    </div>
+
+                    {{-- Обезличенные тестовые сведения --}}
+                    <ul class="f-devlist">
+                        <li><span class="f-ico">@themeIcon('user')</span>
+                            <span><b class="text-gray-700 dark:text-gray-300 font-medium">Разработчик:</b> Иван Иванов</span></li>
+                        <li><span class="f-ico">@themeIcon('mail')</span>
+                            <a href="mailto:info@example.com" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">info@example.com</a></li>
+                        <li><span class="f-ico">@themeIcon('phone')</span>
+                            <a href="tel:+79001234567" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">+7 (900) 123-45-67</a></li>
+                    </ul>
                 </div>
-
-                <p class="text-[13px] text-gray-500 dark:text-gray-400 leading-relaxed mb-4 text-center md:text-left">
-                    Модульная CMS на Laravel — гибкая, быстрая, с удобной админкой.
-                </p>
-
-                <ul class="f-devlist inline-block text-left">
-                    <li><span class="f-ico">@themeIcon('user')</span>
-                        <span><b class="text-gray-700 dark:text-gray-300 font-medium">Разработчик:</b> Булавацкий Д.О.</span></li>
-                    <li><span class="f-ico">@themeIcon('mail')</span>
-                        <a href="mailto:visitorsec@internet.ru" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">visitorsec@internet.ru</a></li>
-                    <li><span class="f-ico">@themeIcon('phone')</span>
-                        <a href="tel:+7XXXXXXXXXX" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">+7 (###) ###-##-##</a></li>
-                </ul>
             </section>
 
             {{-- 2) Столбцы из меню позиции footer (одно меню = один столбец).
@@ -51,28 +61,28 @@
             <section aria-labelledby="footer-links" class="footer-contacts text-center md:text-left">
                 <h2 id="footer-links" class="f-heading">Контакты</h2>
 
+                {{-- Обезличенные тестовые сведения --}}
                 <div class="space-y-2">
-                    <a href="mailto:Suglobov2015@mail.ru" class="f-contact">
-                        <span class="f-ico">@themeIcon('mail')</span><span>Suglobov2015@mail.ru</span>
+                    <a href="mailto:info@example.com" class="f-contact">
+                        <span class="f-ico">@themeIcon('mail')</span><span>info@example.com</span>
                         <span class="f-ext">@themeIcon('arrow-up-right-from-square')</span>
                     </a>
-                    <a href="tel:+79300373536" class="f-contact">
-                        <span class="f-ico">@themeIcon('phone')</span><span>+7 (930) 037-35-36</span>
+                    <a href="tel:+79001234567" class="f-contact">
+                        <span class="f-ico">@themeIcon('phone')</span><span>+7 (900) 123-45-67</span>
                     </a>
-                    <a href="https://yandex.ru/maps/?text={{ urlencode('Курск, проспект Вячеслава Клыкова, 73') }}"
+                    <a href="https://yandex.ru/maps/?text={{ urlencode('Москва, улица Примерная, 1') }}"
                        target="_blank" rel="noopener" class="f-contact">
-                        <span class="f-ico">@themeIcon('map')</span><span>Курск, пр. В. Клыкова, 73</span>
+                        <span class="f-ico">@themeIcon('map')</span><span>г. Москва, ул. Примерная, 1</span>
                         <span class="f-ext">@themeIcon('arrow-up-right-from-square')</span>
                     </a>
                 </div>
 
-                {{-- Соцсети — реальные бренд-иконки FontAwesome, бренд-цвет при наведении --}}
+                {{-- Соцсети — реальные бренд-иконки FontAwesome, бренд-цвет при наведении.
+                     Адреса обезличены (демо). --}}
                 <div class="mt-4 flex items-center gap-2.5 justify-center md:justify-start">
-                    <a href="https://vk.com/club228649931" target="_blank" rel="noopener" class="f-social" style="--c:#0077FF" title="ВКонтакте" aria-label="ВКонтакте"><i class="fab fa-vk"></i></a>
-                    <a href="https://wa.me/79300373536" target="_blank" rel="noopener" class="f-social" style="--c:#25D366" title="WhatsApp" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-                    <a href="tg://resolve?phone=79300373536" data-fallback="https://t.me/+79300373536"
-                       onclick="this.setAttribute('data-opened','1');" target="_blank" rel="noopener"
-                       class="f-social" style="--c:#26A5E4" title="Telegram" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
+                    <a href="https://vk.com/example" target="_blank" rel="noopener" class="f-social" style="--c:#0077FF" title="ВКонтакте" aria-label="ВКонтакте"><i class="fab fa-vk"></i></a>
+                    <a href="https://wa.me/79001234567" target="_blank" rel="noopener" class="f-social" style="--c:#25D366" title="WhatsApp" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    <a href="https://t.me/example" target="_blank" rel="noopener" class="f-social" style="--c:#26A5E4" title="Telegram" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
                 </div>
             </section>
         </div>
@@ -101,7 +111,7 @@
                 window.location.href = 'mailto:'+to+'?subject='+subject+'&body='+body;
                 setTimeout(()=>busy=false,800);
               "
-                    class="w-full md:w-auto md:min-w-[24rem] flex flex-col sm:flex-row gap-2 text-sm">
+                    class="w-full md:flex-1 md:max-w-xl md:ml-6 flex flex-col sm:flex-row gap-2 text-sm">
                     <label for="newsletter" class="sr-only">Напишите нам</label>
                     <input id="newsletter" type="email" name="email" x-model="email"
                         placeholder="Напишите нам — ваш e-mail"
@@ -162,6 +172,12 @@
     .f-brand-badge{ width:2.4rem; height:2.4rem; display:inline-flex; align-items:center; justify-content:center;
         background:var(--fx-grad,#6366f1); color:#fff; font-weight:700; font-size:.85rem; letter-spacing:.02em;
         flex:0 0 auto; box-shadow:0 8px 18px -8px rgba(99,102,241,.6); }
+    .f-brand-card{ padding:1.1rem 1.2rem; border:1px solid rgba(17,24,39,.08); background:rgba(255,255,255,.5);
+        -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); }
+    :root.dark .f-brand-card{ border-color:rgba(255,255,255,.08); background:rgba(30,41,59,.4); }
+    .f-tag{ display:inline-flex; align-items:center; padding:.16rem .5rem; font-size:.66rem; font-weight:600;
+        letter-spacing:.02em; background:rgba(99,102,241,.1); color:var(--color-primary,#6366f1); }
+    :root.dark .f-tag{ background:rgba(99,102,241,.2); color:#c7d2fe; }
     .f-heading{ font-size:.78rem; font-weight:600; letter-spacing:.05em; text-transform:uppercase;
         color:#6b7280; margin-bottom:1rem; }
     :root.dark .f-heading{ color:#9ca3af; }
