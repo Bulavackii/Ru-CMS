@@ -42,7 +42,7 @@
 
 <li class="menu-item {{ $liClass }} list-none {{ $item->css_class ?? '' }}">
     <a href="{{ $link }}"
-       class="menu-link {{ $linkClass }} {{ $active ? 'active-link' : '' }}"
+       class="menu-link {{ $linkClass }} {{ $active ? 'active-link' : '' }} {{ $level === 1 ? 'fx-underline' : '' }}"
        style="color:var(--color-text,#111827)"
        {!! $attrsStr !!}
        {{ $active ? 'aria-current=page' : '' }}>

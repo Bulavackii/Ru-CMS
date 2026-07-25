@@ -71,6 +71,15 @@ class LocalizationMiddleware
             $locale = $this->determineLocale($request);
         }
 
+        // Явный выбор языка переключателем в шапке (session app_locale) имеет
+        // приоритет над локалью страны: при единственной активной стране (напр.
+        // RU→ru) без этого выбор языка игнорировался бы. Принимаем любую реально
+        // доступную локаль (resources/lang), а не только SUPPORTED_LOCALES.
+        $explicitLocale = session('app_locale');
+        if ($explicitLocale && in_array($explicitLocale, available_locales(), true)) {
+            $locale = $explicitLocale;
+        }
+
         // Установка локали
         App::setLocale($locale);
         Session::put('locale', $locale);

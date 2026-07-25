@@ -25,7 +25,7 @@
     ];
 
     $footerColTitle = 'footer-col-title text-base font-semibold mb-4 text-center text-gray-900 dark:text-gray-100';
-    $footerLinkCls  = 'inline-flex items-center gap-2 px-2 py-1 rounded transition '
+    $footerLinkCls  = 'fx-underline inline-flex items-center gap-2 px-2 py-1 rounded transition '
         . 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 '
         . 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 '
         . 'focus-visible:ring-blue-500 dark:focus-visible:ring-blue-400';
@@ -48,7 +48,7 @@
                             @foreach ($item->activeChildren as $child)
                                 <li>
                                     <a href="{{ $child->frontendUrl() }}"
-                                       class="inline-flex items-center gap-2 text-[12px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition">
+                                       class="fx-underline inline-flex items-center gap-2 text-[12px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition">
                                         @themeIcon($child->displayIcon())
                                         <span>{{ $child->title }}</span>
                                     </a>

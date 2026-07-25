@@ -318,6 +318,16 @@ Route::view('/donate', 'frontend.pages.donate')->name('pages.donate'); // Пож
 
 Route::get('/search', [FrontendSearchController::class, 'index'])->name('frontend.search');
 
+// 🌍 Смена языка интерфейса переключателем в шапке. Явный выбор кладём в
+// session('app_locale') — LocalizationMiddleware отдаёт ему приоритет над
+// локалью страны. Принимаем только реально доступные локали (resources/lang).
+Route::get('/locale/{locale}', function (string $locale) {
+    if (in_array($locale, available_locales(), true)) {
+        session(['app_locale' => $locale, 'locale' => $locale]);
+    }
+    return redirect()->back();
+})->name('frontend.locale.set');
+
 // Route::get('/admin', fn() => view('admin'))->name('admin');
 // Route::get('/admin/{any}', fn() => view('admin'))
 //     ->where('any', '^(?!seo/).*');

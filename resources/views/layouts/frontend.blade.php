@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="{{ app()->getLocale() }}">
 
 <head>
     <meta charset="UTF-8">
@@ -277,6 +277,14 @@
         .fx-noimg .fx-noimg-ico{ font-size:2.1rem; color:#a5b4fc; }
         :root.dark .fx-noimg .fx-noimg-ico{ color:#6366f1; }
         .fx-noimg span{ font-size:.72rem; font-weight:500; letter-spacing:.04em; color:#818cf8; text-transform:uppercase; }
+        /* Красивое hover-подчёркивание для пунктов меню (хедер/футер/сайдбар).
+           Цвет — из ТЕМЫ (--color-primary/--color-accent, меняются в модуле Тем). */
+        .fx-underline{ position:relative; }
+        .fx-underline::after{ content:''; position:absolute; left:.45rem; right:.45rem; bottom:1px; height:2px;
+            border-radius:2px; background:var(--color-primary,#6366f1);
+            transform:scaleX(0); transform-origin:center; transition:transform .22s ease; }
+        .fx-underline:hover::after,
+        .fx-underline.active-link::after{ transform:scaleX(1); }
     </style>
 </head>
 

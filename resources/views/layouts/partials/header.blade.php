@@ -91,6 +91,29 @@
       {{-- ДЕЙСТВИЯ --}}
       <div class="hdr-actions flex items-center flex-wrap justify-center gap-1.5">
 
+        {{-- Переключатель языка: тянет ВСЕ доступные локали (resources/lang),
+             переключает через frontend.locale.set → session app_locale. --}}
+        @php
+          $langNames = ['ru'=>'Русский','en'=>'English','be'=>'Беларуская','kk'=>'Қазақша','de'=>'Deutsch','fr'=>'Français','it'=>'Italiano'];
+          $curLocale = app()->getLocale();
+        @endphp
+        <div x-data="{ open:false }" @click.outside="open=false" @keydown.escape.window="open=false" class="hdr-lang relative">
+          <button type="button" @click="open=!open" class="hdr-icon-btn" title="Язык / Language" :aria-expanded="open.toString()">
+            {!! locale_flag($curLocale) !!}
+            <span class="hidden sm:inline">{{ strtoupper($curLocale) }}</span>
+            <i class="fas fa-chevron-down" style="font-size:.58rem; opacity:.55"></i>
+          </button>
+          <div x-cloak x-show="open" x-transition class="hdr-lang-menu">
+            @foreach(available_locales() as $code)
+              <a href="{{ route('frontend.locale.set', $code) }}" class="hdr-lang-item {{ $code===$curLocale ? 'is-active' : '' }}">
+                {!! locale_flag($code) !!}
+                <span>{{ $langNames[$code] ?? strtoupper($code) }}</span>
+                @if($code===$curLocale)<i class="fas fa-check" style="margin-left:auto; font-size:.7rem"></i>@endif
+              </a>
+            @endforeach
+          </div>
+        </div>
+
         {{-- Переключатель темы (логика Alpine не менялась) --}}
         <button x-data="{
             darkMode: false,
@@ -161,8 +184,8 @@
         @include('Menu::frontend.header')
 
         {{-- Поиск --}}
-        <form method="GET" action="{{ route('frontend.search') }}" class="w-full md:w-auto md:ml-auto">
-          <div class="hdr-search relative w-full md:w-72">
+        <form method="GET" action="{{ route('frontend.search') }}" class="w-full md:flex-1 md:max-w-xl md:ml-8">
+          <div class="hdr-search relative w-full">
             <button type="submit" class="hdr-search-btn" title="Поиск" aria-label="Искать">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -206,6 +229,29 @@
     .hdr-actions .hdr-pill--accent:hover{ background:var(--fx-grad,#6366f1); color:#fff; filter:brightness(1.08); }
     .hdr-actions .hdr-pill--danger{ color:#e11d48; }
     .hdr-actions .hdr-pill--danger:hover{ background:rgba(244,63,94,.12); color:#e11d48; }
+
+    /* Переключатель языка */
+    [x-cloak]{ display:none !important; }
+    .hdr-lang-menu{ position:absolute; right:0; top:calc(100% + .45rem); z-index:1000; min-width:11.5rem; padding:.3rem;
+        background:rgba(255,255,255,.96); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+        border:1px solid rgba(17,24,39,.08); border-radius:11px; box-shadow:0 16px 40px -14px rgba(17,24,39,.3); }
+    :root.dark .hdr-lang-menu{ background:rgba(15,23,42,.96); border-color:rgba(255,255,255,.08); }
+    .hdr-lang-item{ display:flex; align-items:center; gap:.6rem; padding:.5rem .55rem; border-radius:8px; font-size:.83rem;
+        color:#374151; text-decoration:none; transition:background .12s ease, color .12s ease; }
+    :root.dark .hdr-lang-item{ color:#d1d5db; }
+    .hdr-lang-item:hover{ background:rgba(99,102,241,.1); color:#4f46e5; }
+    :root.dark .hdr-lang-item:hover{ background:rgba(99,102,241,.2); color:#c7d2fe; }
+    .hdr-lang-item.is-active{ color:#4f46e5; font-weight:500; }
+    :root.dark .hdr-lang-item.is-active{ color:#c7d2fe; }
+    .hdr-lang-code{ display:inline-flex; align-items:center; justify-content:center; min-width:1.75rem; height:1.4rem;
+        padding:0 .3rem; border-radius:6px; background:rgba(99,102,241,.13); color:#4338ca; font-size:.62rem;
+        font-weight:700; letter-spacing:.03em; flex:0 0 auto; }
+    :root.dark .hdr-lang-code{ background:rgba(99,102,241,.24); color:#c7d2fe; }
+    /* Маленький аккуратный флаг (инлайн-SVG) */
+    .flag{ width:1.4rem; height:1rem; border-radius:3px; display:inline-block; flex:0 0 auto; overflow:hidden;
+        vertical-align:middle; box-shadow:0 0 0 1px rgba(17,24,39,.12); }
+    :root.dark .flag{ box-shadow:0 0 0 1px rgba(255,255,255,.18); }
+    .hdr-lang .hdr-icon-btn .flag{ width:1.3rem; height:.92rem; }
 
     /* Поиск */
     .hdr-search-input{ width:100%; padding:.55rem .9rem .55rem 2.3rem; border-radius:10px; font-size:.85rem; line-height:1.2;

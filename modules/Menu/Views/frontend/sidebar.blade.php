@@ -41,7 +41,7 @@
             <ul class="fs-list">
                 @foreach ($sidebarItems as $item)
                     <li>
-                        <a href="{{ $item->frontendUrl() }}" class="fs-link"
+                        <a href="{{ $item->frontendUrl() }}" class="fs-link fx-underline"
                            @if($item->target) target="{{ $item->target }}" @endif
                            @if($item->rel) rel="{{ $item->rel }}" @endif>
                             <span class="fs-ico">@themeIcon($item->displayIcon())</span>
@@ -51,7 +51,7 @@
                             <ul class="fs-list fs-sub">
                                 @foreach ($item->activeChildren as $child)
                                     <li>
-                                        <a href="{{ $child->frontendUrl() }}" class="fs-link fs-link--sub"
+                                        <a href="{{ $child->frontendUrl() }}" class="fs-link fs-link--sub fx-underline"
                                            @if($child->target) target="{{ $child->target }}" @endif
                                            @if($child->rel) rel="{{ $child->rel }}" @endif>
                                             <span class="fs-ico">@themeIcon($child->displayIcon())</span>
