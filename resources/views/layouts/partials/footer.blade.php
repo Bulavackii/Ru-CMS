@@ -6,8 +6,20 @@
     <div class="relative z-10 backdrop-blur-md border-t border-gray-200/80 dark:border-gray-700/80 bg-white dark:bg-gray-800 transition-colors duration-200"
         style="background:var(--color-footer,#ffffff)">
 
-        {{-- Верхняя градиентная акцент-полоса подвала (единый стиль) --}}
-        <div class="fx-accent-bar"></div>
+        {{-- Дизайнерский переход «контент → футер»: градиентная линия-ЭКГ (пульс) --}}
+        <div class="f-ecg" aria-hidden="true">
+            <svg viewBox="0 0 1200 48" preserveAspectRatio="none" width="100%" height="100%">
+                <defs>
+                    <linearGradient id="ecgGrad" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0" stop-color="#6366f1"/>
+                        <stop offset="0.5" stop-color="#8b5cf6"/>
+                        <stop offset="1" stop-color="#ec4899"/>
+                    </linearGradient>
+                </defs>
+                <path fill="none" stroke="url(#ecgGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"
+                    d="M0,26 L48,26 L60,21 L72,26 L80,28 L88,9 L96,41 L104,26 L126,19 L150,26 L240,26 L288,26 L300,21 L312,26 L320,28 L328,9 L336,41 L344,26 L366,19 L390,26 L480,26 L528,26 L540,21 L552,26 L560,28 L568,9 L576,41 L584,26 L606,19 L630,26 L720,26 L768,26 L780,21 L792,26 L800,28 L808,9 L816,41 L824,26 L846,19 L870,26 L960,26 L1008,26 L1020,21 L1032,26 L1040,28 L1048,9 L1056,41 L1064,26 L1086,19 L1110,26 L1200,26"/>
+            </svg>
+        </div>
 
         {{-- ===== Колонки подвала. Число столбцов авто-подстраивается: слева
              «Разработчик», справа «Контакты», между ними — по одному столбцу на
@@ -164,6 +176,10 @@
     .list-none{ list-style:none; }
     #backToTopBtn{ transition:opacity .2s ease, transform .2s ease; }
     @media (prefers-reduced-motion: reduce){ #backToTopBtn{ transition:none; } }
+
+    /* Линия-ЭКГ на границе контент → футер */
+    .f-ecg{ height:38px; line-height:0; overflow:hidden; }
+    .f-ecg svg{ display:block; filter:drop-shadow(0 2px 6px rgba(99,102,241,.25)); }
 
     /* ===== Оформление подвала (стиль проекта, акцент из ТЕМЫ) ===== */
     .f-brand-badge{ width:2.4rem; height:2.4rem; display:inline-flex; align-items:center; justify-content:center;
