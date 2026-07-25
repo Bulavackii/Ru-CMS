@@ -5,370 +5,268 @@
 
 @section('content')
 @php
-    // ===== View helpers =====
-    $query = (string) request('q', '');
+    // Подсветка совпадений. Замыкание, а не глобальная функция: вьюха может
+    // рендериться дважды за процесс, и повторное объявление function уронило бы её.
+    $highlight = function ($text, $q) {
+        $text = e((string) $text);
+        $q = (string) $q;
 
-    function highlight($text, $q) {
-        $text = (string) $text;
-        $q    = (string) $q;
         if ($q === '' || $text === '') {
-            return e($text);
+            return $text;
         }
-        return preg_replace(
-            '/' . preg_quote($q, '/') . '/iu',
-            '<mark class="bg-yellow-200 text-black px-1 rounded">$0</mark>',
-            e($text)
-        );
-    }
 
-    // Счётчики (если коллекций может не быть — приводим к нулю)
-    $cnt = [
-        'modules'    => (int) ($modules->count()    ?? 0),
-        'users'      => (int) ($users->count()      ?? 0),
-        'categories' => (int) ($categories->count() ?? 0),
-        'products'   => (int) ($products->count()   ?? 0),
-        'news'       => (int) ($news->count()       ?? 0),
-        'faq'        => (int) ($faq->count()        ?? 0),
-        'reviews'    => (int) ($reviews->count()    ?? 0),
-        'contacts'   => (int) ($contacts->count()   ?? 0),
-    ];
-    $totalFound = array_sum($cnt) + (int) ((isset($productsFromNews) && $productsFromNews)? $productsFromNews->count() : 0);
+        return preg_replace('/' . preg_quote(e($q), '/') . '/iu', '<mark class="search-mark">$0</mark>', $text);
+    };
+
+    $visibleSections = collect($sections)->filter(fn ($s) => $s['visible'] && $s['items']->isNotEmpty());
 @endphp
 
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-    {{-- ========= ЛЕВАЯ ПАНЕЛЬ: Поиск, фильтры, подсказки ========= --}}
-    <aside class="lg:col-span-1 lg:sticky lg:top-4 self-start">
-        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow p-5"
-             x-data="searchPanel()"
-             x-init="init('{{ e($query) }}','{{ $filter }}','{{ $sort }}')">
-
-            <div class="flex items-start justify-between gap-3">
-                <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
-                    <i class="fa-solid fa-magnifying-glass text-indigo-600"></i>
-                    Умный поиск
-                </h2>
-
-                {{-- мини-хинт по горячим клавишам --}}
-                <div class="hidden sm:flex items-center gap-1 text-[11px] text-gray-500 dark:text-gray-400">
-                    <span class="px-1 rounded bg-gray-100 dark:bg-gray-700">Ctrl</span>+
-                    <span class="px-1 rounded bg-gray-100 dark:bg-gray-700">K</span>
-                    <span class="ml-1">— фокус ввода</span>
-                </div>
-            </div>
-
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                Ищите по названиям, описаниям и метаданным: модули, пользователи, товары, записи и другое.
+{{-- ── Шапка страницы ── --}}
+<div class="admin-accent-bar mb-0"></div>
+<div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
+            flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+    <div class="flex items-center gap-3 min-w-0">
+        <span class="admin-icon-badge"><i class="fas fa-magnifying-glass"></i></span>
+        <div class="min-w-0">
+            <h1 class="text-xl font-bold text-gray-900 dark:text-white">Поиск по системе</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+                Модули, пользователи, страницы, категории, записи и обращения — в одном месте.
             </p>
-
-            {{-- Поле запроса --}}
-            <label for="q" class="sr-only">Запрос</label>
-            <div class="mt-4 relative">
-                <input id="q" name="q" x-model.debounce.300ms="q"
-                       @keydown.enter.prevent="goSearch()"
-                       class="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2.5 text-sm bg-white dark:bg-gray-900 dark:text-gray-100 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                       placeholder="Например: «товар акция», «email:@example.com», «FAQ оплата»">
-                {{-- кнопки внутри поля --}}
-                <div class="absolute inset-y-0 right-2 flex items-center gap-1">
-                    <button type="button" @click="q=''; $nextTick(()=> $refs.q?.focus())"
-                            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                            x-show="q.length" x-transition
-                            title="Очистить">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-            </div>
-
-            {{-- Быстрые действия --}}
-            <div class="mt-3 flex flex-wrap gap-2">
-                <button type="button" @click="goSearch()"
-                        class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-md text-sm font-semibold shadow transition">
-                    <i class="fa-solid fa-magnifying-glass"></i> Искать
-                </button>
-
-                <button type="button" @click="copyLink()"
-                        class="inline-flex items-center gap-2 border px-3 py-1.5 rounded-md text-sm shadow-sm hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/40">
-                    <i class="fa-regular fa-copy"></i> Скопировать ссылку
-                </button>
-
-                <a href="{{ route('admin.search.index') }}"
-                   class="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-300">
-                    <i class="fa-solid fa-rotate"></i> Сбросить
-                </a>
-            </div>
-
-            {{-- Чипы-фильтры с количеством --}}
-            @php
-                $chips = [
-                    'modules'    => ['🧩','Модули'],
-                    'users'      => ['👤','Пользователи'],
-                    'categories' => ['🏷️','Категории'],
-                    'products'   => ['🛒','Товары'],
-                    'news'       => ['📰','Новости'],
-                    'faq'        => ['❓','Вопросы'],
-                    'reviews'    => ['💬','Отзывы'],
-                    'contacts'   => ['📩','Контакты'],
-                ];
-            @endphp
-            <div class="mt-4">
-                <div class="text-[13px] text-gray-500 dark:text-gray-400 mb-1">Фильтр по разделам:</div>
-                <div class="flex flex-wrap gap-1.5">
-                    <button type="button"
-                            @click="setFilter('')"
-                            class="chip"
-                            :class="flt==='' ? 'chip--active' : ''">
-                        <span>🔄 Все</span>
-                    </button>
-
-                    @foreach($chips as $key => [$icon,$label])
-                        <button type="button"
-                                @click="setFilter('{{ $key }}')"
-                                class="chip"
-                                :class="flt==='{{ $key }}' ? 'chip--active' : ''"
-                                title="Найдено: {{ $cnt[$key] }}">
-                            <span>{{ $icon }} {{ $label }}</span>
-                            <span class="chip-badge">{{ $cnt[$key] }}</span>
-                        </button>
-                    @endforeach
-                </div>
-            </div>
-
-            {{-- Сортировка --}}
-            <div class="mt-4">
-                <label for="sort" class="text-[13px] text-gray-600 dark:text-gray-300">Сортировка:</label>
-                <select id="sort" x-model="srt" @change="goSearch(true)"
-                        class="mt-1 w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-900 dark:text-gray-100">
-                    <option value="relevance">По релевантности</option>
-                    <option value="name_asc">По алфавиту (А-Я)</option>
-                    <option value="name_desc">По алфавиту (Я-А)</option>
-                    <option value="date_desc">Сначала новые</option>
-                    <option value="date_asc">Сначала старые</option>
-                </select>
-            </div>
-
-            {{-- Подсказки/пример запроса --}}
-            <details class="mt-5 border border-gray-200 dark:border-gray-700 rounded-lg p-3 open:shadow-sm">
-                <summary class="cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-200">
-                    📚 Подсказки и примеры
-                </summary>
-                <ul class="mt-2 space-y-1.5 text-[13px] text-gray-600 dark:text-gray-300">
-                    <li>• По нескольким словам: <code class="kbd">товар скидка</code></li>
-                    <li>• По email: <code class="kbd">email:@example.com</code></li>
-                    <li>• По разделу «Вопросы»: выберите фильтр «❓ Вопросы»</li>
-                    <li>• По дате: отсортируйте «Сначала новые»</li>
-                </ul>
-            </details>
-
-            {{-- Итог по результатам (если есть запрос) --}}
-            @if($query !== '')
-                <div class="mt-5 text-sm text-gray-600 dark:text-gray-300">
-                    Найдено результатов: <span class="font-semibold">{{ number_format($totalFound, 0, ',', ' ') }}</span>
-                </div>
-            @endif
         </div>
-    </aside>
+    </div>
 
-    {{-- ========= ПРАВАЯ КОЛОНКА: Результаты ========= --}}
-    <section class="lg:col-span-2">
-        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow p-5 space-y-6">
-            {{-- «пустой экран» до ввода запроса --}}
-            @if($query === '')
-                <div class="text-center py-12">
-                    <div class="mx-auto w-16 h-16 rounded-full bg-indigo-50 dark:bg-indigo-900/30 grid place-items-center mb-4">
-                        <i class="fa-solid fa-search text-indigo-600 text-xl"></i>
-                    </div>
-                    <div class="text-lg font-semibold text-gray-800 dark:text-gray-100">Начните поиск</div>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                        Введите запрос слева — покажем совпадения по всем разделам.
-                    </p>
-                </div>
-            @else
-                {{-- «лента» результатов, сгруппированная по блокам --}}
-                @foreach ([
-                    [
-                        'collection' => $modules ?? collect(),
-                        'show'       => $showModules,
-                        'icon'       => 'fas fa-puzzle-piece text-indigo-600',
-                        'label'      => 'Модули',
-                        'title'      => fn($item) => $item->name,
-                        'desc'       => fn($item) => 'Версия: v'.$item->version,
-                        'count'      => $cnt['modules'],
-                    ],
-                    [
-                        'collection' => $users ?? collect(),
-                        'show'       => $showUsers,
-                        'icon'       => 'fas fa-user text-blue-600',
-                        'label'      => 'Пользователи',
-                        'title'      => fn($item) => $item->name,
-                        'desc'       => fn($item) => 'Email: '.$item->email,
-                        'count'      => $cnt['users'],
-                    ],
-                    [
-                        'collection' => $categories ?? collect(),
-                        'show'       => $showCategories,
-                        'icon'       => 'fas fa-tag text-green-600',
-                        'label'      => 'Категории',
-                        'title'      => fn($item) => $item->title,
-                        'desc'       => fn($item) => 'ID: '.$item->id,
-                        'count'      => $cnt['categories'],
-                    ],
-                    [
-                        'collection' => $products ?? collect(),
-                        'show'       => $showProducts,
-                        'icon'       => 'fas fa-box-open text-yellow-600',
-                        'label'      => 'Товары',
-                        'title'      => fn($item) => $item->name,
-                        'desc'       => fn($item) => \Illuminate\Support\Str::limit(strip_tags((string)$item->description), 80),
-                        'count'      => $cnt['products'],
-                    ],
-                    [
-                        'collection' => $news ?? collect(),
-                        'show'       => $showNews,
-                        'icon'       => 'fas fa-newspaper text-cyan-600',
-                        'label'      => 'Новости',
-                        'title'      => fn($item) => $item->title,
-                        'desc'       => fn($item) => '🗓 '.optional($item->created_at)->format('d.m.Y'),
-                        'count'      => $cnt['news'],
-                    ],
-                    [
-                        'collection' => $faq ?? collect(),
-                        'show'       => $showFaq,
-                        'icon'       => 'fas fa-question text-orange-600',
-                        'label'      => 'Вопросы',
-                        'title'      => fn($item) => $item->title,
-                        'desc'       => fn($item) => \Illuminate\Support\Str::limit(strip_tags((string)$item->content), 80),
-                        'count'      => $cnt['faq'],
-                    ],
-                    [
-                        'collection' => $reviews ?? collect(),
-                        'show'       => $showReviews,
-                        'icon'       => 'fas fa-comment text-purple-600',
-                        'label'      => 'Отзывы',
-                        'title'      => fn($item) => $item->title,
-                        'desc'       => fn($item) => \Illuminate\Support\Str::limit(strip_tags((string)$item->content), 80),
-                        'count'      => $cnt['reviews'],
-                    ],
-                    [
-                        'collection' => $contacts ?? collect(),
-                        'show'       => $showContacts,
-                        'icon'       => 'fas fa-envelope text-pink-600',
-                        'label'      => 'Контакты',
-                        'title'      => fn($item) => $item->subject ?? 'Без темы',
-                        'desc'       => fn($item) => \Illuminate\Support\Str::limit(strip_tags((string)$item->body), 80),
-                        'count'      => $cnt['contacts'],
-                    ],
-                ] as $block)
-                    @if ($block['show'] && $block['collection']->count())
-                        <div>
-                            <div class="flex items-center justify-between mb-2">
-                                <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                    🔹 {{ $block['label'] }}
-                                </h3>
-                                <span class="text-xs px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
-                                    {{ $block['count'] }}
-                                </span>
-                            </div>
-
-                            @foreach ($block['collection'] as $item)
-                                <x-admin-info-card :icon="$block['icon']">
-                                    <x-slot name="title">{!! highlight($block['title']($item), $query) !!}</x-slot>
-                                    {!! highlight($block['desc']($item), $query) !!}
-                                </x-admin-info-card>
-                            @endforeach
-                        </div>
-                    @endif
-                @endforeach
-
-                {{-- Дополнительный блок: товары из новостей --}}
-                @if (!empty($productsFromNews) && $productsFromNews->count())
-                    <div>
-                        <div class="flex items-center justify-between mb-2">
-                            <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">🛒 Товары из новостей</h3>
-                            <span class="text-xs px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
-                                {{ $productsFromNews->count() }}
-                            </span>
-                        </div>
-
-                        @foreach ($productsFromNews as $item)
-                            <x-admin-info-card icon="fas fa-box text-amber-600" :title="highlight($item->title, $query)">
-                                {!! highlight(\Illuminate\Support\Str::limit(strip_tags((string)$item->content), 80), $query) !!}
-                                <a href="{{ route('news.show', $item->slug ?? $item->id) }}" target="_blank"
-                                   class="inline-block mt-2 text-xs text-blue-600 hover:underline">
-                                    Открыть →
-                                </a>
-                            </x-admin-info-card>
-                        @endforeach
-                    </div>
-                @endif
-
-                {{-- Ничего не найдено --}}
-                @if(
-                    ($modules->count()    ?? 0) === 0 && $showModules &&
-                    ($users->count()      ?? 0) === 0 && $showUsers &&
-                    ($categories->count() ?? 0) === 0 && $showCategories &&
-                    ($products->count()   ?? 0) === 0 && $showProducts &&
-                    ($news->count()       ?? 0) === 0 && $showNews &&
-                    ($faq->count()        ?? 0) === 0 && $showFaq &&
-                    ($reviews->count()    ?? 0) === 0 && $showReviews &&
-                    ($contacts->count()   ?? 0) === 0 && $showContacts &&
-                    (empty($customResults) && $showCustom)
-                )
-                    <x-admin-info-card icon="fas fa-circle-question text-gray-400" title="Ничего не найдено">
-                        Попробуйте упростить запрос, выбрать другой раздел или изменить сортировку.
-                    </x-admin-info-card>
-                @endif
-
-                <p class="text-xs text-gray-400 text-right">
-                    Время генерации: {{ round(microtime(true) - LARAVEL_START, 2) }} сек.
-                </p>
-            @endif
+    @if($query !== '')
+        <div class="text-sm text-gray-600 dark:text-gray-300 flex-shrink-0">
+            Найдено:
+            <span class="font-bold text-gray-900 dark:text-white">{{ number_format($total, 0, ',', ' ') }}</span>
         </div>
-    </section>
+    @endif
 </div>
 
-{{-- ===== Локальные стили для «чипов» и kbd ===== --}}
-<style>
-    .chip{
-        @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs bg-white text-gray-700
-               hover:bg-gray-50 shadow-sm dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 dark:border-gray-700;
-    }
-    .chip--active{ @apply bg-black text-white ring-2 ring-indigo-500 border-black; }
-    .chip-badge{ @apply text-[10px] px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700; }
-    .kbd{ @apply px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100; }
-</style>
+{{-- ── Панель запроса ── --}}
+<form method="GET" action="{{ route('admin.search.index') }}" class="admin-card p-5 mb-5" id="searchForm">
+    <div class="flex flex-col md:flex-row gap-2">
+        <div class="relative flex-1">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                 width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path>
+            </svg>
+            <input type="text" name="q" id="q" value="{{ $query }}" autofocus autocomplete="off"
+                   placeholder="Название, e-mail, телефон, текст записи…"
+                   class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white pl-10 pr-3 py-2 text-sm
+                          focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+        </div>
+
+        <select name="sort" onchange="this.form.submit()"
+                class="border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
+                       focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+            <option value="relevance" @selected($sort === 'relevance')>По релевантности</option>
+            <option value="name_asc"  @selected($sort === 'name_asc')>По названию (А-Я)</option>
+            <option value="name_desc" @selected($sort === 'name_desc')>По названию (Я-А)</option>
+            <option value="date_desc" @selected($sort === 'date_desc')>Сначала новые</option>
+            <option value="date_asc"  @selected($sort === 'date_asc')>Сначала старые</option>
+        </select>
+
+        <button type="submit"
+                class="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white
+                       px-5 py-2 text-sm font-semibold shadow-sm transition">
+            <i class="fas fa-magnifying-glass"></i> Искать
+        </button>
+    </div>
+
+    {{-- Чипы разделов: каждый — обычная кнопка отправки формы, JS не нужен --}}
+    <div class="mt-4 flex flex-wrap items-center gap-1.5">
+        <span class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 mr-1">Раздел:</span>
+
+        <button type="submit" name="filter" value=""
+                class="search-chip {{ $filter === '' ? 'search-chip--active' : '' }}">
+            <i class="fas fa-layer-group"></i> Все
+            @if($query !== '')<span class="search-chip__badge">{{ $total }}</span>@endif
+        </button>
+
+        @foreach($sections as $key => $section)
+            <button type="submit" name="filter" value="{{ $key }}"
+                    class="search-chip {{ $filter === $key ? 'search-chip--active' : '' }} {{ $query !== '' && $section['count'] === 0 ? 'search-chip--empty' : '' }}">
+                <i class="fas {{ $section['icon'] }}"></i> {{ $section['label'] }}
+                @if($query !== '')<span class="search-chip__badge">{{ $section['count'] }}</span>@endif
+            </button>
+        @endforeach
+    </div>
+
+    <div class="mt-4 flex flex-wrap items-center gap-3 text-sm">
+        <button type="button" id="copyLink"
+                class="inline-flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-indigo-600 transition">
+            <i class="fa-regular fa-copy"></i> Скопировать ссылку на выдачу
+        </button>
+        @if($query !== '' || $filter !== '')
+            <a href="{{ route('admin.search.index') }}"
+               class="inline-flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-indigo-600 transition">
+                <i class="fas fa-rotate-left"></i> Сбросить
+            </a>
+        @endif
+        <span class="text-gray-400 dark:text-gray-500">
+            Регистр не важен · частичное совпадение · показываем до {{ $perSection }} записей в разделе
+        </span>
+    </div>
+</form>
+
+{{-- ── Результаты ── --}}
+@if($query === '')
+    <div class="admin-card p-10 text-center">
+        <span class="admin-icon-badge mx-auto mb-4"><i class="fas fa-magnifying-glass"></i></span>
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white">Начните поиск</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 mb-5">
+            Введите запрос выше — покажем совпадения по всем разделам сразу.
+        </p>
+
+        <div class="text-left max-w-xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-2">
+            @foreach([
+                'admin@example.com' => 'найдёт пользователя по e-mail',
+                'модуль' => 'найдёт модули и записи по слову',
+                '+7' => 'найдёт всех, у кого указан телефон',
+                'о проекте' => 'найдёт страницу по названию',
+            ] as $example => $note)
+                <a href="{{ route('admin.search.index', ['q' => $example]) }}"
+                   class="border border-gray-200 dark:border-gray-700 p-3 hover:border-indigo-400 transition block">
+                    <span class="font-mono text-sm text-indigo-600 dark:text-indigo-400">{{ $example }}</span>
+                    <span class="block text-xs text-gray-500 dark:text-gray-400 mt-1">{{ $note }}</span>
+                </a>
+            @endforeach
+        </div>
+    </div>
+@elseif($visibleSections->isEmpty() && empty($customResults))
+    <div class="admin-card p-10 text-center">
+        <span class="admin-icon-badge mx-auto mb-4"><i class="fas fa-circle-question"></i></span>
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white">Ничего не найдено</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            По запросу «{{ $query }}»{{ $filter !== '' ? ' в выбранном разделе' : '' }} совпадений нет.
+            Попробуйте укоротить запрос или выбрать раздел «Все».
+        </p>
+    </div>
+@else
+    <div class="space-y-5">
+        @foreach($visibleSections as $key => $section)
+            <div class="admin-card p-5">
+                <div class="flex items-center justify-between gap-3 mb-4">
+                    <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                        <i class="fas {{ $section['icon'] }} text-indigo-500"></i> {{ $section['label'] }}
+                    </h2>
+                    <span class="text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 px-2 py-0.5">
+                        @if($section['count'] > $perSection)
+                            показаны {{ $section['items']->count() }} из {{ $section['count'] }}
+                        @else
+                            {{ $section['count'] }}
+                        @endif
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-2">
+                    @foreach($section['items'] as $item)
+                        <a href="{{ $item['url'] }}"
+                           class="search-result border border-gray-200 dark:border-gray-700 p-3 flex items-start gap-3 transition">
+                            <i class="fas {{ $section['icon'] }} text-gray-400 mt-1"></i>
+                            <span class="min-w-0 flex-1">
+                                <span class="flex items-center gap-2 flex-wrap">
+                                    <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                        {!! $highlight($item['title'], $query) !!}
+                                    </span>
+                                    @if(!empty($item['badge']))
+                                        <span class="text-xs bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-1.5 py-0.5">
+                                            {{ $item['badge'] }}
+                                        </span>
+                                    @endif
+                                </span>
+                                @if(!empty($item['desc']))
+                                    <span class="block text-xs text-gray-500 dark:text-gray-400 mt-1 break-words">
+                                        {!! $highlight($item['desc'], $query) !!}
+                                    </span>
+                                @endif
+                            </span>
+                            <i class="fas fa-arrow-right text-gray-300 mt-1"></i>
+                        </a>
+                    @endforeach
+                </div>
+
+                @if($section['count'] > $perSection && $filter !== $key)
+                    <p class="admin-hint mt-3">
+                        Показана часть совпадений.
+                        <a href="{{ route('admin.search.index', ['q' => $query, 'filter' => $key, 'sort' => $sort]) }}"
+                           class="text-indigo-600 dark:text-indigo-400 font-semibold">Открыть только «{{ $section['label'] }}»</a>
+                    </p>
+                @endif
+            </div>
+        @endforeach
+
+        {{-- Результаты от модулей с собственным SearchProvider --}}
+        @foreach($customResults as $moduleName => $results)
+            <div class="admin-card p-5">
+                <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+                    <i class="fas fa-plug text-indigo-500"></i> {{ $moduleName }}
+                </h2>
+                <ul class="space-y-2">
+                    @foreach($results as $result)
+                        <li class="border border-gray-200 dark:border-gray-700 p-3 text-sm text-gray-700 dark:text-gray-300 break-words">
+                            {!! $highlight(is_array($result) ? ($result['title'] ?? json_encode($result, JSON_UNESCAPED_UNICODE)) : $result, $query) !!}
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        @endforeach
+    </div>
+@endif
 @endsection
 
+@push('styles')
+<style>
+    /* Литеральный CSS: в статической сборке Tailwind нет ни @-правил препроцессора,
+       ни половины используемых здесь вариантов, поэтому чипы описаны обычными классами */
+    .search-chip{
+        display:inline-flex; align-items:center; gap:.375rem;
+        padding:.3rem .6rem; font-size:.75rem; line-height:1;
+        border:1px solid #d1d5db; background:#fff; color:#374151;
+        transition:background-color .15s, border-color .15s, color .15s;
+    }
+    .search-chip:hover{ border-color:#6366f1; color:#4338ca; }
+    .search-chip--active{ background:#4f46e5; border-color:#4f46e5; color:#fff; }
+    .search-chip--active:hover{ background:#4338ca; border-color:#4338ca; color:#fff; }
+    .search-chip--empty{ opacity:.55; }
+    .search-chip__badge{
+        font-size:.625rem; padding:.1rem .3rem;
+        background:rgba(0,0,0,.06); color:inherit;
+    }
+    .search-chip--active .search-chip__badge{ background:rgba(255,255,255,.22); }
+
+    .search-mark{ background:#fde68a; color:#111827; padding:0 .1em; }
+
+    .search-result:hover{ border-color:#6366f1; background:#f8fafc; }
+    .search-result:hover .fa-arrow-right{ color:#6366f1; }
+</style>
+@endpush
+
 @push('scripts')
-<script src="{{ local_js('alpine.min.js') }}" defer></script>
 <script>
-function searchPanel(){
-    return {
-        q: '',
-        flt: '',
-        srt: 'relevance',
-        init(q, f, s){ this.q = q || ''; this.flt = f || ''; this.srt = s || 'relevance'; this.$nextTick(()=>{ this.$refs?.q?.focus?.(); }); },
-        goSearch(replace=false){
-            const url = new URL(@json(route('admin.search.index')), window.location.origin);
-            if (this.q) url.searchParams.set('q', this.q); else url.searchParams.delete('q');
-            if (this.flt) url.searchParams.set('filter', this.flt); else url.searchParams.delete('filter');
-            if (this.srt) url.searchParams.set('sort', this.srt); else url.searchParams.delete('sort');
-            replace ? window.location.replace(url) : window.location.href = url;
-        },
-        setFilter(f){ this.flt = f; this.goSearch(true); },
-        copyLink(){
-            const url = new URL(@json(route('admin.search.index')), window.location.origin);
-            if (this.q) url.searchParams.set('q', this.q);
-            if (this.flt) url.searchParams.set('filter', this.flt);
-            if (this.srt) url.searchParams.set('sort', this.srt);
-            navigator.clipboard?.writeText(url.href).then(()=>{
-                const n = document.createElement('div');
-                n.className='fixed bottom-4 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-3 py-1.5 rounded shadow';
-                n.textContent='Ссылка скопирована';
-                document.body.appendChild(n);
-                setTimeout(()=> n.remove(), 1100);
+    (function () {
+        // Ссылка на текущую выдачу — со всеми параметрами запроса
+        const copy = document.getElementById('copyLink');
+        if (copy) {
+            copy.addEventListener('click', function () {
+                navigator.clipboard?.writeText(window.location.href).then(() => {
+                    const original = copy.innerHTML;
+                    copy.innerHTML = '<i class="fas fa-check"></i> Ссылка скопирована';
+                    setTimeout(() => { copy.innerHTML = original; }, 1500);
+                });
             });
         }
-    }
-}
+
+        // «/» ставит курсор в поле поиска (Ctrl+K занят глобальной палитрой в шапке)
+        document.addEventListener('keydown', function (e) {
+            if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey) return;
+            const tag = (document.activeElement?.tagName || '').toLowerCase();
+            if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+            e.preventDefault();
+            document.getElementById('q')?.focus();
+        });
+    })();
 </script>
 @endpush

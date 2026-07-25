@@ -343,3 +343,24 @@ if (!function_exists('locale_flag')) {
             ?? '<svg viewBox="0 0 3 2" '.$p.' class="flag"><rect width="3" height="2" fill="#9ca3af"/></svg>';
     }
 }
+/**
+ * 🔤 Оператор LIKE, не зависящий от регистра букв.
+ *
+ * В PostgreSQL (боевая БД проекта) LIKE регистрозависим: запрос «МОДУЛЬ»
+ * не находил запись «Модульная архитектура» — поиск по админке, глобальный
+ * поиск в шапке и поиск на сайте молча теряли совпадения, если пользователь
+ * набирал не в том регистре. ILIKE решает это, но есть только у Postgres,
+ * поэтому оператор выбирается по драйверу: в SQLite (тесты) LIKE и без того
+ * регистронезависим.
+ *
+ * Важно: ILIKE в Postgres учитывает кириллицу, а LOWER()-обходной путь
+ * в SQLite — нет, поэтому выбран именно этот способ.
+ */
+if (!function_exists('search_like')) {
+    function search_like(): string
+    {
+        return \Illuminate\Support\Facades\DB::connection()->getDriverName() === 'pgsql'
+            ? 'ilike'
+            : 'like';
+    }
+}

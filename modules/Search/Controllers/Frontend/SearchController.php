@@ -30,13 +30,16 @@ class SearchController extends Controller
             ]);
         }
 
+        // ILIKE на Postgres, иначе LIKE: без этого поиск был регистрозависимым
+        $like = search_like();
+
         // 📰 Поиск по новостям (опубликованным)
         $news = News::where('published', true)
-            ->where(function($q) use ($query) {
-                $q->where('title', 'like', "%{$query}%")
-                  ->orWhere('content', 'like', "%{$query}%")
-                  ->orWhere('meta_description', 'like', "%{$query}%")
-                  ->orWhere('meta_keywords', 'like', "%{$query}%");
+            ->where(function($q) use ($query, $like) {
+                $q->where('title', $like, "%{$query}%")
+                  ->orWhere('content', $like, "%{$query}%")
+                  ->orWhere('meta_description', $like, "%{$query}%")
+                  ->orWhere('meta_keywords', $like, "%{$query}%");
             })
             ->orderByDesc('created_at')
             ->paginate(10, ['*'], 'news_page');
@@ -44,11 +47,11 @@ class SearchController extends Controller
         // 🛒 Поиск по товарам (News с template = products)
         $products = News::where('published', true)
             ->where('template', 'products')
-            ->where(function($q) use ($query) {
-                $q->where('title', 'like', "%{$query}%")
-                  ->orWhere('content', 'like', "%{$query}%")
-                  ->orWhere('meta_description', 'like', "%{$query}%")
-                  ->orWhere('meta_keywords', 'like', "%{$query}%");
+            ->where(function($q) use ($query, $like) {
+                $q->where('title', $like, "%{$query}%")
+                  ->orWhere('content', $like, "%{$query}%")
+                  ->orWhere('meta_description', $like, "%{$query}%")
+                  ->orWhere('meta_keywords', $like, "%{$query}%");
             })
             ->orderByDesc('created_at')
             ->paginate(10, ['*'], 'products_page');
@@ -72,12 +75,14 @@ class SearchController extends Controller
 
         // Кэшируем популярные запросы
         $cacheKey = 'search_autocomplete_' . md5($query);
-        $results = \Illuminate\Support\Facades\Cache::remember($cacheKey, 300, function () use ($query) {
+        $like = search_like();
+
+        $results = \Illuminate\Support\Facades\Cache::remember($cacheKey, 300, function () use ($query, $like) {
             $suggestions = [];
 
             // Предложения из заголовков новостей
             $newsTitles = News::where('published', true)
-                ->where('title', 'like', "%{$query}%")
+                ->where('title', $like, "%{$query}%")
                 ->limit(5)
                 ->pluck('title')
                 ->map(fn($title) => ['text' => $title, 'type' => 'news']);
@@ -85,7 +90,7 @@ class SearchController extends Controller
             // Предложения из товаров
             $productTitles = News::where('published', true)
                 ->where('template', 'products')
-                ->where('title', 'like', "%{$query}%")
+                ->where('title', $like, "%{$query}%")
                 ->limit(5)
                 ->pluck('title')
                 ->map(fn($title) => ['text' => $title, 'type' => 'product']);

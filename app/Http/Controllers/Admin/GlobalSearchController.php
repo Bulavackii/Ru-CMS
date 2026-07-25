@@ -30,10 +30,13 @@ class GlobalSearchController extends Controller
 
             $results = [];
 
+            // ILIKE на Postgres, иначе LIKE: без этого поиск был регистрозависимым
+            $like = search_like();
+
             // Поиск новостей
             try {
-                $news = News::where('title', 'like', "%{$query}%")
-                    ->orWhere('content', 'like', "%{$query}%")
+                $news = News::where('title', $like, "%{$query}%")
+                    ->orWhere('content', $like, "%{$query}%")
                     ->limit(5)
                     ->get();
                 
@@ -51,8 +54,8 @@ class GlobalSearchController extends Controller
 
             // Поиск страниц
             try {
-                $pages = Page::where('title', 'like', "%{$query}%")
-                    ->orWhere('content', 'like', "%{$query}%")
+                $pages = Page::where('title', $like, "%{$query}%")
+                    ->orWhere('content', $like, "%{$query}%")
                     ->limit(5)
                     ->get();
                 
@@ -70,8 +73,8 @@ class GlobalSearchController extends Controller
 
             // Поиск пользователей
             try {
-                $users = User::where('name', 'like', "%{$query}%")
-                    ->orWhere('email', 'like', "%{$query}%")
+                $users = User::where('name', $like, "%{$query}%")
+                    ->orWhere('email', $like, "%{$query}%")
                     ->limit(5)
                     ->get();
                 
@@ -89,7 +92,7 @@ class GlobalSearchController extends Controller
 
             // Поиск категорий
             try {
-                $categories = Category::where('title', 'like', "%{$query}%")
+                $categories = Category::where('title', $like, "%{$query}%")
                     ->limit(5)
                     ->get();
 
@@ -107,7 +110,7 @@ class GlobalSearchController extends Controller
 
             // Поиск меню
             try {
-                $menus = Menu::where('title', 'like', "%{$query}%")
+                $menus = Menu::where('title', $like, "%{$query}%")
                     ->limit(5)
                     ->get();
                 
