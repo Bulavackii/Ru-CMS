@@ -3,26 +3,29 @@
 @section('title', 'Импорт/Экспорт новостей')
 
 @section('content')
-<div class="space-y-6">
-  {{-- ======= Шапка ======= --}}
-  <header class="flex items-start md:items-center justify-between gap-3">
-    <div>
-      <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-        🧩 Импорт / Экспорт новостей
-      </h1>
-      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-        Быстрые операции с контентом. Форматы: JSON · NDJSON · CSV · ZIP.
-      </p>
-    </div>
-  </header>
+{{-- ── Шапка страницы ── --}}
+<div class="admin-accent-bar mb-0"></div>
+<div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
+            flex items-center gap-3">
+  <span class="admin-icon-badge"><i class="fas fa-right-left"></i></span>
+  <div class="min-w-0">
+    <h1 class="text-xl font-bold text-gray-900 dark:text-white">Импорт и экспорт новостей</h1>
+    <p class="text-sm text-gray-500 dark:text-gray-400">
+      Перенос контента между сайтами и резервные выгрузки. Форматы: JSON · NDJSON · CSV · ZIP.
+    </p>
+  </div>
+</div>
 
+<div class="space-y-6">
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
     {{-- ===================== EXPORT ===================== --}}
-    <section class="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm overflow-hidden">
+    <section class="admin-card overflow-hidden">
       <div class="flex items-center gap-2 px-5 py-3 border-b border-gray-100 dark:border-gray-800">
-        <span class="text-lg font-semibold text-gray-900 dark:text-gray-100">📤 Экспорт</span>
-        <span class="inline-flex items-center rounded-full text-[11px] px-2 py-0.5 bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">выгрузка</span>
+        <span class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 flex items-center gap-2">
+          <i class="fas fa-download text-indigo-500"></i> Экспорт
+        </span>
+        <span class="inline-flex items-center text-xs px-2 py-0.5 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300">выгрузка</span>
       </div>
 
       <form method="POST" action="{{ route('admin.newsio.export') }}" class="grid gap-5 px-5 py-5">
@@ -32,7 +35,7 @@
         <div>
           <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Формат файла</label>
           <select name="format"
-                  class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
             <option value="json">JSON (массив)</option>
             <option value="ndjson">NDJSON (по строке)</option>
             <option value="csv">CSV</option>
@@ -45,7 +48,7 @@
         <div>
           <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Категории (фильтр)</label>
           <select name="category_ids[]" multiple
-                  class="w-full h-36 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  class="w-full h-36 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
             @foreach ($categories as $c)
               <option value="{{ $c->id }}">{{ $c->title }} (ID: {{ $c->id }})</option>
             @endforeach
@@ -58,12 +61,12 @@
           <div>
             <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">С даты</label>
             <input type="date" name="date_from"
-                   class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                   class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
           </div>
           <div>
             <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">По дату</label>
             <input type="date" name="date_to"
-                   class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                   class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
           </div>
         </div>
 
@@ -72,7 +75,7 @@
           <div>
             <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Опубликованные</label>
             <select name="published"
-                    class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
               <option value="all">Все</option>
               <option value="1">Только опубликованные</option>
               <option value="0">Только черновики</option>
@@ -85,24 +88,25 @@
           </label>
         </div>
 
-        <aside class="rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 px-3 py-2 text-xs text-gray-600 dark:text-gray-300">
-          💡 Совет: сначала отфильтруйте категории/даты, затем скачайте файл в нужном формате.
+        <aside class="admin-hint px-3 py-2 text-xs">
+          <i class="fas fa-lightbulb"></i> Совет: сначала отфильтруйте категории и даты, затем скачайте файл в нужном формате.
         </aside>
 
         <div class="flex justify-end">
-          <button class="inline-flex items-center gap-2 rounded-lg bg-black text-white px-4 py-2 hover:bg-gray-800 shadow transition
-                         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
-            <i class="fa-solid fa-download"></i> Скачать
+          <button class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition">
+            <i class="fa-solid fa-download"></i> Скачать файл
           </button>
         </div>
       </form>
     </section>
 
     {{-- ===================== IMPORT (с drag&drop + рабочий dry-run) ===================== --}}
-    <section class="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm overflow-hidden">
+    <section class="admin-card overflow-hidden">
       <div class="flex items-center gap-2 px-5 py-3 border-b border-gray-100 dark:border-gray-800">
-        <span class="text-lg font-semibold text-gray-900 dark:text-gray-100">📥 Импорт</span>
-        <span class="inline-flex items-center rounded-full text-[11px] px-2 py-0.5 bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200">dry-run + загрузка</span>
+        <span class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 flex items-center gap-2">
+          <i class="fas fa-upload text-indigo-500"></i> Импорт
+        </span>
+        <span class="inline-flex items-center text-xs px-2 py-0.5 bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">dry-run + загрузка</span>
       </div>
 
       <form method="POST"
@@ -116,7 +120,7 @@
         {{-- Drop-zone + Обзор --}}
         <div
           class="group relative rounded-xl border border-dashed border-gray-300 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-800/60 p-4 md:p-5"
-          :class="{'ring-2 ring-blue-500 border-blue-500': dragging}"
+          :class="{'ring-2 ring-indigo-500 border-indigo-500': dragging}"
           @dragenter.prevent="dragging = true"
           @dragover.prevent="dragging = true"
           @dragleave.prevent="dragging = false"
@@ -137,10 +141,9 @@
 
               <div class="flex items-center gap-3">
                 <button type="button"
-                        class="px-3 h-10 rounded-md bg-black text-white hover:bg-gray-800 transition shadow
-                               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
+                        class="inline-flex items-center gap-2 px-4 h-10 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm transition"
                         @click="openDialog()">
-                  Обзор…
+                  <i class="fas fa-folder-open"></i> Обзор…
                 </button>
                 <span class="text-xs md:text-sm text-gray-500 truncate" x-text="fileName || 'Файл не выбран'"></span>
               </div>
@@ -160,7 +163,7 @@
           <div>
             <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Обновлять по</label>
             <select name="update_by"
-                    class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
               <option value="slug">slug</option>
               <option value="id">id</option>
               <option value="none">не обновлять (всегда создавать)</option>
@@ -171,7 +174,7 @@
           <div>
             <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Категории сопоставлять по</label>
             <select name="match_category_by"
-                    class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
               <option value="id">id</option>
               <option value="slug">slug</option>
               <option value="title">title</option>
@@ -188,17 +191,17 @@
         {{-- Кнопки --}}
         <div class="flex flex-wrap items-center gap-3">
           <button type="button"
-                  class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition
-                         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 disabled:opacity-60"
+                  class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium
+                         text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition disabled:opacity-60"
                   :disabled="loading || !hasFile"
                   @click="runDryRun($event)">
+            <i class="fas fa-vial"></i>
             <span x-show="!loading">Проверить (dry-run)</span>
             <span x-show="loading">Проверка…</span>
           </button>
 
           <button
-            class="inline-flex items-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 shadow transition
-                   focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 disabled:opacity-60"
+            class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition disabled:opacity-60"
             :disabled="loading || !hasFile">
             <i class="fa-solid fa-file-import"></i> Импортировать
           </button>
@@ -206,13 +209,15 @@
 
         {{-- Ошибка dry-run --}}
         <template x-if="error">
-          <div class="p-3 rounded-xl bg-red-50 text-red-800 border border-red-200 text-sm" x-text="error"></div>
+          <div class="border-l-4 border-red-500 bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 px-4 py-3 text-sm" x-text="error"></div>
         </template>
 
-        {{-- Результат dry-run --}}
+        {{-- Результат dry-run. Палитры amber в сборке нет (см. CLAUDE.md) — берём indigo. --}}
         <template x-if="summary">
-          <div class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-sm leading-6">
-            <div class="font-semibold mb-2">✅ Проверка завершена. Готово к импорту.</div>
+          <div class="border-l-4 border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-gray-800 dark:text-gray-100 p-4 text-sm leading-6">
+            <div class="font-semibold mb-2 flex items-center gap-2">
+              <i class="fas fa-circle-check text-green-600"></i> Проверка завершена. Готово к импорту.
+            </div>
             <div class="grid grid-cols-2 gap-x-6 gap-y-1">
               <div>Всего записей: <span class="font-medium" x-text="summary.total"></span></div>
               <div>С slug: <span class="font-medium" x-text="summary.with_slug"></span></div>
