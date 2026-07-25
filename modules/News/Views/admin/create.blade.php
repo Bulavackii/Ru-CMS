@@ -3,98 +3,139 @@
 @section('title', 'Создать новость')
 
 @section('content')
-    <h1 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">📝 Создание новости</h1>
-
-    @if ($errors->any())
-        <div
-            class="bg-red-100 border border-red-300 text-red-800 dark:bg-red-900 dark:border-red-700 dark:text-red-200 px-4 py-3 mb-6 rounded shadow animate-pulse">
-            ⚠️ {{ $errors->first() }}
-        </div>
-    @endif
-
-    <form method="POST" action="{{ route('admin.news.store') }}" enctype="multipart/form-data" class="space-y-6 w-full">
-        @csrf
-
-        {{-- Заголовок --}}
-        <x-admin.input label="📰 Заголовок" name="title" required
-            hint="Название новости. Отображается в заголовке и списке." />
-
-        {{-- Slug (URL) --}}
-        <x-admin.input label="🔗 URL (slug)" name="slug"
-            hint="URL-адрес новости. Если не указан, будет сгенерирован автоматически из заголовка. Только латинские буквы, цифры и дефисы." />
-
-        {{-- Meta Title --}}
-        <x-admin.input label="🔖 Meta Title" name="meta_title"
-            hint="До 60 символов. Отображается в заголовке вкладки и в поисковых системах." />
-
-        {{-- Meta Description --}}
-        <div>
-            <label for="meta_description" class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">📄 Meta
-                Description</label>
-            <textarea name="meta_description" id="meta_description" rows="3"
-                class="w-full border border-gray-300 dark:border-gray-700 rounded px-3 py-2 dark:bg-gray-800 dark:text-gray-100"
-                placeholder="Краткое описание до 160 символов.">{{ old('meta_description') }}</textarea>
-            <p class="text-xs text-gray-500 mt-1">Отображается в поисковой выдаче. Включите ключевые фразы.</p>
-        </div>
-
-        {{-- Meta Keywords --}}
-        <x-admin.input label="🔑 Ключевые слова" name="meta_keywords" hint="Через запятую: вода, природа, защита" />
-
-        {{-- Шаблон --}}
-        <x-admin.select label="🧩 Шаблон" name="template" :options="$templates"
-            hint="Выберите шаблон отображения: стандартный, товары, отзывы и др." />
-
-        {{-- Категории --}}
-        <div>
-            <label class="block font-semibold mb-2 text-gray-700 dark:text-gray-300">📂 Категории</label>
-            <p class="text-sm text-gray-500 mb-2">Можно выбрать одну или несколько категорий для фильтрации и навигации.</p>
-            <div class="flex flex-wrap gap-3">
-                @foreach ($categories as $category)
-                    <label
-                        class="flex items-center px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-full cursor-pointer text-sm hover:bg-blue-50 dark:hover:bg-gray-700 transition">
-                        <input type="checkbox" name="categories[]" value="{{ $category->id }}"
-                            class="form-checkbox text-blue-600 mr-2"
-                            {{ in_array($category->id, old('categories', [])) ? 'checked' : '' }}>
-                        {{ $category->title }}
-                    </label>
-                @endforeach
+    {{-- ── Шапка страницы ── --}}
+    <div class="admin-accent-bar mb-0"></div>
+    <div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
+                flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div class="flex items-center gap-3 min-w-0">
+            <span class="admin-icon-badge"><i class="fas fa-plus"></i></span>
+            <div class="min-w-0">
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">Создание новости</h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Заполните содержимое, SEO-поля и выберите шаблон отображения.</p>
             </div>
         </div>
 
-        {{-- Поля для "Товары" --}}
-        <div id="product-fields" class="mb-6 hidden animate-fade-in">
-            <x-admin.input label="💰 Цена (₽)" name="price" type="number" step="0.01"
-                hint="Цена в рублях. Используется только в шаблоне 'Товары'." />
-            <x-admin.input label="📦 Остаток" name="stock" type="number"
-                hint="Количество товара на складе. Целое число." />
-            <label class="inline-flex items-center text-sm text-gray-700 dark:text-gray-300">
-                <input type="checkbox" name="is_promo" value="1" {{ old('is_promo') ? 'checked' : '' }} class="mr-2">
-                🏷️ Акционный товар
-            </label>
+        <a href="{{ route('admin.news.index') }}"
+           class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition shrink-0">
+            <i class="fas fa-arrow-left"></i> К списку новостей
+        </a>
+    </div>
+
+    @if ($errors->any())
+        <div class="border-l-4 border-red-500 bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 px-4 py-3 mb-6 text-sm">
+            <div class="flex items-start gap-2">
+                <i class="fas fa-triangle-exclamation mt-0.5"></i>
+                <div>
+                    <b>Проверьте форму.</b> {{ $errors->first() }}
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <form method="POST" action="{{ route('admin.news.store') }}" enctype="multipart/form-data" class="space-y-5 w-full">
+        @csrf
+
+        {{-- ── Основное ── --}}
+        <div class="admin-card p-5">
+            <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+                <i class="fas fa-file-lines text-indigo-500"></i> Основное
+            </h2>
+            <div class="space-y-4">
+                <x-admin.input label="Заголовок" name="title" required
+                    hint="Название новости. Отображается в заголовке и списке." />
+                <x-admin.input label="URL (slug)" name="slug"
+                    hint="Если не указан — сгенерируется из заголовка. Только латинские буквы, цифры и дефисы." />
+                <x-admin.select label="Шаблон" name="template" :options="$templates"
+                    hint="Тип отображения на сайте: стандартный, товары, отзывы и др." />
+            </div>
         </div>
 
-        {{-- Контент --}}
-        <div>
-            <label for="editor" class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">📝 Содержимое</label>
+        {{-- ── SEO ── --}}
+        <div class="admin-card p-5">
+            <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+                <i class="fas fa-magnifying-glass text-indigo-500"></i> SEO
+            </h2>
+            <div class="space-y-4">
+                <x-admin.input label="Meta Title" name="meta_title"
+                    hint="До 60 символов. Заголовок вкладки и сниппета в поиске." />
+                <div>
+                    <label for="meta_description" class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Meta Description</label>
+                    <textarea name="meta_description" id="meta_description" rows="3"
+                        class="w-full border border-gray-300 dark:border-gray-700 px-3 py-2 dark:bg-gray-800 dark:text-gray-100
+                               focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                        placeholder="Краткое описание до 160 символов.">{{ old('meta_description') }}</textarea>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Отображается в поисковой выдаче. Включите ключевые фразы.</p>
+                </div>
+                <x-admin.input label="Ключевые слова" name="meta_keywords" hint="Через запятую: вода, природа, защита" />
+            </div>
+        </div>
+
+        {{-- ── Категории ── --}}
+        <div class="admin-card p-5">
+            <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2 flex items-center gap-2">
+                <i class="fas fa-folder-open text-indigo-500"></i> Категории
+            </h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Можно выбрать одну или несколько — для фильтрации и навигации.</p>
+            <div class="flex flex-wrap gap-2">
+                @forelse ($categories as $category)
+                    <label class="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-300 dark:border-gray-600 cursor-pointer text-sm
+                                  hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-700 transition">
+                        <input type="checkbox" name="categories[]" value="{{ $category->id }}"
+                            {{ in_array($category->id, old('categories', [])) ? 'checked' : '' }}>
+                        {{ $category->title }}
+                    </label>
+                @empty
+                    <p class="text-sm text-gray-400 dark:text-gray-500">Категорий пока нет.</p>
+                @endforelse
+            </div>
+        </div>
+
+        {{-- ── Поля шаблона «Товары» ── --}}
+        <div id="product-fields" class="admin-card p-5 hidden animate-fade-in">
+            <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+                <i class="fas fa-bag-shopping text-indigo-500"></i> Товар
+            </h2>
+            <div class="space-y-4">
+                <x-admin.input label="Цена (₽)" name="price" type="number" step="0.01"
+                    hint="Цена в рублях. Используется только в шаблоне «Товары»." />
+                <x-admin.input label="Остаток" name="stock" type="number"
+                    hint="Количество товара на складе. Целое число." />
+                <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                    <input type="checkbox" name="is_promo" value="1" {{ old('is_promo') ? 'checked' : '' }}>
+                    Акционный товар
+                </label>
+            </div>
+        </div>
+
+        {{-- ── Содержимое ── --}}
+        <div class="admin-card p-5">
+            <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-2">
+                <i class="fas fa-pen-nib text-indigo-500"></i> Содержимое
+            </h2>
             <textarea name="content" id="editor"
-                class="w-full border border-gray-300 dark:border-gray-700 rounded px-3 py-2 dark:bg-gray-800 dark:text-gray-100"
+                class="w-full border border-gray-300 dark:border-gray-700 px-3 py-2 dark:bg-gray-800 dark:text-gray-100"
                 rows="14">{{ old('content') }}</textarea>
-            <p class="text-xs text-gray-500 mt-1">Основной текст новости. Поддерживает форматирование, изображения и видео.
-            </p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Основной текст новости. Поддерживает форматирование, изображения и видео.</p>
         </div>
 
-        {{-- Публикация --}}
-        <label class="inline-flex items-center text-sm text-gray-700 dark:text-gray-300">
-            <input type="checkbox" name="published" value="1" class="mr-2" checked>
-            Опубликовать сразу
-        </label>
+        {{-- ── Публикация и сохранение ── --}}
+        <div class="admin-card p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+            <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                <input type="checkbox" name="published" value="1" checked>
+                Опубликовать сразу
+            </label>
 
-        {{-- Кнопка --}}
-        <div class="pt-4">
-            <button type="submit"
-                class="inline-flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-6 py-2 rounded-md text-sm font-semibold shadow transition">
-                💾 Сохранить новость
-            </button>
+            <div class="sm:ml-auto flex items-center gap-2">
+                <a href="{{ route('admin.news.index') }}"
+                   class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium border border-gray-300 dark:border-gray-600
+                          text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                    Отмена
+                </a>
+                <button type="submit"
+                    class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 text-sm font-semibold shadow-sm transition">
+                    <i class="fas fa-floppy-disk"></i> Сохранить новость
+                </button>
+            </div>
         </div>
     </form>
 
