@@ -72,6 +72,14 @@
                     <a href="https://vk.com/example" target="_blank" rel="noopener" class="f-social" style="--c:#0077FF" title="ВКонтакте" aria-label="ВКонтакте"><i class="fab fa-vk"></i></a>
                     <a href="https://wa.me/79001234567" target="_blank" rel="noopener" class="f-social" style="--c:#25D366" title="WhatsApp" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
                     <a href="https://t.me/example" target="_blank" rel="noopener" class="f-social" style="--c:#26A5E4" title="Telegram" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
+                    {{-- MAX и Rutube: точных иконок в открытых наборах нет —
+                         обобщённые инлайн-SVG-глифы (мессенджер / видео-плеер). --}}
+                    <a href="https://max.ru" target="_blank" rel="noopener" class="f-social" style="--c:#2787F5" title="MAX" aria-label="MAX">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3C6.48 3 2 6.58 2 11c0 2.5 1.44 4.73 3.7 6.19-.13.83-.53 1.94-1.03 2.7-.1.15.02.35.2.33 1.6-.2 2.86-.77 3.7-1.28.75.17 1.54.26 2.43.26 5.52 0 10-3.58 10-8s-4.48-8-10-8z"/></svg>
+                    </a>
+                    <a href="https://rutube.ru" target="_blank" rel="noopener" class="f-social" style="--c:#242526" title="Rutube" aria-label="Rutube">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10.5 9.5l4 2.5-4 2.5z" fill="currentColor" stroke="none"/></svg>
+                    </a>
                 </div>
             </section>
         </div>
