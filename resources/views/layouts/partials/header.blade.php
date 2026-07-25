@@ -61,7 +61,7 @@
   <div class="absolute inset-0 z-[-10] opacity-10"
        style="background-image: var(--bg-image); background-repeat:repeat; background-size:auto;"></div>
 
-  <div class="hdr-glass relative z-[999] border-b border-gray-200 dark:border-gray-700 transition-colors duration-200">
+  <div class="hdr-glass relative z-[999] transition-colors duration-200">
 
     {{-- ═══════════ Ряд 1: логотип + действия ═══════════ --}}
     <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
