@@ -65,6 +65,7 @@
 
     <link rel="stylesheet" href="{{ local_css('swiper-bundle.min.css') }}" />
     <link href="{{ local_css('tailwind.min.css') }}" rel="stylesheet">
+    @include('layouts.partials.tw-compat')
     {{-- Фолбэк-иконки --}}
     <link rel="stylesheet" href="{{ local_css('font-awesome/all.min.css') }}"
         crossorigin="anonymous" referrerpolicy="no-referrer" />

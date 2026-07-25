@@ -5,6 +5,7 @@
     <title>@yield('title', 'Авторизация - RuShop CMS')</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="{{ local_css('tailwind.min.css') }}" rel="stylesheet">
+    @include('layouts.partials.tw-compat')
 </head>
 <body class="bg-gray-100 text-gray-800">
     <div class="min-h-screen flex items-center justify-center">

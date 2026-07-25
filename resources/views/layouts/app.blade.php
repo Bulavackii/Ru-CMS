@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{{ local_font_css('inter') }}">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @include('layouts.partials.tw-compat')
 
     {{-- 🎨 CSS активной темы (собирается при "Применить") --}}
     @if(!empty($activeTheme?->config['css']))
