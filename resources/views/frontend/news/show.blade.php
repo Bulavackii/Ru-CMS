@@ -16,7 +16,8 @@
             $ext = strtolower(pathinfo(parse_url($coverAbs ?? '', PHP_URL_PATH) ?? '', PATHINFO_EXTENSION));
             if ($coverAbs && !in_array($ext, $IMG, true)) { $coverAbs = null; }
         }
-        $readMins = max(1, (int) ceil(str_word_count(strip_tags((string) $news->content)) / 180));
+        // reading_time() считает слова с поддержкой кириллицы (см. app/helpers.php)
+        $readMins = reading_time($news->content);
     @endphp
 
     <article class="w-full max-w-screen-2xl mx-auto">

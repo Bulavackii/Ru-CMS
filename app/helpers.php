@@ -296,6 +296,30 @@ if (!function_exists('available_locales')) {
 }
 
 /**
+ * ⏱️ reading_time() - Примерное время чтения материала в минутах.
+ *
+ * Считает слова регуляркой по \p{L}\p{N} с флагом /u, а НЕ через str_word_count():
+ * та функция ASCII-ориентированная и на кириллице врёт (у страницы из 125 слов
+ * возвращала 3, у новости из 11 слов — 1), из-за чего время чтения всегда было
+ * «~1 мин» независимо от объёма текста.
+ *
+ * Скорость 150 слов/мин — средний темп чтения русскоязычного текста.
+ *
+ * @param string|null $html HTML или обычный текст материала
+ * @param int $wpm Слов в минуту
+ * @return int Минуты (минимум 1)
+ */
+if (!function_exists('reading_time')) {
+    function reading_time(?string $html, int $wpm = 150): int
+    {
+        $text = strip_tags((string) $html);
+        $words = preg_match_all('/[\p{L}\p{N}]+/u', $text) ?: 0;
+
+        return max(1, (int) ceil($words / max(1, $wpm)));
+    }
+}
+
+/**
  * 🏴 locale_flag() - Инлайн-SVG флаг страны для локали.
  *
  * Именно SVG, а не эмодзи: Windows не рисует эмодзи-флаги (нет в Segoe UI Emoji).

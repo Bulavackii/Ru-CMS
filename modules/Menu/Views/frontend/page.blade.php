@@ -4,7 +4,8 @@
 
 @section('content')
     @php
-        $readMins = max(1, (int) ceil(str_word_count(strip_tags((string) $page->content)) / 180));
+        // reading_time() считает слова с поддержкой кириллицы (см. app/helpers.php)
+        $readMins = reading_time($page->content);
     @endphp
 
     <article class="w-full max-w-screen-2xl mx-auto">
