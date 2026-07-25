@@ -22,29 +22,25 @@
             {{-- 1) Бренд / разработчик — карточка --}}
             <section aria-labelledby="dev-info" class="footer-brand">
                 <div class="f-brand-card">
-                    <div class="flex items-center gap-3 mb-3">
+                    <div class="flex items-center gap-2.5 mb-2.5">
                         <span class="f-brand-badge">RU</span>
-                        <div>
-                            <h2 id="dev-info" class="text-lg font-bold leading-tight text-gray-900 dark:text-white">RU CMS</h2>
+                        <div class="min-w-0">
+                            <h2 id="dev-info" class="text-base font-bold leading-tight text-gray-900 dark:text-white">RU CMS</h2>
                             <div class="text-[11px] leading-tight text-gray-500 dark:text-gray-400">Модульная CMS · Laravel {{ app()->version() }}</div>
                         </div>
                     </div>
 
-                    <p class="text-[13px] text-gray-500 dark:text-gray-400 leading-relaxed mb-3">
-                        Гибкая и быстрая CMS с удобной админкой и модульной архитектурой.
-                    </p>
-
-                    <div class="flex flex-wrap gap-1.5 mb-4">
+                    <div class="flex flex-wrap gap-1 mb-3">
                         <span class="f-tag">Модульная</span>
                         <span class="f-tag">Открытый код</span>
                         <span class="f-tag">PostgreSQL</span>
                         <span class="f-tag">Адаптивная</span>
                     </div>
 
-                    {{-- Обезличенные тестовые сведения --}}
-                    <ul class="f-devlist">
+                    {{-- Обезличенные тестовые сведения (компактно) --}}
+                    <ul class="f-devlist f-devlist--tight">
                         <li><span class="f-ico">@themeIcon('user')</span>
-                            <span><b class="text-gray-700 dark:text-gray-300 font-medium">Разработчик:</b> Иван Иванов</span></li>
+                            <span><b class="text-gray-700 dark:text-gray-300 font-medium">Иван Иванов</b> — разработчик</span></li>
                         <li><span class="f-ico">@themeIcon('mail')</span>
                             <a href="mailto:info@example.com" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">info@example.com</a></li>
                         <li><span class="f-ico">@themeIcon('phone')</span>
@@ -172,8 +168,9 @@
     .f-brand-badge{ width:2.4rem; height:2.4rem; display:inline-flex; align-items:center; justify-content:center;
         background:var(--fx-grad,#6366f1); color:#fff; font-weight:700; font-size:.85rem; letter-spacing:.02em;
         flex:0 0 auto; box-shadow:0 8px 18px -8px rgba(99,102,241,.6); }
-    .f-brand-card{ padding:1.1rem 1.2rem; border:1px solid rgba(17,24,39,.08); background:rgba(255,255,255,.5);
+    .f-brand-card{ padding:.9rem .95rem; border:1px solid rgba(17,24,39,.08); background:rgba(255,255,255,.5);
         -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); }
+    .f-devlist--tight li{ padding:.15rem 0; font-size:.8rem; }
     :root.dark .f-brand-card{ border-color:rgba(255,255,255,.08); background:rgba(30,41,59,.4); }
     .f-tag{ display:inline-flex; align-items:center; padding:.16rem .5rem; font-size:.66rem; font-weight:600;
         letter-spacing:.02em; background:rgba(99,102,241,.1); color:var(--color-primary,#6366f1); }
