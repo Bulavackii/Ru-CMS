@@ -22,19 +22,12 @@
             {{-- 1) Бренд / разработчик — карточка --}}
             <section aria-labelledby="dev-info" class="footer-brand">
                 <div class="f-brand-card">
-                    <div class="flex items-center gap-2.5 mb-2.5">
+                    <div class="flex items-center gap-2.5 mb-2">
                         <span class="f-brand-badge">RU</span>
                         <div class="min-w-0">
                             <h2 id="dev-info" class="text-base font-bold leading-tight text-gray-900 dark:text-white">RU CMS</h2>
                             <div class="text-[11px] leading-tight text-gray-500 dark:text-gray-400">Модульная CMS · Laravel {{ app()->version() }}</div>
                         </div>
-                    </div>
-
-                    <div class="flex flex-wrap gap-1 mb-3">
-                        <span class="f-tag">Модульная</span>
-                        <span class="f-tag">Открытый код</span>
-                        <span class="f-tag">PostgreSQL</span>
-                        <span class="f-tag">Адаптивная</span>
                     </div>
 
                     {{-- Обезличенные тестовые сведения (компактно) --}}
@@ -110,10 +103,10 @@
                     class="w-full md:flex-1 md:max-w-xl md:ml-6 flex flex-col sm:flex-row gap-2 text-sm">
                     <label for="newsletter" class="sr-only">Напишите нам</label>
                     <input id="newsletter" type="email" name="email" x-model="email"
-                        placeholder="Напишите нам — ваш e-mail"
+                        placeholder="Ваш e-mail"
                         class="f-mail-input flex-1" required>
                     <button type="submit" :disabled="busy" class="f-submit">
-                        <span x-show="!busy" class="inline-flex items-center gap-2">@themeIcon('mail') Открыть почту</span>
+                        <span x-show="!busy" class="inline-flex items-center gap-2">@themeIcon('mail') Отправить</span>
                         <span x-show="busy">Открываю…</span>
                     </button>
                     <p x-text="msg" class="text-red-600 text-[12px] sm:self-center"></p>
@@ -168,13 +161,11 @@
     .f-brand-badge{ width:2.4rem; height:2.4rem; display:inline-flex; align-items:center; justify-content:center;
         background:var(--fx-grad,#6366f1); color:#fff; font-weight:700; font-size:.85rem; letter-spacing:.02em;
         flex:0 0 auto; box-shadow:0 8px 18px -8px rgba(99,102,241,.6); }
-    .f-brand-card{ padding:.9rem .95rem; border:1px solid rgba(17,24,39,.08); background:rgba(255,255,255,.5);
+    .f-brand-card{ padding:.75rem .85rem; border:1px solid rgba(17,24,39,.08); background:rgba(255,255,255,.5);
         -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); }
-    .f-devlist--tight li{ padding:.15rem 0; font-size:.8rem; }
+    .f-devlist--tight li{ padding:.08rem 0; font-size:.78rem; }
+    .f-devlist--tight .f-ico svg, .f-devlist--tight .f-ico i{ width:.9rem; height:.9rem; font-size:.9rem; }
     :root.dark .f-brand-card{ border-color:rgba(255,255,255,.08); background:rgba(30,41,59,.4); }
-    .f-tag{ display:inline-flex; align-items:center; padding:.16rem .5rem; font-size:.66rem; font-weight:600;
-        letter-spacing:.02em; background:rgba(99,102,241,.1); color:var(--color-primary,#6366f1); }
-    :root.dark .f-tag{ background:rgba(99,102,241,.2); color:#c7d2fe; }
     .f-heading{ font-size:.78rem; font-weight:600; letter-spacing:.05em; text-transform:uppercase;
         color:#6b7280; margin-bottom:1rem; }
     :root.dark .f-heading{ color:#9ca3af; }
