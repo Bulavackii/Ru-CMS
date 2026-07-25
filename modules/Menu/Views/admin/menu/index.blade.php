@@ -43,9 +43,16 @@
     {{-- ── Поиск + фильтр по позиции (клиентский) ── --}}
     <div class="mb-5 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div class="relative w-full md:w-80">
-            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">@themeIcon('search')</span>
+            {{-- Инлайн-SVG лупа: фиксированный размер и выравнивание, не зависит от
+                 размера lucide-иконки темы (та рендерилась 24px и лезла на текст). --}}
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                 width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path>
+            </svg>
             <input id="menu-search" type="text" placeholder="Поиск по названию…"
-                   class="w-full pl-9 pr-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white text-sm">
+                   class="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white text-sm
+                          focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
         </div>
 
         <div class="flex gap-2 text-xs">
