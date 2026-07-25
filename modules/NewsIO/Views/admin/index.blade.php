@@ -232,11 +232,28 @@
           </div>
         </template>
 
+        {{-- Предупреждения dry-run: что пойдёт не так при импорте.
+             Раньше сервер присылал сюда весь дамп записей, и блока не было вовсе. --}}
+        <template x-if="warnings && warnings.length">
+          <div class="border-l-4 border-yellow-500 bg-yellow-50 dark:bg-yellow-900/30 text-yellow-900 dark:text-yellow-100 p-4 text-sm">
+            <div class="font-semibold mb-2 flex items-center gap-2">
+              <i class="fas fa-triangle-exclamation"></i>
+              На что обратить внимание (<span x-text="warnings.length"></span>):
+            </div>
+            <ul class="list-disc list-inside space-y-1">
+              <template x-for="(w, i) in warnings" :key="i">
+                <li x-text="w"></li>
+              </template>
+            </ul>
+          </div>
+        </template>
+
         {{-- Ошибки импорта --}}
         @if(session('import_errors'))
-          <div class="p-4 rounded-xl bg-red-50 border border-red-200 text-sm">
-            <div class="font-semibold mb-2 text-red-800">
-              ⚠️ Ошибки импорта (показано {{ min(5, session('import_errors_count', 0)) }} из {{ session('import_errors_count', 0) }}):
+          <div class="border-l-4 border-red-500 bg-red-50 dark:bg-red-900/30 p-4 text-sm">
+            <div class="font-semibold mb-2 text-red-800 dark:text-red-200 flex items-center gap-2">
+              <i class="fas fa-circle-exclamation"></i>
+              Ошибки импорта (показано {{ min(5, session('import_errors_count', 0)) }} из {{ session('import_errors_count', 0) }}):
             </div>
             <ul class="list-disc list-inside space-y-1 text-red-700">
               @foreach(session('import_errors', []) as $error)
@@ -272,6 +289,7 @@
       loading: false,
       error: null,
       summary: null,
+      warnings: [],
 
       get hasFile() { return !!this.file; },
 
@@ -308,6 +326,7 @@
       setFile(f) {
         this.error = null;
         this.summary = null;
+        this.warnings = [];
         this.file = f || null;
         this.fileName = f ? f.name : '';
         // превью только для изображений
@@ -321,6 +340,7 @@
         try {
           this.error = null;
           this.summary = null;
+          this.warnings = [];
           if (!this.hasFile) { this.error = 'Выберите файл для проверки.'; return; }
           this.loading = true;
 
@@ -346,6 +366,8 @@
           const json = await res.json();
           // ожидаем summary в json.preview или в корне
           this.summary = json.preview || json;
+          // предупреждения приходят массивом строк (Importer::collectWarnings)
+          this.warnings = Array.isArray(json.warnings) ? json.warnings : [];
         } catch (e) {
           this.error = 'Ошибка проверки: ' + (e?.message || e);
         } finally {

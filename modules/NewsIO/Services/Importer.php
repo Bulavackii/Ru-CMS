@@ -17,7 +17,93 @@ class Importer
     {
         [$items, $media] = $this->read($opts['file']);
         $summary = $this->summarize($items, $opts);
-        return [$summary, $items];
+
+        // Раньше вторым элементом возвращался ВЕСЬ массив записей, и контроллер
+        // отдавал его как "warnings": настоящих предупреждений пользователь не
+        // видел, а по сети зря гонялся полный дамп файла. Теперь — реальные
+        // проблемы, которые всплывут при импорте.
+        return [$summary, $this->collectWarnings($items, $opts)];
+    }
+
+    /**
+     * Проверки, которые имеет смысл показать до импорта: чем запись рискует
+     * (не будет сопоставлена, потеряет категории, не пройдёт валидацию).
+     *
+     * @return array<int,string>
+     */
+    protected function collectWarnings(array $items, array $opts): array
+    {
+        $warnings = [];
+        $updateBy = $opts['update_by'] ?? 'none';
+        $matchBy  = $opts['match_category_by'] ?? 'title';
+        $createMissing = (bool) ($opts['create_missing_cats'] ?? false);
+
+        $seenSlugs = [];
+        $noKey = 0;
+        $badSlug = [];
+        $noTitle = 0;
+        $missingCats = [];
+
+        foreach ($items as $i => $raw) {
+            $line = $i + 1;
+
+            // Нечем сопоставить запись — она всегда будет создаваться заново
+            if ($updateBy !== 'none' && empty($raw[$updateBy])) {
+                $noKey++;
+            }
+
+            if (empty($raw['title'])) {
+                $noTitle++;
+            }
+
+            $slug = $raw['slug'] ?? null;
+
+            if ($slug) {
+                if (!preg_match('/^[a-z0-9-]+$/', (string) $slug)) {
+                    $badSlug[] = $slug;
+                }
+                if (isset($seenSlugs[$slug])) {
+                    $warnings[] = "Строка {$line}: slug «{$slug}» повторяется в файле (строка {$seenSlugs[$slug]}) — записи перезапишут друг друга.";
+                } else {
+                    $seenSlugs[$slug] = $line;
+                }
+            }
+
+            // Категории, которых нет в базе и которые не будут созданы
+            if (!$createMissing && !empty($raw['categories']) && is_array($raw['categories'])) {
+                foreach ($raw['categories'] as $c) {
+                    $value = is_array($c) ? ($c[$matchBy] ?? null) : $c;
+                    if ($value === null || $value === '') {
+                        continue;
+                    }
+
+                    $exists = Category::where($matchBy === 'id' ? 'id' : $matchBy, $value)->exists();
+                    if (!$exists) {
+                        $missingCats[(string) $value] = true;
+                    }
+                }
+            }
+        }
+
+        if ($noKey > 0) {
+            $warnings[] = "Записей без поля «{$updateBy}»: {$noKey} — они будут созданы заново, а не обновлены.";
+        }
+        if ($noTitle > 0) {
+            $warnings[] = "Записей без заголовка: {$noTitle} — такие строки будут пропущены при импорте.";
+        }
+        if ($badSlug) {
+            $sample = implode(', ', array_slice($badSlug, 0, 5));
+            $warnings[] = 'Недопустимые slug (разрешены строчные латинские буквы, цифры и дефис): ' . $sample
+                . (count($badSlug) > 5 ? ' и ещё ' . (count($badSlug) - 5) : '') . '.';
+        }
+        if ($missingCats) {
+            $names = array_slice(array_keys($missingCats), 0, 5);
+            $warnings[] = 'Категории не найдены по «' . $matchBy . '»: ' . implode(', ', $names)
+                . (count($missingCats) > 5 ? ' и ещё ' . (count($missingCats) - 5) : '')
+                . '. Включите «Создавать новые категории», иначе связи потеряются.';
+        }
+
+        return $warnings;
     }
 
     public function import(array $opts): array
