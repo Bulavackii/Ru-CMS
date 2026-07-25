@@ -117,13 +117,21 @@
     <div class="flex flex-col sm:flex-row gap-3 sm:items-center w-full lg:w-auto">
       <form method="GET" action="{{ route('admin.pages.index') }}" id="searchForm"
             class="relative w-full sm:w-80" role="search">
+        {{-- Инлайн-SVG лупа: фиксированный размер и центрирование (не зависит от
+             размера иконки темы). --}}
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+             width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path>
+        </svg>
         <input id="searchInput"
                name="q"
                type="text"
                value="{{ $query }}"
-               placeholder="🔍 Поиск по заголовку и содержимому…"
+               placeholder="Поиск по заголовку и содержимому…"
                autocomplete="off"
-               class="border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 pr-9 shadow-sm w-full text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+               class="border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white pl-10 pr-9 py-2 shadow-sm w-full text-sm
+                      focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" />
         @if ($query)
           <a href="{{ route('admin.pages.index') }}"
              class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
@@ -134,22 +142,38 @@
       </form>
       <a href="{{ route('admin.pages.create') }}"
          class="inline-flex items-center justify-center gap-2 bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2 shadow-sm text-sm font-semibold transition shrink-0">
-        <i class="fa-solid fa-plus"></i> Новая
+        <i class="fa-solid fa-plus"></i> Создать страницу
       </a>
     </div>
   </div>
 
-  <div class="overflow-x-auto border border-gray-200 dark:border-gray-700 shadow-sm">
-    <table id="pagesTable" class="min-w-full bg-white dark:bg-gray-900 text-sm">
-      <thead class="sticky top-0 z-10 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 uppercase text-xs">
+  {{-- ── Подсказка ── --}}
+  <div class="admin-hint px-4 py-3 mb-5 text-sm">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div class="flex items-center gap-2 font-medium">
+        <i class="fa-solid fa-lightbulb"></i>
+        <span>Клик по заголовку таблицы сортирует список. Превью показывает содержимое, не открывая страницу.</span>
+      </div>
+      <div class="flex items-center gap-2 text-xs shrink-0">
+        <span class="bg-white dark:bg-gray-900 border border-indigo-100 dark:border-gray-700 px-2 py-1">
+          Всего: {{ $pages->total() }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-card overflow-hidden">
+   <div class="overflow-x-auto">
+    <table id="pagesTable" class="min-w-full text-sm">
+      <thead class="bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 uppercase text-xs tracking-wide">
         <tr>
-          <th class="px-4 py-2.5 text-left" data-sort="title">📄 Заголовок</th>
-          <th class="px-4 py-2.5 text-left hidden md:table-cell" data-sort="slug">🔗 Slug</th>
-          <th class="px-4 py-2.5 text-left hidden md:table-cell" data-sort="cats">🏷️ Категории</th>
-          <th class="px-4 py-2.5 text-center hidden sm:table-cell" data-sort="pub">Опублик.</th>
-          <th class="px-4 py-2.5 text-center hidden sm:table-cell" data-sort="home">На главной</th>
-          <th class="px-4 py-2.5 text-center">Превью</th>
-          <th class="px-4 py-2.5 text-center">Действия</th>
+          <th class="px-4 py-3 text-left font-semibold" data-sort="title">Заголовок</th>
+          <th class="px-4 py-3 text-left font-semibold hidden md:table-cell" data-sort="slug">Slug</th>
+          <th class="px-4 py-3 text-left font-semibold hidden md:table-cell" data-sort="cats">Категории</th>
+          <th class="px-4 py-3 text-center font-semibold hidden sm:table-cell" data-sort="pub">Статус</th>
+          <th class="px-4 py-3 text-center font-semibold hidden sm:table-cell" data-sort="home">На главной</th>
+          <th class="px-4 py-3 text-center font-semibold">Превью</th>
+          <th class="px-4 py-3 text-center font-semibold w-24">Действия</th>
         </tr>
       </thead>
 
@@ -160,77 +184,92 @@
               class="page-row hover:bg-indigo-50 dark:hover:bg-gray-800 transition"
               data-published="{{ $page->published ? 1 : 0 }}"
               data-home="{{ $page->show_on_homepage ? 1 : 0 }}">
-            <td class="px-4 py-2.5 font-medium text-gray-800 dark:text-white page-title">
-              <a href="{{ route('frontend.pages.show', $page->slug) }}" target="_blank"
-                 class="text-indigo-600 dark:text-indigo-400 hover:underline" title="Открыть страницу на сайте">
+            <td class="px-4 py-3 align-top page-title">
+              <a href="{{ route('admin.pages.edit', $page) }}"
+                 class="font-semibold text-gray-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 transition">
                 {{ $page->title }}
               </a>
-              <div class="text-xs text-gray-500 dark:text-gray-400 block md:hidden">
-                {{ $page->slug }}
+              <div class="mt-1 flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500">
+                <span class="font-mono">ID {{ $page->id }}</span>
+                <span class="md:hidden font-mono">/{{ $page->slug }}</span>
+                <a href="{{ route('frontend.pages.show', $page->slug) }}" target="_blank" rel="noopener"
+                   class="hover:text-indigo-600 dark:hover:text-indigo-400 transition" title="Открыть на сайте">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </a>
               </div>
             </td>
 
-            <td class="px-4 py-2.5 text-gray-600 dark:text-gray-400 hidden md:table-cell" data-slug="{{ $page->slug }}">
-              {{ $page->slug }}
+            <td class="px-4 py-3 align-top hidden md:table-cell" data-slug="{{ $page->slug }}">
+              <span class="inline-flex items-center px-2 py-0.5 text-xs font-mono bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+                /{{ $page->slug }}
+              </span>
             </td>
 
-            <td class="px-4 py-2.5 text-gray-600 dark:text-gray-400 hidden md:table-cell"
+            <td class="px-4 py-3 align-top hidden md:table-cell"
                 data-cats="{{ $page->categories->pluck('title')->join(', ') }}">
               @forelse ($page->categories as $cat)
-                <span class="inline-block bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 text-xs px-2 py-0.5 mr-1 mb-1">
-                  🏷️ {{ $cat->title }}
+                <span class="inline-flex items-center px-2 py-0.5 mr-1 mb-1 text-xs font-medium
+                             bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">
+                  {{ $cat->title }}
                 </span>
               @empty
-                <span class="text-xs text-gray-400 italic">—</span>
+                <span class="text-gray-400 dark:text-gray-500">—</span>
               @endforelse
             </td>
 
-            {{-- Опубликовано --}}
-            <td class="px-4 py-2.5 text-center hidden sm:table-cell">
+            {{-- Статус публикации --}}
+            <td class="px-4 py-3 align-top text-center hidden sm:table-cell">
               @if($page->published)
-                <span class="inline-flex items-center justify-center h-6 px-2 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 text-xs gap-1">
-                  <i class="fa-solid fa-check text-xs"></i> Да
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold whitespace-nowrap
+                             bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300" title="Видна посетителям">
+                  <i class="fa-solid fa-circle-check"></i> Опубликовано
                 </span>
               @else
-                <span class="inline-flex items-center justify-center h-6 px-2 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300 text-xs">Нет</span>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold whitespace-nowrap
+                             bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300" title="Скрыта от посетителей">
+                  <i class="fa-solid fa-clock"></i> Черновик
+                </span>
               @endif
             </td>
 
-            {{-- Домой --}}
-            <td class="px-4 py-2.5 text-center hidden sm:table-cell">
+            {{-- На главной --}}
+            <td class="px-4 py-3 align-top text-center hidden sm:table-cell">
               @if($page->show_on_homepage)
-                <span class="inline-flex items-center justify-center h-6 px-2 bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300 text-xs gap-1">
-                  <i class="fa-solid fa-house text-xs"></i> Да
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold whitespace-nowrap
+                             bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">
+                  <i class="fa-solid fa-house"></i> Да
                 </span>
               @else
-                <span class="inline-flex items-center justify-center h-6 px-2 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300 text-xs">Нет</span>
+                <span class="text-gray-400 dark:text-gray-500">—</span>
               @endif
             </td>
 
             {{-- Превью --}}
-            <td class="px-4 py-2.5 text-center">
-              <button
+            <td class="px-4 py-3 align-top text-center">
+              <button type="button"
                 onclick="toggleContent({{ $page->id }}, this)"
-                class="inline-flex items-center gap-1 border border-gray-300 dark:border-gray-700 px-2.5 h-7 text-xs text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-gray-800">
-                <i class="fa-regular fa-eye text-xs"></i> <span>Показать</span>
+                class="inline-flex items-center gap-1.5 border border-gray-300 dark:border-gray-700 px-2.5 py-1 text-xs
+                       text-indigo-700 dark:text-indigo-300 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-800 transition">
+                <i class="fa-regular fa-eye"></i> <span>Показать</span>
               </button>
             </td>
 
             {{-- Действия --}}
-            <td class="px-4 py-2.5 text-center">
-              <div class="inline-flex items-center gap-2">
+            <td class="px-4 py-3 align-top text-center">
+              <div class="inline-flex items-center gap-1.5">
                 <a href="{{ route('admin.pages.edit', $page) }}"
-                   class="text-indigo-600 hover:text-indigo-800"
+                   class="inline-flex items-center justify-center w-8 h-8 bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition"
                    title="Редактировать">
-                  <i class="fa-regular fa-pen-to-square"></i>
+                  <i class="fa-solid fa-pen"></i>
                 </a>
 
                 <form action="{{ route('admin.pages.destroy', $page) }}" method="POST"
-                      onsubmit="return confirm('Удалить страницу «{{ $page->title }}»?')"
+                      onsubmit="return confirm('Удалить страницу «{{ $page->title }}»? Действие необратимо.')"
                       class="inline-block" title="Удалить">
                   @csrf
                   @method('DELETE')
-                  <button type="submit" class="text-red-600 hover:text-red-700">
+                  <button type="submit"
+                          class="inline-flex items-center justify-center w-8 h-8 bg-red-600 hover:bg-red-700 text-white shadow-sm transition">
                     <i class="fa-regular fa-trash-can"></i>
                   </button>
                 </form>
@@ -266,6 +305,7 @@
         @endforelse
       </tbody>
     </table>
+   </div>
   </div>
 
   {{-- Пагинация --}}

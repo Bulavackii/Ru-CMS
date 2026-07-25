@@ -27,8 +27,8 @@
         </div>
     @endif
 
-    {{-- 🧾 Форма создания страницы --}}
-    <form method="POST" action="{{ route('admin.pages.store') }}" class="space-y-6">
+    {{-- Форма создания страницы --}}
+    <form method="POST" action="{{ route('admin.pages.store') }}" class="space-y-5">
         @csrf
         {{-- Маркер отправки: отличаем первую загрузку (галочка «Опубликовать»
              по умолчанию стоит) от возврата после ошибки валидации со снятой
@@ -36,78 +36,100 @@
              после снятия галочки неразличимы, и снять публикацию было нельзя. --}}
         <input type="hidden" name="_submitted" value="1">
 
-        {{-- 📄 Заголовок страницы --}}
-        <x-admin.input label="📄 Заголовок" name="title" :value="old('title')" required
-            hint="Основной заголовок страницы, отображается в интерфейсе и в заголовке браузера." />
+        {{-- ── Основное ── --}}
+        <div class="admin-card p-5">
+            <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-file-lines text-indigo-500"></i> Основное
+            </h2>
+            <div class="space-y-4">
+                <x-admin.input label="Заголовок" name="title" :value="old('title')" required
+                    hint="Основной заголовок страницы — в интерфейсе и в заголовке браузера." />
+                <x-admin.input label="Slug (ссылка)" name="slug" :value="old('slug')"
+                    hint="URL-адрес страницы. Оставьте пустым — сгенерируется автоматически." />
+            </div>
+        </div>
 
-        {{-- 🧠 SEO-информация --}}
-        <x-admin.input label="🔖 Meta Title" name="meta_title" :value="old('meta_title')"
-            hint="Отображается в поисковой выдаче. До 60 символов. Можно использовать «|» или «—» для разделения." />
+        {{-- ── SEO ── --}}
+        <div class="admin-card p-5">
+            <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-magnifying-glass text-indigo-500"></i> SEO
+            </h2>
+            <div class="space-y-4">
+                <x-admin.input label="Meta Title" name="meta_title" :value="old('meta_title')"
+                    hint="Отображается в поисковой выдаче. До 60 символов." />
+                <x-admin.input label="Meta Description" name="meta_description" :value="old('meta_description')"
+                    hint="Краткое описание до 160 символов. Увеличивает CTR в поиске." />
+                <x-admin.input label="Ключевые слова" name="meta_keywords" :value="old('meta_keywords')"
+                    hint="Через запятую: вода, экология, природа." />
+            </div>
+        </div>
 
-        <x-admin.input label="📝 Meta Description" name="meta_description" :value="old('meta_description')"
-            hint="Краткое описание страницы до 160 символов. Увеличивает CTR в поисковиках." />
-
-        <x-admin.input label="🔑 Ключевые слова" name="meta_keywords" :value="old('meta_keywords')"
-            hint="Слова через запятую: вода, экология, природа. Используются поисковыми системами." />
-
-        {{-- 🔗 Slug (ссылка на страницу) --}}
-        <x-admin.input label="🔗 Slug (ссылка)" name="slug" :value="old('slug')"
-            hint="URL-адрес страницы. Оставьте пустым — сгенерируется автоматически." />
-
-        {{-- 📂 Категории страницы --}}
-        <div>
-            <label class="block font-semibold mb-2 text-gray-700 dark:text-gray-300">📂 Категории</label>
-            <p class="text-sm text-gray-500 mb-2">Выберите одну или несколько категорий, к которым относится страница.</p>
-            <div class="flex flex-wrap gap-3">
-                @foreach ($categories as $category)
-                    <label
-                        class="flex items-center px-3 py-1 border border-gray-300 cursor-pointer text-sm hover:bg-indigo-50 hover:border-indigo-400 dark:border-gray-600 dark:hover:bg-gray-700 transition">
+        {{-- ── Категории ── --}}
+        <div class="admin-card p-5">
+            <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2 flex items-center gap-2">
+                <i class="fa-solid fa-folder-open text-indigo-500"></i> Категории
+            </h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Выберите одну или несколько категорий, к которым относится страница.</p>
+            <div class="flex flex-wrap gap-2">
+                @forelse ($categories as $category)
+                    <label class="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-300 dark:border-gray-600 cursor-pointer text-sm
+                                  hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-700 transition">
                         <input type="checkbox" name="categories[]" value="{{ $category->id }}"
-                            class="form-checkbox text-indigo-600 mr-2"
                             {{ in_array($category->id, old('categories', [])) ? 'checked' : '' }}>
                         {{ $category->title }}
                     </label>
-                @endforeach
+                @empty
+                    <p class="text-sm text-gray-400 dark:text-gray-500">Категорий пока нет.</p>
+                @endforelse
             </div>
         </div>
 
-        {{-- 📝 Контент страницы --}}
-        <div>
-            <label for="editor" class="block font-semibold mb-1 text-gray-700 dark:text-gray-300">📝 Контент</label>
+        {{-- ── Контент ── --}}
+        <div class="admin-card p-5">
+            <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-pen-nib text-indigo-500"></i> Контент
+            </h2>
             <textarea name="content" id="editor" rows="12"
-                class="w-full border border-gray-300 rounded px-3 py-2 dark:bg-gray-800 dark:text-white"
-                placeholder="Введите основной текст страницы, можно добавлять изображения, видео и форматированный текст.">{{ old('content') }}</textarea>
+                class="w-full border border-gray-300 dark:border-gray-700 px-3 py-2 dark:bg-gray-800 dark:text-white"
+                placeholder="Основной текст страницы: форматирование, изображения и видео.">{{ old('content') }}</textarea>
         </div>
 
-        {{-- ⚙️ Настройки публикации и кнопка --}}
-        <div class="pt-4 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
-            <div class="flex flex-col sm:flex-row sm:items-center gap-6">
-                {{-- ✅ Опубликовать --}}
-                <label class="inline-flex items-center text-gray-700 dark:text-gray-300">
-                    <input type="checkbox" name="published" value="1" class="mr-2"
-                        {{ old('_submitted') ? (old('published') ? 'checked' : '') : 'checked' }}>
-                     Опубликовать страницу
-                </label>
+        {{-- ── Публикация и сохранение ── --}}
+        <div class="admin-card p-5">
+            <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-sliders text-indigo-500"></i> Публикация
+            </h2>
 
-                {{-- 🏠 Показывать на главной --}}
-                <label class="inline-flex items-center text-gray-700 dark:text-gray-300">
-                    <input type="checkbox" name="show_on_homepage" value="1" class="mr-2"
-                        {{ old('show_on_homepage') ? 'checked' : '' }}>
-                     Показать на главной странице
-                </label>
+            <div class="flex flex-col lg:flex-row lg:items-end gap-5">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-5">
+                    <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                        <input type="checkbox" name="published" value="1"
+                            {{ old('_submitted') ? (old('published') ? 'checked' : '') : 'checked' }}>
+                        Опубликовать страницу
+                    </label>
 
-                {{-- 🔢 Порядок на главной --}}
-                <x-admin.input label="🔢 Порядок" name="homepage_order" type="number"
-                    :value="old('homepage_order', 0)" class="w-32"
-                    hint="Чем меньше число — тем выше в списке на главной." />
-            </div>
+                    <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                        <input type="checkbox" name="show_on_homepage" value="1"
+                            {{ old('show_on_homepage') ? 'checked' : '' }}>
+                        Показать на главной
+                    </label>
 
-            {{-- 💾 Кнопка сохранения --}}
-            <div class="text-right">
-                <button type="submit"
-                    class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 shadow-sm text-sm font-semibold transition">
-                    <i class="fa-solid fa-floppy-disk"></i> Сохранить страницу
-                </button>
+                    <x-admin.input label="Порядок на главной" name="homepage_order" type="number"
+                        :value="old('homepage_order', 0)" class="w-32"
+                        hint="Чем меньше число — тем выше в списке." />
+                </div>
+
+                <div class="lg:ml-auto flex items-center gap-2">
+                    <a href="{{ route('admin.pages.index') }}"
+                       class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium border border-gray-300 dark:border-gray-600
+                              text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                        Отмена
+                    </a>
+                    <button type="submit"
+                        class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 shadow-sm text-sm font-semibold transition">
+                        <i class="fa-solid fa-floppy-disk"></i> Сохранить страницу
+                    </button>
+                </div>
             </div>
         </div>
     </form>

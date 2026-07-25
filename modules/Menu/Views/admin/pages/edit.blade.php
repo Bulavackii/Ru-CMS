@@ -9,9 +9,30 @@
                 flex items-center justify-between gap-4">
         <div class="flex items-center gap-3 min-w-0">
             <span class="admin-icon-badge"><i class="fa-solid fa-pen-to-square"></i></span>
-            <div class="min-w-0">
-                <h1 class="text-xl font-bold text-gray-900 dark:text-white truncate">Редактировать страницу</h1>
-                <p class="text-sm text-gray-500 dark:text-gray-400 truncate">{{ $page->title }}</p>
+            <div class="min-w-0 space-y-1">
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white truncate">{{ $page->title }}</h1>
+                <div class="flex flex-wrap items-center gap-2 text-xs">
+                    @if ($page->published)
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 font-semibold bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
+                            <i class="fa-solid fa-circle-check"></i> Опубликовано
+                        </span>
+                    @else
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 font-semibold bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">
+                            <i class="fa-solid fa-clock"></i> Черновик
+                        </span>
+                    @endif
+                    @if ($page->show_on_homepage)
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 font-semibold bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">
+                            <i class="fa-solid fa-house"></i> На главной
+                        </span>
+                    @endif
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 font-medium bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                        ID {{ $page->id }}
+                    </span>
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 font-mono bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">
+                        /{{ $page->slug }}
+                    </span>
+                </div>
             </div>
         </div>
         <div class="flex items-center gap-4 shrink-0">
@@ -34,82 +55,105 @@
         </div>
     @endif
 
-    {{-- 🧾 Форма редактирования страницы --}}
-    <form method="POST" action="{{ route('admin.pages.update', $page) }}" class="space-y-6">
+    {{-- Форма редактирования страницы --}}
+    <form method="POST" action="{{ route('admin.pages.update', $page) }}" class="space-y-5">
         @csrf
         @method('PUT')
 
-        {{-- 📄 Заголовок страницы --}}
-        <x-admin.input label="📄 Заголовок" name="title" :value="old('title', $page->title)" required
-            hint="Основной заголовок страницы. Отображается в интерфейсе и в заголовке браузера." />
+        {{-- ── Основное ── --}}
+        <div class="admin-card p-5">
+            <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-file-lines text-indigo-500"></i> Основное
+            </h2>
+            <div class="space-y-4">
+                <x-admin.input label="Заголовок" name="title" :value="old('title', $page->title)" required
+                    hint="Основной заголовок страницы — в интерфейсе и в заголовке браузера." />
+                <x-admin.input label="Slug (ссылка)" name="slug" :value="old('slug', $page->slug)"
+                    hint="Часть URL. Допустимы латиница, цифры и дефисы. Пример: o-nas или contact." />
+            </div>
+        </div>
 
-        {{-- 🧠 SEO-блок --}}
-        <x-admin.input label="🔖 Meta Title" name="meta_title" :value="old('meta_title', $page->meta_title)"
-            hint="Заголовок для поисковых систем. До 60 символов. Используйте «|» или «—» для отделения ключевых слов." />
+        {{-- ── SEO ── --}}
+        <div class="admin-card p-5">
+            <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-magnifying-glass text-indigo-500"></i> SEO
+            </h2>
+            <div class="space-y-4">
+                <x-admin.input label="Meta Title" name="meta_title" :value="old('meta_title', $page->meta_title)"
+                    hint="Заголовок для поисковых систем. До 60 символов." />
+                <x-admin.input label="Meta Description" name="meta_description" :value="old('meta_description', $page->meta_description)"
+                    hint="Описание до 160 символов. Важно для CTR в поисковой выдаче." />
+                <x-admin.input label="Ключевые слова" name="meta_keywords" :value="old('meta_keywords', $page->meta_keywords)"
+                    hint="Через запятую: экология, вода, ресурсы." />
+            </div>
+        </div>
 
-        <x-admin.input label="📝 Meta Description" name="meta_description" :value="old('meta_description', $page->meta_description)"
-            hint="Описание страницы до 160 символов. Важно для CTR в поисковой выдаче." />
-
-        <x-admin.input label="🔑 Ключевые слова" name="meta_keywords" :value="old('meta_keywords', $page->meta_keywords)"
-            hint="Ключевые слова через запятую: экология, вода, ресурсы. Учитываются поисковиками." />
-
-        {{-- 🔗 Slug (ссылка) --}}
-        <x-admin.input label="🔗 Slug (ссылка)" name="slug" :value="old('slug', $page->slug)"
-            hint="Пользовательская часть URL. Допустимы только латиница, тире и цифры. Пример: o-nas или contact" />
-
-        {{-- 📂 Категории --}}
-        <div>
-            <label class="block font-semibold mb-2 text-gray-700 dark:text-gray-300">📂 Категории</label>
-            <p class="text-sm text-gray-500 mb-2">Выберите категории, к которым относится эта страница. Можно выбрать несколько.</p>
-            <div class="flex flex-wrap gap-3">
-                @foreach ($categories as $category)
-                    <label class="flex items-center px-3 py-1 border border-gray-300 dark:border-gray-600 cursor-pointer text-sm hover:bg-indigo-50 hover:border-indigo-400 dark:hover:bg-gray-700 transition">
+        {{-- ── Категории ── --}}
+        <div class="admin-card p-5">
+            <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2 flex items-center gap-2">
+                <i class="fa-solid fa-folder-open text-indigo-500"></i> Категории
+            </h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Выберите категории, к которым относится эта страница.</p>
+            <div class="flex flex-wrap gap-2">
+                @forelse ($categories as $category)
+                    <label class="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-300 dark:border-gray-600 cursor-pointer text-sm
+                                  hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-700 transition">
                         <input type="checkbox" name="categories[]" value="{{ $category->id }}"
-                               class="form-checkbox text-indigo-600 mr-2"
                                {{ in_array($category->id, old('categories', $page->categories->pluck('id')->toArray())) ? 'checked' : '' }}>
                         {{ $category->title }}
                     </label>
-                @endforeach
+                @empty
+                    <p class="text-sm text-gray-400 dark:text-gray-500">Категорий пока нет.</p>
+                @endforelse
             </div>
         </div>
 
-        {{-- 📝 Контент страницы --}}
-        <div>
-            <label for="editor" class="block font-semibold mb-1 text-gray-700 dark:text-gray-300">📝 Контент</label>
+        {{-- ── Контент ── --}}
+        <div class="admin-card p-5">
+            <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-pen-nib text-indigo-500"></i> Контент
+            </h2>
             <textarea name="content" id="editor" rows="12"
-                      class="w-full border border-gray-300 rounded px-3 py-2 dark:bg-gray-800 dark:text-white"
-                      placeholder="Введите или отредактируйте содержимое страницы. Поддерживается форматирование, вставка изображений и видео.">{{ old('content', $page->content) }}</textarea>
+                      class="w-full border border-gray-300 dark:border-gray-700 px-3 py-2 dark:bg-gray-800 dark:text-white"
+                      placeholder="Содержимое страницы: форматирование, изображения и видео.">{{ old('content', $page->content) }}</textarea>
         </div>
 
-        {{-- ⚙️ Настройки публикации и кнопка --}}
-        <div class="pt-4 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
-            <div class="flex flex-col sm:flex-row sm:items-center gap-6">
-                {{-- ✅ Опубликовать --}}
-                <label class="inline-flex items-center text-gray-700 dark:text-gray-300">
-                    <input type="checkbox" name="published" value="1" class="mr-2"
-                        {{ old('published', $page->published) ? 'checked' : '' }}>
-                    ✅ Опубликовать страницу
-                </label>
+        {{-- ── Публикация и сохранение ── --}}
+        <div class="admin-card p-5">
+            <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-sliders text-indigo-500"></i> Публикация
+            </h2>
 
-                {{-- 🏠 Показывать на главной --}}
-                <label class="inline-flex items-center text-gray-700 dark:text-gray-300">
-                    <input type="checkbox" name="show_on_homepage" value="1" class="mr-2"
-                        {{ old('show_on_homepage', $page->show_on_homepage) ? 'checked' : '' }}>
-                    🏠 Показать на главной странице
-                </label>
+            <div class="flex flex-col lg:flex-row lg:items-end gap-5">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-5">
+                    <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                        <input type="checkbox" name="published" value="1"
+                            {{ old('published', $page->published) ? 'checked' : '' }}>
+                        Опубликовать страницу
+                    </label>
 
-                {{-- 🔢 Порядок на главной --}}
-                <x-admin.input label="🔢 Порядок" name="homepage_order" type="number"
-                    :value="old('homepage_order', $page->homepage_order)" class="w-32"
-                    hint="Чем меньше значение, тем выше блок на главной странице." />
-            </div>
+                    <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                        <input type="checkbox" name="show_on_homepage" value="1"
+                            {{ old('show_on_homepage', $page->show_on_homepage) ? 'checked' : '' }}>
+                        Показать на главной
+                    </label>
 
-            {{-- 💾 Кнопка сохранения --}}
-            <div class="text-right">
-                <button type="submit"
-                    class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 shadow-sm text-sm font-semibold transition">
-                    <i class="fa-solid fa-floppy-disk"></i> Сохранить изменения
-                </button>
+                    <x-admin.input label="Порядок на главной" name="homepage_order" type="number"
+                        :value="old('homepage_order', $page->homepage_order)" class="w-32"
+                        hint="Чем меньше значение — тем выше блок." />
+                </div>
+
+                <div class="lg:ml-auto flex items-center gap-2">
+                    <a href="{{ route('admin.pages.index') }}"
+                       class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium border border-gray-300 dark:border-gray-600
+                              text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                        Отмена
+                    </a>
+                    <button type="submit"
+                        class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 shadow-sm text-sm font-semibold transition">
+                        <i class="fa-solid fa-floppy-disk"></i> Сохранить изменения
+                    </button>
+                </div>
             </div>
         </div>
     </form>
