@@ -3,49 +3,82 @@
 @section('title', 'Редактировать категорию')
 
 @section('content')
-    {{-- Header --}}
-    <div class="mb-6 flex items-start justify-between gap-4">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                @themeIcon('edit') Редактировать категорию
-            </h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400">
-                Обновите данные категории. Изменения будут применены сразу.
-            </p>
+    {{-- ── Шапка страницы ── --}}
+    <div class="admin-accent-bar mb-0"></div>
+    <div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
+                flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div class="flex items-center gap-3 min-w-0">
+            <span class="admin-icon-badge"><i class="fas fa-tag"></i></span>
+            <div class="min-w-0 space-y-1">
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white truncate">{{ $category->title }}</h1>
+                <div class="flex flex-wrap items-center gap-2 text-xs">
+                    @if ($category->is_active)
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 font-semibold bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
+                            <i class="fas fa-circle-check"></i> Активна
+                        </span>
+                    @else
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 font-semibold bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">
+                            <i class="fas fa-ban"></i> Неактивна
+                        </span>
+                    @endif
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 font-medium bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                        ID {{ $category->id }}
+                    </span>
+                    @if ($category->slug)
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 font-mono bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">
+                            /{{ $category->slug }}
+                        </span>
+                    @endif
+                    @if ($category->type)
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 font-medium bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+                            {{ $category->type }}
+                        </span>
+                    @endif
+                </div>
+            </div>
         </div>
 
         <a href="{{ route('admin.categories.index') }}"
-           class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:underline">
-            @themeIcon('arrow-left') Назад к списку
+           class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition shrink-0">
+            <i class="fas fa-arrow-left"></i> К списку категорий
         </a>
     </div>
 
-    {{-- Usage Info --}}
+    {{-- Использование категории --}}
     @if(isset($usageCounts) && ($usageCounts['news'] > 0 || $usageCounts['pages'] > 0 || $usageCounts['children'] > 0))
-        <div class="mb-4 rounded-xl border border-blue-200/70 dark:border-blue-900/40 bg-blue-50 dark:bg-blue-900/30 p-4">
-            <p class="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">📊 Использование категории:</p>
-            <div class="flex flex-wrap gap-3 text-sm text-blue-800 dark:text-blue-200">
+        <div class="admin-hint px-4 py-3 mb-5 text-sm">
+            <div class="flex flex-wrap items-center gap-3">
+                <span class="font-medium flex items-center gap-2"><i class="fas fa-chart-simple"></i> Используется:</span>
                 @if($usageCounts['news'] > 0)
-                    <span>📰 Новостей: <strong>{{ $usageCounts['news'] }}</strong></span>
+                    <span class="inline-flex items-center gap-1.5 bg-white dark:bg-gray-900 border border-indigo-100 dark:border-gray-700 px-2 py-1 text-xs">
+                        <i class="fas fa-newspaper text-indigo-500"></i> Новостей: <b>{{ $usageCounts['news'] }}</b>
+                    </span>
                 @endif
                 @if($usageCounts['pages'] > 0)
-                    <span>📄 Страниц: <strong>{{ $usageCounts['pages'] }}</strong></span>
+                    <span class="inline-flex items-center gap-1.5 bg-white dark:bg-gray-900 border border-indigo-100 dark:border-gray-700 px-2 py-1 text-xs">
+                        <i class="fas fa-file-lines text-indigo-500"></i> Страниц: <b>{{ $usageCounts['pages'] }}</b>
+                    </span>
                 @endif
                 @if($usageCounts['children'] > 0)
-                    <span>📁 Дочерних категорий: <strong>{{ $usageCounts['children'] }}</strong></span>
+                    <span class="inline-flex items-center gap-1.5 bg-white dark:bg-gray-900 border border-indigo-100 dark:border-gray-700 px-2 py-1 text-xs">
+                        <i class="fas fa-folder-tree text-indigo-500"></i> Дочерних категорий: <b>{{ $usageCounts['children'] }}</b>
+                    </span>
                 @endif
             </div>
         </div>
     @endif
 
-    {{-- Errors --}}
+    {{-- Ошибки валидации --}}
     @if ($errors->any())
-        <div class="mb-4 rounded-xl border border-red-300/70 bg-red-50 px-4 py-3 text-red-800 dark:border-red-900/40 dark:bg-red-900/30 dark:text-red-100">
-            <ul class="list-disc list-inside">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+        <div class="border-l-4 border-red-500 bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 px-4 py-3 mb-6 text-sm">
+            <div class="flex items-start gap-2">
+                <i class="fas fa-triangle-exclamation mt-0.5"></i>
+                <ul class="list-disc list-inside">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
         </div>
     @endif
 
@@ -207,7 +240,7 @@
         {{-- Actions --}}
         <div class="mt-6 flex flex-col sm:flex-row gap-3 sm:items-center pt-6 border-t border-gray-200 dark:border-gray-700">
             <button type="submit" id="submitBtn"
-                    class="inline-flex items-center justify-center gap-2 w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-lg text-sm shadow transition disabled:opacity-50">
+                    class="inline-flex items-center justify-center gap-2 w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg text-sm shadow transition disabled:opacity-50">
                 @themeIcon('save') Сохранить
             </button>
 

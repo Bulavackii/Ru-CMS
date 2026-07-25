@@ -3,31 +3,37 @@
 @section('title', 'Создать категорию')
 
 @section('content')
-    {{-- Header --}}
-    <div class="mb-6 flex items-start justify-between gap-4">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                @themeIcon('tag') Создать категорию
-            </h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400">
-                Заполните данные категории. Slug будет сгенерирован автоматически, если не указан.
-            </p>
+    {{-- ── Шапка страницы ── --}}
+    <div class="admin-accent-bar mb-0"></div>
+    <div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
+                flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div class="flex items-center gap-3 min-w-0">
+            <span class="admin-icon-badge"><i class="fas fa-tag"></i></span>
+            <div class="min-w-0">
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">Создание категории</h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                    Slug сгенерируется автоматически, если не указать его вручную.
+                </p>
+            </div>
         </div>
 
         <a href="{{ route('admin.categories.index') }}"
-           class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:underline">
-            @themeIcon('arrow-left') Назад к списку
+           class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition shrink-0">
+            <i class="fas fa-arrow-left"></i> К списку категорий
         </a>
     </div>
 
-    {{-- Errors --}}
+    {{-- Ошибки валидации --}}
     @if ($errors->any())
-        <div class="mb-4 rounded-xl border border-red-300/70 bg-red-50 px-4 py-3 text-red-800 dark:border-red-900/40 dark:bg-red-900/30 dark:text-red-100">
-            <ul class="list-disc list-inside">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+        <div class="border-l-4 border-red-500 bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 px-4 py-3 mb-6 text-sm">
+            <div class="flex items-start gap-2">
+                <i class="fas fa-triangle-exclamation mt-0.5"></i>
+                <ul class="list-disc list-inside">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
         </div>
     @endif
 
@@ -50,7 +56,7 @@
                     value="{{ old('title') }}"
                     maxlength="255"
                     autofocus
-                    class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     placeholder="Например: Новости" required>
                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                     Рекомендуется до 60 символов.
@@ -68,7 +74,7 @@
                     id="slug"
                     value="{{ old('slug') }}"
                     pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
-                    class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     placeholder="Будет сгенерирован автоматически">
                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                     Только латинские буквы, цифры и дефисы. Оставьте пустым для автогенерации.
@@ -85,7 +91,7 @@
                     id="description"
                     rows="3"
                     maxlength="1000"
-                    class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     placeholder="Краткое описание категории">{{ old('description') }}</textarea>
                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                     Максимум 1000 символов.
@@ -103,7 +109,7 @@
                     id="type"
                     value="{{ old('type') }}"
                     maxlength="50"
-                    class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     placeholder="Например: news, product">
                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                     Для группировки категорий.
@@ -121,7 +127,7 @@
                     id="icon"
                     value="{{ old('icon') }}"
                     maxlength="100"
-                    class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     placeholder="Эмодзи или HTML">
                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                     Эмодзи или HTML код иконки.
@@ -136,7 +142,7 @@
                 <select
                     name="parent_id"
                     id="parent_id"
-                    class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                     <option value="">Корневая категория</option>
                     @foreach($parentCategories ?? [] as $parent)
                         <option value="{{ $parent->id }}" {{ old('parent_id') == $parent->id ? 'selected' : '' }}>
@@ -160,7 +166,7 @@
                     id="sort_order"
                     value="{{ old('sort_order', 0) }}"
                     min="0"
-                    class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                     Меньшее значение = выше в списке.
                 </p>
@@ -185,7 +191,7 @@
         {{-- Actions --}}
         <div class="mt-6 flex flex-col sm:flex-row gap-3 sm:items-center pt-6 border-t border-gray-200 dark:border-gray-700">
             <button type="submit" id="submitBtn"
-                    class="inline-flex items-center justify-center gap-2 w-full sm:w-auto bg-black hover:bg-gray-800 text-white px-5 py-2.5 rounded-lg text-sm shadow transition disabled:opacity-50">
+                    class="inline-flex items-center justify-center gap-2 w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg text-sm shadow transition disabled:opacity-50">
                 @themeIcon('save') Сохранить
             </button>
 

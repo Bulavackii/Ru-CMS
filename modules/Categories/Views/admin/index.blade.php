@@ -3,39 +3,55 @@
 @section('title', 'Категории')
 
 @section('content')
-    {{-- ───────────── Header + actions ───────────── --}}
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">🏷️ Список категорий</h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400">
-                Управляйте категориями: ищите, редактируйте, выделяйте и удаляйте пачками.
-            </p>
+    {{-- ── Шапка страницы: акцентная полоса + бейдж-иконка + действие ── --}}
+    <div class="admin-accent-bar mb-0"></div>
+    <div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
+                flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div class="flex items-center gap-3 min-w-0">
+            <span class="admin-icon-badge"><i class="fas fa-tags"></i></span>
+            <div class="min-w-0">
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">Категории</h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                    Группировка новостей, страниц и товаров. Вложенность, типы и массовые операции.
+                </p>
+            </div>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2">
-            {{-- ➕ Добавить --}}
-            <a href="{{ route('admin.categories.create') }}"
-               class="inline-flex items-center gap-2 bg-black text-white hover:bg-gray-800 px-4 py-2 rounded-md shadow text-sm transition">
-                @themeIcon('plus') Добавить
-            </a>
-        </div>
+        <a href="{{ route('admin.categories.create') }}"
+           class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition shrink-0"
+           title="Создать новую категорию">
+            <i class="fas fa-plus"></i> Создать категорию
+        </a>
     </div>
 
-    {{-- ───────────── Filters ───────────── --}}
-    <form method="GET" action="{{ route('admin.categories.index') }}" class="mb-4 bg-white dark:bg-gray-800 rounded-xl shadow border border-gray-200 dark:border-gray-700 p-4">
+    {{-- ── Фильтры ── --}}
+    <form method="GET" action="{{ route('admin.categories.index') }}" class="admin-card p-5 mb-5">
+        <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+            <i class="fas fa-filter text-indigo-500"></i> Фильтры
+        </h2>
+
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {{-- Поиск --}}
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">🔍 Поиск</label>
-                <input type="text" name="search" value="{{ request('search') }}"
-                       class="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md px-3 py-2 text-sm"
-                       placeholder="Название, описание...">
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Поиск</label>
+                <div class="relative">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                         width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path>
+                    </svg>
+                    <input type="text" name="search" value="{{ request('search') }}"
+                           class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white pl-10 pr-3 py-2 text-sm
+                                  focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                           placeholder="Название, описание…">
+                </div>
             </div>
 
             {{-- Тип --}}
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">📋 Тип</label>
-                <select name="type" class="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md px-3 py-2 text-sm">
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Тип</label>
+                <select name="type" class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
+                                           focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
                     <option value="">Все типы</option>
                     @foreach($types ?? [] as $type)
                         <option value="{{ $type }}" {{ request('type') === $type ? 'selected' : '' }}>{{ $type }}</option>
@@ -45,8 +61,9 @@
 
             {{-- Родитель --}}
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">🔗 Родитель</label>
-                <select name="parent_id" class="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md px-3 py-2 text-sm">
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Родитель</label>
+                <select name="parent_id" class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
+                                                focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
                     <option value="">Все категории</option>
                     <option value="null" {{ request('parent_id') === 'null' ? 'selected' : '' }}>Корневые</option>
                     @foreach($parentCategories ?? [] as $parent)
@@ -57,8 +74,9 @@
 
             {{-- Активность --}}
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">✅ Активность</label>
-                <select name="is_active" class="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md px-3 py-2 text-sm">
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Активность</label>
+                <select name="is_active" class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
+                                                focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
                     <option value="">Все</option>
                     <option value="1" {{ request('is_active') === '1' ? 'selected' : '' }}>Активные</option>
                     <option value="0" {{ request('is_active') === '0' ? 'selected' : '' }}>Неактивные</option>
@@ -67,192 +85,226 @@
         </div>
 
         <div class="flex items-center gap-2 mt-4">
-            <button type="submit" class="inline-flex items-center gap-2 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-md shadow text-sm transition">
-                @themeIcon('search') Применить фильтры
+            <button type="submit" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition">
+                <i class="fas fa-magnifying-glass"></i> Применить фильтры
             </button>
-            <a href="{{ route('admin.categories.index') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">
-                @themeIcon('xmark') Сбросить
+            <a href="{{ route('admin.categories.index') }}"
+               class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium
+                      text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                <i class="fas fa-xmark"></i> Сбросить
             </a>
         </div>
     </form>
 
-    {{-- ───────────── Bulk Actions ───────────── --}}
-    <div id="bulkActions" class="mb-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-4 hidden">
+    {{-- ── Массовые действия (панель появляется при выделении) ── --}}
+    <div id="bulkActions" class="admin-card p-4 mb-5 hidden" style="border-left:3px solid #6366f1">
         <div class="flex flex-wrap items-center gap-3">
-            <span class="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                Выбрано: <span id="selCount">0</span>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold
+                         bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">
+                <i class="fas fa-check-double"></i> Выбрано: <span id="selCount">0</span>
             </span>
-            
-            {{-- Массовое удаление --}}
-            <button id="bulkDeleteBtn" class="inline-flex items-center gap-2 bg-red-600 text-white hover:bg-red-700 px-3 py-1.5 rounded-md shadow text-sm transition">
-                @themeIcon('trash') Удалить
-            </button>
 
             {{-- Массовое изменение типа --}}
             <div class="flex items-center gap-2">
-                <input type="text" id="bulkTypeInput" placeholder="Тип" class="border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md px-2 py-1.5 text-sm w-32">
-                <button id="bulkUpdateTypeBtn" class="inline-flex items-center gap-2 bg-purple-600 text-white hover:bg-purple-700 px-3 py-1.5 rounded-md shadow text-sm transition">
-                    @themeIcon('edit') Изменить тип
+                <input type="text" id="bulkTypeInput" placeholder="Тип"
+                       class="border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-2.5 py-1.5 text-sm w-32
+                              focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                <button id="bulkUpdateTypeBtn"
+                        class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 text-sm font-semibold shadow-sm transition">
+                    <i class="fas fa-pen"></i> Изменить тип
                 </button>
             </div>
 
             {{-- Массовое изменение родителя --}}
             <div class="flex items-center gap-2">
-                <select id="bulkParentSelect" class="border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md px-2 py-1.5 text-sm">
+                <select id="bulkParentSelect"
+                        class="border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-2.5 py-1.5 text-sm
+                               focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
                     <option value="">Убрать родителя</option>
                     @foreach($parentCategories ?? [] as $parent)
                         <option value="{{ $parent->id }}">{{ $parent->title }}</option>
                     @endforeach
                 </select>
-                <button id="bulkUpdateParentBtn" class="inline-flex items-center gap-2 bg-indigo-600 text-white hover:bg-indigo-700 px-3 py-1.5 rounded-md shadow text-sm transition">
-                    @themeIcon('edit') Изменить родителя
+                <button id="bulkUpdateParentBtn"
+                        class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 text-sm font-semibold shadow-sm transition">
+                    <i class="fas fa-sitemap"></i> Изменить родителя
                 </button>
             </div>
 
-            {{-- Массовое изменение активности --}}
-            <button id="bulkActivateBtn" class="inline-flex items-center gap-2 bg-green-600 text-white hover:bg-green-700 px-3 py-1.5 rounded-md shadow text-sm transition">
-                @themeIcon('check') Активировать
-            </button>
-            <button id="bulkDeactivateBtn" class="inline-flex items-center gap-2 bg-gray-600 text-white hover:bg-gray-700 px-3 py-1.5 rounded-md shadow text-sm transition">
-                @themeIcon('xmark') Деактивировать
-            </button>
+            <div class="flex items-center gap-2 ml-auto">
+                <button id="bulkActivateBtn"
+                        class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 text-sm font-semibold shadow-sm transition">
+                    <i class="fas fa-circle-check"></i> Активировать
+                </button>
+                <button id="bulkDeactivateBtn"
+                        class="inline-flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1.5 text-sm font-semibold shadow-sm transition">
+                    <i class="fas fa-ban"></i> Деактивировать
+                </button>
+                <button id="bulkDeleteBtn"
+                        class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 text-sm font-semibold shadow-sm transition">
+                    <i class="fas fa-trash-can"></i> Удалить
+                </button>
+            </div>
         </div>
     </div>
 
-    {{-- ───────────── Info strip ───────────── --}}
-    <div class="mb-4 rounded-xl border border-blue-200/70 dark:border-blue-900/40 bg-blue-50 dark:bg-blue-900/30 p-3 text-sm text-blue-900 dark:text-blue-100 flex flex-wrap items-center justify-between gap-2">
-        <div class="flex items-center gap-2">
-            @themeIcon('lightbulb') Подсказки:
-            <span>Shift-клик — выделение диапазона.</span>
-            <span class="hidden sm:inline">Ctrl+F — фокус на поиск.</span>
-        </div>
-        <div class="text-blue-800/80 dark:text-blue-100/80">
-            Показано <b>{{ $categories->count() }}</b> из <b>{{ $categories->total() }}</b>
+    {{-- ── Подсказка ── --}}
+    <div class="admin-hint px-4 py-3 mb-5 text-sm">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div class="flex items-center gap-2 font-medium">
+                <i class="fas fa-lightbulb"></i>
+                <span>Shift-клик выделяет диапазон, <kbd class="px-1.5 py-0.5 border border-indigo-300 bg-white dark:bg-gray-800">Ctrl</kbd> +
+                      <kbd class="px-1.5 py-0.5 border border-indigo-300 bg-white dark:bg-gray-800">F</kbd> — фокус на поиск.</span>
+            </div>
+            <div class="flex items-center gap-2 text-xs shrink-0">
+                <span class="bg-white dark:bg-gray-900 border border-indigo-100 dark:border-gray-700 px-2 py-1">
+                    Показано {{ $categories->count() }} из {{ $categories->total() }}
+                </span>
+            </div>
         </div>
     </div>
 
-    {{-- ───────────── Table ───────────── --}}
-    <div class="overflow-x-auto rounded-xl shadow border border-gray-200 dark:border-gray-800">
-        <table id="categoriesTable" class="min-w-full bg-white dark:bg-gray-900 text-sm">
-            <thead class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 uppercase text-xs">
+    {{-- ── Таблица ── --}}
+    <div class="admin-card overflow-hidden">
+     <div class="overflow-x-auto">
+        <table id="categoriesTable" class="min-w-full text-sm">
+            <thead class="bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 uppercase text-xs tracking-wide">
             <tr>
-                <th class="px-4 py-3 w-10">
-                    <input id="checkAll" type="checkbox" class="h-4 w-4 rounded text-blue-600">
+                <th class="px-4 py-3 w-10 text-left">
+                    <input id="checkAll" type="checkbox" class="h-4 w-4" title="Выбрать все">
                 </th>
-                <th class="px-4 py-3 text-left">🏷️ Название</th>
-                <th class="px-4 py-3 text-left hidden lg:table-cell">📋 Тип</th>
-                <th class="px-4 py-3 text-left hidden lg:table-cell">🔗 Родитель</th>
-                <th class="px-4 py-3 text-center hidden md:table-cell">📊 Использование</th>
-                <th class="px-4 py-3 text-center hidden md:table-cell">✅ Статус</th>
-                <th class="px-4 py-3 text-center">⚙️ Действия</th>
+                <th class="px-4 py-3 text-left font-semibold">Название</th>
+                <th class="px-4 py-3 text-left font-semibold hidden lg:table-cell">Тип</th>
+                <th class="px-4 py-3 text-left font-semibold hidden lg:table-cell">Родитель</th>
+                <th class="px-4 py-3 text-center font-semibold hidden md:table-cell">Использование</th>
+                <th class="px-4 py-3 text-center font-semibold hidden md:table-cell">Статус</th>
+                <th class="px-4 py-3 text-center font-semibold w-16">Действия</th>
             </tr>
             </thead>
 
             <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
             @forelse ($categories as $category)
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition" data-id="{{ $category->id }}">
+                <tr class="hover:bg-indigo-50/60 dark:hover:bg-gray-800 transition" data-id="{{ $category->id }}">
                     {{-- checkbox --}}
-                    <td class="px-4 py-3">
-                        <input type="checkbox" value="{{ $category->id }}"
-                               class="rowCbx h-4 w-4 rounded text-blue-600">
+                    <td class="px-4 py-3 align-top">
+                        <input type="checkbox" value="{{ $category->id }}" class="rowCbx h-4 w-4">
                     </td>
 
                     {{-- title + icon --}}
-                    <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">
-                        <div class="flex items-center gap-2">
-                            @if ($category->icon)
-                                <span class="text-lg">{!! $category->icon !!}</span>
-                            @else
-                                <span class="text-gray-400">@themeIcon('tag')</span>
-                            @endif
-
-                            <div class="flex flex-col">
-                                <span class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold
-                                    bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 titleCell">
-                                    {{ $category->title }}
-                                </span>
-                                @if($category->slug)
-                                    <span class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ $category->slug }}</span>
+                    <td class="px-4 py-3 align-top">
+                        <div class="flex items-start gap-2.5">
+                            <span class="text-indigo-500 mt-0.5 shrink-0">
+                                @if ($category->icon)
+                                    {!! $category->icon !!}
+                                @else
+                                    <i class="fas fa-tag"></i>
                                 @endif
+                            </span>
+
+                            <div class="min-w-0">
+                                <a href="{{ route('admin.categories.edit', $category->id) }}"
+                                   class="titleCell font-semibold text-gray-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 transition break-words">
+                                    {{ $category->title }}
+                                </a>
+                                <div class="mt-1 flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500">
+                                    <span class="font-mono">ID {{ $category->id }}</span>
+                                    @if($category->slug)
+                                        <span class="font-mono">/{{ $category->slug }}</span>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </td>
 
                     {{-- type --}}
-                    <td class="px-4 py-3 hidden lg:table-cell">
+                    <td class="px-4 py-3 align-top hidden lg:table-cell">
                         @if($category->type)
-                            <span class="inline-block px-2 py-0.5 rounded text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                            <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium
+                                         bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300">
                                 {{ $category->type }}
                             </span>
                         @else
-                            <span class="text-gray-400 text-xs">—</span>
+                            <span class="text-gray-400 dark:text-gray-500">—</span>
                         @endif
                     </td>
 
                     {{-- parent --}}
-                    <td class="px-4 py-3 hidden lg:table-cell">
+                    <td class="px-4 py-3 align-top hidden lg:table-cell">
                         @if($category->parent)
-                            <span class="text-xs text-gray-600 dark:text-gray-400">{{ $category->parent->title }}</span>
+                            <span class="inline-flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-300">
+                                <i class="fas fa-turn-up fa-rotate-90 text-gray-400"></i> {{ $category->parent->title }}
+                            </span>
                         @else
-                            <span class="text-gray-400 text-xs">Корневая</span>
+                            <span class="text-xs text-gray-400 dark:text-gray-500">Корневая</span>
                         @endif
                     </td>
 
                     {{-- usage counts --}}
-                    <td class="px-4 py-3 text-center hidden md:table-cell">
-                        <div class="flex items-center justify-center gap-2 text-xs">
+                    <td class="px-4 py-3 align-top text-center hidden md:table-cell">
+                        <div class="flex items-center justify-center gap-1.5 text-xs">
                             @if($category->news_count > 0)
-                                <span class="px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded" title="Новостей">
-                                    📰 {{ $category->news_count }}
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 font-medium
+                                             bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300" title="Новостей">
+                                    <i class="fas fa-newspaper"></i> {{ $category->news_count }}
                                 </span>
                             @endif
                             @if($category->pages_count > 0)
-                                <span class="px-2 py-0.5 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded" title="Страниц">
-                                    📄 {{ $category->pages_count }}
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 font-medium
+                                             bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300" title="Страниц">
+                                    <i class="fas fa-file-lines"></i> {{ $category->pages_count }}
                                 </span>
                             @endif
                             @if($category->children_count > 0)
-                                <span class="px-2 py-0.5 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded" title="Дочерних категорий">
-                                    📁 {{ $category->children_count }}
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 font-medium
+                                             bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200" title="Дочерних категорий">
+                                    <i class="fas fa-folder-tree"></i> {{ $category->children_count }}
                                 </span>
                             @endif
                             @if($category->news_count == 0 && $category->pages_count == 0 && $category->children_count == 0)
-                                <span class="text-gray-400">—</span>
+                                <span class="text-gray-400 dark:text-gray-500">—</span>
                             @endif
                         </div>
                     </td>
 
                     {{-- status --}}
-                    <td class="px-4 py-3 text-center hidden md:table-cell">
+                    <td class="px-4 py-3 align-top text-center hidden md:table-cell">
                         @if($category->is_active)
-                            <span class="inline-block px-2 py-0.5 rounded text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
-                                Активна
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold whitespace-nowrap
+                                         bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
+                                <i class="fas fa-circle-check"></i> Активна
                             </span>
                         @else
-                            <span class="inline-block px-2 py-0.5 rounded text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400">
-                                Неактивна
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold whitespace-nowrap
+                                         bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">
+                                <i class="fas fa-ban"></i> Неактивна
                             </span>
                         @endif
                     </td>
 
                     {{-- actions --}}
-                    <td class="px-4 py-3 text-center">
+                    <td class="px-4 py-3 align-top text-center">
                         <a href="{{ route('admin.categories.edit', $category->id) }}"
-                           class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md shadow text-xs font-medium transition"
+                           class="inline-flex items-center justify-center w-8 h-8 bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition"
                            title="Редактировать">
-                            @themeIcon('edit') Редактировать
+                            <i class="fas fa-pen"></i>
                         </a>
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7" class="py-10 text-center text-gray-500 dark:text-gray-400">
-                        📭 Категорий не найдено. Нажмите «Добавить» для создания новой категории.
+                    <td colspan="7" class="px-4 py-12 text-center">
+                        <span class="admin-icon-badge mx-auto mb-3"><i class="fas fa-tags"></i></span>
+                        <p class="text-gray-600 dark:text-gray-300 font-medium">Категорий не найдено.</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            Измените фильтры или
+                            <a href="{{ route('admin.categories.create') }}" class="text-indigo-600 dark:text-indigo-400 underline">создайте категорию</a>.
+                        </p>
                     </td>
                 </tr>
             @endforelse
             </tbody>
         </table>
+     </div>
     </div>
 
     {{-- pagination --}}
