@@ -592,6 +592,7 @@ class InstallController extends Controller
             $this->createSubscriptionFromInstall();
             $this->applyLocalizationSettings();
             $this->seedDefaultMenu();
+            $this->seedDefaultPages();
 
             File::put(storage_path('install.lock'), 'Installed at ' . now()->toDateTimeString());
 
@@ -971,6 +972,17 @@ class InstallController extends Controller
         // владельцу вручную: `php artisan menu:seed-default [--reset]`. Здесь без
         // --reset: идемпотентное дозаполнение, чужие пункты не трогаем.
         \Modules\Menu\Console\Commands\SeedDefaultMenuCommand::seed(false);
+    }
+
+    /**
+     * Демо-страницы после установки: «О проекте», «Возможности», «Частые вопросы».
+     * Единый источник — команда модуля Menu (`php artisan pages:seed-default`),
+     * вызывается всегда на шаге finish. Идемпотентно (страницы ищутся по slug),
+     * без --reset: уже существующие страницы владельца не перезаписываются.
+     */
+    private function seedDefaultPages(): void
+    {
+        \Modules\Menu\Console\Commands\SeedDefaultPagesCommand::seed(false);
     }
 
     /**

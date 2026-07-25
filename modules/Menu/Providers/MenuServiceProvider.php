@@ -24,6 +24,7 @@ class MenuServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \Modules\Menu\Console\Commands\SeedDefaultMenuCommand::class,
+                \Modules\Menu\Console\Commands\SeedDefaultPagesCommand::class,
             ]);
         }
 
