@@ -285,10 +285,14 @@
             transform:scaleX(0); transform-origin:center; transition:transform .22s ease; }
         .fx-underline:hover::after,
         .fx-underline.active-link::after{ transform:scaleX(1); }
+        /* Ровные углы на всём фронтенде (как в админке): универсальный !important
+           перебивает и Tailwind-скругления, и литеральный CSS с border-radius.
+           На SVG-геометрию (rx) не влияет — флаги и иконки без rx, им и не нужно. */
+        body.fx-sharp, body.fx-sharp *{ border-radius:0 !important; }
     </style>
 </head>
 
-<body class="relative text-gray-800 dark:text-gray-100 min-h-screen flex flex-col overflow-x-hidden bg-white dark:bg-gray-900 transition-colors duration-200"
+<body class="fx-sharp relative text-gray-800 dark:text-gray-100 min-h-screen flex flex-col overflow-x-hidden bg-white dark:bg-gray-900 transition-colors duration-200"
     style="font-family: var(--font-base, -apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif)">
 
     {{-- ЕДИНЫЙ фон-паттерн из темы --}}
