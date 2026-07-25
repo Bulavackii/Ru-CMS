@@ -3,7 +3,7 @@
     <div class="absolute inset-0 z-0 opacity-10 pointer-events-none"
         style="background-image:var(--bg-image); background-repeat:repeat; background-size:auto;"></div>
 
-    <div class="relative z-10 backdrop-blur-md border-t border-gray-200/80 dark:border-gray-700/80 bg-white dark:bg-gray-800 transition-colors duration-200"
+    <div class="relative z-10 backdrop-blur-md bg-white dark:bg-gray-800 transition-colors duration-200"
         style="background:var(--color-footer,#ffffff)">
 
         {{-- Дизайнерский переход «контент → футер»: градиентная линия-ЭКГ (пульс) --}}
