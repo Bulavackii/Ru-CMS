@@ -65,7 +65,25 @@
         {{-- Категории: чекбоксы-чипы вместо тесного multiple-select, в котором
              нужно было выделять с Ctrl и не было видно объёма. --}}
         <div>
-          <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Категории (фильтр)</label>
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Категории (фильтр)</label>
+
+            @if ($categories->isNotEmpty())
+              <div class="flex items-center gap-2 text-xs">
+                <button type="button" id="catSelectAll"
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1 border border-gray-300 dark:border-gray-600 font-medium
+                               text-gray-700 dark:text-gray-200 hover:border-indigo-400 hover:text-indigo-600 transition">
+                  <i class="fas fa-check-double"></i> Выбрать все
+                </button>
+                <button type="button" id="catClearAll"
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1 border border-gray-300 dark:border-gray-600 font-medium
+                               text-gray-700 dark:text-gray-200 hover:border-indigo-400 hover:text-indigo-600 transition">
+                  <i class="fas fa-xmark"></i> Снять
+                </button>
+                <span id="catSelectedCount" class="text-gray-500 dark:text-gray-400"></span>
+              </div>
+            @endif
+          </div>
 
           @if ($categories->isEmpty())
             <p class="text-sm text-gray-400 dark:text-gray-500">Категорий пока нет.</p>
@@ -408,6 +426,34 @@
       }
     }
   }
+</script>
+
+{{-- Массовый выбор категорий: «Выбрать все» / «Снять» + счётчик выбранных. --}}
+<script>
+  (function () {
+    const boxes = () => [...document.querySelectorAll('.cat-picker input[type="checkbox"]')];
+    const counter = document.getElementById('catSelectedCount');
+
+    function refresh() {
+      if (!counter) return;
+      const total = boxes().length;
+      const n = boxes().filter(b => b.checked).length;
+      counter.textContent = n === 0 ? 'все категории' : `выбрано ${n} из ${total}`;
+    }
+
+    document.getElementById('catSelectAll')?.addEventListener('click', () => {
+      boxes().forEach(b => (b.checked = true));
+      refresh();
+    });
+
+    document.getElementById('catClearAll')?.addEventListener('click', () => {
+      boxes().forEach(b => (b.checked = false));
+      refresh();
+    });
+
+    boxes().forEach(b => b.addEventListener('change', refresh));
+    refresh();
+  })();
 </script>
 
 {{-- Чипы выбора категорий: настоящий CSS-селектор input:checked, а не
