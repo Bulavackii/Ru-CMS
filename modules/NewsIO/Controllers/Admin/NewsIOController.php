@@ -5,6 +5,7 @@ namespace Modules\NewsIO\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 use Modules\Categories\Models\Category;
+use Modules\News\Models\News;
 use Modules\NewsIO\Http\Requests\ExportRequest;
 use Modules\NewsIO\Http\Requests\ImportRequest;
 use Modules\NewsIO\Services\Exporter;
@@ -14,9 +15,22 @@ class NewsIOController extends Controller
 {
     public function index()
     {
-        // было: ->get(['id','title','slug'])
-        $categories = Category::orderBy('title')->get(['id','title']);
-        return view('NewsIO::admin.index', compact('categories'));
+        // Категории для фильтра экспорта + счётчик новостей в каждой,
+        // чтобы было видно, что реально попадёт в выгрузку.
+        $categories = Category::orderBy('title')
+            ->withCount('news')
+            ->get(['id', 'title']);
+
+        // Короткая сводка для шапки: сколько всего материалов и сколько из них
+        // опубликовано. Раньше страница не показывала объём данных вообще.
+        $stats = [
+            'news'      => News::count(),
+            'published' => News::where('published', true)->count(),
+            'drafts'    => News::where('published', false)->count(),
+            'cats'      => $categories->count(),
+        ];
+
+        return view('NewsIO::admin.index', compact('categories', 'stats'));
     }
 
     public function export(ExportRequest $request, Exporter $exporter)

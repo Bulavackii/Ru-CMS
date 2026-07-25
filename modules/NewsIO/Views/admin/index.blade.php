@@ -8,11 +8,29 @@
 <div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
             flex items-center gap-3">
   <span class="admin-icon-badge"><i class="fas fa-right-left"></i></span>
-  <div class="min-w-0">
+  <div class="min-w-0 flex-1">
     <h1 class="text-xl font-bold text-gray-900 dark:text-white">Импорт и экспорт новостей</h1>
     <p class="text-sm text-gray-500 dark:text-gray-400">
       Перенос контента между сайтами и резервные выгрузки. Форматы: JSON · NDJSON · CSV · ZIP.
     </p>
+  </div>
+
+  {{-- Сводка: сразу видно, какой объём данных доступен к выгрузке --}}
+  <div class="flex flex-wrap items-center gap-2 text-xs shrink-0">
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 font-semibold bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">
+      <i class="fas fa-newspaper"></i> Всего: {{ $stats['news'] }}
+    </span>
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 font-semibold bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
+      <i class="fas fa-circle-check"></i> Опубликовано: {{ $stats['published'] }}
+    </span>
+    @if($stats['drafts'] > 0)
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 font-semibold bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">
+        <i class="fas fa-clock"></i> Черновиков: {{ $stats['drafts'] }}
+      </span>
+    @endif
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 font-medium bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+      <i class="fas fa-tags"></i> Категорий: {{ $stats['cats'] }}
+    </span>
   </div>
 </div>
 
@@ -44,16 +62,30 @@
           <p class="mt-1 text-xs text-gray-500">ZIP включает <code>manifest.json</code> и папку <code>media/*</code>.</p>
         </div>
 
-        {{-- Категории --}}
+        {{-- Категории: чекбоксы-чипы вместо тесного multiple-select, в котором
+             нужно было выделять с Ctrl и не было видно объёма. --}}
         <div>
-          <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Категории (фильтр)</label>
-          <select name="category_ids[]" multiple
-                  class="w-full h-36 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-            @foreach ($categories as $c)
-              <option value="{{ $c->id }}">{{ $c->title }} (ID: {{ $c->id }})</option>
-            @endforeach
-          </select>
-          <p class="mt-1 text-xs text-gray-500">Оставьте пустым — выгрузятся все категории.</p>
+          <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Категории (фильтр)</label>
+
+          @if ($categories->isEmpty())
+            <p class="text-sm text-gray-400 dark:text-gray-500">Категорий пока нет.</p>
+          @else
+            <div class="cat-picker flex flex-wrap gap-2">
+              @foreach ($categories as $c)
+                <label class="cat-chip" title="Новостей в категории: {{ $c->news_count }}">
+                  <input type="checkbox" name="category_ids[]" value="{{ $c->id }}" class="sr-only">
+                  <span class="cat-chip-body">
+                    {{ $c->title }}
+                    <span class="cat-count">{{ $c->news_count }}</span>
+                  </span>
+                </label>
+              @endforeach
+            </div>
+          @endif
+
+          <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+            Ничего не выбрано — выгрузятся все категории.
+          </p>
         </div>
 
         {{-- Даты --}}
@@ -377,4 +409,31 @@
     }
   }
 </script>
+
+{{-- Чипы выбора категорий: настоящий CSS-селектор input:checked, а не
+     peer-checked (этого варианта в собранном tailwind.min.css нет — см. CLAUDE.md). --}}
+<style>
+  .cat-picker .cat-chip{ display:inline-flex; cursor:pointer; user-select:none; }
+  .cat-picker .cat-chip-body{
+      display:inline-flex; align-items:center; gap:.45rem;
+      padding:.4rem .7rem; font-size:.82rem; line-height:1.2;
+      border:1px solid #d1d5db; background:#fff; color:#374151;
+      transition:background .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .dark .cat-picker .cat-chip-body{ background:#111827; border-color:#374151; color:#d1d5db; }
+  .cat-picker .cat-chip:hover .cat-chip-body{ border-color:#818cf8; color:#4f46e5; }
+  .cat-picker .cat-count{
+      display:inline-flex; align-items:center; justify-content:center; min-width:1.25rem;
+      padding:0 .3rem; font-size:.68rem; font-weight:700;
+      background:rgba(99,102,241,.12); color:#4338ca;
+  }
+  .dark .cat-picker .cat-count{ background:rgba(99,102,241,.25); color:#c7d2fe; }
+  /* Соседний селектор работает во всех браузерах (в отличие от :has). */
+  .cat-picker input:checked + .cat-chip-body{
+      background:#4f46e5; border-color:#4f46e5; color:#fff;
+      box-shadow:0 8px 18px -10px rgba(99,102,241,.7);
+  }
+  .cat-picker input:checked + .cat-chip-body .cat-count{ background:rgba(255,255,255,.22); color:#fff; }
+  .cat-picker input:focus-visible + .cat-chip-body{ outline:2px solid #818cf8; outline-offset:2px; }
+</style>
 @endsection
