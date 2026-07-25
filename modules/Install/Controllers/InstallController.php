@@ -594,6 +594,7 @@ class InstallController extends Controller
             $this->seedDefaultMenu();
             $this->seedDefaultPages();
             $this->seedDefaultSlideshows();
+            $this->seedDefaultFiles();
 
             File::put(storage_path('install.lock'), 'Installed at ' . now()->toDateTimeString());
 
@@ -996,6 +997,18 @@ class InstallController extends Controller
     private function seedDefaultSlideshows(): void
     {
         \Modules\Slideshow\Console\Commands\SeedDefaultSlideshowsCommand::seed(false);
+    }
+
+    /**
+     * Демо-файлы в медиа-библиотеке после установки: логотип, пример обложки
+     * и заглушка 16:9. Единый источник — команда модуля Files
+     * (`php artisan files:seed-default`). Файлы копируются из ресурсов модуля
+     * в storage/app/public/files/defaults, поэтому вызывается после storage:link.
+     * Идемпотентно (записи ищутся по path), без --reset.
+     */
+    private function seedDefaultFiles(): void
+    {
+        \Modules\Files\Console\Commands\SeedDefaultFilesCommand::seed(false);
     }
 
     /**

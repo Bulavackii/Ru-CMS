@@ -24,6 +24,12 @@ class FilesServiceProvider extends ServiceProvider
         }
 
         // Миграции модуля живут в единой database/migrations/.
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \Modules\Files\Console\Commands\SeedDefaultFilesCommand::class,
+            ]);
+        }
     }
 
     public function register(): void

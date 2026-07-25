@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" role="img" aria-label="Заглушка изображения 16:9">
+  <rect width="1280" height="720" fill="#eef2ff"/>
+  <g fill="none" stroke="#c7d2fe" stroke-width="3">
+    <rect x="40" y="40" width="1200" height="640"/>
+    <line x1="40" y1="40" x2="1240" y2="680"/>
+    <line x1="1240" y1="40" x2="40" y2="680"/>
+  </g>
+  <g transform="translate(560, 280)">
+    <rect width="160" height="120" fill="#ffffff" stroke="#a5b4fc" stroke-width="3"/>
+    <circle cx="52" cy="42" r="16" fill="#a5b4fc"/>
+    <path d="M18 104 L64 58 L98 92 L120 74 L142 104 Z" fill="#818cf8"/>
+  </g>
+  <text x="640" y="470" text-anchor="middle" font-family="Inter, Segoe UI, system-ui, sans-serif" font-size="34" font-weight="600" fill="#6366f1">Заглушка изображения · 16:9</text>
+  <text x="640" y="514" text-anchor="middle" font-family="Inter, Segoe UI, system-ui, sans-serif" font-size="22" fill="#818cf8">1280 × 720</text>
+</svg>
