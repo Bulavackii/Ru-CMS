@@ -285,12 +285,17 @@
             </span></div>
           </div>
 
-          {{-- Действия --}}
+          {{-- Действия.
+               ⚠️ Кнопка «Редактировать» НЕ РАБОТАЛА: аргументы подставлялись через
+               @json, а тот выводит строку в ДВОЙНЫХ кавычках — первая же кавычка
+               закрывала атрибут onclick="…", и обработчик обрывался на
+               `openEditModal(1, `. Правильная директива для JS внутри HTML-атрибута —
+               @js (Illuminate\Support\Js): она экранирует кавычки (JSON_HEX_QUOT). --}}
           <div class="absolute top-2 right-2 flex gap-2">
             <button type="button"
-                    class="grid place-items-center w-9 h-9 rounded-lg bg-white/90 dark:bg-gray-900/90 text-blue-600 hover:text-blue-800 shadow"
+                    class="grid place-items-center w-9 h-9 bg-white dark:bg-gray-900 text-indigo-600 hover:text-indigo-800 shadow"
                     title="Редактировать"
-                    onclick="openEditModal({{ $slide->id }}, @json($slide->caption ?? ''), @json($slide->alt_text ?? ''), @json($slide->link ?? ''), @json($slide->text_position ?? 'bottom-right'), @json($slide->text_color ?? '#ffffff'), @json($slide->background_color ?? '#2563eb'))">
+                    onclick="openEditModal({{ $slide->id }}, @js($slide->caption ?? ''), @js($slide->alt_text ?? ''), @js($slide->link ?? ''), @js($slide->text_position ?? 'bottom-right'), @js($slide->text_color ?? '#ffffff'), @js($slide->background_color ?? '#2563eb'))">
               <i class="fas fa-edit"></i>
             </button>
 
@@ -299,7 +304,7 @@
               @csrf
               @method('DELETE')
               <button type="submit"
-                      class="grid place-items-center w-9 h-9 rounded-lg bg-white/90 dark:bg-gray-900/90 text-red-600 hover:text-red-700 shadow"
+                      class="grid place-items-center w-9 h-9 bg-white dark:bg-gray-900 text-red-600 hover:text-red-700 shadow"
                       title="Удалить">
                 <i class="fas fa-trash-alt"></i>
               </button>
