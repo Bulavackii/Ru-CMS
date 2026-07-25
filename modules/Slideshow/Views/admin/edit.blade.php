@@ -1,23 +1,62 @@
 @extends('layouts.admin')
 
 @section('title', 'Редактирование слайдшоу')
-@section('header', '🎞️ Слайды: ' . $slideshow->title)
+@section('header', 'Слайды: ' . $slideshow->title)
 
 @section('content')
-  {{-- ░░░ НАСТРОЙКИ СЛАЙДШОУ ░░░ --}}
-  <div class="mb-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-visible">
-    <div class="px-5 py-3 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
-      <span class="text-lg font-semibold text-gray-900 dark:text-gray-100">⚙️ Настройки слайдшоу</span>
-      <div class="flex gap-2">
-        <a href="{{ route('admin.slideshow.preview', $slideshow->id) }}" target="_blank"
-           class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm">
-          <i class="fa-regular fa-eye"></i> Предпросмотр
-        </a>
-        <a href="{{ route('admin.slideshow.index') }}"
-           class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 text-sm">
-          <i class="fa-regular fa-arrow-left"></i> К списку
-        </a>
+  {{-- ── Шапка страницы ── --}}
+  <div class="admin-accent-bar mb-0"></div>
+  <div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
+              flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+    <div class="flex items-center gap-3 min-w-0">
+      <span class="admin-icon-badge"><i class="fas fa-images"></i></span>
+      <div class="min-w-0 space-y-1">
+        <h1 class="text-xl font-bold text-gray-900 dark:text-white truncate">{{ $slideshow->title }}</h1>
+        <div class="flex flex-wrap items-center gap-2 text-xs">
+          @if ($slideshow->published)
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 font-semibold bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
+              <i class="fa-regular fa-eye"></i> Опубликовано
+            </span>
+          @else
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 font-semibold bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">
+              <i class="fa-regular fa-eye-slash"></i> Скрыто
+            </span>
+          @endif
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 font-semibold
+                       {{ $slideshow->position === 'top'
+                          ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300'
+                          : 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' }}">
+            <i class="fas {{ $slideshow->position === 'top' ? 'fa-arrow-up' : 'fa-arrow-down' }}"></i>
+            {{ $slideshow->position === 'top' ? 'Верх' : 'Низ' }}
+          </span>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 font-medium bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+            ID {{ $slideshow->id }}
+          </span>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 font-medium bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+            <i class="fa-regular fa-images"></i> слайдов: {{ $slideshow->items->count() }}
+          </span>
+        </div>
       </div>
+    </div>
+
+    <div class="flex items-center gap-3 shrink-0">
+      <a href="{{ route('admin.slideshow.preview', $slideshow->id) }}" target="_blank"
+         class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition">
+        <i class="fa-regular fa-eye"></i> Предпросмотр
+      </a>
+      <a href="{{ route('admin.slideshow.index') }}"
+         class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition">
+        <i class="fa-solid fa-arrow-left"></i> К списку
+      </a>
+    </div>
+  </div>
+
+  {{-- ░░░ НАСТРОЙКИ СЛАЙДШОУ ░░░ --}}
+  <div class="admin-card mb-6 overflow-visible">
+    <div class="px-5 py-3 border-b border-gray-100 dark:border-gray-800">
+      <span class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 flex items-center gap-2">
+        <i class="fas fa-sliders text-indigo-500"></i> Настройки слайдшоу
+      </span>
     </div>
     <form method="POST" action="{{ route('admin.slideshow.update', $slideshow->id) }}" class="p-5">
       @csrf
@@ -80,7 +119,7 @@
         </div>
       </div>
       <div class="mt-4 flex justify-end">
-        <button type="submit" class="px-4 py-2 rounded-md bg-black text-white hover:bg-gray-800">
+        <button type="submit" class="px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-sm transition">
           <i class="fa-solid fa-save"></i> Сохранить настройки
         </button>
       </div>
@@ -96,7 +135,7 @@
       {{-- Заголовок секции --}}
       <div class="px-5 py-3 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2">
         <span class="text-lg font-semibold text-gray-900 dark:text-gray-100">Добавить слайд</span>
-        <span class="text-xs px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300">изображение или видео</span>
+        <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">изображение или видео</span>
       </div>
 
       <div class="p-5 grid gap-5">
@@ -128,7 +167,7 @@
                 <input id="media" name="media" type="file" class="hidden" accept="image/*,video/*" required>
 
                 <button type="button" id="browseBtn"
-                        class="px-3 h-10 rounded-md bg-black text-white hover:bg-gray-800 transition">
+                        class="px-3 h-10 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-sm transition transition">
                   Обзор…
                 </button>
 
@@ -212,7 +251,7 @@
         {{-- Кнопка добавления --}}
         <div class="flex justify-end">
           <button type="submit"
-                  class="inline-flex items-center gap-2 rounded-md bg-black text-white px-4 py-2 hover:bg-gray-800 shadow">
+                  class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition">
             <i class="fa-solid fa-plus"></i> Добавить слайд
           </button>
         </div>
@@ -273,7 +312,7 @@
     {{-- Кнопка сохранения порядка --}}
     <div class="mt-6 flex justify-end">
       <button id="save-order"
-              class="inline-flex items-center gap-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 shadow">
+              class="inline-flex items-center gap-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 shadow">
         <i class="fa-solid fa-floppy-disk"></i> Сохранить порядок
       </button>
     </div>
@@ -282,7 +321,9 @@
   @endif
 
   {{-- ░░░ МОДАЛ РЕДАКТИРОВАНИЯ ░░░ --}}
-  <div id="editModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50">
+  {{-- Затемнение задаём инлайн: bg-black/50 в этой Tailwind-сборке не рендерится
+       (opacity-модификаторы отсутствуют — см. CLAUDE.md). --}}
+  <div id="editModal" class="fixed inset-0 z-50 hidden items-center justify-center" style="background:rgba(0,0,0,.5)">
     <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-lg p-6 shadow-xl max-h-[90vh] overflow-y-auto">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">✏️ Редактировать слайд</h3>
       <input type="hidden" id="editId">
@@ -324,7 +365,7 @@
       </div>
       <div class="mt-5 flex justify-end gap-2">
         <button onclick="closeEditModal()" class="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-100">Отмена</button>
-        <button onclick="submitEdit()" class="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white">Сохранить</button>
+        <button onclick="submitEdit()" class="px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white">Сохранить</button>
       </div>
     </div>
   </div>

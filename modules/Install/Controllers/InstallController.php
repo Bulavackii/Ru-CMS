@@ -593,6 +593,7 @@ class InstallController extends Controller
             $this->applyLocalizationSettings();
             $this->seedDefaultMenu();
             $this->seedDefaultPages();
+            $this->seedDefaultSlideshows();
 
             File::put(storage_path('install.lock'), 'Installed at ' . now()->toDateTimeString());
 
@@ -983,6 +984,18 @@ class InstallController extends Controller
     private function seedDefaultPages(): void
     {
         \Modules\Menu\Console\Commands\SeedDefaultPagesCommand::seed(false);
+    }
+
+    /**
+     * Демо-слайдшоу после установки: «Главный баннер» (верх главной) и
+     * «Нижний баннер» (низ главной). Единый источник — команда модуля Slideshow
+     * (`php artisan slideshow:seed-default`). Баннеры копируются из ресурсов
+     * модуля в storage/app/public, поэтому вызывается ПОСЛЕ storage:link.
+     * Идемпотентно (слайдшоу ищутся по slug), без --reset.
+     */
+    private function seedDefaultSlideshows(): void
+    {
+        \Modules\Slideshow\Console\Commands\SeedDefaultSlideshowsCommand::seed(false);
     }
 
     /**

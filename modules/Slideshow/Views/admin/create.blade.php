@@ -8,36 +8,45 @@
     $pos = old('position', 'top');
 @endphp
 
-{{-- Заголовок + «к списку» --}}
-<div class="flex items-start justify-between mb-5 gap-3">
-    <div class="space-y-1">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">🎞️ Новое слайдшоу</h1>
-        <p class="text-sm text-gray-500">
-            Дайте понятное название и укажите, где показывать блок на главной.
-        </p>
+{{-- ── Шапка страницы ── --}}
+<div class="admin-accent-bar mb-0"></div>
+<div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
+            flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+    <div class="flex items-center gap-3 min-w-0">
+        <span class="admin-icon-badge"><i class="fas fa-images"></i></span>
+        <div class="min-w-0">
+            <h1 class="text-xl font-bold text-gray-900 dark:text-white">Новое слайдшоу</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+                Дайте понятное название и укажите, где показывать блок на главной.
+            </p>
+        </div>
     </div>
 
     <a href="{{ route('admin.slideshow.index') }}"
-       class="inline-flex items-center gap-2 px-3 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100 text-sm
-              dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
+       class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition shrink-0"
        title="Вернуться к списку (Esc)">
-        <i class="fa-regular fa-circle-left"></i> К списку
+        <i class="fa-solid fa-arrow-left"></i> К списку слайдшоу
     </a>
 </div>
 
 {{-- Ошибки --}}
 @if ($errors->any())
-  <div class="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800 dark:border-red-700 dark:bg-red-900/30 dark:text-red-200">
-      <div class="font-semibold mb-1">Проверьте форму:</div>
-      <ul class="list-disc pl-5 space-y-0.5">
-          @foreach ($errors->all() as $e)
-              <li>{{ $e }}</li>
-          @endforeach
-      </ul>
+  <div class="border-l-4 border-red-500 bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 px-4 py-3 mb-6 text-sm">
+      <div class="flex items-start gap-2">
+          <i class="fas fa-triangle-exclamation mt-0.5"></i>
+          <div>
+              <div class="font-semibold mb-1">Проверьте форму:</div>
+              <ul class="list-disc pl-5 space-y-0.5">
+                  @foreach ($errors->all() as $e)
+                      <li>{{ $e }}</li>
+                  @endforeach
+              </ul>
+          </div>
+      </div>
   </div>
 @endif
 
-<form id="slideshow-form" method="POST" action="{{ route('admin.slideshow.store') }}" class="max-w-3xl">
+<form id="slideshow-form" method="POST" action="{{ route('admin.slideshow.store') }}" class="w-full">
     @csrf
 
     <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm p-6 space-y-6">
@@ -61,39 +70,25 @@
             </p>
         </div>
 
-        {{-- Позиция (чипы с яркой заливкой) --}}
+        {{-- Позиция.
+             ⚠️ Раньше подсветка выбранного варианта делалась через peer-checked/top:
+             и peer-checked/btm: — этих вариантов в собранном tailwind.min.css НЕТ
+             (как и палитры amber), поэтому выбор визуально не отображался вовсе.
+             Теперь — настоящий CSS-селектор input:checked + label (см. <style> ниже). --}}
         <div>
-            <span class="block font-semibold mb-2 text-gray-800 dark:text-gray-200">📍 Позиция на сайте</span>
+            <span class="block font-semibold mb-2 text-gray-800 dark:text-gray-200">Позиция на сайте</span>
 
-            <div class="inline-flex items-center gap-2" role="radiogroup" aria-label="Позиция на сайте">
-                {{-- ВВЕРХУ --}}
-                <input class="peer/top sr-only" type="radio" id="pos-top" name="position" value="top"
+            <div class="pos-switch inline-flex items-center gap-2" role="radiogroup" aria-label="Позиция на сайте">
+                <input class="sr-only" type="radio" id="pos-top" name="position" value="top"
                        {{ $pos === 'top' ? 'checked' : '' }}>
-                <label for="pos-top"
-                       class="select-none px-3 py-1.5 rounded-full text-sm transition-colors duration-150
-                              ring-2 ring-blue-500 text-blue-700 bg-white
-                              hover:bg-blue-600 hover:text-white hover:ring-blue-600
-                              focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-300
-                              dark:bg-gray-800 dark:text-blue-300
-                              peer-checked/top:bg-blue-600 peer-checked/top:text-white peer-checked/top:ring-blue-600">
-                    <span class="inline-flex items-center gap-1.5 font-medium">
-                        <i class="fa-solid fa-arrow-up"></i> Вверху
-                    </span>
+                <label for="pos-top" class="pos-chip">
+                    <i class="fa-solid fa-arrow-up"></i> Вверху
                 </label>
 
-                {{-- ВНИЗУ --}}
-                <input class="peer/btm sr-only" type="radio" id="pos-bottom" name="position" value="bottom"
+                <input class="sr-only" type="radio" id="pos-bottom" name="position" value="bottom"
                        {{ $pos === 'bottom' ? 'checked' : '' }}>
-                <label for="pos-bottom"
-                       class="select-none px-3 py-1.5 rounded-full text-sm transition-colors duration-150
-                              ring-2 ring-amber-500 text-amber-700 bg-white
-                              hover:bg-amber-600 hover:text-white hover:ring-amber-600
-                              focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-300
-                              dark:bg-gray-800 dark:text-amber-300
-                              peer-checked/btm:bg-amber-600 peer-checked/btm:text-white peer-checked/btm:ring-amber-600">
-                    <span class="inline-flex items-center gap-1.5 font-medium">
-                        <i class="fa-solid fa-arrow-down"></i> Внизу
-                    </span>
+                <label for="pos-bottom" class="pos-chip">
+                    <i class="fa-solid fa-arrow-down"></i> Внизу
                 </label>
             </div>
 
@@ -105,14 +100,14 @@
 
         {{-- Публикация --}}
         <div>
-            <label class="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" name="published" value="1" 
-                       {{ old('published', false) ? 'checked' : '' }}
-                       class="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800">
+            <label class="flex items-start gap-3 cursor-pointer">
+                <input type="checkbox" name="published" value="1"
+                       {{ old('published', true) ? 'checked' : '' }}
+                       class="w-4 h-4 mt-0.5">
                 <div>
-                    <span class="block font-semibold text-gray-800 dark:text-gray-200">✅ Опубликовать сразу</span>
-                    <p class="text-xs text-gray-500 mt-0.5">
-                        Если не отмечено, слайдшоу будет скрыто от посетителей
+                    <span class="block font-semibold text-gray-800 dark:text-gray-200">Опубликовать сразу</span>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                        Если не отмечено, слайдшоу будет скрыто от посетителей.
                     </p>
                 </div>
             </label>
@@ -133,14 +128,32 @@
         {{-- Кнопка --}}
         <div class="pt-2 flex items-center justify-end">
             <button id="submit-btn" type="submit"
-                    class="inline-flex items-center gap-2 px-4 h-10 rounded-md bg-black text-white hover:bg-gray-800 shadow
+                    class="inline-flex items-center gap-2 px-5 h-10 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm transition
                            disabled:opacity-50 disabled:cursor-not-allowed"
                     title="Создать (Ctrl + Enter)">
-                <i class="fa-solid fa-floppy-disk"></i> Создать
+                <i class="fa-solid fa-floppy-disk"></i> Создать слайдшоу
             </button>
         </div>
     </div>
 </form>
+
+{{-- Чипы выбора позиции: литеральный CSS вместо отсутствующих в сборке
+     peer-checked/*-вариантов (см. CLAUDE.md про неполную Tailwind-сборку). --}}
+<style>
+    .pos-switch .pos-chip{
+        display:inline-flex; align-items:center; gap:.4rem; cursor:pointer; user-select:none;
+        padding:.45rem .85rem; font-size:.875rem; font-weight:500;
+        border:1px solid #d1d5db; background:#fff; color:#374151;
+        transition:background .15s ease, color .15s ease, border-color .15s ease;
+    }
+    .dark .pos-switch .pos-chip{ background:#111827; border-color:#374151; color:#d1d5db; }
+    .pos-switch .pos-chip:hover{ border-color:#818cf8; color:#4f46e5; }
+    .pos-switch input:checked + .pos-chip{
+        background:#4f46e5; border-color:#4f46e5; color:#fff;
+        box-shadow:0 8px 18px -10px rgba(99,102,241,.7);
+    }
+    .pos-switch input:focus-visible + .pos-chip{ outline:2px solid #818cf8; outline-offset:2px; }
+</style>
 
 {{-- Мини-скрипт UX: блокируем кнопку без названия, горячие клавиши, живой хинт позиции --}}
 <script>

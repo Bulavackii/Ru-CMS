@@ -22,5 +22,11 @@ class SlideshowServiceProvider extends ServiceProvider
         }
 
         // Миграции модуля живут в единой database/migrations/.
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \Modules\Slideshow\Console\Commands\SeedDefaultSlideshowsCommand::class,
+            ]);
+        }
     }
 }

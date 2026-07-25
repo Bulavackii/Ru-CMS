@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 600" width="1600" height="600" role="img" aria-label="Контент без разработчика">
+  <defs>
+    <linearGradient id="g2" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#312e81"/>
+      <stop offset="0.5" stop-color="#4f46e5"/>
+      <stop offset="1" stop-color="#ec4899"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1600" height="600" fill="url(#g2)"/>
+
+  <g stroke="#ffffff" stroke-opacity="0.12" stroke-width="2" fill="none">
+    <path d="M0 470 C 260 380, 420 540, 700 450 S 1180 360, 1600 460"/>
+    <path d="M0 520 C 260 430, 420 590, 700 500 S 1180 410, 1600 510"/>
+  </g>
+
+  <g opacity="0.14" fill="#ffffff">
+    <rect x="1120" y="130" width="360" height="240" rx="0"/>
+  </g>
+  <g opacity="0.5" fill="none" stroke="#ffffff" stroke-width="3">
+    <rect x="1150" y="160" width="300" height="180"/>
+    <line x1="1150" y1="205" x2="1450" y2="205"/>
+    <circle cx="1178" cy="182" r="7"/>
+    <circle cx="1204" cy="182" r="7"/>
+    <line x1="1180" y1="245" x2="1420" y2="245"/>
+    <line x1="1180" y1="280" x2="1360" y2="280"/>
+    <line x1="1180" y1="315" x2="1400" y2="315"/>
+  </g>
+
+  <text x="100" y="255" font-family="Inter, Segoe UI, system-ui, sans-serif" font-size="64" font-weight="700" fill="#ffffff">Контент без кода</text>
+  <text x="100" y="330" font-family="Inter, Segoe UI, system-ui, sans-serif" font-size="34" font-weight="500" fill="#ede9fe">Визуальный редактор, медиа и черновики</text>
+  <text x="100" y="388" font-family="Inter, Segoe UI, system-ui, sans-serif" font-size="24" fill="#ddd6fe">Публикуйте новости и страницы за пару минут</text>
+</svg>
