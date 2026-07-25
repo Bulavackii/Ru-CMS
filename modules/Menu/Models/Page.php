@@ -41,4 +41,20 @@ class Page extends Model
     {
         return $this->belongsToMany(\Modules\Categories\Models\Category::class, 'page_category');
     }
+
+    /**
+     * ♻️ Автосброс кеша главной при изменении страниц.
+     *
+     * HomeController кеширует выборку страниц «на главной» ключом home_pages на час.
+     * Сбрасывали его только слушатели новостей и категорий, но НЕ сама страница —
+     * поэтому галочка «Показать на главной» (как и правка текста, снятие публикации
+     * или удаление) до часа не давала видимого эффекта на сайте.
+     */
+    protected static function booted(): void
+    {
+        $flush = fn() => \Illuminate\Support\Facades\Cache::forget('home_pages');
+
+        static::saved($flush);
+        static::deleted($flush);
+    }
 }

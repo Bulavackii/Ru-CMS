@@ -165,9 +165,10 @@ HTML,
                     'meta_description' => $def['meta_description'],
                     'meta_keywords'    => $def['meta_keywords'],
                     'published'        => true,
-                    // На главной не показываем: там уже выводятся новости, а блок
-                    // «страницы на главной» включается вручную по желанию владельца.
-                    'show_on_homepage' => false,
+                    // Показываем на главной: сразу после установки видно, что раздел
+                    // «Страницы» работает и как выглядит вывод страниц на главной.
+                    // Порядок задаётся homepage_order.
+                    'show_on_homepage' => true,
                     'homepage_order'   => $def['homepage_order'],
                 ];
 
