@@ -7,6 +7,7 @@ use Modules\Files\Models\File;
 use Modules\Files\Models\FileCategory;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Intervention\Image\ImageManager;
@@ -14,6 +15,39 @@ use Intervention\Image\Drivers\Gd\Driver;
 
 class FileController extends Controller
 {
+    /**
+     * Разрешённые расширения загрузки.
+     *
+     * SVG намеренно НЕ входит: он может содержать <script> и при открытии по
+     * прямой ссылке даёт XSS от имени домена (файлы библиотеки публичны через
+     * симлинк public/storage). Демо-SVG из ресурсов модуля кладёт сидер в обход
+     * формы — на них ограничение не распространяется.
+     */
+    public const ALLOWED_EXTENSIONS = [
+        // изображения
+        'jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'bmp', 'ico',
+        // видео и аудио
+        'mp4', 'webm', 'ogg', 'mp3', 'wav',
+        // документы и архивы
+        'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'csv', 'zip',
+    ];
+
+    /** Разрешённые MIME-типы (вторая проверка — по содержимому файла). */
+    public const ALLOWED_MIME_TYPES = [
+        'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif', 'image/bmp',
+        'image/x-icon', 'image/vnd.microsoft.icon',
+        'video/mp4', 'video/webm', 'video/ogg', 'audio/mpeg', 'audio/ogg', 'audio/wav', 'audio/x-wav',
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.ms-powerpoint',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'text/plain', 'text/csv',
+        'application/zip', 'application/x-zip-compressed',
+    ];
+
     protected ImageManager $imageManager;
 
     public function __construct()
@@ -65,13 +99,26 @@ class FileController extends Controller
      */
     public function upload(Request $request): JsonResponse
     {
+        // ⚠️ Белый список типов обязателен: файлы медиа-библиотеки лежат в
+        // storage/app/public и доступны по прямой ссылке БЕЗ авторизации.
+        // Без ограничения сюда можно было загрузить .php (исполнится на сервере
+        // через симлинк public/storage) или .svg/.html со скриптом внутри (XSS
+        // от имени домена). Валидируем и расширение, и MIME.
+        $extensions = implode(',', self::ALLOWED_EXTENSIONS);
+        $mimes = implode(',', self::ALLOWED_MIME_TYPES);
+
         $request->validate([
-            'file' => 'sometimes|file|max:10240', // 10MB для одного файла
+            'file' => "sometimes|file|max:10240|mimes:{$extensions}|mimetypes:{$mimes}",
             'files' => 'sometimes|array',
-            'files.*' => 'file|max:10240',
+            'files.*' => "file|max:10240|mimes:{$extensions}|mimetypes:{$mimes}",
             'category_id' => 'nullable|exists:file_categories,id',
             'alt_text' => 'nullable|string|max:255',
             'description' => 'nullable|string',
+        ], [
+            'file.mimes' => 'Недопустимый тип файла. Разрешены: ' . $extensions . '.',
+            'file.mimetypes' => 'Недопустимый тип файла.',
+            'files.*.mimes' => 'Недопустимый тип файла. Разрешены: ' . $extensions . '.',
+            'files.*.mimetypes' => 'Недопустимый тип файла.',
         ]);
 
         try {
@@ -91,6 +138,8 @@ class FileController extends Controller
 
             $createdFiles = [];
 
+            $rejected = [];
+
             foreach ($uploadedFiles as $uploadedFile) {
                 if (!$uploadedFile->isValid()) {
                     continue;
@@ -99,6 +148,23 @@ class FileController extends Controller
                 $originalName = $uploadedFile->getClientOriginalName();
                 $mimeType = $uploadedFile->getMimeType();
                 $size = $uploadedFile->getSize();
+
+                // Вторая линия защиты: правила валидации могут быть обойдены при
+                // прямом вызове метода из другого кода, поэтому проверяем ещё раз
+                // сам файл — и расширение, и определённый по содержимому MIME.
+                $extension = strtolower((string) $uploadedFile->getClientOriginalExtension());
+
+                if (! in_array($extension, self::ALLOWED_EXTENSIONS, true)
+                    || ! in_array((string) $mimeType, self::ALLOWED_MIME_TYPES, true)) {
+                    $rejected[] = $originalName;
+                    Log::warning('Отклонена загрузка файла недопустимого типа', [
+                        'original_name' => $originalName,
+                        'extension'     => $extension,
+                        'mime'          => $mimeType,
+                        'user_id'       => auth()->id(),
+                    ]);
+                    continue;
+                }
 
                 // Сохранение файла
                 $path = $uploadedFile->store('files/' . date('Y/m'), 'public');
@@ -117,7 +183,7 @@ class FileController extends Controller
                         $this->createThumbnails($path);
                     } catch (\Exception $e) {
                         // Если не удалось обработать изображение, продолжаем без размеров
-                        \Log::warning('Failed to process image', ['error' => $e->getMessage()]);
+                        Log::warning('Failed to process image', ['error' => $e->getMessage()]);
                     }
                 }
 
@@ -143,13 +209,20 @@ class FileController extends Controller
                 ];
             }
 
+            $message = count($createdFiles) . ' файл(ов) успешно загружено';
+
+            if ($rejected) {
+                $message .= '. Отклонены (недопустимый тип): ' . implode(', ', $rejected);
+            }
+
             return response()->json([
-                'success' => true,
-                'files' => $createdFiles,
-                'message' => count($createdFiles) . ' файл(ов) успешно загружено',
+                'success'  => true,
+                'files'    => $createdFiles,
+                'rejected' => $rejected,
+                'message'  => $message,
             ]);
         } catch (\Exception $e) {
-            \Log::error('File upload error', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            Log::error('File upload error', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return response()->json([
                 'success' => false,
                 'message' => 'Ошибка загрузки: ' . $e->getMessage(),
@@ -212,7 +285,7 @@ class FileController extends Controller
                 'height' => $file->height,
             ]);
         } catch (\Exception $e) {
-            \Log::error('Image crop error', ['error' => $e->getMessage(), 'file_id' => $file->id]);
+            Log::error('Image crop error', ['error' => $e->getMessage(), 'file_id' => $file->id]);
             return response()->json([
                 'success' => false,
                 'message' => 'Ошибка обрезки: ' . $e->getMessage(),
@@ -242,7 +315,7 @@ class FileController extends Controller
                 'message' => 'Файл удален',
             ]);
         } catch (\Exception $e) {
-            \Log::error('File deletion error', ['error' => $e->getMessage(), 'file_id' => $file->id]);
+            Log::error('File deletion error', ['error' => $e->getMessage(), 'file_id' => $file->id]);
             return response()->json([
                 'success' => false,
                 'message' => 'Ошибка удаления: ' . $e->getMessage(),

@@ -595,6 +595,7 @@ class InstallController extends Controller
             $this->seedDefaultPages();
             $this->seedDefaultSlideshows();
             $this->seedDefaultFiles();
+            $this->hardenPublicStorage();
 
             File::put(storage_path('install.lock'), 'Installed at ' . now()->toDateTimeString());
 
@@ -1009,6 +1010,40 @@ class InstallController extends Controller
     private function seedDefaultFiles(): void
     {
         \Modules\Files\Console\Commands\SeedDefaultFilesCommand::seed(false);
+    }
+
+    /**
+     * Подстраховка для публичного хранилища.
+     *
+     * Всё, что лежит в storage/app/public, доступно из веба через симлинк
+     * public/storage. Загрузку опасных типов уже режет белый список в
+     * FileController, но если файл попадёт туда иначе (перенос со старого сайта,
+     * ручное копирование, сторонний модуль) — исполняемым он быть не должен.
+     * Кладём .htaccess, запрещающий выполнение скриптов: для Apache этого
+     * достаточно. Для nginx аналогичное правило задаётся в конфиге сервера —
+     * location ~* ^/storage/.*\.(php|phtml|phar|cgi|pl)$ { deny all; }
+     *
+     * Файл в .gitignore (storage/app/public/*), поэтому создаём его при установке.
+     */
+    private function hardenPublicStorage(): void
+    {
+        $path = storage_path('app/public/.htaccess');
+
+        if (File::exists($path)) {
+            return;
+        }
+
+        File::put($path, <<<'HTACCESS'
+# Запрет выполнения скриптов в публичном хранилище (Apache).
+# Файлы отдаются как статика; PHP и прочие обработчики отключены.
+<FilesMatch "\.(php|phtml|phar|php[0-9]|cgi|pl|py|sh|htaccess)$">
+    Require all denied
+</FilesMatch>
+
+php_flag engine off
+Options -ExecCGI -Indexes
+AddType text/plain .php .phtml .phar .cgi .pl .py .sh
+HTACCESS);
     }
 
     /**
