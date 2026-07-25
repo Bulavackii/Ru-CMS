@@ -150,10 +150,12 @@
                         class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
                                focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
                     <option value="">Выберите роль…</option>
-                    @foreach($roles as $role)
-                        <option value="{{ $role->id }}">{{ $role->name }}</option>
+                    @foreach($roles->sortByDesc('priority') as $role)
+                        {{-- data-description подставляется под селект при выборе --}}
+                        <option value="{{ $role->id }}" data-description="{{ $role->description }}">{{ $role->name }}</option>
                     @endforeach
                 </select>
+                <p id="bulkRoleHint" class="mt-1 text-xs text-gray-500 dark:text-gray-400"></p>
             </div>
 
             <div class="md:col-span-3">
@@ -171,6 +173,50 @@
                 Ролей в системе пока нет, поэтому доступно только удаление.
                 Роли создаются командой <code class="font-mono">php artisan db:seed --class=RbacSeeder</code>.
             </p>
+        @else
+            {{-- Краткая справка по ролям: свёрнута по умолчанию, чтобы не занимать
+                 место, но объясняет, что именно даёт каждая роль. --}}
+            <details class="mt-4 group">
+                <summary class="inline-flex items-center gap-2 cursor-pointer select-none text-xs font-medium
+                                text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition">
+                    <i class="fas fa-circle-question"></i> Что означают роли
+                    <i class="fas fa-chevron-down text-[0.6rem] opacity-60 group-open:hidden"></i>
+                    <i class="fas fa-chevron-up text-[0.6rem] opacity-60 hidden group-open:inline"></i>
+                </summary>
+
+                <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2">
+                    @foreach($roles->sortByDesc('priority') as $role)
+                        <div class="border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-3">
+                            <div class="flex items-center justify-between gap-2 mb-1">
+                                <span class="inline-flex items-center px-2 py-0.5 text-xs font-semibold
+                                             bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">
+                                    {{ $role->name }}
+                                </span>
+                                @php
+                                    // Русское склонение считаем явно: trans_choice зависит
+                                    // от текущей локали и на en дал бы неверную форму.
+                                    $pc = (int) $role->permissions_count;
+                                    $m10 = $pc % 10; $m100 = $pc % 100;
+                                    $pw = ($m10 === 1 && $m100 !== 11) ? 'право'
+                                        : (($m10 >= 2 && $m10 <= 4 && !($m100 >= 12 && $m100 <= 14)) ? 'права' : 'прав');
+                                @endphp
+                                <span class="text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap"
+                                      title="Количество прав в роли">
+                                    {{ $pc }} {{ $pw }}
+                                </span>
+                            </div>
+                            <p class="text-xs text-gray-600 dark:text-gray-400 leading-snug">
+                                {{ $role->description ?: 'Описание не задано.' }}
+                            </p>
+                        </div>
+                    @endforeach
+                </div>
+
+                <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                    Роль расширяет доступ к разделам админки. Отдельный флаг «Администратор»
+                    даёт полный доступ независимо от ролей.
+                </p>
+            </details>
         @endif
     </form>
 
@@ -230,8 +276,10 @@
                             @elseif($user->roles->count() > 0)
                                 <div class="flex flex-wrap gap-1">
                                     @foreach($user->roles as $role)
-                                        <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium
-                                                     bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">
+                                        {{-- Описание роли — во всплывающей подсказке --}}
+                                        <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium cursor-help
+                                                     bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300"
+                                              title="{{ $role->description ?: $role->name }}">
                                             {{ $role->name }}
                                         </span>
                                     @endforeach
@@ -386,7 +434,15 @@
             refresh();
         });
 
-        roleSel?.addEventListener('change', refresh);
+        // Под селектом показываем описание выбранной роли — понятно, что она даёт
+        const roleHint = document.getElementById('bulkRoleHint');
+        roleSel?.addEventListener('change', function () {
+            if (roleHint) {
+                const opt = this.options[this.selectedIndex];
+                roleHint.textContent = opt?.dataset?.description || '';
+            }
+            refresh();
+        });
 
         document.getElementById('bulkForm')?.addEventListener('submit', function (e) {
             const n = boxes().filter(b => b.checked).length;

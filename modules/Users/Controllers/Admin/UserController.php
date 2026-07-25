@@ -39,7 +39,8 @@ class UserController extends Controller
             ->paginate(15)
             ->appends($request->only(['search', 'role', 'role_filter']));
 
-        $roles = Role::orderBy('priority')->get();
+        // withCount — для краткой справки по ролям в интерфейсе (сколько прав даёт роль)
+        $roles = Role::withCount('permissions')->orderBy('priority')->get();
 
         return view('users::admin.index', compact('users', 'currentRole', 'search', 'roles', 'roleFilter'));
     }
@@ -93,7 +94,8 @@ class UserController extends Controller
      */
     public function create()
     {
-        $roles = Role::orderBy('priority')->get();
+        // withCount — для краткой справки по ролям в интерфейсе (сколько прав даёт роль)
+        $roles = Role::withCount('permissions')->orderBy('priority')->get();
         return view('users::admin.create', compact('roles'));
     }
 
@@ -142,7 +144,8 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        $roles = Role::orderBy('priority')->get();
+        // withCount — для краткой справки по ролям в интерфейсе (сколько прав даёт роль)
+        $roles = Role::withCount('permissions')->orderBy('priority')->get();
         return view('users::admin.edit', compact('user', 'roles'));
     }
 
