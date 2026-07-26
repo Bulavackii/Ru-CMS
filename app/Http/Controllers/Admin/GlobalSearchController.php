@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Support\AdminSections;
 use Illuminate\Http\Request;
 use Modules\News\Models\News;
 use Modules\Menu\Models\Page;
@@ -23,8 +24,11 @@ class GlobalSearchController extends Controller
     {
         try {
             $query = trim($request->input('q', ''));
-            
-            if (strlen($query) < 2) {
+
+            // mb_strlen, а не strlen: одна кириллическая буква — это ДВА байта,
+            // поэтому по запросу «т» проверка «минимум 2 символа» проходила и
+            // сервер честно искал по одной букве, отдавая мусор
+            if (mb_strlen($query) < 2) {
                 return response()->json(['results' => []]);
             }
 
@@ -32,6 +36,19 @@ class GlobalSearchController extends Controller
 
             // ILIKE на Postgres, иначе LIKE: без этого поиск был регистрозависимым
             $like = search_like();
+
+            // Разделы панели — первыми: перейти в «Темы» или «Локализацию»
+            // нужно чаще, чем найти запись с таким словом в заголовке.
+            // Список общий с сайдбаром (App\Support\AdminSections).
+            foreach (AdminSections::search($query) as $section) {
+                $results[] = [
+                    'type' => 'Раздел',
+                    'title' => $section['label'],
+                    'subtitle' => $section['group'],
+                    'url' => $section['url'],
+                    'icon' => 'fas fa-compass text-indigo-500',
+                ];
+            }
 
             // Поиск новостей
             try {
@@ -81,8 +98,13 @@ class GlobalSearchController extends Controller
                 foreach ($users as $item) {
                     $results[] = [
                         'type' => 'Пользователь',
-                        'title' => $item->name . ' (' . $item->email . ')',
-                        'url' => route('admin.users.index') . '?search=' . urlencode($query),
+                        'title' => $item->name,
+                        // E-mail — подпись, а не часть заголовка: так видно, кого
+                        // именно нашли, когда имена совпадают
+                        'subtitle' => $item->email,
+                        // Раньше вело на список с ?search= — то есть «найди сам
+                        // ещё раз». Ведём сразу на карточку найденного.
+                        'url' => route('admin.users.edit', $item->id),
                         'icon' => 'fas fa-user text-purple-500',
                     ];
                 }

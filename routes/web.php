@@ -165,6 +165,24 @@ Route::middleware(['web', 'auth', 'admin'])->group(function () {
     // Настройки учётной записи админа
     Route::get('/account/settings', [AccountSettingsController::class, 'index'])->name('admin.account.settings');
 
+    // 🎨 Оформление ПАНЕЛИ, выбранное администратором для себя. Живёт в сессии
+    // и не трогает активную тему сайта (её задаёт раздел «Темы») — как и
+    // выбор темы посетителем на фронте. 'reset' убирает личный выбор.
+    // Обычная ссылка, без JS: переключатель в шапке — просто список ссылок.
+    Route::get('/admin/theme/{slug}', function (string $slug) {
+        if ($slug === 'reset') {
+            session()->forget('admin_theme');
+
+            return back();
+        }
+
+        if (\Modules\Visual\Models\Theme::where('slug', $slug)->exists()) {
+            session(['admin_theme' => $slug]);
+        }
+
+        return back();
+    })->name('admin.theme.set');
+
     Route::post('/admin/upload-media', [UploadController::class, 'uploadMedia'])->name('admin.upload.media');
     Route::post('/admin/categories', [CategoryController::class, 'store'])->name('admin.categories.store');
 

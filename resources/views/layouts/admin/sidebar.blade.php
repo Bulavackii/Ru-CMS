@@ -28,99 +28,11 @@
     </div>
 
     @php
-        $contentLinks = [
-            // Ссылка на дашборд — в шапке сайдбара (логотип «RU»), отдельного пункта нет.
-            ['route' => route('admin.menus.index'),      'route_name' => 'admin.menus.*',      'label' => 'Меню',       'icon' => 'dashboard'],
-            ['route' => route('admin.news.index'),       'route_name' => 'admin.news.*',       'label' => 'Новости',    'icon' => 'file-text'],
-            ['route' => route('admin.pages.index'),      'route_name' => 'admin.pages.*',      'label' => 'Страницы',   'icon' => 'file-text'],
-            ['route' => route('admin.categories.index'), 'route_name' => 'admin.categories.*', 'label' => 'Категории',  'icon' => 'folder'],
-            ['route' => route('admin.slideshow.index'),  'route_name' => 'admin.slideshow.*',  'label' => 'Слайдшоу',   'icon' => 'image'],
-            ['route' => route('admin.files.index'),      'route_name' => 'admin.files.*',      'label' => 'Файлы',      'icon' => 'folder'],
-            ['route' => route('admin.newsio.index'),     'route_name' => 'admin.newsio.*',     'label' => 'Импорт/Экспорт', 'icon' => 'arrow-up'],
-        ];
-
-        $systemLinks = array_values(
-            array_filter([
-                ['url' => '/admin/modules', 'check' => request()->is('admin/modules'), 'label' => 'Модули', 'icon' => 'puzzle'],
-                ['url' => '/admin/users', 'check' => request()->is('admin/users'), 'label' => 'Пользователи', 'icon' => 'user'],
-                ['url' => '/admin/search', 'check' => request()->is('admin/search'), 'label' => 'Поиск', 'icon' => 'search'],
-                [
-                    'url' => route('admin.notifications.index'),
-                    'check' => request()->routeIs('admin.notifications.*'),
-                    'label' => 'Уведомления',
-                    'icon' => 'bell',
-                ],
-                [
-                    'url' => Route::has('seo.pages.index') ? route('seo.pages.index') : url('/admin/seo/pages'),
-                    'check' => request()->routeIs('seo.*') || request()->is('admin/seo*'),
-                    'label' => 'SEO',
-                    'icon' => 'search',
-                ],
-                Route::has('admin.visual.themes.index')
-                    ? [
-                        'url' => route('admin.visual.themes.index'),
-                        'check' => request()->routeIs('admin.visual.themes.*'),
-                        'label' => 'Темы',
-                        'icon'  => 'palette',
-                    ]
-                    : null,
-                Route::has('admin.visual.fragments.index')
-                    ? [
-                        'url' => route('admin.visual.fragments.index'),
-                        'check' => request()->routeIs('admin.visual.fragments.*'),
-                        'label' => 'Фрагменты',
-                        'icon'  => 'puzzle',
-                    ]
-                    : null,
-                // Страны, форматы дат/валют и графический редактор переводов.
-                // Route::has — на случай, если модуль Localization отключён.
-                Route::has('admin.localization.index')
-                    ? [
-                        'url' => route('admin.localization.index'),
-                        'check' => request()->routeIs('admin.localization.*'),
-                        'label' => 'Локализация',
-                        'icon'  => 'globe',
-                    ]
-                    : null,
-            ]),
-        );
-
-        // Раньше «Спецвозможности» жили в отдельной группе ради одного пункта —
-        // при переходе на компактный, помещающийся без прокрутки сайдбар
-        // отдельный заголовок группы того не стоил, присоединили к «Система».
-        $systemLinks[] = [
-            'url' => '/admin/accessibility',
-            'check' => request()->is('admin/accessibility*'),
-            'label' => 'Спецвозможности',
-            'icon' => 'user',
-        ];
-
-        $paymentLinks = [
-            [
-                'url' => route('admin.payments.index'),
-                'check' => request()->routeIs('admin.payments.*'),
-                'label' => 'Оплата',
-                'icon' => 'credit-card',
-            ],
-            [
-                'url' => route('admin.orders.index'),
-                'check' => request()->routeIs('admin.orders.*'),
-                'label' => 'Заказы',
-                'icon' => 'shopping-cart',
-            ],
-            [
-                'url' => route('admin.delivery.index'),
-                'check' => request()->routeIs('admin.delivery.*'),
-                'label' => 'Доставка',
-                'icon' => 'truck',
-            ],
-        ];
-
-        $groups = [
-            'Контент' => $contentLinks,
-            'Система' => $systemLinks,
-            'Оплата'  => $paymentLinks,
-        ];
+        // Разделы берутся из App\Support\AdminSections — того же списка, по
+        // которому ищет глобальный поиск в шапке. Раньше он жил только здесь,
+        // в разметке, и поиск про разделы не знал вовсе.
+        // Ссылка на дашборд — в шапке сайдбара (логотип), отдельного пункта нет.
+        $groups = \App\Support\AdminSections::groups();
 
         $base   = 'flex items-center gap-2.5 px-2.5 py-1 rounded-lg text-sm transition-colors';
         $active = 'bg-indigo-600 dark:bg-indigo-500 text-white font-semibold shadow-sm';
@@ -133,7 +45,6 @@
          вырастет на маленьком экране — пункты не должны стать недоступны. --}}
     <nav class="flex-1 overflow-y-auto px-3 py-3 space-y-3" style="font-family: {{ $fontBase }};" aria-label="Основная навигация">
         @foreach ($groups as $title => $links)
-            @php $links = array_map(fn($l) => $l + ['route_name' => null], $links); @endphp
             @if(count($links))
                 {{-- Разделитель между смысловыми блоками — не просто отступ,
                      а тонкая линия сверху у каждой группы, кроме первой. --}}
@@ -145,10 +56,16 @@
                     <div class="space-y-0.5">
                         @foreach ($links as $link)
                             @php
-                                $href = $link['route'] ?? $link['url'];
-                                $isActive = $link['route_name'] ? request()->routeIs($link['route_name']) : $link['check'];
+                                $isActive = $link['is_route']
+                                    ? request()->routeIs($link['pattern'])
+                                    : request()->is($link['pattern']);
+                                // У SEO маршруты живут в своём модуле: раздел считается
+                                // активным и по имени маршрута, и по пути
+                                if (! $isActive && isset($link['also'])) {
+                                    $isActive = request()->is($link['also']);
+                                }
                             @endphp
-                            <a href="{{ $href }}" class="{{ $base }} {{ $isActive ? $active : $idle }}"
+                            <a href="{{ $link['url'] }}" class="{{ $base }} {{ $isActive ? $active : $idle }}"
                                aria-current="{{ $isActive ? 'page' : 'false' }}" title="{{ $link['label'] }}">
                                 @themeIcon($link['icon'], 'w-4 text-center flex-shrink-0')
                                 <span class="truncate">{{ $link['label'] }}</span>
@@ -160,10 +77,7 @@
         @endforeach
     </nav>
 
-    {{-- Версия — из конфига (единый источник с UpdateService::checkForUpdates()),
-         а не отдельный захардкоженный литерал здесь. --}}
-    <div class="flex-shrink-0 px-4 py-2 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between text-xs text-gray-400 dark:text-gray-500" style="font-family: {{ $fontBase }};">
-        <span>Версия</span>
-        <span class="font-mono font-semibold text-gray-500 dark:text-gray-400">{{ config('app.version', '1.0.0') }}</span>
-    </div>
+    {{-- Версия отсюда убрана 26.07.2026: она показывалась и здесь, и в подвале
+         панели. Значение одно (config('app.version')), место показа тоже
+         должно быть одно — оставили подвал, там рядом весь стек. --}}
 </aside>

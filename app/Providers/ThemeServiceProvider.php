@@ -56,6 +56,31 @@ class ThemeServiceProvider extends ServiceProvider
                 $view->with(['siteTheme' => null, 'themeOptions' => collect(), 'siteThemeSlug' => null]);
             }
         });
+
+        // 🎛️ То же самое для ПАНЕЛИ: свой личный выбор оформления
+        // (session('admin_theme')) и список тем для переключателя в шапке.
+        // Отдельный ключ сессии специально: администратор может смотреть сайт
+        // в одном оформлении, а панель держать в другом.
+        View::composer(['layouts.admin', 'layouts.admin.header'], function ($view) {
+            $slug = session('admin_theme');
+
+            try {
+                if (!$this->isInstalled() || !Schema::hasTable('visual_themes')) {
+                    throw new \RuntimeException('themes table is not available');
+                }
+
+                $view->with([
+                    'panelTheme'     => Theme::resolveForVisitor($slug),
+                    'panelThemes'    => Theme::publicList(),
+                    'panelThemeSlug' => $slug,
+                ]);
+            } catch (\Throwable $e) {
+                // Панель не должна падать из-за тем: без таблицы просто
+                // остаётся акцент активной темы (или дефолтный индиго)
+                Log::debug('Admin theme switcher skipped: ' . $e->getMessage());
+                $view->with(['panelTheme' => null, 'panelThemes' => collect(), 'panelThemeSlug' => null]);
+            }
+        });
     }
 
     private function getCachedTheme(): ?Theme

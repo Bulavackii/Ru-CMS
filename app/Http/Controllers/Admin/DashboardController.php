@@ -105,7 +105,12 @@ class DashboardController extends Controller
             // Сообщения
             'messages' => [
                 'total' => Message::count(),
-                'unread' => Message::where('read', false)->count(),
+                // Колонка называется is_read (см. миграцию create_messages_table).
+                // С 'read' главная страница панели отдавала 500 на PostgreSQL:
+                // «столбец "read" не существует». В тестах баг не всплывал —
+                // там таблица modules пуста, модуль Messages не регистрируется,
+                // и до этого запроса дело не доходило.
+                'unread' => Message::where('is_read', false)->count(),
                 'this_week' => Message::where('created_at', '>=', $lastWeek)->count(),
             ],
         ];

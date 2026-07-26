@@ -16,7 +16,14 @@
     // $activeTheme раздаёт ThemeServiceProvider через View::composer('*').
     // Раньше админка цвета темы не использовала вовсе: акцент был прибит
     // литералами, и выбранная тема на панель не влияла.
-    $adminTokens  = $activeTheme->tokens ?? [];
+    //
+    // Поверх активной темы сайта учитывается ЛИЧНЫЙ выбор администратора
+    // (переключатель оформления в шапке → session('admin_theme')). Выбор не
+    // меняет оформление сайта: панель просто перекрашивает свой акцент.
+    // $panelTheme приходит из ThemeServiceProvider; здесь ?? на случай,
+    // если вьюху рендерят в обход композера.
+    $panelTheme   = $panelTheme ?? $activeTheme ?? null;
+    $adminTokens  = $panelTheme->tokens ?? [];
     $adminPrimary = data_get($adminTokens, 'colors.primary', '#6366f1');
     $adminAccent  = data_get($adminTokens, 'colors.accent',  '#a855f7');
   @endphp
@@ -45,8 +52,8 @@
     .admin-glass{background:rgba(255,255,255,.82);backdrop-filter:blur(16px) saturate(160%);-webkit-backdrop-filter:blur(16px) saturate(160%)}
     .dark .admin-glass{background:rgba(17,24,39,.82)}
     /* Тёмный вариант — для единой шапки (header.blade.php), она всегда
-       тёмная независимо от переключателя темы: под неё уже сделаны
-       components.admin.global-search/notifications-center/dark-mode-toggle. */
+       тёмная независимо от выбранного оформления: под неё уже свёрстаны
+       components.admin.global-search и notifications-center. */
     .admin-glass-dark{background:rgba(17,24,39,.9);backdrop-filter:blur(16px) saturate(160%);-webkit-backdrop-filter:blur(16px) saturate(160%)}
 
     /* Дизайн-язык админки: только прямые края, скруглений быть не должно нигде.
@@ -96,13 +103,17 @@
   {{-- Стек стилей для страниц с собственным точечным CSS (например, дашборда) --}}
   @stack('styles')
 
-  {{-- Инициализация темы до загрузки Alpine.js (предотвращает мерцание) --}}
-  {{-- Светлая тема всегда по умолчанию: системную dark-preference не учитываем, только явный выбор пользователя --}}
+  {{-- Раньше здесь включался класс .dark по флагу localStorage('darkMode'),
+       который ставила кнопка-луна в шапке. Кнопка убрана: в собранном
+       tailwind.min.css нет ни одного dark:-варианта, поэтому класс красил
+       только те несколько блоков, для которых ниже написаны литеральные
+       .dark-правила, — панель выглядела наполовину перекрашенной. Оформление
+       панели теперь меняется темой (переключатель в шапке).
+       Флаг подчищаем, иначе тот, кто когда-то включил «тёмную тему», остался
+       бы в ней навсегда: выключать её стало нечем. --}}
   <script>
     (function() {
-      if (localStorage.getItem('darkMode') === 'true') {
-        document.documentElement.classList.add('dark');
-      }
+      try { localStorage.removeItem('darkMode'); } catch (e) {}
     })();
   </script>
 </head>
@@ -131,7 +142,14 @@
     @include('layouts.admin.footer')
   </div>
 
-  <script defer src="{{ local_js('alpine.min.js') }}"></script>
+  {{-- Alpine приходит ОДИН раз — из сборки (resources/js/app.js, подключается
+       через @vite выше: там же import Alpine и Alpine.start()). Отдельный
+       alpine.min.js отсюда убран: он поднимал ВТОРОЙ экземпляр Alpine, и тот
+       инициализировал разметку повторно — каждый x-for в панели рендерился
+       дважды (в подсказках поиска вместо 4 пунктов было 8, то же самое во
+       всех списках админки на x-for). Поймано вживую 26.07.2026.
+       В layouts/frontend-install.blade.php отдельный alpine.min.js оставлен
+       намеренно: там @vite нет, мастеру установки Alpine взять больше неоткуда. --}}
   <script src="{{ asset('js/admin/notifications.js') }}"></script>
   @stack('scripts')
   

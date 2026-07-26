@@ -1,17 +1,29 @@
 {{--
     Единая шапка админки. Раньше это были два раздельных бара (header + navbar),
     и часть функциональности в них дублировалась незаметно для глаза:
-    — свой Ctrl+K тут (`searchOpen`) и свой — уже внутри components.admin.global-search;
-    — простая ссылка-колокольчик со счётчиком (тот же Notification::where('enabled',1))
-      рядом с полноценным центром уведомлений (components.admin.notifications-center);
+    — свой Ctrl+K тут и свой — уже внутри components.admin.global-search;
+    — простая ссылка-колокольчик со счётчиком рядом с полноценным центром
+      уведомлений (components.admin.notifications-center);
     — загрузка шрифта/иконок темы была объявлена только в navbar.blade.php.
     Теперь это один бар, каждая функция — в одном месте.
 
-    22.07.2026: перекомпоновка на прямые края (без скруглений — общий рубильник
-    в layouts/admin.blade.php) + акцентная градиентная полоса сверху и группировка
-    правого кластера разделителями по смыслу (уведомления/деньги · инструменты ·
-    персонализация · аккаунт), чтобы плотный ряд иконок читался блоками, а не
-    сплошной лентой.
+    26.07.2026: перекомпоновка «работа слева, поиск в центре, личное справа».
+    Что изменилось по сути, а не косметически:
+    — Поиск стал НАСТОЯЩИМ полем ввода (было: кнопка, стилизованная под поле,
+      ввод жил в модалке). Подробности — в components/admin/global-search.
+    — Появился переключатель ЯЗЫКА интерфейса (как на сайте). До этого на его
+      месте стоял селект СТРАН из модуля Локализация — он выглядел языковым
+      («RU RU»), но менял часовой пояс и форматы дат, а стран в базе одна,
+      то есть это был список с единственным вариантом. Убран отсюда: страны и
+      форматы настраиваются в разделе «Локализация» (ссылка — в меню профиля).
+    — Появился переключатель ОФОРМЛЕНИЯ панели — список тем из модуля Темы, как
+      на сайте. Заменил кнопку-луну: класс .dark, который она вешала, в
+      собранном tailwind.min.css почти ничем не поддержан (в сборке нет
+      dark:-вариантов), поэтому «тёмная тема» красила лишь несколько блоков
+      с литеральными .dark-правилами и выглядела сломанной.
+    — Хлебная крошка «Панель /» убрана: ссылка вела на /admin/news и называлась
+      не тем, чем была. Остался сам раздел + отдельная кнопка перехода на сайт.
+    — Блок профиля выделен в самостоятельную карточку с аватаром и ролью.
 --}}
 <header class="admin-glass-dark z-30 w-full border-b border-gray-800 shadow text-sm text-gray-300">
     <div class="admin-accent-bar" aria-hidden="true"></div>
@@ -28,7 +40,6 @@
         $iconMode = data_get($config, 'icon_mode', 'lucide');
         $fontProvider = data_get($config,'font_provider');
         $fontName     = trim((string) data_get($config,'font_name',''));
-        $iconsPath    = rtrim((string) data_get($config,'icons_path',''),'/');
 
         $localFontSlug = null;
         if ($fontProvider === 'local' && $fontName !== '') {
@@ -57,35 +68,127 @@
         @endif
     @endif
 
-    <style>body { font-family: {{ $fontBase }}; }</style>
+    <style>
+        body { font-family: {{ $fontBase }}; }
+
+        /* Оформление шапки — литеральный CSS. В собранном tailwind.min.css нет
+           ни dark:-вариантов, ни opacity-модификаторов (bg-white/10), ни
+           произвольных значений, поэтому «стеклянные» элементы на утилитах
+           просто не отрисовались бы. Акцент берётся из --admin-primary, то
+           есть следует за выбранным оформлением панели. */
+        .ahd-btn{position:relative;display:grid;place-items:center;width:2.25rem;height:2.25rem;
+            border:1px solid #374151;color:#d1d5db;transition:background .15s ease,border-color .15s ease,color .15s ease}
+        .ahd-btn:hover{background:rgba(255,255,255,.08);border-color:#4b5563;color:#fff}
+        .ahd-badge{position:absolute;top:-.375rem;right:-.375rem;min-width:1.25rem;height:1.25rem;
+            display:flex;align-items:center;justify-content:center;padding:0 .2rem;
+            font-size:.68rem;line-height:1;color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+
+        /* Иконки собраны в ГРУППЫ-обоймы по смыслу: у обоймы своя рамка и фон,
+           а кнопки внутри — без собственных рамок. Раньше это была сплошная
+           лента одинаковых квадратов, разделённая только тонкими полосками:
+           глаз не видел, где кончается один смысловой блок и начинается
+           другой, и весь правый край читался как один ком. */
+        /* Высота обоймы = высоте кнопок «Создать» / «На сайт» / поля поиска
+           (2.25rem): всё в полосе должно стоять на одной линии */
+        .ahd-group{display:inline-flex;align-items:stretch;gap:.125rem;height:2.25rem;padding:.125rem;
+            flex:none;box-sizing:border-box;border:1px solid #374151;background:rgba(255,255,255,.04)}
+        .ahd-group .ahd-btn{width:2rem;height:100%;border:0;background:transparent}
+        .ahd-group .ahd-btn:hover{background:rgba(255,255,255,.1);color:#fff}
+        /* Кнопка центра уведомлений приходит из своего компонента со своими
+           классами — подгоняем её под размер соседей по обойме */
+        .ahd-group > div{display:flex;align-items:stretch}
+        .ahd-group > div > button:not(.ahd-btn):not(.ahd-user){position:relative;display:grid;
+            place-items:center;width:2rem;height:100%;padding:0;color:#d1d5db;
+            transition:background .15s ease,color .15s ease}
+        .ahd-group > div > button:not(.ahd-btn):not(.ahd-user):hover{background:rgba(255,255,255,.1);color:#fff}
+        /* Переключатели языка и оформления — те же кнопки обоймы, но с подписью */
+        .ahd-group .ahd-btn--wide{width:auto;padding:0 .5rem;gap:.35rem;display:inline-flex;align-items:center}
+
+        /* Текущий раздел */
+        .ahd-section{display:inline-flex;align-items:center;gap:.5rem;font-size:.7rem;font-weight:700;
+            letter-spacing:.08em;text-transform:uppercase;color:#fff;white-space:nowrap;
+            font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+        .ahd-section-dot{width:.4rem;height:.4rem;background:var(--admin-primary,#6366f1);flex:none;
+            box-shadow:0 0 0 3px var(--admin-primary-soft,rgba(99,102,241,.25))}
+
+        /* Кнопка-действие с подписью (Создать / На сайт) */
+        .ahd-action{display:inline-flex;align-items:center;gap:.4rem;height:2.25rem;padding:0 .8rem;
+            font-size:.78rem;font-weight:600;white-space:nowrap;transition:filter .15s ease,background .15s ease,color .15s ease}
+        .ahd-action--primary{background:var(--admin-primary,#6366f1);color:#fff;border:1px solid transparent}
+        .ahd-action--primary:hover{filter:brightness(1.12);color:#fff}
+        .ahd-action--ghost{border:1px solid #374151;color:#d1d5db}
+        .ahd-action--ghost:hover{background:rgba(255,255,255,.08);border-color:#4b5563;color:#fff}
+
+        /* Выпадающие меню шапки (язык, оформление, создание, профиль) */
+        .ahd-menu{position:absolute;right:0;top:calc(100% + .45rem);z-index:70;min-width:12.5rem;
+            padding:.3rem;background:#fff;border:1px solid #e5e7eb;
+            box-shadow:0 24px 48px -20px rgba(17,24,39,.55)}
+        .dark .ahd-menu{background:#111827;border-color:#374151}
+        .ahd-menu--left{right:auto;left:0}
+        .ahd-menu-title{padding:.5rem .6rem .25rem;font-size:.63rem;font-weight:700;letter-spacing:.06em;
+            text-transform:uppercase;color:#9ca3af}
+        .ahd-menu-item{display:flex;align-items:center;gap:.6rem;width:100%;padding:.45rem .6rem;
+            font-size:.82rem;color:#374151;text-align:left;text-decoration:none;background:none;border:0;
+            cursor:pointer;transition:background .12s ease,color .12s ease}
+        .dark .ahd-menu-item{color:#d1d5db}
+        .ahd-menu-item:hover{background:var(--admin-primary-soft,rgba(99,102,241,.12));
+            color:var(--admin-primary-ink,#312e81)}
+        .dark .ahd-menu-item:hover{color:#c7d2fe}
+        .ahd-menu-item.is-active{font-weight:600;color:var(--admin-primary,#4f46e5)}
+        .ahd-menu-item--danger{color:#dc2626}
+        .ahd-menu-item--danger:hover{background:rgba(220,38,38,.1);color:#b91c1c}
+        .ahd-menu-sep{margin:.25rem 0;border-top:1px solid #e5e7eb}
+        .dark .ahd-menu-sep{border-color:#374151}
+        .ahd-menu-note{margin-left:auto;font-size:.62rem;color:#9ca3af;letter-spacing:.02em}
+
+        /* Флаг локали (тот же приём, что в шапке сайта) */
+        .flag{width:1.3rem;height:.92rem;display:inline-block;flex:none;overflow:hidden;
+            vertical-align:middle;box-shadow:0 0 0 1px rgba(255,255,255,.25)}
+        .ahd-menu .flag{box-shadow:0 0 0 1px rgba(17,24,39,.15)}
+
+        /* Кружок-превью цвета темы */
+        .ahd-dot{width:.85rem;height:.85rem;border-radius:999px;flex:none;
+            border:1px solid rgba(255,255,255,.3);box-shadow:0 1px 2px rgba(0,0,0,.3)}
+        .ahd-menu .ahd-dot{border-color:rgba(17,24,39,.15)}
+
+        /* Блок профиля: отдельная карточка, а не ещё одна иконка в ленте */
+        .ahd-user{display:inline-flex;align-items:center;gap:.55rem;height:2.25rem;padding:0 .6rem 0 .35rem;
+            border:1px solid #374151;background:rgba(255,255,255,.05);color:#e5e7eb;
+            transition:background .15s ease,border-color .15s ease}
+        .ahd-user:hover{background:rgba(255,255,255,.1);border-color:var(--admin-primary,#6366f1)}
+        .ahd-user-ava{display:grid;place-items:center;width:1.6rem;height:1.6rem;flex:none;overflow:hidden;
+            background:linear-gradient(135deg,var(--admin-primary,#6366f1),var(--admin-accent,#a855f7));
+            color:#fff;font-size:.66rem;font-weight:700;letter-spacing:.02em}
+        .ahd-user-ava img{width:100%;height:100%;object-fit:cover}
+        .ahd-user-text{display:none;line-height:1.1;text-align:left;min-width:0}
+        @media (min-width:768px){.ahd-user-text{display:block}}
+        .ahd-user-name{display:block;max-width:8.5rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+            font-size:.78rem;font-weight:600}
+        .ahd-user-role{display:block;font-size:.62rem;letter-spacing:.03em;color:#9ca3af}
+        .ahd-user-caret{font-size:.55rem;opacity:.6}
+    </style>
 
     @php
-        // Хлебная крошка раздела
+        // Текущий раздел. Список общий с сайдбаром и поиском
+        // (App\Support\AdminSections) — раньше здесь была своя третья копия.
         $route = request()->route()?->getName() ?? '';
-        $map = [
-            'admin.menus.'              => 'Меню',
-            'admin.news.'               => 'Новости',
-            'admin.pages.'              => 'Страницы',
-            'admin.categories.'         => 'Категории',
-            'admin.slideshow.'          => 'Слайдшоу',
-            'admin.files.'              => 'Файлы',
-            'admin.search.'             => 'Поиск',
-            'admin.notifications.'      => 'Уведомления',
-            'admin.visual.themes.'      => 'Темы',
-            'admin.visual.fragments.'   => 'Фрагменты',
-            'admin.users.'              => 'Пользователи',
-            'admin.payments.'           => 'Оплата',
-            'admin.orders.'             => 'Заказы',
-            'admin.delivery.'           => 'Доставка',
-        ];
         $section = null;
-        foreach ($map as $prefix => $label) {
-            if (str_starts_with($route, $prefix)) { $section = $label; break; }
+        foreach (\App\Support\AdminSections::all() as $item) {
+            if ($item['is_route'] && $route !== '' && request()->routeIs($item['pattern'])) {
+                $section = $item['label'];
+                break;
+            }
+            if (! $item['is_route'] && request()->is($item['pattern'])) {
+                $section = $item['label'];
+                break;
+            }
         }
 
-        // Счётчики и предупреждения для правого кластера кнопок
-        $unread = 0; $newOrders = 0; $unreadMessages = 0; $licenseWarning = null;
-        try { if (class_exists(\Modules\Notifications\Models\Notification::class)) $unread = \Modules\Notifications\Models\Notification::where('enabled',1)->count(); } catch (\Throwable $e) {}
+        // Счётчики и предупреждения для правого кластера кнопок.
+        // Счётчик уведомлений здесь НЕ считаем: его тянет по своему эндпоинту
+        // components.admin.notifications-center — раньше тот же запрос
+        // (Notification::where('enabled',1)) выполнялся ещё и тут, впустую.
+        $newOrders = 0; $unreadMessages = 0; $licenseWarning = null;
         try { if (class_exists(\Modules\Payments\Models\Order::class))         $newOrders = \Modules\Payments\Models\Order::where('is_new',true)->count(); } catch (\Throwable $e) {}
         try {
             if (class_exists(\Modules\Messages\Models\Message::class) && Auth::check()) {
@@ -107,128 +210,237 @@
             }
         } catch (\Throwable $e) {}
 
-        $badge = 'absolute -top-1.5 -right-1.5 w-5 h-5 flex items-center justify-center text-xs text-white rounded-full shadow';
-        $btn   = 'relative w-9 h-9 grid place-items-center border border-gray-700 hover:bg-gray-800 hover:border-gray-600 transition';
-        $sep   = 'w-px h-6 bg-gray-800 mx-1 hidden sm:block';
+        // Язык интерфейса. Названия — на самом языке, как принято в
+        // переключателях: их не переводят, иначе искать свой язык неудобно.
+        $langNames = ['ru'=>'Русский','en'=>'English','be'=>'Беларуская','kk'=>'Қазақша','de'=>'Deutsch','fr'=>'Français','it'=>'Italiano'];
+        $curLocale = app()->getLocale();
+
+        // Оформление панели (личный выбор администратора) — из ThemeServiceProvider
+        $panelThemes = $panelThemes ?? collect();
+        $panelSlug = $panelThemeSlug ?? null;
+        $panelPrimary = $panelThemes->firstWhere('slug', $panelSlug)->primary
+            ?? ($panelThemes->firstWhere('is_default', true)->primary ?? '#6366f1');
+        $panelTitle = $panelThemes->firstWhere('slug', $panelSlug)->title
+            ?? ($panelThemes->firstWhere('is_default', true)->title ?? __('admin.header.theme'));
+
+        // Профиль
+        $me = Auth::user();
+        $myName = $me->name ?? __('admin.header.role_admin');
+        $myRole = ($me->is_admin ?? false) ? __('admin.header.role_admin') : __('admin.header.role_user');
+        $myInitials = mb_strtoupper(mb_substr(trim($myName), 0, 1)) ?: 'A';
     @endphp
 
-    <div class="max-w-screen-2xl mx-auto px-4 py-2.5 flex flex-wrap items-center gap-3">
+    {{-- Полоса тянется на всю ширину области содержимого. Раньше здесь стоял
+         max-w-screen-2xl mx-auto: при широком окне контейнер оказывался уже
+         доступного места и центрировался, из-за чего у обоих краёв оставались
+         пустые поля, а весь ряд кнопок «висел» посередине. --}}
+    <div class="w-full px-4 py-2.5 flex flex-wrap items-center gap-x-3 gap-y-2">
 
-        {{-- ── Левый кластер: где я / быстрое создание ──────────────────── --}}
-        <div class="flex items-center gap-3 flex-wrap">
-            <nav class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider"
-                 style="font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;" aria-label="Текущий раздел">
-                <a href="{{ url('/admin/news') }}" class="inline-flex items-center gap-1.5 text-gray-500 hover:text-white transition">
-                    <span class="w-1.5 h-1.5 bg-indigo-500" aria-hidden="true"></span>
-                    Панель
-                </a>
-                @if($section)
-                    <span class="text-gray-700">/</span>
-                    <span class="text-white">{{ $section }}</span>
-                @endif
-            </nav>
-
-            <div class="{{ $sep }}" aria-hidden="true"></div>
+        {{-- ══ Слева: где я и что могу сделать ══ --}}
+        <div class="flex items-center gap-2 flex-wrap flex-none">
+            <span class="ahd-section" aria-label="{{ __('admin.header.section') }}">
+                <span class="ahd-section-dot" aria-hidden="true"></span>
+                {{ $section ?? __('admin.header.overview') }}
+            </span>
 
             <div x-data="{open:false}" class="relative">
-                <button type="button" @click="open=!open"
-                        class="admin-clip-corner inline-flex items-center gap-1.5 pl-2.5 pr-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition">
-                    @themeIcon('plus') <span>Создать</span>
+                <button type="button" @click="open=!open" @click.outside="open=false"
+                        @keydown.escape.window="open=false"
+                        class="ahd-action ahd-action--primary admin-clip-corner" :aria-expanded="open.toString()">
+                    @themeIcon('plus') <span>{{ __('admin.header.create') }}</span>
                 </button>
-                <div x-cloak x-show="open" @click.outside="open=false"
-                     class="absolute left-0 mt-2 w-56 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-xl p-1 z-20 text-gray-700 dark:text-gray-200">
+                <div x-cloak x-show="open" x-transition.opacity.duration.120ms class="ahd-menu ahd-menu--left">
                     @if(Route::has('admin.news.create'))
-                        <a class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800"
-                           href="{{ route('admin.news.create') }}">@themeIcon('file-text','w-4 text-center') Новость</a>
+                        <a class="ahd-menu-item" href="{{ route('admin.news.create') }}">
+                            @themeIcon('file-text','w-4 text-center') {{ __('admin.header.create_news') }}</a>
                     @endif
                     @if(Route::has('admin.pages.create'))
-                        <a class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800"
-                           href="{{ route('admin.pages.create') }}">@themeIcon('file-text','w-4 text-center') Страницу</a>
+                        <a class="ahd-menu-item" href="{{ route('admin.pages.create') }}">
+                            @themeIcon('file-text','w-4 text-center') {{ __('admin.header.create_page') }}</a>
                     @endif
                     @if(Route::has('admin.categories.create'))
-                        <a class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800"
-                           href="{{ route('admin.categories.create') }}">@themeIcon('folder','w-4 text-center') Категорию</a>
+                        <a class="ahd-menu-item" href="{{ route('admin.categories.create') }}">
+                            @themeIcon('folder','w-4 text-center') {{ __('admin.header.create_category') }}</a>
                     @endif
                     @if(Route::has('admin.slideshow.create'))
-                        <a class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800"
-                           href="{{ route('admin.slideshow.create') }}">@themeIcon('image','w-4 text-center') Слайдшоу</a>
+                        <a class="ahd-menu-item" href="{{ route('admin.slideshow.create') }}">
+                            @themeIcon('image','w-4 text-center') {{ __('admin.header.create_slideshow') }}</a>
                     @endif
                     @if(Route::has('admin.visual.fragments.create'))
-                        <a class="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800"
-                           href="{{ route('admin.visual.fragments.create') }}">@themeIcon('puzzle','w-4 text-center') Фрагмент</a>
+                        <a class="ahd-menu-item" href="{{ route('admin.visual.fragments.create') }}">
+                            @themeIcon('puzzle','w-4 text-center') {{ __('admin.header.create_fragment') }}</a>
                     @endif
                 </div>
             </div>
+
+            {{-- Переход на сайт: самостоятельное действие, в новой вкладке --}}
+            <a href="{{ url('/') }}" target="_blank" rel="noopener"
+               class="ahd-action ahd-action--ghost" title="{{ __('admin.header.site_title') }}">
+                <i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i>
+                <span class="hidden md:inline">{{ __('admin.header.site') }}</span>
+            </a>
         </div>
 
-        {{-- Поиск — по центру, тянется на всю оставшуюся ширину --}}
-        <div class="order-last w-full sm:order-none sm:w-auto sm:flex-1 sm:max-w-md sm:mx-3">
+        {{-- ══ Центр: поиск. Занимает всё, что осталось между краями ══ --}}
+        <div class="order-last w-full sm:order-none sm:w-auto sm:flex-1 sm:min-w-0 sm:max-w-2xl">
             @include('components.admin.global-search')
         </div>
 
-        {{-- ── Правый кластер: инструменты и аккаунт, блоками через разделители ── --}}
-        <div class="ml-auto sm:ml-0 flex items-center gap-1 flex-wrap">
+        {{-- ══ Справа: работа → инструменты → личное ══ --}}
+        <div class="ml-auto flex items-center gap-2 flex-none">
 
-            {{-- Блок 1: уведомления / деньги / лицензия --}}
-            <div class="flex items-center gap-1.5">
+            {{-- Обойма 1: то, что требует внимания и меняется само --}}
+            <div class="ahd-group">
                 @include('components.admin.notifications-center')
 
-                <a href="{{ route('admin.orders.index') }}" class="{{ $btn }}" title="Новые заказы" aria-label="Новые заказы">
+                <a href="{{ route('admin.orders.index') }}" class="ahd-btn" title="{{ __('admin.header.orders') }}"
+                   aria-label="{{ __('admin.header.orders') }}">
                     @themeIcon('shopping-cart')
-                    @if($newOrders>0)<span class="{{ $badge }} bg-green-600">{{ $newOrders }}</span>@endif
+                    @if($newOrders>0)<span class="ahd-badge bg-green-600">{{ $newOrders }}</span>@endif
                 </a>
 
-                <a href="{{ route('admin.messages.index') }}" class="{{ $btn }}" title="Сообщения" aria-label="Сообщения">
+                <a href="{{ route('admin.messages.index') }}" class="ahd-btn" title="{{ __('admin.header.messages') }}"
+                   aria-label="{{ __('admin.header.messages') }}">
                     @themeIcon('message')
-                    @if($unreadMessages>0)<span class="{{ $badge }} bg-indigo-500">{{ $unreadMessages }}</span>@endif
+                    @if($unreadMessages>0)<span class="ahd-badge bg-indigo-500">{{ $unreadMessages }}</span>@endif
                 </a>
 
                 @if($licenseWarning)
                     <a href="{{ route('admin.subscriptions.index') }}"
-                       class="{{ $btn }} {{ $licenseWarning['is_expired'] || $licenseWarning['is_critical'] ? 'border-red-500' : 'border-yellow-500' }}"
-                       title="Лицензия {{ $licenseWarning['is_expired'] ? 'истекла' : 'истекает через ' . $licenseWarning['days_left'] . ' ' . ($licenseWarning['days_left'] === 1 ? 'день' : ($licenseWarning['days_left'] < 5 ? 'дня' : 'дней')) }}"
-                       aria-label="Лицензия">
-                        <i class="fas fa-key {{ $licenseWarning['is_expired'] || $licenseWarning['is_critical'] ? 'text-red-400' : 'text-yellow-400' }}"></i>
-                        <span class="{{ $badge }} {{ $licenseWarning['is_expired'] || $licenseWarning['is_critical'] ? 'bg-red-500 animate-pulse' : 'bg-yellow-500' }}">
+                       class="ahd-btn {{ $licenseWarning['is_expired'] || $licenseWarning['is_critical'] ? 'text-red-400' : 'text-yellow-400' }}"
+                       title="{{ __('admin.header.license') }}: {{ $licenseWarning['is_expired'] ? __('admin.header.license_expired') : __('admin.header.license_expires') . ' ' . $licenseWarning['days_left'] }}"
+                       aria-label="{{ __('admin.header.license') }}">
+                        <i class="fas fa-key"></i>
+                        <span class="ahd-badge {{ $licenseWarning['is_expired'] || $licenseWarning['is_critical'] ? 'bg-red-500 animate-pulse' : 'bg-yellow-500' }}">
                             {{ $licenseWarning['is_expired'] ? '!' : $licenseWarning['days_left'] }}
                         </span>
                     </a>
                 @endif
             </div>
 
-            <div class="{{ $sep }}" aria-hidden="true"></div>
+            {{-- Обойма 2: служебные страницы, куда заходят изредка. Подписи
+                 уточнены: «глобус» показывает геолокацию и устройство ТЕКУЩЕГО
+                 администратора, а не пользователей сайта — прежняя подпись
+                 «Геолокация пользователей» обещала не то. --}}
+            <div class="ahd-group hidden md:inline-flex">
+                <a href="{{ route('admin.error.report') }}" class="ahd-btn" title="{{ __('admin.header.report_bug') }}"
+                   aria-label="{{ __('admin.header.report_bug') }}">@themeIcon('bug')</a>
 
-            {{-- Блок 2: служебные инструменты --}}
-            <div class="flex items-center gap-1.5">
-                <a href="{{ route('admin.error.report') }}" class="{{ $btn }}" title="Сообщить об ошибке" aria-label="Сообщить об ошибке">
-                    @themeIcon('bug')
-                </a>
+                <a href="{{ route('admin.geolocation') }}" class="ahd-btn" title="{{ __('admin.header.geolocation') }}"
+                   aria-label="{{ __('admin.header.geolocation') }}">@themeIcon('globe')</a>
 
-                <a href="{{ route('admin.geolocation') }}" class="{{ $btn }}" title="Геолокация пользователей" aria-label="Геолокация">
-                    @themeIcon('globe')
-                </a>
-
-                <a href="{{ route('admin.system_info') }}" class="{{ $btn }}" title="Информация о сервере и конфигурации" aria-label="Система">
-                    @themeIcon('cog')
-                </a>
+                <a href="{{ route('admin.system_info') }}" class="ahd-btn" title="{{ __('admin.header.system_info') }}"
+                   aria-label="{{ __('admin.header.system_info') }}">@themeIcon('cog')</a>
             </div>
 
-            <div class="{{ $sep }}" aria-hidden="true"></div>
+            {{-- Обойма 3: личное — язык и оформление --}}
+            <div class="ahd-group">
+            <div x-data="{open:false}" class="relative">
+                <button type="button" @click="open=!open" @click.outside="open=false"
+                        @keydown.escape.window="open=false"
+                        class="ahd-btn ahd-btn--wide"
+                        title="{{ __('admin.header.language') }}" :aria-expanded="open.toString()">
+                    {!! locale_flag($curLocale) !!}
+                    <span class="hidden lg:inline text-xs font-semibold">{{ strtoupper($curLocale) }}</span>
+                </button>
+                <div x-cloak x-show="open" x-transition.opacity.duration.120ms class="ahd-menu">
+                    <p class="ahd-menu-title">{{ __('admin.header.language') }}</p>
+                    @foreach(available_locales() as $code)
+                        <a href="{{ route('frontend.locale.set', $code) }}"
+                           class="ahd-menu-item {{ $code === $curLocale ? 'is-active' : '' }}">
+                            {!! locale_flag($code) !!}
+                            <span>{{ $langNames[$code] ?? strtoupper($code) }}</span>
+                            @if($code === $curLocale)<i class="fas fa-check ahd-menu-note"></i>@endif
+                        </a>
+                    @endforeach
+                </div>
+            </div>
 
-            {{-- Блок 3: персонализация --}}
-            <div class="flex items-center gap-1.5">
-                @if(class_exists(\Modules\Localization\Views\Components\CountrySwitcher::class))
-                    <div class="hidden sm:block">
-                        <x-country-switcher />
+            @if($panelThemes->isNotEmpty())
+                <div x-data="{open:false}" class="relative">
+                    <button type="button" @click="open=!open" @click.outside="open=false"
+                            @keydown.escape.window="open=false"
+                            class="ahd-btn ahd-btn--wide"
+                            title="{{ __('admin.header.theme') }}" :aria-expanded="open.toString()">
+                        <span class="ahd-dot" style="background: {{ $panelPrimary }}"></span>
+                        <span class="hidden xl:inline text-xs font-semibold">{{ $panelTitle }}</span>
+                    </button>
+                    <div x-cloak x-show="open" x-transition.opacity.duration.120ms class="ahd-menu">
+                        <p class="ahd-menu-title">{{ __('admin.header.theme') }}</p>
+                        @foreach($panelThemes as $themeOption)
+                            <a href="{{ route('admin.theme.set', $themeOption->slug) }}"
+                               class="ahd-menu-item {{ $themeOption->slug === $panelSlug ? 'is-active' : '' }}">
+                                <span class="ahd-dot" style="background: {{ $themeOption->primary }}"></span>
+                                <span>{{ $themeOption->title }}</span>
+                                @if($themeOption->is_default)
+                                    <span class="ahd-menu-note">{{ __('admin.header.theme_site') }}</span>
+                                @endif
+                            </a>
+                        @endforeach
+                        @if($panelSlug)
+                            <div class="ahd-menu-sep"></div>
+                            <a href="{{ route('admin.theme.set', 'reset') }}" class="ahd-menu-item">
+                                <i class="fas fa-rotate-left w-4 text-center"></i>
+                                <span>{{ __('admin.header.theme_default') }}</span>
+                            </a>
+                        @endif
                     </div>
-                @endif
-
-                @include('components.admin.dark-mode-toggle')
+                </div>
+            @endif
             </div>
 
-            <div class="{{ $sep }}" aria-hidden="true"></div>
+            {{-- Профиль — самостоятельная карточка с аватаром и ролью,
+                 а не ещё одна иконка в общей ленте --}}
+            <div x-data="{open:false}" class="relative">
+                <button type="button" @click="open=!open" @click.outside="open=false"
+                        @keydown.escape.window="open=false"
+                        class="ahd-user" :aria-expanded="open.toString()">
+                    <span class="ahd-user-ava">
+                        @if($me?->avatar)
+                            <img src="{{ asset($me->avatar) }}" alt="">
+                        @else
+                            {{ $myInitials }}
+                        @endif
+                    </span>
+                    <span class="ahd-user-text">
+                        <span class="ahd-user-name">{{ $myName }}</span>
+                        <span class="ahd-user-role">{{ $myRole }}</span>
+                    </span>
+                    <i class="fas fa-chevron-down ahd-user-caret" aria-hidden="true"></i>
+                </button>
 
-            <x-user-dropdown />
+                <div x-cloak x-show="open" x-transition.opacity.duration.120ms class="ahd-menu">
+                    <p class="ahd-menu-title">{{ $myName }}</p>
+
+                    <a href="{{ url('/dashboard') }}" class="ahd-menu-item">
+                        <i class="fas fa-user w-4 text-center"></i>{{ __('admin.header.profile') }}
+                    </a>
+                    <a href="{{ route('admin.account.settings') }}" class="ahd-menu-item">
+                        <i class="fas fa-sliders w-4 text-center"></i>{{ __('admin.header.account_settings') }}
+                    </a>
+                    @if($me && Route::has('admin.users.password.edit'))
+                        <a href="{{ route('admin.users.password.edit', $me->id) }}" class="ahd-menu-item">
+                            <i class="fas fa-key w-4 text-center"></i>{{ __('admin.header.password') }}
+                        </a>
+                    @endif
+                    @if(Route::has('admin.localization.index'))
+                        {{-- Страны, часовые пояса и форматы дат: сюда переехал
+                             прежний селект стран из шапки --}}
+                        <a href="{{ route('admin.localization.index') }}" class="ahd-menu-item">
+                            <i class="fas fa-globe w-4 text-center"></i>{{ __('admin.header.localization') }}
+                        </a>
+                    @endif
+
+                    <div class="ahd-menu-sep"></div>
+
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="ahd-menu-item ahd-menu-item--danger">
+                            <i class="fas fa-right-from-bracket w-4 text-center"></i>{{ __('admin.header.logout') }}
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 
