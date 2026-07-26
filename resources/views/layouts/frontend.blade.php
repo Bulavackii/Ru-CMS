@@ -8,15 +8,32 @@
     <!-- Поддержка светлой и темной темы -->
     <meta name="color-scheme" content="light dark">
 
-    <title>{{ $meta_title ?? ($title ?? 'RU CMS') }}</title>
-    @if (!empty($meta_description))
-        <meta name="description" content="{{ $meta_description }}">
+    @php
+        // Данные раздела «SEO — страницы», если для этого адреса есть запись.
+        // Их подставляет SeoServiceProvider (композер лейаута); когда записи
+        // нет — всё как раньше: значения из самой новости/страницы.
+        $seoMeta = $seoMeta ?? null;
+        $seoTitle = $seoMeta['title'] ?? null;
+        $seoDescription = $seoMeta['description'] ?? null;
+        $seoKeywords = $seoMeta['keywords'] ?? null;
+
+        $pageTitle = $seoTitle ?: ($meta_title ?? ($title ?? 'RU CMS'));
+        $pageDescription = $seoDescription ?: ($meta_description ?? null);
+        $pageKeywords = $seoKeywords ?: ($meta_keywords ?? null);
+        $pageCanonical = $seoMeta['canonical'] ?? null ?: url()->current();
+        $pageRobots = $seoMeta['robots'] ?? null ?: 'index, follow';
+        $pageOg = $seoMeta['og'] ?? [];
+    @endphp
+
+    <title>{{ $pageTitle }}</title>
+    @if (!empty($pageDescription))
+        <meta name="description" content="{{ $pageDescription }}">
     @endif
-    @if (!empty($meta_keywords))
-        <meta name="keywords" content="{{ $meta_keywords }}">
+    @if (!empty($pageKeywords))
+        <meta name="keywords" content="{{ $pageKeywords }}">
     @endif
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="{{ url()->current() }}">
+    <meta name="robots" content="{{ $pageRobots }}">
+    <link rel="canonical" href="{{ $pageCanonical }}">
     <link rel="icon" type="image/svg" sizes="120x120" href="{{ asset('favicon.svg') }}">
 
 @if (config('seo.features.metrica') && config('seo.metrica.counter_id'))
@@ -38,18 +55,30 @@
     <!-- /Yandex.Metrika counter -->
 @endif
 
-    {{-- OG/Twitter --}}
-    <meta property="og:title" content="{{ $meta_title ?? ($title ?? 'RU CMS') }}">
-    @if (!empty($meta_description))
-        <meta property="og:description" content="{{ $meta_description }}">
+    {{-- OG/Twitter: значения из раздела SEO, иначе прежние --}}
+    <meta property="og:title" content="{{ $pageOg['og:title'] ?? $pageTitle }}">
+    @if (!empty($pageOg['og:description'] ?? $pageDescription))
+        <meta property="og:description" content="{{ $pageOg['og:description'] ?? $pageDescription }}">
     @endif
-    <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:type" content="article">
+    <meta property="og:url" content="{{ $pageOg['og:url'] ?? $pageCanonical }}">
+    <meta property="og:type" content="{{ $pageOg['og:type'] ?? 'article' }}">
     <meta property="og:locale" content="ru_RU">
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="{{ $meta_title ?? ($title ?? 'RU CMS') }}">
-    @if (!empty($meta_description))
-        <meta name="twitter:description" content="{{ $meta_description }}">
+    @if (!empty($pageOg['og:image']))
+        <meta property="og:image" content="{{ $pageOg['og:image'] }}">
+    @endif
+    <meta name="twitter:card" content="{{ $pageOg['twitter:card'] ?? 'summary' }}">
+    <meta name="twitter:title" content="{{ $pageOg['twitter:title'] ?? $pageTitle }}">
+    @if (!empty($pageOg['twitter:description'] ?? $pageDescription))
+        <meta name="twitter:description" content="{{ $pageOg['twitter:description'] ?? $pageDescription }}">
+    @endif
+    @if (!empty($pageOg['twitter:image']))
+        <meta name="twitter:image" content="{{ $pageOg['twitter:image'] }}">
+    @endif
+
+    @if (!empty($seoMeta['jsonld']))
+        {{-- JSON-LD из раздела SEO. Схема задаётся администратором, поэтому
+             выводим через json_encode с экранированием тегов. --}}
+        <script type="application/ld+json">{!! json_encode($seoMeta['jsonld'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP) !!}</script>
     @endif
 
     @stack('styles')

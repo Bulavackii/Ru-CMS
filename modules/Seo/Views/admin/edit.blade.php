@@ -6,17 +6,42 @@
         $viewUrl = !empty($item->canonical) ? $item->canonical : $base . '/' . ltrim((string) $item->slug, '/');
     @endphp
 
-    <h1 class="text-2xl font-semibold mb-4">Редактирование SEO</h1>
+    <div class="admin-accent-bar mb-0"></div>
+    <div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
+                flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div class="flex items-center gap-3 min-w-0">
+            <span class="admin-icon-badge"><i class="fas fa-magnifying-glass-chart"></i></span>
+            <div class="min-w-0">
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">SEO страницы</h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400 font-mono truncate">{{ $item->slug }}</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 flex-shrink-0">
+            <a href="{{ $viewUrl }}" target="_blank" rel="noopener"
+               class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+                      hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition">
+                <i class="fas fa-arrow-up-right-from-square"></i> Открыть
+            </a>
+            <a href="{{ route('seo.pages.index') }}"
+               class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+                      hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition">
+                <i class="fas fa-arrow-left"></i> К списку
+            </a>
+        </div>
+    </div>
 
     @if (session('status'))
-        <div class="mb-4 p-3 rounded border border-emerald-300 bg-emerald-50 text-emerald-800">
-            {{ session('status') }}
+        <div class="admin-card border-l-4 border-indigo-500 p-4 mb-5 text-sm text-gray-800 dark:text-gray-200">
+            <i class="fas fa-circle-info text-indigo-500 mr-1"></i> {{ session('status') }}
         </div>
     @endif
 
     @if ($errors->any())
-        <div class="mb-4 p-3 rounded border border-red-300 bg-red-50 text-red-800">
-            <strong>Проверьте поля:</strong> {{ $errors->first() }}
+        <div class="admin-card border-l-4 border-red-500 p-4 mb-5">
+            <ul class="text-sm text-red-600 dark:text-red-400 list-disc list-inside">
+                @foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach
+            </ul>
         </div>
     @endif
 
@@ -37,7 +62,7 @@
                         @csrf
                         <button type="submit"
                             class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md
-                               bg-amber-600 hover:bg-amber-700 text-black
+                               bg-indigo-600 hover:bg-indigo-700 text-white
                                shadow-sm ring-1 ring-inset ring-amber-700/10
                                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-600">
                             @themeIcon('unlock')
@@ -63,7 +88,7 @@
                         @csrf
                         <button type="submit"
                             class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md
-                               bg-emerald-600 hover:bg-emerald-700 text-black
+                               bg-indigo-600 hover:bg-indigo-700 text-white
                                shadow-sm ring-1 ring-inset ring-emerald-700/10
                                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-600">
                             @themeIcon('lock')
@@ -227,7 +252,7 @@
                 <div>
                     <label class="block text-sm font-medium">JSON-LD</label>
                     <textarea name="jsonld_raw" rows="8" class="mt-1 w-full border p-2 rounded font-mono"
-                        placeholder='{"@context":"https://schema.org","@type":"Article",...}'>{{ old('jsonld_raw', isset($item->jsonld) ? json_encode($item->jsonld, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) : '') }}</textarea>
+                        placeholder='{"@@context":"https://schema.org","@@type":"Article",...}'>{{ old('jsonld_raw', isset($item->jsonld) ? json_encode($item->jsonld, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) : '') }}</textarea>
                     <div class="flex items-center justify-between mt-1">
                         <div class="text-xs text-gray-500">Сохраняем только валидный JSON.</div>
                         <button type="button"
@@ -240,7 +265,7 @@
 
                 {{-- Кнопка Сохранить --}}
                 <div class="flex flex-wrap items-center gap-3">
-                    <button class="px-4 py-2 bg-blue-600 text-white rounded">Сохранить</button>
+                    <button class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition">Сохранить</button>
                     <a href="{{ $viewUrl }}" target="_blank" rel="noopener"
                         class="px-4 py-2 border rounded hover:bg-gray-50">Открыть страницу</a>
                     <button type="button" class="px-4 py-2 border rounded hover:bg-gray-50"
@@ -267,7 +292,7 @@
                     <button class="px-4 py-2 bg-red-600 text-white rounded">Удалить</button>
                 </form>
 
-                <a href="{{ route('seo.pages.index') }}" class="px-4 py-2 bg-gray-200 rounded">К списку</a>
+                <a href="{{ route('seo.pages.index') }}" class="inline-flex items-center gap-2 border border-gray-300 text-gray-700 hover:bg-gray-100 px-4 py-2 text-sm font-semibold transition">К списку</a>
             </div>
         </div>
 
