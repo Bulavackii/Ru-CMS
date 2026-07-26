@@ -146,7 +146,7 @@
         @else
             {{-- Сообщение если заказов нет --}}
             <div class="mt-6 text-sm text-gray-500 text-center px-6 pb-6 select-none">
-                🕒 У вас пока нет заказов.
+                🕒 {{ __('frontend.account.orders_empty') }}
             </div>
         @endif
     </div>

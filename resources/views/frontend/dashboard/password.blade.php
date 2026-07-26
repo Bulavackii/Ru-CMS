@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="max-w-xl mx-auto bg-white border border-gray-300 rounded-xl shadow-lg p-6 space-y-6">
-        <h1 class="text-2xl font-bold text-center text-blue-900">🔒 Смена пароля</h1>
+        <h1 class="text-2xl font-bold text-center text-blue-900">🔒 {{ __('frontend.account.change_password') }}</h1>
 
         @if (session('success'))
             <div class="bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded shadow text-sm">

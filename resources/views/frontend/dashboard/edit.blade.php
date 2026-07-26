@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="max-w-2xl mx-auto bg-white border border-gray-300 rounded-xl shadow-lg p-6 space-y-6">
-        <h1 class="text-3xl font-bold text-center text-blue-900">✏️ Редактирование профиля</h1>
+        <h1 class="text-3xl font-bold text-center text-blue-900">✏️ {{ __('frontend.account.edit_profile') }}</h1>
 
         {{-- 🔴 Ошибки --}}
         @if ($errors->any())
@@ -44,7 +44,7 @@
                 <input type="checkbox" name="is_company" id="is_company"
                        {{ old('is_company', $user->is_company) ? 'checked' : '' }}
                        class="rounded text-blue-600 border-gray-300 focus:ring-blue-500">
-                <label for="is_company" class="text-sm text-gray-700">Я — юридическое лицо</label>
+                <label for="is_company" class="text-sm text-gray-700">{{ __('frontend.account.legal_entity') }}</label>
             </div>
 
             {{-- 📋 Блок юр. лица --}}

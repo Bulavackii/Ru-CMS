@@ -3,7 +3,7 @@
 @section('title', 'Организация')
 
 @section('content')
-    <h1 class="text-2xl font-bold mb-6 text-center">🏢 Данные организации</h1>
+    <h1 class="text-2xl font-bold mb-6 text-center">🏢 {{ __('frontend.account.organization') }}</h1>
 
     @if ($errors->any())
         <div class="mb-4 bg-red-100 border border-red-300 text-red-800 px-4 py-2 rounded shadow-sm">
@@ -17,7 +17,7 @@
 
         {{-- 🏛️ Название компании --}}
         <div>
-            <label for="company_name" class="block text-sm font-medium text-gray-700">Наименование организации</label>
+            <label for="company_name" class="block text-sm font-medium text-gray-700">{{ __('frontend.account.org_name') }}</label>
             <input id="company_name" name="company_name" type="text"
                    value="{{ old('company_name', $user->company_name) }}"
                    required
@@ -26,7 +26,7 @@
 
         {{-- 🔢 ИНН --}}
         <div>
-            <label for="inn" class="block text-sm font-medium text-gray-700">ИНН</label>
+            <label for="inn" class="block text-sm font-medium text-gray-700">{{ __('frontend.account.inn') }}</label>
             <input id="inn" name="inn" type="text"
                    value="{{ old('inn', $user->inn) }}"
                    required
@@ -35,7 +35,7 @@
 
         {{-- 📄 ОГРН --}}
         <div>
-            <label for="ogrn" class="block text-sm font-medium text-gray-700">ОГРН</label>
+            <label for="ogrn" class="block text-sm font-medium text-gray-700">{{ __('frontend.account.ogrn') }}</label>
             <input id="ogrn" name="ogrn" type="text"
                    value="{{ old('ogrn', $user->ogrn) }}"
                    required

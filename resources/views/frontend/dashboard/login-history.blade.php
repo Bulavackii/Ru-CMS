@@ -12,7 +12,7 @@
             @if($loginHistory->isEmpty())
                 <div class="text-center py-8 text-gray-500">
                     <i class="fas fa-history text-4xl mb-4"></i>
-                    <p>История входов пуста</p>
+                    <p>{{ __('frontend.account.history_empty') }}</p>
                 </div>
             @else
                 <div class="overflow-x-auto">

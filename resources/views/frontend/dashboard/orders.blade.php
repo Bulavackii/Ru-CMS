@@ -3,7 +3,7 @@
 @section('title', 'Мои заказы')
 
 @section('content')
-    <h1 class="text-2xl font-bold mb-6 text-center">📋 Мои заказы</h1>
+    <h1 class="text-2xl font-bold mb-6 text-center">📋 {{ __('frontend.account.my_orders') }}</h1>
 
     @if ($orders->count())
         <div class="overflow-x-auto">
@@ -11,12 +11,12 @@
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="px-3 py-2 text-left whitespace-nowrap">№</th>
-                        <th class="px-3 py-2 text-left whitespace-nowrap">Сумма</th>
-                        <th class="px-3 py-2 text-left whitespace-nowrap">Кол-во</th>
-                        <th class="px-3 py-2 text-left whitespace-nowrap">Оплата</th>
-                        <th class="px-3 py-2 text-left whitespace-nowrap">Доставка</th>
-                        <th class="px-3 py-2 text-left whitespace-nowrap">Статус</th>
-                        <th class="px-3 py-2 text-left whitespace-nowrap">Дата</th>
+                        <th class="px-3 py-2 text-left whitespace-nowrap">{{ __('frontend.account.amount') }}</th>
+                        <th class="px-3 py-2 text-left whitespace-nowrap">{{ __('frontend.account.quantity') }}</th>
+                        <th class="px-3 py-2 text-left whitespace-nowrap">{{ __('frontend.account.payment') }}</th>
+                        <th class="px-3 py-2 text-left whitespace-nowrap">{{ __('frontend.account.delivery') }}</th>
+                        <th class="px-3 py-2 text-left whitespace-nowrap">{{ __('frontend.account.status') }}</th>
+                        <th class="px-3 py-2 text-left whitespace-nowrap">{{ __('frontend.account.date') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -54,6 +54,6 @@
             {{ $orders->appends(request()->query())->links('pagination::tailwind-rus') }}
         </div>
     @else
-        <p class="text-gray-500 text-center">У вас пока нет заказов.</p>
+        <p class="text-gray-500 text-center">{{ __('frontend.account.orders_empty') }}</p>
     @endif
 @endsection

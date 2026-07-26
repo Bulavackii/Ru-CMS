@@ -3,7 +3,7 @@
 @section('title', 'Корзина')
 
 @section('content')
-    <h1 class="text-3xl font-bold mb-8 text-center">🛒 Ваша корзина</h1>
+    <h1 class="text-3xl font-bold mb-8 text-center">🛒 {{ __('frontend.cart.title') }}</h1>
 
     @php $total = 0; @endphp
 
@@ -28,7 +28,7 @@
                                 </div>
 
                                 <div class="flex items-center gap-2 mt-3">
-                                    <span class="text-sm text-gray-600">Кол-во:</span>
+                                    <span class="text-sm text-gray-600">{{ __('frontend.cart.quantity') }}</span>
                                     <div class="flex items-center border border-gray-300 rounded overflow-hidden">
                                         <button type="button" class="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-lg decrement" data-id="{{ $item['id'] }}">−</button>
                                         <input type="text" readonly value="{{ $item['qty'] }}" class="w-12 text-center border-x border-gray-200 text-sm qty-input" data-id="{{ $item['id'] }}">
@@ -36,7 +36,7 @@
                                     </div>
                                 </div>
 
-                                <div class="mt-2 font-bold text-sm text-gray-800">Сумма: <span class="subtotal">{{ number_format($subtotal, 2, ',', ' ') }}</span> ₽</div>
+                                <div class="mt-2 font-bold text-sm text-gray-800">{{ __('frontend.cart.sum') }} <span class="subtotal">{{ number_format($subtotal, 2, ',', ' ') }}</span> ₽</div>
                             </div>
 
                             <div class="flex-shrink-0">
@@ -56,9 +56,9 @@
                 {{-- 🧾 Оформление --}}
                 <div class="space-y-6">
                     <div class="bg-white border border-gray-200 rounded-lg shadow p-6">
-                        <h2 class="text-lg font-semibold mb-4">💳 Способ оплаты</h2>
+                        <h2 class="text-lg font-semibold mb-4">💳 {{ __('frontend.cart.payment_method') }}</h2>
                         <select name="payment_method_id" id="payment-method" required class="w-full border-gray-300 rounded px-4 py-2 shadow-sm focus:ring focus:ring-indigo-300 text-sm">
-                            <option value="">Выберите способ оплаты...</option>
+                            <option value="">{{ __('frontend.cart.choose_payment') }}</option>
                             @foreach ($paymentMethods as $method)
                                 <option value="{{ $method->id }}"
                                         data-description="{{ $method->description ?? '' }}"
@@ -77,9 +77,9 @@
                     </div>
 
                     <div class="bg-white border border-gray-200 rounded-lg shadow p-6">
-                        <h2 class="text-lg font-semibold mb-4">🚚 Метод доставки</h2>
+                        <h2 class="text-lg font-semibold mb-4">🚚 {{ __('frontend.cart.delivery_method') }}</h2>
                         <select name="delivery_method_id" id="delivery-method" required class="w-full border-gray-300 rounded px-4 py-2 shadow-sm focus:ring focus:ring-indigo-300 text-sm">
-                            <option value="">Выберите способ доставки...</option>
+                            <option value="">{{ __('frontend.cart.choose_delivery') }}</option>
                             @foreach ($deliveryMethods as $method)
                                 <option value="{{ $method->id }}"
                                         data-price="{{ $method->price }}"
@@ -103,9 +103,9 @@
                         <div class="text-xl font-bold mb-4">
                             💵 Итого товаров: <span id="cart-total">{{ number_format($total, 2, ',', ' ') }}</span> ₽<br>
                             🚚 Доставка: <span id="delivery-cost">0,00</span> ₽
-                            <span id="commission-row" class="hidden"><br>💸 Комиссия: <span id="commission-cost">0,00</span> ₽</span>
+                            <span id="commission-row" class="hidden"><br>💸 {{ __('frontend.cart.fee') }} <span id="commission-cost">0,00</span> ₽</span>
                             <hr class="my-2">
-                            <span class="text-2xl font-extrabold">💰 Всего к оплате: <span id="grand-total">0,00</span> ₽</span>
+                            <span class="text-2xl font-extrabold">💰 {{ __('frontend.cart.total') }} <span id="grand-total">0,00</span> ₽</span>
                         </div>
 
                         <button type="submit" class="bg-black hover:bg-gray-800 text-white px-8 py-3 rounded-md shadow-md font-semibold transition">
@@ -116,7 +116,7 @@
             </div>
         </form>
     @else
-        <p class="text-center text-gray-500 text-lg">Ваша корзина пуста.</p>
+        <p class="text-center text-gray-500 text-lg">{{ __('frontend.cart.empty') }}</p>
     @endif
 
     <script>
