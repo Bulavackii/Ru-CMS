@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use App\Events\SeoPageCreated;
 use App\Events\SeoPageUpdated;
 use App\Events\SeoPageDeleted;
@@ -37,14 +38,24 @@ class PagesController extends Controller
             $query->locked($r->boolean('locked'));
         }
 
-        // Фильтр по robots_index
-        if ($r->filled('robots_index')) {
-            $query->where('robots_index', $r->boolean('robots_index'));
+        // Фильтры index/follow. Раньше они были только клиентскими: JS прятал
+        // строки ТЕКУЩЕЙ страницы выдачи, поэтому «noindex» показывал лишь то,
+        // что случайно попало в первую десятку.
+        foreach (['index' => 'robots_index', 'follow' => 'robots_follow'] as $param => $column) {
+            $value = $r->input($param, $r->input($column));
+            if ($value === '0' || $value === '1') {
+                $query->where($column, $value === '1');
+            }
         }
 
-        // Фильтр по robots_follow
-        if ($r->filled('robots_follow')) {
-            $query->where('robots_follow', $r->boolean('robots_follow'));
+        // Фильтры по наличию мета-данных (тоже были клиентскими)
+        foreach (array_filter(explode(',', (string) $r->input('meta'))) as $flag) {
+            match ($flag) {
+                'canonical' => $query->whereNotNull('canonical')->where('canonical', '!=', ''),
+                'og'        => $query->whereNotNull('og'),
+                'jsonld'    => $query->whereNotNull('jsonld'),
+                default     => null,
+            };
         }
 
         // Сортировка
@@ -60,7 +71,20 @@ class PagesController extends Controller
 
         $items = $query->paginate($perPage)->withQueryString();
 
-        return view('seo::admin.index', compact('items', 'q', 'perPage'));
+        // Сводка по всей таблице, а не по текущей странице выдачи
+        $stats = [
+            'total'     => SeoPage::count(),
+            'noindex'   => SeoPage::where('robots_index', false)->count(),
+            'locked'    => SeoPage::where('locked', true)->count(),
+            'problems'  => SeoPage::query()
+                ->where(function ($qq) {
+                    $qq->whereNull('title')->orWhere('title', '')
+                       ->orWhereNull('description')->orWhere('description', '');
+                })
+                ->count(),
+        ];
+
+        return view('seo::admin.index', compact('items', 'q', 'perPage', 'stats'));
     }
 
     public function create()
@@ -209,7 +233,7 @@ class PagesController extends Controller
             }
         } catch (\Throwable $e) {
             // тихо логируем, но не ломаем сохранение SEO
-            \Log::debug('SEO push-back (inline) skipped', ['seo_id' => $item->id, 'error' => $e->getMessage()]);
+            Log::debug('SEO push-back (inline) skipped', ['seo_id' => $item->id, 'error' => $e->getMessage()]);
         }
         // --- /НОВОЕ ---
 
@@ -272,10 +296,30 @@ class PagesController extends Controller
      */
     public function bulkAction(Request $r)
     {
-        $ids = $r->input('selected', []);
+        $r->validate([
+            'action'     => 'required|in:delete,lock,unlock,sync,index,noindex',
+            'selected'   => 'required|array',
+            'selected.*' => 'integer|exists:seo_pages,id',
+        ], [
+            'action.required'   => 'Выберите действие.',
+            'action.in'         => 'Неизвестное действие.',
+            'selected.required' => 'Отметьте хотя бы одну страницу.',
+        ]);
 
-        if (empty($ids)) {
-            return back()->with('status', 'Выберите страницы для действия.');
+        $ids = $r->input('selected');
+
+        // index/noindex пачкой — самое частое массовое действие в SEO,
+        // а раньше его не было вовсе
+        if (in_array($r->action, ['index', 'noindex'], true)) {
+            $value = $r->action === 'index';
+            SeoPage::whereIn('id', $ids)->update([
+                'robots_index' => $value,
+                'updated_by'   => auth()->id(),
+            ]);
+            $this->clearCacheForIds($ids);
+            SeoPage::bumpMetaCacheVersion();
+
+            return back()->with('status', ($value ? 'Разрешено индексировать: ' : 'Закрыто от индексации: ') . count($ids));
         }
 
         if ($r->action === 'delete') {
@@ -373,7 +417,8 @@ class PagesController extends Controller
                 try {
                     $slugRaw  = $p->slug ?? $p->path ?? null;
                     $slugPart = $slugRaw ?: Str::slug((string)($p->title ?? 'page')) ?: 'page-' . $p->id;
-                    $slug     = $this->normalizeSlug('/' . $slugPart);
+                    // Реальный адрес страницы — /page/{slug} (см. SeoSyncService)
+                    $slug     = $this->normalizeSlug('/page/' . ltrim((string) $slugPart, '/'));
                     $exists   = SeoPage::withTrashed()->where('slug', $slug)->exists();
 
                     $isPublished = (bool)($p->published ?? $p->is_published ?? $p->active ?? 1);
@@ -509,81 +554,6 @@ class PagesController extends Controller
         return $out;
     }
 
-    protected function validated(Request $r, bool $isUpdate, ?int $id): array
-    {
-        $slugRule = $isUpdate
-            ? 'sometimes|nullable|string|max:1024|unique:seo_pages,slug,' . ($id ?? 'NULL') . ',id,deleted_at,NULL'
-            : 'required|string|max:1024|unique:seo_pages,slug,NULL,id,deleted_at,NULL';
-
-        $rules = [
-            'title'               => 'nullable|string|max:255',
-            'h1'                  => 'nullable|string|max:255',
-            'description'         => 'nullable|string|max:255',
-            'canonical'           => 'nullable|string|max:1024',
-            'og_title'            => 'nullable|string|max:255',
-            'og_description'      => 'nullable|string|max:512',
-            'og_image'            => 'nullable|string|max:1024',
-            'twitter_card'        => 'nullable|string|max:50',
-            'twitter_title'       => 'nullable|string|max:255',
-            'twitter_description' => 'nullable|string|max:512',
-            'twitter_image'       => 'nullable|string|max:1024',
-            'jsonld_raw'          => 'nullable|string',
-            'keywords'            => 'nullable|string|max:255',
-            'slug'                => $slugRule,
-        ];
-
-        $v = $r->validate($rules);
-        foreach ($v as $k => $val) if (is_string($val)) $v[$k] = trim($val);
-
-        $ogMap = [
-            'og:title'            => 'og_title',
-            'og:description'      => 'og_description',
-            'og:image'            => 'og_image',
-            'twitter:card'        => 'twitter_card',
-            'twitter:title'       => 'twitter_title',
-            'twitter:description' => 'twitter_description',
-            'twitter:image'       => 'twitter_image',
-        ];
-        $og = [];
-        foreach ($ogMap as $prop => $formKey) {
-            if ($r->filled($formKey)) {
-                $og[$prop] = $v[$formKey];
-            }
-        }
-
-        $out = [];
-
-        foreach (['slug','title','h1','description','canonical','keywords'] as $key) {
-            if (!$isUpdate || $r->has($key)) {
-                $out[$key] = $v[$key] ?? null;
-            }
-        }
-
-        if ($isUpdate) {
-            if ($r->has('robots_index'))  $out['robots_index']  = $r->boolean('robots_index');
-            if ($r->has('robots_follow')) $out['robots_follow'] = $r->boolean('robots_follow');
-        } else {
-            $out['robots_index']  = $r->boolean('robots_index',  true);
-            $out['robots_follow'] = $r->boolean('robots_follow', true);
-        }
-
-        if (!empty($og)) {
-            $out['og'] = $og;
-        }
-
-        if ($r->filled('jsonld_raw') && Schema::hasColumn('seo_pages', 'jsonld')) {
-            $jsonld  = null;
-            $decoded = json_decode($v['jsonld_raw'], true);
-            if (json_last_error() === JSON_ERROR_NONE) {
-                $jsonld = $decoded;
-            }
-            if (!is_null($jsonld)) {
-                $out['jsonld'] = $jsonld;
-            }
-        }
-
-        return $out;
-    }
 
     protected function normalizeSlug(string $slug): string
     {
@@ -604,14 +574,6 @@ class PagesController extends Controller
         return rtrim(config('app.url'), '/') . $slug;
     }
 
-    protected function firstFilled(object|array $row, array $keys, $default = null)
-    {
-        foreach ($keys as $k) {
-            $val = data_get($row, $k);
-            if (!is_null($val) && $val !== '') return $val;
-        }
-        return $default;
-    }
 
     protected function filterColumns(array $data): array
     {
@@ -627,50 +589,6 @@ class PagesController extends Controller
         return array_intersect_key($data, $allowed);
     }
 
-    protected function upsertSeo(string $slug, array $payload, int &$created, int &$updated): void
-    {
-        static $allowed = null;
-        if ($allowed === null) {
-            try {
-                $cols = Schema::getColumnListing('seo_pages');
-            } catch (\Throwable $e) {
-                $cols = [];
-            }
-            $allowed = array_flip($cols);
-        }
-
-        $filtered = array_intersect_key($payload, $allowed);
-        $model = SeoPage::withTrashed()->where('slug', $slug)->first();
-
-        if ($model) {
-            if (method_exists($model, 'trashed') && $model->trashed()) {
-                $model->restore();
-            }
-
-            // глобальная блокировка
-            if (!empty($model->locked)) {
-                $updated++;
-                return;
-            }
-
-            unset($filtered['slug']);
-
-            $manual = is_array($model->manual_fields ?? null) ? $model->manual_fields : [];
-            foreach (array_keys($filtered) as $k) {
-                if (array_key_exists($k, $manual) && $model->{$k}) {
-                    unset($filtered[$k]);
-                }
-            }
-
-            if (!empty($filtered)) {
-                $model->fill($filtered)->save();
-                $updated++;
-            }
-        } else {
-            SeoPage::create(array_merge($filtered, ['slug' => $slug]));
-            $created++;
-        }
-    }
 
     protected function rebuildSitemapsSafe(): void
     {
@@ -678,7 +596,7 @@ class PagesController extends Controller
             try {
                 dispatch(new \Modules\Seo\Jobs\BuildSitemaps());
             } catch (\Throwable $e) {
-                \Log::debug('Sitemaps rebuild skipped: ' . $e->getMessage());
+                Log::debug('Sitemaps rebuild skipped: ' . $e->getMessage());
             }
         }
     }
@@ -689,7 +607,7 @@ class PagesController extends Controller
         try {
             dispatch(new \Modules\Seo\Jobs\PushIndexNow($urls));
         } catch (\Throwable $e) {
-            \Log::debug('IndexNow push skipped: ' . $e->getMessage());
+            Log::debug('IndexNow push skipped: ' . $e->getMessage());
         }
     }
 
@@ -712,7 +630,7 @@ class PagesController extends Controller
                 $svc->syncToSource($page);
             }
         } catch (\Throwable $e) {
-            \Log::debug('SEO push-back skipped', ['id' => $page->id, 'error' => $e->getMessage()]);
+            Log::debug('SEO push-back skipped', ['id' => $page->id, 'error' => $e->getMessage()]);
         }
     }
 

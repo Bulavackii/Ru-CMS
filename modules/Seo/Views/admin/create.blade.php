@@ -1,11 +1,33 @@
 @extends('layouts.admin')
 
+@section('title', 'Новый адрес SEO')
+
 @section('content')
-    <h1 class="text-2xl font-semibold mb-4">Новая запись SEO</h1>
+    <div class="admin-accent-bar mb-0"></div>
+    <div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
+                flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div class="flex items-center gap-3 min-w-0">
+            <span class="admin-icon-badge"><i class="fas fa-plus"></i></span>
+            <div class="min-w-0">
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">Новый адрес</h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                    SEO-настройки для страницы, которой нет среди новостей и страниц сайта.
+                </p>
+            </div>
+        </div>
+
+        <a href="{{ route('seo.pages.index') }}"
+           class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+                  hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition flex-shrink-0">
+            <i class="fas fa-arrow-left"></i> К списку
+        </a>
+    </div>
 
     @if ($errors->any())
-        <div class="mb-4 p-3 rounded border border-red-300 bg-red-50 text-red-800">
-            <strong>Проверьте поля:</strong> {{ $errors->first() }}
+        <div class="admin-card border-l-4 border-red-500 p-4 mb-5">
+            <ul class="text-sm text-red-600 dark:text-red-400 list-disc list-inside">
+                @foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach
+            </ul>
         </div>
     @endif
 
@@ -155,7 +177,7 @@
             <div class="border rounded p-3">
                 <label class="block text-sm font-medium mb-2">JSON-LD</label>
                 <textarea name="jsonld_raw" rows="8" class="w-full border p-2 rounded font-mono"
-                    placeholder='{"@context":"https://schema.org","@type":"Article",...}'>{{ old('jsonld_raw') }}</textarea>
+                    placeholder='{"@@context":"https://schema.org","@@type":"Article",...}'>{{ old('jsonld_raw') }}</textarea>
                 <div class="flex items-center justify-between mt-2">
                     <div class="text-xs text-gray-500">Мы сохраним JSON только если он валидный.</div>
                     <button type="button" class="px-2 py-1 text-xs border rounded js-json-pretty">Форматировать</button>
@@ -166,8 +188,8 @@
             </div>
 
             <div class="flex items-center gap-3">
-                <button class="px-4 py-2 bg-blue-600 text-white rounded">Создать</button>
-                <a href="{{ route('seo.pages.index') }}" class="px-4 py-2 bg-gray-200 rounded">Отмена</a>
+                <button class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition">Создать</button>
+                <a href="{{ route('seo.pages.index') }}" class="inline-flex items-center gap-2 border border-gray-300 text-gray-700 hover:bg-gray-100 px-4 py-2 text-sm font-semibold transition">Отмена</a>
             </div>
         </div>
 

@@ -107,7 +107,10 @@ function notificationsCenter() {
         
         async loadNotifications() {
             try {
-                const response = await fetch('/admin/notifications');
+                // Accept: JSON обязателен — контроллер отдаёт JSON только по wantsJson()
+                const response = await fetch('/admin/notification-center', {
+                    headers: { 'Accept': 'application/json' }
+                });
                 const data = await response.json();
                 this.notifications = data.notifications || [];
                 this.unreadCount = data.unread_count || 0;
@@ -120,7 +123,7 @@ function notificationsCenter() {
         
         async markAllAsRead() {
             try {
-                await fetch('/admin/notifications/mark-all-read', {
+                await fetch('/admin/notification-center/mark-all-read', {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
@@ -134,7 +137,7 @@ function notificationsCenter() {
         
         async deleteNotification(id) {
             try {
-                await fetch(`/admin/notifications/${id}`, {
+                await fetch(`/admin/notification-center/${id}`, {
                     method: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content

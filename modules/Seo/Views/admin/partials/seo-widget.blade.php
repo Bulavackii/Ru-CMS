@@ -160,7 +160,7 @@
     <div>
         <label class="block text-sm">JSON-LD</label>
         <textarea id="{{ $wid }}_json" name="seo[jsonld_raw]" rows="6"
-            class="w-full border p-2 rounded font-mono" placeholder='{"@context":"https://schema.org","@type":"Article",...}'>{{ old('seo.jsonld_raw', isset($seo->jsonld) ? json_encode($seo->jsonld, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) : '') }}</textarea>
+            class="w-full border p-2 rounded font-mono" placeholder='{"@@context":"https://schema.org","@@type":"Article",...}'>{{ old('seo.jsonld_raw', isset($seo->jsonld) ? json_encode($seo->jsonld, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) : '') }}</textarea>
         @error('seo.jsonld_raw')
             <div class="text-red-600 text-xs mt-1">{{ $message }}</div>
         @enderror

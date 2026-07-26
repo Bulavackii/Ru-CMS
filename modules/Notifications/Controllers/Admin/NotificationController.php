@@ -8,39 +8,43 @@ use App\Events\NotificationCreated;
 use App\Events\NotificationUpdated;
 use App\Events\NotificationDeleted;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Modules\Notifications\Models\Notification;
 
+/**
+ * 🔔 Уведомления-баннеры для посетителей сайта.
+ *
+ * NB: это НЕ центр уведомлений админки (колокольчик в шапке) — тот живёт в
+ * App\Http\Controllers\Admin\NotificationController и работает с таблицей
+ * admin_notifications. До 26.07.2026 обе системы делили префикс
+ * /admin/notifications и имена маршрутов admin.notifications.*, из-за чего
+ * колокольчик получал HTML вместо JSON, а его кнопка удаления била по
+ * баннерам сайта. Центр разведён на /admin/notification-center.
+ */
 class NotificationController extends Controller
 {
     /**
-     * 📋 Отображение списка уведомлений
+     * 📋 Список уведомлений
      */
     public function index(Request $request)
     {
         $query = Notification::query();
 
-        // Поиск
         if ($request->filled('search')) {
             $query->search($request->input('search'));
         }
 
-        // Фильтр по типу
         if ($request->filled('type')) {
             $query->byType($request->input('type'));
         }
 
-        // Фильтр по целевой аудитории
         if ($request->filled('target')) {
             $query->where('target', $request->input('target'));
         }
 
-        // Фильтр по позиции
         if ($request->filled('position')) {
             $query->byPosition($request->input('position'));
         }
 
-        // Фильтр по статусу
         if ($request->filled('enabled')) {
             if ($request->input('enabled') === '1') {
                 $query->enabled();
@@ -49,12 +53,11 @@ class NotificationController extends Controller
             }
         }
 
-        // Сортировка
         $sortBy = $request->input('sort_by', 'created_at');
-        $sortOrder = $request->input('sort_order', 'desc');
-        
+        $sortOrder = $request->input('sort_order') === 'asc' ? 'asc' : 'desc';
+
         $allowedSortFields = ['id', 'title', 'type', 'target', 'position', 'created_at', 'updated_at', 'priority', 'views_count'];
-        if (in_array($sortBy, $allowedSortFields)) {
+        if (in_array($sortBy, $allowedSortFields, true)) {
             $query->orderBy($sortBy, $sortOrder);
         } else {
             $query->orderByDesc('created_at');
@@ -62,7 +65,15 @@ class NotificationController extends Controller
 
         $notifications = $query->paginate(10)->withQueryString();
 
-        return view('Notifications::admin.index', compact('notifications'));
+        // Сводка по всей таблице, а не по текущей странице выдачи
+        $stats = [
+            'total'    => Notification::count(),
+            'enabled'  => Notification::where('enabled', true)->count(),
+            'active'   => Notification::active()->count(),
+            'views'    => (int) Notification::sum('views_count'),
+        ];
+
+        return view('Notifications::admin.index', compact('notifications', 'stats'));
     }
 
     /**
@@ -75,33 +86,24 @@ class NotificationController extends Controller
 
     /**
      * 💾 Сохранение нового уведомления
+     *
+     * Правила берутся из NotificationRequest — те же, что и при обновлении.
+     * Раньше store() валидировал свой укороченный набор: тип html отклонялся,
+     * а priority, starts_at, ends_at и снятая галочка «Включено» молча
+     * терялись, хотя форма их отправляла.
      */
-    public function store(Request $request)
+    public function store(NotificationRequest $request)
     {
-        // 🛡️ Валидация входящих данных
-        $validated = $request->validate([
-            'title'        => 'required|string|max:255',        // 📌 Заголовок
-            'message'      => 'required|string',                // 💬 Содержимое
-            'type'         => 'required|in:text,cookie',        // 📋 Тип: обычное или cookie
-            'target'       => 'required|in:all,admin,user',     // 👥 Целевая аудитория
-            'position'     => 'required|in:top,bottom,fullscreen', // 📍 Расположение
-            'duration'     => 'nullable|integer|min:0',         // ⏱️ Время показа
-            'icon'         => 'nullable|string|max:100',        // 🖼️ Иконка
-            'route_filter' => 'nullable|string|max:255',        // 🗺️ URL-фильтр
-            'cookie_key'   => 'nullable|string|max:255',        // 🍪 Ключ для cookie
-            'bg_color'     => 'nullable|string|max:20',         // 🎨 Цвет фона
-            'text_color'   => 'nullable|string|max:20',         // 🎨 Цвет текста
-        ]);
+        $data = $this->prepare($request);
+        $data['created_by'] = auth()->id();
+        $data['updated_by'] = auth()->id();
 
-        // 🚦 Включаем уведомление по умолчанию
-        $validated['enabled'] = true;
+        $notification = Notification::create($data);
 
-        // 💽 Создание записи в БД
-        Notification::create($validated);
+        NotificationCreated::dispatch($notification);
 
-        // 🔁 Редирект с сообщением
         return redirect()->route('admin.notifications.index')
-                         ->with('success', 'Уведомление создано!');
+                         ->with('success', 'Уведомление создано.');
     }
 
     /**
@@ -117,20 +119,15 @@ class NotificationController extends Controller
      */
     public function update(NotificationRequest $request, Notification $notification)
     {
-        $validated = $request->validated();
-        $validated['updated_by'] = auth()->id();
+        $data = $this->prepare($request);
+        $data['updated_by'] = auth()->id();
 
-        // 💾 Обновление в базе
-        $notification->update($validated);
+        $notification->update($data);
 
-        // Очистка кэша
-        Cache::forget('notifications_active');
-
-        // Событие
         NotificationUpdated::dispatch($notification);
 
         return redirect()->route('admin.notifications.index')
-                         ->with('success', 'Уведомление обновлено!');
+                         ->with('success', 'Уведомление обновлено.');
     }
 
     /**
@@ -141,11 +138,8 @@ class NotificationController extends Controller
         NotificationDeleted::dispatch($notification);
         $notification->delete();
 
-        // Очистка кэша
-        Cache::forget('notifications_active');
-
         return redirect()->route('admin.notifications.index')
-                         ->with('success', 'Уведомление удалено!');
+                         ->with('success', 'Уведомление удалено.');
     }
 
     /**
@@ -157,13 +151,12 @@ class NotificationController extends Controller
         $notification->updated_by = auth()->id();
         $notification->save();
 
-        // Очистка кэша
-        Cache::forget('notifications_active');
-
-        // Событие
         NotificationUpdated::dispatch($notification);
 
-        return redirect()->back()->with('success', 'Статус уведомления обновлён.');
+        return redirect()->back()->with(
+            'success',
+            $notification->enabled ? 'Уведомление включено.' : 'Уведомление отключено.'
+        );
     }
 
     /**
@@ -171,48 +164,78 @@ class NotificationController extends Controller
      */
     public function bulkAction(Request $request)
     {
-        $ids = $request->input('selected', []);
+        $request->validate([
+            'action'     => 'required|in:enable,disable,delete',
+            'selected'   => 'required|array',
+            'selected.*' => 'integer|exists:notifications,id',
+        ], [
+            'action.required'   => 'Выберите действие.',
+            'action.in'         => 'Неизвестное действие.',
+            'selected.required' => 'Отметьте хотя бы одно уведомление.',
+        ]);
 
-        if (empty($ids)) {
-            return back()->with('error', 'Выберите уведомления для действия.');
+        $ids = $request->input('selected');
+        $notifications = Notification::whereIn('id', $ids)->get();
+
+        switch ($request->input('action')) {
+            case 'delete':
+                foreach ($notifications as $notification) {
+                    NotificationDeleted::dispatch($notification);
+                    $notification->delete();
+                }
+                $message = 'Удалено уведомлений: ' . $notifications->count();
+                break;
+
+            case 'enable':
+            case 'disable':
+                $enabled = $request->input('action') === 'enable';
+                foreach ($notifications as $notification) {
+                    // Через модель, а не массовым update: иначе не сработают
+                    // события, а с ними и сброс кеша выдачи
+                    $notification->update(['enabled' => $enabled, 'updated_by' => auth()->id()]);
+                    NotificationUpdated::dispatch($notification);
+                }
+                $message = ($enabled ? 'Включено' : 'Отключено') . ' уведомлений: ' . $notifications->count();
+                break;
+
+            default:
+                return back()->with('error', 'Неизвестное действие.');
         }
 
-        if ($request->action === 'delete') {
-            $notifications = Notification::whereIn('id', $ids)->get();
-            foreach ($notifications as $notification) {
-                NotificationDeleted::dispatch($notification);
-            }
-            Notification::whereIn('id', $ids)->delete();
-            Cache::forget('notifications_active');
-            return back()->with('success', 'Выбранные уведомления удалены.');
-        }
-
-        if ($request->action === 'enable') {
-            Notification::whereIn('id', $ids)->update([
-                'enabled' => true,
-                'updated_by' => auth()->id()
-            ]);
-            Cache::forget('notifications_active');
-            return back()->with('success', 'Выбранные уведомления включены.');
-        }
-
-        if ($request->action === 'disable') {
-            Notification::whereIn('id', $ids)->update([
-                'enabled' => false,
-                'updated_by' => auth()->id()
-            ]);
-            Cache::forget('notifications_active');
-            return back()->with('success', 'Выбранные уведомления отключены.');
-        }
-
-        return back()->with('error', 'Выберите действие.');
+        return back()->with('success', $message);
     }
 
     /**
-     * 👁️ Предпросмотр уведомления
+     * 👁️ Предпросмотр уведомления.
+     *
+     * Маршрут был объявлен и раньше, но вьюхи Notifications::admin.preview
+     * не существовало — переход отдавал 500.
      */
     public function preview(Notification $notification)
     {
         return view('Notifications::admin.preview', compact('notification'));
+    }
+
+    /**
+     * Приведение полей формы к тому, что ждёт БД.
+     */
+    private function prepare(NotificationRequest $request): array
+    {
+        $data = $request->validated();
+
+        // Чекбокс не приходит вовсе, когда снят
+        $data['enabled'] = $request->boolean('enabled');
+
+        // Пустые строки полей формы должны стать NULL, а не ''
+        foreach (['icon', 'route_filter', 'cookie_key', 'bg_color', 'text_color', 'starts_at', 'ends_at'] as $field) {
+            if (($data[$field] ?? null) === '') {
+                $data[$field] = null;
+            }
+        }
+
+        $data['duration'] = (int) ($data['duration'] ?? 0);
+        $data['priority'] = (int) ($data['priority'] ?? 0);
+
+        return $data;
     }
 }

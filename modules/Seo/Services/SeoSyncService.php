@@ -80,7 +80,10 @@ class SeoSyncService
 
         $slugRaw  = $p->slug ?? $p->path ?? null;
         $slugPart = $slugRaw ?: Str::slug((string)($p->title ?? 'page')) ?: ('page-' . $p->id);
-        $slug     = $this->normalizeSlug('/' . $slugPart);
+        // Страницы открываются по /page/{slug} (маршрут frontend.pages.show).
+        // Раньше сюда писался просто /{slug} — такой адрес отдаёт 404, то есть
+        // в sitemap.xml уезжали битые ссылки, а «Просмотр» из админки вёл в никуда.
+        $slug     = $this->normalizeSlug('/page/' . ltrim((string) $slugPart, '/'));
 
         $title = trim((string)($p->seo_title ?? $p->title ?? ''));
         $desc  = $this->firstFilled($p, ['seo_description', 'description', 'content', 'body', 'text']);

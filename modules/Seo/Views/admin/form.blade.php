@@ -223,7 +223,7 @@
       name="jsonld_raw"
       rows="8"
       class="w-full border p-2 rounded font-mono"
-      placeholder='{"@context":"https://schema.org","@type":"Organization","name":"..."}'
+      placeholder='{"@@context":"https://schema.org","@@type":"Organization","name":"..."}'
     >{{ old('jsonld_raw', isset($item->jsonld) ? json_encode($item->jsonld, JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT) : '') }}</textarea>
     @error('jsonld_raw')<div class="text-red-600 text-xs mt-1">{{ $message }}</div>@enderror
     <p class="text-xs text-gray-500 mt-2">

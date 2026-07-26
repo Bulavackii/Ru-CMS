@@ -595,6 +595,7 @@ class InstallController extends Controller
             $this->seedDefaultPages();
             $this->seedDefaultSlideshows();
             $this->seedDefaultFiles();
+            $this->seedDefaultNotification();
             $this->seedRolesAndPermissions();
             $this->hardenPublicStorage();
 
@@ -1011,6 +1012,17 @@ class InstallController extends Controller
     private function seedDefaultFiles(): void
     {
         \Modules\Files\Console\Commands\SeedDefaultFilesCommand::seed(false);
+    }
+
+    /**
+     * Демо-уведомление после установки: пример объявления о техработах со всеми
+     * заполненными полями. Создаётся ВЫКЛЮЧЕННЫМ — это образец для правки, а не
+     * баннер, который должен всплыть у посетителей свежего сайта.
+     * Единый источник — команда модуля (`php artisan notifications:seed-default`).
+     */
+    private function seedDefaultNotification(): void
+    {
+        \Modules\Notifications\Console\Commands\SeedDefaultNotificationCommand::seed(false);
     }
 
     /**

@@ -47,6 +47,22 @@ class SeoServiceProvider extends ServiceProvider
         // --- Автосинк источников и push-back
         $this->registerAutosyncHooks();
 
+        // --- Мета-данные раздела SEO в лейаут сайта.
+        // Без этого композера раздел «SEO — страницы» ни на что не влиял:
+        // фронт брал title/description из самих новостей и страниц, robots был
+        // прибит как «index, follow», canonical — всегда текущий URL.
+        \Illuminate\Support\Facades\View::composer('layouts.frontend', function ($view) {
+            try {
+                $view->with('seoMeta', app(\Modules\Seo\Services\SeoMetaResolver::class)
+                    ->forRequest(request()));
+            } catch (\Throwable $e) {
+                // Сайт не должен падать из-за SEO: при любой проблеме
+                // (нет таблицы, недоступна БД) лейаут возьмёт прежние значения
+                \Illuminate\Support\Facades\Log::debug('SEO meta resolve skipped: ' . $e->getMessage());
+                $view->with('seoMeta', null);
+            }
+        });
+
         // --- Расписание задач
         $this->app->afterResolving(Schedule::class, function (Schedule $schedule) {
             if (config('seo.features.metrica')) {

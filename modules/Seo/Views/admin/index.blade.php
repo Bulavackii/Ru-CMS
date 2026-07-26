@@ -1,405 +1,490 @@
 @extends('layouts.admin')
 
+@section('title', 'SEO — страницы')
+
 @section('content')
 @php
   use Illuminate\Support\Str;
-  $base = rtrim((string)config('app.url'), '/');
-  // Текущие параметры для ссылок/форм
+
+  $base         = rtrim((string) config('app.url'), '/');
   $qParam       = $q ?? '';
   $perPageParam = $perPage ?? request()->integer('per_page', 10);
 
-  // ссылки в кабинеты
-  $hostOnly   = parse_url($base, PHP_URL_HOST) ?: $base;
-  $yandexUrl  = 'https://webmaster.yandex.ru/site/?host=' . $hostOnly;
-  // Google ждёт resource_id с протоколом и хвостовым / для корня
-  $gscResource = rtrim($base, '/') . '/';
-  $googleUrl = 'https://search.google.com/search-console?resource_id=' . urlencode($gscResource);
+  $indexFilter  = request('index', '');
+  $followFilter = request('follow', '');
+  $metaFilter   = array_filter(explode(',', (string) request('meta')));
+  $hasFilters   = $qParam !== '' || $indexFilter !== '' || $followFilter !== '' || $metaFilter !== [];
+
+  // Ссылка «Все» для группы фильтров — сохраняет остальные параметры
+  $filterUrl = function (array $overrides) {
+      $params = array_merge(request()->except('page'), $overrides);
+      return route('seo.pages.index', array_filter($params, fn ($v) => $v !== '' && $v !== null));
+  };
 @endphp
 
-<div class="flex items-center justify-between mb-4">
-  <div>
-    <h1 class="text-2xl font-semibold">SEO — страницы</h1>
-    <div class="text-sm text-gray-500">
-      Всего: {{ number_format($items->total(), 0, ',', ' ') }}
-      @if(!empty($qParam)) • Поиск: <code>{{ $qParam }}</code>@endif
+{{-- ── Шапка страницы ── --}}
+<div class="admin-accent-bar mb-0"></div>
+<div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
+            flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+  <div class="flex items-center gap-3 min-w-0">
+    <span class="admin-icon-badge"><i class="fas fa-magnifying-glass-chart"></i></span>
+    <div class="min-w-0">
+      <h1 class="text-xl font-bold text-gray-900 dark:text-white">SEO — страницы</h1>
+      <p class="text-sm text-gray-500 dark:text-gray-400">
+        Заголовки, описания и правила индексации для адресов сайта.
+      </p>
     </div>
   </div>
 
-  <div class="flex items-center gap-2">
-    {{-- Пересобрать sitemap (быстро) --}}
-    @if(Route::has('seo.sitemaps.rebuild'))
-      <form method="post" action="{{ route('seo.sitemaps.rebuild') }}" class="inline">
-        @csrf
-        <button
-          class="inline-flex items-center px-3 py-2 rounded border border-sky-700 text-sky-700 bg-white hover:bg-sky-50 transition"
-          title="Пересобрать sitemap.xml (и части, если их много)"
-        >
-          Пересобрать sitemap
-        </button>
-      </form>
-    @endif
-
-    {{-- Открыть sitemap.xml --}}
-    @if(Route::has('seo.sitemap.xml'))
-      <a href="{{ route('seo.sitemap.xml') }}" target="_blank" rel="noopener"
-         class="inline-flex items-center px-3 py-2 rounded border border-gray-300 bg-white hover:bg-gray-50 transition"
-         title="Открыть sitemap.xml в новой вкладке">
-        Открыть sitemap.xml
-      </a>
-    @endif
-
-    {{-- Я.Мастер (Yandex Webmaster) --}}
-    <a href="{{ $yandexUrl }}" target="_blank" rel="noopener noreferrer"
-       class="inline-flex items-center gap-1.5 px-3 py-2 rounded border border-amber-700 text-amber-700 bg-white hover:bg-amber-50 transition"
-       title="Открыть Яндекс.Вебмастер для {{ $hostOnly }}">
-      {{-- Yandex icon --}}
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <path d="M12.6 2c-3.6 0-6.1 2.3-6.1 6.2v13.8h3.4v-7.4h1.2l3.7 7.4h3.8l-4.4-8.2c2.3-.9 3.5-2.9 3.5-5.6C17.7 4 15.6 2 12.6 2Zm0 3c1.7 0 2.7 1.2 2.7 3.1s-1 3.1-2.7 3.1h-2.7V8.2c0-1.9 1-3.2 2.7-3.2Z"/>
-      </svg>
-      Я-мастер
-    </a>
-
-    {{-- G.Мастер (Google Search Console) --}}
-    <a href="{{ $googleUrl }}" target="_blank" rel="noopener noreferrer"
-       class="inline-flex items-center gap-1.5 px-3 py-2 rounded border border-emerald-700 text-emerald-700 bg-white hover:bg-emerald-50 transition"
-       title="Открыть Google Search Console для {{ $gscResource }}">
-      {{-- Google magnifier-ish icon --}}
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <path d="M10 2a8 8 0 1 1 0 16 8 8 0 0 1 0-16Zm0 3a5 5 0 1 0 .001 10.001A5 5 0 0 0 10 5Zm9.7 14.3-3.1-3.1a1 1 0 1 0-1.4 1.4l3.1 3.1a1 1 0 0 0 1.4-1.4Z"/>
-      </svg>
-      G-мастер
-    </a>
-
-    {{-- robots.txt редактор --}}
-    @if(Route::has('seo.robots.edit'))
-      <a href="{{ route('seo.robots.edit') }}"
-         class="inline-flex items-center gap-1.5 px-3 py-2 rounded border border-slate-700 text-slate-700 bg-white hover:bg-slate-50 transition"
-         title="Редактировать robots.txt">
-        {{-- file-text icon --}}
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path d="M7 2h7l5 5v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7 1.5V7h3.5L14 3.5ZM8.5 11a1 1 0 1 0 0 2H15a1 1 0 1 0 0-2H8.5Zm0 4a1 1 0 1 0 0 2H15a1 1 0 1 0 0-2H8.5Z"/>
-        </svg>
-        robots.txt
-      </a>
-    @endif
-
-    {{-- Синхронизация всего контента (страницы + новости) --}}
-    <form method="post" action="{{ route('seo.pages.sync') }}" class="inline">
+  <div class="flex items-center gap-2 flex-shrink-0">
+    <form action="{{ route('seo.pages.sync') }}" method="post" class="inline">
       @csrf
-      <button
-        class="inline-flex items-center px-3 py-2 rounded border border-amber-700 text-amber-700 bg-white hover:bg-amber-50 transition"
-        title="Импортировать или обновить SEO для всех новостей и страниц (ручные поля не перезатираются)"
-      >
-        Синхронизировать
+      <button class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+                     hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition"
+              title="Собрать SEO-записи по новостям и страницам">
+        <i class="fas fa-rotate"></i> Синхронизировать
       </button>
     </form>
 
-    {{-- Создать вручную --}}
     <a href="{{ route('seo.pages.create') }}"
-       class="px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition"
-       title="Создать SEO-запись вручную">
-      Создать
+       class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition">
+      <i class="fas fa-plus"></i> Добавить адрес
     </a>
   </div>
 </div>
 
-{{-- флэш-статус --}}
-@if(session('status'))
-  <div class="mb-3 p-3 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
-    {{ session('status') }}
+@if (session('status'))
+  <div class="admin-card border-l-4 border-indigo-500 p-4 mb-5 text-sm text-gray-800 dark:text-gray-200">
+    <i class="fas fa-circle-info text-indigo-500 mr-1"></i> {{ session('status') }}
   </div>
 @endif
 
-{{-- подробности ошибок синхронизации (если были) --}}
-@if(session('sync_errors') && is_array(session('sync_errors')) && count(session('sync_errors')))
-  <div class="mb-3 p-3 rounded bg-red-50 text-red-800 border border-red-200">
-    <div class="font-semibold mb-1">Ошибки синхронизации:</div>
-    <ul class="list-disc pl-5 space-y-1">
-      @foreach(session('sync_errors') as $msg)
-        <li>{{ $msg }}</li>
-      @endforeach
+@if ($errors->any())
+  <div class="admin-card border-l-4 border-red-500 p-4 mb-5">
+    <ul class="text-sm text-red-600 dark:text-red-400 list-disc list-inside">
+      @foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach
     </ul>
   </div>
 @endif
 
-{{-- Поиск + пер-страничность --}}
-<form method="get" action="{{ route('seo.pages.index') }}" class="mb-3 flex flex-col md:flex-row md:items-center gap-2">
-  <input type="text" name="q" value="{{ $qParam }}" placeholder="Искать по slug / title"
-         class="border p-2 rounded w-full md:flex-1" />
-  <select name="per_page" class="border p-2 rounded md:w-44">
-    @foreach([10,25,50,100] as $opt)
-      <option value="{{ $opt }}" {{ (int)$perPageParam === $opt ? 'selected':'' }}>{{ $opt }} на странице</option>
-    @endforeach
-  </select>
-  <button class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">Искать</button>
-  @if(!empty($qParam))
-    <a href="{{ route('seo.pages.index') }}" class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded">Сброс</a>
-  @endif
+@if (!empty(session('sync_errors')))
+  <div class="admin-card border-l-4 border-yellow-500 p-4 mb-5">
+    <p class="text-sm font-semibold text-yellow-800 dark:text-yellow-500 mb-1">Не удалось синхронизировать:</p>
+    <ul class="text-xs text-gray-600 dark:text-gray-400 list-disc list-inside">
+      @foreach (session('sync_errors') as $line)<li>{{ $line }}</li>@endforeach
+    </ul>
+  </div>
+@endif
+
+{{-- ── Сводка ── --}}
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+  @foreach([
+      ['Адресов', $stats['total'], 'fa-list', 'Записей в разделе'],
+      ['Закрыто от индексации', $stats['noindex'], 'fa-eye-slash', 'noindex'],
+      ['Заблокировано', $stats['locked'], 'fa-lock', 'Не перезаписываются синхронизацией'],
+      ['Без title или описания', $stats['problems'], 'fa-triangle-exclamation', 'Стоит заполнить'],
+  ] as [$label, $value, $icon, $hint])
+    <div class="admin-card p-4">
+      <div class="flex items-center gap-2 text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+        <i class="fas {{ $icon }} text-indigo-500"></i> {{ $label }}
+      </div>
+      <div class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $value }}</div>
+      <div class="text-xs text-gray-400 dark:text-gray-500 mt-1">{{ $hint }}</div>
+    </div>
+  @endforeach
+</div>
+
+{{-- ── Служебные инструменты ── --}}
+<div class="admin-card p-4 mb-5">
+  <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-2">
+    <i class="fas fa-screwdriver-wrench text-indigo-500"></i> Инструменты
+  </h2>
+  <div class="flex flex-wrap items-center gap-2">
+    <form action="{{ route('seo.sitemaps.rebuild') }}" method="post" class="inline">
+      @csrf
+      <button class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+                     hover:border-indigo-400 hover:text-indigo-600 px-3 py-2 text-sm transition">
+        <i class="fas fa-sitemap"></i> Пересобрать sitemap
+      </button>
+    </form>
+
+    <a href="{{ route('seo.sitemaps.index') }}"
+       class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+              hover:border-indigo-400 hover:text-indigo-600 px-3 py-2 text-sm transition">
+      <i class="fas fa-gauge"></i> Состояние sitemap
+    </a>
+
+    <a href="{{ route('seo.sitemap.xml') }}" target="_blank" rel="noopener"
+       class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+              hover:border-indigo-400 hover:text-indigo-600 px-3 py-2 text-sm transition">
+      <i class="fas fa-file-code"></i> sitemap.xml
+    </a>
+
+    <a href="{{ route('seo.robots.edit') }}"
+       class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+              hover:border-indigo-400 hover:text-indigo-600 px-3 py-2 text-sm transition">
+      <i class="fas fa-robot"></i> robots.txt
+    </a>
+
+    <a href="{{ route('seo.redirects.index') }}"
+       class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+              hover:border-indigo-400 hover:text-indigo-600 px-3 py-2 text-sm transition">
+      <i class="fas fa-signs-post"></i> Редиректы
+    </a>
+
+    <span class="mx-1 h-6 w-px bg-gray-200 dark:bg-gray-700"></span>
+
+    <a href="https://webmaster.yandex.ru/" target="_blank" rel="noopener"
+       class="inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-indigo-600 transition">
+      <i class="fas fa-arrow-up-right-from-square text-xs"></i> Яндекс.Вебмастер
+    </a>
+    <a href="https://search.google.com/search-console" target="_blank" rel="noopener"
+       class="inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-indigo-600 transition">
+      <i class="fas fa-arrow-up-right-from-square text-xs"></i> Google Search Console
+    </a>
+  </div>
+</div>
+
+{{-- ── Фильтры (одной карточкой, работают на сервере) ── --}}
+<form method="GET" action="{{ route('seo.pages.index') }}" class="admin-card p-5 mb-5">
+  <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+    <i class="fas fa-filter text-indigo-500"></i> Фильтры
+  </h2>
+
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+    <div class="md:col-span-3">
+      <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Поиск</label>
+      <div class="relative">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+             width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path>
+        </svg>
+        <input type="text" name="q" value="{{ $qParam }}" placeholder="Адрес или заголовок…"
+               class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white pl-10 pr-3 py-2 text-sm
+                      focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">На странице</label>
+      <select name="per_page"
+              class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
+                     focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+        @foreach([10, 25, 50, 100] as $n)
+          <option value="{{ $n }}" @selected((int) $perPageParam === $n)>{{ $n }}</option>
+        @endforeach
+      </select>
+    </div>
+  </div>
+
+  {{-- Значения фильтров-чипов переносим в форму, чтобы поиск их не сбрасывал --}}
+  <input type="hidden" name="index" value="{{ $indexFilter }}">
+  <input type="hidden" name="follow" value="{{ $followFilter }}">
+  <input type="hidden" name="meta" value="{{ implode(',', $metaFilter) }}">
+
+  <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+    <span class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Индексация:</span>
+    <span class="flex items-center gap-1">
+      @foreach(['' => 'Все', '1' => 'index', '0' => 'noindex'] as $value => $label)
+        <a href="{{ $filterUrl(['index' => $value]) }}"
+           class="seo-chip {{ (string) $indexFilter === (string) $value ? 'seo-chip--active' : '' }}">{{ $label }}</a>
+      @endforeach
+    </span>
+
+    <span class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Ссылки:</span>
+    <span class="flex items-center gap-1">
+      @foreach(['' => 'Все', '1' => 'follow', '0' => 'nofollow'] as $value => $label)
+        <a href="{{ $filterUrl(['follow' => $value]) }}"
+           class="seo-chip {{ (string) $followFilter === (string) $value ? 'seo-chip--active' : '' }}">{{ $label }}</a>
+      @endforeach
+    </span>
+
+    <span class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Мета:</span>
+    <span class="flex items-center gap-1 flex-wrap">
+      @foreach(['canonical' => 'canonical', 'og' => 'og', 'jsonld' => 'json-ld'] as $flag => $label)
+        @php
+          $next = in_array($flag, $metaFilter, true)
+              ? array_values(array_diff($metaFilter, [$flag]))
+              : array_merge($metaFilter, [$flag]);
+        @endphp
+        <a href="{{ $filterUrl(['meta' => implode(',', $next)]) }}"
+           class="seo-chip {{ in_array($flag, $metaFilter, true) ? 'seo-chip--active' : '' }}">{{ $label }}</a>
+      @endforeach
+    </span>
+  </div>
+
+  <div class="mt-4 flex flex-wrap items-center gap-2">
+    <button type="submit"
+            class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition">
+      <i class="fas fa-magnifying-glass"></i> Применить
+    </button>
+    @if($hasFilters)
+      <a href="{{ route('seo.pages.index') }}"
+         class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+                hover:bg-gray-100 dark:hover:bg-gray-800 px-4 py-2 text-sm font-semibold transition">
+        <i class="fas fa-rotate-left"></i> Сбросить
+      </a>
+    @endif
+  </div>
 </form>
 
-{{-- 🔎 Фильтры по статусу и мета --}}
-<div class="mb-3 flex flex-col lg:flex-row lg:items-center gap-2">
-  <div class="text-xs text-gray-600">Статус:</div>
-  <div class="flex items-center gap-1">
-    <button type="button" class="px-2 py-1 rounded border text-xs" data-filter-index=""
-            title="Все" onclick="setFilter('index','')">Все</button>
-    <button type="button" class="px-2 py-1 rounded border text-xs" data-filter-index="1"
-            title="Только index" onclick="setFilter('index','1')">index</button>
-    <button type="button" class="px-2 py-1 rounded border text-xs" data-filter-index="0"
-            title="Только noindex" onclick="setFilter('index','0')">noindex</button>
+@if($items->isEmpty())
+  {{-- ── Пустое состояние ── --}}
+  <div class="admin-card p-10 text-center">
+    <span class="admin-icon-badge mx-auto mb-4"><i class="fas fa-magnifying-glass-chart"></i></span>
+
+    @if($hasFilters)
+      <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-1">Ничего не найдено</h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">Под выбранные фильтры не подходит ни один адрес.</p>
+      <a href="{{ route('seo.pages.index') }}"
+         class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+                hover:bg-gray-100 dark:hover:bg-gray-800 px-4 py-2 text-sm font-semibold transition">
+        <i class="fas fa-rotate-left"></i> Сбросить фильтры
+      </a>
+    @else
+      <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-1">Пока ни одного адреса</h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400 max-w-2xl mx-auto mb-5">
+        Раздел хранит SEO-настройки страниц сайта: заголовок и описание для поисковой выдачи,
+        canonical, разрешение на индексацию, OpenGraph для соцсетей и JSON-LD. Эти данные
+        подставляются в страницу и попадают в sitemap.xml.
+      </p>
+
+      <div class="text-left max-w-2xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-2 mb-6">
+        @foreach([
+            ['fa-rotate', 'Синхронизация', 'Соберёт адреса всех новостей и страниц'],
+            ['fa-pen', 'Ручная правка', 'Изменённые поля не затираются синхронизацией'],
+            ['fa-sitemap', 'sitemap.xml', 'Строится из этих же записей'],
+        ] as [$icon, $title, $text])
+          <div class="border border-gray-200 dark:border-gray-700 p-3">
+            <div class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
+              <i class="fas {{ $icon }} text-indigo-500"></i> {{ $title }}
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ $text }}</p>
+          </div>
+        @endforeach
+      </div>
+
+      <form action="{{ route('seo.pages.sync') }}" method="post" class="inline">
+        @csrf
+        <button class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 text-sm font-semibold shadow-sm transition">
+          <i class="fas fa-rotate"></i> Синхронизировать сейчас
+        </button>
+      </form>
+    @endif
+  </div>
+@else
+  {{-- ── Массовые действия ──
+       Форма оборачивает только панель: чекбоксы в таблице привязаны к ней
+       атрибутом form, иначе они оказались бы внутри форм строк (вложенные
+       формы HTML запрещает). --}}
+  <form method="POST" action="{{ route('seo.pages.bulk') }}" id="seoBulkForm" class="admin-card p-4 mb-4">
+    @csrf
+    <div class="flex flex-wrap items-center gap-2">
+      <span class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">С отмеченными:</span>
+      <select name="action"
+              class="border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
+                     focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+        <option value="">Выберите действие</option>
+        <option value="index">Разрешить индексацию</option>
+        <option value="noindex">Закрыть от индексации</option>
+        <option value="lock">Заблокировать от синхронизации</option>
+        <option value="unlock">Разблокировать</option>
+        <option value="sync">Пересинхронизировать</option>
+        <option value="delete">Удалить</option>
+      </select>
+      <button type="submit"
+              class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition"
+              onclick="return confirm('Применить действие к отмеченным адресам?')">
+        <i class="fas fa-bolt"></i> Применить
+      </button>
+      <span id="seoBulkCounter" class="text-sm text-gray-500 dark:text-gray-400"></span>
+    </div>
+  </form>
+
+  {{-- ── Таблица ── --}}
+  <div class="admin-card overflow-x-auto">
+    <table class="min-w-full text-sm">
+      <thead class="bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+        <tr>
+          <th class="px-4 py-3 text-center w-10"><input type="checkbox" id="seoSelectAll" class="border-gray-400"></th>
+          <th class="px-4 py-3 text-left font-semibold">Адрес</th>
+          <th class="px-4 py-3 text-left font-semibold">Заголовок и описание</th>
+          <th class="px-4 py-3 text-left font-semibold">Индексация</th>
+          <th class="px-4 py-3 text-left font-semibold">Мета</th>
+          <th class="px-4 py-3 text-center font-semibold">Действия</th>
+        </tr>
+      </thead>
+
+      <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+      @foreach($items as $p)
+        @php
+          $viewUrl = !empty($p->canonical) ? $p->canonical : ($base . '/' . ltrim((string) $p->slug, '/'));
+          $manualCount  = is_array($p->manual_fields ?? null) ? count($p->manual_fields) : 0;
+          $hasCanonical = !empty($p->canonical);
+          $hasOg        = !empty($p->og);
+          $hasJsonld    = !empty($p->jsonld);
+          $descLength   = mb_strlen((string) $p->description);
+          $titleLength  = mb_strlen((string) $p->title);
+        @endphp
+        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+          <td class="px-4 py-3 text-center align-top">
+            <input type="checkbox" name="selected[]" value="{{ $p->id }}" form="seoBulkForm"
+                   class="seo-bulk-checkbox border-gray-400">
+          </td>
+
+          <td class="px-4 py-3 align-top">
+            <div class="font-mono text-xs text-gray-900 dark:text-white break-all">{{ Str::limit($p->slug, 90) }}</div>
+            <div class="mt-1 flex flex-wrap gap-1">
+              @if(!empty($p->source_type))
+                <span class="text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 px-2 py-0.5"
+                      title="Запись создана синхронизацией из этого материала">
+                  {{ $p->source_type === 'news' ? 'новость' : 'страница' }}@if($p->source_id) #{{ $p->source_id }}@endif
+                </span>
+              @endif
+              @if($manualCount > 0)
+                <span class="text-xs bg-indigo-100 text-indigo-800 px-2 py-0.5"
+                      title="Полей правлено вручную — синхронизация их не затирает">
+                  правлено: {{ $manualCount }}
+                </span>
+              @endif
+              @if(!empty($p->locked))
+                <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5"
+                      title="Запись не обновляется синхронизацией">заблокировано</span>
+              @endif
+              @if($p->updated_at)
+                <span class="text-xs text-gray-400">{{ $p->updated_at->format('d.m.Y H:i') }}</span>
+              @endif
+            </div>
+          </td>
+
+          <td class="px-4 py-3 align-top">
+            <div class="text-gray-900 dark:text-white break-words">
+              {{ $p->title ?: '—' }}
+              @if($titleLength > 70)
+                <span class="text-xs text-yellow-700" title="Длинный title обрезается в выдаче">{{ $titleLength }} симв.</span>
+              @endif
+            </div>
+            @if(!empty($p->h1))
+              <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">H1: {{ Str::limit($p->h1, 90) }}</div>
+            @endif
+            <div class="text-xs mt-1 {{ $descLength === 0 ? 'text-yellow-700' : 'text-gray-500 dark:text-gray-400' }}">
+              @if($descLength === 0)
+                <i class="fas fa-triangle-exclamation"></i> описание не заполнено
+              @else
+                {{ Str::limit($p->description, 90) }}
+                @if($descLength > 160)
+                  <span class="text-yellow-700" title="Поисковики обрезают описание примерно на 160 символах">{{ $descLength }} симв.</span>
+                @endif
+              @endif
+            </div>
+          </td>
+
+          <td class="px-4 py-3 align-top whitespace-nowrap">
+            <span class="inline-block text-xs px-2 py-0.5 text-white {{ $p->robots_index ? 'bg-green-600' : 'bg-gray-500' }}">
+              {{ $p->robots_index ? 'index' : 'noindex' }}
+            </span>
+            <span class="inline-block text-xs px-2 py-0.5 text-white {{ $p->robots_follow ? 'bg-green-600' : 'bg-gray-500' }}">
+              {{ $p->robots_follow ? 'follow' : 'nofollow' }}
+            </span>
+          </td>
+
+          <td class="px-4 py-3 align-top">
+            <div class="flex flex-wrap gap-1">
+              @if($hasCanonical)<span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5">canonical</span>@endif
+              @if($hasOg)<span class="text-xs bg-purple-100 text-purple-800 px-2 py-0.5">og</span>@endif
+              @if($hasJsonld)<span class="text-xs bg-indigo-100 text-indigo-800 px-2 py-0.5">json-ld</span>@endif
+              @if(!$hasCanonical && !$hasOg && !$hasJsonld)<span class="text-xs text-gray-400">—</span>@endif
+            </div>
+          </td>
+
+          <td class="px-4 py-3 align-top text-center whitespace-nowrap">
+            <a href="{{ route('seo.pages.edit', $p->id) }}"
+               class="inline-flex items-center justify-center w-8 h-8 border border-gray-300 dark:border-gray-600
+                      text-gray-600 dark:text-gray-300 hover:border-indigo-400 hover:text-indigo-600 transition"
+               title="Редактировать"><i class="fas fa-pen"></i></a>
+
+            <a href="{{ $viewUrl }}" target="_blank" rel="noopener"
+               class="inline-flex items-center justify-center w-8 h-8 border border-gray-300 dark:border-gray-600
+                      text-gray-600 dark:text-gray-300 hover:border-indigo-400 hover:text-indigo-600 transition"
+               title="Открыть страницу на сайте"><i class="fas fa-arrow-up-right-from-square"></i></a>
+
+            <button type="button" data-url="{{ $viewUrl }}"
+                    class="seo-copy inline-flex items-center justify-center w-8 h-8 border border-gray-300 dark:border-gray-600
+                           text-gray-600 dark:text-gray-300 hover:border-indigo-400 hover:text-indigo-600 transition"
+                    title="Скопировать URL"><i class="fas fa-copy"></i></button>
+
+            <button type="submit" form="seo-refresh-{{ $p->id }}"
+                    class="inline-flex items-center justify-center w-8 h-8 border border-gray-300 dark:border-gray-600
+                           text-gray-600 dark:text-gray-300 hover:border-indigo-400 hover:text-indigo-600 transition"
+                    title="Пересинхронизировать эту запись"><i class="fas fa-rotate"></i></button>
+
+            <button type="submit" form="seo-delete-{{ $p->id }}"
+                    class="inline-flex items-center justify-center w-8 h-8 border border-gray-300 dark:border-gray-600
+                           text-gray-600 dark:text-gray-300 hover:border-red-400 hover:text-red-600 transition"
+                    title="Удалить"><i class="fas fa-trash"></i></button>
+          </td>
+        </tr>
+      @endforeach
+      </tbody>
+    </table>
   </div>
 
-  <div class="text-xs text-gray-600 lg:ml-4">Follow:</div>
-  <div class="flex items-center gap-1">
-    <button type="button" class="px-2 py-1 rounded border text-xs" data-filter-follow=""
-            title="Все" onclick="setFilter('follow','')">Все</button>
-    <button type="button" class="px-2 py-1 rounded border text-xs" data-filter-follow="1"
-            title="Только follow" onclick="setFilter('follow','1')">follow</button>
-    <button type="button" class="px-2 py-1 rounded border text-xs" data-filter-follow="0"
-            title="Только nofollow" onclick="setFilter('follow','0')">nofollow</button>
+  <div class="mt-4">
+    {{ $items->links() }}
   </div>
 
-  <div class="text-xs text-gray-600 lg:ml-4">Мета:</div>
-  <div class="flex items-center gap-1 flex-wrap">
-    <button type="button" class="px-2 py-1 rounded border text-xs" data-filter-meta=""
-            title="Любые" onclick="setFilter('meta','')">Все</button>
-    <button type="button" class="px-2 py-1 rounded border text-xs" data-filter-meta="canonical"
-            title="Есть canonical" onclick="toggleMeta('canonical')">canonical</button>
-    <button type="button" class="px-2 py-1 rounded border text-xs" data-filter-meta="og"
-            title="Есть OpenGraph/Twitter" onclick="toggleMeta('og')">og</button>
-    <button type="button" class="px-2 py-1 rounded border text-xs" data-filter-meta="jsonld"
-            title="Есть JSON-LD" onclick="toggleMeta('jsonld')">json-ld</button>
-    <button type="button" class="px-2 py-1 rounded border text-xs bg-gray-100"
-            title="Сбросить мета-фильтры" onclick="setFilter('meta','')">Сбросить мета</button>
-  </div>
-</div>
-
-{{-- Легенда значков --}}
-<div class="mb-2 text-xs text-gray-500 space-x-2">
-  <span class="inline-block px-2 py-0.5 bg-blue-100 text-blue-800 rounded">canonical</span>
-  <span class="inline-block px-2 py-0.5 bg-purple-100 text-purple-800 rounded">og</span>
-  <span class="inline-block px-2 py-0.5 bg-amber-100 text-amber-800 rounded">json-ld</span>
-  <span class="inline-block px-2 py-0.5 bg-gray-100 text-gray-700 rounded">source: news/page</span>
-  <span class="inline-block px-2 py-0.5 bg-rose-100 text-rose-700 rounded">manual N</span>
-  <span class="inline-block px-2 py-0.5 bg-slate-200 text-slate-700 rounded">locked</span>
-</div>
-
-<table class="w-full bg-white rounded shadow text-sm">
-  <thead>
-    <tr class="text-left">
-      <th class="p-3 w-1/3">Slug</th>
-      <th class="p-3">Title</th>
-      <th class="p-3">Статус</th>
-      <th class="p-3">Мета</th>
-      <th class="p-3 w-64 text-right">Действия</th>
-    </tr>
-  </thead>
-  <tbody id="seoTableBody">
-  @forelse($items as $p)
-    @php
-      $viewUrl = !empty($p->canonical)
-        ? $p->canonical
-        : ($base . '/' . ltrim((string)$p->slug, '/'));
-      $manualCount = is_array($p->manual_fields ?? null) ? count($p->manual_fields) : 0;
-      $hasCanonical = !empty($p->canonical);
-      $hasOg = !empty($p->og);
-      $hasJsonld = !empty($p->jsonld);
-    @endphp
-    <tr class="border-t align-top hover:bg-gray-50"
-        data-index="{{ $p->robots_index ? 1 : 0 }}"
-        data-follow="{{ $p->robots_follow ? 1 : 0 }}"
-        data-canonical="{{ $hasCanonical ? 1 : 0 }}"
-        data-og="{{ $hasOg ? 1 : 0 }}"
-        data-jsonld="{{ $hasJsonld ? 1 : 0 }}">
-      <td class="p-3 font-mono break-all">
-        {{ Str::limit($p->slug, 120) }}
-        <div class="mt-1 space-x-1">
-          @if(!empty($p->source_type))
-            <span class="inline-block px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs">
-              source: {{ $p->source_type }}@if($p->source_id)#{{ $p->source_id }}@endif
-            </span>
-          @endif
-          @if($manualCount > 0)
-            <span class="inline-block px-2 py-0.5 bg-rose-100 text-rose-700 rounded text-xs" title="Поля, правленные вручную, не затираются синхронизацией">
-              manual {{ $manualCount }}
-            </span>
-          @endif
-          @if(!empty($p->locked))
-            <span class="inline-block px-2 py-0.5 bg-slate-200 text-slate-700 rounded text-xs" title="Запись заблокирована от автосоздания/пересоздания">
-              locked
-            </span>
-          @endif
-          @if($p->updated_at)
-            <span class="inline-block px-2 py-0.5 bg-gray-50 text-gray-500 rounded text-xs" title="Обновлено">
-              {{ $p->updated_at->format('d.m.Y H:i') }}
-            </span>
-          @endif
-        </div>
-      </td>
-
-      <td class="p-3">
-        {{ Str::limit($p->title ?? '—', 120) }}
-        @if(!empty($p->h1))
-          <div class="text-xs text-gray-500 mt-1">H1: {{ Str::limit($p->h1, 120) }}</div>
-        @endif
-      </td>
-
-      <td class="p-3 whitespace-nowrap">
-        <span class="inline-block px-2 py-0.5 rounded text-white {{ $p->robots_index ? 'bg-green-600':'bg-gray-500' }}"
-              title="{{ $p->robots_index ? 'Страница индексируется' : 'Страница исключена из индекса' }}">
-          {{ $p->robots_index ? 'index' : 'noindex' }}
-        </span>
-        <span class="inline-block px-2 py-0.5 rounded text-white {{ $p->robots_follow ? 'bg-green-600':'bg-gray-500' }}"
-              title="{{ $p->robots_follow ? 'По ссылкам переходить' : 'По ссылкам не переходить' }}">
-          {{ $p->robots_follow ? 'follow' : 'nofollow' }}
-        </span>
-      </td>
-
-      <td class="p-3">
-        @if($hasCanonical)
-          <span class="inline-block px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-xs mr-1">canonical</span>
-        @endif
-        @if($hasOg)
-          <span class="inline-block px-2 py-0.5 bg-purple-100 text-purple-800 rounded text-xs mr-1">og</span>
-        @endif
-        @if($hasJsonld)
-          <span class="inline-block px-2 py-0.5 bg-amber-100 text-amber-800 rounded text-xs">json-ld</span>
-        @endif
-      </td>
-
-      <td class="p-3 text-right">
-        <div class="flex items-center justify-end gap-2 flex-wrap">
-          <a href="{{ route('seo.pages.edit', $p->id) }}"
-             class="text-blue-600 hover:underline" title="Редактировать SEO">
-            Редактировать
-          </a>
-
-          <a href="{{ $viewUrl }}" target="_blank" rel="noopener"
-             class="text-gray-700 hover:underline" title="Открыть страницу на сайте">
-            Просмотр
-          </a>
-
-          <button type="button"
-                  class="text-gray-600 hover:underline"
-                  title="Скопировать URL страницы"
-                  data-url="{{ $viewUrl }}"
-                  onclick="navigator.clipboard?.writeText(this.dataset.url).then(()=>{ this.textContent='Скопировано'; setTimeout(()=>this.textContent='Копировать URL',1500); });">
-            Копировать URL
-          </button>
-
-          {{-- точечная пересинхронизация одной записи --}}
-          <form action="{{ route('seo.pages.refresh', $p->id) }}" method="post" class="inline">
-            @csrf
-            <button class="text-gray-700 hover:underline" title="Пересинхронизировать только эту запись">
-              Обновить
-            </button>
-          </form>
-
-          {{-- удаление --}}
-          <form action="{{ route('seo.pages.destroy', $p->id) }}" method="post" class="inline"
-                onsubmit="return confirm('Удалить SEO-запись? Если включён автосинк, источник может создать её снова.');">
-            @csrf @method('DELETE')
-            <button class="text-red-600 hover:underline">Удалить</button>
-          </form>
-        </div>
-      </td>
-    </tr>
-  @empty
-    <tr>
-      <td colspan="5" class="p-6 text-center text-gray-500">
-        Записей пока нет. <a class="text-blue-600 hover:underline" href="{{ route('seo.pages.create') }}">Создать первую</a>.
-      </td>
-    </tr>
-  @endforelse
-  </tbody>
-</table>
-
-<div class="mt-4">
-  {{-- сохраняем q и per_page при пагинации --}}
-  {{ $items->appends(['q' => $qParam, 'per_page' => $perPageParam])->links() }}
-</div>
-
-{{-- ===== JS фильтрации (клиентская, быстрая) ===== --}}
-<script>
-  const state = {
-    index: new URLSearchParams(location.search).get('index') ?? '',
-    follow: new URLSearchParams(location.search).get('follow') ?? '',
-    meta: (new URLSearchParams(location.search).get('meta') ?? '').split(',').filter(Boolean), // ['canonical','og',...]
-  };
-
-  function setFilter(key, val) {
-    if (key === 'meta') {
-      state.meta = val ? val.split(',').filter(Boolean) : [];
-    } else {
-      state[key] = val;
-    }
-    updateUI();
-    applyFilter();
-    syncUrl();
-  }
-
-  function toggleMeta(name) {
-    const i = state.meta.indexOf(name);
-    if (i === -1) state.meta.push(name); else state.meta.splice(i,1);
-    updateUI();
-    applyFilter();
-    syncUrl();
-  }
-
-  function updateUI() {
-    // highlight buttons
-    document.querySelectorAll('[data-filter-index]').forEach(b=>{
-      const v = b.getAttribute('data-filter-index');
-      b.classList.toggle('bg-black', String(state.index)===String(v));
-      b.classList.toggle('text-white', String(state.index)===String(v));
-    });
-    document.querySelectorAll('[data-filter-follow]').forEach(b=>{
-      const v = b.getAttribute('data-filter-follow');
-      b.classList.toggle('bg-black', String(state.follow)===String(v));
-      b.classList.toggle('text-white', String(state.follow)===String(v));
-    });
-    document.querySelectorAll('[data-filter-meta]').forEach(b=>{
-      const v = b.getAttribute('data-filter-meta');
-      if (!v) {
-        const active = state.meta.length === 0;
-        b.classList.toggle('bg-black', active);
-        b.classList.toggle('text-white', active);
-      } else {
-        const active = state.meta.includes(v);
-        b.classList.toggle('bg-black', active);
-        b.classList.toggle('text-white', active);
-      }
-    });
-  }
-
-  function applyFilter() {
-    const rows = document.querySelectorAll('#seoTableBody tr');
-    rows.forEach(tr=>{
-      const okIndex = state.index === '' || tr.dataset.index === state.index;
-      const okFollow = state.follow === '' || tr.dataset.follow === state.follow;
-
-      // meta: если массив пуст — пропускаем; иначе требуем И всех выбранных флагов
-      let okMeta = true;
-      if (state.meta.length) {
-        okMeta = state.meta.every(flag => tr.dataset[flag] === '1');
-      }
-
-      tr.style.display = (okIndex && okFollow && okMeta) ? '' : 'none';
-    });
-  }
-
-  function syncUrl() {
-    const qs = new URLSearchParams(location.search);
-    if (state.index !== '') qs.set('index', state.index); else qs.delete('index');
-    if (state.follow !== '') qs.set('follow', state.follow); else qs.delete('follow');
-    if (state.meta.length) qs.set('meta', state.meta.join(',')); else qs.delete('meta');
-    history.replaceState(null, '', location.pathname + (qs.toString() ? '?' + qs.toString() : ''));
-  }
-
-  // init once DOM loaded
-  document.addEventListener('DOMContentLoaded', ()=>{
-    updateUI();
-    applyFilter();
-  });
-</script>
+  {{-- Формы действий строк — вне таблицы и вне формы массовых действий --}}
+  @foreach($items as $p)
+    <form id="seo-refresh-{{ $p->id }}" action="{{ route('seo.pages.refresh', $p->id) }}" method="post" class="hidden">@csrf</form>
+    <form id="seo-delete-{{ $p->id }}" action="{{ route('seo.pages.destroy', $p->id) }}" method="post" class="hidden"
+          onsubmit="return confirm('Удалить SEO-запись для {{ addslashes($p->slug) }}? Синхронизация может создать её снова.');">
+      @csrf @method('DELETE')
+    </form>
+  @endforeach
+@endif
 @endsection
+
+@push('styles')
+<style>
+  .seo-chip{ display:inline-flex; align-items:center; padding:.25rem .6rem; font-size:.75rem; line-height:1;
+      border:1px solid #d1d5db; background:#fff; color:#374151; text-decoration:none; transition:all .15s; }
+  .seo-chip:hover{ border-color:#6366f1; color:#4338ca; }
+  .seo-chip--active{ background:#4f46e5; border-color:#4f46e5; color:#fff; }
+  .seo-chip--active:hover{ background:#4338ca; color:#fff; }
+</style>
+@endpush
+
+@push('scripts')
+<script>
+  (function () {
+    const selectAll = document.getElementById('seoSelectAll');
+    const boxes = () => document.querySelectorAll('.seo-bulk-checkbox');
+    const counter = document.getElementById('seoBulkCounter');
+
+    const refresh = () => {
+      const checked = document.querySelectorAll('.seo-bulk-checkbox:checked').length;
+      if (counter) counter.textContent = checked ? `отмечено: ${checked}` : '';
+      if (selectAll) selectAll.checked = checked > 0 && checked === boxes().length;
+    };
+
+    selectAll?.addEventListener('change', function () {
+      boxes().forEach(cb => { cb.checked = this.checked; });
+      refresh();
+    });
+    boxes().forEach(cb => cb.addEventListener('change', refresh));
+    refresh();
+
+    document.querySelectorAll('.seo-copy').forEach(btn => {
+      btn.addEventListener('click', function () {
+        navigator.clipboard?.writeText(this.dataset.url).then(() => {
+          const icon = this.querySelector('i');
+          const original = icon.className;
+          icon.className = 'fas fa-check';
+          setTimeout(() => { icon.className = original; }, 1200);
+        });
+      });
+    });
+  })();
+</script>
+@endpush

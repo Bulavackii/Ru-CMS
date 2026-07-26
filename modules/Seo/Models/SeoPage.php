@@ -67,6 +67,25 @@ class SeoPage extends Model
             $can = trim((string) ($m->canonical ?? ''));
             $m->canonical = ($can === '') ? null : $can;
         });
+
+        // Правка SEO должна сразу отражаться на сайте: ключи кеша мета-данных
+        // зависят от адреса страницы, поэтому поимённо их не удалить — вместо
+        // этого меняем версию, которая входит в ключ (см. SeoMetaResolver).
+        static::saved(fn () => static::bumpMetaCacheVersion());
+        static::deleted(fn () => static::bumpMetaCacheVersion());
+        static::restored(fn () => static::bumpMetaCacheVersion());
+    }
+
+    /** Текущая версия кеша мета-данных фронта */
+    public static function metaCacheVersion(): int
+    {
+        return (int) \Illuminate\Support\Facades\Cache::rememberForever('seo_meta_cache_version', fn () => 1);
+    }
+
+    /** Сбросить кеш мета-данных фронта */
+    public static function bumpMetaCacheVersion(): void
+    {
+        \Illuminate\Support\Facades\Cache::forever('seo_meta_cache_version', static::metaCacheVersion() + 1);
     }
 
     /* ======================== Scopes ======================== */
@@ -100,6 +119,49 @@ class SeoPage extends Model
     }
 
     /** Только индексируемые страницы (для выборок; для sitemap мы фильтруем отдельно) */
+    /**
+     * Поиск по адресу, заголовку, H1 и описанию.
+     *
+     * ⚠️ Контроллер списка звал search(), bySourceType() и locked(), а этих
+     * скоупов в модели не было вовсе: поиск и фильтры по источнику/блокировке
+     * падали с BadMethodCallException, то есть отдавали 500.
+     */
+    public function scopeSearch($q, string $term)
+    {
+        $term = trim($term);
+
+        if ($term === '') {
+            return $q;
+        }
+
+        // search_like(): ILIKE на Postgres — иначе поиск регистрозависим
+        $like = search_like();
+        $mask = '%' . $term . '%';
+
+        return $q->where(function ($qq) use ($like, $mask) {
+            $qq->where('slug', $like, $mask)
+               ->orWhere('title', $like, $mask)
+               ->orWhere('h1', $like, $mask)
+               ->orWhere('description', $like, $mask);
+        });
+    }
+
+    /** Фильтр по типу источника (news | page) */
+    public function scopeBySourceType($q, ?string $type)
+    {
+        if (!$type) {
+            return $q;
+        }
+
+        return $q->where('source_type', $type);
+    }
+
+    /** Фильтр по блокировке от синхронизации */
+    public function scopeLocked($q, bool $locked = true)
+    {
+        return $q->where('locked', $locked);
+    }
+
     public function scopeIndexable($q)
     {
         return $q->where('robots_index', true)->where('robots_follow', true);

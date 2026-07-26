@@ -14,7 +14,10 @@ use Modules\Seo\Controllers\Frontend\SitemapController as FrontSitemaps;
 | ADMIN
 |--------------------------------------------------------------------------
 */
-Route::middleware(['web', 'auth'])
+// ⚠️ middleware 'admin' обязателен: без него раздел был доступен ЛЮБОМУ
+// авторизованному пользователю — включая правку и удаление SEO-записей,
+// редиректов и robots.txt. Остальные админ-разделы проекта закрыты 'admin'.
+Route::middleware(['web', 'auth', 'admin'])
     ->prefix('admin/seo')
     ->as('seo.')
     ->group(function () {
