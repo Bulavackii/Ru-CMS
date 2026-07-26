@@ -200,8 +200,15 @@ Route::middleware(['web', 'auth', 'admin'])->group(function () {
         Route::post('/import/users', [\App\Http\Controllers\Admin\ExportController::class, 'importUsers'])->name('importUsers');
     });
     
-    // Уведомления
-    Route::prefix('admin/notifications')->name('admin.notifications.')->group(function () {
+    // Центр уведомлений админки (колокольчик в шапке, таблица admin_notifications).
+    //
+    // ⚠️ Раньше эта группа висела на префиксе admin/notifications с именами
+    // admin.notifications.* — теми же, что у модуля Notifications (баннеры сайта).
+    // URI совпадали, и по ним выигрывал модуль: колокольчик запрашивал JSON, а
+    // получал HTML-страницу списка (в консоли «Failed to load notifications»), а
+    // его кнопка удаления уходила в DELETE /admin/notifications/{id} — то есть
+    // удаляла баннер сайта с таким же id. Разведено на отдельный префикс.
+    Route::prefix('admin/notification-center')->name('admin.notification_center.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('index');
         Route::post('/{id}/read', [\App\Http\Controllers\Admin\NotificationController::class, 'markAsRead'])->name('read');
         Route::post('/mark-all-read', [\App\Http\Controllers\Admin\NotificationController::class, 'markAllAsRead'])->name('mark-all-read');

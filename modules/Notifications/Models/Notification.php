@@ -6,10 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Cache;
 
 class Notification extends Model
 {
     use SoftDeletes;
+
+    /** Ключ, в котором лежит версия кеша уведомлений */
+    private const CACHE_VERSION_KEY = 'notifications_cache_version';
 
     /**
      * 💾 Массово заполняемые поля (для методов create/update)
@@ -49,6 +53,38 @@ class Notification extends Model
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
     ];
+
+    /**
+     * 🔄 Любое изменение уведомления обесценивает кеш выдачи.
+     *
+     * Ключи кеша зависят от аудитории и адреса страницы, поэтому удалить их
+     * поимённо нельзя — вместо этого в ключ подмешивается версия, а здесь она
+     * просто меняется. Раньше контроллер звал Cache::forget('notifications_active'),
+     * то есть чистил ключ, которого не существует: правки доходили до посетителя
+     * только через 5 минут, когда кеш протухал сам.
+     */
+    protected static function booted(): void
+    {
+        static::saved(fn () => static::flushCache());
+        static::deleted(fn () => static::flushCache());
+        static::restored(fn () => static::flushCache());
+    }
+
+    /**
+     * Текущая версия кеша — часть всех ключей выдачи уведомлений.
+     */
+    public static function cacheVersion(): int
+    {
+        return (int) Cache::rememberForever(self::CACHE_VERSION_KEY, fn () => 1);
+    }
+
+    /**
+     * Сбросить кеш выдачи (увеличив версию ключей).
+     */
+    public static function flushCache(): void
+    {
+        Cache::forever(self::CACHE_VERSION_KEY, static::cacheVersion() + 1);
+    }
 
     /**
      * Scope для получения только включенных уведомлений
@@ -105,9 +141,12 @@ class Notification extends Model
      */
     public function scopeSearch(Builder $query, string $search): Builder
     {
-        return $query->where(function ($q) use ($search) {
-            $q->where('title', 'like', "%{$search}%")
-              ->orWhere('message', 'like', "%{$search}%");
+        // search_like(): ILIKE на Postgres — иначе поиск был регистрозависимым
+        $like = search_like();
+
+        return $query->where(function ($q) use ($search, $like) {
+            $q->where('title', $like, "%{$search}%")
+              ->orWhere('message', $like, "%{$search}%");
         });
     }
 
@@ -161,10 +200,17 @@ class Notification extends Model
     }
 
     /**
-     * Увеличить счетчик просмотров
+     * Увеличить счётчик показов.
+     *
+     * Пишем запросом мимо модели: событие saved сбросило бы кеш выдачи на
+     * каждом показе, и кеширование потеряло бы смысл.
      */
-    public function incrementViews(): void
+    public static function countViews(array $ids): void
     {
-        $this->increment('views_count');
+        if ($ids === []) {
+            return;
+        }
+
+        static::withoutEvents(fn () => static::whereIn('id', $ids)->increment('views_count'));
     }
 }

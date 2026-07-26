@@ -23,5 +23,12 @@ class NotificationsServiceProvider extends ServiceProvider
 
         // 🧩 Регистрация Blade-компонента <x-frontend-notifications />
         Blade::component('frontend-notifications', NotificationsComponent::class);
+
+        // 🌱 Консольные команды модуля
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \Modules\Notifications\Console\Commands\SeedDefaultNotificationCommand::class,
+            ]);
+        }
     }
 }
