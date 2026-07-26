@@ -1,51 +1,222 @@
 @extends('layouts.frontend')
 
-@section('title', 'Результаты поиска')
+@section('title', $query !== '' ? "Поиск: {$query}" : 'Поиск по сайту')
 
 @section('content')
-    <h1 class="text-3xl font-extrabold text-center text-blue-900 mb-10 px-4 sm:px-0 leading-tight">
-        🔍 Результаты поиска: <span class="text-gray-800 break-words">{{ $query }}</span>
-    </h1>
+@php
+    use Illuminate\Support\Str;
 
-    @if ($results->count())
-        {{-- 🧾 Обёртка: flex + wrap + центрирование --}}
-        <div class="flex flex-wrap justify-center gap-6">
-            @foreach ($results as $news)
-                <div class="w-full sm:w-[90%] md:w-[45%] lg:w-[30%] max-w-sm bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition p-5 flex flex-col">
+    // Подсветка совпадений. Замыкание, а не глобальная функция: при повторном
+    // рендере вьюхи в одном процессе объявление function уронило бы страницу.
+    $highlight = function ($text, $q) {
+        $text = e((string) $text);
+        $q = trim((string) $q);
 
-                    {{-- 📰 Заголовок --}}
-                    <h2 class="text-lg font-bold text-gray-900 mb-2 leading-snug break-words">
-                        <a href="{{ route('news.show', $news->slug) }}" class="hover:text-blue-600 transition">
-                            {{ $news->title }}
-                        </a>
-                    </h2>
+        if ($q === '' || $text === '') {
+            return $text;
+        }
 
-                    {{-- 📄 Краткое описание --}}
-                    <p class="text-sm text-gray-600 mb-4 line-clamp-4 break-words">
-                        {!! Str::limit(strip_tags($news->content), 180) !!}
-                    </p>
+        foreach (preg_split('/\s+/u', $q) as $word) {
+            if (mb_strlen($word) < 2) {
+                continue;
+            }
+            $text = preg_replace('/' . preg_quote(e($word), '/') . '/iu', '<mark class="fx-mark">$0</mark>', $text);
+        }
 
-                    {{-- 📅 Дата и ссылка --}}
-                    <div class="mt-auto flex justify-between items-center text-sm text-gray-500 gap-2 flex-wrap">
-                        <span class="flex items-center gap-1 whitespace-nowrap">
-                            <i class="fas fa-calendar-alt"></i> {{ $news->created_at->format('d.m.Y') }}
-                        </span>
-                        <a href="{{ route('news.show', $news->slug) }}" class="text-blue-600 hover:underline whitespace-nowrap">
-                            Подробнее →
-                        </a>
-                    </div>
-                </div>
-            @endforeach
+        return $text;
+    };
+
+    // Выдержка вокруг совпадения: если слово нашлось в середине текста,
+    // показывать надо именно этот фрагмент, а не первые 180 символов.
+    $excerpt = function ($html, $q, $length = 200) {
+        $text = trim(preg_replace('/\s+/u', ' ', strip_tags((string) $html)));
+        $q = trim((string) $q);
+
+        if ($text === '' || $q === '') {
+            return Str::limit($text, $length);
+        }
+
+        $pos = mb_stripos($text, $q);
+
+        if ($pos === false || $pos < 70) {
+            return Str::limit($text, $length);
+        }
+
+        return '…' . Str::limit(mb_substr($text, $pos - 50), $length);
+    };
+
+    $short = mb_strlen($query) > 0 && mb_strlen($query) < 2;
+@endphp
+
+<div class="max-w-5xl mx-auto px-4 py-10">
+
+    {{-- ── Шапка ── --}}
+    <div class="flex items-center gap-3 mb-6">
+        <span class="fx-badge"><i class="fas fa-magnifying-glass"></i></span>
+        <div class="min-w-0">
+            <h1 class="fx-section-title text-2xl sm:text-3xl">
+                @if($query !== '')
+                    Поиск: <span class="fx-ico">{{ $query }}</span>
+                @else
+                    Поиск по сайту
+                @endif
+            </h1>
+            <p class="fx-section-sub mt-1">
+                @if($query !== '' && !$short && $total > 0)
+                    Найдено совпадений: <strong>{{ $total }}</strong>
+                @else
+                    Ищем по новостям и страницам сайта
+                @endif
+            </p>
+        </div>
+    </div>
+
+    {{-- Своей формы поиска тут нет: запрос уточняется полем в шапке сайта,
+         дублировать его на странице результатов владелец попросил не надо --}}
+
+    @if($short)
+        {{-- ── Слишком короткий запрос ── --}}
+        <div class="fx-card p-10 text-center">
+            <span class="fx-badge mx-auto mb-4"><i class="fas fa-keyboard"></i></span>
+            <h2 class="fx-section-title text-lg mb-1">Слишком короткий запрос</h2>
+            <p class="fx-section-sub">Введите хотя бы два символа — так найдётся что-то осмысленное.</p>
         </div>
 
-        {{-- 📄 Пагинация --}}
-        <div class="mt-12">
-            {{ $results->appends(['q' => $query])->links('vendor.pagination.tailwind') }}
+    @elseif($query === '')
+        {{-- ── Ещё ничего не искали ── --}}
+        <div class="fx-card p-10 text-center">
+            <span class="fx-badge mx-auto mb-4"><i class="fas fa-magnifying-glass"></i></span>
+            <h2 class="fx-section-title text-lg mb-1">Начните поиск</h2>
+            <p class="fx-section-sub mb-6">Введите слово или фразу — покажем новости и страницы, где они встречаются.</p>
+
+            <a href="{{ route('news.index') }}" class="fx-btn px-5 py-2 text-sm">
+                <i class="fas fa-newspaper"></i> Все новости
+            </a>
         </div>
+
+    @elseif($total === 0)
+        {{-- ── Ничего не найдено ── --}}
+        <div class="fx-card p-10 text-center">
+            <span class="fx-badge mx-auto mb-4"><i class="fas fa-circle-question"></i></span>
+            <h2 class="fx-section-title text-lg mb-1">Ничего не найдено</h2>
+            <p class="fx-section-sub mb-6">
+                По запросу «{{ $query }}» совпадений нет.
+            </p>
+
+            <ul class="text-sm text-gray-600 space-y-1 mb-6 inline-block text-left">
+                <li><i class="fas fa-check fx-ico mr-2"></i>Проверьте написание</li>
+                <li><i class="fas fa-check fx-ico mr-2"></i>Попробуйте одно слово вместо фразы</li>
+                <li><i class="fas fa-check fx-ico mr-2"></i>Используйте более общее понятие</li>
+            </ul>
+
+            <div>
+                <a href="{{ route('news.index') }}" class="fx-btn px-5 py-2 text-sm">
+                    <i class="fas fa-newspaper"></i> Смотреть все новости
+                </a>
+            </div>
+        </div>
+
     @else
-        {{-- 🙁 Ничего не найдено --}}
-        <div class="text-center text-gray-500 text-lg py-20">
-            😞 Ничего не найдено по запросу <br><span class="text-blue-600 font-medium">"{{ $query }}"</span>
-        </div>
+        {{-- ── Страницы сайта ── --}}
+        @if($pages->isNotEmpty())
+            <section class="mb-8">
+                <div class="flex items-center gap-2 mb-3">
+                    <h2 class="fx-section-title text-lg">Страницы сайта</h2>
+                    <span class="fx-chip">{{ $pages->count() }}</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    @foreach($pages as $page)
+                        <a href="{{ route('frontend.pages.show', $page->slug) }}"
+                           class="fx-card p-4 flex items-start gap-3 no-underline">
+                            <i class="fas fa-file-lines fx-ico mt-1"></i>
+                            <span class="min-w-0">
+                                <span class="block font-semibold text-gray-900 break-words">
+                                    {!! $highlight($page->title, $query) !!}
+                                </span>
+                                <span class="block text-sm text-gray-600 mt-1 break-words">
+                                    {!! $highlight($excerpt($page->content, $query, 120), $query) !!}
+                                </span>
+                            </span>
+                        </a>
+                    @endforeach
+                </div>
+            </section>
+        @endif
+
+        {{-- ── Новости ── --}}
+        @if($results->total() > 0)
+            <section>
+                <div class="flex items-center gap-2 mb-3">
+                    <h2 class="fx-section-title text-lg">Новости</h2>
+                    <span class="fx-chip">{{ $results->total() }}</span>
+                </div>
+
+                <div class="space-y-3">
+                    @foreach($results as $news)
+                        @php
+                            // Запись без slug открыть нечем: маршрут news/{slug} без него
+                            // не строится и роняет всю страницу 500-й — показываем без ссылки
+                            $newsUrl = $news->slug ? route('news.show', $news->slug) : null;
+                        @endphp
+                        <article class="fx-card p-5">
+                            <h3 class="text-lg font-bold mb-2 leading-snug break-words">
+                                @if($newsUrl)
+                                    <a href="{{ $newsUrl }}"
+                                       class="text-gray-900 hover:text-indigo-600 transition no-underline">
+                                        {!! $highlight($news->title, $query) !!}
+                                    </a>
+                                @else
+                                    <span class="text-gray-900">{!! $highlight($news->title, $query) !!}</span>
+                                @endif
+                            </h3>
+
+                            <p class="text-sm text-gray-600 mb-3 break-words">
+                                {!! $highlight($excerpt($news->content, $query), $query) !!}
+                            </p>
+
+                            <div class="flex flex-wrap items-center gap-3 text-xs text-gray-500">
+                                <span class="inline-flex items-center gap-1">
+                                    <i class="far fa-calendar fx-ico"></i>
+                                    {{ optional($news->created_at)->format('d.m.Y') }}
+                                </span>
+
+                                <span class="inline-flex items-center gap-1">
+                                    <i class="far fa-clock fx-ico"></i>
+                                    ~{{ reading_time($news->content) }} мин
+                                </span>
+
+                                @if($news->categories->isNotEmpty())
+                                    <span class="inline-flex items-center gap-1">
+                                        <i class="fas fa-tag fx-ico"></i>
+                                        {{ $news->categories->pluck('title')->implode(', ') }}
+                                    </span>
+                                @endif
+
+                                @if($newsUrl)
+                                    <a href="{{ $newsUrl }}"
+                                       class="ml-auto text-indigo-600 font-medium no-underline hover:underline">
+                                        Читать →
+                                    </a>
+                                @endif
+                            </div>
+                        </article>
+                    @endforeach
+                </div>
+
+                <div class="mt-8">
+                    {{ $results->links('vendor.pagination.tailwind') }}
+                </div>
+            </section>
+        @endif
     @endif
+</div>
 @endsection
+
+@push('styles')
+<style>
+    /* Подсветка совпадений — в тон акценту фронта */
+    .fx-mark{ background:#fde68a; color:#111827; padding:0 .12em; }
+    :root.dark .fx-mark{ background:#a16207; color:#fff; }
+</style>
+@endpush

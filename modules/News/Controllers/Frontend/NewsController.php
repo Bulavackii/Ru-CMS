@@ -22,7 +22,9 @@ class NewsController extends Controller
         
         $newsList = \Illuminate\Support\Facades\Cache::remember($cacheKey, 900, function () {
             return News::with(['categories' => function ($q) {
-                    $q->select('categories.id', 'categories.name', 'categories.slug');
+                    // У категорий колонка называется title, а не name — из-за
+                    // 'categories.name' весь список новостей отдавал 500
+                    $q->select('categories.id', 'categories.title', 'categories.slug');
                 }])
                 ->select('id', 'title', 'slug', 'content', 'template', 'created_at', 'updated_at')
                 ->published()
