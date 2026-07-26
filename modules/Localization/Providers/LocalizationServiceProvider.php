@@ -27,6 +27,7 @@ class LocalizationServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \Modules\Localization\Console\Commands\CheckDictionariesCommand::class,
+                \Modules\Localization\Console\Commands\SeedContentTranslationsCommand::class,
             ]);
         }
 

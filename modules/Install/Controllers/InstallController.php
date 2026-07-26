@@ -598,6 +598,7 @@ class InstallController extends Controller
             $this->seedDefaultNotification();
             $this->seedDefaultThemes();
             $this->seedDefaultFragments();
+            $this->seedContentTranslations();
             $this->seedRolesAndPermissions();
             $this->hardenPublicStorage();
 
@@ -1047,6 +1048,16 @@ class InstallController extends Controller
     private function seedDefaultFragments(): void
     {
         \Modules\Visual\Console\Commands\SeedDefaultFragmentsCommand::seed(false);
+    }
+
+    /**
+     * Переводы демо-контента: без них переключение языка выглядело недоделкой —
+     * интерфейс менялся, а меню, страницы и новости оставались русскими, потому
+     * что их тексты лежат в базе, а не в словарях.
+     */
+    private function seedContentTranslations(): void
+    {
+        \Modules\Localization\Console\Commands\SeedContentTranslationsCommand::seed(false);
     }
 
     /**
