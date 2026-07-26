@@ -185,14 +185,17 @@
 
         {{-- Поиск --}}
         <form method="GET" action="{{ route('frontend.search') }}" class="w-full md:flex-1 md:max-w-xl md:ml-8">
-          <div class="hdr-search relative w-full">
-            <button type="submit" class="hdr-search-btn" title="Поиск" aria-label="Искать">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path>
-              </svg>
-            </button>
-            <input type="text" name="q" value="{{ request('q') }}" class="hdr-search-input" placeholder="Поиск…">
+          <div class="hdr-search-row">
+            <div class="hdr-search relative flex-1">
+              <span class="hdr-search-ico" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path>
+                </svg>
+              </span>
+              <input type="text" name="q" value="{{ request('q') }}" class="hdr-search-input" placeholder="Поиск…">
+            </div>
+            <button type="submit" class="hdr-search-go">Искать</button>
           </div>
         </form>
       </div>
@@ -254,16 +257,26 @@
     .hdr-lang .hdr-icon-btn .flag{ width:1.3rem; height:.92rem; }
 
     /* Поиск */
-    .hdr-search-input{ width:100%; padding:.55rem .9rem .55rem 2.3rem; border-radius:10px; font-size:.85rem; line-height:1.2;
+    /* Поле и кнопка — одной высоты, кнопка рядом с полем (align-items:stretch) */
+    .hdr-search-row{ display:flex; align-items:stretch; gap:.5rem; width:100%; }
+    .hdr-search-input{ width:100%; height:100%; padding:.55rem .9rem .55rem 2.3rem; border-radius:10px; font-size:.85rem; line-height:1.2;
         border:1px solid rgba(17,24,39,.14); background:rgba(255,255,255,.7); color:#111827;
         transition:border-color .15s ease, box-shadow .15s ease, background .15s ease; }
     :root.dark .hdr-search-input{ background:rgba(30,41,59,.7); border-color:rgba(255,255,255,.12); color:#f3f4f6; }
     .hdr-search-input::placeholder{ color:#9ca3af; }
     .hdr-search-input:focus{ outline:none; border-color:#818cf8; box-shadow:0 0 0 3px rgba(99,102,241,.18); background:#fff; }
     :root.dark .hdr-search-input:focus{ background:rgba(30,41,59,.96); }
-    .hdr-search-btn{ position:absolute; left:.6rem; top:50%; transform:translateY(-50%); z-index:2; display:inline-flex;
-        padding:0; border:0; background:transparent; color:#9ca3af; cursor:pointer; transition:color .15s ease; }
-    .hdr-search-btn:hover{ color:#6366f1; }
+    /* Лупа слева — только значок: отправляет форму кнопка «Найти» справа */
+    .hdr-search-ico{ position:absolute; left:.6rem; top:50%; transform:translateY(-50%); z-index:2;
+        display:inline-flex; color:#9ca3af; pointer-events:none; }
+    /* Кнопка отправки рядом с полем, той же высоты */
+    .hdr-search-go{ flex:0 0 auto; display:inline-flex; align-items:center; justify-content:center;
+        padding:0 1.05rem; border:0; border-radius:10px; white-space:nowrap;
+        background:var(--fx-grad,#6366f1); color:#fff; font-size:.82rem; font-weight:600; line-height:1.2;
+        cursor:pointer; box-shadow:0 8px 18px -10px rgba(99,102,241,.8);
+        transition:filter .15s ease, transform .15s ease; }
+    .hdr-search-go:hover{ filter:brightness(1.07); transform:translateY(-1px); }
+    .hdr-search-go:active{ transform:translateY(0); }
 
     /* Корзина */
     .cart-ico{ position:relative; display:inline-flex; align-items:center; }
