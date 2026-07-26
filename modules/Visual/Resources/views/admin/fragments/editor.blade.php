@@ -21,13 +21,42 @@
     $draftKey = 'fragment_draft_' . ($fragment->id ?: 'new');
 @endphp
 
-<h1 class="text-2xl font-bold mb-6">
-  {{ $fragment->exists ? '🧩 Редактировать фрагмент' : '🧩 Создать фрагмент' }}
-</h1>
+<div class="admin-accent-bar mb-0"></div>
+<div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
+            flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+  <div class="flex items-center gap-3 min-w-0">
+    <span class="admin-icon-badge"><i class="fas fa-puzzle-piece"></i></span>
+    <div class="min-w-0">
+      <h1 class="text-xl font-bold text-gray-900 dark:text-white">
+        {{ $fragment->exists ? 'Редактировать фрагмент' : 'Новый фрагмент' }}
+      </h1>
+      <p class="text-sm text-gray-500 dark:text-gray-400 truncate">
+        {{ $fragment->exists ? $fragment->title . ' · ' . $fragment->zoneLabel() : 'Блок, который выводится в выбранной зоне страницы' }}
+      </p>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-2 flex-shrink-0">
+    @if ($fragment->exists)
+      <a href="{{ route('admin.visual.fragments.history', $fragment) }}"
+         class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+                hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition">
+        <i class="fas fa-clock-rotate-left"></i> История
+      </a>
+    @endif
+    <a href="{{ route('admin.visual.fragments.index') }}"
+       class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+              hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition">
+      <i class="fas fa-arrow-left"></i> К списку
+    </a>
+  </div>
+</div>
 
 @if ($errors->any())
-  <div class="mb-4 p-3 bg-red-50 text-red-700 rounded">
-    <ul class="list-disc ml-5">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
+  <div class="admin-card border-l-4 border-red-500 p-4 mb-5">
+    <ul class="text-sm text-red-600 dark:text-red-400 list-disc list-inside">
+      @foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach
+    </ul>
   </div>
 @endif
 
@@ -58,10 +87,10 @@
     <div>
       <label class="block text-sm mb-1">Зона</label>
       <select name="zone" class="border rounded px-3 py-2 w-full" {{ $isSystem ? 'disabled' : '' }}>
-        <option value="">—</option>
-        <option value="header" @selected(old('zone', $fragment->zone)==='header')>Header</option>
-        <option value="footer" @selected(old('zone', $fragment->zone)==='footer')>Footer</option>
-        <option value="custom" @selected(old('zone', $fragment->zone)==='custom')>Custom</option>
+        <option value="">— не выбрана —</option>
+        @foreach(\Modules\Visual\Models\Fragment::ZONE_LABELS as $zoneValue => $zoneLabel)
+          <option value="{{ $zoneValue }}" @selected(old('zone', $fragment->zone) === $zoneValue)>{{ $zoneLabel }}</option>
+        @endforeach
       </select>
       @if ($isSystem)
         <input type="hidden" name="zone" value="{{ $fragment->slug === 'site-header' ? 'header':'footer' }}">
@@ -203,7 +232,7 @@
     </div>
 
     <div class="flex gap-3 pt-1">
-      <button class="bg-blue-600 text-white px-4 py-2 rounded">
+      <button class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition">
         {{ $fragment->exists ? 'Сохранить' : 'Создать' }}
       </button>
     </div>
@@ -233,7 +262,7 @@
       </div>
       <div class="flex justify-end gap-2 pt-2">
         <button id="iconCancel" type="button" class="px-3 py-1.5 rounded border">Отмена</button>
-        <button id="iconInsert" type="button" class="px-3 py-1.5 rounded bg-blue-600 text-white">Вставить</button>
+        <button id="iconInsert" type="button" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition">Вставить</button>
       </div>
       @if($iconsPath)
         <p class="text-xs text-gray-500">SVG берутся из: {{ $iconsPath }}/<em>name</em>.svg</p>

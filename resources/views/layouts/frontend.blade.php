@@ -415,7 +415,21 @@
     <div id="wrapper" class="relative z-10 flex flex-col min-h-screen">
         {{-- Верхняя градиентная акцент-полоса (единый стиль с админкой/Install) --}}
         <div class="fx-topbar"></div>
+
+        {{-- 🧩 Зона фрагмента: полоса объявления НАД шапкой. Пусто/выключено —
+             не выводится ничего, вёрстка страницы не меняется. --}}
+        @php $fragmentTopbar = \Modules\Visual\Support\FragmentRenderer::zone('frontend.topbar'); @endphp
+        @if($fragmentTopbar)
+            <div class="fragment-zone fragment-zone--topbar">{!! $fragmentTopbar !!}</div>
+        @endif
+
         @include('layouts.partials.header')
+
+        {{-- 🧩 Зона фрагмента: сразу под шапкой сайта --}}
+        @php $fragmentHeader = \Modules\Visual\Support\FragmentRenderer::zone('frontend.header'); @endphp
+        @if($fragmentHeader)
+            <div class="fragment-zone fragment-zone--header">{!! $fragmentHeader !!}</div>
+        @endif
 
         {{-- Дизайнерский переход «шапка → контент»: наклонные акцент-линии темы --}}
         <div class="hdr-seam" aria-hidden="true"><span></span><span></span></div>
@@ -433,6 +447,12 @@
         <main class="flex-grow py-6 sm:py-8 md:py-10">
             <div class="container mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16">
                 @yield('content')
+
+                {{-- 🧩 Зона фрагмента: под содержимым страницы --}}
+                @php $fragmentContentBottom = \Modules\Visual\Support\FragmentRenderer::zone('frontend.content.bottom'); @endphp
+                @if($fragmentContentBottom)
+                    <div class="fragment-zone fragment-zone--content-bottom mt-8">{!! $fragmentContentBottom !!}</div>
+                @endif
             </div>
         </main>
 

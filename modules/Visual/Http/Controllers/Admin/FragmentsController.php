@@ -121,7 +121,8 @@ class FragmentsController extends Controller
     /** Кнопка «Пересобрать HTML». */
     public function rebuild(Fragment $fragment)
     {
-        $this->renderToCache($fragment);
+        // force: кнопка «Пересобрать» именно и просит собрать заново из вьюхи
+        $this->renderToCache($fragment, true);
         $fragment->save();
         
         // Инвалидация кэша фрагмента
@@ -172,7 +173,7 @@ class FragmentsController extends Controller
         $fragments = Fragment::whereIn('id', $request->ids)->get();
         
         foreach ($fragments as $fragment) {
-            $this->renderToCache($fragment);
+            $this->renderToCache($fragment, true);
             $fragment->save();
             Cache::forget("fragment_html_{$fragment->slug}");
         }
@@ -190,27 +191,48 @@ class FragmentsController extends Controller
         $newFragment->title = $fragment->title . ' (копия)';
         $newFragment->slug = $fragment->slug . '-copy-' . uniqid();
         $newFragment->is_active = false;
-        $newFragment->html_cached = null; // Пересоберем при сохранении
+        // Содержимое копируем как есть: обнуление html_cached стирало текст,
+        // ведь собственной вьюхи у копии (slug с суффиксом) заведомо нет
         $newFragment->save();
 
-        $this->renderToCache($newFragment);
-        $newFragment->save();
+        // Если содержимого не было — попробуем собрать из шаблона оригинала
+        if (trim((string) $newFragment->html_cached) === '') {
+            $this->renderToCache($newFragment);
+            $newFragment->save();
+        }
 
         return redirect()->route('admin.visual.fragments.edit', $newFragment)
             ->with('success', 'Фрагмент скопирован');
     }
 
-    /** Компиляция HTML: сначала blade `visual/fragments/{slug}.blade.php`, иначе fallback. */
-    protected function renderToCache(Fragment $fragment): void
+    /**
+     * Сборка HTML фрагмента.
+     *
+     * ⚠️ Раньше этот метод звался при каждом сохранении и БЕЗУСЛОВНО перезаписывал
+     * html_cached: введённое в поле «Содержимое фрагмента» тут же заменялось на
+     * заглушку с заголовком. То есть редактор фрагмента не работал вообще.
+     * Теперь ручное содержимое главнее: собираем только когда его нет.
+     *
+     * @param bool $force принудительная пересборка (кнопка «Пересобрать HTML»)
+     */
+    protected function renderToCache(Fragment $fragment, bool $force = false): void
     {
         $viewName = 'visual.fragments.' . $fragment->slug;
+        $hasOwnHtml = trim((string) $fragment->html_cached) !== '';
+
+        if ($hasOwnHtml && !$force) {
+            return;
+        }
 
         if (View::exists($viewName)) {
             $fragment->html_cached = view($viewName, ['fragment' => $fragment])->render();
-        } else {
-            $title = e($fragment->title);
-            $fragment->html_cached =
-                "<div class=\"visual-fragment\" data-fragment=\"{$fragment->slug}\"><strong>{$title}</strong></div>";
+            return;
+        }
+
+        // Своей вьюхи нет и содержимое пустое — оставляем пусто, чтобы зона
+        // ничего не выводила. Заглушка с заголовком раньше попадала на сайт.
+        if (!$hasOwnHtml) {
+            $fragment->html_cached = null;
         }
     }
 
@@ -293,7 +315,7 @@ class FragmentsController extends Controller
         $rules = [
             'title'       => ['required','string','max:255'],
             'slug'        => ['required','string','max:255','alpha_dash', Rule::unique('visual_fragments','slug')->ignore($id)],
-            'zone'        => ['nullable', Rule::in(['header','footer','custom'])],
+            'zone'        => ['nullable', Rule::in(Fragment::zones())],
             'type'        => ['nullable','string','max:100'],
             'is_active'   => ['sometimes','boolean'],
             'schema'      => ['nullable'],

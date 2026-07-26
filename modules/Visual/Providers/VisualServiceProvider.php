@@ -16,6 +16,7 @@ class VisualServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \Modules\Visual\Console\Commands\SeedDefaultThemesCommand::class,
+                \Modules\Visual\Console\Commands\SeedDefaultFragmentsCommand::class,
             ]);
         }
 

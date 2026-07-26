@@ -29,14 +29,13 @@
 
         {{-- 🧩 Хедер-фрагмент (fallback на старый хедер, если фрагмента нет) --}}
         @php
-            try {
-                $headerHtml = \Modules\Visual\Support\FragmentRenderer::render(['slug' => 'site-header']);
-            } catch (\Throwable $e) {
-                $headerHtml = null;
-            }
+            // render() возвращает null, когда выводить нечего. Раньше здесь
+            // искали подстроку 'fragment not found' в HTML-комментарии — такая
+            // проверка ломалась от любой правки текста ошибки.
+            $headerHtml = \Modules\Visual\Support\FragmentRenderer::render(['slug' => 'site-header']);
         @endphp
 
-        @if(!empty($headerHtml) && strpos($headerHtml, 'fragment not found') === false)
+        @if($headerHtml)
             {!! $headerHtml !!}
         @else
             {{-- Fallback-хедер (минимальный) --}}
@@ -59,14 +58,10 @@
 
         {{-- 🧩 Футер-фрагмент (fallback на простой футер) --}}
         @php
-            try {
-                $footerHtml = \Modules\Visual\Support\FragmentRenderer::render(['slug' => 'site-footer']);
-            } catch (\Throwable $e) {
-                $footerHtml = null;
-            }
+            $footerHtml = \Modules\Visual\Support\FragmentRenderer::render(['slug' => 'site-footer']);
         @endphp
 
-        @if(!empty($footerHtml) && strpos($footerHtml, 'fragment not found') === false)
+        @if($footerHtml)
             {!! $footerHtml !!}
         @else
             <footer class="text-center text-sm py-4 border-t"

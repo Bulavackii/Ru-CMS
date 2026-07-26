@@ -597,6 +597,7 @@ class InstallController extends Controller
             $this->seedDefaultFiles();
             $this->seedDefaultNotification();
             $this->seedDefaultThemes();
+            $this->seedDefaultFragments();
             $this->seedRolesAndPermissions();
             $this->hardenPublicStorage();
 
@@ -1035,6 +1036,16 @@ class InstallController extends Controller
     private function seedDefaultThemes(): void
     {
         \Modules\Visual\Console\Commands\SeedDefaultThemesCommand::seed(false);
+    }
+
+    /**
+     * Заготовки фрагментов для зон сайта и панели. Создаются ВЫКЛЮЧЕННЫМИ:
+     * фрагмент — дополнительный блок в готовой странице, включать его должен
+     * владелец. Единый источник — команда модуля (`fragments:seed-default`).
+     */
+    private function seedDefaultFragments(): void
+    {
+        \Modules\Visual\Console\Commands\SeedDefaultFragmentsCommand::seed(false);
     }
 
     /**

@@ -5,297 +5,295 @@
 @php
   use Modules\Visual\Models\Fragment;
 
-  $existsHeader = Fragment::where('slug','site-header')->exists();
-  $existsFooter = Fragment::where('slug','site-footer')->exists();
-
-  $btnBase      = 'inline-flex items-center justify-center px-3 py-2 rounded font-medium shadow transition';
-  $btnPrimary   = 'text-white bg-blue-600 hover:bg-blue-700';
-  $btnSecondary = 'text-white bg-indigo-600 hover:bg-indigo-700';
-  $btnBorder    = 'border bg-white text-gray-800 hover:bg-gray-50';
-  $btnDisabled  = 'cursor-not-allowed bg-gray-300 text-gray-600';
+  $zoneLabels = Fragment::ZONE_LABELS;
+  $hasFilters = request()->hasAny(['search', 'zone', 'status']);
 @endphp
 
-<h1 class="text-2xl font-bold mb-4">🧩 Фрагменты</h1>
-
-{{-- Быстрые действия --}}
-<div class="mb-4 rounded border bg-white dark:bg-gray-900 p-4 flex flex-wrap gap-3 items-center">
-  @if(!$existsHeader)
-    <a href="{{ route('admin.visual.fragments.create',['preset'=>'header']) }}" class="{{ $btnBase }} {{ $btnPrimary }}">Создать шапку (site-header)</a>
-  @else
-    <span class="{{ $btnBase }} {{ $btnDisabled }}">Создать шапку (site-header)</span>
-  @endif
-
-  @if(!$existsFooter)
-    <a href="{{ route('admin.visual.fragments.create',['preset'=>'footer']) }}" class="{{ $btnBase }} {{ $btnSecondary }}">Создать подвал (site-footer)</a>
-  @else
-    <span class="{{ $btnBase }} {{ $btnDisabled }}">Создать подвал (site-footer)</span>
-  @endif
-
-  <a href="{{ route('admin.visual.fragments.create') }}" class="{{ $btnBase }} {{ $btnBorder }}">Новый фрагмент</a>
-
-  <div class="ml-auto flex flex-wrap gap-2 items-center">
-    <input id="search" type="text" placeholder="Поиск…" class="border rounded px-3 py-2 text-sm w-56">
-    <select id="zoneFilter" class="border rounded px-2 py-2 text-sm">
-      <option value="">Зона: все</option>
-      <option value="header">Header</option>
-      <option value="footer">Footer</option>
-      <option value="custom">Custom</option>
-    </select>
-    <select id="statusFilter" class="border rounded px-2 py-2 text-sm">
-      <option value="">Статус: все</option>
-      <option value="1">Активен</option>
-      <option value="0">Выключен</option>
-    </select>
-    <button id="resetFilters" class="border rounded px-3 py-2 text-sm">Сбросить</button>
+{{-- ── Шапка страницы ── --}}
+<div class="admin-accent-bar mb-0"></div>
+<div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
+            flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+  <div class="flex items-center gap-3 min-w-0">
+    <span class="admin-icon-badge"><i class="fas fa-puzzle-piece"></i></span>
+    <div class="min-w-0">
+      <h1 class="text-xl font-bold text-gray-900 dark:text-white">Фрагменты</h1>
+      <p class="text-sm text-gray-500 dark:text-gray-400">
+        Дополнительные блоки в готовых страницах сайта и панели: объявления, баннеры, сноски.
+      </p>
+    </div>
   </div>
+
+  <a href="{{ route('admin.visual.fragments.create') }}"
+     class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition flex-shrink-0">
+    <i class="fas fa-plus"></i> Новый фрагмент
+  </a>
 </div>
 
-{{-- Список --}}
-@if($fragments->count())
-  <div class="overflow-x-auto border rounded">
-    <table id="fragmentsTable" class="min-w-full text-sm">
-      <thead class="bg-gray-50">
-        <tr class="border-b">
-          <th data-col="0" data-type="text" class="sortable text-left py-2 px-3 select-none cursor-pointer">Заголовок</th>
-          <th data-col="1" data-type="text" class="sortable text-left py-2 px-3 select-none cursor-pointer">Slug</th>
-          <th data-col="2" data-type="text" class="sortable text-left py-2 px-3 select-none cursor-pointer">Зона</th>
-          <th data-col="3" data-type="num"  class="sortable text-left py-2 px-3 select-none cursor-pointer">Статус</th>
-          <th data-col="4" data-type="date" class="sortable text-left py-2 px-3 select-none cursor-pointer">Обновлён</th>
-          <th class="py-2 px-3 text-right">Действия</th>
+@includeIf('layouts.partials.flash')
+
+{{-- ── Фильтры ── --}}
+<form method="GET" action="{{ route('admin.visual.fragments.index') }}" class="admin-card p-5 mb-5">
+  <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+    <i class="fas fa-filter text-indigo-500"></i> Фильтры
+  </h2>
+
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+    <div class="md:col-span-2">
+      <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Поиск</label>
+      <div class="relative">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+             width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path>
+        </svg>
+        <input type="text" name="search" value="{{ request('search') }}" placeholder="Название или slug…"
+               class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white pl-10 pr-3 py-2 text-sm
+                      focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Зона</label>
+      <select name="zone" class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
+                                 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+        <option value="">Все зоны</option>
+        @foreach($zoneLabels as $value => $label)
+          <option value="{{ $value }}" @selected(request('zone') === $value)>{{ $label }}</option>
+        @endforeach
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Статус</label>
+      <select name="status" class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
+                                   focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+        <option value="">Все</option>
+        <option value="active" @selected(request('status') === 'active')>Включённые</option>
+        <option value="inactive" @selected(request('status') === 'inactive')>Выключенные</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="mt-4 flex flex-wrap items-center gap-2">
+    <button type="submit"
+            class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition">
+      <i class="fas fa-magnifying-glass"></i> Применить
+    </button>
+    @if($hasFilters)
+      <a href="{{ route('admin.visual.fragments.index') }}"
+         class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+                hover:bg-gray-100 dark:hover:bg-gray-800 px-4 py-2 text-sm font-semibold transition">
+        <i class="fas fa-rotate-left"></i> Сбросить
+      </a>
+    @endif
+  </div>
+</form>
+
+@if($fragments->isEmpty())
+  {{-- ── Пустое состояние ── --}}
+  <div class="admin-card p-10 text-center">
+    <span class="admin-icon-badge mx-auto mb-4"><i class="fas fa-puzzle-piece"></i></span>
+
+    @if($hasFilters)
+      <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-1">Ничего не найдено</h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">Под выбранные фильтры не подходит ни один фрагмент.</p>
+      <a href="{{ route('admin.visual.fragments.index') }}"
+         class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+                hover:bg-gray-100 dark:hover:bg-gray-800 px-4 py-2 text-sm font-semibold transition">
+        <i class="fas fa-rotate-left"></i> Сбросить фильтры
+      </a>
+    @else
+      <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-1">Фрагментов пока нет</h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400 max-w-2xl mx-auto mb-5">
+        Фрагмент — это блок, который выводится в готовой странице: полоса объявления над шапкой,
+        сноска под содержимым, напоминание в панели. Шапку и подвал он не заменяет: пока фрагмент
+        выключен или пуст, страницы выглядят как обычно. Шесть заготовок создаются при установке —
+        добавить их можно командой <span class="font-mono">php artisan fragments:seed-default</span>.
+      </p>
+      <a href="{{ route('admin.visual.fragments.create') }}"
+         class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 text-sm font-semibold shadow-sm transition">
+        <i class="fas fa-plus"></i> Создать фрагмент
+      </a>
+    @endif
+  </div>
+@else
+  {{-- ── Массовые действия ── --}}
+  <form method="POST" action="{{ route('admin.visual.fragments.bulkToggle') }}" id="fragBulkForm" class="admin-card p-4 mb-4">
+    @csrf
+    <div class="flex flex-wrap items-center gap-2">
+      <span class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">С отмеченными:</span>
+      <select name="action"
+              class="border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
+                     focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+        <option value="enable">Включить</option>
+        <option value="disable">Выключить</option>
+      </select>
+      <button type="submit"
+              class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition">
+        <i class="fas fa-bolt"></i> Применить
+      </button>
+      <button type="submit" form="fragBulkRebuild"
+              class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+                     hover:border-indigo-400 hover:text-indigo-600 px-4 py-2 text-sm font-semibold transition">
+        <i class="fas fa-arrows-rotate"></i> Пересобрать HTML
+      </button>
+      <span id="fragBulkCounter" class="text-sm text-gray-500 dark:text-gray-400"></span>
+    </div>
+  </form>
+
+  {{-- ── Таблица ── --}}
+  <div class="admin-card overflow-x-auto">
+    <table class="min-w-full text-sm">
+      <thead class="bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+        <tr>
+          <th class="px-4 py-3 text-center w-10"><input type="checkbox" id="fragSelectAll" class="border-gray-400"></th>
+          <th class="px-4 py-3 text-left font-semibold">Фрагмент</th>
+          <th class="px-4 py-3 text-left font-semibold">Где показывается</th>
+          <th class="px-4 py-3 text-left font-semibold">Содержимое</th>
+          <th class="px-4 py-3 text-center font-semibold">Статус</th>
+          <th class="px-4 py-3 text-center font-semibold">Действия</th>
         </tr>
       </thead>
-      <tbody>
+
+      <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
         @foreach($fragments as $f)
           @php
-            $isSystem = in_array($f->slug, ['site-header','site-footer'], true);
-            $updated  = optional($f->updated_at)->format('d.m.Y H:i');
+            $length = mb_strlen(trim(strip_tags((string) $f->html_cached)));
+            $isSystem = $f->isSystem();
           @endphp
-          <tr class="border-b hover:bg-gray-50"
-              data-zone="{{ $f->zone ?? '' }}"
-              data-status="{{ (int)$f->is_active }}">
-            {{-- Заголовок --}}
-            <td class="py-2 px-3">
-              <div class="flex items-center gap-2">
-                <span>{{ $f->title }}</span>
+          <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+            <td class="px-4 py-3 text-center align-top">
+              <input type="checkbox" name="ids[]" value="{{ $f->id }}" form="fragBulkForm"
+                     class="frag-checkbox border-gray-400">
+            </td>
+
+            <td class="px-4 py-3 align-top">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="font-semibold text-gray-900 dark:text-white">{{ $f->title }}</span>
                 @if($isSystem)
-                  <span class="text-[10px] px-1.5 py-0.5 rounded bg-gray-800 text-white">system</span>
+                  <span class="text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 px-2 py-0.5"
+                        title="Slug и зона закреплены системой">системный</span>
                 @endif
               </div>
-            </td>
-
-            {{-- Slug --}}
-            <td class="py-2 px-3 font-mono text-xs">
-              <div class="flex items-center gap-2">
-                <span>{{ $f->slug }}</span>
-                <button type="button" class="copy-slug text-gray-500 hover:text-gray-800" data-slug="{{ $f->slug }}" title="Скопировать slug">📋</button>
-              </div>
-            </td>
-
-            {{-- Зона --}}
-            <td class="py-2 px-3">{{ $f->zone ?: '—' }}</td>
-
-            {{-- Статус (для сортировки используем data-status на строке) --}}
-            <td class="py-2 px-3">
-              @if($f->is_active)
-                <span class="px-2 py-1 text-xs rounded bg-green-100 text-green-700">Активен</span>
-              @else
-                <span class="px-2 py-1 text-xs rounded bg-gray-200 text-gray-600">Выключен</span>
+              <div class="text-xs font-mono text-gray-400 mt-0.5">{{ $f->slug }}</div>
+              @if($f->updated_at)
+                <div class="text-xs text-gray-400 mt-1">обновлён {{ $f->updated_at->format('d.m.Y H:i') }}</div>
               @endif
             </td>
 
-            {{-- Обновлён --}}
-            <td class="py-2 px-3 text-gray-500">{{ $updated }}</td>
+            <td class="px-4 py-3 align-top text-gray-600 dark:text-gray-300">
+              {{ $zoneLabels[$f->zone] ?? ($f->zone ?: 'Без зоны') }}
+              @if(!$f->zone)
+                <div class="text-xs text-gray-400 mt-1">выводится только вручную по slug</div>
+              @endif
+            </td>
 
-            {{-- Действия --}}
-            <td class="py-2 px-3 text-right space-x-2 whitespace-nowrap">
-              <button type="button"
-                      class="preview-btn text-gray-700 hover:text-black"
-                      title="Предпросмотр"
-                      data-frag="frag-tpl-{{ $f->id }}">👁</button>
+            <td class="px-4 py-3 align-top text-gray-600 dark:text-gray-300">
+              @if($length > 0)
+                {{ \Illuminate\Support\Str::limit(trim(strip_tags((string) $f->html_cached)), 60) }}
+                <div class="text-xs text-gray-400 mt-1">{{ $length }} симв.</div>
+              @else
+                <span class="text-xs text-yellow-700"><i class="fas fa-triangle-exclamation"></i> пусто — ничего не выведется</span>
+              @endif
+            </td>
 
-              <a href="{{ route('admin.visual.fragments.edit',$f) }}" class="text-blue-600 hover:underline">Редактировать</a>
+            <td class="px-4 py-3 text-center align-top">
+              @if($f->is_active)
+                <span class="inline-block text-xs bg-green-100 text-green-800 px-2 py-0.5">включён</span>
+              @else
+                <span class="inline-block text-xs bg-gray-200 text-gray-700 px-2 py-0.5">выключен</span>
+              @endif
+            </td>
 
-              <form action="{{ route('admin.visual.fragments.rebuild',$f) }}" method="POST" class="inline">
-                @csrf
-                <button type="submit" class="text-gray-600 hover:text-black" title="Пересобрать HTML"
-                        onclick="return confirm('Пересобрать HTML для {{ $f->title }}?')">🔄</button>
-              </form>
+            <td class="px-4 py-3 text-center align-top whitespace-nowrap">
+              <a href="{{ route('admin.visual.fragments.edit', $f) }}"
+                 class="inline-flex items-center justify-center w-8 h-8 border border-gray-300 dark:border-gray-600
+                        text-gray-600 dark:text-gray-300 hover:border-indigo-400 hover:text-indigo-600 transition"
+                 title="Редактировать"><i class="fas fa-pen"></i></a>
 
-              <form action="{{ route('admin.visual.fragments.destroy',$f) }}" method="POST" class="inline">
-                @csrf @method('DELETE')
-                <button type="submit" class="text-red-600 hover:underline"
-                        onclick="return confirm('Удалить фрагмент {{ $f->title }}?')">Удалить</button>
-              </form>
+              <a href="{{ route('admin.visual.fragments.history', $f) }}"
+                 class="inline-flex items-center justify-center w-8 h-8 border border-gray-300 dark:border-gray-600
+                        text-gray-600 dark:text-gray-300 hover:border-indigo-400 hover:text-indigo-600 transition"
+                 title="История версий"><i class="fas fa-clock-rotate-left"></i></a>
+
+              <button type="submit" form="frag-duplicate-{{ $f->id }}"
+                      class="inline-flex items-center justify-center w-8 h-8 border border-gray-300 dark:border-gray-600
+                             text-gray-600 dark:text-gray-300 hover:border-indigo-400 hover:text-indigo-600 transition"
+                      title="Дублировать"><i class="fas fa-copy"></i></button>
+
+              <button type="submit" form="frag-rebuild-{{ $f->id }}"
+                      class="inline-flex items-center justify-center w-8 h-8 border border-gray-300 dark:border-gray-600
+                             text-gray-600 dark:text-gray-300 hover:border-indigo-400 hover:text-indigo-600 transition"
+                      title="Пересобрать HTML из шаблона"><i class="fas fa-arrows-rotate"></i></button>
+
+              <button type="submit" form="frag-delete-{{ $f->id }}"
+                      class="inline-flex items-center justify-center w-8 h-8 border border-gray-300 dark:border-gray-600
+                             text-gray-600 dark:text-gray-300 hover:border-red-400 hover:text-red-600 transition"
+                      title="Удалить"><i class="fas fa-trash"></i></button>
             </td>
           </tr>
-
-          {{-- Безопасно храним HTML для предпросмотра в <template> --}}
-          <template id="frag-tpl-{{ $f->id }}">{!! $f->html_cached !!}</template>
         @endforeach
       </tbody>
     </table>
   </div>
 
   <div class="mt-4">{{ $fragments->links() }}</div>
-@else
-  <p class="text-gray-600">Фрагментов пока нет.</p>
+
+  {{-- Формы действий — вне таблицы: вложенные формы HTML запрещает --}}
+  <form id="fragBulkRebuild" method="POST" action="{{ route('admin.visual.fragments.bulkRebuild') }}" class="hidden">
+    @csrf
+  </form>
+  @foreach($fragments as $f)
+    <form id="frag-duplicate-{{ $f->id }}" method="POST" action="{{ route('admin.visual.fragments.duplicate', $f) }}" class="hidden">@csrf</form>
+    <form id="frag-rebuild-{{ $f->id }}" method="POST" action="{{ route('admin.visual.fragments.rebuild', $f) }}" class="hidden"
+          onsubmit="return confirm('Пересобрать HTML фрагмента «{{ addslashes($f->title) }}» из шаблона? Ручные правки содержимого будут заменены.');">
+      @csrf
+    </form>
+    <form id="frag-delete-{{ $f->id }}" method="POST" action="{{ route('admin.visual.fragments.destroy', $f) }}" class="hidden"
+          onsubmit="return confirm('Удалить фрагмент «{{ addslashes($f->title) }}»?');">
+      @csrf @method('DELETE')
+    </form>
+  @endforeach
+
+  <p class="admin-hint mt-5 p-3">
+    Выключенный или пустой фрагмент на страницу не попадает — вёрстка остаётся прежней.
+    Системные фрагменты (site-header, site-footer) массовым переключением не затрагиваются.
+  </p>
 @endif
-
-{{-- Модалка предпросмотра --}}
-<div id="pvModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50">
-  <div class="bg-white rounded-xl shadow-xl w-full max-w-5xl p-3">
-    <div class="flex items-center justify-between mb-2">
-      <div class="font-semibold">Предпросмотр</div>
-      <div class="flex items-center gap-2">
-        <label class="inline-flex items-center gap-2 text-sm"><input id="pvDark" type="checkbox" class="rounded">Dark</label>
-        <select id="pvWidth" class="border rounded px-2 py-1 text-sm">
-          <option value="375">Phone (375px)</option>
-          <option value="768">Tablet (768px)</option>
-          <option value="1024" selected>Desktop (1024px)</option>
-          <option value="full">Full</option>
-        </select>
-        <button id="pvClose" class="border rounded px-3 py-1.5">Закрыть</button>
-      </div>
-    </div>
-    <div class="border rounded bg-white p-2">
-      <div id="pvWrap" class="mx-auto" style="width:1024px;max-width:100%;">
-        <iframe id="pvFrame" class="w-full h-[520px] border rounded bg-white"></iframe>
-      </div>
-    </div>
-  </div>
-</div>
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
-  // ===== helpers =====
-  const $  = (s, r=document)=>r.querySelector(s);
-  const $$ = (s, r=document)=>[...r.querySelectorAll(s)];
-  const save = (k,v)=>localStorage.setItem(k, v);
-  const load = (k)=>localStorage.getItem(k);
+  (function () {
+    const selectAll = document.getElementById('fragSelectAll');
+    const boxes = () => document.querySelectorAll('.frag-checkbox');
+    const counter = document.getElementById('fragBulkCounter');
+    const rebuildForm = document.getElementById('fragBulkRebuild');
 
-  // ===== поиск / фильтры =====
-  const q = $('#search');
-  const zone = $('#zoneFilter');
-  const status = $('#statusFilter');
-  const resetBtn = $('#resetFilters');
-  const rows = $$('#fragmentsTable tbody tr');
+    const refresh = () => {
+      const checked = [...document.querySelectorAll('.frag-checkbox:checked')];
+      if (counter) counter.textContent = checked.length ? `отмечено: ${checked.length}` : '';
+      if (selectAll) selectAll.checked = checked.length > 0 && checked.length === boxes().length;
 
-  function applyFilters(){
-    const term = (q.value || '').toLowerCase();
-    const z = zone.value;
-    const s = status.value;
+      // Массовая пересборка — своя форма, копируем в неё отмеченные id
+      if (rebuildForm) {
+        rebuildForm.querySelectorAll('input[name="ids[]"]').forEach(i => i.remove());
+        checked.forEach(cb => {
+          const hidden = document.createElement('input');
+          hidden.type = 'hidden';
+          hidden.name = 'ids[]';
+          hidden.value = cb.value;
+          rebuildForm.appendChild(hidden);
+        });
+      }
+    };
 
-    rows.forEach(tr=>{
-      const text = tr.textContent.toLowerCase();
-      const okText = !term || text.includes(term);
-      const okZone = !z || tr.dataset.zone === z;
-      const okStatus = !s || tr.dataset.status === s;
-      tr.style.display = (okText && okZone && okStatus) ? '' : 'none';
+    selectAll?.addEventListener('change', function () {
+      boxes().forEach(cb => { cb.checked = this.checked; });
+      refresh();
     });
-
-    // persist
-    save('frag_f_q', q.value||'');
-    save('frag_f_z', z||'');
-    save('frag_f_s', s||'');
-  }
-
-  // восстановить
-  q.value = load('frag_f_q') || '';
-  zone.value = load('frag_f_z') || '';
-  status.value = load('frag_f_s') || '';
-  [q, zone, status].forEach(el=> el?.addEventListener('input', applyFilters));
-  resetBtn.addEventListener('click', ()=>{
-    q.value=''; zone.value=''; status.value='';
-    applyFilters();
-  });
-  applyFilters();
-
-  // ===== сортировка =====
-  const headCells = $$('#fragmentsTable thead th.sortable');
-  let sortState = JSON.parse(load('frag_sort') || '{"col":4,"dir":"desc"}');
-
-  function parseDate(d){ // d.m.Y H:i
-    if(!d) return 0;
-    const m = d.match(/(\d{2})\.(\d{2})\.(\d{4})\s+(\d{2}):(\d{2})/);
-    if(!m) return 0;
-    return new Date(+m[3], +m[2]-1, +m[1], +m[4], +m[5]).getTime();
-    }
-  function cmp(a,b,type){
-    if(type==='num') return (+a) - (+b);
-    if(type==='date') return parseDate(a) - parseDate(b);
-    return a.localeCompare(b, 'ru', {numeric:true, sensitivity:'base'});
-  }
-  function doSort(col, type, dir){
-    const tbody = $('#fragmentsTable tbody');
-    const trs = $$('#fragmentsTable tbody tr').filter(tr=>tr.style.display!=='none');
-    trs.sort((r1,r2)=>{
-      const a = r1.children[col].innerText.trim();
-      const b = r2.children[col].innerText.trim();
-      const res = cmp(a,b,type);
-      return dir==='asc' ? res : -res;
-    });
-    trs.forEach(tr=>tbody.appendChild(tr));
-    headCells.forEach(th=>th.classList.remove('bg-gray-100'));
-    headCells.find(th=>+th.dataset.col===col)?.classList.add('bg-gray-100');
-
-    sortState = {col, type, dir};
-    save('frag_sort', JSON.stringify(sortState));
-  }
-  headCells.forEach(th=>{
-    th.addEventListener('click', ()=>{
-      const col = +th.dataset.col;
-      const type = th.dataset.type;
-      const dir = (sortState.col===col && sortState.dir==='asc') ? 'desc' : 'asc';
-      doSort(col,type,dir);
-    });
-  });
-  // инициализация сортировки
-  doSort(sortState.col, sortState.type|| (headCells.find(h=>+h.dataset.col===sortState.col)?.dataset.type || 'text'), sortState.dir || 'desc');
-
-  // ===== копирование slug =====
-  $$('.copy-slug').forEach(b=>{
-    b.addEventListener('click', async ()=>{
-      try{ await navigator.clipboard.writeText(b.dataset.slug||''); b.textContent='✅'; setTimeout(()=>b.textContent='📋',800);}catch{}
-    });
-  });
-
-  // ===== предпросмотр =====
-  const pvModal = $('#pvModal'), pvFrame = $('#pvFrame'), pvWrap = $('#pvWrap');
-  const pvDark  = $('#pvDark'), pvWidth = $('#pvWidth'), pvClose = $('#pvClose');
-
-  const LOCAL_ASSETS = {
-    tailwind: @json(local_css('tailwind.min.css')),
-    fa: @json(local_css('font-awesome/all.min.css'))
-  };
-  function iconCdn(){ return `<link rel="stylesheet" href="${LOCAL_ASSETS.fa}">`; }
-  function buildSrcDoc(html, dark=false){
-    const safe = (html||'').replace(/<script[\s\S]*?<\/script>/gi,'');
-    return `<!doctype html><html class="${dark?'dark':''}"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1" />
-<link href="${LOCAL_ASSETS.tailwind}" rel="stylesheet">
-${iconCdn()}
-</head><body class="p-4">${safe}</body></html>`;
-  }
-  function openPreview(templateId){
-    const tpl = document.getElementById(templateId);
-    if(!tpl) return;
-    pvFrame.srcdoc = buildSrcDoc(tpl.innerHTML, pvDark.checked);
-    pvModal.classList.remove('hidden'); pvModal.classList.add('flex');
-  }
-  function closePreview(){ pvModal.classList.add('hidden'); pvModal.classList.remove('flex'); }
-
-  $$('.preview-btn').forEach(btn=>{
-    btn.addEventListener('click', ()=> openPreview(btn.dataset.frag));
-  });
-  pvClose.addEventListener('click', closePreview);
-  pvDark.addEventListener('change', ()=>{
-    const doc = pvFrame.contentDocument; if(!doc) return;
-    pvFrame.srcdoc = buildSrcDoc(doc.body.innerHTML, pvDark.checked);
-  });
-  pvWidth.addEventListener('change', ()=>{
-    const v = pvWidth.value;
-    pvWrap.style.width = (v==='full') ? '100%' : (v+'px');
-  });
+    boxes().forEach(cb => cb.addEventListener('change', refresh));
+    refresh();
+  })();
 </script>
-@endsection
+@endpush

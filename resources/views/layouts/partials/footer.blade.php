@@ -1,3 +1,10 @@
+{{-- 🧩 Зона фрагмента: собственный блок над подвалом сайта.
+     Ничего не выводится, если фрагмента нет, он выключен или пуст. --}}
+@php $fragmentFooter = \Modules\Visual\Support\FragmentRenderer::zone('frontend.footer'); @endphp
+@if($fragmentFooter)
+    <div class="fragment-zone fragment-zone--footer">{!! $fragmentFooter !!}</div>
+@endif
+
 <footer class="relative text-sm mt-16" style="color:var(--color-text,#6b7280)">
     <!-- фон-паттерн темы -->
     <div class="absolute inset-0 z-0 opacity-10 pointer-events-none"

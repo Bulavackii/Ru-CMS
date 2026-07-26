@@ -240,3 +240,10 @@
         })();
     </script>
 </header>
+
+{{-- 🧩 Зона фрагмента: полоса под шапкой панели (объявления для редакторов).
+     Пусто или выключено — не выводится ничего. --}}
+@php $fragmentAdminHeader = \Modules\Visual\Support\FragmentRenderer::zone('admin.header'); @endphp
+@if($fragmentAdminHeader)
+    <div class="fragment-zone fragment-zone--admin-header">{!! $fragmentAdminHeader !!}</div>
+@endif

@@ -9,6 +9,12 @@
     скруглять/срезать не нужно, кроме одного места ниже (rx у Rutube — это
     геометрия SVG, CSS border-radius на неё не действует).
 --}}
+{{-- 🧩 Зона фрагмента: блок над подвалом панели --}}
+@php $fragmentAdminFooter = \Modules\Visual\Support\FragmentRenderer::zone('admin.footer'); @endphp
+@if($fragmentAdminFooter)
+    <div class="fragment-zone fragment-zone--admin-footer">{!! $fragmentAdminFooter !!}</div>
+@endif
+
 <footer class="admin-glass mt-auto border-t text-sm text-gray-600 dark:text-gray-400">
 <div class="admin-accent-bar" aria-hidden="true"></div>
 @php
