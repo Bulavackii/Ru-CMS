@@ -13,7 +13,7 @@
         </div>
         <button @click="show = false" 
                 class="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200 transition"
-                aria-label="Закрыть">
+                aria-label="{{ __('admin.common.close') }}">
             <i class="fas fa-times"></i>
         </button>
     </div>
@@ -34,7 +34,7 @@
         </div>
         <button @click="show = false" 
                 class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 transition"
-                aria-label="Закрыть">
+                aria-label="{{ __('admin.common.close') }}">
             <i class="fas fa-times"></i>
         </button>
     </div>
@@ -55,7 +55,7 @@
         </div>
         <button @click="show = false" 
                 class="text-yellow-600 dark:text-yellow-400 hover:text-yellow-800 dark:hover:text-yellow-200 transition"
-                aria-label="Закрыть">
+                aria-label="{{ __('admin.common.close') }}">
             <i class="fas fa-times"></i>
         </button>
     </div>
@@ -76,7 +76,7 @@
         </div>
         <button @click="show = false" 
                 class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 transition"
-                aria-label="Закрыть">
+                aria-label="{{ __('admin.common.close') }}">
             <i class="fas fa-times"></i>
         </button>
     </div>
@@ -101,7 +101,7 @@
             </div>
             <button @click="show = false" 
                     class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 transition flex-shrink-0"
-                    aria-label="Закрыть">
+                    aria-label="{{ __('admin.common.close') }}">
                 <i class="fas fa-times"></i>
             </button>
         </div>

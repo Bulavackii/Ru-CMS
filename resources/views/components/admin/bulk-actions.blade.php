@@ -5,25 +5,25 @@
          style="display: none;">
         <div class="flex items-center gap-3">
             <span class="font-medium text-blue-900 dark:text-blue-100">
-                Выбрано: <span x-text="selected.length"></span>
+                {{ __('admin.common.selected') }}: <span x-text="selected.length"></span>
             </span>
         </div>
         <div class="flex gap-2">
             <button @click="bulkAction('delete')" 
                     class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
-                <i class="fas fa-trash mr-2"></i>Удалить
+                <i class="fas fa-trash mr-2"></i>{{ __('admin.delete') }}
             </button>
             <button @click="bulkAction('publish')" 
                     class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
-                <i class="fas fa-check mr-2"></i>Опубликовать
+                <i class="fas fa-check mr-2"></i>{{ __('admin.common.publish') }}
             </button>
             <button @click="bulkAction('unpublish')" 
                     class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition">
-                <i class="fas fa-times mr-2"></i>Снять с публикации
+                <i class="fas fa-times mr-2"></i>{{ __('admin.common.unpublish') }}
             </button>
             <button @click="clearSelection()" 
                     class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
-                Отменить
+                {{ __('admin.cancel') }}
             </button>
         </div>
     </div>
@@ -70,7 +70,7 @@ function bulkActions() {
                 }
             } catch (error) {
                 console.error('Bulk action error:', error);
-                alert('Ошибка при выполнении действия');
+                alert(@js(__('admin.error')));
             }
         },
         

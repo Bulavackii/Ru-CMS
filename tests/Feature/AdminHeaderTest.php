@@ -129,6 +129,7 @@ class AdminHeaderTest extends TestCase
     public function test_global_search_finds_admin_sections(): void
     {
         $response = $this->actingAs($this->admin())
+            ->withSession(['app_locale' => 'ru'])
             ->getJson(route('admin.search.global', ['q' => 'оформление']));
 
         $response->assertStatus(200);
@@ -146,6 +147,7 @@ class AdminHeaderTest extends TestCase
         // вытаскивал половину разделов через «Сис-ТЕМ-а», занимал весь лимит
         // и выталкивал настоящие «Темы» из выдачи
         $response = $this->actingAs($this->admin())
+            ->withSession(['app_locale' => 'ru'])
             ->getJson(route('admin.search.global', ['q' => 'тем']));
 
         $first = $response->json('results.0');
@@ -160,6 +162,7 @@ class AdminHeaderTest extends TestCase
         $user = User::factory()->create(['name' => 'Путешественник', 'email' => 'traveler@example.com']);
 
         $response = $this->actingAs($this->admin())
+            ->withSession(['app_locale' => 'ru'])
             ->getJson(route('admin.search.global', ['q' => 'Путешес']));
 
         $results = collect($response->json('results'));
@@ -216,7 +219,7 @@ class AdminHeaderTest extends TestCase
         // Название раздела на месте, а хлебной крошки «Панель /» больше нет:
         // она называлась «Панель», но вела на /admin/news
         $response->assertSee('ahd-section', false);
-        $response->assertSee('Новости', false);
+        $response->assertSee(__('admin.sections.news'), false);
         $response->assertDontSee('>Панель<', false);
     }
 

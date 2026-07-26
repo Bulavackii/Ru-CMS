@@ -42,7 +42,7 @@ class GlobalSearchController extends Controller
             // Список общий с сайдбаром (App\Support\AdminSections).
             foreach (AdminSections::search($query) as $section) {
                 $results[] = [
-                    'type' => 'Раздел',
+                    'type' => __('admin.search_types.section'),
                     'title' => $section['label'],
                     'subtitle' => $section['group'],
                     'url' => $section['url'],
@@ -59,7 +59,7 @@ class GlobalSearchController extends Controller
                 
                 foreach ($news as $item) {
                     $results[] = [
-                        'type' => 'Новость',
+                        'type' => __('admin.search_types.news'),
                         'title' => $item->title,
                         'url' => route('admin.news.edit', $item->id),
                         'icon' => 'fas fa-newspaper text-blue-500',
@@ -78,7 +78,7 @@ class GlobalSearchController extends Controller
                 
                 foreach ($pages as $item) {
                     $results[] = [
-                        'type' => 'Страница',
+                        'type' => __('admin.search_types.page'),
                         'title' => $item->title,
                         'url' => route('admin.pages.edit', $item->id),
                         'icon' => 'fas fa-file text-green-500',
@@ -97,7 +97,7 @@ class GlobalSearchController extends Controller
                 
                 foreach ($users as $item) {
                     $results[] = [
-                        'type' => 'Пользователь',
+                        'type' => __('admin.search_types.user'),
                         'title' => $item->name,
                         // E-mail — подпись, а не часть заголовка: так видно, кого
                         // именно нашли, когда имена совпадают
@@ -120,7 +120,7 @@ class GlobalSearchController extends Controller
 
                 foreach ($categories as $item) {
                     $results[] = [
-                        'type' => 'Категория',
+                        'type' => __('admin.search_types.category'),
                         'title' => $item->title,
                         'url' => route('admin.categories.edit', $item->id),
                         'icon' => 'fas fa-folder text-orange-500',
@@ -138,7 +138,7 @@ class GlobalSearchController extends Controller
                 
                 foreach ($menus as $item) {
                     $results[] = [
-                        'type' => 'Меню',
+                        'type' => __('admin.search_types.menu'),
                         'title' => $item->title,
                         'url' => route('admin.menus.edit', $item->id),
                         'icon' => 'fas fa-bars text-indigo-500',

@@ -24,11 +24,11 @@
         
         {{-- Заголовок --}}
         <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-            <h3 class="font-semibold text-gray-900 dark:text-white">Уведомления</h3>
+            <h3 class="font-semibold text-gray-900 dark:text-white">{{ __('admin.sections.notifications') }}</h3>
             <button @click="markAllAsRead()" 
                     x-show="unreadCount > 0"
                     class="text-sm text-blue-600 hover:text-blue-700">
-                Отметить все как прочитанные
+                {{ __('admin.common.mark_all_read') }}
             </button>
         </div>
 
@@ -37,14 +37,14 @@
             <template x-if="loading">
                 <div class="p-8 text-center text-gray-500">
                     <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
-                    <p>Загрузка...</p>
+                    <p>{{ __('admin.loading') }}</p>
                 </div>
             </template>
 
             <template x-if="!loading && notifications.length === 0">
                 <div class="p-8 text-center text-gray-500">
                     <i class="fas fa-bell-slash text-2xl mb-2"></i>
-                    <p>Нет уведомлений</p>
+                    <p>{{ __('admin.common.no_notifications') }}</p>
                 </div>
             </template>
 

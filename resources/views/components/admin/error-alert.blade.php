@@ -32,7 +32,7 @@
         @if($dismissible)
             <button @click="show = false" 
                     class="flex-shrink-0 text-current opacity-50 hover:opacity-100 transition"
-                    aria-label="Закрыть">
+                    aria-label="{{ __('admin.common.close') }}">
                 <i class="fas fa-times"></i>
             </button>
         @endif

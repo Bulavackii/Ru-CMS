@@ -3,7 +3,7 @@
     <button @click="open = !open"
             class="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition">
         <i class="fas fa-filter"></i>
-        <span>Фильтры</span>
+        <span>{{ __('admin.common.filters') }}</span>
         <span x-show="activeFiltersCount > 0" 
               x-text="'(' + activeFiltersCount + ')'"
               class="bg-blue-600 text-white px-2 py-0.5 rounded-full text-xs"></span>
@@ -22,16 +22,16 @@
         <div class="mt-4 flex items-center justify-between">
             <button @click="clearFilters()" 
                     class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
-                Сбросить фильтры
+                {{ __('admin.common.reset_filters') }}
             </button>
             <div class="flex gap-2">
                 <button @click="saveFilterPreset()" 
                         class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                    Сохранить как шаблон
+                    {{ __('admin.common.save_as_template') }}
                 </button>
                 <button @click="applyFilters()" 
                         class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
-                    Применить
+                    {{ __('admin.common.apply') }}
                 </button>
             </div>
         </div>

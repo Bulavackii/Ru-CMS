@@ -27,37 +27,37 @@ class AdminSections
     public static function groups(): array
     {
         $groups = [
-            'Контент' => [
-                self::link('Меню', 'admin.menus.index', 'dashboard', 'admin.menus.*', ['навигация', 'пункты', 'ссылки']),
-                self::link('Новости', 'admin.news.index', 'file-text', 'admin.news.*', ['статьи', 'публикации', 'блог']),
-                self::link('Страницы', 'admin.pages.index', 'file-text', 'admin.pages.*', ['текст', 'контент']),
-                self::link('Категории', 'admin.categories.index', 'folder', 'admin.categories.*', ['рубрики', 'разделы']),
-                self::link('Слайдшоу', 'admin.slideshow.index', 'image', 'admin.slideshow.*', ['слайдер', 'баннер', 'карусель']),
-                self::link('Файлы', 'admin.files.index', 'folder', 'admin.files.*', ['медиа', 'картинки', 'изображения', 'загрузки']),
-                self::link('Импорт/Экспорт', 'admin.newsio.index', 'arrow-up', 'admin.newsio.*', ['выгрузка', 'загрузка', 'csv']),
+            __('admin.section_groups.content') => [
+                self::link('menus', 'admin.menus.index', 'dashboard', 'admin.menus.*'),
+                self::link('news', 'admin.news.index', 'file-text', 'admin.news.*'),
+                self::link('pages', 'admin.pages.index', 'file-text', 'admin.pages.*'),
+                self::link('categories', 'admin.categories.index', 'folder', 'admin.categories.*'),
+                self::link('slideshow', 'admin.slideshow.index', 'image', 'admin.slideshow.*'),
+                self::link('files', 'admin.files.index', 'folder', 'admin.files.*'),
+                self::link('newsio', 'admin.newsio.index', 'arrow-up', 'admin.newsio.*'),
             ],
 
-            'Система' => [
-                self::url('Модули', '/admin/modules', 'puzzle', 'admin/modules', ['расширения', 'плагины']),
-                self::url('Пользователи', '/admin/users', 'user', 'admin/users', ['админы', 'аккаунты', 'роли', 'доступ']),
-                self::url('Поиск', '/admin/search', 'search', 'admin/search', ['найти']),
-                self::link('Уведомления', 'admin.notifications.index', 'bell', 'admin.notifications.*', ['оповещения', 'push', 'рассылка'], 'notifications'),
+            __('admin.section_groups.system') => [
+                self::url('modules', '/admin/modules', 'puzzle', 'admin/modules'),
+                self::url('users', '/admin/users', 'user', 'admin/users'),
+                self::url('search', '/admin/search', 'search', 'admin/search'),
+                self::link('notifications', 'admin.notifications.index', 'bell', 'admin.notifications.*', 'notifications'),
                 // SEO живёт в отдельном модуле с собственным префиксом маршрутов,
                 // поэтому активным раздел считается и по имени маршрута, и по пути
-                (self::link('SEO', 'seo.pages.index', 'search', 'seo.*', ['мета', 'описание', 'sitemap', 'продвижение'])
-                    ?? self::url('SEO', '/admin/seo/pages', 'search', 'admin/seo*', ['мета', 'описание', 'sitemap', 'продвижение']))
+                (self::link('seo', 'seo.pages.index', 'search', 'seo.*')
+                    ?? self::url('seo', '/admin/seo/pages', 'search', 'admin/seo*'))
                     + ['also' => 'admin/seo*'],
-                self::link('Темы', 'admin.visual.themes.index', 'palette', 'admin.visual.themes.*', ['оформление', 'дизайн', 'цвета', 'шрифт']),
-                self::link('Фрагменты', 'admin.visual.fragments.index', 'puzzle', 'admin.visual.fragments.*', ['блоки', 'вставки', 'html']),
-                self::link('Локализация', 'admin.localization.index', 'globe', 'admin.localization.*', ['языки', 'переводы', 'страны', 'форматы']),
-                self::link('Каптча', 'admin.captcha.index', 'shield', 'admin.captcha.*', ['captcha', 'защита', 'спам', 'боты', 'формы']),
-                self::url('Спецвозможности', '/admin/accessibility', 'user', 'admin/accessibility*', ['доступность', 'контраст']),
+                self::link('themes', 'admin.visual.themes.index', 'palette', 'admin.visual.themes.*'),
+                self::link('fragments', 'admin.visual.fragments.index', 'puzzle', 'admin.visual.fragments.*'),
+                self::link('localization', 'admin.localization.index', 'globe', 'admin.localization.*'),
+                self::link('captcha', 'admin.captcha.index', 'shield', 'admin.captcha.*'),
+                self::url('accessibility', '/admin/accessibility', 'user', 'admin/accessibility*'),
             ],
 
-            'Оплата' => [
-                self::link('Оплата', 'admin.payments.index', 'credit-card', 'admin.payments.*', ['платежи', 'эквайринг', 'касса']),
-                self::link('Заказы', 'admin.orders.index', 'shopping-cart', 'admin.orders.*', ['покупки', 'корзина'], 'orders'),
-                self::link('Доставка', 'admin.delivery.index', 'truck', 'admin.delivery.*', ['отправка', 'курьер']),
+            __('admin.section_groups.payments') => [
+                self::link('payments', 'admin.payments.index', 'credit-card', 'admin.payments.*'),
+                self::link('orders', 'admin.orders.index', 'shopping-cart', 'admin.orders.*', 'orders'),
+                self::link('delivery', 'admin.delivery.index', 'truck', 'admin.delivery.*'),
             ],
         ];
 
@@ -76,7 +76,7 @@ class AdminSections
      */
     public static function dashboard(): ?array
     {
-        return self::link('Дашборд', 'admin.dashboard', 'dashboard', 'admin.dashboard', ['главная', 'обзор', 'статистика', 'сводка']);
+        return self::link('dashboard', 'admin.dashboard', 'dashboard', 'admin.dashboard');
     }
 
     /**
@@ -89,7 +89,7 @@ class AdminSections
         $flat = [];
 
         if ($dashboard = self::dashboard()) {
-            $flat[] = $dashboard + ['group' => 'Панель'];
+            $flat[] = $dashboard + ['group' => __('admin.section_groups.panel')];
         }
 
         foreach (self::groups() as $group => $links) {
@@ -151,13 +151,17 @@ class AdminSections
     /**
      * Пункт по имени маршрута. Возвращает null, если маршрута нет
      * (модуль отключён) — вызывающий код такие пункты отбрасывает.
+     *
+     * $key — ключ словаря admin.php (в каталоге каждой локали), а не готовая
+     * подпись: по нему берутся и название раздела, и синонимы для поиска.
+     * Раньше здесь были русские литералы, и панель оставалась русской при
+     * любом выбранном языке.
      */
     private static function link(
-        string $label,
+        string $key,
         string $route,
         string $icon,
         string $pattern,
-        array $keywords = [],
         ?string $counter = null,
     ): ?array {
         if (! Route::has($route)) {
@@ -165,12 +169,13 @@ class AdminSections
         }
 
         return [
-            'label'    => $label,
+            'key'      => $key,
+            'label'    => __('admin.sections.' . $key),
             'url'      => route($route),
             'icon'     => $icon,
             'pattern'  => $pattern,
             'is_route' => true,
-            'keywords' => $keywords,
+            'keywords' => self::keywords($key),
             // Ключ из App\Support\AdminCounters — у раздела рядом с названием
             // покажется число «есть новое». null — счётчика нет.
             'counter'  => $counter,
@@ -182,16 +187,34 @@ class AdminSections
      * Путь остаётся относительным (как было в разметке сайдбара): абсолютный
      * URL прибил бы схему и хост, что мешает за прокси и в тестах.
      */
-    private static function url(string $label, string $path, string $icon, string $pattern, array $keywords = []): array
+    private static function url(string $key, string $path, string $icon, string $pattern): array
     {
         return [
-            'label'    => $label,
+            'key'      => $key,
+            'label'    => __('admin.sections.' . $key),
             'url'      => $path,
             'icon'     => $icon,
             'pattern'  => $pattern,
             'is_route' => false,
-            'keywords' => $keywords,
+            'keywords' => self::keywords($key),
             'counter'  => null,
         ];
+    }
+
+    /**
+     * Синонимы раздела для поиска. В словаре лежат строкой через запятую —
+     * так их проще держать в семи локалях и сверять командой lang:check,
+     * которая сравнивает ключи, а не длину вложенных массивов.
+     */
+    private static function keywords(string $key): array
+    {
+        $line = __('admin.section_keywords.' . $key);
+
+        // Ключа нет — переводчик вернёт саму строку ключа
+        if ($line === 'admin.section_keywords.' . $key) {
+            return [];
+        }
+
+        return array_values(array_filter(array_map('trim', explode(',', $line))));
     }
 }

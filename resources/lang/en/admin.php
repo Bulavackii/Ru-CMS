@@ -18,7 +18,6 @@ return [
     'error' => 'An error occurred',
 
     // Шапка панели: подписи кнопок, поиска, переключателей языка и оформления.
-    // Ключи одинаковы во всех локалях — сверяются командой lang:check.
     'header' => [
         'section' => 'Section',
         'overview' => 'Overview',
@@ -63,7 +62,6 @@ return [
     ],
 
     // Подвал панели: техническая сводка, статистика, разработчик.
-    // Ключи одинаковы во всех локалях — сверяются командой lang:check.
     'footer' => [
         'tagline' => 'Modular CMS built on Laravel',
         'tech' => 'Technical details',
@@ -85,5 +83,90 @@ return [
         'developer' => 'Developer',
         'repository' => 'Repository',
         'installed' => 'Installed',
+    ],
+
+    // Названия разделов. Источник — App\Support\AdminSections: по ним строятся сайдбар, мобильное меню, крошка в шапке и глобальный поиск.
+    'sections' => [
+        'dashboard' => 'Dashboard',
+        'menus' => 'Menus',
+        'news' => 'News',
+        'pages' => 'Pages',
+        'categories' => 'Categories',
+        'slideshow' => 'Slideshow',
+        'files' => 'Files',
+        'newsio' => 'Import/Export',
+        'modules' => 'Modules',
+        'users' => 'Users',
+        'search' => 'Search',
+        'notifications' => 'Notifications',
+        'seo' => 'SEO',
+        'themes' => 'Themes',
+        'fragments' => 'Fragments',
+        'localization' => 'Localization',
+        'captcha' => 'Captcha',
+        'accessibility' => 'Accessibility',
+        'payments' => 'Payments',
+        'orders' => 'Orders',
+        'delivery' => 'Delivery',
+    ],
+
+    // Группы разделов в навигации.
+    'section_groups' => [
+        'content' => 'Content',
+        'system' => 'System',
+        'payments' => 'Payments',
+        'panel' => 'Panel',
+    ],
+
+    // Синонимы для поиска по разделам, через запятую. Без перевода поиск разделов на других языках слепнет.
+    'section_keywords' => [
+        'dashboard' => 'home, overview, statistics, summary',
+        'menus' => 'navigation, items, links',
+        'news' => 'articles, posts, blog',
+        'pages' => 'text, content',
+        'categories' => 'rubrics, sections',
+        'slideshow' => 'slider, banner, carousel',
+        'files' => 'media, images, pictures, uploads',
+        'newsio' => 'export, import, csv',
+        'modules' => 'extensions, plugins',
+        'users' => 'admins, accounts, roles, access',
+        'search' => 'find',
+        'notifications' => 'alerts, push, mailing',
+        'seo' => 'meta, description, sitemap, promotion',
+        'themes' => 'appearance, design, colors, font',
+        'fragments' => 'blocks, snippets, html',
+        'localization' => 'languages, translations, countries, formats',
+        'captcha' => 'captcha, protection, spam, bots, forms',
+        'accessibility' => 'a11y, contrast',
+        'payments' => 'billing, acquiring, checkout',
+        'orders' => 'purchases, cart',
+        'delivery' => 'shipping, courier',
+    ],
+
+    // Типы результатов глобального поиска.
+    'search_types' => [
+        'section' => 'Section',
+        'news' => 'News item',
+        'page' => 'Page',
+        'user' => 'User',
+        'category' => 'Category',
+        'menu' => 'Menu',
+    ],
+
+    // Подписи, повторяющиеся на каждой странице панели.
+    'common' => [
+        'close' => 'Close',
+        'selected' => 'Selected',
+        'publish' => 'Publish',
+        'unpublish' => 'Unpublish',
+        'filters' => 'Filters',
+        'reset_filters' => 'Reset filters',
+        'save_as_template' => 'Save as template',
+        'apply' => 'Apply',
+        'preview' => 'Preview',
+        'mark_all_read' => 'Mark all as read',
+        'no_notifications' => 'No notifications',
+        'details' => 'Details',
+        'example' => 'example',
     ],
 ];

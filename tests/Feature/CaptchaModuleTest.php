@@ -88,8 +88,10 @@ class CaptchaModuleTest extends TestCase
 
     public function test_section_is_in_the_shared_list_and_in_navigation(): void
     {
-        $labels = array_column(AdminSections::all(), 'label');
-        $this->assertContains('Каптча', $labels);
+        // Подписи разделов теперь переводятся, поэтому сверяем ключ, а не
+        // русский литерал: на английской локали его в списке не будет
+        $keys = array_column(AdminSections::all(), 'key');
+        $this->assertContains('captcha', $keys);
 
         $this->actingAs($this->admin())->get(route('admin.dashboard'))
             ->assertSee('href="' . route('admin.captcha.index') . '"', false);
@@ -98,6 +100,7 @@ class CaptchaModuleTest extends TestCase
     public function test_section_is_findable_through_global_search(): void
     {
         $response = $this->actingAs($this->admin())
+            ->withSession(['app_locale' => 'ru'])
             ->getJson(route('admin.search.global', ['q' => 'спам']));
 
         // Ищется и по синониму, а не только по точному названию
