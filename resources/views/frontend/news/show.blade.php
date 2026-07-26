@@ -64,7 +64,11 @@
         {{-- ===== Контент ===== --}}
         <div class="fx-card p-6 sm:p-8 md:p-10 mb-6">
             <div class="prose prose-sm sm:prose lg:prose-lg max-w-none news-content text-gray-800 dark:text-gray-100">
-                {!! $news->t('content') !!}
+                {{-- render_shortcodes: раскрывает [captcha preset="…"] и другие
+                     шорткоды, вставленные в текст через редактор. В самом HTML
+                     материала Blade-хелперы не работают — шаблонизатор к этому
+                     моменту уже отработал. --}}
+                {!! render_shortcodes($news->t('content')) !!}
             </div>
 
             {{-- Блок с ценой, остатком, количеством и кнопкой (товары) --}}

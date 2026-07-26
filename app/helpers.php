@@ -416,3 +416,63 @@ if (!function_exists('readable_ink')) {
         return (1.05 / ($luminance + 0.05)) >= 3.0 ? $light : $dark;
     }
 }
+
+/**
+ * 🔖 render_shortcodes() - Раскрытие шорткодов в содержимом материала.
+ *
+ * Текст новостей и страниц пишется в TinyMCE и хранится как HTML, поэтому
+ * вызовы Blade-хелперов в нём не сработают: шаблонизатор к этому моменту уже
+ * отработал. Чтобы сохранённую сборку каптчи можно было вставить прямо в
+ * материал, в тексте живёт шорткод [captcha preset="slug"], а разворачивается
+ * он здесь — при выводе.
+ *
+ * Неизвестный шорткод остаётся как есть: молча съедать кусок текста хуже,
+ * чем показать его. А вот несуществующий пресет ничего не рисует (см.
+ * captcha_preset) — материал со ссылкой на удалённую сборку должен
+ * открываться как обычно, а не падать.
+ *
+ * @param string|null $html Содержимое материала
+ */
+if (!function_exists('render_shortcodes')) {
+    function render_shortcodes(?string $html): string
+    {
+        $html = (string) $html;
+
+        if ($html === '' || !str_contains($html, '[captcha')) {
+            return $html;
+        }
+
+        return preg_replace_callback(
+            '~\[captcha\s+preset=(["\'])(?<slug>[a-z0-9\-_]+)\1\s*\]~i',
+            function (array $match): string {
+                if (!function_exists('captcha_preset')) {
+                    return '';
+                }
+
+                return (string) captcha_preset($match['slug']);
+            },
+            $html
+        ) ?? $html;
+    }
+}
+
+/**
+ * 🧹 strip_shortcodes() - Убрать шорткоды из текста.
+ *
+ * Нужна там, где содержимое материала превращается в ПРОСТОЙ текст: мета-описание
+ * страницы, сниппет в выдаче, письмо. Иначе посетитель видит в описании
+ * служебное [captcha preset="..."] — так и было, пока описание собиралось
+ * одним strip_tags(), который про шорткоды не знает.
+ */
+if (!function_exists('strip_shortcodes')) {
+    function strip_shortcodes(?string $text): string
+    {
+        $text = (string) $text;
+
+        if ($text === '' || !str_contains($text, '[')) {
+            return $text;
+        }
+
+        return trim(preg_replace('~\[[a-z_]+(?:\s+[^\]]*)?\]~i', '', $text) ?? $text);
+    }
+}

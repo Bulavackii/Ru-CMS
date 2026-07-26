@@ -333,7 +333,9 @@ class SeoSyncService
     protected function truncateDesc($value): ?string
     {
         if ($value === null || $value === '') return null;
-        return Str::limit(trim(strip_tags((string)$value)), 255);
+        // strip_shortcodes: иначе в мета-описание уезжает служебное
+        // [captcha preset="..."] и его видно в выдаче поисковика
+        return Str::limit(trim(strip_shortcodes(strip_tags((string)$value))), 255);
     }
 
     protected function sanitizeKeywords($value): ?string

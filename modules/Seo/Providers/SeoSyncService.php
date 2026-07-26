@@ -88,7 +88,7 @@ class SeoSyncService
 
         $title = trim((string)($n->seo_title ?? $n->meta_title ?? $n->title ?? ''));
         $desc  = $this->firstFilled($n, ['seo_description','meta_description','description','short','excerpt','content','body','text']);
-        $desc  = $desc ? Str::limit(trim(strip_tags((string)$desc)), 255) : null;
+        $desc  = $desc ? Str::limit(trim(strip_shortcodes(strip_tags((string)$desc))), 255) : null;
 
         $publishedRaw = $this->firstFilled($n, ['published','is_published','active'], 1);
         $published    = (bool)$publishedRaw;
@@ -116,7 +116,7 @@ class SeoSyncService
 
         $title = trim((string)($p->seo_title ?? $p->title ?? ''));
         $desc  = $this->firstFilled($p, ['seo_description','meta_description','description','content','body','text']);
-        $desc  = $desc ? Str::limit(trim(strip_tags((string)$desc)), 255) : null;
+        $desc  = $desc ? Str::limit(trim(strip_shortcodes(strip_tags((string)$desc))), 255) : null;
 
         $publishedRaw = $this->firstFilled($p, ['published','is_published','active'], 1);
         $published    = (bool)$publishedRaw;

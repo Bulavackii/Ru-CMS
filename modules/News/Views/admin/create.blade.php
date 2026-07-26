@@ -116,7 +116,10 @@
                 class="w-full border border-gray-300 dark:border-gray-700 px-3 py-2 dark:bg-gray-800 dark:text-gray-100"
                 rows="14">{{ old('content') }}</textarea>
             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Основной текст новости. Поддерживает форматирование, изображения и видео.</p>
-        </div>
+        
+            {{-- Вставка сохранённой сборки каптчи в текст материала --}}
+            @include('Captcha::partials.editor-picker')
+</div>
 
         {{-- ── Публикация и сохранение ── --}}
         <div class="admin-card p-5 flex flex-col sm:flex-row sm:items-center gap-4">

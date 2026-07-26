@@ -116,7 +116,10 @@
             <textarea name="content" id="editor" rows="12"
                       class="w-full border border-gray-300 dark:border-gray-700 px-3 py-2 dark:bg-gray-800 dark:text-white"
                       placeholder="Содержимое страницы: форматирование, изображения и видео.">{{ old('content', $page->content) }}</textarea>
-        </div>
+        
+            {{-- Вставка сохранённой сборки каптчи в текст материала --}}
+            @include('Captcha::partials.editor-picker')
+</div>
 
         {{-- ── Публикация и сохранение ── --}}
         <div class="admin-card p-5">

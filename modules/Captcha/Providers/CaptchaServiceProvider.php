@@ -20,12 +20,29 @@ class CaptchaServiceProvider extends ServiceProvider
             return new \Modules\Captcha\Services\CaptchaService();
         });
 
-        // Регистрация валидационного правила
+        // Правило валидации.
+        //
+        // 'captcha' без параметра — новый способ: тип берётся из самого
+        // выданного экземпляра по captcha_id, который приходит скрытым полем
+        // вместе с формой. Это единственный способ проверить ДВЕ каптчи на
+        // одной странице и не перепутать их между собой.
+        //
+        // 'captcha:image' со старым параметром работает как раньше: сверяется
+        // самый свежий экземпляр указанного типа. На этой форме держатся
+        // модуль Комментариев и уже написанные пользователем формы.
         Validator::extend('captcha', function ($attribute, $value, $parameters, $validator) {
-            $type = $parameters[0] ?? 'image';
             $service = app('captcha');
-            return $service->verify($value, $type);
+            $data = $validator->getData();
+            $instanceId = $data['captcha_id'] ?? null;
+
+            if (empty($parameters) && is_string($instanceId) && $instanceId !== '') {
+                return $service->verifyInstance((string) $value, $instanceId);
+            }
+
+            return $service->verify((string) $value, $parameters[0] ?? 'image', is_string($instanceId) ? $instanceId : null);
         });
+
+        Validator::replacer('captcha', fn () => 'Проверочный код введён неверно.');
     }
 
     public function boot()

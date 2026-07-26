@@ -53,7 +53,8 @@
         {{-- ===== Контент ===== --}}
         <div class="fx-card p-6 sm:p-8 md:p-10 mb-6">
             <div class="prose prose-sm sm:prose lg:prose-lg dark:prose-invert max-w-none page-content text-gray-800 dark:text-gray-100">
-                {!! $page->t('content') !!}
+                {{-- Шорткоды из редактора (например, вставленная каптча) --}}
+                {!! render_shortcodes($page->t('content')) !!}
             </div>
         </div>
 

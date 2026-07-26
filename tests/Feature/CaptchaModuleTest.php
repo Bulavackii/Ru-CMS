@@ -50,9 +50,10 @@ class CaptchaModuleTest extends TestCase
         $html = $this->actingAs($this->admin())->get(route('admin.captcha.index'))->getContent();
 
         // Примеры должны быть видны КАК ТЕКСТ — вместе с директивами Blade
-        $this->assertStringContainsString('captcha_img(', $html);
-        $this->assertStringContainsString('required|captcha:image', $html);
+        $this->assertStringContainsString('captcha_preset(', $html);
+        $this->assertStringContainsString("required|captcha", $html);
         $this->assertStringContainsString('@csrf', $html);
+        $this->assertStringContainsString('[captcha preset=', $html);
 
         // Внутри самих примеров не должно быть следов компиляции: искать
         // name="_token" по ВСЕЙ странице нельзя — свои формы с CSRF есть и
