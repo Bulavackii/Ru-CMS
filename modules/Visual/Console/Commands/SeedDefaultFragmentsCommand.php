@@ -48,16 +48,15 @@ class SeedDefaultFragmentsCommand extends Command
     <span>Работаем ежедневно с 9:00 до 20:00</span>
     <a href="/contacts" class="frg-topbar__link">Связаться</a>
 </div>
-
-<style>
+HTML,
+                'css'   => <<<'CSS'
 .frg-topbar{display:flex;align-items:center;justify-content:center;gap:.6rem;flex-wrap:wrap;
     padding:.55rem 1rem;font-size:.82rem;letter-spacing:.01em;color:#fff;
     background:var(--fx-grad, linear-gradient(135deg,#6366f1,#8b5cf6));}
 .frg-topbar__dot{width:.45rem;height:.45rem;border-radius:999px;background:#fff;opacity:.8;flex:none;}
 .frg-topbar__link{color:#fff;text-decoration:underline;text-underline-offset:2px;font-weight:600;}
 .frg-topbar__link:hover{opacity:.85;}
-</style>
-HTML,
+CSS,
             ],
 
             [
@@ -72,8 +71,8 @@ HTML,
         <a href="/page/chastye-voprosy" class="frg-underhead__link">Открыть раздел →</a>
     </div>
 </div>
-
-<style>
+HTML,
+                'css'   => <<<'CSS'
 .frg-underhead{border-bottom:1px solid rgba(17,24,39,.08);}
 .frg-underhead__inner{max-width:1280px;margin:0 auto;padding:.7rem 1rem;display:flex;align-items:center;
     gap:.7rem;flex-wrap:wrap;font-size:.86rem;color:var(--color-text,#111827);}
@@ -82,8 +81,7 @@ HTML,
 .frg-underhead__text{opacity:.85;}
 .frg-underhead__link{margin-left:auto;font-weight:600;color:var(--color-primary,#6366f1);white-space:nowrap;}
 .frg-underhead__link:hover{text-decoration:underline;}
-</style>
-HTML,
+CSS,
             ],
 
             [
@@ -98,8 +96,8 @@ HTML,
     </div>
     <a href="/contacts" class="frg-cta__btn">Написать нам</a>
 </div>
-
-<style>
+HTML,
+                'css'   => <<<'CSS'
 .frg-cta{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;
     padding:1.1rem 1.35rem;border:1px solid rgba(17,24,39,.1);
     background:linear-gradient(135deg, rgba(99,102,241,.06), transparent);}
@@ -108,8 +106,7 @@ HTML,
 .frg-cta__btn{display:inline-flex;align-items:center;padding:.55rem 1.15rem;font-size:.85rem;font-weight:600;
     color:#fff;background:var(--fx-grad, linear-gradient(135deg,#6366f1,#8b5cf6));white-space:nowrap;}
 .frg-cta__btn:hover{filter:brightness(1.07);color:#fff;}
-</style>
-HTML,
+CSS,
             ],
 
             [
@@ -124,16 +121,15 @@ HTML,
     <span class="frg-preftr__sep">·</span>
     <a href="/page/chastye-voprosy">Вопросы и ответы</a>
 </div>
-
-<style>
+HTML,
+                'css'   => <<<'CSS'
 .frg-preftr{max-width:1280px;margin:0 auto;padding:.9rem 1rem;display:flex;align-items:center;
     justify-content:center;gap:.5rem;flex-wrap:wrap;font-size:.8rem;opacity:.75;
     color:var(--color-text,#6b7280);}
 .frg-preftr a{color:var(--color-primary,#6366f1);font-weight:500;}
 .frg-preftr a:hover{text-decoration:underline;}
 .frg-preftr__sep{opacity:.5;}
-</style>
-HTML,
+CSS,
             ],
 
             [
@@ -150,8 +146,8 @@ HTML,
     </span>
     <a href="/admin/visual/fragments" class="frg-adm-tip__link">Открыть раздел</a>
 </div>
-
-<style>
+HTML,
+                'css'   => <<<'CSS'
 .frg-adm-tip{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;padding:.65rem 1.25rem;
     font-size:.82rem;line-height:1.45;color:#312e81;background:#eef2ff;
     border-bottom:1px solid rgba(99,102,241,.25);}
@@ -160,8 +156,7 @@ HTML,
 .frg-adm-tip__link{flex:none;padding:.3rem .7rem;font-weight:600;color:#fff;
     background:var(--admin-primary,#6366f1);white-space:nowrap;}
 .frg-adm-tip__link:hover{filter:brightness(1.08);color:#fff;}
-</style>
-HTML,
+CSS,
             ],
 
             [
@@ -175,14 +170,13 @@ HTML,
         а оформление сайта настраивается в разделе «Темы».</span>
     <span class="frg-adm-note__hint">Этот текст — тоже фрагмент: «Фрагменты» → «Памятка в подвале панели»</span>
 </div>
-
-<style>
+HTML,
+                'css'   => <<<'CSS'
 .frg-adm-note{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;padding:.75rem 1.25rem;
     font-size:.78rem;color:#6b7280;border-top:1px solid rgba(17,24,39,.06);}
 .frg-adm-note__title{font-weight:700;color:#374151;}
 .frg-adm-note__hint{margin-left:auto;font-size:.72rem;opacity:.7;font-style:italic;}
-</style>
-HTML,
+CSS,
             ],
         ];
     }
@@ -198,6 +192,9 @@ HTML,
                     'zone'        => $definition['zone'],
                     'type'        => 'html',
                     'html_cached' => trim($definition['html']),
+                    // Оформление отдельно от содержимого: css_inline не переводится,
+                    // поэтому блок выглядит одинаково на всех языках
+                    'css_inline'  => trim($definition['css'] ?? ''),
                     'schema'      => [],
                     'data'        => [],
                 ];

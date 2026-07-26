@@ -67,7 +67,12 @@
 
             {{-- 3) Контакты и соцсети --}}
             <section aria-labelledby="footer-links" class="footer-contacts text-center md:text-left">
-                <h2 id="footer-links" class="f-heading">{{ __('frontend.footer.contacts') }}</h2>
+                {{-- Тот же стиль, что у заголовков колонок меню (footer-col-title
+                     в Menu::frontend.footer): раньше «Контакты» выбивались из ряда
+                     мелким uppercase-шрифтом. --}}
+                <h2 id="footer-links" class="footer-col-title text-base font-semibold mb-4 text-center md:text-left text-gray-900 dark:text-gray-100">
+                    {{ __('frontend.footer.contacts') }}
+                </h2>
 
                 {{-- Обезличенные тестовые сведения --}}
                 <div class="space-y-2">
