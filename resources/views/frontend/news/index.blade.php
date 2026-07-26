@@ -114,7 +114,7 @@
                                     {{ $category->title }}
                                 </a>{{ !$loop->last ? ',' : '' }}
                             @empty
-                                <span class="text-gray-400">Без категории</span>
+                                <span class="text-gray-400">{{ __('frontend.news.no_category') }}</span>
                             @endforelse
                         </div>
 
@@ -135,7 +135,7 @@
                 {{ $newsList->withQueryString()->links('vendor.pagination.tailwind') }}
             </div>
         @else
-            <p class="text-center text-gray-500 dark:text-gray-400 text-lg mt-10">Нет опубликованных новостей.</p>
+            <p class="text-center text-gray-500 dark:text-gray-400 text-lg mt-10">{{ __('frontend.news.empty') }}</p>
         @endif
     </div>
 @endsection

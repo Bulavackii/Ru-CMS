@@ -87,7 +87,7 @@
         @elseif ($imageSrc)
             <img src="{{ $imageSrc }}" alt="{{ $news->title }}" class="w-full h-full object-cover">
         @else
-            <div class="fx-noimg"><i class="fas fa-image fx-noimg-ico"></i><span>Нет изображения</span></div>
+            <div class="fx-noimg"><i class="fas fa-image fx-noimg-ico"></i><span>{{ __('frontend.news.no_image') }}</span></div>
         @endif
     </div>
 
@@ -106,7 +106,7 @@
             @forelse ($news->categories as $category)
                 <a href="{{ url('/?category=' . $category->id) }}" class="fx-chip hover:brightness-95">{{ $category->title }}</a>
             @empty
-                <span class="text-xs text-gray-400">Без категории</span>
+                <span class="text-xs text-gray-400">{{ __('frontend.news.no_category') }}</span>
             @endforelse
         </div>
 

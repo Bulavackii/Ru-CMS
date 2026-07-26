@@ -23,6 +23,13 @@ class LocalizationServiceProvider extends ServiceProvider
         // 🌍 Подключение переводов
         $this->loadTranslationsFrom(__DIR__ . '/../Lang', 'Localization');
 
+        // 🔤 Команда сверки словарей с эталоном (php artisan lang:check)
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \Modules\Localization\Console\Commands\CheckDictionariesCommand::class,
+            ]);
+        }
+
         // ⚙️ Домёрживаем конфиг модуля с config/localization.php (тот же баг,
         // что чинили у Captcha: без mergeConfigFrom() ключи, которых нет в
         // опубликованном конфиге — например preset_countries, — тихо

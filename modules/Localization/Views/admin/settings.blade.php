@@ -3,14 +3,14 @@
 @section('title', 'Настройки страны')
 
 @section('content')
-<div class="container-fluid py-4">
+<div class="">
     <!-- Заголовок -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div>
-            <h1 class="h3 mb-0">⚙️ Настройки: {{ $country->flag ?? '🏳️' }} {{ $country->name }}</h1>
-            <p class="text-muted mb-0">Дополнительные параметры локализации</p>
+            <h1 class="text-xl font-bold text-gray-900 dark:text-white">⚙️ Настройки: {{ $country->flag ?? '🏳️' }} {{ $country->name }}</h1>
+            <p class="text-gray-500 dark:text-gray-400 mb-0">Дополнительные параметры локализации</p>
         </div>
-        <a href="{{ route('admin.localization.edit', $country->code) }}" class="btn btn-outline-secondary">
+        <a href="{{ route('admin.localization.edit', $country->code) }}" class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 px-4 py-2 text-sm font-semibold transition">
             <i class="fas fa-arrow-left"></i> Назад к стране
         </a>
     </div>
@@ -24,38 +24,38 @@
     @endif
 
     @if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <div class="admin-card border-l-4 border-red-500 p-4 alert-dismissible fade show" role="alert">
         <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
     @endif
 
-    <div class="row">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
         <!-- Форма добавления настройки -->
-        <div class="col-lg-4">
-            <div class="card">
-                <div class="card-header bg-white">
+        <div class="">
+            <div class="admin-card">
+                <div class="px-5 pt-5 pb-1 font-semibold text-gray-900 dark:text-white">
                     <h5 class="mb-0">➕ Добавить настройку</h5>
                 </div>
-                <div class="card-body">
+                <div class="p-5">
                     <form action="{{ route('admin.localization.settings.save', $country->code) }}" method="POST">
                         @csrf
 
                         <div class="mb-3">
-                            <label for="key" class="form-label">Ключ *</label>
-                            <input type="text" class="form-control @error('key') is-invalid @enderror"
+                            <label for="key" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Ключ *</label>
+                            <input type="text" class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition @error('key') is-invalid @enderror"
                                    id="key" name="key" value="{{ old('key') }}"
                                    placeholder="welcome_message" required>
                             @error('key')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @else
-                                <small class="text-muted">Латинские буквы, цифры, подчеркивания</small>
+                                <small class="text-gray-500 dark:text-gray-400">Латинские буквы, цифры, подчеркивания</small>
                             @enderror
                         </div>
 
                         <div class="mb-3">
-                            <label for="value" class="form-label">Значение</label>
-                            <textarea class="form-control @error('value') is-invalid @enderror"
+                            <label for="value" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Значение</label>
+                            <textarea class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition @error('value') is-invalid @enderror"
                                       id="value" name="value" rows="3"
                                       placeholder="Введите значение...">{{ old('value') }}</textarea>
                             @error('value')
@@ -63,11 +63,11 @@
                             @enderror
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6">
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                            <div class="">
                                 <div class="mb-3">
-                                    <label for="type" class="form-label">Тип *</label>
-                                    <select class="form-select @error('type') is-invalid @enderror"
+                                    <label for="type" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Тип *</label>
+                                    <select class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition @error('type') is-invalid @enderror"
                                             id="type" name="type" required>
                                         @foreach($types as $value => $label)
                                         <option value="{{ $value }}" {{ old('type') === $value ? 'selected' : '' }}>
@@ -81,10 +81,10 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="">
                                 <div class="mb-3">
-                                    <label for="group" class="form-label">Группа *</label>
-                                    <select class="form-select @error('group') is-invalid @enderror"
+                                    <label for="group" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Группа *</label>
+                                    <select class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition @error('group') is-invalid @enderror"
                                             id="group" name="group" required>
                                         @foreach($groups as $value => $label)
                                         <option value="{{ $value }}" {{ old('group') === $value ? 'selected' : '' }}>
@@ -100,8 +100,8 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="description" class="form-label">Описание</label>
-                            <input type="text" class="form-control @error('description') is-invalid @enderror"
+                            <label for="description" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Описание</label>
+                            <input type="text" class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition @error('description') is-invalid @enderror"
                                    id="description" name="description" value="{{ old('description') }}"
                                    placeholder="Описание настройки">
                             @error('description')
@@ -109,7 +109,7 @@
                             @enderror
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100">
+                        <button type="submit" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition w-100">
                             <i class="fas fa-plus"></i> Добавить настройку
                         </button>
                     </form>
@@ -117,22 +117,22 @@
             </div>
 
             <!-- Быстрые настройки -->
-            <div class="card mt-3">
-                <div class="card-header bg-white">
+            <div class="admin-card mt-3">
+                <div class="px-5 pt-5 pb-1 font-semibold text-gray-900 dark:text-white">
                     <h6 class="mb-0">⚡ Быстрые настройки</h6>
                 </div>
-                <div class="card-body">
+                <div class="p-5">
                     <form action="{{ route('admin.localization.settings.save', $country->code) }}" method="POST" class="mb-2">
                         @csrf
                         <input type="hidden" name="key" value="week_start">
                         <input type="hidden" name="type" value="number">
                         <input type="hidden" name="group" value="date">
                         <input type="hidden" name="description" value="Первый день недели (0=Вс, 1=Пн)">
-                        <div class="input-group">
+                        <div class="flex gap-2">
                             <span class="input-group-text">Первый день недели</span>
-                            <input type="number" class="form-control" name="value"
+                            <input type="number" class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" name="value"
                                    value="{{ $settings['week_start'] ?? 1 }}" min="0" max="1">
-                            <button class="btn btn-outline-primary" type="submit">✓</button>
+                            <button class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 px-4 py-2 text-sm font-semibold transition" type="submit">✓</button>
                         </div>
                     </form>
 
@@ -142,11 +142,11 @@
                         <input type="hidden" name="type" value="number">
                         <input type="hidden" name="group" value="currency">
                         <input type="hidden" name="description" value="Ставка налога (%)">
-                        <div class="input-group">
+                        <div class="flex gap-2">
                             <span class="input-group-text">Налог (%)</span>
-                            <input type="number" class="form-control" name="value"
+                            <input type="number" class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" name="value"
                                    value="{{ $settings['tax_rate'] ?? 0 }}" min="0" max="100" step="0.1">
-                            <button class="btn btn-outline-primary" type="submit">✓</button>
+                            <button class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 px-4 py-2 text-sm font-semibold transition" type="submit">✓</button>
                         </div>
                     </form>
 
@@ -156,13 +156,13 @@
                         <input type="hidden" name="type" value="string">
                         <input type="hidden" name="group" value="currency">
                         <input type="hidden" name="description" value="Позиция символа валюты">
-                        <div class="input-group">
+                        <div class="flex gap-2">
                             <span class="input-group-text">Позиция валюты</span>
-                            <select class="form-select" name="value">
+                            <select class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" name="value">
                                 <option value="before" {{ ($settings['currency_position'] ?? 'before') === 'before' ? 'selected' : '' }}>Слева</option>
                                 <option value="after" {{ ($settings['currency_position'] ?? 'before') === 'after' ? 'selected' : '' }}>Справа</option>
                             </select>
-                            <button class="btn btn-outline-primary" type="submit">✓</button>
+                            <button class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 px-4 py-2 text-sm font-semibold transition" type="submit">✓</button>
                         </div>
                     </form>
                 </div>
@@ -170,21 +170,21 @@
         </div>
 
         <!-- Список существующих настроек -->
-        <div class="col-lg-8">
-            <div class="card">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <div class="lg:col-span-2">
+            <div class="admin-card">
+                <div class="px-5 pt-5 pb-1 font-semibold text-gray-900 dark:text-white flex flex-wrap items-center justify-between gap-3">
                     <h5 class="mb-0">Существующие настройки</h5>
-                    <span class="badge bg-primary">{{ count($settings) }} шт.</span>
+                    <span class="text-xs bg-indigo-100 text-indigo-800 px-2 py-0.5">{{ count($settings) }} шт.</span>
                 </div>
-                <div class="card-body p-0">
+                <div class="p-5 p-0">
                     @if(empty($settings))
-                    <div class="text-center py-5 text-muted">
+                    <div class="text-center py-5 text-gray-500 dark:text-gray-400">
                         <i class="fas fa-cog fa-3x mb-3"></i>
                         <p>Настройки отсутствуют. Добавьте первую настройку.</p>
                     </div>
                     @else
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm">
                             <thead class="table-light">
                                 <tr>
                                     <th>Ключ</th>
@@ -192,7 +192,7 @@
                                     <th>Тип</th>
                                     <th>Группа</th>
                                     <th>Описание</th>
-                                    <th class="text-end">Действия</th>
+                                    <th class="text-right">Действия</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -211,13 +211,13 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <span class="badge bg-secondary">{{ $types[$setting->type] ?? $setting->type }}</span>
+                                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5">{{ $types[$setting->type] ?? $setting->type }}</span>
                                     </td>
                                     <td>
                                         <span class="badge bg-info">{{ $groups[$setting->group] ?? $setting->group }}</span>
                                     </td>
-                                    <td class="text-muted small">{{ $setting->description }}</td>
-                                    <td class="text-end">
+                                    <td class="text-gray-500 dark:text-gray-400 small">{{ $setting->description }}</td>
+                                    <td class="text-right">
                                         <form action="{{ route('admin.localization.settings.delete', $country->code) }}"
                                               method="POST" class="d-inline"
                                               onsubmit="return confirm('Удалить настройку {{ $key }}?');">
@@ -227,7 +227,7 @@
                                             @if($setting->is_system)
                                                 <span class="badge bg-warning text-dark" title="Системная настройка">🔒</span>
                                             @else
-                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Удалить">
+                                                <button type="submit" class="inline-flex items-center gap-2 border border-gray-300 text-gray-700 hover:border-red-400 hover:text-red-600 px-4 py-2 text-sm font-semibold transition" title="Удалить">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             @endif
@@ -244,24 +244,24 @@
             </div>
 
             <!-- JSON экспорт/импорт -->
-            <div class="card mt-3">
-                <div class="card-header bg-white">
+            <div class="admin-card mt-3">
+                <div class="px-5 pt-5 pb-1 font-semibold text-gray-900 dark:text-white">
                     <h6 class="mb-0">📦 Импорт/Экспорт JSON</h6>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <button class="btn btn-outline-success w-100 mb-2" onclick="exportSettings()">
+                <div class="p-5">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                        <div class="">
+                            <button class="inline-flex items-center justify-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:border-indigo-400 hover:text-indigo-600 px-4 py-2 text-sm font-semibold transition w-full mb-2" onclick="exportSettings()">
                                 <i class="fas fa-download"></i> Экспорт настроек
                             </button>
-                            <small class="text-muted">Скачать все настройки этой страны в JSON</small>
+                            <small class="text-gray-500 dark:text-gray-400">Скачать все настройки этой страны в JSON</small>
                         </div>
-                        <div class="col-md-6">
-                            <button class="btn btn-outline-warning w-100 mb-2" onclick="document.getElementById('importFile').click()">
+                        <div class="">
+                            <button class="inline-flex items-center justify-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:border-indigo-400 hover:text-indigo-600 px-4 py-2 text-sm font-semibold transition w-full mb-2" onclick="document.getElementById('importFile').click()">
                                 <i class="fas fa-upload"></i> Импорт настроек
                             </button>
                             <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importSettings(event)">
-                            <small class="text-muted">Загрузить настройки из JSON файла</small>
+                            <small class="text-gray-500 dark:text-gray-400">Загрузить настройки из JSON файла</small>
                         </div>
                     </div>
                 </div>

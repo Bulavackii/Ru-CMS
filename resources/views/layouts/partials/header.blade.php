@@ -76,7 +76,7 @@
           <span class="hdr-logo-badge">RU</span>
           <span class="leading-tight">
             <span class="hdr-logo-name block">CMS</span>
-            <span class="hdr-logo-sub hidden sm:block">Контент &amp; Управление</span>
+            <span class="hdr-logo-sub hidden sm:block">{{ __('frontend.header.tagline') }}</span>
           </span>
         @endif
       </a>
@@ -98,7 +98,7 @@
           $curLocale = app()->getLocale();
         @endphp
         <div x-data="{ open:false }" @click.outside="open=false" @keydown.escape.window="open=false" class="hdr-lang relative">
-          <button type="button" @click="open=!open" class="hdr-icon-btn" title="Язык / Language" :aria-expanded="open.toString()">
+          <button type="button" @click="open=!open" class="hdr-icon-btn" title="{{ __('frontend.header.language') }}" :aria-expanded="open.toString()">
             {!! locale_flag($curLocale) !!}
             <span class="hidden sm:inline">{{ strtoupper($curLocale) }}</span>
             <i class="fas fa-chevron-down" style="font-size:.58rem; opacity:.55"></i>
@@ -128,7 +128,7 @@
 
         @if($themeList->isNotEmpty())
           <div x-data="{ open:false }" @click.outside="open=false" @keydown.escape.window="open=false" class="hdr-lang relative">
-            <button type="button" @click="open=!open" class="hdr-icon-btn" title="Тема оформления" :aria-expanded="open.toString()">
+            <button type="button" @click="open=!open" class="hdr-icon-btn" title="{{ __('frontend.header.theme') }}" :aria-expanded="open.toString()">
               <span class="hdr-theme-dot" style="background: {{ $currentThemePrimary }}"></span>
               <span class="hidden lg:inline">{{ $currentThemeTitle }}</span>
               <i class="fas fa-chevron-down" style="font-size:.58rem; opacity:.55"></i>
@@ -141,7 +141,7 @@
                   <span class="hdr-theme-dot" style="background: {{ $themeOption->primary }}"></span>
                   <span>{{ $themeOption->title }}</span>
                   @if($themeOption->is_default)
-                    <span class="hdr-theme-note">на сайте</span>
+                    <span class="hdr-theme-note">{{ __('frontend.header.theme_site') }}</span>
                   @endif
                   @if($themeOption->slug === $currentThemeSlug)
                     <i class="fas fa-check" style="margin-left:auto; font-size:.7rem"></i>
@@ -152,7 +152,7 @@
               @if($currentThemeSlug)
                 <a href="{{ route('frontend.theme.set', 'reset') }}" class="hdr-lang-item hdr-theme-reset">
                   <i class="fas fa-rotate-left" style="font-size:.7rem; opacity:.6"></i>
-                  <span>Как на сайте</span>
+                  <span>{{ __('frontend.header.theme_default') }}</span>
                 </a>
               @endif
             </div>
@@ -160,7 +160,7 @@
         @endif
 
         @if ($hasProducts)
-          <a href="{{ route('cart.index') }}" class="hdr-pill" title="Корзина">
+          <a href="{{ route('cart.index') }}" class="hdr-pill" title="{{ __('frontend.header.cart') }}">
             <span class="cart-ico">
               <span class="cart-ico__glyph"><i class="fas fa-cart-shopping"></i></span>
               <span id="cart-count" class="cart-ico__badge {{ $cartCount == 0 ? 'hidden' : '' }}">{{ $cartCount }}</span>
@@ -170,28 +170,28 @@
         @endif
 
         @auth
-          <a href="{{ route('dashboard') }}" class="hdr-pill" title="Личный кабинет">
-            <i class="fas fa-user"></i><span class="hidden md:inline">Кабинет</span>
+          <a href="{{ route('dashboard') }}" class="hdr-pill" title="{{ __('frontend.header.account_title') }}">
+            <i class="fas fa-user"></i><span class="hidden md:inline">{{ __('frontend.header.account') }}</span>
           </a>
 
           @if (($user->is_admin ?? false))
-            <a href="{{ url('/admin/modules') }}" class="hdr-pill hdr-pill--accent" title="Панель администратора">
-              <i class="fas fa-gauge-high"></i><span class="hidden md:inline">Админка</span>
+            <a href="{{ url('/admin/modules') }}" class="hdr-pill hdr-pill--accent" title="{{ __('frontend.header.admin_title') }}">
+              <i class="fas fa-gauge-high"></i><span class="hidden md:inline">{{ __('frontend.header.admin') }}</span>
             </a>
           @endif
 
           <form method="POST" action="{{ route('logout') }}" class="inline">
             @csrf
-            <button type="submit" class="hdr-pill hdr-pill--danger" title="Выйти">
-              <i class="fas fa-right-from-bracket"></i><span class="hidden md:inline">Выйти</span>
+            <button type="submit" class="hdr-pill hdr-pill--danger" title="{{ __('frontend.header.logout') }}">
+              <i class="fas fa-right-from-bracket"></i><span class="hidden md:inline">{{ __('frontend.header.logout') }}</span>
             </button>
           </form>
         @else
-          <a href="{{ route('login') }}" class="hdr-pill" title="Войти">
-            <i class="fas fa-right-to-bracket"></i><span class="hidden md:inline">Войти</span>
+          <a href="{{ route('login') }}" class="hdr-pill" title="{{ __('frontend.header.login') }}">
+            <i class="fas fa-right-to-bracket"></i><span class="hidden md:inline">{{ __('frontend.header.login') }}</span>
           </a>
-          <a href="{{ route('register') }}" class="hdr-pill hdr-pill--accent" title="Регистрация">
-            <i class="fas fa-user-plus"></i><span class="hidden md:inline">Регистрация</span>
+          <a href="{{ route('register') }}" class="hdr-pill hdr-pill--accent" title="{{ __('frontend.header.register') }}">
+            <i class="fas fa-user-plus"></i><span class="hidden md:inline">{{ __('frontend.header.register') }}</span>
           </a>
         @endauth
       </div>
@@ -214,9 +214,9 @@
                   <circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path>
                 </svg>
               </span>
-              <input type="text" name="q" value="{{ request('q') }}" class="hdr-search-input" placeholder="Поиск…">
+              <input type="text" name="q" value="{{ request('q') }}" class="hdr-search-input" placeholder="{{ __('frontend.header.search') }}">
             </div>
-            <button type="submit" class="hdr-search-go">Искать</button>
+            <button type="submit" class="hdr-search-go">{{ __('frontend.header.search_action') }}</button>
           </div>
         </form>
       </div>

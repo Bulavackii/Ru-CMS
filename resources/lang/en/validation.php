@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Сообщения валидации. Секции custom и attributes дополнены 26.07.2026:
+ * без них выбор языка наполовину проваливался в английский fallback.
+ */
+
 return [
     'accepted' => 'The :attribute field must be accepted.',
     'active_url' => 'The :attribute field must be a valid URL.',
@@ -105,8 +110,18 @@ return [
     'uploaded' => 'The :attribute failed to upload.',
     'url' => 'The :attribute field must be a valid URL.',
     'uuid' => 'The :attribute field must be a valid UUID.',
+    'custom' => [
+        'email' => [
+            'unique' => 'This email address is already registered.',
+        ],
+        'password' => [
+            'min' => 'The password must be at least :min characters.',
+        ],
+    ],
+    'attributes' => [
+        'name' => 'name',
+        'email' => 'email address',
+        'password' => 'password',
+        'password_confirmation' => 'password confirmation',
+    ],
 ];
-
-
-
-

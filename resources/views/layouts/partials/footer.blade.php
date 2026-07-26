@@ -52,7 +52,7 @@
                     {{-- Обезличенные тестовые сведения (компактно) --}}
                     <ul class="f-devlist f-devlist--tight">
                         <li><span class="f-ico">@themeIcon('user')</span>
-                            <span><b class="text-gray-700 dark:text-gray-300 font-medium">Иван Иванов</b> — разработчик</span></li>
+                            <span><b class="text-gray-700 dark:text-gray-300 font-medium">Иван Иванов</b> — {{ __('frontend.footer.developer') }}</span></li>
                         <li><span class="f-ico">@themeIcon('mail')</span>
                             <a href="mailto:info@example.com" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">info@example.com</a></li>
                         <li><span class="f-ico">@themeIcon('phone')</span>
@@ -110,7 +110,7 @@
 
                 {{-- Мета: копирайт + стек --}}
                 <div class="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-gray-500 dark:text-gray-400">
-                    <span>© {{ date('Y') }} <b class="text-gray-700 dark:text-gray-300 font-medium">RU CMS</b> — все права защищены</span>
+                    <span>© {{ date('Y') }} <b class="text-gray-700 dark:text-gray-300 font-medium">RU CMS</b> — {{ __('frontend.footer.rights') }}</span>
                     <span class="f-meta-chip">PHP {{ PHP_VERSION }}</span>
                     <span class="f-meta-chip">Laravel {{ app()->version() }}</span>
                 </div>
@@ -128,13 +128,13 @@
                 setTimeout(()=>busy=false,800);
               "
                     class="w-full md:flex-1 md:max-w-xl md:ml-6 flex flex-col sm:flex-row gap-2 text-sm">
-                    <label for="newsletter" class="sr-only">Напишите нам</label>
+                    <label for="newsletter" class="sr-only">{{ __('frontend.footer.write_us') }}</label>
                     <input id="newsletter" type="email" name="email" x-model="email"
-                        placeholder="Ваш e-mail"
+                        placeholder="{{ __('frontend.footer.email') }}"
                         class="f-mail-input flex-1" required>
                     <button type="submit" :disabled="busy" class="f-submit">
                         <span x-show="!busy" class="inline-flex items-center gap-2">@themeIcon('mail') Отправить</span>
-                        <span x-show="busy">Открываю…</span>
+                        <span x-show="busy">{{ __('frontend.footer.sending') }}</span>
                     </button>
                     <p x-text="msg" class="text-red-600 text-[12px] sm:self-center"></p>
                 </form>
@@ -146,7 +146,7 @@
     <button id="backToTopBtn"
         class="fixed bottom-6 right-6 z-50 p-3 shadow-md transition transform hover:scale-105 opacity-0 pointer-events-none text-white"
         style="background:var(--fx-grad,#6366f1); box-shadow:0 10px 24px -8px rgba(99,102,241,.6)"
-        title="Наверх" aria-label="Наверх">
+        title="{{ __('frontend.footer.to_top') }}" aria-label="Наверх">
         @themeIcon('arrow-up')
     </button>
 </footer>

@@ -1,10 +1,10 @@
 <?php
 
 return [
-    'previous' => '&laquo; Алдыңғы',
-    'next' => 'Келесі &raquo;',
+    'previous' => '← Артқа',
+    'next' => 'Алға →',
+    'showing' => ':total жазбаның :first–:last аралығы көрсетілген',
+    'to' => '–',
+    'of' => 'ішінен',
+    'results' => 'жазба',
 ];
-
-
-
-

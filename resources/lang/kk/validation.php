@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Сообщения валидации. Секции custom и attributes дополнены 26.07.2026:
+ * без них выбор языка наполовину проваливался в английский fallback.
+ */
+
 return [
     'accepted' => ':attribute өрісі қабылдануы керек.',
     'active_url' => ':attribute өрісі жарамды URL болуы керек.',
@@ -105,8 +110,18 @@ return [
     'uploaded' => ':attribute жүктеу сәтсіз аяқталды.',
     'url' => ':attribute өрісі жарамды URL болуы керек.',
     'uuid' => ':attribute өрісі жарамды UUID болуы керек.',
+    'custom' => [
+        'email' => [
+            'unique' => 'Бұл e-mail мекенжайы тіркелген.',
+        ],
+        'password' => [
+            'min' => 'Құпия сөз кемінде :min таңбадан тұруы керек.',
+        ],
+    ],
+    'attributes' => [
+        'name' => 'аты',
+        'email' => 'e-mail мекенжайы',
+        'password' => 'құпия сөз',
+        'password_confirmation' => 'құпия сөзді растау',
+    ],
 ];
-
-
-
-

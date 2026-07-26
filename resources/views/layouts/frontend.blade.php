@@ -62,7 +62,25 @@
     @endif
     <meta property="og:url" content="{{ $pageOg['og:url'] ?? $pageCanonical }}">
     <meta property="og:type" content="{{ $pageOg['og:type'] ?? 'article' }}">
-    <meta property="og:locale" content="ru_RU">
+    @php
+        // og:locale был жёстко ru_RU независимо от выбранного языка
+        $ogLocaleMap = [
+            'ru' => 'ru_RU', 'en' => 'en_US', 'be' => 'be_BY', 'kk' => 'kk_KZ',
+            'de' => 'de_DE', 'fr' => 'fr_FR', 'it' => 'it_IT',
+        ];
+        $currentLocale = app()->getLocale();
+    @endphp
+    <meta property="og:locale" content="{{ $ogLocaleMap[$currentLocale] ?? 'ru_RU' }}">
+
+    {{-- hreflang: та же страница на других доступных языках.
+         Ссылка ведёт на переключатель — язык хранится в сессии, отдельных
+         URL у локалей нет. --}}
+    @foreach(available_locales() as $altLocale)
+        @if($altLocale !== $currentLocale)
+            <link rel="alternate" hreflang="{{ $altLocale }}" href="{{ route('frontend.locale.set', $altLocale) }}">
+        @endif
+    @endforeach
+    <link rel="alternate" hreflang="x-default" href="{{ url('/') }}">
     @if (!empty($pageOg['og:image']))
         <meta property="og:image" content="{{ $pageOg['og:image'] }}">
     @endif
