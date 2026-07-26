@@ -2,11 +2,18 @@
 
 namespace Modules\Slideshow\Models;
 
+use App\Support\HasContentTranslations;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SlideshowItem extends Model
 {
+    use HasContentTranslations;
+
+    /** Поля, которые можно перевести на другие языки (см. трейт) */
+    public array $translatable = ['caption', 'alt_text'];
+
     // 📝 Массово заполняемые поля
     protected $fillable = [
         'slideshow_id',     // 🔗 ID связанного слайдшоу

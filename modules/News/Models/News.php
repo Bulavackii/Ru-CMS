@@ -2,6 +2,8 @@
 
 namespace Modules\News\Models;
 
+use App\Support\HasContentTranslations;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -12,6 +14,11 @@ use Illuminate\Database\Eloquent\Builder;
 
 class News extends Model
 {
+    use HasContentTranslations;
+
+    /** Поля, которые можно перевести на другие языки (см. трейт) */
+    public array $translatable = ['title', 'content', 'meta_title', 'meta_description'];
+
     use HasFactory, SoftDeletes;
 
     protected $table = 'news';

@@ -2,6 +2,8 @@
 
 namespace Modules\Menu\Models;
 
+use App\Support\HasContentTranslations;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,6 +11,11 @@ use Illuminate\Support\Facades\Cache;
 
 class MenuItem extends Model
 {
+    use HasContentTranslations;
+
+    /** Поля, которые можно перевести на другие языки (см. трейт) */
+    public array $translatable = ['title'];
+
     protected $table = 'menu_items';
 
     protected $fillable = [

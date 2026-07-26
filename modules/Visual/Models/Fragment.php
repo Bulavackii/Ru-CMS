@@ -2,6 +2,8 @@
 
 namespace Modules\Visual\Models;
 
+use App\Support\HasContentTranslations;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,6 +11,11 @@ use App\Models\User;
 
 class Fragment extends Model
 {
+    use HasContentTranslations;
+
+    /** Поля, которые можно перевести на другие языки (см. трейт) */
+    public array $translatable = ['title', 'html_cached'];
+
     protected $table = 'visual_fragments';
     protected $fillable = ['slug','title','type','zone','schema','data','html_cached','css_inline','is_active','updated_by'];
     

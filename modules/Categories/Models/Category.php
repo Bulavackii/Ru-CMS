@@ -2,6 +2,8 @@
 
 namespace Modules\Categories\Models;
 
+use App\Support\HasContentTranslations;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -20,6 +22,11 @@ use Illuminate\Support\Str;
  */
 class Category extends Model
 {
+    use HasContentTranslations;
+
+    /** Поля, которые можно перевести на другие языки (см. трейт) */
+    public array $translatable = ['title', 'description'];
+
     use HasFactory, SoftDeletes;
 
     /**

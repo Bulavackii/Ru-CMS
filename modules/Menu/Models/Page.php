@@ -2,6 +2,8 @@
 
 namespace Modules\Menu\Models;
 
+use App\Support\HasContentTranslations;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
@@ -14,6 +16,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  */
 class Page extends Model
 {
+    use HasContentTranslations;
+
+    /** Поля, которые можно перевести на другие языки (см. трейт) */
+    public array $translatable = ['title', 'content', 'meta_title', 'meta_description'];
+
     // 🗂️ Название таблицы в БД
     protected $table = 'pages';
 
