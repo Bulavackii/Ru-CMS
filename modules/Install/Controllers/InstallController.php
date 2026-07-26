@@ -596,6 +596,7 @@ class InstallController extends Controller
             $this->seedDefaultSlideshows();
             $this->seedDefaultFiles();
             $this->seedDefaultNotification();
+            $this->seedDefaultThemes();
             $this->seedRolesAndPermissions();
             $this->hardenPublicStorage();
 
@@ -1023,6 +1024,17 @@ class InstallController extends Controller
     private function seedDefaultNotification(): void
     {
         \Modules\Notifications\Console\Commands\SeedDefaultNotificationCommand::seed(false);
+    }
+
+    /**
+     * Пять готовых тем оформления после установки, одна из них активна.
+     * Без этого таблица visual_themes оставалась пустой: раздел «Темы» был
+     * пустым, а сайт рисовался значениями, зашитыми в лейаутах.
+     * Единый источник — команда модуля (`php artisan themes:seed-default`).
+     */
+    private function seedDefaultThemes(): void
+    {
+        \Modules\Visual\Console\Commands\SeedDefaultThemesCommand::seed(false);
     }
 
     /**

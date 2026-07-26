@@ -2,13 +2,33 @@
 @section('title', $theme->exists ? 'Редактировать тему' : 'Создать тему')
 
 @section('content')
-<h1 class="text-2xl font-bold mb-6">
-  {{ $theme->exists ? 'Редактировать' : 'Создать' }} тему
-</h1>
+<div class="admin-accent-bar mb-0"></div>
+<div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
+            flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+  <div class="flex items-center gap-3 min-w-0">
+    <span class="admin-icon-badge"><i class="fas fa-palette"></i></span>
+    <div class="min-w-0">
+      <h1 class="text-xl font-bold text-gray-900 dark:text-white">
+        {{ $theme->exists ? 'Редактировать тему' : 'Новая тема' }}
+      </h1>
+      <p class="text-sm text-gray-500 dark:text-gray-400 truncate">
+        {{ $theme->exists ? $theme->title . ' · ' . $theme->slug : 'Цвета, шрифт, иконки и оформление сайта' }}
+      </p>
+    </div>
+  </div>
+
+  <a href="{{ route('admin.visual.themes.index') }}"
+     class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+            hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition flex-shrink-0">
+    <i class="fas fa-arrow-left"></i> К списку
+  </a>
+</div>
 
 @if ($errors->any())
-  <div class="mb-4 p-3 bg-red-50 text-red-700 rounded">
-    <ul class="list-disc ml-5">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
+  <div class="admin-card border-l-4 border-red-500 p-4 mb-5">
+    <ul class="text-sm text-red-600 dark:text-red-400 list-disc list-inside">
+      @foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach
+    </ul>
   </div>
 @endif
 
@@ -33,7 +53,7 @@
     @php $t = $theme->tokens ?? []; $cfg = $theme->config ?? []; @endphp
 
     <div>
-      <h3 class="font-semibold mb-2">Цвета</h3>
+      <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-2"><i class="fas fa-swatchbook text-indigo-500"></i> Цвета</h3>
       <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
         <x-color name="tokens[colors][bg]"      label="Фон сайта"  :value="old('tokens.colors.bg',     data_get($t,'colors.bg','#ffffff'))" />
         <x-color name="tokens[colors][text]"    label="Текст"      :value="old('tokens.colors.text',   data_get($t,'colors.text','#111827'))" />
@@ -247,13 +267,13 @@
     </div>
 
     <div class="flex gap-3">
-      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">💾 Сохранить</button>
+      <button type="submit" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition"><i class="fas fa-save"></i> Сохранить</button>
 
       @if($theme->exists)
-        <button type="button" class="bg-green-600 text-white px-4 py-2 rounded"
-                onclick="document.getElementById('applyForm').submit()">🎨 Применить</button>
-        <button type="button" class="bg-red-600 text-white px-4 py-2 rounded"
-                onclick="if(confirm('Удалить тему?')) document.getElementById('deleteForm').submit()">🗑 Удалить</button>
+        <button type="button" class="inline-flex items-center gap-2 border border-gray-300 text-gray-700 hover:border-indigo-400 hover:text-indigo-600 px-4 py-2 text-sm font-semibold transition"
+                onclick="document.getElementById('applyForm').submit()"><i class="fas fa-wand-magic-sparkles"></i> Применить</button>
+        <button type="button" class="inline-flex items-center gap-2 border border-gray-300 text-gray-700 hover:border-red-400 hover:text-red-600 px-4 py-2 text-sm font-semibold transition"
+                onclick="if(confirm('Удалить тему?')) document.getElementById('deleteForm').submit()"><i class="fas fa-trash"></i> Удалить</button>
       @endif
     </div>
   </div>
@@ -261,7 +281,7 @@
   {{-- Превью --}}
   <aside class="lg:col-span-1">
     <div class="sticky top-4">
-      <h3 class="font-semibold mb-3">Превью</h3>
+      <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-2"><i class="fas fa-eye text-indigo-500"></i> Превью</h3>
       <div id="preview" class="rounded-lg border p-4"
            style="background: var(--color-bg,#fff); color: var(--color-text,#111827); font-family: var(--font-base,-apple-system,BlinkMacSystemFont,Inter,system-ui,sans-serif)">
         <div id="pvHeaderWrap"

@@ -18,7 +18,10 @@
 
     @php
         // Шрифт и набор иконок темы — общие на всю админку.
-        $activeTheme = \Modules\Visual\Models\Theme::where('is_default', true)->first();
+        // $activeTheme приходит из ThemeServiceProvider (View::composer('*')) и
+        // кешируется; раньше здесь был собственный запрос к visual_themes,
+        // выполнявшийся на КАЖДОЙ странице панели — как и в подвале.
+        $activeTheme = $activeTheme ?? null;
         $tokens   = $activeTheme->tokens ?? [];
         $config   = $activeTheme->config ?? [];
         $fontBase = data_get($tokens, 'font.base', '-apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif');

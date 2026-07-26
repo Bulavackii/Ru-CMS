@@ -320,8 +320,8 @@
     // Нужен клиенту, чтобы правильно рисовать иконку каждого пункта в дереве
     // (см. пояснение у iconMarkup() ниже — @themeIcon внутри JS-шаблона
     // компилировался бы один раз на сервере, а не по данным конкретного пункта).
-    $activeIconTheme = \Modules\Visual\Models\Theme::where('is_default', true)->first();
-    $iconMode = data_get($activeIconTheme?->config, 'icon_mode', 'lucide');
+    // Тема берётся из общей переменной композера, а не отдельным запросом
+    $iconMode = data_get(($activeTheme ?? null)?->config, 'icon_mode', 'lucide');
 @endphp
 @push('scripts')
 <script src="{{ local_js('sortable.min.js') }}"></script>

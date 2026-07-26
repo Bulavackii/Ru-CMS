@@ -192,6 +192,43 @@
             background: var(--color-bg)
         }
 
+        /* Фон и текст страницы берутся из активной темы. Класс fx-themed
+           навешивается только когда тема выбрана, поэтому без темы страница
+           выглядит ровно как раньше. !important нужен, чтобы перекрыть
+           bg-white/text-gray-800 — Tailwind-классы на самом <body>. */
+        body.fx-themed {
+            background: var(--color-bg) !important;
+            color: var(--color-text) !important;
+        }
+
+        /* Тёмные темы: стеклянные карточки и подложки дизайн-слоя светлые по
+           умолчанию — на тёмном фоне они давали белые пятна с тёмным текстом. */
+        body.fx-theme-dark .fx-card {
+            background: rgba(15, 23, 42, .72);
+            border-color: rgba(255, 255, 255, .10);
+            color: var(--color-text);
+        }
+
+        body.fx-theme-dark .fx-section-title,
+        body.fx-theme-dark .fx-card h1,
+        body.fx-theme-dark .fx-card h2,
+        body.fx-theme-dark .fx-card h3,
+        body.fx-theme-dark .fx-card p,
+        body.fx-theme-dark .fx-card span:not(.fx-chip):not(.fx-badge) {
+            color: var(--color-text);
+        }
+
+        body.fx-theme-dark .fx-section-sub {
+            color: color-mix(in srgb, var(--color-text) 70%, transparent);
+        }
+
+        /* У тёмных тем акцент светлый, и белый текст на кнопке нечитаем
+           (контраст 2.1). Берём тёмный цвет фона темы — контраст 8.3. */
+        body.fx-theme-dark .fx-btn,
+        body.fx-theme-dark .btn-theme {
+            color: var(--color-bg);
+        }
+
         .bg-header-theme {
             background: var(--color-header)
         }
@@ -265,10 +302,27 @@
 
     {{-- ===== Единый дизайн-слой фронтенда (стиль админки/Install) ===== --}}
     <style>
+        /* Акцент дизайн-слоя берётся из активной темы (--color-primary/accent
+           объявлены выше в #theme-vars). Литералы оставлены как значения по
+           умолчанию: без темы страница выглядит ровно как раньше. Раньше эти
+           цвета были прибиты гвоздями, и смена темы не меняла ни кнопки, ни
+           полосы, ни бейджи. */
         :root{
-            --fx-a:#6366f1; --fx-a2:#8b5cf6; --fx-a-ink:#4338ca;
-            --fx-grad:linear-gradient(135deg,#6366f1,#8b5cf6);
-            --fx-bar:linear-gradient(90deg,#6366f1,#8b5cf6,#ec4899);
+            --fx-a: var(--color-primary, #6366f1);
+            --fx-a2: var(--color-accent, #8b5cf6);
+            --fx-a-ink: var(--color-primary, #4338ca);
+            --fx-grad: linear-gradient(135deg, var(--color-primary, #6366f1), var(--color-accent, #8b5cf6));
+            --fx-bar: linear-gradient(90deg, var(--color-primary, #6366f1), var(--color-accent, #8b5cf6), var(--color-primary, #ec4899));
+
+            /* Полупрозрачные производные акцента (тени, подложки чипов).
+               Первое объявление — запасное на случай, если браузер не знает
+               color-mix; второе перекрывает его там, где функция поддержана. */
+            --fx-a-soft: rgba(99,102,241,.12);
+            --fx-a-soft: color-mix(in srgb, var(--color-primary, #6366f1) 12%, transparent);
+            --fx-a-edge: rgba(99,102,241,.35);
+            --fx-a-edge: color-mix(in srgb, var(--color-primary, #6366f1) 35%, transparent);
+            --fx-a-glow: rgba(99,102,241,.65);
+            --fx-a-glow: color-mix(in srgb, var(--color-primary, #6366f1) 65%, transparent);
         }
         /* Тонкая градиентная акцент-полоса (верх страницы, над подвалом, у секций) */
         .fx-topbar{ height:3px; background:var(--fx-bar); }
@@ -276,24 +330,24 @@
         /* Градиентный бейдж-иконка у заголовков (как .admin-icon-badge) */
         .fx-badge{ width:2.5rem; height:2.5rem; border-radius:.75rem; display:inline-flex; align-items:center;
             justify-content:center; background:var(--fx-grad); color:#fff; flex:0 0 auto;
-            box-shadow:0 10px 24px -10px rgba(99,102,241,.65); }
+            box-shadow:0 10px 24px -10px var(--fx-a-glow); }
         .fx-badge svg,.fx-badge i{ width:1.3rem; height:1.3rem; font-size:1.3rem; line-height:1; }
         /* Стеклянная карточка */
         .fx-card{ background:rgba(255,255,255,.82); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
             border:1px solid rgba(17,24,39,.08); border-radius:16px; box-shadow:0 1px 2px rgba(17,24,39,.05);
             transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
-        .fx-card:hover{ transform:translateY(-3px); box-shadow:0 22px 44px -22px rgba(79,70,229,.4);
-            border-color:rgba(99,102,241,.35); }
+        .fx-card:hover{ transform:translateY(-3px); box-shadow:0 22px 44px -22px var(--fx-a-glow);
+            border-color:var(--fx-a-edge); }
         :root.dark .fx-card{ background:rgba(15,23,42,.72); border-color:rgba(255,255,255,.08); }
         /* Indigo-кнопка (градиент) */
         .fx-btn{ display:inline-flex; align-items:center; justify-content:center; gap:.4rem;
             background:var(--fx-grad); color:#fff; font-weight:500; border-radius:10px; text-decoration:none;
-            box-shadow:0 10px 22px -12px rgba(99,102,241,.75); transition:filter .15s ease, transform .15s ease; }
+            box-shadow:0 10px 22px -12px var(--fx-a-glow); transition:filter .15s ease, transform .15s ease; }
         .fx-btn:hover{ filter:brightness(1.07); transform:translateY(-1px); color:#fff; }
         /* Чип-пилюля */
         .fx-chip{ display:inline-flex; align-items:center; gap:.3rem; padding:.15rem .6rem; border-radius:999px;
-            background:rgba(99,102,241,.12); color:var(--fx-a-ink); font-size:.72rem; font-weight:500; line-height:1.5; }
-        :root.dark .fx-chip{ background:rgba(99,102,241,.22); color:#c7d2fe; }
+            background:var(--fx-a-soft); color:var(--fx-a-ink); font-size:.72rem; font-weight:500; line-height:1.5; }
+        :root.dark .fx-chip{ background:var(--fx-a-soft); color:var(--fx-a2); }
         /* Заголовок секции */
         .fx-section-title{ font-weight:600; letter-spacing:-.01em; color:#111827; }
         :root.dark .fx-section-title{ color:#f3f4f6; }
@@ -305,7 +359,7 @@
             justify-content:center; gap:.45rem; background:linear-gradient(135deg,#eef2ff,#faf5ff); }
         :root.dark .fx-noimg{ background:linear-gradient(135deg,#1e1b4b,#312e81); }
         .fx-noimg .fx-noimg-ico{ font-size:2.1rem; color:#a5b4fc; }
-        :root.dark .fx-noimg .fx-noimg-ico{ color:#6366f1; }
+        :root.dark .fx-noimg .fx-noimg-ico{ color:var(--fx-a); }
         .fx-noimg span{ font-size:.72rem; font-weight:500; letter-spacing:.04em; color:#818cf8; text-transform:uppercase; }
         /* Красивое hover-подчёркивание для пунктов меню (хедер/футер/сайдбар).
            Цвет — из ТЕМЫ (--color-primary/--color-accent, меняются в модуле Тем). */
@@ -323,7 +377,7 @@
            с затуханием по краям + мягкая тень-глубина. Цвета — из ТЕМЫ. */
         .hdr-seam{ position:relative; height:22px; pointer-events:none; overflow:hidden; }
         .hdr-seam::before{ content:''; position:absolute; left:0; right:0; top:0; height:14px;
-            background:linear-gradient(to bottom, rgba(99,102,241,.06), transparent); }
+            background:linear-gradient(to bottom, var(--fx-a-soft), transparent); }
         .hdr-seam span{ position:absolute; left:-10%; right:-10%; height:2px; transform:rotate(-0.9deg); }
         .hdr-seam span:nth-child(1){ top:6px; opacity:.4;
             background:linear-gradient(90deg, transparent, var(--color-accent,#8b5cf6), transparent); }
@@ -332,7 +386,18 @@
     </style>
 </head>
 
-<body class="fx-sharp relative text-gray-800 dark:text-gray-100 min-h-screen flex flex-col overflow-x-hidden bg-white dark:bg-gray-900 transition-colors duration-200"
+@php
+    // Тёмная тема определяется по яркости фонового токена: у тёмных тем
+    // нужно перекрасить не только акцент, но и подложки карточек и текст,
+    // иначе получалась белая страница с тёмно-синими кнопками.
+    $themeIsDark = false;
+    if (preg_match('/^#([0-9a-f]{6})$/i', trim((string) $cBg), $m)) {
+        [$rr, $gg, $bb] = sscanf($m[1], '%2x%2x%2x');
+        $themeIsDark = (0.2126 * $rr + 0.7152 * $gg + 0.0722 * $bb) / 255 < 0.45;
+    }
+@endphp
+
+<body class="fx-sharp relative text-gray-800 dark:text-gray-100 min-h-screen flex flex-col overflow-x-hidden bg-white dark:bg-gray-900 transition-colors duration-200 {{ $activeTheme ? 'fx-themed' : '' }} {{ $themeIsDark ? 'fx-theme-dark' : '' }}"
     style="font-family: var(--font-base, -apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif)">
 
     {{-- ЕДИНЫЙ фон-паттерн из темы --}}
