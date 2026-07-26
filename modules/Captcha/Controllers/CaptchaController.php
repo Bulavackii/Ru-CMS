@@ -79,4 +79,22 @@ class CaptchaController extends Controller
             'script' => $js,
         ]);
     }
+
+    /**
+     * 🛡️ Страница модуля в панели: типы каптчи, живая демонстрация и памятка
+     * по встраиванию. Вьюха существовала, но маршрута к ней не было — открыть
+     * её было нельзя.
+     *
+     * Данные берём из конфига (modules/Captcha/Config/captcha.php), а не из
+     * литералов во вьюхе: включённость и тип по умолчанию должны показываться
+     * настоящие, иначе страница врёт о состоянии модуля.
+     */
+    public function admin()
+    {
+        return view('Captcha::admin.index', [
+            'enabled'     => (bool) config('captcha.enabled', true),
+            'defaultType' => (string) config('captcha.default_type', 'image'),
+            'types'       => (array) config('captcha.types', []),
+        ]);
+    }
 }

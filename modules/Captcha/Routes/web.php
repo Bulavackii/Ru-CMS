@@ -26,6 +26,16 @@ Route::prefix('api/captcha')
             ->name('api.captcha.widget');
     });
 
+// Страница модуля в панели. Вьюха Views/admin/index.blade.php лежала в
+// модуле с самого начала, но маршрута к ней не было вовсе — открыть её было
+// нельзя ни по ссылке, ни по прямому адресу. Закрыта теми же middleware,
+// что и остальная панель.
+Route::prefix('admin/captcha')
+    ->middleware(['web', 'auth', 'admin'])
+    ->group(function () {
+        Route::get('/', [CaptchaController::class, 'admin'])->name('admin.captcha.index');
+    });
+
 // Вспомогательные функции для Blade
 if (!function_exists('captcha_img')) {
     function captcha_img($type = 'image', $options = [])

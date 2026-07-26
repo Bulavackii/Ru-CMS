@@ -41,7 +41,7 @@ class AdminSections
                 self::url('Модули', '/admin/modules', 'puzzle', 'admin/modules', ['расширения', 'плагины']),
                 self::url('Пользователи', '/admin/users', 'user', 'admin/users', ['админы', 'аккаунты', 'роли', 'доступ']),
                 self::url('Поиск', '/admin/search', 'search', 'admin/search', ['найти']),
-                self::link('Уведомления', 'admin.notifications.index', 'bell', 'admin.notifications.*', ['оповещения', 'push', 'рассылка']),
+                self::link('Уведомления', 'admin.notifications.index', 'bell', 'admin.notifications.*', ['оповещения', 'push', 'рассылка'], 'notifications'),
                 // SEO живёт в отдельном модуле с собственным префиксом маршрутов,
                 // поэтому активным раздел считается и по имени маршрута, и по пути
                 (self::link('SEO', 'seo.pages.index', 'search', 'seo.*', ['мета', 'описание', 'sitemap', 'продвижение'])
@@ -50,18 +50,33 @@ class AdminSections
                 self::link('Темы', 'admin.visual.themes.index', 'palette', 'admin.visual.themes.*', ['оформление', 'дизайн', 'цвета', 'шрифт']),
                 self::link('Фрагменты', 'admin.visual.fragments.index', 'puzzle', 'admin.visual.fragments.*', ['блоки', 'вставки', 'html']),
                 self::link('Локализация', 'admin.localization.index', 'globe', 'admin.localization.*', ['языки', 'переводы', 'страны', 'форматы']),
+                self::link('Каптча', 'admin.captcha.index', 'shield', 'admin.captcha.*', ['captcha', 'защита', 'спам', 'боты', 'формы']),
                 self::url('Спецвозможности', '/admin/accessibility', 'user', 'admin/accessibility*', ['доступность', 'контраст']),
             ],
 
             'Оплата' => [
                 self::link('Оплата', 'admin.payments.index', 'credit-card', 'admin.payments.*', ['платежи', 'эквайринг', 'касса']),
-                self::link('Заказы', 'admin.orders.index', 'shopping-cart', 'admin.orders.*', ['покупки', 'корзина']),
+                self::link('Заказы', 'admin.orders.index', 'shopping-cart', 'admin.orders.*', ['покупки', 'корзина'], 'orders'),
                 self::link('Доставка', 'admin.delivery.index', 'truck', 'admin.delivery.*', ['отправка', 'курьер']),
             ],
         ];
 
         // Пункты отключённых модулей выпадают как null
         return array_map(fn (array $links) => array_values(array_filter($links)), $groups);
+    }
+
+    /**
+     * Дашборд — отдельный пункт вне групп.
+     *
+     * Раньше попасть на него можно было только через логотип в шапке сайдбара,
+     * и это читалось как украшение, а не как ссылка: у логотипа нет ни подписи
+     * «где я сейчас», ни подсветки активного раздела. Теперь это обычный пункт
+     * навигации со всеми признаками остальных — а логотип по-прежнему ведёт
+     * туда же, потому что так принято и никому не мешает.
+     */
+    public static function dashboard(): ?array
+    {
+        return self::link('Дашборд', 'admin.dashboard', 'dashboard', 'admin.dashboard', ['главная', 'обзор', 'статистика', 'сводка']);
     }
 
     /**
@@ -72,6 +87,10 @@ class AdminSections
     public static function all(): array
     {
         $flat = [];
+
+        if ($dashboard = self::dashboard()) {
+            $flat[] = $dashboard + ['group' => 'Панель'];
+        }
 
         foreach (self::groups() as $group => $links) {
             foreach ($links as $link) {
@@ -133,8 +152,14 @@ class AdminSections
      * Пункт по имени маршрута. Возвращает null, если маршрута нет
      * (модуль отключён) — вызывающий код такие пункты отбрасывает.
      */
-    private static function link(string $label, string $route, string $icon, string $pattern, array $keywords = []): ?array
-    {
+    private static function link(
+        string $label,
+        string $route,
+        string $icon,
+        string $pattern,
+        array $keywords = [],
+        ?string $counter = null,
+    ): ?array {
         if (! Route::has($route)) {
             return null;
         }
@@ -146,6 +171,9 @@ class AdminSections
             'pattern'  => $pattern,
             'is_route' => true,
             'keywords' => $keywords,
+            // Ключ из App\Support\AdminCounters — у раздела рядом с названием
+            // покажется число «есть новое». null — счётчика нет.
+            'counter'  => $counter,
         ];
     }
 
@@ -163,6 +191,7 @@ class AdminSections
             'pattern'  => $pattern,
             'is_route' => false,
             'keywords' => $keywords,
+            'counter'  => null,
         ];
     }
 }

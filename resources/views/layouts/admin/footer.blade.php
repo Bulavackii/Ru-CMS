@@ -131,8 +131,9 @@
 
         {{-- Бренд и версия --}}
         <div class="flex items-center gap-2.5 flex-none">
-            <span class="admin-clip-corner grid place-items-center w-8 h-8 flex-none text-white
-                         bg-gradient-to-br from-indigo-500 to-indigo-700 shadow" aria-hidden="true">
+            {{-- Значок в цвете активного оформления, а не прибитый indigo:
+                 подвал должен меняться вместе с темой, как шапка и сайдбар --}}
+            <span class="admin-clip-corner adm-f-logo" aria-hidden="true">
                 <i class="fas fa-layer-group text-xs"></i>
             </span>
             <span class="leading-tight">
@@ -215,8 +216,11 @@
         /* Литеральный CSS — в собранном tailwind.min.css нет ни
            opacity-модификаторов, ни произвольных значений, ни dark:-вариантов
            (см. CLAUDE.md), поэтому мелкую типографику подвала задаём здесь. */
+        .adm-f-logo{display:grid;place-items:center;width:2rem;height:2rem;flex:none;
+            color:var(--admin-on-primary,#fff);box-shadow:0 4px 10px -6px var(--admin-primary-glow,rgba(79,70,229,.5));
+            background:linear-gradient(135deg,var(--admin-primary,#6366f1),var(--admin-accent,#a855f7))}
         .adm-f-ver{padding:.05rem .3rem;font-size:.62rem;font-weight:700;letter-spacing:.03em;
-            color:#fff;background:var(--admin-primary,#6366f1)}
+            color:var(--admin-on-primary,#fff);background:var(--admin-primary,#6366f1)}
         /* flex:0 1 auto + min-width:0 — наборы чипов СЖИМАЮТСЯ и переносятся
            внутри себя, но не растягиваются: с flex-grow они забирали всю
            строку и выталкивали соцсети на вторую */

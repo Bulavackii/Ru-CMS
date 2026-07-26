@@ -43,6 +43,11 @@
       --admin-primary-glow: color-mix(in srgb, var(--admin-primary) 28%, transparent);
       --admin-primary-ink: #312e81;
       --admin-primary-ink: color-mix(in srgb, var(--admin-primary) 70%, #000);
+      /* Цвет надписи ПОВЕРХ акцента. Считается по яркости самого акцента:
+         акценты тем очень разные, и белым по светло-голубому «Графиту»
+         (#38bdf8, контраст 2.14:1) читать было нельзя. См. readable_ink(). */
+      --admin-on-primary: {{ readable_ink($adminPrimary) }};
+      --admin-on-accent: {{ readable_ink($adminAccent) }};
     }
     /* Утилиты Tailwind с /NN-прозрачностью (bg-white/80 и т.п.) отсутствуют в
        собранном public/assets/css/tailwind.min.css — это статическая сборка без

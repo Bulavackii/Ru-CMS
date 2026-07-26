@@ -114,8 +114,8 @@
         /* Кнопка-действие с подписью (Создать / На сайт) */
         .ahd-action{display:inline-flex;align-items:center;gap:.4rem;height:2.25rem;padding:0 .8rem;
             font-size:.78rem;font-weight:600;white-space:nowrap;transition:filter .15s ease,background .15s ease,color .15s ease}
-        .ahd-action--primary{background:var(--admin-primary,#6366f1);color:#fff;border:1px solid transparent}
-        .ahd-action--primary:hover{filter:brightness(1.12);color:#fff}
+        .ahd-action--primary{background:var(--admin-primary,#6366f1);color:var(--admin-on-primary,#fff);border:1px solid transparent}
+        .ahd-action--primary:hover{filter:brightness(1.12);color:var(--admin-on-primary,#fff)}
         .ahd-action--ghost{border:1px solid #374151;color:#d1d5db}
         .ahd-action--ghost:hover{background:rgba(255,255,255,.08);border-color:#4b5563;color:#fff}
 
@@ -184,20 +184,14 @@
             }
         }
 
-        // Счётчики и предупреждения для правого кластера кнопок.
-        // Счётчик уведомлений здесь НЕ считаем: его тянет по своему эндпоинту
-        // components.admin.notifications-center — раньше тот же запрос
-        // (Notification::where('enabled',1)) выполнялся ещё и тут, впустую.
-        $newOrders = 0; $unreadMessages = 0; $licenseWarning = null;
-        try { if (class_exists(\Modules\Payments\Models\Order::class))         $newOrders = \Modules\Payments\Models\Order::where('is_new',true)->count(); } catch (\Throwable $e) {}
-        try {
-            if (class_exists(\Modules\Messages\Models\Message::class) && Auth::check()) {
-                $unreadMessages = \Modules\Messages\Models\Message::where('to_user_id', Auth::id())
-                    ->where('is_read', false)
-                    ->notArchived()
-                    ->count();
-            }
-        } catch (\Throwable $e) {}
+        // Счётчики берём из общего источника (App\Support\AdminCounters):
+        // те же числа показывает сайдбар, и считаются они один раз за запрос,
+        // а не отдельно в каждом шаблоне.
+        $counters = \App\Support\AdminCounters::all();
+        $newOrders = $counters['orders'];
+        $unreadMessages = $counters['messages'];
+
+        $licenseWarning = null;
         try {
             $subscriptionService = app(\App\Services\SubscriptionService::class);
             $licenseInfo = $subscriptionService->getLicenseInfo();
