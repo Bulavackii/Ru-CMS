@@ -4,7 +4,7 @@
         <span class="fx-badge"><i class="fas fa-newspaper"></i></span>
         <div class="text-left">
             <h2 class="fx-section-title text-xl sm:text-2xl md:text-3xl leading-tight">{{ $title ?? 'Новости' }}</h2>
-            <div class="fx-section-sub">Последние публикации проекта</div>
+            <div class="fx-section-sub">{{ __('frontend.news.latest') }}</div>
         </div>
     </div>
 
@@ -103,7 +103,7 @@
                         @elseif ($imageSrc)
                             <img src="{{ $imageSrc }}" alt="{{ $news->title }}" class="w-full h-full object-cover" loading="lazy" />
                         @else
-                            <div class="fx-noimg"><i class="fas fa-image fx-noimg-ico"></i><span>Нет изображения</span></div>
+                            <div class="fx-noimg"><i class="fas fa-image fx-noimg-ico"></i><span>{{ __('frontend.news.no_image') }}</span></div>
                         @endif
 
                         {{-- Категории (слева сверху) --}}
@@ -160,9 +160,9 @@
                 </div>
                 <nav class="flex items-center space-x-2 rtl:space-x-reverse" role="navigation" aria-label="Навигация по страницам">
                     @if ($newsList->onFirstPage())
-                        <span class="px-3 py-1.5 bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-md text-sm cursor-not-allowed"> ← Назад </span>
+                        <span class="px-3 py-1.5 bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-md text-sm cursor-not-allowed"> ← {{ __('frontend.news.prev') }} </span>
                     @else
-                        <a href="{{ $newsList->previousPageUrl() }}" class="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-indigo-400 hover:text-indigo-600 rounded-md text-sm transition" rel="prev"> ← Назад </a>
+                        <a href="{{ $newsList->previousPageUrl() }}" class="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-indigo-400 hover:text-indigo-600 rounded-md text-sm transition" rel="prev"> ← {{ __('frontend.news.prev') }} </a>
                     @endif
 
                     @foreach ($newsList->getUrlRange(1, $newsList->lastPage()) as $page => $url)
@@ -174,15 +174,15 @@
                     @endforeach
 
                     @if ($newsList->hasMorePages())
-                        <a href="{{ $newsList->nextPageUrl() }}" class="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-indigo-400 hover:text-indigo-600 rounded-md text-sm transition" rel="next"> Вперёд → </a>
+                        <a href="{{ $newsList->nextPageUrl() }}" class="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-indigo-400 hover:text-indigo-600 rounded-md text-sm transition" rel="next"> {{ __('frontend.news.next') }} → </a>
                     @else
-                        <span class="px-3 py-1.5 bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-md text-sm cursor-not-allowed"> Вперёд → </span>
+                        <span class="px-3 py-1.5 bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-md text-sm cursor-not-allowed"> {{ __('frontend.news.next') }} → </span>
                     @endif
                 </nav>
             </div>
         @endif
     @else
         {{-- Сообщение, если новостей нет --}}
-        <p class="text-center text-gray-500 dark:text-gray-400 select-none">Нет опубликованных новостей.</p>
+        <p class="text-center text-gray-500 dark:text-gray-400 select-none">{{ __('frontend.news.empty') }}</p>
     @endif
 </div>

@@ -253,7 +253,11 @@
                 Горячие клавиши: <b>Ctrl/Cmd + S</b> — сохранить, <b>Esc</b> — назад
             </span>
         </div>
-    </form>
+    
+    {{-- Переводы контента на другие языки (content_translations) --}}
+    <x-admin.translations :model="$category" :fields="['title' => 'Название', 'description' => ['label' => 'Описание', 'type' => 'textarea']]" />
+
+</form>
 
     {{-- Styles --}}
     <style>

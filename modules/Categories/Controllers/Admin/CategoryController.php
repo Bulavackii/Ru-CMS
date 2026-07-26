@@ -139,6 +139,9 @@ class CategoryController extends Controller
 
         $category->update($request->validated());
 
+        // Переводы контента на другие языки (блок «Переводы» в форме)
+        $category->saveTranslations($request->input('translations', []));
+
         return redirect()
             ->route('admin.categories.index')
             ->with('success', 'Категория успешно обновлена.');

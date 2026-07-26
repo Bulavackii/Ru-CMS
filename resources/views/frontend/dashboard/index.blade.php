@@ -24,7 +24,7 @@
         <div class="space-y-4 text-gray-700 text-sm mb-8">
             <div class="flex items-center gap-3">
                 <i class="fas fa-user text-blue-600 text-lg"></i>
-                <span><strong>Имя:</strong> {{ $user->name }}</span>
+                <span><strong>{{ __('frontend.account.name') }}:</strong> {{ $user->name }}</span>
             </div>
 
             <div class="flex items-center gap-3">
@@ -34,7 +34,7 @@
 
             <div class="flex items-center gap-3">
                 <i class="fas fa-id-badge text-blue-600 text-lg"></i>
-                <span><strong>Тип пользователя:</strong> {{ $user->is_company ? 'Юридическое лицо' : 'Физическое лицо' }}</span>
+                <span><strong>{{ __('frontend.account.user_type') }}:</strong> {{ $user->is_company ? 'Юридическое лицо' : 'Физическое лицо' }}</span>
             </div>
         </div>
 
@@ -44,15 +44,15 @@
                 class="mb-8 bg-blue-50 border-t border-gray-200 px-6 py-4 rounded-b-lg space-y-4 text-gray-700 text-sm">
                 <div class="flex items-center gap-3">
                     <i class="fas fa-building text-indigo-600 text-lg"></i>
-                    <span><strong>Компания:</strong> {{ $user->company_name }}</span>
+                    <span><strong>{{ __('frontend.account.company') }}:</strong> {{ $user->company_name }}</span>
                 </div>
                 <div class="flex items-center gap-3">
                     <i class="fas fa-file-invoice text-indigo-600 text-lg"></i>
-                    <span><strong>ИНН:</strong> {{ $user->inn }}</span>
+                    <span><strong>{{ __('frontend.account.inn') }}:</strong> {{ $user->inn }}</span>
                 </div>
                 <div class="flex items-center gap-3">
                     <i class="fas fa-clipboard-check text-indigo-600 text-lg"></i>
-                    <span><strong>ОГРН:</strong> {{ $user->ogrn }}</span>
+                    <span><strong>{{ __('frontend.account.ogrn') }}:</strong> {{ $user->ogrn }}</span>
                 </div>
             </div>
         @endif
@@ -60,7 +60,7 @@
         {{-- 📦 Последние заказы --}}
         @if ($orders->count())
             <div class="mb-8 w-full">
-                <h2 class="text-lg font-bold text-blue-900 mb-4 text-center">🛍️ Последние заказы</h2>
+                <h2 class="text-lg font-bold text-blue-900 mb-4 text-center">🛍️ {{ __('frontend.account.orders_last') }}</h2>
 
                 {{-- Адаптивная таблица с горизонтальной прокруткой --}}
                 <div class="overflow-x-auto">
@@ -68,12 +68,12 @@
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-3 py-2 text-left whitespace-nowrap">№</th>
-                                <th class="px-3 py-2 text-left whitespace-nowrap">Сумма</th>
-                                <th class="px-3 py-2 text-left whitespace-nowrap">Кол-во</th>
-                                <th class="px-3 py-2 text-left whitespace-nowrap">Оплата</th>
-                                <th class="px-3 py-2 text-left whitespace-nowrap">Доставка</th>
-                                <th class="px-3 py-2 text-left whitespace-nowrap">Статус</th>
-                                <th class="px-3 py-2 text-left whitespace-nowrap">Дата</th>
+                                <th class="px-3 py-2 text-left whitespace-nowrap">{{ __('frontend.account.amount') }}</th>
+                                <th class="px-3 py-2 text-left whitespace-nowrap">{{ __('frontend.account.quantity') }}</th>
+                                <th class="px-3 py-2 text-left whitespace-nowrap">{{ __('frontend.account.payment') }}</th>
+                                <th class="px-3 py-2 text-left whitespace-nowrap">{{ __('frontend.account.delivery') }}</th>
+                                <th class="px-3 py-2 text-left whitespace-nowrap">{{ __('frontend.account.status') }}</th>
+                                <th class="px-3 py-2 text-left whitespace-nowrap">{{ __('frontend.account.date') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -140,7 +140,7 @@
                     </div>
 
                     <a href="{{ route('dashboard.orders') }}"
-                        class="text-sm text-blue-600 hover:underline transition">→ Все заказы</a>
+                        class="text-sm text-blue-600 hover:underline transition">→ {{ __('frontend.account.orders_all') }}</a>
                 </div>
             </div>
         @else

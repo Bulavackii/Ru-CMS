@@ -105,6 +105,9 @@ class FragmentsController extends Controller
         $fragment->fill($data);
         $this->renderToCache($fragment);
         $fragment->save();
+
+        // Переводы содержимого фрагмента
+        $fragment->saveTranslations($request->input('translations', []));
         
         // Сохраняем ревизию при обновлении
         $this->saveRevision($fragment);

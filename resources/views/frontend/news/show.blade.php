@@ -1,6 +1,6 @@
 @extends('layouts.frontend')
 
-@section('title', $news->title)
+@section('title', $news->t('title'))
 
 @section('content')
     @php
@@ -17,7 +17,7 @@
             if ($coverAbs && !in_array($ext, $IMG, true)) { $coverAbs = null; }
         }
         // reading_time() считает слова с поддержкой кириллицы (см. app/helpers.php)
-        $readMins = reading_time($news->content);
+        $readMins = reading_time($news->t('content'));
     @endphp
 
     <article class="w-full max-w-screen-2xl mx-auto">
@@ -26,17 +26,17 @@
         <header class="fx-card p-6 sm:p-8 md:p-10 mb-6">
             {{-- Хлебные крошки --}}
             <nav class="flex items-center flex-wrap gap-1.5 text-xs text-gray-500 dark:text-gray-400 mb-5" aria-label="Хлебные крошки">
-                <a href="{{ url('/') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors inline-flex items-center gap-1">@themeIcon('home') Главная</a>
+                <a href="{{ url('/') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors inline-flex items-center gap-1">@themeIcon('home') {{ __('frontend.common.home') }}</a>
                 <span class="opacity-50">/</span>
-                <span class="text-gray-400 dark:text-gray-500">Новости</span>
+                <span class="text-gray-400 dark:text-gray-500">{{ __('frontend.news.section') }}</span>
                 <span class="opacity-50">/</span>
-                <span class="text-gray-700 dark:text-gray-300 truncate max-w-[16rem]">{{ $news->title }}</span>
+                <span class="text-gray-700 dark:text-gray-300 truncate max-w-[16rem]">{{ $news->t('title') }}</span>
             </nav>
 
             <div class="flex items-start gap-3 sm:gap-4">
                 <span class="fx-badge shrink-0 mt-1"><i class="fas fa-newspaper"></i></span>
                 <h1 class="fx-section-title text-2xl sm:text-3xl md:text-4xl leading-tight break-words">
-                    {{ $news->title }}
+                    {{ $news->t('title') }}
                 </h1>
             </div>
 
@@ -57,14 +57,14 @@
         {{-- ===== Обложка-баннер (если есть картинка) ===== --}}
         @if ($coverAbs)
             <div class="fx-card overflow-hidden mb-6">
-                <img src="{{ $coverAbs }}" alt="{{ $news->title }}" class="w-full object-cover" style="max-height:30rem" loading="lazy">
+                <img src="{{ $coverAbs }}" alt="{{ $news->t('title') }}" class="w-full object-cover" style="max-height:30rem" loading="lazy">
             </div>
         @endif
 
         {{-- ===== Контент ===== --}}
         <div class="fx-card p-6 sm:p-8 md:p-10 mb-6">
             <div class="prose prose-sm sm:prose lg:prose-lg max-w-none news-content text-gray-800 dark:text-gray-100">
-                {!! $news->content !!}
+                {!! $news->t('content') !!}
             </div>
 
             {{-- Блок с ценой, остатком, количеством и кнопкой (товары) --}}
@@ -77,14 +77,14 @@
                             </div>
                             @if (!is_null($news->stock))
                                 <div class="inline-flex items-center gap-2 bg-yellow-100 text-yellow-900 dark:bg-yellow-900 dark:text-yellow-200 px-4 py-2 font-semibold text-sm stock-display" data-id="{{ $news->id }}">
-                                    <i class="fas fa-box"></i> Осталось: <span>{{ $news->stock }}</span>
+                                    <i class="fas fa-box"></i> {{ __('frontend.news.in_stock') }} <span>{{ $news->stock }}</span>
                                 </div>
                             @endif
                         </div>
 
                         <div class="space-y-3 flex flex-col sm:items-end">
                             <div class="flex items-center gap-2">
-                                <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Кол-во:</span>
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-200">{{ __('frontend.news.quantity') }}</span>
                                 <div class="flex items-center border border-gray-300 dark:border-gray-600 overflow-hidden">
                                     <button type="button" class="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-600 font-bold text-lg decrement" data-id="{{ $news->id }}">−</button>
                                     <input type="text" id="qty-{{ $news->id }}" value="1" readonly class="w-12 text-center border-x border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm qty-input" data-id="{{ $news->id }}">
@@ -92,7 +92,7 @@
                                 </div>
                             </div>
 
-                            <button type="button" class="fx-btn add-to-cart px-5 py-2.5 text-sm" data-id="{{ $news->id }}" data-title="{{ $news->title }}" data-price="{{ $news->price }}" data-stock="{{ $news->stock }}">
+                            <button type="button" class="fx-btn add-to-cart px-5 py-2.5 text-sm" data-id="{{ $news->id }}" data-title="{{ $news->t('title') }}" data-price="{{ $news->price }}" data-stock="{{ $news->stock }}">
                                 <i class="fas fa-cart-shopping"></i> В корзину
                             </button>
                         </div>
@@ -109,10 +109,10 @@
 
             {{-- Поделиться --}}
             <div class="flex items-center gap-2">
-                <span class="text-xs text-gray-500 dark:text-gray-400 mr-1">Поделиться:</span>
+                <span class="text-xs text-gray-500 dark:text-gray-400 mr-1">{{ __('frontend.news.share') }}</span>
                 <a href="https://vk.com/share.php?url={{ urlencode(url()->current()) }}" target="_blank" rel="noopener" class="share-btn" style="--c:#0077FF" title="ВКонтакте" aria-label="Поделиться во ВКонтакте"><i class="fab fa-vk"></i></a>
-                <a href="https://t.me/share/url?url={{ urlencode(url()->current()) }}&text={{ urlencode($news->title) }}" target="_blank" rel="noopener" class="share-btn" style="--c:#26A5E4" title="Telegram" aria-label="Поделиться в Telegram"><i class="fab fa-telegram"></i></a>
-                <button type="button" class="share-btn copy-link" data-url="{{ url()->current() }}" style="--c:#6366f1" title="Скопировать ссылку" aria-label="Скопировать ссылку"><i class="fas fa-link"></i></button>
+                <a href="https://t.me/share/url?url={{ urlencode(url()->current()) }}&text={{ urlencode($news->t('title')) }}" target="_blank" rel="noopener" class="share-btn" style="--c:#26A5E4" title="Telegram" aria-label="Поделиться в Telegram"><i class="fab fa-telegram"></i></a>
+                <button type="button" class="share-btn copy-link" data-url="{{ url()->current() }}" style="--c:#6366f1" title="{{ __('frontend.news.copy_link') }}" aria-label="Скопировать ссылку"><i class="fas fa-link"></i></button>
             </div>
         </div>
     </article>

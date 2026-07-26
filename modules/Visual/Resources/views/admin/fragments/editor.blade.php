@@ -237,6 +237,10 @@
       </button>
     </div>
   </div>
+
+    {{-- Переводы контента на другие языки (content_translations) --}}
+    <x-admin.translations :model="$fragment" :fields="['title' => 'Название', 'html_cached' => ['label' => 'Содержимое', 'type' => 'textarea']]" />
+
 </form>
 
 {{-- Модальное окно: иконка --}}

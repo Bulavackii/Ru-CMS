@@ -85,7 +85,7 @@
                 Ваш браузер не поддерживает видео.
             </video>
         @elseif ($imageSrc)
-            <img src="{{ $imageSrc }}" alt="{{ $news->title }}" class="w-full h-full object-cover">
+            <img src="{{ $imageSrc }}" alt="{{ $news->t('title') }}" class="w-full h-full object-cover">
         @else
             <div class="fx-noimg"><i class="fas fa-image fx-noimg-ico"></i><span>{{ __('frontend.news.no_image') }}</span></div>
         @endif
@@ -93,8 +93,8 @@
 
     <div class="flex flex-col flex-grow p-4 sm:p-5 overflow-hidden">
         <h2 class="text-base sm:text-lg md:text-xl font-semibold mb-2 min-h-[3rem] overflow-hidden break-words text-gray-900 dark:text-white">
-            <a href="{{ route('news.show', $news->slug) }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 line-clamp-2 block w-full transition-colors" title="{{ $news->title }}">
-                {{ $news->title }}
+            <a href="{{ route('news.show', $news->slug) }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 line-clamp-2 block w-full transition-colors" title="{{ $news->t('title') }}">
+                {{ $news->t('title') }}
             </a>
         </h2>
 
