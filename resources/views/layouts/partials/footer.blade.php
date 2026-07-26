@@ -45,7 +45,7 @@
                         <span class="f-brand-badge">RU</span>
                         <div class="min-w-0">
                             <h2 id="dev-info" class="text-base font-bold leading-tight text-gray-900 dark:text-white">RU CMS</h2>
-                            <div class="text-[11px] leading-tight text-gray-500 dark:text-gray-400">Модульная CMS · Laravel {{ app()->version() }}</div>
+                            <div class="text-[11px] leading-tight text-gray-500 dark:text-gray-400">{{ __('frontend.common.cms_tagline') }} · Laravel {{ app()->version() }}</div>
                         </div>
                     </div>
 
@@ -67,7 +67,7 @@
 
             {{-- 3) Контакты и соцсети --}}
             <section aria-labelledby="footer-links" class="footer-contacts text-center md:text-left">
-                <h2 id="footer-links" class="f-heading">Контакты</h2>
+                <h2 id="footer-links" class="f-heading">{{ __('frontend.footer.contacts') }}</h2>
 
                 {{-- Обезличенные тестовые сведения --}}
                 <div class="space-y-2">
@@ -133,7 +133,7 @@
                         placeholder="{{ __('frontend.footer.email') }}"
                         class="f-mail-input flex-1" required>
                     <button type="submit" :disabled="busy" class="f-submit">
-                        <span x-show="!busy" class="inline-flex items-center gap-2">@themeIcon('mail') Отправить</span>
+                        <span x-show="!busy" class="inline-flex items-center gap-2">@themeIcon('mail') {{ __('frontend.footer.send') }}</span>
                         <span x-show="busy">{{ __('frontend.footer.sending') }}</span>
                     </button>
                     <p x-text="msg" class="text-red-600 text-[12px] sm:self-center"></p>

@@ -9,6 +9,7 @@
 
 return [
     'header' => [
+        'menu' => 'Меню',
         'tagline' => 'Контент & Управление',
         'search' => 'Поиск…',
         'search_action' => 'Искать',
@@ -75,6 +76,9 @@ return [
         'pages_section' => 'Страницы сайта',
     ],
     'account' => [
+        'individual' => 'Физическое лицо',
+        'legal_entity_type' => 'Юридическое лицо',
+        'company' => 'Юридическое лицо',
         'amount' => 'Сумма',
         'change_password' => 'Смена пароля',
         'company' => 'Компания',
@@ -102,6 +106,9 @@ return [
         'user_type' => 'Тип пользователя',
     ],
     'common' => [
+        'cms_tagline' => 'Модульная CMS',
+        'fit_screen' => 'По экрану',
+        'download' => 'Скачать',
         'home' => 'Главная',
         'more' => 'Подробнее',
         'back' => 'Назад',

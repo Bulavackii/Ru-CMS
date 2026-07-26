@@ -570,15 +570,14 @@
             <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;justify-content:center">
                 <a id="ru-lb-dl" href="#" download
                     style="display:inline-block;padding:.55rem .85rem;border-radius:.6rem;background:#fff;color:#111;
-                text-decoration:none;font-weight:600;border:1px solid #e5e7eb;">Скачать</a>
+                text-decoration:none;font-weight:600;border:1px solid #e5e7eb;">{{ __('frontend.common.download') }}</a>
 
                 <button id="ru-lb-zi" type="button"
                     style="padding:.55rem .85rem;border-radius:.6rem;background:#ffffff;color:#111;border:1px solid #e5e7eb;font-weight:600">+</button>
                 <button id="ru-lb-zo" type="button"
                     style="padding:.55rem .85rem;border-radius:.6rem;background:#ffffff;color:#111;border:1px solid #e5e7eb;font-weight:600">-</button>
                 <button id="ru-lb-fit" type="button"
-                    style="padding:.55rem .85rem;border-radius:.6rem;background:#ffffff;color:#111;border:1px solid #e5e7eb;font-weight:600">По
-                    экрану</button>
+                    style="padding:.55rem .85rem;border-radius:.6rem;background:#ffffff;color:#111;border:1px solid #e5e7eb;font-weight:600">{{ __('frontend.common.fit_screen') }}</button>
                 <span id="ru-lb-zoomval" style="color:#e5e7eb;font-size:.9rem;margin-left:.25rem">100%</span>
             </div>
         </figure>

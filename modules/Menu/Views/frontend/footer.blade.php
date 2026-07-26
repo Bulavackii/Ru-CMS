@@ -32,8 +32,8 @@
 @endphp
 
 @forelse ($footerMenus as $menu)
-    <nav class="footer-col text-center" aria-label="{{ $menu->title }}">
-        <h2 class="{{ $footerColTitle }}">{{ $menu->title }}</h2>
+    <nav class="footer-col text-center" aria-label="{{ $menu->t('title') }}">
+        <h2 class="{{ $footerColTitle }}">{{ $menu->t('title') }}</h2>
         <ul class="space-y-2 list-none m-0 p-0 inline-block text-left">
             @foreach ($menu->items as $item)
                 <li>

@@ -9,6 +9,7 @@
 
 return [
     'header' => [
+        'menu' => 'Мәзір',
         'tagline' => 'Мазмұн & Басқару',
         'search' => 'Іздеу…',
         'search_action' => 'Іздеу',
@@ -75,6 +76,9 @@ return [
         'pages_section' => 'Сайт беттері',
     ],
     'account' => [
+        'individual' => 'Жеке тұлға',
+        'legal_entity_type' => 'Заңды тұлға',
+        'company' => 'Заңды тұлға',
         'amount' => 'Сомасы',
         'change_password' => 'Құпия сөзді ауыстыру',
         'company' => 'Компания',
@@ -102,6 +106,9 @@ return [
         'user_type' => 'Пайдаланушы түрі',
     ],
     'common' => [
+        'cms_tagline' => 'Модульдік CMS',
+        'fit_screen' => 'Экранға сай',
+        'download' => 'Жүктеу',
         'home' => 'Басты бет',
         'more' => 'Толығырақ',
         'back' => 'Артқа',

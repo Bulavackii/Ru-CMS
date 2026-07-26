@@ -9,6 +9,7 @@
 
 return [
     'header' => [
+        'menu' => 'Menu',
         'tagline' => 'Content & Management',
         'search' => 'Search…',
         'search_action' => 'Search',
@@ -75,6 +76,9 @@ return [
         'pages_section' => 'Site pages',
     ],
     'account' => [
+        'individual' => 'Individual',
+        'legal_entity_type' => 'Legal entity',
+        'company' => 'Legal entity',
         'amount' => 'Total',
         'change_password' => 'Change password',
         'company' => 'Company',
@@ -102,6 +106,9 @@ return [
         'user_type' => 'Account type',
     ],
     'common' => [
+        'cms_tagline' => 'Modular CMS',
+        'fit_screen' => 'Fit to screen',
+        'download' => 'Download',
         'home' => 'Home',
         'more' => 'Details',
         'back' => 'Back',

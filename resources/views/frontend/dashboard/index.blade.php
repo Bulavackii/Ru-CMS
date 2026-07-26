@@ -1,10 +1,10 @@
 @extends('layouts.frontend')
 
-@section('title', 'Личный кабинет')
+@section('title', __('frontend.account.title'))
 
 @section('content')
     <h1 class="text-3xl font-extrabold text-center text-blue-900 mb-8">
-        👤 Личный кабинет
+        👤 {{ __('frontend.account.title') }}
     </h1>
 
     {{-- ✅ Сообщение об успехе --}}
@@ -34,7 +34,7 @@
 
             <div class="flex items-center gap-3">
                 <i class="fas fa-id-badge text-blue-600 text-lg"></i>
-                <span><strong>{{ __('frontend.account.user_type') }}:</strong> {{ $user->is_company ? 'Юридическое лицо' : 'Физическое лицо' }}</span>
+                <span><strong>{{ __('frontend.account.user_type') }}:</strong> {{ $user->is_company ? __('frontend.account.legal_entity_type') : __('frontend.account.individual') }}</span>
             </div>
         </div>
 

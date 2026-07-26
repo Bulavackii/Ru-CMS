@@ -2,11 +2,17 @@
 
 namespace Modules\Visual\Models;
 
+use App\Support\HasContentTranslations;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 
 class Theme extends Model
 {
+    use HasContentTranslations;
+
+    /** Название темы видно посетителю в переключателе шапки */
+    public array $translatable = ['title'];
+
     protected $table = 'visual_themes';
     protected $fillable = ['slug','title','tokens','config','is_default'];
     
@@ -27,7 +33,7 @@ class Theme extends Model
         static::saved(function ($theme) {
             Cache::forget('active_theme');
             Cache::forget('active_theme_css');
-            Cache::forget(self::LIST_CACHE_KEY);
+            foreach (available_locales() as $loc) { Cache::forget(self::LIST_CACHE_KEY . '_' . $loc); }
             if ($theme->is_default) {
                 Cache::forever('active_theme_id', $theme->id);
             }
@@ -36,7 +42,7 @@ class Theme extends Model
         static::deleted(function ($theme) {
             Cache::forget('active_theme');
             Cache::forget('active_theme_css');
-            Cache::forget(self::LIST_CACHE_KEY);
+            foreach (available_locales() as $loc) { Cache::forget(self::LIST_CACHE_KEY . '_' . $loc); }
             if (Cache::get('active_theme_id') == $theme->id) {
                 Cache::forget('active_theme_id');
             }
@@ -57,14 +63,17 @@ class Theme extends Model
      */
     public static function publicList()
     {
-        return Cache::remember(self::LIST_CACHE_KEY, 3600, function () {
+        // Язык в ключе: название темы переводится, у каждой локали свой список
+        $key = self::LIST_CACHE_KEY . '_' . app()->getLocale();
+
+        return Cache::remember($key, 3600, function () {
             return static::query()
                 ->orderByDesc('is_default')
                 ->orderBy('title')
                 ->get(['id', 'slug', 'title', 'tokens', 'is_default'])
                 ->map(fn (self $theme) => (object) [
                     'slug'       => $theme->slug,
-                    'title'      => $theme->title,
+                    'title'      => $theme->t('title'),
                     'primary'    => data_get($theme->tokens, 'colors.primary', '#6366f1'),
                     'is_default' => (bool) $theme->is_default,
                 ])

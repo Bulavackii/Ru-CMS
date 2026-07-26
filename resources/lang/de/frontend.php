@@ -9,6 +9,7 @@
 
 return [
     'header' => [
+        'menu' => 'Menü',
         'tagline' => 'Inhalt & Verwaltung',
         'search' => 'Suche…',
         'search_action' => 'Suchen',
@@ -75,6 +76,9 @@ return [
         'pages_section' => 'Seiten der Website',
     ],
     'account' => [
+        'individual' => 'Privatperson',
+        'legal_entity_type' => 'Juristische Person',
+        'company' => 'Juristische Person',
         'amount' => 'Summe',
         'change_password' => 'Passwort ändern',
         'company' => 'Firma',
@@ -102,6 +106,9 @@ return [
         'user_type' => 'Kontotyp',
     ],
     'common' => [
+        'cms_tagline' => 'Modulares CMS',
+        'fit_screen' => 'An Bildschirm anpassen',
+        'download' => 'Herunterladen',
         'home' => 'Startseite',
         'more' => 'Details',
         'back' => 'Zurück',

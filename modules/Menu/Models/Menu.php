@@ -2,12 +2,18 @@
 
 namespace Modules\Menu\Models;
 
+use App\Support\HasContentTranslations;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Cache;
 
 class Menu extends Model
 {
+    use HasContentTranslations;
+
+    /** Название меню переводится: оно же — заголовок колонки в подвале */
+    public array $translatable = ['title'];
+
     protected $table = 'menus';
 
     protected $fillable = [

@@ -9,6 +9,7 @@
 
 return [
     'header' => [
+        'menu' => 'Menu',
         'tagline' => 'Contenu & Gestion',
         'search' => 'Recherche…',
         'search_action' => 'Rechercher',
@@ -75,6 +76,9 @@ return [
         'pages_section' => 'Pages du site',
     ],
     'account' => [
+        'individual' => 'Particulier',
+        'legal_entity_type' => 'Personne morale',
+        'company' => 'Personne morale',
         'amount' => 'Montant',
         'change_password' => 'Changer le mot de passe',
         'company' => 'Société',
@@ -102,6 +106,9 @@ return [
         'user_type' => 'Type de compte',
     ],
     'common' => [
+        'cms_tagline' => 'CMS modulaire',
+        'fit_screen' => 'Ajuster à l\x27écran',
+        'download' => 'Télécharger',
         'home' => 'Accueil',
         'more' => 'Détails',
         'back' => 'Retour',

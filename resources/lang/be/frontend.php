@@ -9,6 +9,7 @@
 
 return [
     'header' => [
+        'menu' => 'Меню',
         'tagline' => 'Кантэнт і Кіраванне',
         'search' => 'Пошук…',
         'search_action' => 'Шукаць',
@@ -75,6 +76,9 @@ return [
         'pages_section' => 'Старонкі сайта',
     ],
     'account' => [
+        'individual' => 'Фізічная асоба',
+        'legal_entity_type' => 'Юрыдычная асоба',
+        'company' => 'Юрыдычная асоба',
         'amount' => 'Сума',
         'change_password' => 'Змена пароля',
         'company' => 'Кампанія',
@@ -102,6 +106,9 @@ return [
         'user_type' => 'Тып карыстальніка',
     ],
     'common' => [
+        'cms_tagline' => 'Модульная CMS',
+        'fit_screen' => 'Па экране',
+        'download' => 'Спампаваць',
         'home' => 'Галоўная',
         'more' => 'Падрабязна',
         'back' => 'Назад',
