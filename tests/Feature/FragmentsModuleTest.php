@@ -43,13 +43,14 @@ class FragmentsModuleTest extends TestCase
 
     // ── Сидер ─────────────────────────────────────────────────────────────
 
-    public function test_seeder_creates_disabled_presets(): void
+    public function test_seeder_creates_enabled_fragments(): void
     {
         SeedDefaultFragmentsCommand::seed(false);
 
         $this->assertSame(6, Fragment::count());
-        // Все выключены: фрагмент — дополнительный блок, включать его решает владелец
-        $this->assertSame(0, Fragment::where('is_active', true)->count());
+        // Включены намеренно: новый администратор должен увидеть блоки на
+        // страницах и понять, что это редактируемые фрагменты
+        $this->assertSame(6, Fragment::where('is_active', true)->count());
 
         foreach (Fragment::all() as $fragment) {
             $this->assertNotEmpty($fragment->zone, "У фрагмента {$fragment->slug} нет зоны");
@@ -57,17 +58,36 @@ class FragmentsModuleTest extends TestCase
         }
     }
 
-    public function test_seeder_is_idempotent_and_keeps_enabled_state(): void
+    public function test_seeder_is_idempotent_and_keeps_disabled_state(): void
     {
         SeedDefaultFragmentsCommand::seed(false);
 
+        // Выключенный владельцем блок повторная установка не включает обратно
         $fragment = Fragment::where('slug', 'frontend-topbar')->firstOrFail();
-        $fragment->update(['is_active' => true]);
+        $fragment->update(['is_active' => false]);
 
         SeedDefaultFragmentsCommand::seed(false);
 
         $this->assertSame(6, Fragment::count());
-        $this->assertTrue($fragment->fresh()->is_active);
+        $this->assertFalse($fragment->fresh()->is_active);
+    }
+
+    public function test_seeded_fragments_are_visible_on_the_site_and_in_admin(): void
+    {
+        SeedDefaultFragmentsCommand::seed(false);
+
+        // Сайт: блоки выглядят как обычные элементы оформления
+        $this->get('/')
+            ->assertStatus(200)
+            ->assertSee('Работаем ежедневно', false)
+            ->assertSee('Остались вопросы', false);
+
+        // Панель: блок прямо объясняет, что это фрагмент и где он правится
+        $this->actingAs($this->admin())
+            ->get(route('admin.visual.fragments.index'))
+            ->assertStatus(200)
+            ->assertSee('Это фрагмент', false)
+            ->assertSee('Памятка редактора', false);
     }
 
     // ── Вывод в зонах ─────────────────────────────────────────────────────
