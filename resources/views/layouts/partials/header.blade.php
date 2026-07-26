@@ -114,29 +114,50 @@
           </div>
         </div>
 
-        {{-- Переключатель темы (логика Alpine не менялась) --}}
-        <button x-data="{
-            darkMode: false,
-            init() {
-                this.darkMode = localStorage.getItem('darkMode') === 'true';
-                this.applyTheme();
-            },
-            toggle() {
-                this.darkMode = !this.darkMode;
-                this.applyTheme();
-                localStorage.setItem('darkMode', this.darkMode);
-            },
-            applyTheme() {
-                if (this.darkMode) {
-                    document.documentElement.classList.add('dark');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                }
-            }
-        }" @click="toggle()" type="button" class="hdr-icon-btn" title="Переключить тему">
-          <i class="fas" :class="darkMode ? 'fa-sun' : 'fa-moon'"></i>
-          <span class="hidden lg:inline" x-text="darkMode ? 'Светлая' : 'Тёмная'"></span>
-        </button>
+        {{-- Выбор темы оформления. Список берётся из модуля Темы: добавили тему
+             в админке — она здесь, удалили — исчезла. Переключение — обычные
+             ссылки, Alpine нужен только чтобы раскрыть список. --}}
+        @php
+            $themeList = $themeOptions ?? collect();
+            $currentThemeSlug = $siteThemeSlug ?? null;
+            $currentThemeTitle = $themeList->firstWhere('slug', $currentThemeSlug)->title
+                ?? ($themeList->firstWhere('is_default', true)->title ?? 'Тема');
+            $currentThemePrimary = $themeList->firstWhere('slug', $currentThemeSlug)->primary
+                ?? ($themeList->firstWhere('is_default', true)->primary ?? '#6366f1');
+        @endphp
+
+        @if($themeList->isNotEmpty())
+          <div x-data="{ open:false }" @click.outside="open=false" @keydown.escape.window="open=false" class="hdr-lang relative">
+            <button type="button" @click="open=!open" class="hdr-icon-btn" title="Тема оформления" :aria-expanded="open.toString()">
+              <span class="hdr-theme-dot" style="background: {{ $currentThemePrimary }}"></span>
+              <span class="hidden lg:inline">{{ $currentThemeTitle }}</span>
+              <i class="fas fa-chevron-down" style="font-size:.58rem; opacity:.55"></i>
+            </button>
+
+            <div x-cloak x-show="open" x-transition class="hdr-lang-menu">
+              @foreach($themeList as $themeOption)
+                <a href="{{ route('frontend.theme.set', $themeOption->slug) }}"
+                   class="hdr-lang-item {{ $themeOption->slug === $currentThemeSlug ? 'is-active' : '' }}">
+                  <span class="hdr-theme-dot" style="background: {{ $themeOption->primary }}"></span>
+                  <span>{{ $themeOption->title }}</span>
+                  @if($themeOption->is_default)
+                    <span class="hdr-theme-note">на сайте</span>
+                  @endif
+                  @if($themeOption->slug === $currentThemeSlug)
+                    <i class="fas fa-check" style="margin-left:auto; font-size:.7rem"></i>
+                  @endif
+                </a>
+              @endforeach
+
+              @if($currentThemeSlug)
+                <a href="{{ route('frontend.theme.set', 'reset') }}" class="hdr-lang-item hdr-theme-reset">
+                  <i class="fas fa-rotate-left" style="font-size:.7rem; opacity:.6"></i>
+                  <span>Как на сайте</span>
+                </a>
+              @endif
+            </div>
+          </div>
+        @endif
 
         @if ($hasProducts)
           <a href="{{ route('cart.index') }}" class="hdr-pill" title="Корзина">
@@ -246,6 +267,13 @@
     :root.dark .hdr-lang-item:hover{ background:rgba(99,102,241,.2); color:#c7d2fe; }
     .hdr-lang-item.is-active{ color:#4f46e5; font-weight:500; }
     :root.dark .hdr-lang-item.is-active{ color:#c7d2fe; }
+    /* Переключатель темы: кружок-превью в цвете акцента темы */
+    .hdr-theme-dot{ width:.85rem; height:.85rem; border-radius:999px; flex:0 0 auto;
+        border:1px solid rgba(17,24,39,.15); box-shadow:0 1px 2px rgba(17,24,39,.15); }
+    .hdr-theme-note{ font-size:.62rem; color:#9ca3af; letter-spacing:.02em; }
+    .hdr-theme-reset{ border-top:1px solid rgba(17,24,39,.08); margin-top:.2rem; padding-top:.55rem; color:#6b7280; }
+    :root.dark .hdr-theme-reset{ border-color:rgba(255,255,255,.08); }
+
     .hdr-lang-code{ display:inline-flex; align-items:center; justify-content:center; min-width:1.75rem; height:1.4rem;
         padding:0 .3rem; border-radius:6px; background:rgba(99,102,241,.13); color:#4338ca; font-size:.62rem;
         font-weight:700; letter-spacing:.03em; flex:0 0 auto; }

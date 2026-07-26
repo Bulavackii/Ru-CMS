@@ -100,12 +100,15 @@
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    {{-- Светлая тема всегда по умолчанию: системную dark-preference не учитываем, только явный выбор пользователя --}}
+    {{-- Тёмный режим на сайте больше не отдельный переключатель: его роль
+         играет тема «Графит» из модуля Темы (её можно выбрать в шапке).
+         Прежний флаг darkMode из localStorage вычищаем, иначе у тех, кто
+         успел его включить, класс .dark остался бы навсегда — выключать
+         его стало нечем. В админке тёмный режим не трогаем, он свой. --}}
     <script>
         (function() {
-            if (localStorage.getItem('darkMode') === 'true') {
-                document.documentElement.classList.add('dark');
-            }
+            try { localStorage.removeItem('darkMode'); } catch (e) {}
+            document.documentElement.classList.remove('dark');
         })();
     </script>
     
@@ -113,8 +116,13 @@
 
     @php
         // ==== ТЕМА ====
-        $tokens = $activeTheme->tokens ?? [];
-        $config = $activeTheme->config ?? [];
+        // На сайте показываем тему, выбранную посетителем (переключатель в
+        // шапке); если он ничего не выбирал или выбранную тему удалили —
+        // активную тему сайта. $siteTheme приходит из VisualServiceProvider.
+        $pageTheme = $siteTheme ?? $activeTheme ?? null;
+
+        $tokens = $pageTheme->tokens ?? [];
+        $config = $pageTheme->config ?? [];
 
         $fontBase = data_get($tokens, 'font.base', '-apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif');
         $radiusMd = data_get($tokens, 'radius.md', '12px');
@@ -397,7 +405,7 @@
     }
 @endphp
 
-<body class="fx-sharp relative text-gray-800 dark:text-gray-100 min-h-screen flex flex-col overflow-x-hidden bg-white dark:bg-gray-900 transition-colors duration-200 {{ $activeTheme ? 'fx-themed' : '' }} {{ $themeIsDark ? 'fx-theme-dark' : '' }}"
+<body class="fx-sharp relative text-gray-800 dark:text-gray-100 min-h-screen flex flex-col overflow-x-hidden bg-white dark:bg-gray-900 transition-colors duration-200 {{ $pageTheme ? 'fx-themed' : '' }} {{ $themeIsDark ? 'fx-theme-dark' : '' }}"
     style="font-family: var(--font-base, -apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif)">
 
     {{-- ЕДИНЫЙ фон-паттерн из темы --}}

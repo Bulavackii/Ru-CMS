@@ -335,6 +335,24 @@ Route::get('/locale/{locale}', function (string $locale) {
     return redirect()->back();
 })->name('frontend.locale.set');
 
+// 🎨 Выбор темы оформления посетителем. Выбор личный: живёт в сессии и не
+// трогает активную тему сайта (её задаёт админка). Значение 'reset' убирает
+// личный выбор — посетитель снова видит оформление «как на сайте».
+// Работает без JS: это обычная ссылка, как у переключателя языка выше.
+Route::get('/theme/{slug}', function (string $slug) {
+    if ($slug === 'reset') {
+        session()->forget('site_theme');
+
+        return redirect()->back();
+    }
+
+    if (\Modules\Visual\Models\Theme::where('slug', $slug)->exists()) {
+        session(['site_theme' => $slug]);
+    }
+
+    return redirect()->back();
+})->name('frontend.theme.set');
+
 // Route::get('/admin', fn() => view('admin'))->name('admin');
 // Route::get('/admin/{any}', fn() => view('admin'))
 //     ->where('any', '^(?!seo/).*');

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Log;
 use Modules\Visual\Models\Theme;
 
 class ThemeServiceProvider extends ServiceProvider
@@ -29,6 +30,31 @@ class ThemeServiceProvider extends ServiceProvider
             $theme = $this->getCachedTheme();
             $view->with('activeTheme', $theme);
             $view->with('__activeTheme', $theme);
+        });
+
+        // 🎚️ Тема, выбранная посетителем, и список тем для переключателя в
+        // шапке сайта. Считается на сервере: токены попадают в #theme-vars
+        // сразу, без мигания и расхождения с классами fx-themed/fx-theme-dark.
+        // Выбор личный (сессия) и активную тему сайта не меняет.
+        View::composer(['layouts.frontend', 'layouts.partials.header'], function ($view) {
+            $slug = session('site_theme');
+
+            try {
+                if (!$this->isInstalled() || !Schema::hasTable('visual_themes')) {
+                    throw new \RuntimeException('themes table is not available');
+                }
+
+                $view->with([
+                    'siteTheme'     => Theme::resolveForVisitor($slug),
+                    'themeOptions'  => Theme::publicList(),
+                    'siteThemeSlug' => $slug,
+                ]);
+            } catch (\Throwable $e) {
+                // Сайт не должен падать из-за тем: нет таблицы или БД —
+                // работает прежнее оформление из лейаута
+                Log::debug('Theme switcher skipped: ' . $e->getMessage());
+                $view->with(['siteTheme' => null, 'themeOptions' => collect(), 'siteThemeSlug' => null]);
+            }
         });
     }
 
