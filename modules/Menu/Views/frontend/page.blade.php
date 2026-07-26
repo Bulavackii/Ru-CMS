@@ -5,7 +5,7 @@
 @section('content')
     @php
         // reading_time() считает слова с поддержкой кириллицы (см. app/helpers.php)
-        $readMins = reading_time($page->content);
+        $readMins = reading_time($page->t('content'));
     @endphp
 
     <article class="w-full max-w-screen-2xl mx-auto">
@@ -20,13 +20,13 @@
                 <span class="opacity-50">/</span>
                 <span class="text-gray-400 dark:text-gray-500">Страницы</span>
                 <span class="opacity-50">/</span>
-                <span class="text-gray-700 dark:text-gray-300 truncate max-w-[16rem]">{{ $page->title }}</span>
+                <span class="text-gray-700 dark:text-gray-300 truncate max-w-[16rem]">{{ $page->t('title') }}</span>
             </nav>
 
             <div class="flex items-start gap-3 sm:gap-4">
                 <span class="fx-badge shrink-0 mt-1"><i class="fas fa-file-lines"></i></span>
                 <h1 class="fx-section-title text-2xl sm:text-3xl md:text-4xl leading-tight break-words">
-                    {{ $page->title }}
+                    {{ $page->t('title') }}
                 </h1>
             </div>
 
@@ -53,7 +53,7 @@
         {{-- ===== Контент ===== --}}
         <div class="fx-card p-6 sm:p-8 md:p-10 mb-6">
             <div class="prose prose-sm sm:prose lg:prose-lg dark:prose-invert max-w-none page-content text-gray-800 dark:text-gray-100">
-                {!! $page->content !!}
+                {!! $page->t('content') !!}
             </div>
         </div>
 
@@ -68,7 +68,7 @@
                 <span class="text-xs text-gray-500 dark:text-gray-400 mr-1">Поделиться:</span>
                 <a href="https://vk.com/share.php?url={{ urlencode(url()->current()) }}" target="_blank" rel="noopener"
                    class="share-btn" style="--c:#0077FF" title="ВКонтакте" aria-label="Поделиться во ВКонтакте"><i class="fab fa-vk"></i></a>
-                <a href="https://t.me/share/url?url={{ urlencode(url()->current()) }}&text={{ urlencode($page->title) }}" target="_blank" rel="noopener"
+                <a href="https://t.me/share/url?url={{ urlencode(url()->current()) }}&text={{ urlencode($page->t('title')) }}" target="_blank" rel="noopener"
                    class="share-btn" style="--c:#26A5E4" title="Telegram" aria-label="Поделиться в Telegram"><i class="fab fa-telegram"></i></a>
                 <button type="button" class="share-btn copy-link" data-url="{{ url()->current() }}" style="--c:#6366f1"
                         title="Скопировать ссылку" aria-label="Скопировать ссылку"><i class="fas fa-link"></i></button>

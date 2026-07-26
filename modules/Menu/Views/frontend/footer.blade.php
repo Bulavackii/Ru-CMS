@@ -41,7 +41,7 @@
                        @if($item->target) target="{{ $item->target }}" @endif
                        @if($item->rel) rel="{{ $item->rel }}" @endif>
                         @themeIcon($item->displayIcon())
-                        <span class="text-[13px]">{{ $item->title }}</span>
+                        <span class="text-[13px]">{{ $item->t('title') }}</span>
                     </a>
                     @if ($item->activeChildren && $item->activeChildren->count())
                         <ul class="mt-1 ml-6 space-y-1 list-none">

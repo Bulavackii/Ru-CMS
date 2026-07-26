@@ -156,6 +156,10 @@
                 </div>
             </div>
         </div>
+    
+        {{-- Переводы контента на другие языки (таблица content_translations) --}}
+        <x-admin.translations :model="$page" :fields="['title' => 'Заголовок', 'content' => ['label' => 'Содержимое', 'type' => 'textarea'], 'meta_title' => 'SEO: title', 'meta_description' => ['label' => 'SEO: description', 'type' => 'textarea']]" />
+
     </form>
 
     {{-- 🧠 TinyMCE редактор --}}

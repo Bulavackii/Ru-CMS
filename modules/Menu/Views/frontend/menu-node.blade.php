@@ -47,7 +47,7 @@
        {!! $attrsStr !!}
        {{ $active ? 'aria-current=page' : '' }}>
         <span class="menu-ico">@themeIcon($iconName)</span>
-        <span class="menu-text">{{ $item->title }}</span>
+        <span class="menu-text">{{ $item->t('title') }}</span>
         @if ($hasChildren && $level === 1)
             <svg class="menu-caret" width="11" height="11" viewBox="0 0 24 24" fill="none"
                  stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

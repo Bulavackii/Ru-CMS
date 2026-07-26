@@ -214,6 +214,9 @@ class NewsController extends Controller
 
         $data['updated_by'] = auth()->id();
         $news->update($data);
+        // Переводы контента на другие языки (блок «Переводы» в форме)
+        $news->saveTranslations($request->input('translations', []));
+
         $news->categories()->sync($request->input('categories', []));
 
         // 🎯 Используем правильное событие

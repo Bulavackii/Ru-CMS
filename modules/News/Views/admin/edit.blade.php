@@ -182,6 +182,10 @@
                 </button>
             </div>
         </div>
+    
+        {{-- Переводы контента на другие языки (таблица content_translations) --}}
+        <x-admin.translations :model="$news" :fields="['title' => 'Заголовок', 'content' => ['label' => 'Текст новости', 'type' => 'textarea'], 'meta_title' => 'SEO: title', 'meta_description' => ['label' => 'SEO: description', 'type' => 'textarea']]" />
+
     </form>
 
     <script src="{{ asset('admin/tinymce/tinymce.min.js') }}"></script>

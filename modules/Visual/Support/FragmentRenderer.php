@@ -61,7 +61,8 @@ class FragmentRenderer
         }
 
         // 1) Готовый HTML из админки — самый частый и быстрый путь
-        $html = trim((string) $fragment->html_cached);
+        // t(): содержимое на языке посетителя, иначе оригинал
+        $html = trim((string) $fragment->t('html_cached'));
 
         // 2) Иначе — собственная вьюха по конвенции visual/fragments/{slug}
         if ($html === '') {
@@ -95,7 +96,8 @@ class FragmentRenderer
     public static function zone(string $zone): ?string
     {
         try {
-            $key = 'fragment_zone_v' . Fragment::cacheVersion() . '_' . $zone;
+            // Язык в ключе: у зоны свой HTML на каждом языке
+            $key = 'fragment_zone_v' . Fragment::cacheVersion() . '_' . app()->getLocale() . '_' . $zone;
 
             return Cache::remember($key, self::TTL, fn () => self::render(['zone' => $zone]));
         } catch (\Throwable $e) {

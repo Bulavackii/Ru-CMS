@@ -146,6 +146,9 @@ class PageController extends Controller
 
         // 💾 Обновление страницы
         $page->update($data);
+        // Переводы контента на другие языки (блок «Переводы» в форме)
+        $page->saveTranslations($request->input('translations', []));
+
 
         // 🔗 Обновляем привязку к категориям
         $page->categories()->sync($request->input('categories', []));

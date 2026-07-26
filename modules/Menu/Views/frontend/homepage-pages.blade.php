@@ -29,10 +29,10 @@
                     @if (!empty($page->slug))
                         <a href="{{ route('frontend.pages.show', $page->slug) }}"
                            class="hover:text-indigo-600 dark:hover:text-indigo-400 transition" title="Открыть страницу">
-                            {{ $page->title }}
+                            {{ $page->t('title') }}
                         </a>
                     @else
-                        {{ $page->title }}
+                        {{ $page->t('title') }}
                     @endif
                 </h3>
 
@@ -40,7 +40,7 @@
                     <div class="flex flex-wrap items-center gap-1.5 mb-3">
                         @foreach ($page->categories as $category)
                             <a href="{{ url('/?category=' . $category->id) }}" class="fx-chip hover:brightness-95">
-                                {{ $category->title }}
+                                {{ $category->t('title') }}
                             </a>
                         @endforeach
                     </div>

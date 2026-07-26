@@ -42,7 +42,7 @@
             <div class="absolute inset-0 flex items-center justify-center">
               @if ($item->media_type === 'image')
                 <img src="{{ $src }}" 
-                     alt="{{ $item->alt_text ?? $item->caption ?? 'Слайд' }}"
+                     alt="{{ $item->t('alt_text') ?? $item->t('caption') ?? 'Слайд' }}"
                      loading="lazy" 
                      decoding="async"
                      class="w-full h-full object-contain rounded-md">
@@ -61,12 +61,12 @@
                   <a href="{{ $item->link }}" target="_blank" rel="noopener"
                      class="inline-block text-xs sm:text-sm font-semibold px-4 py-1.5 rounded-full shadow-md transition hover:opacity-90"
                      style="color: {{ $textColor }}; background-color: {{ $bgColor }};">
-                    {{ $item->caption }}
+                    {{ $item->t('caption') }}
                   </a>
                 @else
                   <span class="inline-block text-xs sm:text-sm font-semibold px-4 py-1.5 rounded-full shadow-md"
                         style="color: {{ $textColor }}; background-color: {{ $bgColor }};">
-                    {{ $item->caption }}
+                    {{ $item->t('caption') }}
                   </span>
                 @endif
               </div>

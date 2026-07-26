@@ -22,7 +22,7 @@
             {{-- медиа целиком в рамке --}}
             <div class="absolute inset-0 flex items-center justify-center">
               @if ($item->media_type === 'image')
-                <img src="{{ $src }}" alt="{{ $item->caption ?? 'Слайд' }}"
+                <img src="{{ $src }}" alt="{{ $item->t('caption') ?? 'Слайд' }}"
                      loading="lazy" decoding="async"
                      class="w-full h-full object-contain rounded-md">
               @else
@@ -40,7 +40,7 @@
                           bg-gradient-to-r from-black/80 via-black/60 to-black/80
                           text-white text-center text-xs sm:text-sm md:text-base font-semibold px-4 py-2
                           rounded-xl shadow-lg backdrop-blur-sm">
-                📝 {{ $item->caption }}
+                📝 {{ $item->t('caption') }}
               </div>
             @endif
           </div>

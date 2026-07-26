@@ -45,7 +45,7 @@
                            @if($item->target) target="{{ $item->target }}" @endif
                            @if($item->rel) rel="{{ $item->rel }}" @endif>
                             <span class="fs-ico">@themeIcon($item->displayIcon())</span>
-                            <span>{{ $item->title }}</span>
+                            <span>{{ $item->t('title') }}</span>
                         </a>
                         @if ($item->activeChildren && $item->activeChildren->count())
                             <ul class="fs-list fs-sub">
