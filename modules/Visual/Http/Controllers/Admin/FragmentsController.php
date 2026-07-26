@@ -76,6 +76,7 @@ class FragmentsController extends Controller
     public function store(Request $request)
     {
         $data = $this->validated($request);
+        $this->extractStyles($data);
         $this->applyReservedGuard($data, null);
         $data['updated_by'] = Auth::id();
         $data['type'] = $data['type'] ?? 'blade';
@@ -98,6 +99,7 @@ class FragmentsController extends Controller
     public function update(Request $request, Fragment $fragment)
     {
         $data = $this->validated($request, $fragment->id);
+        $this->extractStyles($data);
         $this->applyReservedGuard($data, $fragment);
         $data['updated_by'] = Auth::id();
         $data['type'] = $data['type'] ?? ($fragment->type ?: 'blade');
@@ -206,6 +208,36 @@ class FragmentsController extends Controller
 
         return redirect()->route('admin.visual.fragments.edit', $newFragment)
             ->with('success', 'Фрагмент скопирован');
+    }
+
+
+    /**
+     * Выносит <style> из содержимого фрагмента в css_inline.
+     *
+     * Оформление обязано жить отдельно от текста: html_cached переводится, а
+     * css_inline — нет. Если стили оставить внутри содержимого, перевод будет
+     * содержать только разметку, и на других языках блок потеряет вид.
+     * Поэтому вынимаем стили автоматически — как бы их ни ввели в редакторе.
+     */
+    protected function extractStyles(array &$data): void
+    {
+        $html = (string) ($data['html_cached'] ?? '');
+
+        if ($html === '' || ! preg_match_all('~<style[^>]*>(.*?)</style>~s', $html, $matches)) {
+            return;
+        }
+
+        $extracted = trim(implode("
+", array_map('trim', $matches[1])));
+        $existing = trim((string) ($data['css_inline'] ?? ''));
+
+        // Уже сохранённые стили не теряем: дописываем к ним новые
+        $data['css_inline'] = $existing !== '' && ! str_contains($existing, $extracted)
+            ? $existing . "
+" . $extracted
+            : ($existing !== '' ? $existing : $extracted);
+
+        $data['html_cached'] = trim(preg_replace('~<style[^>]*>.*?</style>~s', '', $html));
     }
 
     /**

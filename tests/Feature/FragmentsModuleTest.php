@@ -261,6 +261,42 @@ class FragmentsModuleTest extends TestCase
         $this->assertFalse($system->fresh()->is_active, 'Системный фрагмент не должен переключаться массово');
     }
 
+    public function test_styles_are_moved_out_of_content_on_save(): void
+    {
+        // Стили обязаны жить в css_inline: это поле не переводится, поэтому
+        // блок выглядит одинаково на всех языках. Если оставить <style> внутри
+        // содержимого, перевод получит только разметку и потеряет оформление.
+        $this->actingAs($this->admin())->post(route('admin.visual.fragments.store'), [
+            'title' => 'Промо',
+            'slug' => 'promo-block',
+            'zone' => 'frontend.topbar',
+            'html_cached' => '<div class="promo">Скидка</div><style>.promo{color:red}</style>',
+            'is_active' => '1',
+        ])->assertRedirect();
+
+        $fragment = Fragment::where('slug', 'promo-block')->firstOrFail();
+
+        $this->assertStringNotContainsString('<style', $fragment->html_cached);
+        $this->assertStringContainsString('.promo{color:red}', $fragment->css_inline);
+    }
+
+    public function test_translated_fragment_keeps_its_styles(): void
+    {
+        $fragment = $this->fragment([
+            'zone' => 'frontend.topbar',
+            'slug' => 'promo',
+            'html_cached' => '<div class="promo">Скидка</div>',
+            'css_inline' => '.promo{color:red}',
+        ]);
+        $fragment->saveTranslations(['de' => ['html_cached' => '<div class="promo">Rabatt</div>']]);
+
+        $this->withSession(['app_locale' => 'de', 'locale' => 'de'])
+            ->get('/')
+            ->assertStatus(200)
+            ->assertSee('Rabatt', false)
+            ->assertSee('.promo{color:red}', false);
+    }
+
     public function test_search_and_zone_filters_work_on_server(): void
     {
         $this->fragment(['slug' => 'pervyy', 'title' => 'Полоса объявления', 'zone' => 'frontend.topbar']);

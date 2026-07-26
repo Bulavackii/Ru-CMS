@@ -179,6 +179,22 @@
       <div class="text-xs text-gray-500 mt-1">Ctrl/Cmd+S — сохранить форму, Ctrl/Cmd+Enter — обновить предпросмотр.</div>
     </div>
 
+    {{-- Стили отдельно от содержимого: css_inline не переводится, поэтому
+         блок выглядит одинаково на всех языках, а перевод меняет только текст.
+         Если вставить <style> прямо в содержимое, он сам переедет сюда при
+         сохранении (см. FragmentsController::extractStyles). --}}
+    <div class="mt-4">
+      <label class="block text-sm mb-1 font-semibold text-gray-700 dark:text-gray-300">Стили фрагмента (CSS)</label>
+      <textarea name="css_inline" rows="8"
+                class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm font-mono
+                       focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                placeholder=".my-block{ padding: 1rem; }">{{ old('css_inline', $fragment->css_inline) }}</textarea>
+      <p class="admin-hint mt-1">
+        Оформление общее для всех языков — переводится только содержимое.
+        Тег <span class="font-mono">&lt;style&gt;</span> писать не нужно.
+      </p>
+    </div>
+
     {{-- JSON поля --}}
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
