@@ -4,44 +4,44 @@
 
 @section('content')
 <div class="container mx-auto px-4 py-6">
-    <h1 class="text-2xl font-bold mb-4">📝 Управление отзывами</h1>
+    <h1 class="text-2xl font-bold mb-4">📝 {{ __('admin.reviews.title') }}</h1>
 
     {{-- Фильтры --}}
     <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow mb-4">
         <form method="GET" class="flex flex-wrap gap-2 items-center">
             <select name="status" class="border rounded px-3 py-2 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
-                <option value="">Все статусы</option>
-                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Ожидающие</option>
-                <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Одобренные</option>
-                <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Отклоненные</option>
+                <option value="">{{ __('admin.reviews.all_statuses') }}</option>
+                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>{{ __('admin.reviews.pending') }}</option>
+                <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>{{ __('admin.reviews.approved') }}</option>
+                <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>{{ __('admin.reviews.rejected') }}</option>
             </select>
 
             <select name="rating" class="border rounded px-3 py-2 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
-                <option value="">Все оценки</option>
+                <option value="">{{ __('admin.reviews.all_ratings') }}</option>
                 @for($i = 5; $i >= 1; $i--)
                     <option value="{{ $i }}" {{ request('rating') == $i ? 'selected' : '' }}>{{ $i }}⭐</option>
                 @endfor
             </select>
 
             <select name="item_type" class="border rounded px-3 py-2 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
-                <option value="">Все типы</option>
-                <option value="product" {{ request('item_type') == 'product' ? 'selected' : '' }}>Товары</option>
-                <option value="news" {{ request('item_type') == 'news' ? 'selected' : '' }}>Новости</option>
+                <option value="">{{ __('admin.reviews.all_types') }}</option>
+                <option value="product" {{ request('item_type') == 'product' ? 'selected' : '' }}>{{ __('admin.reviews.products') }}</option>
+                <option value="news" {{ request('item_type') == 'news' ? 'selected' : '' }}>{{ __('admin.sections.news') }}</option>
             </select>
 
             <select name="sort" class="border rounded px-3 py-2 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
-                <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Сначала новые</option>
-                <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Сначала старые</option>
-                <option value="rating_high" {{ request('sort') == 'rating_high' ? 'selected' : '' }}>Высокий рейтинг</option>
-                <option value="rating_low" {{ request('sort') == 'rating_low' ? 'selected' : '' }}>Низкий рейтинг</option>
+                <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>{{ __('admin.reviews.newest') }}</option>
+                <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>{{ __('admin.reviews.oldest') }}</option>
+                <option value="rating_high" {{ request('sort') == 'rating_high' ? 'selected' : '' }}>{{ __('admin.reviews.rating_high') }}</option>
+                <option value="rating_low" {{ request('sort') == 'rating_low' ? 'selected' : '' }}>{{ __('admin.reviews.rating_low') }}</option>
             </select>
 
-            <input type="text" name="search" placeholder="Поиск..." value="{{ request('search') }}"
+            <input type="text" name="search" placeholder="{{ __('admin.reviews.search_ph') }}" value="{{ request('search') }}"
                    class="border rounded px-3 py-2 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
 
-            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Фильтр</button>
-            <a href="{{ route('admin.reviews.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition">Сброс</a>
-            <a href="{{ route('admin.reviews.stats') }}" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition">📊 Статистика</a>
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">{{ __('admin.reviews.filter') }}</button>
+            <a href="{{ route('admin.reviews.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition">{{ __('admin.reviews.reset') }}</a>
+            <a href="{{ route('admin.reviews.stats') }}" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition">📊 {{ __('admin.reviews.stats') }}</a>
         </form>
     </div>
 
@@ -50,15 +50,15 @@
         @csrf
         <div class="flex items-center gap-3 flex-wrap">
             <select name="action" id="bulkAction" class="border rounded px-3 py-2 bg-white dark:bg-gray-700" required>
-                <option value="">Выберите действие...</option>
-                <option value="approve">Одобрить</option>
-                <option value="reject">Отклонить</option>
-                <option value="delete">Удалить</option>
+                <option value="">{{ __('admin.common.select_action') }}</option>
+                <option value="approve">{{ __('admin.reviews.approve') }}</option>
+                <option value="reject">{{ __('admin.reviews.reject') }}</option>
+                <option value="delete">{{ __('admin.admin.delete') }}</option>
             </select>
             <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition" disabled id="bulkSubmit">
-                Применить к выбранным
+                {{ __('admin.reviews.apply_to_selected') }}
             </button>
-            <span class="text-sm text-gray-600 dark:text-gray-400" id="selectedCount">Выбрано: 0</span>
+            <span class="text-sm text-gray-600 dark:text-gray-400" id="selectedCount">{{ __('admin.reviews.selected') }} 0</span>
         </div>
     </form>
 
@@ -71,13 +71,13 @@
                         <input type="checkbox" id="selectAll" class="rounded border-gray-400">
                     </th>
                     <th class="px-4 py-2 text-left">ID</th>
-                    <th class="px-4 py-2 text-left">Автор</th>
-                    <th class="px-4 py-2 text-left">Объект</th>
-                    <th class="px-4 py-2 text-left">Оценка</th>
-                    <th class="px-4 py-2 text-left">Текст</th>
-                    <th class="px-4 py-2 text-left">Статус</th>
-                    <th class="px-4 py-2 text-left">Дата</th>
-                    <th class="px-4 py-2 text-center">Действия</th>
+                    <th class="px-4 py-2 text-left">{{ __('admin.reviews.author') }}</th>
+                    <th class="px-4 py-2 text-left">{{ __('admin.reviews.object') }}</th>
+                    <th class="px-4 py-2 text-left">{{ __('admin.reviews.rating') }}</th>
+                    <th class="px-4 py-2 text-left">{{ __('admin.reviews.text') }}</th>
+                    <th class="px-4 py-2 text-left">{{ __('admin.common.status') }}</th>
+                    <th class="px-4 py-2 text-left">{{ __('admin.reviews.date') }}</th>
+                    <th class="px-4 py-2 text-center">{{ __('admin.common.actions') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -103,29 +103,29 @@
                     </td>
                     <td class="px-4 py-2">
                         @if($review->status === 'pending')
-                            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs">Ожидает</span>
+                            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs">{{ __('admin.reviews.st_pending') }}</span>
                         @elseif($review->status === 'approved')
-                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">Одобрен</span>
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">{{ __('admin.reviews.st_approved') }}</span>
                         @else
-                            <span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs">Отклонен</span>
+                            <span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs">{{ __('admin.reviews.st_rejected') }}</span>
                         @endif
                     </td>
                     <td class="px-4 py-2 text-xs">{{ $review->created_at->format('d.m.Y H:i') }}</td>
                     <td class="px-4 py-2 text-center">
                         <div class="flex gap-1 justify-center flex-wrap">
                             <a href="{{ route('admin.reviews.show', $review->id) }}"
-                               class="text-blue-600 hover:underline text-xs" title="Просмотр">👁️</a>
+                               class="text-blue-600 hover:underline text-xs" title="{{ __('admin.reviews.view') }}">👁️</a>
 
                             @if($review->status === 'pending')
                             <form method="POST" action="{{ route('admin.reviews.moderate', $review->id) }}" class="inline moderate-form">
                                 @csrf
                                 <input type="hidden" name="action" value="approve">
-                                <button type="submit" class="text-green-600 hover:underline text-xs" title="Одобрить">✅</button>
+                                <button type="submit" class="text-green-600 hover:underline text-xs" title="{{ __('admin.reviews.approve') }}">✅</button>
                             </form>
                             <form method="POST" action="{{ route('admin.reviews.moderate', $review->id) }}" class="inline moderate-form">
                                 @csrf
                                 <input type="hidden" name="action" value="reject">
-                                <button type="submit" class="text-red-600 hover:underline text-xs" title="Отклонить">❌</button>
+                                <button type="submit" class="text-red-600 hover:underline text-xs" title="{{ __('admin.reviews.reject') }}">❌</button>
                             </form>
                             @endif
 
@@ -133,7 +133,7 @@
                                   onsubmit="return confirm('Удалить отзыв #{{ $review->id }}?')">
                                 @csrf
                                 <input type="hidden" name="action" value="delete">
-                                <button type="submit" class="text-red-700 hover:underline text-xs" title="Удалить">🗑️</button>
+                                <button type="submit" class="text-red-700 hover:underline text-xs" title="{{ __('admin.admin.delete') }}">🗑️</button>
                             </form>
                         </div>
                     </td>
@@ -141,7 +141,7 @@
                 @empty
                 <tr>
                     <td colspan="8" class="px-4 py-8 text-center text-gray-500">
-                        Отзывов не найдено
+                        {{ __('admin.reviews.empty') }}
                     </td>
                 </tr>
                 @endforelse
@@ -228,26 +228,26 @@
 
     {{-- Импорт/Экспорт --}}
     <div class="mt-6 bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-        <h2 class="text-lg font-bold mb-3">📦 Импорт/Экспорт</h2>
+        <h2 class="text-lg font-bold mb-3">📦 {{ __('admin.sections.newsio') }}</h2>
         <div class="flex gap-2 flex-wrap">
             <form method="POST" action="{{ route('admin.reviews.import') }}" enctype="multipart/form-data" class="flex gap-2 items-center">
                 @csrf
                 <input type="file" name="file" accept=".json" required class="border rounded px-2 py-1 text-sm">
                 <label class="flex items-center gap-1 text-sm">
                     <input type="checkbox" name="merge" value="1" checked>
-                    Объединять
+                    {{ __('admin.reviews.merge') }}
                 </label>
-                <button type="submit" class="bg-green-600 text-white px-3 py-1 rounded text-sm">Импорт</button>
+                <button type="submit" class="bg-green-600 text-white px-3 py-1 rounded text-sm">{{ __('admin.reviews.import') }}</button>
             </form>
 
             <form method="GET" action="{{ route('admin.reviews.export') }}" class="flex gap-2 items-center">
-                <input type="number" name="item_id" placeholder="ID (опционально)" class="border rounded px-2 py-1 text-sm w-32">
-                <input type="text" name="item_type" placeholder="Тип (опционально)" class="border rounded px-2 py-1 text-sm w-32">
+                <input type="number" name="item_id" placeholder="{{ __('admin.reviews.id_optional') }}" class="border rounded px-2 py-1 text-sm w-32">
+                <input type="text" name="item_type" placeholder="{{ __('admin.reviews.type_optional') }}" class="border rounded px-2 py-1 text-sm w-32">
                 <select name="format" class="border rounded px-2 py-1 text-sm bg-white dark:bg-gray-700">
                     <option value="json">JSON</option>
                     <option value="csv">CSV</option>
                 </select>
-                <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition">Экспорт</button>
+                <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition">{{ __('admin.reviews.export') }}</button>
             </form>
         </div>
     </div>

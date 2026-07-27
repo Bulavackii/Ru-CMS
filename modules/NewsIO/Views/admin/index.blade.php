@@ -9,19 +9,19 @@
             flex items-center gap-3">
   <span class="admin-icon-badge"><i class="fas fa-right-left"></i></span>
   <div class="min-w-0 flex-1">
-    <h1 class="text-xl font-bold text-gray-900 dark:text-white">Импорт и экспорт новостей</h1>
+    <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('admin.newsio.title') }}</h1>
     <p class="text-sm text-gray-500 dark:text-gray-400">
-      Перенос контента между сайтами и резервные выгрузки. Форматы: JSON · NDJSON · CSV · ZIP.
+      {{ __('admin.newsio.hint') }}
     </p>
   </div>
 
   {{-- Сводка: сразу видно, какой объём данных доступен к выгрузке --}}
   <div class="flex flex-wrap items-center gap-2 text-xs shrink-0">
     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 font-semibold bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">
-      <i class="fas fa-newspaper"></i> Всего: {{ $stats['news'] }}
+      <i class="fas fa-newspaper"></i> {{ __('admin.common.total') }} {{ $stats['news'] }}
     </span>
     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 font-semibold bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
-      <i class="fas fa-circle-check"></i> Опубликовано: {{ $stats['published'] }}
+      <i class="fas fa-circle-check"></i> {{ __('admin.common.published') }}: {{ $stats['published'] }}
     </span>
     @if($stats['drafts'] > 0)
       <span class="inline-flex items-center gap-1.5 px-2.5 py-1 font-semibold bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">
@@ -29,7 +29,7 @@
       </span>
     @endif
     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 font-medium bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300">
-      <i class="fas fa-tags"></i> Категорий: {{ $stats['cats'] }}
+      <i class="fas fa-tags"></i> {{ __('admin.newsio.categories_count') }} {{ $stats['cats'] }}
     </span>
   </div>
 </div>
@@ -41,9 +41,9 @@
     <section class="admin-card overflow-hidden">
       <div class="flex items-center gap-2 px-5 py-3 border-b border-gray-100 dark:border-gray-800">
         <span class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 flex items-center gap-2">
-          <i class="fas fa-download text-indigo-500"></i> Экспорт
+          <i class="fas fa-download text-indigo-500"></i> {{ __('admin.newsio.export') }}
         </span>
-        <span class="inline-flex items-center text-xs px-2 py-0.5 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300">выгрузка</span>
+        <span class="inline-flex items-center text-xs px-2 py-0.5 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300">{{ __('admin.newsio.export_sub') }}</span>
       </div>
 
       <form method="POST" action="{{ route('admin.newsio.export') }}" class="grid gap-5 px-5 py-5">
@@ -51,34 +51,34 @@
 
         {{-- Формат --}}
         <div>
-          <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Формат файла</label>
+          <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{{ __('admin.newsio.format') }}</label>
           <select name="format"
                   class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-            <option value="json">JSON (массив)</option>
-            <option value="ndjson">NDJSON (по строке)</option>
+            <option value="json">{{ __('admin.newsio.json_array') }}</option>
+            <option value="ndjson">{{ __('admin.newsio.ndjson') }}</option>
             <option value="csv">CSV</option>
             <option value="zip">ZIP (manifest.json + media/*)</option>
           </select>
-          <p class="mt-1 text-xs text-gray-500">ZIP включает <code>manifest.json</code> и папку <code>media/*</code>.</p>
+          <p class="mt-1 text-xs text-gray-500">{{ __('admin.newsio.zip_includes') }} <code>manifest.json</code> {{ __('admin.newsio.and_folder') }} <code>media/*</code>.</p>
         </div>
 
         {{-- Категории: чекбоксы-чипы вместо тесного multiple-select, в котором
              нужно было выделять с Ctrl и не было видно объёма. --}}
         <div>
           <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
-            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Категории (фильтр)</label>
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('admin.newsio.cat_filter') }}</label>
 
             @if ($categories->isNotEmpty())
               <div class="flex items-center gap-2 text-xs">
                 <button type="button" id="catSelectAll"
                         class="inline-flex items-center gap-1.5 px-2.5 py-1 border border-gray-300 dark:border-gray-600 font-medium
                                text-gray-700 dark:text-gray-200 hover:border-indigo-400 hover:text-indigo-600 transition">
-                  <i class="fas fa-check-double"></i> Выбрать все
+                  <i class="fas fa-check-double"></i> {{ __('admin.newsio.select_all') }}
                 </button>
                 <button type="button" id="catClearAll"
                         class="inline-flex items-center gap-1.5 px-2.5 py-1 border border-gray-300 dark:border-gray-600 font-medium
                                text-gray-700 dark:text-gray-200 hover:border-indigo-400 hover:text-indigo-600 transition">
-                  <i class="fas fa-xmark"></i> Снять
+                  <i class="fas fa-xmark"></i> {{ __('admin.newsio.deselect') }}
                 </button>
                 <span id="catSelectedCount" class="text-gray-500 dark:text-gray-400"></span>
               </div>
@@ -86,11 +86,11 @@
           </div>
 
           @if ($categories->isEmpty())
-            <p class="text-sm text-gray-400 dark:text-gray-500">Категорий пока нет.</p>
+            <p class="text-sm text-gray-400 dark:text-gray-500">{{ __('admin.newsio.no_categories') }}</p>
           @else
             <div class="cat-picker flex flex-wrap gap-2">
               @foreach ($categories as $c)
-                <label class="cat-chip" title="Новостей в категории: {{ $c->news_count }}">
+                <label class="cat-chip" title="{{ __('admin.newsio.news_in_cat') }} {{ $c->news_count }}">
                   <input type="checkbox" name="category_ids[]" value="{{ $c->id }}" class="sr-only">
                   <span class="cat-chip-body">
                     {{ $c->title }}
@@ -102,19 +102,19 @@
           @endif
 
           <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-            Ничего не выбрано — выгрузятся все категории.
+            {{ __('admin.newsio.none_selected') }}
           </p>
         </div>
 
         {{-- Даты --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">С даты</label>
+            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{{ __('admin.newsio.date_from') }}</label>
             <input type="date" name="date_from"
                    class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
           </div>
           <div>
-            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">По дату</label>
+            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{{ __('admin.newsio.date_to') }}</label>
             <input type="date" name="date_to"
                    class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
           </div>
@@ -123,28 +123,28 @@
         {{-- Публикация + ZIP-медиа --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Опубликованные</label>
+            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{{ __('admin.newsio.published') }}</label>
             <select name="published"
                     class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-              <option value="all">Все</option>
-              <option value="1">Только опубликованные</option>
-              <option value="0">Только черновики</option>
+              <option value="all">{{ __('admin.newsio.all') }}</option>
+              <option value="1">{{ __('admin.newsio.published_only') }}</option>
+              <option value="0">{{ __('admin.newsio.drafts_only') }}</option>
             </select>
           </div>
 
           <label class="flex items-center gap-2 sm:mt-6 text-gray-700 dark:text-gray-300">
             <input type="checkbox" name="with_media" value="1" class="rounded border-gray-400 dark:border-gray-600">
-            <span class="text-sm">Вложить обложки (ZIP)</span>
+            <span class="text-sm">{{ __('admin.newsio.with_covers') }}</span>
           </label>
         </div>
 
         <aside class="admin-hint px-3 py-2 text-xs">
-          <i class="fas fa-lightbulb"></i> Совет: сначала отфильтруйте категории и даты, затем скачайте файл в нужном формате.
+          <i class="fas fa-lightbulb"></i> {{ __('admin.newsio.tip') }}
         </aside>
 
         <div class="flex justify-end">
           <button class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition">
-            <i class="fa-solid fa-download"></i> Скачать файл
+            <i class="fa-solid fa-download"></i> {{ __('admin.newsio.download') }}
           </button>
         </div>
       </form>
@@ -154,9 +154,9 @@
     <section class="admin-card overflow-hidden">
       <div class="flex items-center gap-2 px-5 py-3 border-b border-gray-100 dark:border-gray-800">
         <span class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 flex items-center gap-2">
-          <i class="fas fa-upload text-indigo-500"></i> Импорт
+          <i class="fas fa-upload text-indigo-500"></i> {{ __('admin.newsio.import') }}
         </span>
-        <span class="inline-flex items-center text-xs px-2 py-0.5 bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">dry-run + загрузка</span>
+        <span class="inline-flex items-center text-xs px-2 py-0.5 bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">{{ __('admin.newsio.import_sub') }}</span>
       </div>
 
       <form method="POST"
@@ -185,7 +185,7 @@
             </div>
 
             <div class="flex-1">
-              <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Файл импорта</label>
+              <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">{{ __('admin.newsio.file') }}</label>
 
               <input id="importFile" name="file" type="file" accept=".json,.txt,.csv,.zip" class="hidden" @change="onFile($event)" required>
 
@@ -193,48 +193,48 @@
                 <button type="button"
                         class="inline-flex items-center gap-2 px-4 h-10 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm transition"
                         @click="openDialog()">
-                  <i class="fas fa-folder-open"></i> Обзор…
+                  <i class="fas fa-folder-open"></i> {{ __('admin.newsio.browse') }}
                 </button>
                 <span class="text-xs md:text-sm text-gray-500 truncate" x-text="fileName || 'Файл не выбран'"></span>
               </div>
 
               <p class="text-xs text-gray-500 mt-2">
-                Поддерживаются: JSON / NDJSON / CSV / ZIP (manifest.json + media/*). Можно перетащить файл в область.
+                {{ __('admin.newsio.file_hint') }}
               </p>
             </div>
           </div>
 
           {{-- кликабельный фон — откроет диалог выбора файла --}}
-          <button type="button" class="absolute inset-0 rounded-xl focus:outline-none" @click="openDialog()" aria-label="Выбрать файл"></button>
+          <button type="button" class="absolute inset-0 rounded-xl focus:outline-none" @click="openDialog()" aria-label="{{ __('admin.newsio.choose_file') }}"></button>
         </div>
 
         {{-- Параметры совпадений --}}
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Обновлять по</label>
+            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{{ __('admin.newsio.update_by') }}</label>
             <select name="update_by"
                     class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
               <option value="slug">slug</option>
               <option value="id">id</option>
-              <option value="none">не обновлять (всегда создавать)</option>
+              <option value="none">{{ __('admin.newsio.never_update') }}</option>
             </select>
-            <p class="mt-1 text-[11px] text-gray-500">Определяет обновление или создание записи.</p>
+            <p class="mt-1 text-[11px] text-gray-500">{{ __('admin.newsio.update_hint') }}</p>
           </div>
 
           <div>
-            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Категории сопоставлять по</label>
+            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{{ __('admin.newsio.match_cats') }}</label>
             <select name="match_category_by"
                     class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
               <option value="id">id</option>
               <option value="slug">slug</option>
               <option value="title">title</option>
             </select>
-            <p class="mt-1 text-[11px] text-gray-500">Ключ связи с категориями.</p>
+            <p class="mt-1 text-[11px] text-gray-500">{{ __('admin.newsio.match_hint') }}</p>
           </div>
 
           <label class="flex items-center gap-2 sm:mt-6 text-gray-700 dark:text-gray-300">
             <input type="checkbox" name="create_missing_cats" value="1" class="rounded border-gray-400 dark:border-gray-600">
-            <span class="text-sm">Создавать новые категории</span>
+            <span class="text-sm">{{ __('admin.newsio.create_cats') }}</span>
           </label>
         </div>
 
@@ -246,14 +246,14 @@
                   :disabled="loading || !hasFile"
                   @click="runDryRun($event)">
             <i class="fas fa-vial"></i>
-            <span x-show="!loading">Проверить (dry-run)</span>
-            <span x-show="loading">Проверка…</span>
+            <span x-show="!loading">{{ __('admin.newsio.dry_run') }}</span>
+            <span x-show="loading">{{ __('admin.newsio.checking') }}</span>
           </button>
 
           <button
             class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition disabled:opacity-60"
             :disabled="loading || !hasFile">
-            <i class="fa-solid fa-file-import"></i> Импортировать
+            <i class="fa-solid fa-file-import"></i> {{ __('admin.newsio.do_import') }}
           </button>
         </div>
 
@@ -266,18 +266,18 @@
         <template x-if="summary">
           <div class="border-l-4 border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-gray-800 dark:text-gray-100 p-4 text-sm leading-6">
             <div class="font-semibold mb-2 flex items-center gap-2">
-              <i class="fas fa-circle-check text-green-600"></i> Проверка завершена. Готово к импорту.
+              <i class="fas fa-circle-check text-green-600"></i> {{ __('admin.newsio.check_done') }}
             </div>
             <div class="grid grid-cols-2 gap-x-6 gap-y-1">
-              <div>Всего записей: <span class="font-medium" x-text="summary.total"></span></div>
-              <div>С slug: <span class="font-medium" x-text="summary.with_slug"></span></div>
-              <div>С id: <span class="font-medium" x-text="summary.with_id"></span></div>
-              <div>Ссылок на категории: <span class="font-medium" x-text="summary.cats_refs"></span></div>
-              <div>Категории по id: <span class="font-medium" x-text="summary.cats_by_id"></span></div>
-              <div>Категории по slug: <span class="font-medium" x-text="summary.cats_by_slug"></span></div>
-              <div>Категории по title: <span class="font-medium" x-text="summary.cats_by_title"></span></div>
-              <div>Обновлять по: <span class="font-medium" x-text="summary.update_by"></span></div>
-              <div>Сопоставлять категории по: <span class="font-medium" x-text="summary.match_by"></span></div>
+              <div>{{ __('admin.newsio.total_records') }} <span class="font-medium" x-text="summary.total"></span></div>
+              <div>{{ __('admin.newsio.with_slug') }} <span class="font-medium" x-text="summary.with_slug"></span></div>
+              <div>{{ __('admin.newsio.with_id') }} <span class="font-medium" x-text="summary.with_id"></span></div>
+              <div>{{ __('admin.newsio.cat_links') }} <span class="font-medium" x-text="summary.cats_refs"></span></div>
+              <div>{{ __('admin.newsio.cats_by_id') }} <span class="font-medium" x-text="summary.cats_by_id"></span></div>
+              <div>{{ __('admin.newsio.cats_by_slug') }} <span class="font-medium" x-text="summary.cats_by_slug"></span></div>
+              <div>{{ __('admin.newsio.cats_by_title') }} <span class="font-medium" x-text="summary.cats_by_title"></span></div>
+              <div>{{ __('admin.newsio.update_by_label') }} <span class="font-medium" x-text="summary.update_by"></span></div>
+              <div>{{ __('admin.newsio.match_by_label') }} <span class="font-medium" x-text="summary.match_by"></span></div>
             </div>
           </div>
         </template>
@@ -288,7 +288,7 @@
           <div class="border-l-4 border-yellow-500 bg-yellow-50 dark:bg-yellow-900/30 text-yellow-900 dark:text-yellow-100 p-4 text-sm">
             <div class="font-semibold mb-2 flex items-center gap-2">
               <i class="fas fa-triangle-exclamation"></i>
-              На что обратить внимание (<span x-text="warnings.length"></span>):
+              {{ __('admin.newsio.attention') }} (<span x-text="warnings.length"></span>):
             </div>
             <ul class="list-disc list-inside space-y-1">
               <template x-for="(w, i) in warnings" :key="i">
@@ -317,9 +317,9 @@
         @endif
 
         <div class="text-xs text-gray-500 leading-relaxed">
-          В JSON объект новости может содержать:
+          {{ __('admin.newsio.json_note') }}
           <code>id, slug, title, content, template, published, cover, price, stock, is_promo, meta_title, meta_description, meta_keywords, meta_header, categories: [{id|slug|title}]</code>.<br>
-          В CSV поле <code>categories</code> — список через запятую (slug), напр.: <code>news,updates</code>.
+          {{ __('admin.newsio.csv_note') }} <code>categories</code> {{ __('admin.newsio.csv_list') }} <code>news,updates</code>.
         </div>
       </form>
     </section>
