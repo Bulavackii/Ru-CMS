@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Создать новость')
+@section('title', __('admin.news.page_create'))
 
 @section('content')
     {{-- ── Шапка страницы ── --}}
@@ -10,14 +10,14 @@
         <div class="flex items-center gap-3 min-w-0">
             <span class="admin-icon-badge"><i class="fas fa-plus"></i></span>
             <div class="min-w-0">
-                <h1 class="text-xl font-bold text-gray-900 dark:text-white">Создание новости</h1>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Заполните содержимое, SEO-поля и выберите шаблон отображения.</p>
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('admin.news.create') }}</h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('admin.news.create_hint') }}</p>
             </div>
         </div>
 
         <a href="{{ route('admin.news.index') }}"
            class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition shrink-0">
-            <i class="fas fa-arrow-left"></i> К списку новостей
+            <i class="fas fa-arrow-left"></i> {{ __('admin.news.back') }}
         </a>
     </div>
 
@@ -26,7 +26,7 @@
             <div class="flex items-start gap-2">
                 <i class="fas fa-triangle-exclamation mt-0.5"></i>
                 <div>
-                    <b>Проверьте форму.</b> {{ $errors->first() }}
+                    <b>{{ __('admin.common.check_form') }}</b> {{ $errors->first() }}
                 </div>
             </div>
         </div>
@@ -38,15 +38,15 @@
         {{-- ── Основное ── --}}
         <div class="admin-card p-5">
             <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
-                <i class="fas fa-file-lines text-indigo-500"></i> Основное
+                <i class="fas fa-file-lines text-indigo-500"></i> {{ __('admin.common.basic') }}
             </h2>
             <div class="space-y-4">
-                <x-admin.input label="Заголовок" name="title" required
-                    hint="Название новости. Отображается в заголовке и списке." />
+                <x-admin.input label="{{ __('admin.common.f_title') }}" name="title" required
+                    hint="{{ __('admin.news.title_hint') }}" />
                 <x-admin.input label="URL (slug)" name="slug"
-                    hint="Если не указан — сгенерируется из заголовка. Только латинские буквы, цифры и дефисы." />
-                <x-admin.select label="Шаблон" name="template" :options="$templates"
-                    hint="Тип отображения на сайте: стандартный, товары, отзывы и др." />
+                    hint="{{ __('admin.news.slug_hint') }}" />
+                <x-admin.select label="{{ __('admin.common.f_template') }}" name="template" :options="$templates"
+                    hint="{{ __('admin.news.template_hint') }}" />
             </div>
         </div>
 
@@ -57,25 +57,25 @@
             </h2>
             <div class="space-y-4">
                 <x-admin.input label="Meta Title" name="meta_title"
-                    hint="До 60 символов. Заголовок вкладки и сниппета в поиске." />
+                    hint="{{ __('admin.news.meta_title_hint') }}" />
                 <div>
                     <label for="meta_description" class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Meta Description</label>
                     <textarea name="meta_description" id="meta_description" rows="3"
                         class="w-full border border-gray-300 dark:border-gray-700 px-3 py-2 dark:bg-gray-800 dark:text-gray-100
                                focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-                        placeholder="Краткое описание до 160 символов.">{{ old('meta_description') }}</textarea>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Отображается в поисковой выдаче. Включите ключевые фразы.</p>
+                        placeholder="{{ __('admin.news.desc_hint') }}">{{ old('meta_description') }}</textarea>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ __('admin.news.seo_hint') }}</p>
                 </div>
-                <x-admin.input label="Ключевые слова" name="meta_keywords" hint="Через запятую: вода, природа, защита" />
+                <x-admin.input label="{{ __('admin.common.f_keywords') }}" name="meta_keywords" hint="{{ __('admin.news.keywords_hint') }}" />
             </div>
         </div>
 
         {{-- ── Категории ── --}}
         <div class="admin-card p-5">
             <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2 flex items-center gap-2">
-                <i class="fas fa-folder-open text-indigo-500"></i> Категории
+                <i class="fas fa-folder-open text-indigo-500"></i> {{ __('admin.common.categories') }}
             </h2>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Можно выбрать одну или несколько — для фильтрации и навигации.</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{ __('admin.news.categories_hint') }}</p>
             <div class="flex flex-wrap gap-2">
                 @forelse ($categories as $category)
                     <label class="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-300 dark:border-gray-600 cursor-pointer text-sm
@@ -85,7 +85,7 @@
                         {{ $category->title }}
                     </label>
                 @empty
-                    <p class="text-sm text-gray-400 dark:text-gray-500">Категорий пока нет.</p>
+                    <p class="text-sm text-gray-400 dark:text-gray-500">{{ __('admin.common.no_categories') }}</p>
                 @endforelse
             </div>
         </div>
@@ -93,16 +93,16 @@
         {{-- ── Поля шаблона «Товары» ── --}}
         <div id="product-fields" class="admin-card p-5 hidden animate-fade-in">
             <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
-                <i class="fas fa-bag-shopping text-indigo-500"></i> Товар
+                <i class="fas fa-bag-shopping text-indigo-500"></i> {{ __('admin.news.product') }}
             </h2>
             <div class="space-y-4">
-                <x-admin.input label="Цена (₽)" name="price" type="number" step="0.01"
-                    hint="Цена в рублях. Используется только в шаблоне «Товары»." />
-                <x-admin.input label="Остаток" name="stock" type="number"
-                    hint="Количество товара на складе. Целое число." />
+                <x-admin.input label="{{ __('admin.news.price') }}" name="price" type="number" step="0.01"
+                    hint="{{ __('admin.news.price_hint') }}" />
+                <x-admin.input label="{{ __('admin.news.stock') }}" name="stock" type="number"
+                    hint="{{ __('admin.news.stock_hint') }}" />
                 <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                     <input type="checkbox" name="is_promo" value="1" {{ old('is_promo') ? 'checked' : '' }}>
-                    Акционный товар
+                    {{ __('admin.news.sale') }}
                 </label>
             </div>
         </div>
@@ -110,12 +110,12 @@
         {{-- ── Содержимое ── --}}
         <div class="admin-card p-5">
             <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-2">
-                <i class="fas fa-pen-nib text-indigo-500"></i> Содержимое
+                <i class="fas fa-pen-nib text-indigo-500"></i> {{ __('admin.common.content') }}
             </h2>
             <textarea name="content" id="editor"
                 class="w-full border border-gray-300 dark:border-gray-700 px-3 py-2 dark:bg-gray-800 dark:text-gray-100"
                 rows="14">{{ old('content') }}</textarea>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Основной текст новости. Поддерживает форматирование, изображения и видео.</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ __('admin.news.content_hint') }}</p>
         
             {{-- Вставка сохранённой сборки каптчи в текст материала --}}
             @include('Captcha::partials.editor-picker')
@@ -125,18 +125,18 @@
         <div class="admin-card p-5 flex flex-col sm:flex-row sm:items-center gap-4">
             <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                 <input type="checkbox" name="published" value="1" checked>
-                Опубликовать сразу
+                {{ __('admin.news.publish_now') }}
             </label>
 
             <div class="sm:ml-auto flex items-center gap-2">
                 <a href="{{ route('admin.news.index') }}"
                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium border border-gray-300 dark:border-gray-600
                           text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-                    Отмена
+                    {{ __('admin.admin.cancel') }}
                 </a>
                 <button type="submit"
                     class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 text-sm font-semibold shadow-sm transition">
-                    <i class="fas fa-floppy-disk"></i> Сохранить новость
+                    <i class="fas fa-floppy-disk"></i> {{ __('admin.news.save') }}
                 </button>
             </div>
         </div>
@@ -205,11 +205,11 @@
                                     title: file.name
                                 });
                             } else {
-                                alert('Ошибка загрузки.');
+                                alert('{{ __('admin.common.load_error') }}');
                             }
                         })
                         .catch(error => {
-                            alert('Ошибка: ' + error.message);
+                            alert(@js(__('admin.common.error')) + ' ' + error.message);
                         });
                 };
                 input.click();

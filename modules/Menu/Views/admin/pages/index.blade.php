@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Страницы')
+@section('title', __('admin.pages.index_title'))
 
 @push('scripts')
   {{-- Поиск + превью + фронтовая сортировка --}}
@@ -29,21 +29,21 @@
 
       if (!row.dataset.loaded) {
         // первый показ — грузим HTML
-        label.textContent = 'Загружаю…';
+        label.textContent = @js(__('admin.common.loading'));
         row.classList.remove('hidden');
         fetch(`/admin/pages/${id}/preview`)
           .then(r => r.text())
           .then(html => {
             row.querySelector('.page-content-body').innerHTML = html;
             row.dataset.loaded = '1';
-            label.textContent = 'Скрыть';
+            label.textContent = @js(__('admin.pages.hide'));
             // плавная прокрутка к открытому превью
             row.scrollIntoView({ behavior: 'smooth', block: 'center' });
           })
-          .catch(() => (label.textContent = 'Показать'));
+          .catch(() => (label.textContent = @js(__('admin.pages.show'))));
       } else {
         const hidden = row.classList.toggle('hidden');
-        label.textContent = hidden ? 'Показать' : 'Скрыть';
+        label.textContent = hidden ? @js(__('admin.pages.show')) : @js(__('admin.pages.hide'));
         if (!hidden) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }
@@ -109,8 +109,8 @@
     <div class="flex items-center gap-3 min-w-0">
       <span class="admin-icon-badge"><i class="fa-solid fa-file-lines"></i></span>
       <div class="min-w-0">
-        <h1 class="text-xl font-bold text-gray-900 dark:text-white">Страницы</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400">Статические и контентные страницы сайта.</p>
+        <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('admin.pages.index_title') }}</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('admin.pages.index_hint') }}</p>
       </div>
     </div>
 
@@ -128,21 +128,21 @@
                name="q"
                type="text"
                value="{{ $query }}"
-               placeholder="Поиск по заголовку и содержимому…"
+               placeholder="{{ __('admin.pages.search') }}"
                autocomplete="off"
                class="border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white pl-10 pr-9 py-2 shadow-sm w-full text-sm
                       focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" />
         @if ($query)
           <a href="{{ route('admin.pages.index') }}"
              class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-             title="Сбросить поиск" aria-label="Сбросить поиск">
+             title="{{ __('admin.common.reset_search') }}" aria-label="{{ __('admin.common.reset_search') }}">
             <i class="fa-solid fa-xmark"></i>
           </a>
         @endif
       </form>
       <a href="{{ route('admin.pages.create') }}"
          class="inline-flex items-center justify-center gap-2 bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2 shadow-sm text-sm font-semibold transition shrink-0">
-        <i class="fa-solid fa-plus"></i> Создать страницу
+        <i class="fa-solid fa-plus"></i> {{ __('admin.pages.create_button') }}
       </a>
     </div>
   </div>
@@ -152,11 +152,11 @@
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
       <div class="flex items-center gap-2 font-medium">
         <i class="fa-solid fa-lightbulb"></i>
-        <span>Клик по заголовку таблицы сортирует список. Превью показывает содержимое, не открывая страницу.</span>
+        <span>{{ __('admin.pages.index_note') }}</span>
       </div>
       <div class="flex items-center gap-2 text-xs shrink-0">
         <span class="bg-white dark:bg-gray-900 border border-indigo-100 dark:border-gray-700 px-2 py-1">
-          Всего: {{ $pages->total() }}
+          {{ __('admin.common.total') }} {{ $pages->total() }}
         </span>
       </div>
     </div>
@@ -167,13 +167,13 @@
     <table id="pagesTable" class="min-w-full text-sm">
       <thead class="bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 uppercase text-xs tracking-wide">
         <tr>
-          <th class="px-4 py-3 text-left font-semibold" data-sort="title">Заголовок</th>
+          <th class="px-4 py-3 text-left font-semibold" data-sort="title">{{ __('admin.news.title') }}</th>
           <th class="px-4 py-3 text-left font-semibold hidden md:table-cell" data-sort="slug">Slug</th>
-          <th class="px-4 py-3 text-left font-semibold hidden md:table-cell" data-sort="cats">Категории</th>
-          <th class="px-4 py-3 text-center font-semibold hidden sm:table-cell" data-sort="pub">Статус</th>
-          <th class="px-4 py-3 text-center font-semibold hidden sm:table-cell" data-sort="home">На главной</th>
-          <th class="px-4 py-3 text-center font-semibold">Превью</th>
-          <th class="px-4 py-3 text-center font-semibold w-24">Действия</th>
+          <th class="px-4 py-3 text-left font-semibold hidden md:table-cell" data-sort="cats">{{ __('admin.common.categories') }}</th>
+          <th class="px-4 py-3 text-center font-semibold hidden sm:table-cell" data-sort="pub">{{ __('admin.common.status') }}</th>
+          <th class="px-4 py-3 text-center font-semibold hidden sm:table-cell" data-sort="home">{{ __('admin.common.on_home') }}</th>
+          <th class="px-4 py-3 text-center font-semibold">{{ __('admin.common.preview') }}</th>
+          <th class="px-4 py-3 text-center font-semibold w-24">{{ __('admin.common.actions') }}</th>
         </tr>
       </thead>
 
@@ -193,7 +193,7 @@
                 <span class="font-mono">ID {{ $page->id }}</span>
                 <span class="md:hidden font-mono">/{{ $page->slug }}</span>
                 <a href="{{ route('frontend.pages.show', $page->slug) }}" target="_blank" rel="noopener"
-                   class="hover:text-indigo-600 dark:hover:text-indigo-400 transition" title="Открыть на сайте">
+                   class="hover:text-indigo-600 dark:hover:text-indigo-400 transition" title="{{ __('admin.common.open_on_site') }}">
                   <i class="fa-solid fa-arrow-up-right-from-square"></i>
                 </a>
               </div>
@@ -221,13 +221,13 @@
             <td class="px-4 py-3 align-top text-center hidden sm:table-cell">
               @if($page->published)
                 <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold whitespace-nowrap
-                             bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300" title="Видна посетителям">
-                  <i class="fa-solid fa-circle-check"></i> Опубликовано
+                             bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300" title="{{ __('admin.common.visible') }}">
+                  <i class="fa-solid fa-circle-check"></i> {{ __('admin.common.published') }}
                 </span>
               @else
                 <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold whitespace-nowrap
-                             bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300" title="Скрыта от посетителей">
-                  <i class="fa-solid fa-clock"></i> Черновик
+                             bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300" title="{{ __('admin.common.hidden') }}">
+                  <i class="fa-solid fa-clock"></i> {{ __('admin.common.draft') }}
                 </span>
               @endif
             </td>
@@ -237,7 +237,7 @@
               @if($page->show_on_homepage)
                 <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold whitespace-nowrap
                              bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">
-                  <i class="fa-solid fa-house"></i> Да
+                  <i class="fa-solid fa-house"></i> {{ __('admin.common.yes') }}
                 </span>
               @else
                 <span class="text-gray-400 dark:text-gray-500">—</span>
@@ -250,7 +250,7 @@
                 onclick="toggleContent({{ $page->id }}, this)"
                 class="inline-flex items-center gap-1.5 border border-gray-300 dark:border-gray-700 px-2.5 py-1 text-xs
                        text-indigo-700 dark:text-indigo-300 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-800 transition">
-                <i class="fa-regular fa-eye"></i> <span>Показать</span>
+                <i class="fa-regular fa-eye"></i> <span>{{ __('admin.pages.show') }}</span>
               </button>
             </td>
 
@@ -259,13 +259,13 @@
               <div class="inline-flex items-center gap-1.5">
                 <a href="{{ route('admin.pages.edit', $page) }}"
                    class="inline-flex items-center justify-center w-8 h-8 bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition"
-                   title="Редактировать">
+                   title="{{ __('admin.edit') }}">
                   <i class="fa-solid fa-pen"></i>
                 </a>
 
                 <form action="{{ route('admin.pages.destroy', $page) }}" method="POST"
-                      onsubmit="return confirm('Удалить страницу «{{ $page->title }}»? Действие необратимо.')"
-                      class="inline-block" title="Удалить">
+                      onsubmit="return confirm(@js(__('admin.pages.delete_confirm', ['title' => $page->title])))"
+                      class="inline-block" title="{{ __('admin.delete') }}">
                   @csrf
                   @method('DELETE')
                   <button type="submit"
@@ -283,7 +283,7 @@
               class="page-content hidden bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
             <td colspan="7" class="px-6 py-4">
               <div class="prose max-w-none dark:prose-invert page-content-body text-sm text-gray-700 dark:text-gray-200">
-                Загрузка…
+                {{ __('admin.common.loading') }}
               </div>
             </td>
           </tr>
@@ -293,12 +293,12 @@
             <td colspan="7" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
               @if ($query)
                 <i class="fa-regular fa-face-frown text-2xl mb-2 block"></i>
-                По запросу «<b>{{ $query }}</b>» ничего не найдено.
-                <a href="{{ route('admin.pages.index') }}" class="text-indigo-600 dark:text-indigo-400 underline">Сбросить поиск</a>
+                {{ __('admin.pages.not_found_1') }}<b>{{ $query }}</b>{{ __('admin.pages.not_found_2') }}
+                <a href="{{ route('admin.pages.index') }}" class="text-indigo-600 dark:text-indigo-400 underline">{{ __('admin.common.reset_search') }}</a>
               @else
                 <i class="fa-regular fa-file-lines text-2xl mb-2 block"></i>
-                Пока нет ни одной страницы.
-                <a href="{{ route('admin.pages.create') }}" class="text-indigo-600 dark:text-indigo-400 underline">Создать первую</a>
+                {{ __('admin.pages.empty') }}
+                <a href="{{ route('admin.pages.create') }}" class="text-indigo-600 dark:text-indigo-400 underline">{{ __('admin.pages.create_first') }}</a>
               @endif
             </td>
           </tr>

@@ -153,6 +153,40 @@ class AdminTranslationTest extends TestCase
         }
     }
 
+    public function test_news_and_pages_screens_are_translated(): void
+    {
+        // Транш 2: разделы, куда заходят каждый день. Проверяем именно
+        // интерфейс — заголовки, подписи полей и кнопки, а не содержимое
+        // из базы: названия новостей и категорий остаются как есть.
+        $admin = $this->admin();
+
+        $news = $this->actingAs($admin)->withSession(['app_locale' => 'en'])
+            ->get(route('admin.news.create'))->getContent();
+
+        $this->assertStringContainsString('Create article', $news);
+        $this->assertStringContainsString('Publish immediately', $news);
+        $this->assertStringNotContainsString('Создание новости', $news);
+        $this->assertStringNotContainsString('Опубликовать сразу', $news);
+
+        $pages = $this->actingAs($admin)->withSession(['app_locale' => 'en'])
+            ->get(route('admin.pages.create'))->getContent();
+
+        $this->assertStringContainsString('Save page', $pages);
+        $this->assertStringNotContainsString('Сохранить страницу', $pages);
+    }
+
+    public function test_field_labels_and_hints_switch_too(): void
+    {
+        // Подписи и подсказки полей — самая массовая часть форм; без них
+        // страница на другом языке остаётся наполовину русской
+        $html = $this->actingAs($this->admin())->withSession(['app_locale' => 'de'])
+            ->get(route('admin.news.create'))->getContent();
+
+        $this->assertStringContainsString('Titel', $html);
+        $this->assertStringContainsString('Schlüsselwörter', $html);
+        $this->assertStringNotContainsString('Ключевые слова', $html);
+    }
+
     public function test_technical_identifiers_are_not_translated(): void
     {
         // Названия драйверов, слаги и коды локалей переводить нельзя —

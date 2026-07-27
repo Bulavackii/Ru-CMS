@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Новости')
+@section('title', __('admin.news.index_title'))
 
 @section('content')
     @php
@@ -28,17 +28,17 @@
         <div class="flex items-center gap-3 min-w-0">
             <span class="admin-icon-badge"><i class="fas fa-newspaper"></i></span>
             <div class="min-w-0">
-                <h1 class="text-xl font-bold text-gray-900 dark:text-white">Новости</h1>
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('admin.news.index_title') }}</h1>
                 <p class="text-sm text-gray-500 dark:text-gray-400">
-                    Публикации, товары и другие материалы. Шаблоны отображения, категории и SEO-поля.
+                    {{ __('admin.news.index_hint') }}
                 </p>
             </div>
         </div>
 
         <a href="{{ route('admin.news.create') }}"
            class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition shrink-0"
-           title="Создать новую публикацию">
-            <i class="fas fa-plus"></i> Создать новость
+           title="{{ __('admin.news.create_new') }}">
+            <i class="fas fa-plus"></i> {{ __('admin.news.create_button') }}
         </a>
     </div>
 
@@ -47,10 +47,10 @@
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div class="flex items-center gap-2 font-medium">
                 <i class="fas fa-lightbulb"></i>
-                <span>Шаблон определяет, как материал выводится на сайте. Только <b>опубликованные</b> записи видны посетителям.</span>
+                <span>{{ __('admin.news.index_note_1') }} <b>{{ __('admin.news.published_word') }}</b> {{ __('admin.news.index_note_2') }}</span>
             </div>
             <div class="flex items-center gap-2 text-xs shrink-0">
-                <span class="bg-white dark:bg-gray-900 border border-indigo-100 dark:border-gray-700 px-2 py-1">Всего: {{ $newsList->total() }}</span>
+                <span class="bg-white dark:bg-gray-900 border border-indigo-100 dark:border-gray-700 px-2 py-1">{{ __('admin.common.total') }} {{ $newsList->total() }}</span>
             </div>
         </div>
     </div>
@@ -59,14 +59,14 @@
     <div class="admin-card p-4 mb-5">
         <div class="flex flex-col lg:flex-row lg:items-center gap-3">
             <div class="flex flex-wrap items-center gap-2 min-w-0">
-                <span class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mr-1">Шаблоны</span>
+                <span class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mr-1">{{ __('admin.common.templates') }}</span>
 
                 <a href="{{ route('admin.news.index') }}"
                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold transition
                           {{ !$currentTemplate
                              ? 'bg-indigo-600 text-white shadow-sm'
                              : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700' }}">
-                    <i class="fas fa-layer-group"></i> Все
+                    <i class="fas fa-layer-group"></i> {{ __('admin.common.all') }}
                 </a>
 
                 @foreach ($templates as $key => $label)
@@ -82,11 +82,11 @@
 
             @if (count($categories))
                 <div class="lg:ml-auto flex items-center gap-2 shrink-0">
-                    <span class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Категория</span>
+                    <span class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ __('admin.common.category') }}</span>
                     <select onchange="location = this.value"
                             class="border border-gray-300 dark:border-gray-700 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-200 dark:bg-gray-900
                                    focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
-                        <option value="{{ route('admin.news.index', array_filter(['template' => $currentTemplate])) }}">Все категории</option>
+                        <option value="{{ route('admin.news.index', array_filter(['template' => $currentTemplate])) }}">{{ __('admin.common.all_categories') }}</option>
                         @foreach ($categories as $cat)
                             <option value="{{ route('admin.news.index', array_filter(['template' => $currentTemplate, 'category' => $cat->id])) }}"
                                     @if ($currentCategory == $cat->id) selected @endif>
@@ -104,22 +104,22 @@
 
         {{-- ── Массовые действия ── --}}
         <div class="admin-card p-3 mb-5 flex flex-wrap items-center gap-3">
-            <span class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">С выбранными</span>
+            <span class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ __('admin.common.with_selected') }}</span>
 
             <select name="action"
                     class="border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm dark:bg-gray-900 dark:text-gray-100
                            focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
-                <option value="">Выберите действие…</option>
-                <option value="delete">Удалить выбранные</option>
-                <option value="edit">Массовое редактирование</option>
+                <option value="">{{ __('admin.common.select_action') }}</option>
+                <option value="delete">{{ __('admin.common.delete_selected') }}</option>
+                <option value="edit">{{ __('admin.news.bulk_edit') }}</option>
             </select>
 
             <button type="submit"
                     class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition">
-                <i class="fas fa-check"></i> Применить
+                <i class="fas fa-check"></i> {{ __('admin.common.apply') }}
             </button>
 
-            <span id="selected-counter" class="text-xs text-gray-500 dark:text-gray-400 ml-auto">Ничего не выбрано</span>
+            <span id="selected-counter" class="text-xs text-gray-500 dark:text-gray-400 ml-auto">{{ __('admin.common.nothing_selected') }}</span>
         </div>
 
         {{-- ── Таблица ── --}}
@@ -128,16 +128,16 @@
                 <table class="min-w-full text-sm">
                     <thead class="bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs uppercase tracking-wide">
                         <tr>
-                            <th class="px-4 py-3 w-10 text-left"><input type="checkbox" id="check-all" title="Выбрать все"></th>
-                            <th class="px-4 py-3 text-left font-semibold">Заголовок</th>
-                            <th class="px-4 py-3 text-left font-semibold">Категории</th>
+                            <th class="px-4 py-3 w-10 text-left"><input type="checkbox" id="check-all" title="{{ __('admin.common.select_all') }}"></th>
+                            <th class="px-4 py-3 text-left font-semibold">{{ __('admin.news.title') }}</th>
+                            <th class="px-4 py-3 text-left font-semibold">{{ __('admin.common.categories') }}</th>
                             <th class="px-4 py-3 text-left font-semibold">Meta Title</th>
-                            <th class="px-4 py-3 text-left font-semibold">Ключевые слова</th>
+                            <th class="px-4 py-3 text-left font-semibold">{{ __('admin.news.keywords') }}</th>
                             <th class="px-4 py-3 text-left font-semibold">Meta Description</th>
-                            <th class="px-4 py-3 text-left font-semibold">Товар</th>
-                            <th class="px-4 py-3 text-center font-semibold">Статус</th>
-                            <th class="px-4 py-3 text-center font-semibold">Шаблон</th>
-                            <th class="px-4 py-3 text-center font-semibold w-16">Действия</th>
+                            <th class="px-4 py-3 text-left font-semibold">{{ __('admin.news.product') }}</th>
+                            <th class="px-4 py-3 text-center font-semibold">{{ __('admin.common.status') }}</th>
+                            <th class="px-4 py-3 text-center font-semibold">{{ __('admin.common.template') }}</th>
+                            <th class="px-4 py-3 text-center font-semibold w-16">{{ __('admin.common.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
@@ -188,11 +188,11 @@
                                                 {{ number_format($news->price, 2, ',', ' ') }} ₽
                                             </div>
                                             <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                                <i class="fas fa-box"></i> {{ $news->stock ?? 0 }} шт.
+                                                <i class="fas fa-box"></i> {{ $news->stock ?? 0 }} {{ __('admin.news.pcs') }}
                                             </div>
                                             @if ($news->is_promo)
                                                 <span class="inline-flex items-center gap-1 mt-1 px-2 py-0.5 text-xs font-semibold text-white bg-pink-500">
-                                                    <i class="fas fa-fire"></i> Акция
+                                                    <i class="fas fa-fire"></i> {{ __('admin.news.sale_short') }}
                                                 </span>
                                             @endif
                                         @else
@@ -204,14 +204,14 @@
                                         @if ($news->published)
                                             <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold whitespace-nowrap
                                                          bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
-                                                  title="Видна посетителям">
-                                                <i class="fas fa-circle-check"></i> Опубликовано
+                                                  title="{{ __('admin.common.visible') }}">
+                                                <i class="fas fa-circle-check"></i> {{ __('admin.common.published') }}
                                             </span>
                                         @else
                                             <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold whitespace-nowrap
                                                          bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300"
-                                                  title="Скрыта от посетителей">
-                                                <i class="fas fa-clock"></i> Черновик
+                                                  title="{{ __('admin.common.hidden') }}">
+                                                <i class="fas fa-clock"></i> {{ __('admin.common.draft') }}
                                             </span>
                                         @endif
                                     </td>
@@ -219,7 +219,7 @@
                                     <td class="px-4 py-3 align-top text-center">
                                         <span class="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium whitespace-nowrap
                                                      bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300"
-                                              title="Шаблон: {{ $templates[$news->template] ?? $news->template }}">
+                                              title="{{ __('admin.common.f_template') }}: {{ $templates[$news->template] ?? $news->template }}">
                                             <i class="fas {{ $tplIcons[$news->template] ?? 'fa-file-lines' }}"></i>
                                             {{ $templates[$news->template] ?? $news->template }}
                                         </span>
@@ -228,7 +228,7 @@
                                     <td class="px-4 py-3 align-top text-center">
                                         <a href="{{ route('admin.news.edit', $news->id) }}"
                                            class="inline-flex items-center justify-center w-8 h-8 bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition"
-                                           title="Редактировать">
+                                           title="{{ __('admin.edit') }}">
                                             <i class="fas fa-pen"></i>
                                         </a>
                                     </td>
@@ -240,10 +240,10 @@
                             <tr>
                                 <td colspan="10" class="px-4 py-12 text-center">
                                     <span class="admin-icon-badge mx-auto mb-3"><i class="fas fa-newspaper"></i></span>
-                                    <p class="text-gray-600 dark:text-gray-300 font-medium">Публикаций не найдено.</p>
+                                    <p class="text-gray-600 dark:text-gray-300 font-medium">{{ __('admin.news.empty') }}</p>
                                     <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                        Измените фильтры или
-                                        <a href="{{ route('admin.news.create') }}" class="text-indigo-600 dark:text-indigo-400 underline">создайте новость</a>.
+                                        {{ __('admin.news.empty_hint') }}
+                                        <a href="{{ route('admin.news.create') }}" class="text-indigo-600 dark:text-indigo-400 underline">{{ __('admin.news.empty_link') }}</a>.
                                     </p>
                                 </td>
                             </tr>
@@ -269,7 +269,7 @@
         function updateCounter() {
             const n = rowBoxes().filter(cb => cb.checked).length;
             if (!counter) return;
-            if (!n) { counter.textContent = 'Ничего не выбрано'; return; }
+            if (!n) { counter.textContent = @js(__('admin.common.nothing_selected')); return; }
             const m10 = n % 10, m100 = n % 100;
             const word = (m10 === 1 && m100 !== 11) ? 'запись'
                 : ((m10 >= 2 && m10 <= 4 && !(m100 >= 12 && m100 <= 14)) ? 'записи' : 'записей');
@@ -293,13 +293,13 @@
 
             if (!action) {
                 e.preventDefault();
-                alert('Выберите действие!');
+                alert(@js(__('admin.news.pick_action')));
                 return;
             }
 
             if (!selected.length) {
                 e.preventDefault();
-                alert('Выберите хотя бы одну новость.');
+                alert(@js(__('admin.news.pick_news')));
                 return;
             }
 

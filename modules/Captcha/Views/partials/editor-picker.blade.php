@@ -20,24 +20,24 @@
 <div class="cap-embed" x-data="captchaEmbed(@js($captchaPresets->pluck('slug', 'name')->toArray()))">
     @if($captchaPresets->isNotEmpty())
         <i class="fas fa-shield-halved cap-embed-ico" aria-hidden="true"></i>
-        <span class="cap-embed-label">Каптча:</span>
+        <span class="cap-embed-label">{{ __('admin.sections.captcha') }}:</span>
 
-        <select x-model="slug" class="cap-embed-select" aria-label="Сборка каптчи">
+        <select x-model="slug" class="cap-embed-select" aria-label="{{ __('admin.captcha.preset') }}">
             @foreach($captchaPresets as $preset)
                 <option value="{{ $preset->slug }}">{{ $preset->name }}</option>
             @endforeach
         </select>
 
         <button type="button" @click="insert()" class="cap-embed-btn">
-            <i class="fas fa-plus"></i> Вставить в текст
+            <i class="fas fa-plus"></i> {{ __('admin.captcha.insert') }}
         </button>
 
-        <span x-cloak x-show="done" class="cap-embed-done">вставлено</span>
+        <span x-cloak x-show="done" class="cap-embed-done">{{ __('admin.captcha.inserted') }}</span>
     @else
         <i class="fas fa-shield-halved cap-embed-ico" aria-hidden="true"></i>
         <span class="cap-embed-label">
-            Защита формы от ботов настраивается в конструкторе —
-            <a href="{{ route('admin.captcha.index') }}" class="cap-embed-link">собрать каптчу</a>.
+            {{ __('admin.captcha.picker_hint') }}
+            <a href="{{ route('admin.captcha.index') }}" class="cap-embed-link">{{ __('admin.captcha.build') }}</a>.
         </span>
     @endif
 </div>

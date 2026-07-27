@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Редактировать новость')
+@section('title', __('admin.news.page_edit'))
 
 @section('content')
     @php
@@ -20,11 +20,11 @@
                 <div class="flex flex-wrap items-center gap-2 text-xs">
                     @if ($news->published)
                         <span class="inline-flex items-center gap-1 px-2 py-0.5 font-semibold bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
-                            <i class="fas fa-circle-check"></i> Опубликовано
+                            <i class="fas fa-circle-check"></i> {{ __('admin.common.published') }}
                         </span>
                     @else
                         <span class="inline-flex items-center gap-1 px-2 py-0.5 font-semibold bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">
-                            <i class="fas fa-clock"></i> Черновик
+                            <i class="fas fa-clock"></i> {{ __('admin.common.draft') }}
                         </span>
                     @endif
                     <span class="inline-flex items-center gap-1 px-2 py-0.5 font-medium bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
@@ -43,13 +43,13 @@
             @if ($news->slug && $news->published)
                 <a href="{{ url('/news/' . $news->slug) }}" target="_blank" rel="noopener"
                    class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
-                   title="Открыть на сайте">
-                    <i class="fas fa-arrow-up-right-from-square"></i> На сайте
+                   title="{{ __('admin.common.open_on_site') }}">
+                    <i class="fas fa-arrow-up-right-from-square"></i> {{ __('admin.common.on_site') }}
                 </a>
             @endif
             <a href="{{ route('admin.news.index') }}"
                class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition">
-                <i class="fas fa-arrow-left"></i> К списку
+                <i class="fas fa-arrow-left"></i> {{ __('admin.common.back_to_list') }}
             </a>
         </div>
     </div>
@@ -58,7 +58,7 @@
         <div class="border-l-4 border-red-500 bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 px-4 py-3 mb-6 text-sm">
             <div class="flex items-start gap-2">
                 <i class="fas fa-triangle-exclamation mt-0.5"></i>
-                <div><b>Проверьте форму.</b> {{ $errors->first() }}</div>
+                <div><b>{{ __('admin.common.check_form') }}</b> {{ $errors->first() }}</div>
             </div>
         </div>
     @endif
@@ -71,15 +71,15 @@
         {{-- ── Основное ── --}}
         <div class="admin-card p-5">
             <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
-                <i class="fas fa-file-lines text-indigo-500"></i> Основное
+                <i class="fas fa-file-lines text-indigo-500"></i> {{ __('admin.common.basic') }}
             </h2>
             <div class="space-y-4">
-                <x-admin.input label="Заголовок" name="title" :value="$news->title" required
-                    hint="Название новости. Отображается в заголовке и списке." />
+                <x-admin.input label="{{ __('admin.common.f_title') }}" name="title" :value="$news->title" required
+                    hint="{{ __('admin.news.title_hint') }}" />
                 <x-admin.input label="URL (slug)" name="slug" :value="$news->slug"
-                    hint="Только латинские буквы, цифры и дефисы. Изменение URL может повлиять на индексацию." />
-                <x-admin.select label="Шаблон" name="template" :options="$templates" :selected="$news->template"
-                    hint="Тип отображения: стандарт, товары и т.д." />
+                    hint="{{ __('admin.news.slug_hint_edit') }}" />
+                <x-admin.select label="{{ __('admin.common.f_template') }}" name="template" :options="$templates" :selected="$news->template"
+                    hint="{{ __('admin.news.template_hint_edit') }}" />
             </div>
         </div>
 
@@ -90,11 +90,11 @@
             </h2>
             <div class="space-y-4">
                 <x-admin.input label="Meta Title" name="meta_title" :value="$news->meta_title"
-                    hint="До 60 символов. Заголовок вкладки и сниппета в поиске." />
+                    hint="{{ __('admin.news.meta_title_hint') }}" />
                 <x-admin.input label="Meta Description" name="meta_description" :value="$news->meta_description"
-                    hint="До 160 символов. Краткое описание для поисковой выдачи." />
-                <x-admin.input label="Ключевые слова" name="meta_keywords" :value="$news->meta_keywords"
-                    hint="Через запятую: новости, мероприятия, экология" />
+                    hint="{{ __('admin.news.meta_desc_hint') }}" />
+                <x-admin.input label="{{ __('admin.common.f_keywords') }}" name="meta_keywords" :value="$news->meta_keywords"
+                    hint="{{ __('admin.news.keywords_hint_edit') }}" />
 
                 {{-- Подсказка и разовая перезапись, если SEO-страница заблокирована --}}
                 @if ($seoPage && !empty($seoPage->locked))
@@ -102,15 +102,15 @@
                         <div class="flex items-start gap-2">
                             <i class="fas fa-lock mt-0.5"></i>
                             <div>
-                                <b>Внимание:</b> SEO-страница для этой новости <u>заблокирована</u> — правки из этой формы
-                                не перезапишут SEO-данные. Разблокируйте запись в <b>SEO → Страницы</b> или отметьте
-                                чекбокс ниже для <i>разовой</i> перезаписи.
+                                <b>{{ __('admin.news.attention') }}</b> {{ __('admin.news.seo_locked_1') }} <u>{{ __('admin.news.seo_locked_2') }}</u> {{ __('admin.news.seo_locked_3') }}
+                                {{ __('admin.news.seo_locked_3') }} <b>SEO</b> {{ __('admin.news.seo_locked_4') }}
+                                 <i>{{ __('admin.news.seo_locked_5') }}</i> {{ __('admin.news.seo_locked_6') }}
                             </div>
                         </div>
                     </div>
                     <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                         <input type="checkbox" name="force_seo" value="1">
-                        Перезаписать SEO для этой новости (игнорировать блокировку один раз)
+                        {{ __('admin.news.seo_override') }}
                     </label>
                 @endif
             </div>
@@ -119,9 +119,9 @@
         {{-- ── Категории ── --}}
         <div class="admin-card p-5">
             <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2 flex items-center gap-2">
-                <i class="fas fa-folder-open text-indigo-500"></i> Категории
+                <i class="fas fa-folder-open text-indigo-500"></i> {{ __('admin.common.categories') }}
             </h2>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Выберите одну или несколько, чтобы классифицировать новость.</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{ __('admin.news.categories_hint_edit') }}</p>
             <div class="flex flex-wrap gap-2">
                 @forelse ($categories as $category)
                     <label class="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-300 dark:border-gray-600 cursor-pointer text-sm
@@ -131,7 +131,7 @@
                         {{ $category->title }}
                     </label>
                 @empty
-                    <p class="text-sm text-gray-400 dark:text-gray-500">Категорий пока нет.</p>
+                    <p class="text-sm text-gray-400 dark:text-gray-500">{{ __('admin.common.no_categories') }}</p>
                 @endforelse
             </div>
         </div>
@@ -139,16 +139,16 @@
         {{-- ── Поля шаблона «Товары» ── --}}
         <div id="product-fields" class="admin-card p-5 hidden animate-fade-in">
             <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
-                <i class="fas fa-bag-shopping text-indigo-500"></i> Товар
+                <i class="fas fa-bag-shopping text-indigo-500"></i> {{ __('admin.news.product') }}
             </h2>
             <div class="space-y-4">
-                <x-admin.input label="Цена (₽)" name="price" type="number" step="0.01" :value="$news->price"
-                    hint="Цена товара в рублях." />
-                <x-admin.input label="Остаток" name="stock" type="number" :value="$news->stock"
-                    hint="Сколько единиц товара доступно." />
+                <x-admin.input label="{{ __('admin.news.price') }}" name="price" type="number" step="0.01" :value="$news->price"
+                    hint="{{ __('admin.news.price_hint_edit') }}" />
+                <x-admin.input label="{{ __('admin.news.stock') }}" name="stock" type="number" :value="$news->stock"
+                    hint="{{ __('admin.news.stock_hint_edit') }}" />
                 <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                     <input type="checkbox" name="is_promo" value="1" {{ $news->is_promo ? 'checked' : '' }}>
-                    Акционный товар
+                    {{ __('admin.news.sale') }}
                 </label>
             </div>
         </div>
@@ -156,11 +156,11 @@
         {{-- ── Содержимое ── --}}
         <div class="admin-card p-5">
             <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-2">
-                <i class="fas fa-pen-nib text-indigo-500"></i> Содержимое
+                <i class="fas fa-pen-nib text-indigo-500"></i> {{ __('admin.common.content') }}
             </h2>
             <textarea name="content" id="editor" rows="14"
                 class="w-full border border-gray-300 dark:border-gray-700 px-3 py-2 dark:bg-gray-800 dark:text-gray-100">{{ old('content', $news->content) }}</textarea>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Основной текст публикации. Можно вставлять изображения, таблицы и видео.</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ __('admin.news.content_hint_edit') }}</p>
         
             {{-- Вставка сохранённой сборки каптчи в текст материала --}}
             @include('Captcha::partials.editor-picker')
@@ -170,24 +170,24 @@
         <div class="admin-card p-5 flex flex-col sm:flex-row sm:items-center gap-4">
             <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                 <input type="checkbox" name="published" value="1" {{ $news->published ? 'checked' : '' }}>
-                Опубликовать
+                {{ __('admin.news.publish') }}
             </label>
 
             <div class="sm:ml-auto flex items-center gap-2">
                 <a href="{{ route('admin.news.index') }}"
                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium border border-gray-300 dark:border-gray-600
                           text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-                    Отмена
+                    {{ __('admin.admin.cancel') }}
                 </a>
                 <button type="submit"
                     class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 text-sm font-semibold shadow-sm transition">
-                    <i class="fas fa-floppy-disk"></i> Сохранить изменения
+                    <i class="fas fa-floppy-disk"></i> {{ __('admin.common.save_changes') }}
                 </button>
             </div>
         </div>
     
         {{-- Переводы контента на другие языки (таблица content_translations) --}}
-        <x-admin.translations :model="$news" :fields="['title' => 'Заголовок', 'content' => ['label' => 'Текст новости', 'type' => 'textarea'], 'meta_title' => 'SEO: title', 'meta_description' => ['label' => 'SEO: description', 'type' => 'textarea']]" />
+        <x-admin.translations :model="$news" :fields="['title' => __('admin.common.f_title'), 'content' => ['label' => __('admin.news.tr_content'), 'type' => 'textarea'], 'meta_title' => 'SEO: title', 'meta_description' => ['label' => 'SEO: description', 'type' => 'textarea']]" />
 
     </form>
 
@@ -251,11 +251,11 @@
                                     title: file.name
                                 });
                             } else {
-                                alert('Ошибка: сервер не вернул ссылку на файл.');
+                                alert('{{ __('admin.news.upload_no_url') }}');
                             }
                         })
                         .catch(error => {
-                            alert('Ошибка загрузки файла: ' + error.message);
+                            alert('{{ __('admin.news.upload_error') }} ' + error.message);
                         });
                 };
                 input.click();

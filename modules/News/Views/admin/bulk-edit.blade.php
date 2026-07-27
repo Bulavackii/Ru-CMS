@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Массовое редактирование')
+@section('title', '{{ __('admin.news.bulk_edit') }}')
 
 @section('content')
     {{-- ── Шапка страницы ── --}}
@@ -10,7 +10,7 @@
         <div class="flex items-center gap-3 min-w-0">
             <span class="admin-icon-badge"><i class="fas fa-layer-group"></i></span>
             <div class="min-w-0">
-                <h1 class="text-xl font-bold text-gray-900 dark:text-white">Массовое редактирование</h1>
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('admin.news.bulk_edit') }}</h1>
                 <p class="text-sm text-gray-500 dark:text-gray-400">
                     Правка заголовков и SEO-полей сразу у нескольких публикаций — выбрано записей: {{ count($news) }}.
                 </p>
@@ -27,7 +27,7 @@
         <div class="border-l-4 border-red-500 bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 px-4 py-3 mb-6 text-sm">
             <div class="flex items-start gap-2">
                 <i class="fas fa-triangle-exclamation mt-0.5"></i>
-                <div><b>Проверьте форму.</b> {{ $errors->first() }}</div>
+                <div><b>{{ __('admin.common.check_form') }}</b> {{ $errors->first() }}</div>
             </div>
         </div>
     @endif
@@ -52,14 +52,14 @@
                     @endif
                     <a href="{{ route('admin.news.edit', $item->id) }}"
                        class="ml-auto inline-flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
-                       title="Открыть полную форму редактирования">
-                        <i class="fas fa-pen"></i> Полная форма
+                       title="{{ __('admin.news.full_form_title') }}">
+                        <i class="fas fa-pen"></i> {{ __('admin.news.full_form') }}
                     </a>
                 </div>
 
                 <div class="grid sm:grid-cols-2 gap-5">
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Заголовок</label>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.news.title') }}</label>
                         <input type="text" name="fields[{{ $item->id }}][title]" value="{{ $item->title }}"
                                class="w-full border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm dark:bg-gray-800 dark:text-gray-100
                                       focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
@@ -73,7 +73,7 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Ключевые слова</label>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.news.keywords') }}</label>
                         <input type="text" name="fields[{{ $item->id }}][meta_keywords]" value="{{ $item->meta_keywords }}"
                                class="w-full border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm dark:bg-gray-800 dark:text-gray-100
                                       focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
@@ -108,7 +108,7 @@
         {{-- ── Сохранение ── --}}
         <div class="admin-card p-5 flex flex-wrap items-center gap-3">
             <span class="text-sm text-gray-500 dark:text-gray-400">
-                Изменения применятся ко всем показанным записям.
+                {{ __('admin.news.bulk_hint') }}
             </span>
             <div class="ml-auto flex items-center gap-2">
                 <a href="{{ route('admin.news.index') }}"

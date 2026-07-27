@@ -330,7 +330,9 @@ class CaptchaPresetTest extends TestCase
         $admin = $this->admin();
 
         foreach ([route('admin.news.create'), route('admin.pages.create')] as $url) {
-            $this->actingAs($admin)->get($url)
+            // Подписи партиала теперь переводятся — фиксируем локаль,
+            // иначе тест зависит от языка по умолчанию в окружении
+            $this->actingAs($admin)->withSession(['app_locale' => 'ru'])->get($url)
                 ->assertStatus(200)
                 ->assertSee('Форма обратной связи', false)
                 ->assertSee('Вставить в текст', false);
@@ -342,7 +344,8 @@ class CaptchaPresetTest extends TestCase
         // Пустой выпадающий список ничего не объясняет — ведём в конструктор
         $this->assertSame(0, CaptchaPreset::count());
 
-        $this->actingAs($this->admin())->get(route('admin.news.create'))
+        $this->actingAs($this->admin())->withSession(['app_locale' => 'ru'])
+            ->get(route('admin.news.create'))
             ->assertStatus(200)
             ->assertSee('собрать каптчу', false)
             ->assertDontSee('Вставить в текст', false);
