@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Панель управления')
+@section('title', __('admin.dashboard.title'))
 
 @section('content')
 <div class="dash space-y-6" x-data="dashGreeting()">
@@ -14,7 +14,7 @@
             <div class="min-w-0">
                 <div class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-300">
                     <i class="fas" :class="icon"></i>
-                    <span x-text="greeting">Добро пожаловать</span>
+                    <span x-text="greeting">{{ __('admin.dashboard.welcome') }}</span>
                 </div>
                 <h1 class="mt-2 text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white break-words">
                     {{ auth()->user()->name }} <span aria-hidden="true">👋</span>
@@ -41,7 +41,7 @@
             </span>
             <span class="inline-flex items-center gap-1.5">
                 <i class="fas fa-bolt hint-ico"></i>
-                Статистика обновляется раз в 5 минут
+                {{ __('admin.dashboard.stats_note') }}
             </span>
             @if($licenseInfo && ($licenseInfo['is_expiring_soon'] || $licenseInfo['is_expired']))
                 <a href="{{ route('admin.subscriptions.index') }}" class="inline-flex items-center gap-1.5 font-semibold text-red-600 dark:text-red-400 hover:underline">
@@ -57,15 +57,15 @@
         <a href="{{ route('admin.news.index') }}" class="dash-stat dash-stat--blue group">
             <div class="flex items-start justify-between">
                 <div class="min-w-0">
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Новости</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('admin.sections.news') }}</p>
                     <p class="dash-counter mt-1 text-3xl font-extrabold text-gray-900 dark:text-white" data-target="{{ $stats['content']['news']['total'] }}">0</p>
                 </div>
                 <span class="dash-badge dash-badge--blue"><i class="fas fa-newspaper"></i></span>
             </div>
             <div class="mt-4 flex items-center justify-between text-xs">
-                <span class="dash-chip dash-chip--blue">+{{ $stats['content']['news']['this_week'] }} за неделю</span>
+                <span class="dash-chip dash-chip--blue">+{{ $stats['content']['news']['this_week'] }} {{ __('admin.dashboard.per_week') }}</span>
                 <span class="text-gray-400 transition group-hover:translate-x-0.5 group-hover:text-gray-600 dark:group-hover:text-gray-300">
-                    {{ $stats['content']['news']['published'] }} опубл. <i class="fas fa-arrow-right ml-0.5"></i>
+                    {{ $stats['content']['news']['published'] }} {{ __('admin.dashboard.pub_short') }} <i class="fas fa-arrow-right ml-0.5"></i>
                 </span>
             </div>
         </a>
@@ -73,15 +73,15 @@
         <a href="{{ route('admin.pages.index') }}" class="dash-stat dash-stat--green group">
             <div class="flex items-start justify-between">
                 <div class="min-w-0">
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Страницы</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('admin.sections.pages') }}</p>
                     <p class="dash-counter mt-1 text-3xl font-extrabold text-gray-900 dark:text-white" data-target="{{ $stats['content']['pages']['total'] }}">0</p>
                 </div>
                 <span class="dash-badge dash-badge--green"><i class="fas fa-file-lines"></i></span>
             </div>
             <div class="mt-4 flex items-center justify-between text-xs">
-                <span class="dash-chip dash-chip--green">{{ $stats['content']['pages']['published'] }} опубликовано</span>
+                <span class="dash-chip dash-chip--green">{{ $stats['content']['pages']['published'] }} {{ __('admin.dashboard.published_word') }}</span>
                 <span class="text-gray-400 transition group-hover:translate-x-0.5 group-hover:text-gray-600 dark:group-hover:text-gray-300">
-                    Все страницы <i class="fas fa-arrow-right ml-0.5"></i>
+                    {{ __('admin.dashboard.all_pages') }} <i class="fas fa-arrow-right ml-0.5"></i>
                 </span>
             </div>
         </a>
@@ -89,15 +89,15 @@
         <a href="{{ route('admin.users.index') }}" class="dash-stat dash-stat--purple group">
             <div class="flex items-start justify-between">
                 <div class="min-w-0">
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Пользователи</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('admin.sections.users') }}</p>
                     <p class="dash-counter mt-1 text-3xl font-extrabold text-gray-900 dark:text-white" data-target="{{ $stats['users']['total'] }}">0</p>
                 </div>
                 <span class="dash-badge dash-badge--purple"><i class="fas fa-users"></i></span>
             </div>
             <div class="mt-4 flex items-center justify-between text-xs">
-                <span class="dash-chip dash-chip--purple">+{{ $stats['users']['this_week'] }} за неделю</span>
+                <span class="dash-chip dash-chip--purple">+{{ $stats['users']['this_week'] }} {{ __('admin.dashboard.per_week') }}</span>
                 <span class="text-gray-400 transition group-hover:translate-x-0.5 group-hover:text-gray-600 dark:group-hover:text-gray-300">
-                    {{ $stats['users']['admins'] }} админ. <i class="fas fa-arrow-right ml-0.5"></i>
+                    {{ $stats['users']['admins'] }} {{ __('admin.dashboard.admins_short') }} <i class="fas fa-arrow-right ml-0.5"></i>
                 </span>
             </div>
         </a>
@@ -106,15 +106,15 @@
             <a href="{{ route('admin.orders.index') }}" class="dash-stat dash-stat--orange group">
                 <div class="flex items-start justify-between">
                     <div class="min-w-0">
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Заказы</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('admin.sections.orders') }}</p>
                         <p class="dash-counter mt-1 text-3xl font-extrabold text-gray-900 dark:text-white" data-target="{{ $stats['orders']['total'] }}">0</p>
                     </div>
                     <span class="dash-badge dash-badge--orange"><i class="fas fa-cart-shopping"></i></span>
                 </div>
                 <div class="mt-4 flex items-center justify-between text-xs">
-                    <span class="dash-chip dash-chip--orange">{{ $stats['orders']['pending'] }} ожидают</span>
+                    <span class="dash-chip dash-chip--orange">{{ $stats['orders']['pending'] }} {{ __('admin.dashboard.pending') }}</span>
                     <span class="text-gray-400 transition group-hover:translate-x-0.5 group-hover:text-gray-600 dark:group-hover:text-gray-300">
-                        {{ number_format($stats['orders']['revenue'], 0, ',', ' ') }} ₽/мес <i class="fas fa-arrow-right ml-0.5"></i>
+                        {{ number_format($stats['orders']['revenue'], 0, ',', ' ') }} {{ __('admin.dashboard.per_month') }} <i class="fas fa-arrow-right ml-0.5"></i>
                     </span>
                 </div>
             </a>
@@ -126,8 +126,8 @@
         <div class="mb-4 flex items-center gap-3">
             <span class="dash-badge dash-badge--indigo dash-badge--sm"><i class="fas fa-chart-line"></i></span>
             <div>
-                <h2 class="text-lg font-bold text-gray-900 dark:text-white">Активность за последние 7 дней</h2>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Новости, пользователи и заказы день за днём</p>
+                <h2 class="text-lg font-bold text-gray-900 dark:text-white">{{ __('admin.dashboard.chart_title') }}</h2>
+                <p class="text-xs text-gray-500 dark:text-gray-400">{{ __('admin.dashboard.chart_sub') }}</p>
             </div>
         </div>
         <div class="h-72">
@@ -143,9 +143,9 @@
             <div class="mb-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <span class="dash-badge dash-badge--gray dash-badge--sm"><i class="fas fa-list-check"></i></span>
-                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">Последняя активность</h2>
+                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">{{ __('admin.dashboard.recent') }}</h2>
                 </div>
-                <div class="widget-handle cursor-move text-gray-300 hover:text-gray-500 dark:text-gray-600 dark:hover:text-gray-400" title="Перетащить">
+                <div class="widget-handle cursor-move text-gray-300 hover:text-gray-500 dark:text-gray-600 dark:hover:text-gray-400" title="{{ __('admin.dashboard.drag') }}">
                     <i class="fas fa-grip-vertical"></i>
                 </div>
             </div>
@@ -161,7 +161,7 @@
                         </div>
                     </a>
                 @empty
-                    <p class="py-10 text-center text-sm text-gray-400">Активность пока отсутствует</p>
+                    <p class="py-10 text-center text-sm text-gray-400">{{ __('admin.dashboard.recent_empty') }}</p>
                 @endforelse
             </div>
         </div>
@@ -180,9 +180,9 @@
                 <div class="mb-4 flex items-center justify-between">
                     <div class="flex items-center gap-3">
                         <span class="dash-badge dash-badge--{{ $licenseColor['bg'] }} dash-badge--sm"><i class="fas fa-key"></i></span>
-                        <h2 class="text-lg font-bold text-gray-900 dark:text-white">Лицензия</h2>
+                        <h2 class="text-lg font-bold text-gray-900 dark:text-white">{{ __('admin.dashboard.license') }}</h2>
                     </div>
-                    <div class="widget-handle cursor-move text-gray-300 hover:text-gray-500 dark:text-gray-600 dark:hover:text-gray-400" title="Перетащить">
+                    <div class="widget-handle cursor-move text-gray-300 hover:text-gray-500 dark:text-gray-600 dark:hover:text-gray-400" title="{{ __('admin.dashboard.drag') }}">
                         <i class="fas fa-grip-vertical"></i>
                     </div>
                 </div>
@@ -193,19 +193,19 @@
                             <p class="truncate text-sm font-medium text-gray-900 dark:text-white">
                                 {{ $licenseInfo['plan_info']['name'] ?? ucfirst($licenseInfo['subscription']->plan) }}
                             </p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Тарифный план</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ __('admin.dashboard.plan') }}</p>
                         </div>
                     </div>
 
                     <div class="dash-license-panel dash-license-panel--{{ $licenseColor['bg'] }} rounded-xl p-4">
                         <div class="mb-1 flex items-center justify-between">
-                            <p class="text-sm font-semibold text-gray-900 dark:text-white">Осталось времени</p>
+                            <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ __('admin.dashboard.time_left') }}</p>
                             @if($licenseInfo['is_expired'])
-                                <span class="dash-tag dash-tag--red">Истекла</span>
+                                <span class="dash-tag dash-tag--red">{{ __('admin.dashboard.expired') }}</span>
                             @elseif($licenseInfo['is_critical'])
-                                <span class="dash-tag dash-tag--red animate-pulse">Срочно!</span>
+                                <span class="dash-tag dash-tag--red animate-pulse">{{ __('admin.dashboard.urgent') }}</span>
                             @elseif($licenseInfo['is_expiring_soon'])
-                                <span class="dash-tag dash-tag--yellow">Скоро истекает</span>
+                                <span class="dash-tag dash-tag--yellow">{{ __('admin.dashboard.expiring') }}</span>
                             @endif
                         </div>
                         <p class="text-2xl font-extrabold text-{{ $licenseColor['text'] }}-600 dark:text-{{ $licenseColor['text'] }}-400">
@@ -215,13 +215,13 @@
                     </div>
 
                     <div class="rounded-xl bg-gray-50 p-3 dark:bg-gray-800">
-                        <p class="mb-1 text-xs text-gray-500 dark:text-gray-400">Лицензионный ключ</p>
+                        <p class="mb-1 text-xs text-gray-500 dark:text-gray-400">{{ __('admin.dashboard.license_key') }}</p>
                         <p class="break-all font-mono text-xs text-gray-900 dark:text-white">{{ $licenseInfo['subscription']->license_key }}</p>
                     </div>
 
                     @if($licenseInfo['is_expiring_soon'] || $licenseInfo['is_expired'])
                         <a href="{{ route('admin.subscriptions.index') }}" class="dash-pill dash-pill--primary flex w-full items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold">
-                            <i class="fas fa-arrows-rotate"></i> Продлить лицензию
+                            <i class="fas fa-arrows-rotate"></i> {{ __('admin.dashboard.renew') }}
                         </a>
                     @endif
                 </div>
@@ -231,19 +231,19 @@
         {{-- Статус системы --}}
         @php
             $systemLabels = [
-                'backup' => 'Резервные копии',
-                'updates' => 'Обновления',
-                'cache' => 'Кэш',
-                'queue' => 'Очередь задач',
+                'backup' => __('admin.dashboard.st_backup'),
+                'updates' => __('admin.dashboard.st_updates'),
+                'cache' => __('admin.dashboard.st_cache'),
+                'queue' => __('admin.dashboard.st_queue'),
             ];
         @endphp
         <div class="dash-card p-6" data-widget-id="system">
             <div class="mb-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <span class="dash-badge dash-badge--gray dash-badge--sm"><i class="fas fa-gear"></i></span>
-                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">Статус системы</h2>
+                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">{{ __('admin.dashboard.system_status') }}</h2>
                 </div>
-                <div class="widget-handle cursor-move text-gray-300 hover:text-gray-500 dark:text-gray-600 dark:hover:text-gray-400" title="Перетащить">
+                <div class="widget-handle cursor-move text-gray-300 hover:text-gray-500 dark:text-gray-600 dark:hover:text-gray-400" title="{{ __('admin.dashboard.drag') }}">
                     <i class="fas fa-grip-vertical"></i>
                 </div>
             </div>

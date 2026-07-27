@@ -129,8 +129,8 @@ class DashboardController extends Controller
             $activities[] = [
                 'type' => 'news',
                 'icon' => 'newspaper',
-                'title' => "Создана новость: {$news->title}",
-                'user' => $news->user->name ?? 'Система',
+                'title' => __('admin.dashboard.act_news', ['title' => $news->title]),
+                'user' => $news->user->name ?? __('admin.dashboard.system'),
                 'time' => $news->created_at->diffForHumans(),
                 'url' => route('admin.news.edit', $news->id),
             ];
@@ -142,8 +142,8 @@ class DashboardController extends Controller
             $activities[] = [
                 'type' => 'user',
                 'icon' => 'user',
-                'title' => "Зарегистрирован пользователь: {$user->name}",
-                'user' => 'Система',
+                'title' => __('admin.dashboard.act_user', ['name' => $user->name]),
+                'user' => __('admin.dashboard.system'),
                 'time' => $user->created_at->diffForHumans(),
                 'url' => route('admin.users.index'),
             ];
@@ -156,8 +156,8 @@ class DashboardController extends Controller
                 $activities[] = [
                     'type' => 'order',
                     'icon' => 'shopping-cart',
-                    'title' => "Новый заказ #{$order->id}",
-                    'user' => $order->user->name ?? 'Гость',
+                    'title' => __('admin.dashboard.act_order', ['id' => $order->id]),
+                    'user' => $order->user->name ?? __('admin.dashboard.guest'),
                     'time' => $order->created_at->diffForHumans(),
                     'url' => route('admin.orders.show', $order->id),
                 ];
@@ -177,37 +177,37 @@ class DashboardController extends Controller
     {
         return [
             [
-                'title' => 'Создать новость',
+                'title' => __('admin.dashboard.quick_news'),
                 'icon' => 'newspaper',
                 'url' => route('admin.news.create'),
                 'color' => 'blue',
             ],
             [
-                'title' => 'Создать страницу',
+                'title' => __('admin.dashboard.quick_page'),
                 'icon' => 'file',
                 'url' => route('admin.pages.create'),
                 'color' => 'green',
             ],
             [
-                'title' => 'Загрузить файл',
+                'title' => __('admin.dashboard.quick_file'),
                 'icon' => 'upload',
                 'url' => route('admin.files.index'),
                 'color' => 'purple',
             ],
             [
-                'title' => 'Создать категорию',
+                'title' => __('admin.dashboard.quick_category'),
                 'icon' => 'folder',
                 'url' => route('admin.categories.create'),
                 'color' => 'orange',
             ],
             [
-                'title' => 'Создать слайдшоу',
+                'title' => __('admin.dashboard.quick_slideshow'),
                 'icon' => 'image',
                 'url' => route('admin.slideshow.create'),
                 'color' => 'pink',
             ],
             [
-                'title' => 'Создать пользователя',
+                'title' => __('admin.dashboard.quick_user'),
                 'icon' => 'user-plus',
                 'url' => route('admin.users.create'),
                 'color' => 'indigo',
@@ -227,27 +227,27 @@ class DashboardController extends Controller
             'backup' => [
                 'status' => $lastBackup ? 'success' : 'warning',
                 'message' => $lastBackup 
-                    ? "Последний бэкап: {$lastBackup->diffForHumans()}"
-                    : 'Бэкапы не найдены',
+                    ? __('admin.dashboard.backup_last', ['time' => $lastBackup->diffForHumans()])
+                    : __('admin.dashboard.backup_none'),
                 'icon' => 'database',
             ],
             'updates' => [
                 'status' => $updateInfo['available'] ? 'info' : 'success',
                 'message' => $updateInfo['available']
-                    ? "Доступно обновление: {$updateInfo['version']}"
-                    : 'Система актуальна',
+                    ? __('admin.dashboard.update_available', ['version' => $updateInfo['version']])
+                    : __('admin.dashboard.update_none'),
                 'icon' => 'sync',
             ],
             'cache' => [
                 'status' => 'success',
-                'message' => 'Кэш работает нормально',
+                'message' => __('admin.dashboard.cache_ok'),
                 'icon' => 'bolt',
             ],
             'queue' => [
                 'status' => $this->checkQueue() ? 'success' : 'warning',
                 'message' => $this->checkQueue() 
-                    ? 'Очередь работает'
-                    : 'Очередь не настроена',
+                    ? __('admin.dashboard.queue_ok')
+                    : __('admin.dashboard.queue_none'),
                 'icon' => 'tasks',
             ],
         ];

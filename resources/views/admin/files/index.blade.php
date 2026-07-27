@@ -31,7 +31,7 @@
     <div class="flex flex-col gap-2 md:flex-row md:items-start md:justify-between mb-4">
         <div>
             <div class="flex items-center gap-2">
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">📁 Файлы</h1>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">📁 {{ __('admin.sections.files') }}</h1>
                 @if ($currentCat)
                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-gray-100 dark:bg-gray-800">
                         {{ $currentCat->icon }} {{ $currentCat->title }}
@@ -53,24 +53,24 @@
         <div class="flex flex-wrap items-center gap-1.5 md:gap-2">
             <button type="button" onclick="uiUpload.open()"
                 class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-black text-white hover:bg-gray-800 shadow text-sm">
-                <i class="fa-solid fa-upload"></i><span class="hidden sm:inline">Загрузить</span>
+                <i class="fa-solid fa-upload"></i><span class="hidden sm:inline">{{ __('admin.files.upload') }}</span>
             </button>
 
             <button type="button" onclick="uiBulk.deleteSelected()"
                 class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-red-600 text-white hover:bg-red-700 shadow text-sm">
-                <i class="fa-solid fa-trash"></i><span class="hidden sm:inline">Удалить</span>
+                <i class="fa-solid fa-trash"></i><span class="hidden sm:inline">{{ __('admin.admin.delete') }}</span>
             </button>
 
             <button type="button" onclick="document.getElementById('create-category-form').classList.toggle('hidden')"
                 class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-black text-sm shadow bg-orange-400 hover:bg-orange-500 ring-1 ring-orange-300">
-                <i class="fa-solid fa-folder-plus"></i> Категория
+                <i class="fa-solid fa-folder-plus"></i> {{ __('admin.common.category') }}
             </button>
         </div>
     </div>
 
     {{-- ====== Чипы категорий ====== --}}
     <div class="flex flex-wrap items-center gap-1.5 mb-3">
-        <span class="text-xs text-gray-600 dark:text-gray-300">Категории:</span>
+        <span class="text-xs text-gray-600 dark:text-gray-300">{{ __('admin.files.categories') }}</span>
 
         <a href="{{ route('admin.files.index', array_filter(['q' => $q, 'per_page' => $perPage])) }}"
             class="px-2.5 py-1 rounded-full text-xs font-medium border border-gray-200 dark:border-gray-700 shadow-sm
@@ -101,7 +101,7 @@
              flex flex-col gap-2 md:flex-row md:items-center md:gap-2.5 mb-3">
         <select name="category" id="category-select"
             class="h-9 w-[240px] max-w-full border border-gray-300 dark:border-gray-700 rounded px-2.5 dark:bg-gray-900 dark:text-gray-100">
-            <option value="">Все категории</option>
+            <option value="">{{ __('admin.files.all_categories') }}</option>
             @foreach ($categories as $cat)
                 <option value="{{ $cat->id }}" {{ (string) $catId === (string) $cat->id ? 'selected' : '' }}>
                     {{ $cat->icon }} {{ $cat->title }}
@@ -109,7 +109,7 @@
             @endforeach
         </select>
 
-        <input type="text" name="q" value="{{ $q }}" placeholder="Искать по названию…"
+        <input type="text" name="q" value="{{ $q }}" placeholder="{{ __('admin.files.search_ph') }}"
             class="h-9 md:flex-1 border border-gray-300 dark:border-gray-700 rounded px-2.5 dark:bg-gray-900 dark:text-gray-100" />
 
         <select name="per_page"
@@ -119,7 +119,7 @@
             @endforeach
         </select>
 
-        <button class="h-9 px-3 rounded bg-blue-600 hover:bg-blue-700 text-white whitespace-nowrap">Искать</button>
+        <button class="h-9 px-3 rounded bg-blue-600 hover:bg-blue-700 text-white whitespace-nowrap">{{ __('admin.files.search') }}</button>
 
         @if ($catId || $q !== '')
             <a href="{{ route('admin.files.index') }}"
@@ -136,7 +136,7 @@
             {{ $hasFiles ? 'p-3 text-[12px]' : 'p-4 text-sm' }}
             border-gray-300 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-400
             bg-gray-50/70 dark:bg-gray-800/60"
-        title="Перетащите файлы сюда или кликните для выбора" onclick="uiUpload.open()">
+        title="{{ __('admin.files.drop_or_click') }}" onclick="uiUpload.open()">
         <div class="flex items-center gap-3 pointer-events-none">
             <div class="w-10 h-10 grid place-items-center rounded bg-white dark:bg-gray-900 ring-1 ring-gray-100 dark:ring-gray-800">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-400 group-hover:text-blue-500" viewBox="0 0 24 24" fill="currentColor">
@@ -145,7 +145,7 @@
             </div>
             <div class="flex-1">
                 <div class="font-medium text-gray-800 dark:text-gray-200">
-                    Перетащите файлы сюда <span class="text-gray-400">или нажмите, чтобы выбрать</span>
+                    Перетащите файлы сюда <span class="text-gray-400">{{ __('admin.files.or_click') }}</span>
                 </div>
                 <div class="text-[12px] text-gray-500">
                     Сначала выберите категорию сверху. Поддерживается мультизагрузка. Прогресс увидите ниже.
@@ -153,7 +153,7 @@
             </div>
             <button type="button"
                 class="pointer-events-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-black text-white text-xs hover:bg-gray-800">
-                <i class="fa-solid fa-folder-open"></i> Обзор…
+                <i class="fa-solid fa-folder-open"></i> {{ __('admin.files.browse') }}
             </button>
         </div>
     </div>
@@ -169,12 +169,12 @@
         <table class="min-w-full table-auto bg-white dark:bg-gray-900 text-[13px]">
             <thead class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 uppercase">
                 <tr class="text-left">
-                    <th class="px-3 py-2.5 w-10 text-center"><input type="checkbox" id="check-all" title="Выбрать всё"></th>
-                    <th class="px-3 py-2.5">Файл</th>
-                    <th class="px-3 py-2.5">Категория</th>
-                    <th class="px-3 py-2.5 text-center">Размер</th>
+                    <th class="px-3 py-2.5 w-10 text-center"><input type="checkbox" id="check-all" title="{{ __('admin.files.select_all') }}"></th>
+                    <th class="px-3 py-2.5">{{ __('admin.files.file') }}</th>
+                    <th class="px-3 py-2.5">{{ __('admin.common.category') }}</th>
+                    <th class="px-3 py-2.5 text-center">{{ __('admin.files.size') }}</th>
                     <th class="px-3 py-2.5">URL</th>
-                    <th class="px-3 py-2.5 text-right">Действия</th>
+                    <th class="px-3 py-2.5 text-right">{{ __('admin.common.actions') }}</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
@@ -223,11 +223,11 @@
                             <div class="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 text-[12px] rounded px-2 py-1 w-fit max-w-[520px] overflow-hidden">
                                 <span class="truncate">{{ $url }}</span>
                                 <button type="button" class="ml-1 text-gray-500 hover:text-black dark:hover:text-white shrink-0"
-                                    title="Скопировать URL" onclick="copyToClipboard(@js($url))">
+                                    title="{{ __('admin.files.copy_url') }}" onclick="copyToClipboard(@js($url))">
                                     <i class="fa-regular fa-copy"></i>
                                 </button>
                                 <button type="button" class="ml-1 text-gray-500 hover:text-black dark:hover:text-white shrink-0"
-                                    title="Скопировать Markdown" onclick="copyToClipboard(@js('![' . $file->name . '](' . $url . ')'))">
+                                    title="{{ __('admin.files.copy_md') }}" onclick="copyToClipboard(@js('![' . $file->name . '](' . $url . ')'))">
                                     MD
                                 </button>
                             </div>
@@ -235,14 +235,14 @@
 
                         <td class="px-3 py-2.5 text-right align-middle">
                             <div class="inline-flex items-center gap-2">
-                                <a href="{{ route('admin.files.download', $file->id) }}" class="text-blue-600 hover:text-blue-800">Скачать</a>
+                                <a href="{{ route('admin.files.download', $file->id) }}" class="text-blue-600 hover:text-blue-800">{{ __('admin.files.download') }}</a>
                                 <a href="{{ $url }}" target="_blank" rel="noopener"
-                                   class="text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">Открыть</a>
+                                   class="text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">{{ __('admin.files.open') }}</a>
                                 <form action="{{ route('admin.files.bulkDelete') }}" method="post" class="inline"
-                                      onsubmit="return confirm('Удалить файл «{{ $file->name }}»?');">
+                                      onsubmit="return confirm(@js(__('admin.files.delete_confirm', ['name' => $file->name])));">
                                     @csrf @method('DELETE')
                                     <input type="hidden" name="file_ids" value="{{ $file->id }}">
-                                    <button class="text-red-600 hover:text-red-700">Удалить</button>
+                                    <button class="text-red-600 hover:text-red-700">{{ __('admin.admin.delete') }}</button>
                                 </form>
                             </div>
                         </td>
@@ -282,19 +282,19 @@
         <input type="hidden" name="redirect_back_to_files" value="1">
         <div class="grid md:grid-cols-3 gap-3">
             <div>
-                <label class="block text-sm font-medium">📝 Название</label>
+                <label class="block text-sm font-medium">📝 {{ __('admin.files.cat_name') }}</label>
                 <input type="text" name="title" required
                        class="mt-1 w-full p-2 border border-gray-300 dark:border-gray-700 rounded-md dark:bg-gray-900 dark:text-white">
             </div>
             <div>
-                <label class="block text-sm font-medium">🔤 Иконка (эмоджи)</label>
+                <label class="block text-sm font-medium">🔤 {{ __('admin.files.cat_icon') }}</label>
                 <input type="text" name="icon" placeholder="📁"
                        class="mt-1 w-full p-2 border border-gray-300 dark:border-gray-700 rounded-md dark:bg-gray-900 dark:text-white">
             </div>
             <div class="flex items-end">
                 <button class="w-full md:w-auto px-3.5 py-2 rounded-md text-white text-sm
                         bg-gradient-to-r from-fuchsia-600 to-violet-600 hover:from-fuchsia-700 hover:to-violet-700">
-                    ➕ Создать
+                    ➕ {{ __('admin.files.cat_create') }}
                 </button>
             </div>
         </div>
@@ -342,21 +342,21 @@
 
         function copyToClipboard(text) {
             if (navigator.clipboard?.writeText) {
-                navigator.clipboard.writeText(text).then(() => toast('Скопировано'));
+                navigator.clipboard.writeText(text).then(() => toast(@js(__('admin.files.copied'))));
                 return;
             }
             const ta = document.createElement('textarea');
             ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
             document.body.appendChild(ta); ta.select();
             document.execCommand('copy'); document.body.removeChild(ta);
-            toast('Скопировано');
+            toast(@js(__('admin.files.copied')));
         }
 
         const uiBulk = {
             deleteSelected() {
                 const ids = $$('.row-checkbox:checked').map(cb => cb.value);
-                if (!ids.length) return alert('Нет выбранных файлов.');
-                if (!confirm('Удалить выбранные файлы?')) return;
+                if (!ids.length) return alert(@js(__('admin.files.none_selected')));
+                if (!confirm(@js(__('admin.files.delete_selected_confirm')))) return;
                 $('#bulk-delete-ids').value = ids.join(',');
                 $('#bulk-delete-form').submit();
             }
