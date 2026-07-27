@@ -1,19 +1,8 @@
 @extends('layouts.admin')
 
-@section('title', 'Добавить пользователя')
+@section('title', __('admin.users.page_create'))
 
 @section('content')
-    @php
-        // Склонение «право/права/прав» считаем явно: trans_choice зависит от текущей локали
-        $plural = function (int $n) {
-            $mod10 = $n % 10;
-            $mod100 = $n % 100;
-            if ($mod10 === 1 && $mod100 !== 11) return 'право';
-            if ($mod10 >= 2 && $mod10 <= 4 && ($mod100 < 12 || $mod100 > 14)) return 'права';
-            return 'прав';
-        };
-    @endphp
-
     {{-- ── Шапка страницы ── --}}
     <div class="admin-accent-bar mb-0"></div>
     <div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
@@ -21,9 +10,9 @@
         <div class="flex items-center gap-3 min-w-0">
             <span class="admin-icon-badge"><i class="fas fa-user-plus"></i></span>
             <div class="min-w-0">
-                <h1 class="text-xl font-bold text-gray-900 dark:text-white">Новый пользователь</h1>
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('admin.users.new_user') }}</h1>
                 <p class="text-sm text-gray-500 dark:text-gray-400">
-                    Учётные данные для входа, контакты и уровень доступа.
+                    {{ __('admin.users.new_hint') }}
                 </p>
             </div>
         </div>
@@ -31,14 +20,14 @@
         <a href="{{ route('admin.users.index') }}"
            class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
                   hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition flex-shrink-0">
-            <i class="fas fa-arrow-left"></i> К списку
+            <i class="fas fa-arrow-left"></i> {{ __('admin.common.back_to_list') }}
         </a>
     </div>
 
     @if($errors->any())
         <div class="admin-card border-l-4 border-red-500 p-4 mb-5">
             <p class="text-sm font-semibold text-red-700 dark:text-red-400 mb-1">
-                <i class="fas fa-triangle-exclamation mr-1"></i> Проверьте заполнение формы
+                <i class="fas fa-triangle-exclamation mr-1"></i> {{ __('admin.users.check_form') }}
             </p>
             <ul class="text-sm text-red-600 dark:text-red-400 list-disc list-inside">
                 @foreach($errors->all() as $error)
@@ -59,16 +48,16 @@
                 {{-- Основное --}}
                 <div class="admin-card p-5">
                     <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
-                        <i class="fas fa-id-card text-indigo-500"></i> Основные данные
+                        <i class="fas fa-id-card text-indigo-500"></i> {{ __('admin.users.main_data') }}
                     </h2>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label for="name" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
-                                Имя <span class="text-red-500">*</span>
+                                {{ __('admin.users.name') }} <span class="text-red-500">*</span>
                             </label>
                             <input type="text" id="name" name="name" value="{{ old('name') }}" required
-                                   placeholder="Иван Иванов"
+                                   placeholder="{{ __('admin.users.name_ph') }}"
                                    class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
                                           focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
                             @error('name')<p class="text-sm text-red-500 mt-1">{{ $message }}</p>@enderror
@@ -83,11 +72,11 @@
                                    class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
                                           focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
                             @error('email')<p class="text-sm text-red-500 mt-1">{{ $message }}</p>@enderror
-                            <p class="admin-hint mt-1">Используется для входа в систему.</p>
+                            <p class="admin-hint mt-1">{{ __('admin.users.email_hint') }}</p>
                         </div>
 
                         <div class="md:col-span-2">
-                            <label for="phone" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Телефон</label>
+                            <label for="phone" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.users.phone') }}</label>
                             <input type="text" id="phone" name="phone" value="{{ old('phone') }}"
                                    placeholder="+7 (999) 123-45-67"
                                    class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
@@ -100,16 +89,16 @@
                 {{-- Пароль --}}
                 <div class="admin-card p-5">
                     <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
-                        <i class="fas fa-lock text-indigo-500"></i> Пароль
+                        <i class="fas fa-lock text-indigo-500"></i> {{ __('admin.users.password') }}
                     </h2>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label for="password" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
-                                Пароль <span class="text-red-500">*</span>
+                                {{ __('admin.users.password') }} <span class="text-red-500">*</span>
                             </label>
                             <input type="password" id="password" name="password" required
-                                   placeholder="Минимум 8 символов" autocomplete="new-password"
+                                   placeholder="{{ __('admin.users.password_ph') }}" autocomplete="new-password"
                                    class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
                                           focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
                             @error('password')<p class="text-sm text-red-500 mt-1">{{ $message }}</p>@enderror
@@ -117,10 +106,10 @@
 
                         <div>
                             <label for="password_confirmation" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
-                                Повторите пароль <span class="text-red-500">*</span>
+                                {{ __('admin.users.password_repeat') }} <span class="text-red-500">*</span>
                             </label>
                             <input type="password" id="password_confirmation" name="password_confirmation" required
-                                   placeholder="Ещё раз" autocomplete="new-password"
+                                   placeholder="{{ __('admin.users.password_repeat_ph') }}" autocomplete="new-password"
                                    class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
                                           focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
                         </div>
@@ -128,20 +117,20 @@
 
                     <label class="inline-flex items-center gap-2 mt-3 text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
                         <input type="checkbox" id="showPassword" class="border-gray-400 dark:border-gray-600">
-                        Показать введённый пароль
+                        {{ __('admin.users.show_password') }}
                     </label>
                 </div>
 
                 {{-- Адрес --}}
                 <div class="admin-card p-5">
                     <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
-                        <i class="fas fa-location-dot text-indigo-500"></i> Адрес
-                        <span class="normal-case font-normal tracking-normal text-gray-400">— необязательно</span>
+                        <i class="fas fa-location-dot text-indigo-500"></i> {{ __('admin.users.address') }}
+                        <span class="normal-case font-normal tracking-normal text-gray-400">{{ __('admin.users.optional') }}</span>
                     </h2>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label for="postal_code" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Почтовый индекс</label>
+                            <label for="postal_code" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.users.zip') }}</label>
                             <input type="text" id="postal_code" name="postal_code" value="{{ old('postal_code') }}"
                                    placeholder="123456" inputmode="numeric"
                                    class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
@@ -150,27 +139,27 @@
                         </div>
 
                         <div>
-                            <label for="region" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Регион</label>
+                            <label for="region" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.users.region') }}</label>
                             <input type="text" id="region" name="region" value="{{ old('region') }}"
-                                   placeholder="Московская область"
+                                   placeholder="{{ __('admin.users.region_ph') }}"
                                    class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
                                           focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
                             @error('region')<p class="text-sm text-red-500 mt-1">{{ $message }}</p>@enderror
                         </div>
 
                         <div>
-                            <label for="city" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Город</label>
+                            <label for="city" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.users.city') }}</label>
                             <input type="text" id="city" name="city" value="{{ old('city') }}"
-                                   placeholder="Москва"
+                                   placeholder="{{ __('admin.users.city_ph') }}"
                                    class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
                                           focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
                             @error('city')<p class="text-sm text-red-500 mt-1">{{ $message }}</p>@enderror
                         </div>
 
                         <div>
-                            <label for="address" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Улица, дом</label>
+                            <label for="address" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.users.street') }}</label>
                             <input type="text" id="address" name="address" value="{{ old('address') }}"
-                                   placeholder="ул. Примерная, д. 1"
+                                   placeholder="{{ __('admin.users.street_ph') }}"
                                    class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
                                           focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
                             @error('address')<p class="text-sm text-red-500 mt-1">{{ $message }}</p>@enderror
@@ -185,7 +174,7 @@
                 {{-- Тип учётной записи --}}
                 <div class="admin-card p-5">
                     <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
-                        <i class="fas fa-shield-halved text-indigo-500"></i> Доступ
+                        <i class="fas fa-shield-halved text-indigo-500"></i> {{ __('admin.users.access') }}
                     </h2>
 
                     <label class="flex items-center gap-3 cursor-pointer">
@@ -194,19 +183,18 @@
                             <span class="track"></span>
                             <span class="knob"></span>
                         </span>
-                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200">Администратор</span>
+                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ __('admin.users.admin') }}</span>
                     </label>
 
                     <p class="admin-hint mt-3">
-                        Администратор получает полный доступ ко всем разделам панели — роли ему
-                        не нужны и не применяются. Обычному пользователю доступ выдаётся ролями.
+                        {{ __('admin.users.access_hint') }}
                     </p>
                 </div>
 
                 {{-- Роли --}}
                 <div class="admin-card p-5" id="rolesSection">
                     <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
-                        <i class="fas fa-user-tag text-indigo-500"></i> Роли
+                        <i class="fas fa-user-tag text-indigo-500"></i> {{ __('admin.users.roles') }}
                     </h2>
 
                     @forelse($roles->sortByDesc('priority') as $role)
@@ -219,7 +207,7 @@
                                 <span class="flex items-center gap-2 flex-wrap">
                                     <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $role->name }}</span>
                                     <span class="text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 px-2 py-0.5">
-                                        {{ $role->permissions_count }} {{ $plural($role->permissions_count) }}
+                                        {{ $role->permissions_count }} {{ trans_choice('admin.users.rights_plural', $role->permissions_count) }}
                                     </span>
                                 </span>
                                 @if($role->description)
@@ -229,14 +217,13 @@
                         </label>
                     @empty
                         <p class="admin-hint">
-                            Роли не созданы — их добавляет сидер <span class="font-mono">RbacSeeder</span>
-                            при установке системы.
+                            {{ __('admin.users.no_roles') }} <span class="font-mono">RbacSeeder</span> {{ __('admin.users.on_install') }}
                         </p>
                     @endforelse
 
                     @if($roles->isNotEmpty())
                         <p class="admin-hint mt-3">
-                            Можно выбрать несколько ролей — права складываются.
+                            {{ __('admin.users.roles_hint') }}
                         </p>
                     @endif
                 </div>
@@ -246,13 +233,13 @@
                     <button type="submit"
                             class="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white
                                    px-4 py-2 text-sm font-semibold shadow-sm transition flex-1">
-                        <i class="fas fa-user-plus"></i> Создать
+                        <i class="fas fa-user-plus"></i> {{ __('admin.admin.create') }}
                     </button>
                     <a href="{{ route('admin.users.index') }}"
                        class="inline-flex items-center justify-center gap-2 border border-gray-300 dark:border-gray-600
                               text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800
                               px-4 py-2 text-sm font-semibold transition">
-                        Отмена
+                        {{ __('admin.admin.cancel') }}
                     </a>
                 </div>
             </div>

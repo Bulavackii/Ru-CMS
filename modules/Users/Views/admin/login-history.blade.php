@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'История входов')
+@section('title', __('admin.users.page_history'))
 
 @section('content')
     <div class="mb-6">
@@ -13,7 +13,7 @@
             </div>
             <a href="{{ route('admin.users.index') }}"
                class="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
-                <i class="fas fa-arrow-left"></i> Назад к списку
+                <i class="fas fa-arrow-left"></i> {{ __('admin.users.back_to_list') }}
             </a>
         </div>
     </div>
@@ -56,11 +56,11 @@
                         <td class="px-4 py-3">
                             @if($entry->success)
                                 <span class="inline-flex items-center gap-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs px-3 py-1 rounded-full">
-                                    <i class="fas fa-check"></i> Успешно
+                                    <i class="fas fa-check"></i> {{ __('admin.users.success') }}
                                 </span>
                             @else
                                 <span class="inline-flex items-center gap-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 text-xs px-3 py-1 rounded-full">
-                                    <i class="fas fa-times"></i> Ошибка
+                                    <i class="fas fa-times"></i> {{ __('admin.users.failure') }}
                                 </span>
                             @endif
                         </td>

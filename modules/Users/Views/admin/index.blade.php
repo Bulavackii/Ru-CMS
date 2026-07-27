@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Пользователи')
+@section('title', __('admin.sections.users'))
 
 @section('content')
     @php
@@ -14,28 +14,28 @@
         <div class="flex items-center gap-3 min-w-0">
             <span class="admin-icon-badge"><i class="fas fa-users"></i></span>
             <div class="min-w-0">
-                <h1 class="text-xl font-bold text-gray-900 dark:text-white">Пользователи</h1>
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('admin.sections.users') }}</h1>
                 <p class="text-sm text-gray-500 dark:text-gray-400">
-                    Учётные записи, роли и доступ в панель управления.
+                    {{ __('admin.users.index_hint') }}
                 </p>
             </div>
         </div>
 
         <a href="{{ route('admin.users.create') }}"
            class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition shrink-0">
-            <i class="fas fa-user-plus"></i> Добавить пользователя
+            <i class="fas fa-user-plus"></i> {{ __('admin.users.page_create') }}
         </a>
     </div>
 
     {{-- ── Фильтры ── --}}
     <form method="GET" action="{{ route('admin.users.index') }}" class="admin-card p-5 mb-5">
         <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
-            <i class="fas fa-filter text-indigo-500"></i> Фильтры
+            <i class="fas fa-filter text-indigo-500"></i> {{ __('admin.common.filters') }}
         </h2>
 
         <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
             <div class="{{ $roles->count() > 0 ? 'md:col-span-2' : 'md:col-span-3' }}">
-                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Поиск</label>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.admin.header.search') }}</label>
                 <div class="relative">
                     <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
                          width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -43,28 +43,28 @@
                         <circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path>
                     </svg>
                     <input type="text" name="search" value="{{ $search }}"
-                           placeholder="Имя, email или телефон…"
+                           placeholder="{{ __('admin.users.search_ph') }}"
                            class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white pl-10 pr-3 py-2 text-sm
                                   focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
                 </div>
             </div>
 
             <div>
-                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Тип учётной записи</label>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.users.account_type') }}</label>
                 <select name="role" class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
                                            focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
-                    <option value="">Все</option>
-                    <option value="admin" @selected($currentRole === 'admin')>Администраторы</option>
-                    <option value="user" @selected($currentRole === 'user')>Обычные пользователи</option>
+                    <option value="">{{ __('admin.common.all') }}</option>
+                    <option value="admin" @selected($currentRole === 'admin')>{{ __('admin.users.admins') }}</option>
+                    <option value="user" @selected($currentRole === 'user')>{{ __('admin.users.regular') }}</option>
                 </select>
             </div>
 
             @if($roles->count() > 0)
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Роль</label>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.users.role') }}</label>
                     <select name="role_filter" class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
                                                       focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
-                        <option value="">Любая роль</option>
+                        <option value="">{{ __('admin.users.any_role') }}</option>
                         @foreach($roles as $role)
                             <option value="{{ $role->id }}" @selected($roleFilter == $role->id)>{{ $role->name }}</option>
                         @endforeach
@@ -75,13 +75,13 @@
 
         <div class="flex items-center gap-2 mt-4">
             <button type="submit" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition">
-                <i class="fas fa-magnifying-glass"></i> Применить
+                <i class="fas fa-magnifying-glass"></i> {{ __('admin.common.apply') }}
             </button>
             @if($search || $currentRole || $roleFilter)
                 <a href="{{ route('admin.users.index') }}"
                    class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium
                           text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-                    <i class="fas fa-xmark"></i> Сбросить
+                    <i class="fas fa-xmark"></i> {{ __('admin.users.reset') }}
                 </a>
             @endif
         </div>
@@ -92,14 +92,14 @@
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div class="flex items-center gap-2 font-medium">
                 <i class="fas fa-lightbulb"></i>
-                <span>Свою учётную запись нельзя выбрать для массовых операций и удалить. Администраторы защищены от удаления.</span>
+                <span>{{ __('admin.users.bulk_warning') }}</span>
             </div>
             <div class="flex flex-wrap items-center gap-2 text-xs shrink-0">
                 <span class="bg-white dark:bg-gray-900 border border-indigo-100 dark:border-gray-700 px-2 py-1">
-                    Всего: {{ $users->total() }}
+                    {{ __('admin.common.total') }} {{ $users->total() }}
                 </span>
                 <span class="bg-white dark:bg-gray-900 border border-indigo-100 dark:border-gray-700 px-2 py-1">
-                    Админов на странице: {{ $adminsCount }}
+                    {{ __('admin.users.admins_on_page') }} {{ $adminsCount }}
                 </span>
             </div>
         </div>
@@ -114,42 +114,42 @@
     <form method="POST" action="{{ route('admin.users.bulkAction') }}" id="bulkForm" class="admin-card p-5 mb-5">
         @csrf
         <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
-            <i class="fas fa-list-check text-indigo-500"></i> Массовые действия
+            <i class="fas fa-list-check text-indigo-500"></i> {{ __('admin.users.bulk_title') }}
         </h2>
 
         <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
             {{-- Шаг 1: кого --}}
             <div class="md:col-span-3">
-                <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">1. Кого</label>
+                <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">{{ __('admin.users.bulk_who') }}</label>
                 <div id="bulkCounter"
                      class="border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm text-gray-600 dark:text-gray-300">
-                    Отметьте в таблице
+                    {{ __('admin.users.bulk_mark') }}
                 </div>
             </div>
 
             {{-- Шаг 2: что сделать --}}
             <div class="md:col-span-3">
-                <label for="bulkAction" class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">2. Что сделать</label>
+                <label for="bulkAction" class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">{{ __('admin.users.bulk_what') }}</label>
                 <select name="action" id="bulkAction"
                         class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
                                focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
-                    <option value="">Выберите действие…</option>
+                    <option value="">{{ __('admin.common.select_action') }}</option>
                     {{-- Пункт показываем, только если роли вообще есть: иначе он вёл
                          в тупик — список ролей пуст, а валидация требует role_id. --}}
                     @if($roles->count() > 0)
-                        <option value="assign_role">Назначить роль</option>
+                        <option value="assign_role">{{ __('admin.users.assign_role') }}</option>
                     @endif
-                    <option value="delete">Удалить выбранных</option>
+                    <option value="delete">{{ __('admin.users.delete_selected') }}</option>
                 </select>
             </div>
 
             {{-- Шаг 3: роль (только для назначения) --}}
             <div class="md:col-span-3" id="bulkRoleWrap" style="display:none;">
-                <label for="bulkRole" class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">3. Какую роль</label>
+                <label for="bulkRole" class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">{{ __('admin.users.bulk_which_role') }}</label>
                 <select name="role_id" id="bulkRole"
                         class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
                                focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
-                    <option value="">Выберите роль…</option>
+                    <option value="">{{ __('admin.users.choose_role') }}</option>
                     @foreach($roles->sortByDesc('priority') as $role)
                         {{-- data-description подставляется под селект при выборе --}}
                         <option value="{{ $role->id }}" data-description="{{ $role->description }}">{{ $role->name }}</option>
@@ -162,7 +162,7 @@
                 <button type="submit" id="bulkSubmit" disabled
                         class="w-full inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition
                                disabled:opacity-50 disabled:cursor-not-allowed">
-                    <i class="fas fa-check"></i> Применить
+                    <i class="fas fa-check"></i> {{ __('admin.common.apply') }}
                 </button>
             </div>
         </div>
@@ -170,8 +170,7 @@
         @if($roles->count() === 0)
             <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">
                 <i class="fas fa-circle-info"></i>
-                Ролей в системе пока нет, поэтому доступно только удаление.
-                Роли создаются командой <code class="font-mono">php artisan db:seed --class=RbacSeeder</code>.
+                {{ __('admin.users.no_roles_bulk') }} <code class="font-mono">php artisan db:seed --class=RbacSeeder</code>.
             </p>
         @else
             {{-- Краткая справка по ролям: свёрнута по умолчанию, чтобы не занимать
@@ -179,7 +178,7 @@
             <details class="mt-4 group">
                 <summary class="inline-flex items-center gap-2 cursor-pointer select-none text-xs font-medium
                                 text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition">
-                    <i class="fas fa-circle-question"></i> Что означают роли
+                    <i class="fas fa-circle-question"></i> {{ __('admin.users.roles_meaning') }}
                     <i class="fas fa-chevron-down text-[0.6rem] opacity-60 group-open:hidden"></i>
                     <i class="fas fa-chevron-up text-[0.6rem] opacity-60 hidden group-open:inline"></i>
                 </summary>
@@ -192,28 +191,20 @@
                                              bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">
                                     {{ $role->name }}
                                 </span>
-                                @php
-                                    // Русское склонение считаем явно: trans_choice зависит
-                                    // от текущей локали и на en дал бы неверную форму.
-                                    $pc = (int) $role->permissions_count;
-                                    $m10 = $pc % 10; $m100 = $pc % 100;
-                                    $pw = ($m10 === 1 && $m100 !== 11) ? 'право'
-                                        : (($m10 >= 2 && $m10 <= 4 && !($m100 >= 12 && $m100 <= 14)) ? 'права' : 'прав');
-                                @endphp
                                 <span class="text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap"
-                                      title="Количество прав в роли">
-                                    {{ $pc }} {{ $pw }}
+                                      title="{{ __('admin.users.rights_count') }}">
+                                    {{ trans_choice('admin.users.rights_plural', (int) $role->permissions_count) }}
                                 </span>
                             </div>
                             <p class="text-xs text-gray-600 dark:text-gray-400 leading-snug">
-                                {{ $role->description ?: 'Описание не задано.' }}
+                                {{ $role->description ?: __('admin.users.no_description') }}
                             </p>
                         </div>
                     @endforeach
                 </div>
 
                 <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                    Роль расширяет доступ к разделам админки. Отдельный флаг «Администратор»
+                    {{ __('admin.users.roles_meaning_text') }}
                     даёт полный доступ независимо от ролей.
                 </p>
             </details>
@@ -229,11 +220,11 @@
                     <th class="px-4 py-3 w-10">
                         <input type="checkbox" id="selectAll" class="h-4 w-4" title="Выбрать все">
                     </th>
-                    <th class="px-4 py-3 font-semibold">Пользователь</th>
-                    <th class="px-4 py-3 font-semibold hidden lg:table-cell">Телефон</th>
-                    <th class="px-4 py-3 font-semibold">Роль</th>
-                    <th class="px-4 py-3 font-semibold hidden xl:table-cell">Регистрация</th>
-                    <th class="px-4 py-3 font-semibold hidden md:table-cell">Последний вход</th>
+                    <th class="px-4 py-3 font-semibold">{{ __('admin.users.user') }}</th>
+                    <th class="px-4 py-3 font-semibold hidden lg:table-cell">{{ __('admin.users.phone') }}</th>
+                    <th class="px-4 py-3 font-semibold">{{ __('admin.users.role') }}</th>
+                    <th class="px-4 py-3 font-semibold hidden xl:table-cell">{{ __('admin.users.registered') }}</th>
+                    <th class="px-4 py-3 font-semibold hidden md:table-cell">{{ __('admin.users.last_login') }}</th>
                     <th class="px-4 py-3 text-center font-semibold w-36">Действия</th>
                 </tr>
             </thead>
@@ -247,7 +238,7 @@
                                 <input type="checkbox" name="user_ids[]" value="{{ $user->id }}"
                                        form="bulkForm" class="user-checkbox h-4 w-4">
                             @else
-                                <span class="text-gray-300 dark:text-gray-600" title="Это вы"><i class="fas fa-user-check"></i></span>
+                                <span class="text-gray-300 dark:text-gray-600" title="{{ __('admin.users.its_you_cap') }}"><i class="fas fa-user-check"></i></span>
                             @endunless
                         </td>
 
@@ -256,7 +247,7 @@
                                 {{ $user->name }}
                                 @if($isSelf)
                                     <span class="ml-1 inline-flex items-center px-1.5 py-0.5 text-xs font-medium
-                                                 bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">это вы</span>
+                                                 bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">{{ __('admin.users.its_you') }}</span>
                                 @endif
                             </div>
                             <div class="text-xs text-gray-500 dark:text-gray-400 user-email">{{ $user->email }}</div>
@@ -303,7 +294,7 @@
                                     <div class="text-gray-400 dark:text-gray-500 font-mono">{{ $user->last_login_ip }}</div>
                                 @endif
                             @else
-                                <span class="text-gray-400 dark:text-gray-500">Никогда</span>
+                                <span class="text-gray-400 dark:text-gray-500">{{ __('admin.users.never') }}</span>
                             @endif
                         </td>
 
@@ -318,7 +309,7 @@
                                 <a href="{{ route('admin.users.loginHistory', $user) }}"
                                    class="inline-flex items-center justify-center w-8 h-8 border border-gray-300 dark:border-gray-600
                                           text-gray-600 dark:text-gray-300 hover:border-indigo-400 hover:text-indigo-600 transition"
-                                   title="История входов">
+                                   title="{{ __('admin.users.history_title') }}">
                                     <i class="fas fa-clock-rotate-left"></i>
                                 </a>
 
@@ -326,17 +317,17 @@
                                     <a href="{{ route('admin.users.password.edit', $user) }}"
                                        class="inline-flex items-center justify-center w-8 h-8 border border-gray-300 dark:border-gray-600
                                               text-gray-600 dark:text-gray-300 hover:border-indigo-400 hover:text-indigo-600 transition"
-                                       title="Сменить пароль">
+                                       title="{{ __('admin.users.page_password') }}">
                                         <i class="fas fa-key"></i>
                                     </a>
                                 @endif
 
                                 @if ($isSelf)
                                     <span class="inline-flex items-center justify-center w-8 h-8 bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed"
-                                          title="Нельзя удалить свою учётную запись"><i class="fas fa-lock"></i></span>
+                                          title="{{ __('admin.users.cant_delete_self') }}"><i class="fas fa-lock"></i></span>
                                 @elseif ($user->is_admin)
                                     <span class="inline-flex items-center justify-center w-8 h-8 bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed"
-                                          title="Администратора удалить нельзя"><i class="fas fa-lock"></i></span>
+                                          title="{{ __('admin.users.cant_delete_admin') }}"><i class="fas fa-lock"></i></span>
                                 @else
                                     <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="inline"
                                           onsubmit="return confirm('Удалить пользователя «{{ $user->name }}»? Действие необратимо.')">
@@ -355,13 +346,13 @@
                     <tr>
                         <td colspan="7" class="px-4 py-12 text-center">
                             <span class="admin-icon-badge mx-auto mb-3"><i class="fas fa-users"></i></span>
-                            <p class="text-gray-600 dark:text-gray-300 font-medium">Пользователи не найдены.</p>
+                            <p class="text-gray-600 dark:text-gray-300 font-medium">{{ __('admin.users.not_found') }}</p>
                             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                                 @if($search || $currentRole || $roleFilter)
                                     Измените фильтры или
-                                    <a href="{{ route('admin.users.index') }}" class="text-indigo-600 dark:text-indigo-400 underline">сбросьте их</a>.
+                                    <a href="{{ route('admin.users.index') }}" class="text-indigo-600 dark:text-indigo-400 underline">{{ __('admin.users.reset_them') }}</a>.
                                 @else
-                                    <a href="{{ route('admin.users.create') }}" class="text-indigo-600 dark:text-indigo-400 underline">Добавьте первого пользователя</a>.
+                                    <a href="{{ route('admin.users.create') }}" class="text-indigo-600 dark:text-indigo-400 underline">{{ __('admin.users.add_first') }}</a>.
                                 @endif
                             </p>
                         </td>

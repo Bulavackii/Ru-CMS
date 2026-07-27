@@ -225,6 +225,43 @@ class AdminTranslationTest extends TestCase
         $this->assertSame('7 items', trans_choice('admin.menu.items_plural', 7));
     }
 
+    public function test_users_screens_are_translated(): void
+    {
+        // Транш 4. В разделе Пользователи остаются русскими только названия
+        // ролей и их описания — это строки из таблицы roles, то есть данные.
+        $admin = $this->admin();
+
+        $en = $this->actingAs($admin)->withSession(['app_locale' => 'en'])
+            ->get(route('admin.users.create'))->getContent();
+
+        $this->assertStringContainsString('New user', $en);
+        $this->assertStringContainsString('Repeat the password', $en);
+        $this->assertStringNotContainsString('Новый пользователь', $en);
+        $this->assertStringNotContainsString('Повторите пароль', $en);
+
+        $ru = $this->actingAs($admin)->withSession(['app_locale' => 'ru'])
+            ->get(route('admin.users.create'))->getContent();
+
+        $this->assertStringContainsString('Новый пользователь', $ru);
+        $this->assertStringNotContainsString('New user', $ru);
+    }
+
+    public function test_rights_counter_uses_plural_forms(): void
+    {
+        // Склонение «право/права/прав» было захардкожено во вьюхе с прямым
+        // комментарием «trans_choice зависит от локали и на en дал бы неверную
+        // форму». Это ровно то поведение, которое нужно: форма обязана
+        // следовать языку.
+        app()->setLocale('ru');
+        $this->assertSame('1 право', trans_choice('admin.users.rights_plural', 1));
+        $this->assertSame('3 права', trans_choice('admin.users.rights_plural', 3));
+        $this->assertSame('17 прав', trans_choice('admin.users.rights_plural', 17));
+
+        app()->setLocale('en');
+        $this->assertSame('1 permission', trans_choice('admin.users.rights_plural', 1));
+        $this->assertSame('17 permissions', trans_choice('admin.users.rights_plural', 17));
+    }
+
     public function test_technical_identifiers_are_not_translated(): void
     {
         // Названия драйверов, слаги и коды локалей переводить нельзя —
