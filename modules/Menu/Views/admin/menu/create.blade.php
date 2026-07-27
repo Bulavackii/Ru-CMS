@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Создать меню')
+@section('title', __('admin.menu.page_create'))
 
 @section('content')
     {{-- ── Шапка страницы ── --}}
@@ -10,23 +10,23 @@
         <div class="flex items-center gap-3 min-w-0">
             <span class="admin-icon-badge">@themeIcon('plus')</span>
             <div class="min-w-0">
-                <h1 class="text-xl font-bold text-gray-900 dark:text-white">Создать меню</h1>
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('admin.menu.page_create') }}</h1>
                 <p class="text-sm text-gray-500 dark:text-gray-400">
-                    Название, позиция и активность. Пункты добавляются после сохранения.
+                    {{ __('admin.menu.create_hint') }}
                 </p>
             </div>
         </div>
 
         <a href="{{ route('admin.menus.index') }}"
            class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 shrink-0">
-            @themeIcon('arrow-left') К списку
+            @themeIcon('arrow-left') {{ __('admin.menu.back') }}
         </a>
     </div>
 
     {{-- Ошибки валидации --}}
     @if ($errors->any())
         <div class="mb-6 border-l-4 border-red-500 bg-red-50 dark:bg-red-900 px-4 py-3 text-sm text-red-800 dark:text-red-100">
-            <div class="font-semibold mb-1">@themeIcon('exclamation-triangle') Пожалуйста, исправьте ошибки:</div>
+            <div class="font-semibold mb-1">@themeIcon('exclamation-triangle') {{ __('admin.menu.fix_errors') }}</div>
             <ul class="list-disc list-inside space-y-0.5">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -47,14 +47,14 @@
             {{-- Название --}}
             <div>
                 <label for="title" class="block text-sm font-semibold mb-1 text-gray-800 dark:text-gray-200">
-                    🏷️ Название меню
+                    🏷️ {{ __('admin.menu.name') }}
                 </label>
                 <input type="text" id="title" name="title" maxlength="80" autocomplete="off"
                        value="{{ old('title') }}"
                        class="w-full border border-gray-300 dark:border-gray-700 px-4 py-2 text-sm dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                       placeholder="Например: Основное меню" required>
+                       placeholder="{{ __('admin.menu.name_ph') }}" required>
                 <div class="mt-1 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                    <span>Понятное имя, чтобы различать меню в админке.</span>
+                    <span>{{ __('admin.menu.name_hint') }}</span>
                     <span><span id="titleCounter">0</span>/80</span>
                 </div>
             </div>
@@ -62,19 +62,19 @@
             {{-- Позиция меню (карточки) --}}
             <div>
                 <div class="flex items-center justify-between mb-2">
-                    <label class="block text-sm font-semibold text-gray-800 dark:text-gray-200">📍 Позиция меню</label>
-                    <span class="text-xs text-gray-500 dark:text-gray-400">Где разместить на сайте</span>
+                    <label class="block text-sm font-semibold text-gray-800 dark:text-gray-200">📍 {{ __('admin.menu.position') }}</label>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">{{ __('admin.menu.position_hint') }}</span>
                 </div>
 
                 <input type="hidden" name="position" id="positionHidden" value="{{ old('position','header') }}">
 
-                <div class="grid sm:grid-cols-3 gap-3" role="tablist" aria-label="Позиция меню">
+                <div class="grid sm:grid-cols-3 gap-3" role="tablist" aria-label="{{ __('admin.menu.position') }}">
                     @php
                         $pos = old('position', 'header');
                         $cards = [
-                            ['key' => 'header',  'title' => 'Шапка',   'desc' => 'Навигация вверху', 'icon' => 'window-maximize'],
-                            ['key' => 'footer',  'title' => 'Подвал',   'desc' => 'Ссылки внизу',     'icon' => 'window-minimize'],
-                            ['key' => 'sidebar', 'title' => 'Сайдбар',  'desc' => 'Боковая панель',  'icon' => 'columns'],
+                            ['key' => 'header',  'title' => __('admin.menu.pos_header'), 'desc' => __('admin.menu.pos_header_desc'), 'icon' => 'window-maximize'],
+                            ['key' => 'footer',  'title' => __('admin.menu.pos_footer'), 'desc' => __('admin.menu.pos_footer_desc'),     'icon' => 'window-minimize'],
+                            ['key' => 'sidebar', 'title' => __('admin.menu.pos_sidebar'), 'desc' => __('admin.menu.pos_sidebar_desc'),  'icon' => 'columns'],
                         ];
                     @endphp
                     @foreach($cards as $c)
@@ -103,10 +103,10 @@
                         <span class="track"></span>
                         <span class="knob"></span>
                     </span>
-                    <span class="text-sm font-medium text-gray-800 dark:text-gray-200">Активировать меню</span>
+                    <span class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ __('admin.menu.activate') }}</span>
                 </label>
                 <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    Меню будет отображаться на сайте (если есть пункты).
+                    {{ __('admin.menu.activate_hint') }}
                 </div>
             </div>
         </div>
@@ -114,24 +114,24 @@
         {{-- Правая колонка: превью --}}
         <aside class="lg:col-span-1">
             <div class="border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-4">
-                <div class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-2">Превью</div>
+                <div class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-2">{{ __('admin.menu.preview') }}</div>
                 <div id="menuPreview" class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-4">
                     <div class="flex items-center gap-2 mb-2">
                         <span class="text-indigo-600 dark:text-indigo-400">@themeIcon('bars')</span>
-                        <span id="previewTitle" class="font-medium text-gray-900 dark:text-white">Основное меню</span>
+                        <span id="previewTitle" class="font-medium text-gray-900 dark:text-white">{{ __('admin.menu.default_name') }}</span>
                     </div>
                     <div class="text-xs text-gray-500 dark:text-gray-400">
-                        Позиция: <span id="previewPos" class="font-medium">header</span>
+                        {{ __('admin.menu.position_label') }} <span id="previewPos" class="font-medium">header</span>
                     </div>
                     <div class="mt-3 text-xs text-gray-500 dark:text-gray-400">
-                        Статус: <span id="previewStatus" class="inline-flex items-center gap-1">
-                            <span class="h-2 w-2 rounded-full bg-green-500 inline-block"></span> Активно
+                        {{ __('admin.menu.status_label') }} <span id="previewStatus" class="inline-flex items-center gap-1">
+                            <span class="h-2 w-2 rounded-full bg-green-500 inline-block"></span> {{ __('admin.menu.active') }}
                         </span>
                     </div>
                 </div>
 
                 <div class="admin-hint mt-4 p-3 text-xs">
-                    @themeIcon('lightbulb') <b>Подсказка:</b> пункты добавляются после сохранения, во вкладке «Редактировать».
+                    @themeIcon('lightbulb') <b>{{ __('admin.menu.tip') }}</b> {{ __('admin.menu.tip_text') }}
                 </div>
             </div>
         </aside>
@@ -141,16 +141,16 @@
             <div class="admin-glass sticky bottom-3 z-10 border px-4 py-3
                         border-gray-300 dark:border-gray-700 shadow flex flex-col sm:flex-row items-center justify-between gap-3">
                 <div class="text-xs text-gray-500 dark:text-gray-400">
-                    @themeIcon('keyboard') Горячая клавиша: <b>Ctrl + S</b> — сохранить.
+                    @themeIcon('keyboard') {{ __('admin.menu.hotkey') }} <b>Ctrl + S</b> {{ __('admin.menu.hotkey_save') }}
                 </div>
                 <div class="flex gap-2">
                     <button type="submit"
                             class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 text-sm font-semibold shadow-sm transition">
-                        @themeIcon('save') Сохранить меню
+                        @themeIcon('save') {{ __('admin.menu.save') }}
                     </button>
                     <a href="{{ route('admin.menus.index') }}"
                        class="px-4 py-2 text-sm border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
-                        Отмена
+                        {{ __('admin.admin.cancel') }}
                     </a>
                 </div>
             </div>
@@ -170,7 +170,7 @@
 
     function updateTitle() {
         titleCounter.textContent = (titleInput.value || '').length;
-        previewTitle.textContent = titleInput.value.trim() || 'Основное меню';
+        previewTitle.textContent = titleInput.value.trim() || @js(__('admin.menu.default_name'));
     }
     titleInput.addEventListener('input', updateTitle);
     updateTitle();
@@ -198,8 +198,8 @@
     // Статус из чекбокса
     document.querySelector('input[name="active"]').addEventListener('change', (e) => {
         previewStatus.innerHTML = e.target.checked
-            ? '<span class="h-2 w-2 rounded-full bg-green-500 inline-block"></span> Активно'
-            : '<span class="h-2 w-2 rounded-full bg-gray-400 inline-block"></span> Не активно';
+            ? '<span class="h-2 w-2 rounded-full bg-green-500 inline-block"></span> ' + @js(__('admin.menu.active'))
+            : '<span class="h-2 w-2 rounded-full bg-gray-400 inline-block"></span> ' + @js(__('admin.menu.inactive'));
     });
 
     // Ctrl+S => submit

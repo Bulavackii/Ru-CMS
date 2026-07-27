@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Редактировать меню')
+@section('title', __('admin.menu.page_edit'))
 
 @section('content')
     {{-- ───────────────────────── Header ───────────────────────── --}}
@@ -14,16 +14,16 @@
                     {{ $menu->title }}
                 </h1>
                 <div class="flex flex-wrap items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
-                    <span>📍 Позиция: <b>{{ $menu->position }}</b></span>
+                    <span>📍 {{ __('admin.menu.position_label') }} <b>{{ $menu->position }}</b></span>
                     <span class="inline-flex items-center gap-1">
-                        Статус:
+                        {{ __('admin.menu.status_label') }}
                         @if($menu->active)
                             <span class="inline-flex items-center gap-1 text-green-600">
-                                <span class="h-2 w-2 rounded-full bg-green-500 inline-block"></span> Включено
+                                <span class="h-2 w-2 rounded-full bg-green-500 inline-block"></span> {{ __('admin.menu.enabled') }}
                             </span>
                         @else
                             <span class="inline-flex items-center gap-1 text-gray-500">
-                                <span class="h-2 w-2 rounded-full bg-gray-400 inline-block"></span> Выключено
+                                <span class="h-2 w-2 rounded-full bg-gray-400 inline-block"></span> {{ __('admin.menu.disabled') }}
                             </span>
                         @endif
                     </span>
@@ -33,15 +33,15 @@
 
         <a href="{{ route('admin.menus.index') }}"
            class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 shrink-0">
-            @themeIcon('arrow-left') Назад к списку
+            @themeIcon('arrow-left') {{ __('admin.menu.back_to_list') }}
         </a>
     </div>
 
     {{-- ───────────────────── Help block ───────────────────── --}}
     <div class="admin-hint mb-6 p-4 text-sm">
         @themeIcon('lightbulb')
-        Перетаскивайте пункты мышью за «ручку» слева, чтобы менять порядок и вложенность. Нажмите
-        <kbd class="px-1.5 py-0.5 border border-indigo-300 bg-white dark:bg-gray-800">Ctrl</kbd> + <kbd class="px-1.5 py-0.5 border border-indigo-300 bg-white dark:bg-gray-800">S</kbd> — быстрое сохранение порядка.
+        {{ __('admin.menu.drag_hint_1') }}
+        <kbd class="px-1.5 py-0.5 border border-indigo-300 bg-white dark:bg-gray-800">Ctrl</kbd> + <kbd class="px-1.5 py-0.5 border border-indigo-300 bg-white dark:bg-gray-800">S</kbd> {{ __('admin.menu.drag_hint_2') }}
     </div>
 
     {{-- ─────────────────── Add Item Form ─────────────────── --}}
@@ -54,25 +54,25 @@
             <div class="lg:col-span-2 space-y-5">
                 {{-- Название --}}
                 <div>
-                    <label class="block text-sm font-semibold mb-1 text-gray-800 dark:text-gray-200">🏷️ Название</label>
+                    <label class="block text-sm font-semibold mb-1 text-gray-800 dark:text-gray-200">🏷️ {{ __('admin.menu.item_name') }}</label>
                     <input type="text" name="title" id="mi-title" maxlength="80" required
                            class="w-full border border-gray-300 dark:border-gray-700 rounded-md px-4 py-2 text-sm dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                           placeholder="Например: Тестовая ссылка">
+                           placeholder="{{ __('admin.menu.item_name_ph') }}">
                     <div class="mt-1 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                        <span>Понятное имя, видимое на сайте.</span>
+                        <span>{{ __('admin.menu.item_name_hint') }}</span>
                         <span><span id="mi-title-count">0</span>/80</span>
                     </div>
                 </div>
 
                 {{-- Тип --}}
                 <div>
-                    <label class="block text-sm font-semibold mb-2 text-gray-800 dark:text-gray-200">🔗 Тип пункта</label>
+                    <label class="block text-sm font-semibold mb-2 text-gray-800 dark:text-gray-200">🔗 {{ __('admin.menu.item_type') }}</label>
                     <input type="hidden" name="type" id="typeHidden" value="url">
                     @php
                         $typeCards = [
-                            ['key'=>'url','title'=>'Внешняя ссылка','desc'=>'Произвольный URL','icon'=>'link'],
-                            ['key'=>'page','title'=>'Страница','desc'=>'Ссылка на внутреннюю страницу','icon'=>'file-alt'],
-                            ['key'=>'category','title'=>'Категория','desc'=>'Ссылка на категорию','icon'=>'tags'],
+                            ['key'=>'url','title'=>__('admin.menu.type_url'),'desc'=>__('admin.menu.type_url_desc'),'icon'=>'link'],
+                            ['key'=>'page','title'=>__('admin.menu.type_page'),'desc'=>__('admin.menu.type_page_desc'),'icon'=>'file-alt'],
+                            ['key'=>'category','title'=>__('admin.menu.type_category'),'desc'=>__('admin.menu.type_category_desc'),'icon'=>'tags'],
                         ];
                     @endphp
                     <div class="grid sm:grid-cols-3 gap-3">
@@ -94,10 +94,10 @@
 
                 {{-- Родительский пункт --}}
                 <div>
-                    <label class="block text-sm font-semibold mb-1 text-gray-800 dark:text-gray-200">🗂️ Родительский пункт</label>
+                    <label class="block text-sm font-semibold mb-1 text-gray-800 dark:text-gray-200">🗂️ {{ __('admin.menu.parent') }}</label>
                     <select name="parent_id" id="mi-parent"
                             class="w-full border border-gray-300 dark:border-gray-700 rounded-md px-4 py-2 text-sm dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                        <option value="">— Без родителя (корневой уровень) —</option>
+                        <option value="">{{ __('admin.menu.no_parent') }}</option>
                         @php
                             $flattenItems = function ($nodes, $depth = 0) use (&$flattenItems) {
                                 $out = [];
@@ -118,8 +118,8 @@
                         @endforeach
                     </select>
                     <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                        Оставьте пустым для корневого уровня. Пункт встанет последним среди пунктов выбранного уровня.
-                        Максимальная вложенность — 3 уровня.
+                        {{ __('admin.menu.parent_hint') }}
+
                     </div>
                 </div>
 
@@ -128,18 +128,18 @@
                     <label class="block text-sm font-semibold mb-1 text-gray-800 dark:text-gray-200">🌐 URL</label>
                     <input type="text" name="url" id="mi-url"
                            class="w-full border border-gray-300 dark:border-gray-700 rounded-md px-4 py-2 text-sm dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                           placeholder="https://example.com или /contacts">
-                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">Поддерживаются абсолютные и относительные адреса.</div>
+                           placeholder="{{ __('admin.menu.url_ph') }}">
+                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('admin.menu.url_hint') }}</div>
                 </div>
 
                 {{-- Связанный объект --}}
                 <div id="field-linked" class="hidden">
-                    <label class="block text-sm font-semibold mb-1 text-gray-800 dark:text-gray-200">🔍 Связанный объект</label>
+                    <label class="block text-sm font-semibold mb-1 text-gray-800 dark:text-gray-200">🔍 {{ __('admin.menu.linked') }}</label>
                     <select name="linked_id" id="linked-id"
                             class="w-full border border-gray-300 dark:border-gray-700 rounded-md px-4 py-2 text-sm dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                        <option value="">— Выберите —</option>
+                        <option value="">{{ __('admin.menu.choose') }}</option>
                     </select>
-                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">Список подгружается автоматически по выбранному типу.</div>
+                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('admin.menu.linked_hint') }}</div>
                 </div>
 
                 {{-- Дополнительные настройки --}}
@@ -152,26 +152,26 @@
                                 <span class="track"></span>
                                 <span class="knob"></span>
                             </span>
-                            <span class="text-sm font-medium text-gray-800 dark:text-gray-200">Показывать на сайте</span>
+                            <span class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ __('admin.menu.show_on_site') }}</span>
                         </label>
-                        <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">Выключенный пункт остаётся в меню, но не отображается посетителям.</div>
+                        <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('admin.menu.show_hint') }}</div>
                     </div>
 
                     {{-- Иконка --}}
                     <div>
-                        <label class="block text-xs font-semibold mb-1 text-gray-700 dark:text-gray-300">🎨 Иконка</label>
+                        <label class="block text-xs font-semibold mb-1 text-gray-700 dark:text-gray-300">🎨 {{ __('admin.menu.icon') }}</label>
                         <input type="text" name="icon" id="mi-icon" maxlength="50"
                                class="w-full border border-gray-300 dark:border-gray-700 rounded-md px-3 py-2 text-sm dark:bg-gray-800 dark:text-white"
-                               placeholder="Например: home, user, settings">
-                        <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">Название иконки (FontAwesome/Tabler)</div>
+                               placeholder="{{ __('admin.menu.icon_ph') }}">
+                        <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('admin.menu.icon_hint') }}</div>
                     </div>
 
                     {{-- CSS класс --}}
                     <div>
-                        <label class="block text-xs font-semibold mb-1 text-gray-700 dark:text-gray-300">🎨 CSS класс</label>
+                        <label class="block text-xs font-semibold mb-1 text-gray-700 dark:text-gray-300">🎨 {{ __('admin.menu.css_class') }}</label>
                         <input type="text" name="css_class" id="mi-css-class" maxlength="255"
                                class="w-full border border-gray-300 dark:border-gray-700 rounded-md px-3 py-2 text-sm dark:bg-gray-800 dark:text-white"
-                               placeholder="Например: btn-primary">
+                               placeholder="{{ __('admin.menu.css_ph') }}">
                     </div>
 
                     {{-- Target --}}
@@ -179,19 +179,19 @@
                         <label class="block text-xs font-semibold mb-1 text-gray-700 dark:text-gray-300">🔗 Target</label>
                         <select name="target" id="mi-target"
                                 class="w-full border border-gray-300 dark:border-gray-700 rounded-md px-3 py-2 text-sm dark:bg-gray-800 dark:text-white">
-                            <option value="">По умолчанию (_self)</option>
-                            <option value="_self">_self (текущее окно)</option>
-                            <option value="_blank">_blank (новое окно)</option>
+                            <option value="">{{ __('admin.menu.target_default') }}</option>
+                            <option value="_self">{{ __('admin.menu.target_self') }}</option>
+                            <option value="_blank">{{ __('admin.menu.target_blank') }}</option>
                         </select>
                     </div>
 
                     {{-- Rel --}}
                     <div class="sm:col-span-2">
-                        <label class="block text-xs font-semibold mb-1 text-gray-700 dark:text-gray-300">🔗 Rel атрибут</label>
+                        <label class="block text-xs font-semibold mb-1 text-gray-700 dark:text-gray-300">🔗 {{ __('admin.menu.rel') }}</label>
                         <input type="text" name="rel" id="mi-rel" maxlength="100"
                                class="w-full border border-gray-300 dark:border-gray-700 rounded-md px-3 py-2 text-sm dark:bg-gray-800 dark:text-white"
-                               placeholder="Например: nofollow noopener">
-                        <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">Для SEO и безопасности ссылок</div>
+                               placeholder="{{ __('admin.menu.rel_ph') }}">
+                        <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('admin.menu.rel_hint') }}</div>
                     </div>
                 </div>
 
@@ -218,22 +218,22 @@
             {{-- Превью --}}
             <aside class="lg:col-span-1 space-y-3">
                 <div class="rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-4">
-                    <div class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-2">Превью пункта</div>
+                    <div class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-2">{{ __('admin.menu.item_preview') }}</div>
                     <div class="rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-4">
-                        <div class="font-medium text-gray-900 dark:text-white" id="pv-title">Тестовая ссылка</div>
+                        <div class="font-medium text-gray-900 dark:text-white" id="pv-title">{{ __('admin.menu.test_link') }}</div>
                         <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                            Тип: <span id="pv-type">url</span>
+                            {{ __('admin.menu.type_label') }} <span id="pv-type">url</span>
                         </div>
                         <div class="text-xs text-gray-500 dark:text-gray-400 truncate mt-1" id="pv-url">—</div>
                     </div>
                     <div class="mt-3 text-xs text-gray-500 dark:text-gray-400">
-                        Пункт добавится в конец текущего уровня.
+                        {{ __('admin.menu.add_hint') }}
                     </div>
                 </div>
 
                 <button type="submit"
                         class="w-full inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 text-sm font-semibold shadow-sm transition">
-                    @themeIcon('plus') Добавить пункт
+                    @themeIcon('plus') {{ __('admin.menu.add_item') }}
                 </button>
             </aside>
         </div>
@@ -243,28 +243,28 @@
     <div class="mb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div class="flex items-center gap-2 flex-wrap">
             <button id="expand-all" class="px-3 py-1.5 rounded-md border text-sm hover:bg-gray-50 dark:hover:bg-gray-800">
-                Развернуть всё
+                {{ __('admin.menu.expand_all') }}
             </button>
             <button id="collapse-all" class="px-3 py-1.5 rounded-md border text-sm hover:bg-gray-50 dark:hover:bg-gray-800">
-                Свернуть всё
+                {{ __('admin.menu.collapse_all') }}
             </button>
             <button id="select-all" class="px-3 py-1.5 rounded-md border text-sm hover:bg-gray-50 dark:hover:bg-gray-800">
-                Выбрать всё
+                {{ __('admin.menu.select_all') }}
             </button>
             <button id="deselect-all" class="px-3 py-1.5 rounded-md border text-sm hover:bg-gray-50 dark:hover:bg-gray-800 hidden">
-                Снять выбор
+                {{ __('admin.menu.deselect') }}
             </button>
             <div id="bulk-actions" class="hidden flex items-center gap-2">
                 <button id="bulk-activate" class="px-3 py-1.5 rounded-md bg-green-600 text-white text-sm hover:bg-green-700">
-                    Активировать
+                    {{ __('admin.menu.enable') }}
                 </button>
                 <button id="bulk-deactivate" class="px-3 py-1.5 rounded-md bg-yellow-600 text-white text-sm hover:bg-yellow-700">
-                    Деактивировать
+                    {{ __('admin.menu.disable') }}
                 </button>
                 <button id="bulk-delete" class="px-3 py-1.5 rounded-md bg-red-600 text-white text-sm hover:bg-red-700">
-                    Удалить
+                    {{ __('admin.admin.delete') }}
                 </button>
-                <span id="selected-count" class="text-sm text-gray-600 dark:text-gray-400">0 выбрано</span>
+                <span id="selected-count" class="text-sm text-gray-600 dark:text-gray-400">{{ __('admin.menu.selected_count') }}</span>
             </div>
         </div>
         <div class="relative w-full sm:w-72">
@@ -275,7 +275,7 @@
                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path>
             </svg>
-            <input id="filter-input" type="text" placeholder="Быстрый поиск по пунктам…"
+            <input id="filter-input" type="text" placeholder="{{ __('admin.menu.filter_ph') }}"
                    class="w-full border border-gray-300 dark:border-gray-700 rounded-md pl-10 pr-3 py-2 text-sm dark:bg-gray-800 dark:text-white
                           focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
         </div>
@@ -291,11 +291,11 @@
              по всей высоте, а быстрое сохранение — по Ctrl+S из любого места. --}}
         <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row items-center justify-between gap-3">
             <div class="text-xs text-gray-500 dark:text-gray-400">
-                @themeIcon('keyboard') Горячая клавиша: <b>Ctrl + S</b> — сохранить порядок
+                @themeIcon('keyboard') {{ __('admin.menu.hotkey') }} <b>Ctrl + S</b> {{ __('admin.menu.hotkey_order') }}
             </div>
             <button id="save-order"
                     class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 text-sm font-semibold shadow-sm transition inline-flex items-center gap-2">
-                @themeIcon('save') Сохранить порядок
+                @themeIcon('save') {{ __('admin.menu.save_order') }}
             </button>
         </div>
     </div>
@@ -303,12 +303,12 @@
     {{-- Резервный список (как было) --}}
     @if ($items->isNotEmpty())
         <details class="mt-8">
-            <summary class="cursor-pointer text-sm text-gray-500 dark:text-gray-400 hover:underline">Показать резервный список</summary>
+            <summary class="cursor-pointer text-sm text-gray-500 dark:text-gray-400 hover:underline">{{ __('admin.menu.fallback') }}</summary>
             <div class="mt-3 space-y-2">
                 @foreach ($items as $it)
                     <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700 text-sm">
                         <b class="text-gray-900 dark:text-white">{{ $it->title }}</b>
-                        <span class="text-xs text-gray-500"> (тип: {{ $it->type }}, id: {{ $it->linked_id }})</span>
+                        <span class="text-xs text-gray-500"> ({{ __('admin.menu.type_label') }} {{ $it->type }}, id: {{ $it->linked_id }})</span>
                     </div>
                 @endforeach
             </div>
@@ -384,7 +384,7 @@ const typeHidden = $('#typeHidden'), fieldUrl = $('#field-url'), fieldLinked = $
 
 const updateTitle = () => {
     titleCount.textContent = (titleInput.value || '').length;
-    pvTitle.textContent = titleInput.value.trim() || 'Тестовая ссылка';
+    pvTitle.textContent = titleInput.value.trim() || @js(__('admin.menu.test_link'));
 };
 titleInput.addEventListener('input', updateTitle); updateTitle();
 
@@ -418,11 +418,11 @@ $('#mi-url').addEventListener('input', e => pvUrl.textContent = e.target.value |
 // ajax load linked entities
 function loadLinked(type){
     const select = $('#linked-id');
-    select.innerHTML = '<option>Загрузка…</option>';
+    select.innerHTML = '<option>' + @js(__('admin.menu.loading')) + '</option>';
     const url = type === 'page' ? @json(route('admin.ajax.pages')) : @json(route('admin.ajax.categories'));
     fetch(url).then(r=>r.json()).then(list=>{
         select.innerHTML = list.map(i=>`<option value="${i.id}">${i.title}</option>`).join('');
-    }).catch(()=> select.innerHTML = '<option>Ошибка загрузки</option>');
+    }).catch(()=> select.innerHTML = '<option>' + @js(__('admin.menu.load_error')) + '</option>');
 }
 
 /* --------- build tree UI from data --------- */
@@ -438,33 +438,33 @@ function renderList(items, depth=0){
         const hasChildren = item.children && item.children.length;
 
         const activeBadge = item.active !== false ?
-          '<span class="text-xs px-1.5 py-0.5 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">Активен</span>' :
-          '<span class="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400">Скрыт</span>';
+          '<span class="text-xs px-1.5 py-0.5 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">' + @js(__('admin.menu.item_active')) + '</span>' :
+          '<span class="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400">' + @js(__('admin.menu.item_hidden')) + '</span>';
         const iconDisplay = item.icon ? `<span class="text-xs text-gray-400">${iconMarkup(item.icon, 'text-xs text-gray-400')}</span>` : '';
 
         li.innerHTML = `
           <div class="handle flex items-center justify-between px-3 py-2 ${hasChildren ? 'bg-indigo-50 dark:bg-indigo-900' : ''} ${item.active === false ? 'opacity-60' : ''}">
             <div class="flex items-center gap-2 flex-1 min-w-0">
-              <input type="checkbox" class="item-checkbox" data-item-id="${item.id}" title="Выбрать для массовых операций">
+              <input type="checkbox" class="item-checkbox" data-item-id="${item.id}" title="{{ __('admin.menu.pick_for_bulk') }}">
               <span class="text-gray-400 cursor-move">@themeIcon('grip-vertical')</span>
-              <button type="button" class="toggle-btn ${hasChildren ? '' : 'invisible'} text-gray-500 hover:text-gray-700 dark:hover:text-gray-200" aria-label="Переключить дочерние">
+              <button type="button" class="toggle-btn ${hasChildren ? '' : 'invisible'} text-gray-500 hover:text-gray-700 dark:hover:text-gray-200" aria-label="{{ __('admin.menu.toggle_children') }}">
                 @themeIcon('chevron-down')
               </button>
               ${iconDisplay}
               <span class="font-medium truncate">${escapeHtml(item.title)}</span>
               <span class="text-xs text-gray-500">(${item.type})</span>
               ${activeBadge}
-              ${depth >= 2 ? '<span class="text-xs px-1.5 py-0.5 bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">Макс. уровень</span>' : ''}
+              ${depth >= 2 ? '<span class="text-xs px-1.5 py-0.5 bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">' + @js(__('admin.menu.max_level')) + '</span>' : ''}
             </div>
 
             <div class="flex items-center gap-1">
-              <button type="button" class="edit-item-btn text-indigo-600 hover:text-indigo-700 text-sm" data-item-id="${item.id}" title="Редактировать">
+              <button type="button" class="edit-item-btn text-indigo-600 hover:text-indigo-700 text-sm" data-item-id="${item.id}" title="{{ __('admin.admin.edit') }}">
                 @themeIcon('edit')
               </button>
               <form method="POST" class="mi-del-form inline">
                 <input type="hidden" name="_token" value="${csrf}">
                 <input type="hidden" name="_method" value="DELETE">
-                <button type="submit" class="text-red-600 hover:text-red-700 text-sm" title="Удалить">
+                <button type="submit" class="text-red-600 hover:text-red-700 text-sm" title="{{ __('admin.admin.delete') }}">
                   @themeIcon('trash')
                 </button>
               </form>
@@ -505,8 +505,8 @@ refreshThemeIcons(); // отрисовать lucide-иконки только ч
 rootTree.addEventListener('submit', (e) => {
     const form = e.target.closest('.mi-del-form');
     if (!form) return;
-    const title = form.closest('li')?.querySelector('.handle .font-medium')?.textContent?.trim() || 'этот пункт';
-    if (!confirm(`Удалить пункт «${title}»?`)) {
+    const title = form.closest('li')?.querySelector('.handle .font-medium')?.textContent?.trim() || @js(__('admin.menu.this_item'));
+    if (!confirm(@js(__('admin.menu.delete_item')).replace(':title', title))) {
         e.preventDefault();
     }
 });
@@ -580,7 +580,7 @@ document.getElementById('filter-input').addEventListener('input', (e)=>{
             const currentDepth = getDepth(evt.item);
             if (currentDepth >= 2) {
                 evt.item.querySelector('.handle')?.insertAdjacentHTML('afterbegin', 
-                    '<span class="text-xs text-red-600 font-bold">⚠️ Макс. уровень!</span>');
+                    '<span class="text-xs text-red-600 font-bold">' + @js(__('admin.menu.max_level_warn')) + '</span>');
             }
         },
         onEnd: function(evt) {
@@ -592,14 +592,14 @@ document.getElementById('filter-input').addEventListener('input', (e)=>{
             // Проверяем глубину после перемещения
             const newDepth = getDepth(evt.item);
             if (newDepth > 2) {
-                toast('⚠️ Превышена максимальная глубина вложенности (3 уровня)!', true);
+                toast(@js(__('admin.menu.depth_exceeded')), true);
                 // Можно вернуть элемент обратно или просто предупредить
             }
         },
         onAdd: function(evt) {
             const depth = getDepth(evt.item);
             if (depth > 2) {
-                toast('⚠️ Нельзя переместить: превышена максимальная глубина!', true);
+                toast(@js(__('admin.menu.depth_move')), true);
                 // Можно отменить перемещение
             }
         }
@@ -622,7 +622,7 @@ function getDepth(element) {
 // collect order
 function collect(ul, depth = 0){
     if (depth > 2) {
-        toast('⚠️ Превышена максимальная глубина вложенности!', true);
+        toast(@js(__('admin.menu.depth_simple')), true);
         return [];
     }
     return [...ul.children].map((li, idx)=>{
@@ -640,7 +640,7 @@ async function saveOrder(){
     const items = collect(rootTree);
     const maxDepth = checkMaxDepth(items);
     if (maxDepth > 2) {
-        toast('⚠️ Превышена максимальная глубина вложенности (3 уровня)!', true);
+        toast(@js(__('admin.menu.depth_exceeded')), true);
         return;
     }
     
@@ -655,11 +655,11 @@ async function saveOrder(){
         });
         const result = await response.json();
         if (result.success) {
-            toast('Порядок сохранён');
+            toast(@js(__('admin.menu.order_saved')));
         } else {
-            toast(result.message || 'Ошибка сохранения', true);
+            toast(result.message || @js(__('admin.menu.save_error')), true);
         }
-    } catch(e){ toast('Ошибка сохранения', true); }
+    } catch(e){ toast(@js(__('admin.menu.save_error')), true); }
     finally { btn.disabled = false; btn.classList.remove('opacity-70'); }
 }
 
@@ -697,7 +697,7 @@ editModal.style.background = 'rgba(0,0,0,.5)'; // bg-black/50 не рендер�
 editModal.innerHTML = `
     <div class="bg-white dark:bg-gray-900 p-6 max-w-2xl w-full mx-4 overflow-y-auto" style="max-height:90vh">
         <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-bold text-gray-900 dark:text-white">✏️ Редактировать пункт меню</h3>
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white">✏️ {{ __('admin.menu.edit_item') }}</h3>
             <button type="button" class="close-edit-modal text-gray-400 hover:text-gray-600">@themeIcon('times')</button>
         </div>
         <form id="edit-item-form" class="space-y-4">
@@ -705,15 +705,15 @@ editModal.innerHTML = `
             <input type="hidden" name="_method" value="PUT">
             <div class="grid sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm font-semibold mb-1">🏷️ Название</label>
+                    <label class="block text-sm font-semibold mb-1">🏷️ {{ __('admin.menu.item_name') }}</label>
                     <input type="text" name="title" id="edit-title" required class="w-full border rounded-md px-3 py-2 text-sm">
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold mb-1">🔗 Тип</label>
+                    <label class="block text-sm font-semibold mb-1">🔗 {{ __('admin.common.f_template') }}</label>
                     <select name="type" id="edit-type" class="w-full border rounded-md px-3 py-2 text-sm">
                         <option value="url">URL</option>
-                        <option value="page">Страница</option>
-                        <option value="category">Категория</option>
+                        <option value="page">{{ __('admin.menu.type_page') }}</option>
+                        <option value="category">{{ __('admin.menu.type_category') }}</option>
                     </select>
                 </div>
                 <div id="edit-url-field">
@@ -721,29 +721,29 @@ editModal.innerHTML = `
                     <input type="text" name="url" id="edit-url" class="w-full border rounded-md px-3 py-2 text-sm">
                 </div>
                 <div id="edit-linked-field" class="hidden">
-                    <label class="block text-sm font-semibold mb-1">🔍 Связанный объект</label>
+                    <label class="block text-sm font-semibold mb-1">🔍 {{ __('admin.menu.linked') }}</label>
                     <select name="linked_id" id="edit-linked-id" class="w-full border rounded-md px-3 py-2 text-sm">
-                        <option value="">— Выберите —</option>
+                        <option value="">{{ __('admin.menu.choose') }}</option>
                     </select>
                 </div>
                 <div class="sm:col-span-2">
-                    <label class="block text-sm font-semibold mb-1">🗂️ Родительский пункт</label>
+                    <label class="block text-sm font-semibold mb-1">🗂️ {{ __('admin.menu.parent') }}</label>
                     <select name="parent_id" id="edit-parent" class="w-full border rounded-md px-3 py-2 text-sm">
-                        <option value="">— Без родителя (корневой уровень) —</option>
+                        <option value="">{{ __('admin.menu.no_parent') }}</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold mb-1">🎨 Иконка</label>
+                    <label class="block text-sm font-semibold mb-1">🎨 {{ __('admin.menu.icon') }}</label>
                     <input type="text" name="icon" id="edit-icon" class="w-full border rounded-md px-3 py-2 text-sm">
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold mb-1">🎨 CSS класс</label>
+                    <label class="block text-sm font-semibold mb-1">🎨 {{ __('admin.menu.css_class') }}</label>
                     <input type="text" name="css_class" id="edit-css-class" class="w-full border rounded-md px-3 py-2 text-sm">
                 </div>
                 <div>
                     <label class="block text-sm font-semibold mb-1">🔗 Target</label>
                     <select name="target" id="edit-target" class="w-full border rounded-md px-3 py-2 text-sm">
-                        <option value="">По умолчанию</option>
+                        <option value="">{{ __('admin.menu.item_default') }}</option>
                         <option value="_self">_self</option>
                         <option value="_blank">_blank</option>
                     </select>
@@ -759,13 +759,13 @@ editModal.innerHTML = `
                             <span class="track"></span>
                             <span class="knob"></span>
                         </span>
-                        <span class="text-sm font-medium">Показывать на сайте</span>
+                        <span class="text-sm font-medium">{{ __('admin.menu.show_on_site') }}</span>
                     </label>
                 </div>
             </div>
             <div class="flex gap-2 justify-end mt-6">
-                <button type="button" class="close-edit-modal px-4 py-2 rounded-md border text-sm">Отмена</button>
-                <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition">Сохранить</button>
+                <button type="button" class="close-edit-modal px-4 py-2 rounded-md border text-sm">{{ __('admin.admin.cancel') }}</button>
+                <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition">{{ __('admin.admin.save') }}</button>
             </div>
         </form>
     </div>
@@ -834,7 +834,7 @@ function openEditModal(item) {
 
     const excluded = new Set([item.id, ...collectDescendantIds(item)]);
     const parentSelect = $('#edit-parent');
-    parentSelect.innerHTML = '<option value="">— Без родителя (корневой уровень) —</option>' +
+    parentSelect.innerHTML = '<option value="">{{ __('admin.menu.no_parent') }}</option>' +
         flattenTree(menuData)
             .filter(row => !excluded.has(row.item.id))
             .map(row => `<option value="${row.item.id}">${'— '.repeat(row.depth)}${escapeHtml(row.item.title)}</option>`)
@@ -857,12 +857,12 @@ function openEditModal(item) {
 
 function loadLinkedForEdit(type, selectedId) {
     const select = $('#edit-linked-id');
-    select.innerHTML = '<option>Загрузка…</option>';
+    select.innerHTML = '<option>' + @js(__('admin.menu.loading')) + '</option>';
     const url = type === 'page' ? @json(route('admin.ajax.pages')) : @json(route('admin.ajax.categories'));
     fetch(url).then(r=>r.json()).then(list=>{
-        select.innerHTML = '<option value="">— Выберите —</option>' + 
+        select.innerHTML = '<option value="">{{ __('admin.menu.choose') }}</option>' + 
             list.map(i=>`<option value="${i.id}" ${i.id == selectedId ? 'selected' : ''}>${i.title}</option>`).join('');
-    }).catch(()=> select.innerHTML = '<option>Ошибка загрузки</option>');
+    }).catch(()=> select.innerHTML = '<option>' + @js(__('admin.menu.load_error')) + '</option>');
 }
 
 $('#edit-type').addEventListener('change', (e) => {
@@ -900,14 +900,14 @@ $('#edit-item-form').addEventListener('submit', async (e) => {
         });
         
         if (response.ok) {
-            toast('Пункт меню обновлён');
+            toast(@js(__('admin.menu.item_updated')));
             setTimeout(() => location.reload(), 500);
         } else {
             const text = await response.text();
-            toast('Ошибка обновления: ' + text.substring(0, 100), true);
+            toast(@js(__('admin.menu.update_error')) + ' ' + text.substring(0, 100), true);
         }
     } catch (err) {
-        toast('Ошибка обновления', true);
+        toast(@js(__('admin.menu.update_error')), true);
     }
 });
 
@@ -922,7 +922,7 @@ function updateBulkActions() {
     if (count > 0) {
         bulkActions.classList.remove('hidden');
         deselectBtn.classList.remove('hidden');
-        $('#selected-count').textContent = `${count} выбрано`;
+        $('#selected-count').textContent = count + ' ' + @js(__('admin.menu.selected_word'));
     } else {
         bulkActions.classList.add('hidden');
         deselectBtn.classList.add('hidden');
@@ -965,14 +965,14 @@ const bulkUrlTmpl = @json(route('admin.menu_items.bulk', $menu));
 
 async function bulkAction(action) {
     if (selectedItems.size === 0) {
-        toast('Выберите хотя бы один пункт', true);
+        toast(@js(__('admin.menu.pick_item')), true);
         return;
     }
 
     const itemIds = Array.from(selectedItems);
-    const actionText = action === 'activate' ? 'активировать' : action === 'deactivate' ? 'деактивировать' : 'удалить';
+    const actionText = action === 'activate' ? @js(__('admin.menu.act_enable')) : action === 'deactivate' ? @js(__('admin.menu.act_disable')) : @js(__('admin.menu.act_delete'));
 
-    if (!confirm(`Вы уверены, что хотите ${actionText} ${itemIds.length} пункт(ов)?`)) {
+    if (!confirm(@js(__('admin.menu.bulk_confirm')).replace(':action', actionText).replace(':count', itemIds.length))) {
         return;
     }
 
@@ -985,13 +985,13 @@ async function bulkAction(action) {
         const result = await response.json().catch(() => ({}));
 
         if (response.ok && result.success) {
-            toast(`Готово: ${result.count ?? itemIds.length} пункт(ов)`);
+            toast(@js(__('admin.menu.bulk_done')).replace(':count', result.count ?? itemIds.length));
             setTimeout(() => location.reload(), 600);
         } else {
-            toast(result.message || 'Ошибка при выполнении операции', true);
+            toast(result.message || @js(__('admin.menu.bulk_error')), true);
         }
     } catch (err) {
-        toast('Ошибка при выполнении операции', true);
+        toast(@js(__('admin.menu.bulk_error')), true);
     }
 }
 

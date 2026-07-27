@@ -187,6 +187,44 @@ class AdminTranslationTest extends TestCase
         $this->assertStringNotContainsString('Ключевые слова', $html);
     }
 
+    public function test_menu_screens_are_translated(): void
+    {
+        // Транш 3. Проверяем конкретные подписи, а не «нет русского вообще»:
+        // на странице есть <script> со своими строками, и подсчёт русских
+        // фрагментов по всей разметке ловил бы куски JS, а не интерфейс.
+        $admin = $this->admin();
+
+        $en = $this->actingAs($admin)->withSession(['app_locale' => 'en'])
+            ->get(route('admin.menus.create'))->getContent();
+
+        $this->assertStringContainsString('Create menu', $en);
+        $this->assertStringContainsString('Menu position', $en);
+        $this->assertStringContainsString('Activate the menu', $en);
+        $this->assertStringNotContainsString('Создать меню', $en);
+        $this->assertStringNotContainsString('Позиция меню', $en);
+        $this->assertStringNotContainsString('Активировать меню', $en);
+
+        $ru = $this->actingAs($admin)->withSession(['app_locale' => 'ru'])
+            ->get(route('admin.menus.create'))->getContent();
+
+        $this->assertStringContainsString('Создать меню', $ru);
+        $this->assertStringNotContainsString('Create menu', $ru);
+    }
+
+    public function test_item_counter_uses_plural_forms(): void
+    {
+        // Склонение было захардкожено по-русски (1 пункт / 2–4 пункта /
+        // 5+ пунктов) прямо во вьюхе — на других языках форма была неверной
+        app()->setLocale('ru');
+        $this->assertSame('1 пункт', trans_choice('admin.menu.items_plural', 1));
+        $this->assertSame('3 пункта', trans_choice('admin.menu.items_plural', 3));
+        $this->assertSame('7 пунктов', trans_choice('admin.menu.items_plural', 7));
+
+        app()->setLocale('en');
+        $this->assertSame('1 item', trans_choice('admin.menu.items_plural', 1));
+        $this->assertSame('7 items', trans_choice('admin.menu.items_plural', 7));
+    }
+
     public function test_technical_identifiers_are_not_translated(): void
     {
         // Названия драйверов, слаги и коды локалей переводить нельзя —
