@@ -1,8 +1,8 @@
 {{-- modules/Slideshow/Views/admin/index.blade.php --}}
 @extends('layouts.admin')
 
-@section('title', 'Слайдшоу')
-@section('header', 'Управление слайдшоу')
+@section('title', __('admin.sections.slideshow'))
+@section('header', __('admin.slideshow.manage'))
 
 @section('content')
 @php
@@ -19,8 +19,8 @@
     // которая реально есть: indigo / green / gray.
     $posColor = function($pos){
         return match($pos){
-            'top'    => ['badge'=>'bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300','bar'=>'bg-indigo-500','label'=>'Верх','icon'=>'fa-arrow-up'],
-            'bottom' => ['badge'=>'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',   'bar'=>'bg-green-500', 'label'=>'Низ', 'icon'=>'fa-arrow-down'],
+            'top'    => ['badge'=>'bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300','bar'=>'bg-indigo-500','label'=>__('admin.slideshow.pos_top'),'icon'=>'fa-arrow-up'],
+            'bottom' => ['badge'=>'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',   'bar'=>'bg-green-500', 'label'=>__('admin.slideshow.pos_bottom'), 'icon'=>'fa-arrow-down'],
             default  => ['badge'=>'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300',       'bar'=>'bg-gray-400',  'label'=>$pos ?: '—','icon'=>'fa-location-dot'],
         };
     };
@@ -33,9 +33,9 @@
   <div class="flex items-center gap-3 min-w-0">
     <span class="admin-icon-badge"><i class="fas fa-images"></i></span>
     <div class="min-w-0">
-      <h1 class="text-xl font-bold text-gray-900 dark:text-white">Слайдшоу</h1>
+      <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('admin.sections.slideshow') }}</h1>
       <p class="text-sm text-gray-500 dark:text-gray-400">
-        Баннеры и карусели для главной страницы: вверху или внизу контента.
+        {{ __('admin.slideshow.index_hint') }}
       </p>
     </div>
   </div>
@@ -43,7 +43,7 @@
   @if(Route::has('admin.slideshow.create'))
     <a href="{{ route('admin.slideshow.create') }}"
        class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition shrink-0">
-      <i class="fa-solid fa-plus"></i> Создать слайдшоу
+      <i class="fa-solid fa-plus"></i> {{ __('admin.slideshow.create') }}
     </a>
   @endif
 </div>
@@ -51,17 +51,17 @@
 {{-- ── Фильтры ── --}}
 <form method="get" action="{{ route('admin.slideshow.index') }}" class="admin-card p-5 mb-5">
   <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
-    <i class="fas fa-filter text-indigo-500"></i> Фильтры
+    <i class="fas fa-filter text-indigo-500"></i> {{ __('admin.common.filters') }}
   </h2>
 
   {{-- Быстрые чипы позиций --}}
   <div class="flex flex-wrap items-center gap-2 mb-4">
-    <span class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mr-1">Позиция</span>
+    <span class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mr-1">{{ __('admin.slideshow.position_short') }}</span>
 
     <a href="{{ route('admin.slideshow.index', array_filter(['q'=>$q, 'per_page'=>$perPage])) }}"
        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold transition
               {{ $position==='' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700' }}">
-      <i class="fas fa-layer-group"></i> Все
+      <i class="fas fa-layer-group"></i> {{ __('admin.common.all') }}
     </a>
 
     @foreach($knownPositions as $pos)
@@ -76,10 +76,10 @@
 
   <div class="grid grid-cols-1 lg:grid-cols-4 gap-3">
     <div>
-      <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Позиция</label>
+      <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.slideshow.position_short') }}</label>
       <select name="position" class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
                                      focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
-        <option value="">Все позиции</option>
+        <option value="">{{ __('admin.slideshow.all_positions') }}</option>
         @foreach($knownPositions as $pos)
           @php $c = $posColor($pos); @endphp
           <option value="{{ $pos }}" @selected($position===$pos)>{{ $c['label'] }}</option>
@@ -88,21 +88,21 @@
     </div>
 
     <div class="lg:col-span-2">
-      <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Поиск</label>
+      <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.admin.header.search') }}</label>
       <div class="relative">
         <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
              width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path>
         </svg>
-        <input type="text" name="q" value="{{ $q }}" placeholder="Искать по названию…"
+        <input type="text" name="q" value="{{ $q }}" placeholder="{{ __('admin.slideshow.search_ph') }}"
                class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white pl-10 pr-3 py-2 text-sm
                       focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" />
       </div>
     </div>
 
     <div>
-      <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">На странице</label>
+      <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.slideshow.per_page') }}</label>
       <select name="per_page" class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
                                      focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
         @foreach([10,25,50,100] as $pp)
@@ -114,13 +114,13 @@
 
   <div class="flex items-center gap-2 mt-4">
     <button class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition">
-      <i class="fas fa-magnifying-glass"></i> Искать
+      <i class="fas fa-magnifying-glass"></i> {{ __('admin.slideshow.search_do') }}
     </button>
     @if($q || $position || $perPage!==25)
       <a href="{{ route('admin.slideshow.index') }}"
          class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium
                 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-        <i class="fas fa-xmark"></i> Сбросить
+        <i class="fas fa-xmark"></i> {{ __('admin.users.reset') }}
       </a>
     @endif
   </div>
@@ -133,17 +133,17 @@
   <div class="flex flex-wrap items-center gap-3">
     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold
                  bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">
-      <i class="fas fa-check-double"></i> Выбрано: <strong id="selected-count">0</strong>
+      <i class="fas fa-check-double"></i> {{ __('admin.slideshow.selected') }} <strong id="selected-count">0</strong>
     </span>
     <button type="submit"
-            onclick="return confirm('Удалить выбранные слайдшоу?')"
+            onclick="return confirm(@js(__('admin.slideshow.delete_selected_confirm')))"
             class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 text-sm font-semibold shadow-sm transition">
-      <i class="fa-regular fa-trash-can"></i> Удалить выбранные
+      <i class="fa-regular fa-trash-can"></i> {{ __('admin.slideshow.delete_selected') }}
     </button>
     <button type="button" onclick="clearSelection()"
             class="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-300 dark:border-gray-600 text-sm font-medium
                    text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-      Отменить
+      {{ __('admin.slideshow.cancel_sel') }}
     </button>
   </div>
 </form>
@@ -153,11 +153,11 @@
   <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
     <div class="flex items-center gap-2 font-medium">
       <i class="fas fa-lightbulb"></i>
-      <span>Слайдшоу выводится на главной по своей позиции. Шорткодом его можно вставить в любой шаблон.</span>
+      <span>{{ __('admin.slideshow.note') }}</span>
     </div>
     <div class="flex items-center gap-2 text-xs shrink-0">
       <span class="bg-white dark:bg-gray-900 border border-indigo-100 dark:border-gray-700 px-2 py-1">
-        Всего: {{ number_format($slideshows->total(), 0, ',', ' ') }}
+        {{ __('admin.common.total') }} {{ number_format($slideshows->total(), 0, ',', ' ') }}
       </span>
     </div>
   </div>
@@ -170,14 +170,14 @@
     <thead class="bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 uppercase text-xs tracking-wide">
       <tr>
         <th class="px-4 py-3 text-left w-10">
-          <input type="checkbox" id="select-all" class="h-4 w-4" title="Выбрать все">
+          <input type="checkbox" id="select-all" class="h-4 w-4" title="{{ __('admin.slideshow.select_all_title') }}">
         </th>
-        <th class="px-4 py-3 text-left font-semibold">Название</th>
-        <th class="px-4 py-3 text-left font-semibold">Позиция</th>
-        <th class="px-4 py-3 text-center font-semibold">Слайдов</th>
-        <th class="px-4 py-3 text-center font-semibold">Статус</th>
-        <th class="px-4 py-3 text-left font-semibold hidden xl:table-cell">Шорткод</th>
-        <th class="px-4 py-3 text-center font-semibold w-24">Действия</th>
+        <th class="px-4 py-3 text-left font-semibold">{{ __('admin.slideshow.name_short') }}</th>
+        <th class="px-4 py-3 text-left font-semibold">{{ __('admin.slideshow.position_short') }}</th>
+        <th class="px-4 py-3 text-center font-semibold">{{ __('admin.slideshow.slides_count') }}</th>
+        <th class="px-4 py-3 text-center font-semibold">{{ __('admin.common.status') }}</th>
+        <th class="px-4 py-3 text-left font-semibold hidden xl:table-cell">{{ __('admin.slideshow.shortcode') }}</th>
+        <th class="px-4 py-3 text-center font-semibold w-24">{{ __('admin.common.actions') }}</th>
       </tr>
     </thead>
     <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
@@ -229,13 +229,13 @@
               @csrf
               @method('PATCH')
               <button type="submit"
-                      title="{{ $s->published ? 'Скрыть слайдшоу' : 'Опубликовать слайдшоу' }}"
+                      title="{{ $s->published ? __('admin.slideshow.hide_it') : __('admin.slideshow.publish_it') }}"
                       class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold whitespace-nowrap transition
                              {{ $s->published
                                 ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 hover:brightness-95'
                                 : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300 hover:brightness-95' }}">
                 <i class="fa-regular {{ $s->published ? 'fa-eye' : 'fa-eye-slash' }}"></i>
-                {{ $s->published ? 'Опубликовано' : 'Скрыто' }}
+                {{ $s->published ? __('admin.slideshow.published') : __('admin.slideshow.hidden') }}
               </button>
             </form>
           </td>
@@ -244,8 +244,8 @@
             <div class="flex items-center gap-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-2 py-1 max-w-md">
               <span class="truncate text-xs font-mono text-gray-600 dark:text-gray-300">{{ $bladeShortcode }}</span>
               <button type="button" class="ml-auto text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
-                      title="Скопировать шорткод"
-                      onclick="navigator.clipboard.writeText(@js($bladeShortcode)).then(()=>toast('Скопировано'));">
+                      title="{{ __('admin.slideshow.copy_shortcode') }}"
+                      onclick="navigator.clipboard.writeText(@js($bladeShortcode)).then(()=>toast(@js(__('admin.slideshow.copied'))));">
                 <i class="fa-regular fa-copy"></i>
               </button>
             </div>
@@ -255,14 +255,14 @@
             <div class="inline-flex items-center gap-1.5">
               <a href="{{ route('admin.slideshow.edit', $s->id) }}"
                  class="inline-flex items-center justify-center w-8 h-8 bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition"
-                 title="Редактировать">
+                 title="{{ __('admin.admin.edit') }}">
                 <i class="fa-solid fa-pen"></i>
               </a>
               <form action="{{ route('admin.slideshow.destroy', $s->id) }}" method="POST"
-                    onsubmit="return confirm('Удалить это слайдшоу?');" class="inline">
+                    onsubmit="return confirm(@js(__('admin.slideshow.delete_confirm')));" class="inline">
                 @csrf @method('DELETE')
                 <button class="inline-flex items-center justify-center w-8 h-8 bg-red-600 hover:bg-red-700 text-white shadow-sm transition"
-                        title="Удалить">
+                        title="{{ __('admin.admin.delete') }}">
                   <i class="fa-regular fa-trash-can"></i>
                 </button>
               </form>
@@ -273,10 +273,10 @@
         <tr>
           <td colspan="7" class="px-4 py-12 text-center">
             <span class="admin-icon-badge mx-auto mb-3"><i class="fas fa-images"></i></span>
-            <p class="text-gray-600 dark:text-gray-300 font-medium">Слайдшоу пока нет.</p>
+            <p class="text-gray-600 dark:text-gray-300 font-medium">{{ __('admin.slideshow.empty') }}</p>
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
               Нажмите
-              <a href="{{ route('admin.slideshow.create') }}" class="text-indigo-600 dark:text-indigo-400 underline">создать слайдшоу</a>,
+              <a href="{{ route('admin.slideshow.create') }}" class="text-indigo-600 dark:text-indigo-400 underline">{{ __('admin.slideshow.create_link') }}</a>,
               чтобы добавить первое.
             </p>
           </td>
@@ -294,10 +294,10 @@
 
 {{-- Мини-тост для статусов копирования --}}
 <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 hidden px-3 py-2 rounded bg-black text-white text-sm shadow-lg">
-  Скопировано
+  {{ __('admin.slideshow.copied') }}
 </div>
 <script>
-  function toast(text){ const t=document.getElementById('toast'); t.textContent=text||'Готово'; t.classList.remove('hidden');
+  function toast(text){ const t=document.getElementById('toast'); t.textContent=text||@js(__('admin.slideshow.done')); t.classList.remove('hidden');
     clearTimeout(window.__toastTimer); window.__toastTimer=setTimeout(()=>t.classList.add('hidden'),1200); }
 
   // Массовое удаление

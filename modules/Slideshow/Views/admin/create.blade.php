@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
-@section('title', 'Новое слайдшоу')
-@section('header', 'Создание слайдшоу')
+@section('title', __('admin.slideshow.new'))
+@section('header', __('admin.slideshow.creating'))
 
 @section('content')
 @php
@@ -15,17 +15,17 @@
     <div class="flex items-center gap-3 min-w-0">
         <span class="admin-icon-badge"><i class="fas fa-images"></i></span>
         <div class="min-w-0">
-            <h1 class="text-xl font-bold text-gray-900 dark:text-white">Новое слайдшоу</h1>
+            <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('admin.slideshow.new') }}</h1>
             <p class="text-sm text-gray-500 dark:text-gray-400">
-                Дайте понятное название и укажите, где показывать блок на главной.
+                {{ __('admin.slideshow.new_hint') }}
             </p>
         </div>
     </div>
 
     <a href="{{ route('admin.slideshow.index') }}"
        class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition shrink-0"
-       title="Вернуться к списку (Esc)">
-        <i class="fa-solid fa-arrow-left"></i> К списку слайдшоу
+       title="{{ __('admin.slideshow.back_esc') }}">
+        <i class="fa-solid fa-arrow-left"></i> {{ __('admin.slideshow.back') }}
     </a>
 </div>
 
@@ -35,7 +35,7 @@
       <div class="flex items-start gap-2">
           <i class="fas fa-triangle-exclamation mt-0.5"></i>
           <div>
-              <div class="font-semibold mb-1">Проверьте форму:</div>
+              <div class="font-semibold mb-1">{{ __('admin.slideshow.check_form') }}</div>
               <ul class="list-disc pl-5 space-y-0.5">
                   @foreach ($errors->all() as $e)
                       <li>{{ $e }}</li>
@@ -53,10 +53,10 @@
 
         {{-- Название --}}
         <div>
-            <label for="title" class="block font-semibold mb-1 text-gray-800 dark:text-gray-200">🏷️ Название слайдшоу</label>
+            <label for="title" class="block font-semibold mb-1 text-gray-800 dark:text-gray-200">🏷️ {{ __('admin.slideshow.name') }}</label>
             <div class="relative">
                 <input type="text" name="title" id="title" required value="{{ old('title') }}"
-                       placeholder="Например: «Хедер 1»"
+                       placeholder="{{ __('admin.slideshow.name_ph') }}"
                        class="peer w-full h-11 border border-gray-300 dark:border-gray-700 rounded-md px-3
                               bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
                               focus:outline-none focus:ring-2 focus:ring-blue-500/40"
@@ -66,7 +66,7 @@
                 </div>
             </div>
             <p class="mt-1 text-xs text-gray-500">
-                Это внутреннее имя в панели. На сайте пользователи его не увидят.
+                {{ __('admin.slideshow.name_hint') }}
             </p>
         </div>
 
@@ -76,25 +76,25 @@
              (как и палитры amber), поэтому выбор визуально не отображался вовсе.
              Теперь — настоящий CSS-селектор input:checked + label (см. <style> ниже). --}}
         <div>
-            <span class="block font-semibold mb-2 text-gray-800 dark:text-gray-200">Позиция на сайте</span>
+            <span class="block font-semibold mb-2 text-gray-800 dark:text-gray-200">{{ __('admin.slideshow.position') }}</span>
 
-            <div class="pos-switch inline-flex items-center gap-2" role="radiogroup" aria-label="Позиция на сайте">
+            <div class="pos-switch inline-flex items-center gap-2" role="radiogroup" aria-label="{{ __('admin.slideshow.position') }}">
                 <input class="sr-only" type="radio" id="pos-top" name="position" value="top"
                        {{ $pos === 'top' ? 'checked' : '' }}>
                 <label for="pos-top" class="pos-chip">
-                    <i class="fa-solid fa-arrow-up"></i> Вверху
+                    <i class="fa-solid fa-arrow-up"></i> {{ __('admin.slideshow.top') }}
                 </label>
 
                 <input class="sr-only" type="radio" id="pos-bottom" name="position" value="bottom"
                        {{ $pos === 'bottom' ? 'checked' : '' }}>
                 <label for="pos-bottom" class="pos-chip">
-                    <i class="fa-solid fa-arrow-down"></i> Внизу
+                    <i class="fa-solid fa-arrow-down"></i> {{ __('admin.slideshow.bottom') }}
                 </label>
             </div>
 
             <p id="pos-hint" class="mt-2 text-xs text-gray-600 dark:text-gray-400">
-                Появится <span data-pos="top" class="{{ $pos==='top' ? '' : 'hidden' }}">над контентом (вверху).</span>
-                <span data-pos="bottom" class="{{ $pos==='bottom' ? '' : 'hidden' }}">после блоков (внизу).</span>
+                {{ __('admin.slideshow.will_appear') }} <span data-pos="top" class="{{ $pos==='top' ? '' : 'hidden' }}">{{ __('admin.slideshow.above_content') }}</span>
+                <span data-pos="bottom" class="{{ $pos==='bottom' ? '' : 'hidden' }}">{{ __('admin.slideshow.below_blocks') }}</span>
             </p>
         </div>
 
@@ -105,9 +105,9 @@
                        {{ old('published', true) ? 'checked' : '' }}
                        class="w-4 h-4 mt-0.5">
                 <div>
-                    <span class="block font-semibold text-gray-800 dark:text-gray-200">Опубликовать сразу</span>
+                    <span class="block font-semibold text-gray-800 dark:text-gray-200">{{ __('admin.slideshow.publish_now') }}</span>
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                        Если не отмечено, слайдшоу будет скрыто от посетителей.
+                        {{ __('admin.slideshow.publish_hint') }}
                     </p>
                 </div>
             </label>
@@ -116,12 +116,12 @@
         {{-- Подсказки --}}
         <aside class="bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-xs text-gray-600 dark:text-gray-300">
             <ul class="list-disc pl-5 space-y-1">
-                <li><b>Ctrl + Enter</b> — создать;</li>
-                <li><b>T</b> — выбрать «Вверху», <b>B</b> — «Внизу»;</li>
-                <li><b>Esc</b> — вернуться к списку.</li>
+                <li><b>Ctrl + Enter</b> {{ __('admin.slideshow.hk_create') }}</li>
+                <li><b>T</b> {{ __('admin.slideshow.hk_top') }} <b>B</b> {{ __('admin.slideshow.hk_bottom') }}</li>
+                <li><b>Esc</b> {{ __('admin.slideshow.hk_back') }}</li>
             </ul>
             <div class="mt-2 text-[11px] text-gray-500">
-                После сохранения на странице списка появится шорткод для вставки в шаблон.
+                {{ __('admin.slideshow.shortcode_note') }}
             </div>
         </aside>
 
@@ -130,8 +130,8 @@
             <button id="submit-btn" type="submit"
                     class="inline-flex items-center gap-2 px-5 h-10 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm transition
                            disabled:opacity-50 disabled:cursor-not-allowed"
-                    title="Создать (Ctrl + Enter)">
-                <i class="fa-solid fa-floppy-disk"></i> Создать слайдшоу
+                    title="{{ __('admin.slideshow.create_hk') }}">
+                <i class="fa-solid fa-floppy-disk"></i> {{ __('admin.slideshow.create') }}
             </button>
         </div>
     </div>

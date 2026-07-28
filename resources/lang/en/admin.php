@@ -9,7 +9,6 @@ return [
     'loading' => 'Loading...',
     'error' => 'An error occurred',
 
-    // Шапка панели: подписи кнопок, поиска, переключателей языка и оформления.
     'header' => [
         'section' => 'Section',
         'overview' => 'Overview',
@@ -73,7 +72,6 @@ return [
         'localization' => 'Languages and countries',
     ],
 
-    // Подвал панели: техническая сводка, статистика, разработчик.
     'footer' => [
         'tagline' => 'Modular CMS built on Laravel',
         'tech' => 'Technical details',
@@ -97,7 +95,6 @@ return [
         'installed' => 'Installed',
     ],
 
-    // Названия разделов. Источник — App\Support\AdminSections.
     'sections' => [
         'dashboard' => 'Dashboard',
         'menus' => 'Menus',
@@ -122,7 +119,6 @@ return [
         'delivery' => 'Delivery',
     ],
 
-    // Группы разделов в навигации.
     'section_groups' => [
         'content' => 'Content',
         'system' => 'System',
@@ -130,7 +126,6 @@ return [
         'panel' => 'Panel',
     ],
 
-    // Синонимы для поиска по разделам, через запятую.
     'section_keywords' => [
         'dashboard' => 'home, overview, statistics, summary',
         'menus' => 'navigation, items, links',
@@ -155,7 +150,6 @@ return [
         'delivery' => 'shipping, courier',
     ],
 
-    // Типы результатов глобального поиска.
     'search_types' => [
         'section' => 'Section',
         'news' => 'News item',
@@ -165,7 +159,6 @@ return [
         'menu' => 'Menu',
     ],
 
-    // Подписи, повторяющиеся в разных разделах панели.
     'common' => [
         'close' => 'Close',
         'selected' => 'Selected',
@@ -222,7 +215,6 @@ return [
         'no' => 'No',
     ],
 
-    // Раздел «Новости».
     'news' => [
         'create' => 'New article',
         'create_hint' => 'Fill in the content and SEO fields, then choose a display template.',
@@ -291,7 +283,6 @@ return [
         'tr_content' => 'Article text',
     ],
 
-    // Раздел «Страницы».
     'pages' => [
         'create' => 'New page',
         'create_hint' => 'A new static or content page.',
@@ -328,7 +319,6 @@ return [
         'keywords_hint_edit' => 'Comma separated: ecology, water, resources.',
     ],
 
-    // Раздел «Меню».
     'menu' => [
         'page_create' => 'Create menu',
         'page_edit' => 'Edit menu',
@@ -463,7 +453,6 @@ return [
         'items_plural' => '{0} :count items|{1} :count item|[2,*] :count items',
     ],
 
-    // Раздел «Пользователи».
     'users' => [
         'page_create' => 'Add user',
         'page_edit' => 'Edit user',
@@ -557,7 +546,6 @@ return [
         'rights_plural' => '{0} :count permissions|{1} :count permission|[2,*] :count permissions',
     ],
 
-    // Раздел «Модули».
     'modules' => [
         'index_hint' => 'Enabling CMS sections, load order and installing new modules from an archive.',
         'install' => 'Install',
@@ -600,7 +588,6 @@ return [
         'active_count' => 'Active:',
     ],
 
-    // Раздел «Файлы» (медиатека модуля Files).
     'files' => [
         'categories_count' => 'Categories:',
         'title' => 'Files',
@@ -661,7 +648,6 @@ return [
         'upload_error' => 'Upload failed:',
     ],
 
-    // Главная страница панели.
     'dashboard' => [
         'categories_count' => 'Categories:',
         'title' => 'Dashboard',
@@ -691,7 +677,112 @@ return [
         'quick_user' => 'Create a user',
     ],
 
-    // Раздел «Доставка».
+    'slideshow' => [
+        'new' => 'New slideshow',
+        'new_hint' => 'Give it a clear name and choose where the block appears on the home page.',
+        'back' => 'Back to slideshows',
+        'back_short' => 'Back to list',
+        'check_form' => 'Please check the form:',
+        'name' => 'Slideshow name',
+        'name_short' => 'Name',
+        'name_hint' => 'This is an internal name for the panel. Visitors will not see it.',
+        'name_ph' => 'For example: “Header 1”',
+        'position' => 'Position on the site',
+        'position_short' => 'Position',
+        'top' => 'Top',
+        'bottom' => 'Bottom',
+        'will_appear' => 'It will appear',
+        'above_content' => 'above the content (top).',
+        'below_blocks' => 'after the blocks (bottom).',
+        'publish_now' => 'Publish immediately',
+        'publish_hint' => 'If unchecked, the slideshow stays hidden from visitors.',
+        'hk_create' => '— create;',
+        'hk_top' => '— choose “Top”,',
+        'hk_bottom' => '— “Bottom”;',
+        'hk_back' => '— back to the list.',
+        'shortcode_note' => 'After saving, a shortcode for template insertion appears on the list page.',
+        'create' => 'Create the slideshow',
+        'back_esc' => 'Back to the list (Esc)',
+        'create_hk' => 'Create (Ctrl + Enter)',
+        'published' => 'Published',
+        'hidden' => 'Hidden',
+        'preview' => 'Preview',
+        'settings' => 'Slideshow settings',
+        'autoplay' => 'Autoplay delay (ms)',
+        'effect' => 'Transition effect',
+        'fx_slide' => 'Slide',
+        'fx_fade' => 'Fade',
+        'fx_cube' => 'Cube',
+        'fx_cover' => 'Cover',
+        'fx_flip' => 'Flip',
+        'height' => 'Height (CSS, e.g. 500px or 50vh)',
+        'height_ph' => '500px or 50vh',
+        'description' => 'Description',
+        'show_pagination' => 'Show pagination',
+        'show_nav' => 'Show navigation',
+        'save_settings' => 'Save the settings',
+        'add_slide' => 'Add a slide',
+        'image_or_video' => 'image or video',
+        'file' => 'File',
+        'drop_here' => 'Drop the file here',
+        'or' => 'or',
+        'click' => 'click',
+        'browse' => 'Browse…',
+        'size_hint' => 'Recommended image size — at least 1280×720.',
+        'no_file' => 'No file chosen',
+        'caption' => 'Caption',
+        'caption_ph' => 'A short text on the slide',
+        'alt' => 'Alt text (SEO)',
+        'alt_short' => 'Alt text',
+        'alt_hint' => 'Filling it in improves indexing',
+        'alt_ph' => 'Image description for search engines',
+        'link' => 'Link',
+        'text_pos' => 'Text position',
+        'tp_tl' => 'Top left',
+        'tp_tc' => 'Top centre',
+        'tp_tr' => 'Top right',
+        'tp_c' => 'Centre',
+        'tp_bl' => 'Bottom left',
+        'tp_bc' => 'Bottom centre',
+        'tp_br' => 'Bottom right',
+        'text_color' => 'Text colour',
+        'bg_color' => 'Background colour',
+        'order' => 'Order',
+        'current_slides' => 'Current slides',
+        'caption_label' => 'Caption:',
+        'link_label' => 'Link:',
+        'save_order' => 'Save the order',
+        'no_slides' => 'No slides to show',
+        'edit_slide' => 'Edit the slide',
+        'index_hint' => 'Banners and carousels for the home page: above or below the content.',
+        'manage' => 'Slideshow management',
+        'creating' => 'Creating a slideshow',
+        'pos_top' => 'Top',
+        'pos_bottom' => 'Bottom',
+        'all_positions' => 'All positions',
+        'per_page' => 'Per page',
+        'search_do' => 'Search',
+        'search_ph' => 'Search by name…',
+        'selected' => 'Selected:',
+        'delete_selected' => 'Delete selected',
+        'delete_selected_confirm' => 'Delete the selected slideshows?',
+        'cancel_sel' => 'Cancel',
+        'note' => 'A slideshow appears on the home page at its position. A shortcode lets you insert it into any template.',
+        'select_all_title' => 'Select all',
+        'slides_count' => 'Slides',
+        'shortcode' => 'Shortcode',
+        'hide_it' => 'Hide the slideshow',
+        'publish_it' => 'Publish the slideshow',
+        'copy_shortcode' => 'Copy the shortcode',
+        'copied' => 'Copied',
+        'delete_confirm' => 'Delete this slideshow?',
+        'empty' => 'No slideshows yet.',
+        'press' => 'Press',
+        'create_link' => 'create a slideshow',
+        'to_add_first' => 'to add the first one.',
+        'done' => 'Done',
+    ],
+
     'delivery' => [
         'add' => 'Add a delivery method',
         'edit' => 'Edit the delivery method',
@@ -750,7 +841,6 @@ return [
         'empty' => 'No delivery methods yet.',
     ],
 
-    // Раздел «Отзывы».
     'reviews' => [
         'categories_count' => 'Categories:',
         'title' => 'Review management',
@@ -790,7 +880,6 @@ return [
         'type_optional' => 'Type (optional)',
     ],
 
-    // Раздел «Импорт/Экспорт» новостей.
     'newsio' => [
         'categories_count' => 'Categories:',
         'title' => 'News import and export',
@@ -848,7 +937,6 @@ return [
         'choose_file' => 'Choose a file',
     ],
 
-    // Вставка сборки каптчи в редакторах материалов.
     'captcha' => [
         'preset' => 'Captcha preset',
         'insert' => 'Insert into the text',

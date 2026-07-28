@@ -9,7 +9,6 @@ return [
     'loading' => 'Caricamento...',
     'error' => 'Si è verificato un errore',
 
-    // Шапка панели: подписи кнопок, поиска, переключателей языка и оформления.
     'header' => [
         'section' => 'Sezione',
         'overview' => 'Panoramica',
@@ -73,7 +72,6 @@ return [
         'localization' => 'Lingue e paesi',
     ],
 
-    // Подвал панели: техническая сводка, статистика, разработчик.
     'footer' => [
         'tagline' => 'CMS modulare basato su Laravel',
         'tech' => 'Informazioni tecniche',
@@ -97,7 +95,6 @@ return [
         'installed' => 'Installato il',
     ],
 
-    // Названия разделов. Источник — App\Support\AdminSections.
     'sections' => [
         'dashboard' => 'Dashboard',
         'menus' => 'Menu',
@@ -122,7 +119,6 @@ return [
         'delivery' => 'Spedizione',
     ],
 
-    // Группы разделов в навигации.
     'section_groups' => [
         'content' => 'Contenuti',
         'system' => 'Sistema',
@@ -130,7 +126,6 @@ return [
         'panel' => 'Pannello',
     ],
 
-    // Синонимы для поиска по разделам, через запятую.
     'section_keywords' => [
         'dashboard' => 'home, panoramica, statistiche',
         'menus' => 'navigazione, voci, collegamenti',
@@ -155,7 +150,6 @@ return [
         'delivery' => 'spedizione, corriere',
     ],
 
-    // Типы результатов глобального поиска.
     'search_types' => [
         'section' => 'Sezione',
         'news' => 'Notizia',
@@ -165,7 +159,6 @@ return [
         'menu' => 'Menu',
     ],
 
-    // Подписи, повторяющиеся в разных разделах панели.
     'common' => [
         'close' => 'Chiudi',
         'selected' => 'Selezionati',
@@ -222,7 +215,6 @@ return [
         'no' => 'No',
     ],
 
-    // Раздел «Новости».
     'news' => [
         'create' => 'Nuova notizia',
         'create_hint' => 'Compila contenuto e campi SEO, poi scegli un modello di visualizzazione.',
@@ -291,7 +283,6 @@ return [
         'tr_content' => 'Testo della notizia',
     ],
 
-    // Раздел «Страницы».
     'pages' => [
         'create' => 'Nuova pagina',
         'create_hint' => 'Una nuova pagina statica o di contenuto.',
@@ -328,7 +319,6 @@ return [
         'keywords_hint_edit' => 'Separate da virgole: ecologia, acqua, risorse.',
     ],
 
-    // Раздел «Меню».
     'menu' => [
         'page_create' => 'Crea menu',
         'page_edit' => 'Modifica menu',
@@ -463,7 +453,6 @@ return [
         'items_plural' => '{0} :count voci|{1} :count voce|[2,*] :count voci',
     ],
 
-    // Раздел «Пользователи».
     'users' => [
         'page_create' => 'Aggiungi utente',
         'page_edit' => 'Modifica utente',
@@ -557,7 +546,6 @@ return [
         'rights_plural' => '{0} :count permessi|{1} :count permesso|[2,*] :count permessi',
     ],
 
-    // Раздел «Модули».
     'modules' => [
         'index_hint' => 'Attivazione delle sezioni del CMS, ordine di caricamento e installazione di nuovi moduli da un archivio.',
         'install' => 'Installa',
@@ -600,7 +588,6 @@ return [
         'active_count' => 'Attivi:',
     ],
 
-    // Раздел «Файлы» (медиатека модуля Files).
     'files' => [
         'categories_count' => 'Categorie:',
         'title' => 'File',
@@ -661,7 +648,6 @@ return [
         'upload_error' => 'Caricamento non riuscito:',
     ],
 
-    // Главная страница панели.
     'dashboard' => [
         'categories_count' => 'Categorie:',
         'title' => 'Pannello di controllo',
@@ -691,7 +677,112 @@ return [
         'quick_user' => 'Crea un utente',
     ],
 
-    // Раздел «Доставка».
+    'slideshow' => [
+        'new' => 'Nuovo slideshow',
+        'new_hint' => 'Dai un nome chiaro e indica dove mostrare il blocco in home page.',
+        'back' => 'Torna agli slideshow',
+        'back_short' => 'Torna all\'elenco',
+        'check_form' => 'Controlla il modulo:',
+        'name' => 'Nome dello slideshow',
+        'name_short' => 'Nome',
+        'name_hint' => 'È un nome interno per il pannello. I visitatori non lo vedranno.',
+        'name_ph' => 'Ad esempio: «Header 1»',
+        'position' => 'Posizione sul sito',
+        'position_short' => 'Posizione',
+        'top' => 'In alto',
+        'bottom' => 'In basso',
+        'will_appear' => 'Apparirà',
+        'above_content' => 'sopra il contenuto (in alto).',
+        'below_blocks' => 'dopo i blocchi (in basso).',
+        'publish_now' => 'Pubblica subito',
+        'publish_hint' => 'Se non selezionato, lo slideshow resta nascosto ai visitatori.',
+        'hk_create' => '— creare;',
+        'hk_top' => '— scegliere «In alto»,',
+        'hk_bottom' => '— «In basso»;',
+        'hk_back' => '— tornare all\'elenco.',
+        'shortcode_note' => 'Dopo il salvataggio, nella pagina dell\'elenco compare uno shortcode da inserire nel template.',
+        'create' => 'Crea lo slideshow',
+        'back_esc' => 'Torna all\'elenco (Esc)',
+        'create_hk' => 'Crea (Ctrl + Invio)',
+        'published' => 'Pubblicato',
+        'hidden' => 'Nascosto',
+        'preview' => 'Anteprima',
+        'settings' => 'Impostazioni dello slideshow',
+        'autoplay' => 'Ritardo di riproduzione (ms)',
+        'effect' => 'Effetto di transizione',
+        'fx_slide' => 'Scorrimento',
+        'fx_fade' => 'Dissolvenza',
+        'fx_cube' => 'Cubo',
+        'fx_cover' => 'Copertina',
+        'fx_flip' => 'Ribaltamento',
+        'height' => 'Altezza (CSS, es. 500px o 50vh)',
+        'height_ph' => '500px o 50vh',
+        'description' => 'Descrizione',
+        'show_pagination' => 'Mostra la paginazione',
+        'show_nav' => 'Mostra la navigazione',
+        'save_settings' => 'Salva le impostazioni',
+        'add_slide' => 'Aggiungi una slide',
+        'image_or_video' => 'immagine o video',
+        'file' => 'File',
+        'drop_here' => 'Trascina qui il file',
+        'or' => 'oppure',
+        'click' => 'clicca',
+        'browse' => 'Sfoglia…',
+        'size_hint' => 'Dimensione consigliata delle immagini — almeno 1280×720.',
+        'no_file' => 'Nessun file scelto',
+        'caption' => 'Didascalia',
+        'caption_ph' => 'Un testo breve sulla slide',
+        'alt' => 'Testo alternativo (SEO)',
+        'alt_short' => 'Testo alternativo',
+        'alt_hint' => 'Compilarlo migliora l\'indicizzazione',
+        'alt_ph' => 'Descrizione dell\'immagine per i motori di ricerca',
+        'link' => 'Link',
+        'text_pos' => 'Posizione del testo',
+        'tp_tl' => 'In alto a sinistra',
+        'tp_tc' => 'In alto al centro',
+        'tp_tr' => 'In alto a destra',
+        'tp_c' => 'Al centro',
+        'tp_bl' => 'In basso a sinistra',
+        'tp_bc' => 'In basso al centro',
+        'tp_br' => 'In basso a destra',
+        'text_color' => 'Colore del testo',
+        'bg_color' => 'Colore di sfondo',
+        'order' => 'Ordine',
+        'current_slides' => 'Slide attuali',
+        'caption_label' => 'Didascalia:',
+        'link_label' => 'Link:',
+        'save_order' => 'Salva l\'ordine',
+        'no_slides' => 'Nessuna slide da mostrare',
+        'edit_slide' => 'Modifica la slide',
+        'index_hint' => 'Banner e caroselli per la home page: sopra o sotto il contenuto.',
+        'manage' => 'Gestione degli slideshow',
+        'creating' => 'Creazione di uno slideshow',
+        'pos_top' => 'Alto',
+        'pos_bottom' => 'Basso',
+        'all_positions' => 'Tutte le posizioni',
+        'per_page' => 'Per pagina',
+        'search_do' => 'Cerca',
+        'search_ph' => 'Cerca per nome…',
+        'selected' => 'Selezionati:',
+        'delete_selected' => 'Elimina selezionati',
+        'delete_selected_confirm' => 'Eliminare gli slideshow selezionati?',
+        'cancel_sel' => 'Annulla',
+        'note' => 'Uno slideshow appare in home page nella sua posizione. Con uno shortcode puoi inserirlo in qualsiasi template.',
+        'select_all_title' => 'Seleziona tutto',
+        'slides_count' => 'Slide',
+        'shortcode' => 'Shortcode',
+        'hide_it' => 'Nascondi lo slideshow',
+        'publish_it' => 'Pubblica lo slideshow',
+        'copy_shortcode' => 'Copia lo shortcode',
+        'copied' => 'Copiato',
+        'delete_confirm' => 'Eliminare questo slideshow?',
+        'empty' => 'Ancora nessuno slideshow.',
+        'press' => 'Premi',
+        'create_link' => 'crea uno slideshow',
+        'to_add_first' => 'per aggiungere il primo.',
+        'done' => 'Fatto',
+    ],
+
     'delivery' => [
         'add' => 'Aggiungi un metodo di spedizione',
         'edit' => 'Modifica il metodo di spedizione',
@@ -750,7 +841,6 @@ return [
         'empty' => 'Ancora nessun metodo di spedizione.',
     ],
 
-    // Раздел «Отзывы».
     'reviews' => [
         'categories_count' => 'Categorie:',
         'title' => 'Gestione recensioni',
@@ -790,7 +880,6 @@ return [
         'type_optional' => 'Tipo (facoltativo)',
     ],
 
-    // Раздел «Импорт/Экспорт» новостей.
     'newsio' => [
         'categories_count' => 'Categorie:',
         'title' => 'Importazione ed esportazione delle notizie',
@@ -848,7 +937,6 @@ return [
         'choose_file' => 'Scegli un file',
     ],
 
-    // Вставка сборки каптчи в редакторах материалов.
     'captcha' => [
         'preset' => 'Preset captcha',
         'insert' => 'Inserisci nel testo',

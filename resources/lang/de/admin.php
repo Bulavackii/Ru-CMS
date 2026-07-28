@@ -9,7 +9,6 @@ return [
     'loading' => 'Laden...',
     'error' => 'Ein Fehler ist aufgetreten',
 
-    // Шапка панели: подписи кнопок, поиска, переключателей языка и оформления.
     'header' => [
         'section' => 'Bereich',
         'overview' => 'Übersicht',
@@ -73,7 +72,6 @@ return [
         'localization' => 'Sprachen und Länder',
     ],
 
-    // Подвал панели: техническая сводка, статистика, разработчик.
     'footer' => [
         'tagline' => 'Modulares CMS auf Laravel-Basis',
         'tech' => 'Technische Angaben',
@@ -97,7 +95,6 @@ return [
         'installed' => 'Installiert',
     ],
 
-    // Названия разделов. Источник — App\Support\AdminSections.
     'sections' => [
         'dashboard' => 'Dashboard',
         'menus' => 'Menüs',
@@ -122,7 +119,6 @@ return [
         'delivery' => 'Versand',
     ],
 
-    // Группы разделов в навигации.
     'section_groups' => [
         'content' => 'Inhalt',
         'system' => 'System',
@@ -130,7 +126,6 @@ return [
         'panel' => 'Panel',
     ],
 
-    // Синонимы для поиска по разделам, через запятую.
     'section_keywords' => [
         'dashboard' => 'start, übersicht, statistik',
         'menus' => 'navigation, punkte, links',
@@ -155,7 +150,6 @@ return [
         'delivery' => 'versand, kurier',
     ],
 
-    // Типы результатов глобального поиска.
     'search_types' => [
         'section' => 'Bereich',
         'news' => 'Beitrag',
@@ -165,7 +159,6 @@ return [
         'menu' => 'Menü',
     ],
 
-    // Подписи, повторяющиеся в разных разделах панели.
     'common' => [
         'close' => 'Schließen',
         'selected' => 'Ausgewählt',
@@ -222,7 +215,6 @@ return [
         'no' => 'Nein',
     ],
 
-    // Раздел «Новости».
     'news' => [
         'create' => 'Neuer Beitrag',
         'create_hint' => 'Inhalt und SEO-Felder ausfüllen, dann eine Anzeigevorlage wählen.',
@@ -291,7 +283,6 @@ return [
         'tr_content' => 'Beitragstext',
     ],
 
-    // Раздел «Страницы».
     'pages' => [
         'create' => 'Neue Seite',
         'create_hint' => 'Eine neue statische oder Inhaltsseite.',
@@ -328,7 +319,6 @@ return [
         'keywords_hint_edit' => 'Kommagetrennt: Ökologie, Wasser, Ressourcen.',
     ],
 
-    // Раздел «Меню».
     'menu' => [
         'page_create' => 'Menü erstellen',
         'page_edit' => 'Menü bearbeiten',
@@ -463,7 +453,6 @@ return [
         'items_plural' => '{0} :count Einträge|{1} :count Eintrag|[2,*] :count Einträge',
     ],
 
-    // Раздел «Пользователи».
     'users' => [
         'page_create' => 'Benutzer hinzufügen',
         'page_edit' => 'Benutzer bearbeiten',
@@ -557,7 +546,6 @@ return [
         'rights_plural' => '{0} :count Rechte|{1} :count Recht|[2,*] :count Rechte',
     ],
 
-    // Раздел «Модули».
     'modules' => [
         'index_hint' => 'CMS-Bereiche aktivieren, Ladereihenfolge und Installation neuer Module aus einem Archiv.',
         'install' => 'Installieren',
@@ -600,7 +588,6 @@ return [
         'active_count' => 'Aktiv:',
     ],
 
-    // Раздел «Файлы» (медиатека модуля Files).
     'files' => [
         'categories_count' => 'Kategorien:',
         'title' => 'Dateien',
@@ -661,7 +648,6 @@ return [
         'upload_error' => 'Upload fehlgeschlagen:',
     ],
 
-    // Главная страница панели.
     'dashboard' => [
         'categories_count' => 'Kategorien:',
         'title' => 'Dashboard',
@@ -691,7 +677,112 @@ return [
         'quick_user' => 'Benutzer erstellen',
     ],
 
-    // Раздел «Доставка».
+    'slideshow' => [
+        'new' => 'Neue Slideshow',
+        'new_hint' => 'Geben Sie einen klaren Namen an und wählen Sie, wo der Block auf der Startseite erscheint.',
+        'back' => 'Zur Slideshow-Liste',
+        'back_short' => 'Zur Liste',
+        'check_form' => 'Bitte prüfen Sie das Formular:',
+        'name' => 'Name der Slideshow',
+        'name_short' => 'Name',
+        'name_hint' => 'Das ist ein interner Name für das Panel. Besucher sehen ihn nicht.',
+        'name_ph' => 'Zum Beispiel: „Header 1“',
+        'position' => 'Position auf der Website',
+        'position_short' => 'Position',
+        'top' => 'Oben',
+        'bottom' => 'Unten',
+        'will_appear' => 'Erscheint',
+        'above_content' => 'über dem Inhalt (oben).',
+        'below_blocks' => 'nach den Blöcken (unten).',
+        'publish_now' => 'Sofort veröffentlichen',
+        'publish_hint' => 'Ohne Häkchen bleibt die Slideshow für Besucher verborgen.',
+        'hk_create' => '— erstellen;',
+        'hk_top' => '— „Oben“ wählen,',
+        'hk_bottom' => '— „Unten“;',
+        'hk_back' => '— zurück zur Liste.',
+        'shortcode_note' => 'Nach dem Speichern erscheint auf der Listenseite ein Shortcode zum Einfügen in eine Vorlage.',
+        'create' => 'Slideshow erstellen',
+        'back_esc' => 'Zurück zur Liste (Esc)',
+        'create_hk' => 'Erstellen (Strg + Enter)',
+        'published' => 'Veröffentlicht',
+        'hidden' => 'Verborgen',
+        'preview' => 'Vorschau',
+        'settings' => 'Slideshow-Einstellungen',
+        'autoplay' => 'Autoplay-Verzögerung (ms)',
+        'effect' => 'Übergangseffekt',
+        'fx_slide' => 'Slide',
+        'fx_fade' => 'Überblenden',
+        'fx_cube' => 'Würfel',
+        'fx_cover' => 'Cover',
+        'fx_flip' => 'Flip',
+        'height' => 'Höhe (CSS, z. B. 500px oder 50vh)',
+        'height_ph' => '500px oder 50vh',
+        'description' => 'Beschreibung',
+        'show_pagination' => 'Seitenanzeige einblenden',
+        'show_nav' => 'Navigation einblenden',
+        'save_settings' => 'Einstellungen speichern',
+        'add_slide' => 'Folie hinzufügen',
+        'image_or_video' => 'Bild oder Video',
+        'file' => 'Datei',
+        'drop_here' => 'Datei hierher ziehen',
+        'or' => 'oder',
+        'click' => 'klicken',
+        'browse' => 'Durchsuchen…',
+        'size_hint' => 'Empfohlene Bildgröße — mindestens 1280×720.',
+        'no_file' => 'Keine Datei ausgewählt',
+        'caption' => 'Beschriftung',
+        'caption_ph' => 'Ein kurzer Text auf der Folie',
+        'alt' => 'Alt-Text (SEO)',
+        'alt_short' => 'Alt-Text',
+        'alt_hint' => 'Ausfüllen verbessert die Indexierung',
+        'alt_ph' => 'Bildbeschreibung für Suchmaschinen',
+        'link' => 'Link',
+        'text_pos' => 'Textposition',
+        'tp_tl' => 'Oben links',
+        'tp_tc' => 'Oben mittig',
+        'tp_tr' => 'Oben rechts',
+        'tp_c' => 'Mittig',
+        'tp_bl' => 'Unten links',
+        'tp_bc' => 'Unten mittig',
+        'tp_br' => 'Unten rechts',
+        'text_color' => 'Textfarbe',
+        'bg_color' => 'Hintergrundfarbe',
+        'order' => 'Reihenfolge',
+        'current_slides' => 'Aktuelle Folien',
+        'caption_label' => 'Beschriftung:',
+        'link_label' => 'Link:',
+        'save_order' => 'Reihenfolge speichern',
+        'no_slides' => 'Keine Folien vorhanden',
+        'edit_slide' => 'Folie bearbeiten',
+        'index_hint' => 'Banner und Karussells für die Startseite: über oder unter dem Inhalt.',
+        'manage' => 'Slideshow-Verwaltung',
+        'creating' => 'Slideshow anlegen',
+        'pos_top' => 'Oben',
+        'pos_bottom' => 'Unten',
+        'all_positions' => 'Alle Positionen',
+        'per_page' => 'Pro Seite',
+        'search_do' => 'Suchen',
+        'search_ph' => 'Nach Namen suchen…',
+        'selected' => 'Ausgewählt:',
+        'delete_selected' => 'Auswahl löschen',
+        'delete_selected_confirm' => 'Die ausgewählten Slideshows löschen?',
+        'cancel_sel' => 'Abbrechen',
+        'note' => 'Eine Slideshow erscheint auf der Startseite an ihrer Position. Mit einem Shortcode fügen Sie sie in jede Vorlage ein.',
+        'select_all_title' => 'Alle auswählen',
+        'slides_count' => 'Folien',
+        'shortcode' => 'Shortcode',
+        'hide_it' => 'Slideshow verbergen',
+        'publish_it' => 'Slideshow veröffentlichen',
+        'copy_shortcode' => 'Shortcode kopieren',
+        'copied' => 'Kopiert',
+        'delete_confirm' => 'Diese Slideshow löschen?',
+        'empty' => 'Noch keine Slideshows.',
+        'press' => 'Klicken Sie auf',
+        'create_link' => 'Slideshow erstellen',
+        'to_add_first' => 'um die erste hinzuzufügen.',
+        'done' => 'Fertig',
+    ],
+
     'delivery' => [
         'add' => 'Versandart hinzufügen',
         'edit' => 'Versandart bearbeiten',
@@ -750,7 +841,6 @@ return [
         'empty' => 'Noch keine Versandarten.',
     ],
 
-    // Раздел «Отзывы».
     'reviews' => [
         'categories_count' => 'Kategorien:',
         'title' => 'Bewertungsverwaltung',
@@ -790,7 +880,6 @@ return [
         'type_optional' => 'Typ (optional)',
     ],
 
-    // Раздел «Импорт/Экспорт» новостей.
     'newsio' => [
         'categories_count' => 'Kategorien:',
         'title' => 'Import und Export von Beiträgen',
@@ -848,7 +937,6 @@ return [
         'choose_file' => 'Datei auswählen',
     ],
 
-    // Вставка сборки каптчи в редакторах материалов.
     'captcha' => [
         'preset' => 'Captcha-Vorlage',
         'insert' => 'In den Text einfügen',

@@ -63,40 +63,40 @@
       @method('PUT')
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="block font-medium mb-1 text-gray-700 dark:text-gray-300">🏷️ Название</label>
+          <label class="block font-medium mb-1 text-gray-700 dark:text-gray-300">🏷️ {{ __('admin.slideshow.name_short') }}</label>
           <input type="text" name="title" value="{{ old('title', $slideshow->title) }}"
                  class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 px-3 py-2" required>
         </div>
         <div>
-          <label class="block font-medium mb-1 text-gray-700 dark:text-gray-300">📍 Позиция</label>
+          <label class="block font-medium mb-1 text-gray-700 dark:text-gray-300">📍 {{ __('admin.slideshow.position_short') }}</label>
           <select name="position" class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 px-3 py-2">
-            <option value="top" {{ $slideshow->position === 'top' ? 'selected' : '' }}>Вверху</option>
-            <option value="bottom" {{ $slideshow->position === 'bottom' ? 'selected' : '' }}>Внизу</option>
+            <option value="top" {{ $slideshow->position === 'top' ? 'selected' : '' }}>{{ __('admin.slideshow.top') }}</option>
+            <option value="bottom" {{ $slideshow->position === 'bottom' ? 'selected' : '' }}>{{ __('admin.slideshow.bottom') }}</option>
           </select>
         </div>
         <div>
-          <label class="block font-medium mb-1 text-gray-700 dark:text-gray-300">⏱️ Задержка автоплея (мс)</label>
+          <label class="block font-medium mb-1 text-gray-700 dark:text-gray-300">⏱️ {{ __('admin.slideshow.autoplay') }}</label>
           <input type="number" name="autoplay_delay" value="{{ old('autoplay_delay', $slideshow->autoplay_delay ?? 5000) }}" min="1000" max="30000" step="500"
                  class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 px-3 py-2">
         </div>
         <div>
-          <label class="block font-medium mb-1 text-gray-700 dark:text-gray-300">🎬 Эффект перехода</label>
+          <label class="block font-medium mb-1 text-gray-700 dark:text-gray-300">🎬 {{ __('admin.slideshow.effect') }}</label>
           <select name="transition_effect" class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 px-3 py-2">
-            <option value="slide" {{ ($slideshow->transition_effect ?? 'slide') === 'slide' ? 'selected' : '' }}>Слайд</option>
-            <option value="fade" {{ ($slideshow->transition_effect ?? '') === 'fade' ? 'selected' : '' }}>Плавное затухание</option>
-            <option value="cube" {{ ($slideshow->transition_effect ?? '') === 'cube' ? 'selected' : '' }}>Куб</option>
-            <option value="coverflow" {{ ($slideshow->transition_effect ?? '') === 'coverflow' ? 'selected' : '' }}>Обложка</option>
-            <option value="flip" {{ ($slideshow->transition_effect ?? '') === 'flip' ? 'selected' : '' }}>Переворот</option>
+            <option value="slide" {{ ($slideshow->transition_effect ?? 'slide') === 'slide' ? 'selected' : '' }}>{{ __('admin.slideshow.fx_slide') }}</option>
+            <option value="fade" {{ ($slideshow->transition_effect ?? '') === 'fade' ? 'selected' : '' }}>{{ __('admin.slideshow.fx_fade') }}</option>
+            <option value="cube" {{ ($slideshow->transition_effect ?? '') === 'cube' ? 'selected' : '' }}>{{ __('admin.slideshow.fx_cube') }}</option>
+            <option value="coverflow" {{ ($slideshow->transition_effect ?? '') === 'coverflow' ? 'selected' : '' }}>{{ __('admin.slideshow.fx_cover') }}</option>
+            <option value="flip" {{ ($slideshow->transition_effect ?? '') === 'flip' ? 'selected' : '' }}>{{ __('admin.slideshow.fx_flip') }}</option>
           </select>
         </div>
         <div>
-          <label class="block font-medium mb-1 text-gray-700 dark:text-gray-300">📏 Высота (CSS, например: 500px или 50vh)</label>
+          <label class="block font-medium mb-1 text-gray-700 dark:text-gray-300">📏 {{ __('admin.slideshow.height') }}</label>
           <input type="text" name="height" value="{{ old('height', $slideshow->height) }}"
                  class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 px-3 py-2"
-                 placeholder="500px или 50vh">
+                 placeholder="{{ __('admin.slideshow.height_ph') }}">
         </div>
         <div>
-          <label class="block font-medium mb-1 text-gray-700 dark:text-gray-300">📝 Описание</label>
+          <label class="block font-medium mb-1 text-gray-700 dark:text-gray-300">📝 {{ __('admin.slideshow.description') }}</label>
           <textarea name="description" rows="2"
                     class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 px-3 py-2">{{ old('description', $slideshow->description) }}</textarea>
         </div>
@@ -104,17 +104,17 @@
           <label class="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" name="published" value="1" {{ $slideshow->published ? 'checked' : '' }}
                    class="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-            <span class="text-gray-700 dark:text-gray-300">✅ Опубликовано</span>
+            <span class="text-gray-700 dark:text-gray-300">✅ {{ __('admin.slideshow.published') }}</span>
           </label>
           <label class="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" name="show_pagination" value="1" {{ ($slideshow->show_pagination ?? true) ? 'checked' : '' }}
                    class="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-            <span class="text-gray-700 dark:text-gray-300">🔘 Показывать пагинацию</span>
+            <span class="text-gray-700 dark:text-gray-300">🔘 {{ __('admin.slideshow.show_pagination') }}</span>
           </label>
           <label class="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" name="show_navigation" value="1" {{ ($slideshow->show_navigation ?? true) ? 'checked' : '' }}
                    class="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-            <span class="text-gray-700 dark:text-gray-300">⬅️➡️ Показывать навигацию</span>
+            <span class="text-gray-700 dark:text-gray-300">⬅️➡️ {{ __('admin.slideshow.show_nav') }}</span>
           </label>
         </div>
       </div>
@@ -134,14 +134,14 @@
     <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-visible w-full">
       {{-- Заголовок секции --}}
       <div class="px-5 py-3 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2">
-        <span class="text-lg font-semibold text-gray-900 dark:text-gray-100">Добавить слайд</span>
-        <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">изображение или видео</span>
+        <span class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ __('admin.slideshow.add_slide') }}</span>
+        <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">{{ __('admin.slideshow.image_or_video') }}</span>
       </div>
 
       <div class="p-5 grid gap-5">
         {{-- Файл (Drop-zone + Обзор) --}}
         <div>
-          <label class="block font-medium mb-2 text-gray-700 dark:text-gray-300">🖼️ Файл</label>
+          <label class="block font-medium mb-2 text-gray-700 dark:text-gray-300">🖼️ {{ __('admin.slideshow.file') }}</label>
 
           <div id="dropbox"
                class="group relative flex flex-col sm:flex-row items-stretch gap-4 rounded-xl border border-dashed border-gray-300 dark:border-gray-700 bg-gray-50/60 dark:bg-gray-800/60 p-4 hover:border-blue-400 transition">
@@ -157,9 +157,9 @@
             {{-- Правая колонка: инструкции + кнопки --}}
             <div class="flex-1 flex flex-col gap-3">
               <div class="text-sm text-gray-600 dark:text-gray-300">
-                Перетащите файл сюда <span class="text-gray-400">или</span> нажмите <span class="font-medium">Обзор…</span>
+                Перетащите файл сюда <span class="text-gray-400">{{ __('admin.slideshow.or') }}</span> нажмите <span class="font-medium">{{ __('admin.slideshow.browse') }}</span>
                 <div class="text-xs text-gray-400 mt-1">
-                  Рекомендуемый размер изображений — не меньше 1280×720.
+                  {{ __('admin.slideshow.size_hint') }}
                 </div>
               </div>
 
@@ -168,11 +168,11 @@
 
                 <button type="button" id="browseBtn"
                         class="px-3 h-10 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-sm transition transition">
-                  Обзор…
+                  {{ __('admin.slideshow.browse') }}
                 </button>
 
                 <span id="fileName"
-                      class="text-xs text-gray-500 truncate">Файл не выбран</span>
+                      class="text-xs text-gray-500 truncate">{{ __('admin.slideshow.no_file') }}</span>
               </div>
             </div>
           </div>
@@ -180,52 +180,52 @@
 
         {{-- Подпись --}}
         <div>
-          <label for="caption" class="block font-medium mb-1 text-gray-700 dark:text-gray-300">📝 Подпись</label>
+          <label for="caption" class="block font-medium mb-1 text-gray-700 dark:text-gray-300">📝 {{ __('admin.slideshow.caption') }}</label>
           <input id="caption" name="caption" type="text"
                  class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 px-3 py-2"
-                 placeholder="Короткий текст на слайде">
+                 placeholder="{{ __('admin.slideshow.caption_ph') }}">
         </div>
 
         {{-- Alt-текст для SEO --}}
         <div>
-          <label for="alt_text" class="block font-medium mb-1 text-gray-700 dark:text-gray-300">🔍 Alt-текст (SEO)</label>
+          <label for="alt_text" class="block font-medium mb-1 text-gray-700 dark:text-gray-300">🔍 {{ __('admin.slideshow.alt') }}</label>
           <input id="alt_text" name="alt_text" type="text"
                  class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 px-3 py-2"
-                 placeholder="Описание изображения для поисковых систем">
-          <p class="text-xs text-gray-500 mt-1">Рекомендуется заполнять для лучшей индексации</p>
+                 placeholder="{{ __('admin.slideshow.alt_ph') }}">
+          <p class="text-xs text-gray-500 mt-1">{{ __('admin.slideshow.alt_hint') }}</p>
         </div>
 
         {{-- Ссылка --}}
         <div>
-          <label for="link" class="block font-medium mb-1 text-gray-700 dark:text-gray-300">🔗 Ссылка</label>
+          <label for="link" class="block font-medium mb-1 text-gray-700 dark:text-gray-300">🔗 {{ __('admin.slideshow.link') }}</label>
           <input id="link" name="link" type="url" placeholder="https://example.com"
                  class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 px-3 py-2">
         </div>
 
         {{-- Позиция текста --}}
         <div>
-          <label for="text_position" class="block font-medium mb-1 text-gray-700 dark:text-gray-300">📍 Позиция текста</label>
+          <label for="text_position" class="block font-medium mb-1 text-gray-700 dark:text-gray-300">📍 {{ __('admin.slideshow.text_pos') }}</label>
           <select id="text_position" name="text_position"
                   class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 px-3 py-2">
-            <option value="top-left">Вверху слева</option>
-            <option value="top-center">Вверху по центру</option>
-            <option value="top-right">Вверху справа</option>
-            <option value="center">По центру</option>
-            <option value="bottom-left">Внизу слева</option>
-            <option value="bottom-center">Внизу по центру</option>
-            <option value="bottom-right" selected>Внизу справа</option>
+            <option value="top-left">{{ __('admin.slideshow.tp_tl') }}</option>
+            <option value="top-center">{{ __('admin.slideshow.tp_tc') }}</option>
+            <option value="top-right">{{ __('admin.slideshow.tp_tr') }}</option>
+            <option value="center">{{ __('admin.slideshow.tp_c') }}</option>
+            <option value="bottom-left">{{ __('admin.slideshow.tp_bl') }}</option>
+            <option value="bottom-center">{{ __('admin.slideshow.tp_bc') }}</option>
+            <option value="bottom-right" selected>{{ __('admin.slideshow.tp_br') }}</option>
           </select>
         </div>
 
         {{-- Цвета текста --}}
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label for="text_color" class="block font-medium mb-1 text-gray-700 dark:text-gray-300">🎨 Цвет текста</label>
+            <label for="text_color" class="block font-medium mb-1 text-gray-700 dark:text-gray-300">🎨 {{ __('admin.slideshow.text_color') }}</label>
             <input id="text_color" name="text_color" type="color" value="#ffffff"
                    class="w-full h-10 rounded-md border-gray-300 dark:border-gray-700">
           </div>
           <div>
-            <label for="background_color" class="block font-medium mb-1 text-gray-700 dark:text-gray-300">🎨 Цвет фона</label>
+            <label for="background_color" class="block font-medium mb-1 text-gray-700 dark:text-gray-300">🎨 {{ __('admin.slideshow.bg_color') }}</label>
             <input id="background_color" name="background_color" type="color" value="#2563eb"
                    class="w-full h-10 rounded-md border-gray-300 dark:border-gray-700">
           </div>
@@ -234,16 +234,16 @@
         {{-- Порядок + Позиция --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label for="order" class="block font-medium mb-1 text-gray-700 dark:text-gray-300">🔢 Порядок</label>
+            <label for="order" class="block font-medium mb-1 text-gray-700 dark:text-gray-300">🔢 {{ __('admin.slideshow.order') }}</label>
             <input id="order" name="order" type="number" value="0"
                    class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 px-3 py-2">
           </div>
           <div>
-            <label for="position" class="block font-medium mb-1 text-gray-700 dark:text-gray-300">📍 Позиция</label>
+            <label for="position" class="block font-medium mb-1 text-gray-700 dark:text-gray-300">📍 {{ __('admin.slideshow.position_short') }}</label>
             <select id="position" name="position"
                     class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 px-3 py-2">
-              <option value="top" {{ old('position', $slideshow->position ?? '') == 'top' ? 'selected' : '' }}>🔝 Вверху</option>
-              <option value="bottom" {{ old('position', $slideshow->position ?? '') == 'bottom' ? 'selected' : '' }}>🔻 Внизу</option>
+              <option value="top" {{ old('position', $slideshow->position ?? '') == 'top' ? 'selected' : '' }}>🔝 {{ __('admin.slideshow.top') }}</option>
+              <option value="bottom" {{ old('position', $slideshow->position ?? '') == 'bottom' ? 'selected' : '' }}>🔻 {{ __('admin.slideshow.bottom') }}</option>
             </select>
           </div>
         </div>
@@ -261,7 +261,7 @@
 
   {{-- ░░░ ТЕКУЩИЕ СЛАЙДЫ ░░░ --}}
   @if ($slideshow->items->count())
-    <h2 class="text-lg font-semibold mb-3 text-gray-900 dark:text-white">📂 Текущие слайды</h2>
+    <h2 class="text-lg font-semibold mb-3 text-gray-900 dark:text-white">📂 {{ __('admin.slideshow.current_slides') }}</h2>
 
     <ul id="sortable-slides" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
       @foreach ($slideshow->items->sortBy('order') as $slide)
@@ -269,7 +269,7 @@
             class="relative border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition cursor-move">
 
           @if ($slide->media_type === 'image')
-            <img src="{{ asset('storage/' . $slide->file_path) }}" class="w-full h-48 object-cover" alt="Слайд">
+            <img src="{{ asset('storage/' . $slide->file_path) }}" class="w-full h-48 object-cover" alt="{{ __('admin.slideshow.fx_slide') }}">
           @else
             <video class="w-full h-48 object-cover" controls>
               <source src="{{ asset('storage/' . $slide->file_path) }}">
@@ -277,8 +277,8 @@
           @endif
 
           <div class="p-3 text-sm border-t dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-200 space-y-1">
-            <div><strong>📝 Подпись:</strong> <span class="caption">{{ $slide->caption ?: '—' }}</span></div>
-            <div><strong>🔗 Ссылка:</strong> <span class="link">
+            <div><strong>📝 {{ __('admin.slideshow.caption_label') }}</strong> <span class="caption">{{ $slide->caption ?: '—' }}</span></div>
+            <div><strong>🔗 {{ __('admin.slideshow.link_label') }}</strong> <span class="link">
               @if ($slide->link)
                 <a href="{{ $slide->link }}" class="text-blue-600 hover:underline" target="_blank">{{ $slide->link }}</a>
               @else — @endif
@@ -294,7 +294,7 @@
           <div class="absolute top-2 right-2 flex gap-2">
             <button type="button"
                     class="grid place-items-center w-9 h-9 bg-white dark:bg-gray-900 text-indigo-600 hover:text-indigo-800 shadow"
-                    title="Редактировать"
+                    title="{{ __('admin.admin.edit') }}"
                     onclick="openEditModal({{ $slide->id }}, @js($slide->caption ?? ''), @js($slide->alt_text ?? ''), @js($slide->link ?? ''), @js($slide->text_position ?? 'bottom-right'), @js($slide->text_color ?? '#ffffff'), @js($slide->background_color ?? '#2563eb'))">
               <i class="fas fa-edit"></i>
             </button>
@@ -305,7 +305,7 @@
               @method('DELETE')
               <button type="submit"
                       class="grid place-items-center w-9 h-9 bg-white dark:bg-gray-900 text-red-600 hover:text-red-700 shadow"
-                      title="Удалить">
+                      title="{{ __('admin.admin.delete') }}">
                 <i class="fas fa-trash-alt"></i>
               </button>
             </form>
@@ -322,7 +322,7 @@
       </button>
     </div>
   @else
-    <div class="text-gray-500 dark:text-gray-400">📭 Нет слайдов для отображения</div>
+    <div class="text-gray-500 dark:text-gray-400">📭 {{ __('admin.slideshow.no_slides') }}</div>
   @endif
 
   {{-- ░░░ МОДАЛ РЕДАКТИРОВАНИЯ ░░░ --}}
@@ -330,47 +330,47 @@
        (opacity-модификаторы отсутствуют — см. CLAUDE.md). --}}
   <div id="editModal" class="fixed inset-0 z-50 hidden items-center justify-center" style="background:rgba(0,0,0,.5)">
     <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-lg p-6 shadow-xl max-h-[90vh] overflow-y-auto">
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">✏️ Редактировать слайд</h3>
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">✏️ {{ __('admin.slideshow.edit_slide') }}</h3>
       <input type="hidden" id="editId">
       <div class="grid gap-3">
         <div>
-          <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">📝 Подпись</label>
-          <input id="editCaption" type="text" class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 px-3 py-2" placeholder="Подпись">
+          <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">📝 {{ __('admin.slideshow.caption') }}</label>
+          <input id="editCaption" type="text" class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 px-3 py-2" placeholder="{{ __('admin.slideshow.caption') }}">
         </div>
         <div>
-          <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">🔍 Alt-текст (SEO)</label>
-          <input id="editAltText" type="text" class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 px-3 py-2" placeholder="Alt-текст">
+          <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">🔍 {{ __('admin.slideshow.alt') }}</label>
+          <input id="editAltText" type="text" class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 px-3 py-2" placeholder="{{ __('admin.slideshow.alt_short') }}">
         </div>
         <div>
-          <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">🔗 Ссылка</label>
+          <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">🔗 {{ __('admin.slideshow.link') }}</label>
           <input id="editLink" type="url" class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 px-3 py-2" placeholder="https://...">
         </div>
         <div>
-          <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">📍 Позиция текста</label>
+          <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">📍 {{ __('admin.slideshow.text_pos') }}</label>
           <select id="editTextPosition" class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 px-3 py-2">
-            <option value="top-left">Вверху слева</option>
-            <option value="top-center">Вверху по центру</option>
-            <option value="top-right">Вверху справа</option>
-            <option value="center">По центру</option>
-            <option value="bottom-left">Внизу слева</option>
-            <option value="bottom-center">Внизу по центру</option>
-            <option value="bottom-right">Внизу справа</option>
+            <option value="top-left">{{ __('admin.slideshow.tp_tl') }}</option>
+            <option value="top-center">{{ __('admin.slideshow.tp_tc') }}</option>
+            <option value="top-right">{{ __('admin.slideshow.tp_tr') }}</option>
+            <option value="center">{{ __('admin.slideshow.tp_c') }}</option>
+            <option value="bottom-left">{{ __('admin.slideshow.tp_bl') }}</option>
+            <option value="bottom-center">{{ __('admin.slideshow.tp_bc') }}</option>
+            <option value="bottom-right">{{ __('admin.slideshow.tp_br') }}</option>
           </select>
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">🎨 Цвет текста</label>
+            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">🎨 {{ __('admin.slideshow.text_color') }}</label>
             <input id="editTextColor" type="color" class="w-full h-10 rounded-md border-gray-300 dark:border-gray-700">
           </div>
           <div>
-            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">🎨 Цвет фона</label>
+            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">🎨 {{ __('admin.slideshow.bg_color') }}</label>
             <input id="editBackgroundColor" type="color" class="w-full h-10 rounded-md border-gray-300 dark:border-gray-700">
           </div>
         </div>
       </div>
       <div class="mt-5 flex justify-end gap-2">
-        <button onclick="closeEditModal()" class="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-100">Отмена</button>
-        <button onclick="submitEdit()" class="px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white">Сохранить</button>
+        <button onclick="closeEditModal()" class="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-100">{{ __('admin.admin.cancel') }}</button>
+        <button onclick="submitEdit()" class="px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white">{{ __('admin.admin.save') }}</button>
       </div>
     </div>
   </div>

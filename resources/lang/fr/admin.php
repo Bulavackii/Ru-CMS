@@ -9,7 +9,6 @@ return [
     'loading' => 'Chargement...',
     'error' => 'Une erreur s\'est produite',
 
-    // Шапка панели: подписи кнопок, поиска, переключателей языка и оформления.
     'header' => [
         'section' => 'Section',
         'overview' => 'Aperçu',
@@ -73,7 +72,6 @@ return [
         'localization' => 'Langues et pays',
     ],
 
-    // Подвал панели: техническая сводка, статистика, разработчик.
     'footer' => [
         'tagline' => 'CMS modulaire basé sur Laravel',
         'tech' => 'Informations techniques',
@@ -97,7 +95,6 @@ return [
         'installed' => 'Installé le',
     ],
 
-    // Названия разделов. Источник — App\Support\AdminSections.
     'sections' => [
         'dashboard' => 'Tableau de bord',
         'menus' => 'Menus',
@@ -122,7 +119,6 @@ return [
         'delivery' => 'Livraison',
     ],
 
-    // Группы разделов в навигации.
     'section_groups' => [
         'content' => 'Contenu',
         'system' => 'Système',
@@ -130,7 +126,6 @@ return [
         'panel' => 'Panneau',
     ],
 
-    // Синонимы для поиска по разделам, через запятую.
     'section_keywords' => [
         'dashboard' => 'accueil, aperçu, statistiques',
         'menus' => 'navigation, éléments, liens',
@@ -155,7 +150,6 @@ return [
         'delivery' => 'expédition, coursier',
     ],
 
-    // Типы результатов глобального поиска.
     'search_types' => [
         'section' => 'Section',
         'news' => 'Actualité',
@@ -165,7 +159,6 @@ return [
         'menu' => 'Menu',
     ],
 
-    // Подписи, повторяющиеся в разных разделах панели.
     'common' => [
         'close' => 'Fermer',
         'selected' => 'Sélectionné',
@@ -222,7 +215,6 @@ return [
         'no' => 'Non',
     ],
 
-    // Раздел «Новости».
     'news' => [
         'create' => 'Nouvelle actualité',
         'create_hint' => 'Remplissez le contenu et les champs SEO, puis choisissez un modèle d\'affichage.',
@@ -291,7 +283,6 @@ return [
         'tr_content' => 'Texte de l\'actualité',
     ],
 
-    // Раздел «Страницы».
     'pages' => [
         'create' => 'Nouvelle page',
         'create_hint' => 'Une nouvelle page statique ou de contenu.',
@@ -328,7 +319,6 @@ return [
         'keywords_hint_edit' => 'Séparés par des virgules : écologie, eau, ressources.',
     ],
 
-    // Раздел «Меню».
     'menu' => [
         'page_create' => 'Créer un menu',
         'page_edit' => 'Modifier le menu',
@@ -463,7 +453,6 @@ return [
         'items_plural' => '{0} :count éléments|{1} :count élément|[2,*] :count éléments',
     ],
 
-    // Раздел «Пользователи».
     'users' => [
         'page_create' => 'Ajouter un utilisateur',
         'page_edit' => 'Modifier l\'utilisateur',
@@ -557,7 +546,6 @@ return [
         'rights_plural' => '{0} :count droits|{1} :count droit|[2,*] :count droits',
     ],
 
-    // Раздел «Модули».
     'modules' => [
         'index_hint' => 'Activation des sections du CMS, ordre de chargement et installation de nouveaux modules depuis une archive.',
         'install' => 'Installer',
@@ -600,7 +588,6 @@ return [
         'active_count' => 'Actifs :',
     ],
 
-    // Раздел «Файлы» (медиатека модуля Files).
     'files' => [
         'categories_count' => 'Catégories :',
         'title' => 'Fichiers',
@@ -661,7 +648,6 @@ return [
         'upload_error' => 'Échec du téléversement :',
     ],
 
-    // Главная страница панели.
     'dashboard' => [
         'categories_count' => 'Catégories :',
         'title' => 'Tableau de bord',
@@ -691,7 +677,112 @@ return [
         'quick_user' => 'Créer un utilisateur',
     ],
 
-    // Раздел «Доставка».
+    'slideshow' => [
+        'new' => 'Nouveau diaporama',
+        'new_hint' => 'Donnez un nom clair et indiquez où afficher le bloc sur la page d\'accueil.',
+        'back' => 'Retour aux diaporamas',
+        'back_short' => 'Retour à la liste',
+        'check_form' => 'Vérifiez le formulaire :',
+        'name' => 'Nom du diaporama',
+        'name_short' => 'Nom',
+        'name_hint' => 'Il s’agit d’un nom interne pour le panneau. Les visiteurs ne le verront pas.',
+        'name_ph' => 'Par exemple : « En-tête 1 »',
+        'position' => 'Position sur le site',
+        'position_short' => 'Position',
+        'top' => 'En haut',
+        'bottom' => 'En bas',
+        'will_appear' => 'Apparaîtra',
+        'above_content' => 'au-dessus du contenu (en haut).',
+        'below_blocks' => 'après les blocs (en bas).',
+        'publish_now' => 'Publier immédiatement',
+        'publish_hint' => 'Sans cette case, le diaporama reste masqué aux visiteurs.',
+        'hk_create' => '— créer ;',
+        'hk_top' => '— choisir « En haut »,',
+        'hk_bottom' => '— « En bas » ;',
+        'hk_back' => '— revenir à la liste.',
+        'shortcode_note' => 'Après l\'enregistrement, un shortcode d\'insertion apparaît sur la page de liste.',
+        'create' => 'Créer le diaporama',
+        'back_esc' => 'Revenir à la liste (Échap)',
+        'create_hk' => 'Créer (Ctrl + Entrée)',
+        'published' => 'Publié',
+        'hidden' => 'Masqué',
+        'preview' => 'Aperçu',
+        'settings' => 'Paramètres du diaporama',
+        'autoplay' => 'Délai de défilement (ms)',
+        'effect' => 'Effet de transition',
+        'fx_slide' => 'Glissement',
+        'fx_fade' => 'Fondu',
+        'fx_cube' => 'Cube',
+        'fx_cover' => 'Couverture',
+        'fx_flip' => 'Retournement',
+        'height' => 'Hauteur (CSS, ex. 500px ou 50vh)',
+        'height_ph' => '500px ou 50vh',
+        'description' => 'Description',
+        'show_pagination' => 'Afficher la pagination',
+        'show_nav' => 'Afficher la navigation',
+        'save_settings' => 'Enregistrer les paramètres',
+        'add_slide' => 'Ajouter une diapositive',
+        'image_or_video' => 'image ou vidéo',
+        'file' => 'Fichier',
+        'drop_here' => 'Déposez le fichier ici',
+        'or' => 'ou',
+        'click' => 'cliquez',
+        'browse' => 'Parcourir…',
+        'size_hint' => 'Taille d’image recommandée — au moins 1280×720.',
+        'no_file' => 'Aucun fichier choisi',
+        'caption' => 'Légende',
+        'caption_ph' => 'Un texte court sur la diapositive',
+        'alt' => 'Texte alternatif (SEO)',
+        'alt_short' => 'Texte alternatif',
+        'alt_hint' => 'Le remplir améliore l\'indexation',
+        'alt_ph' => 'Description de l\'image pour les moteurs de recherche',
+        'link' => 'Lien',
+        'text_pos' => 'Position du texte',
+        'tp_tl' => 'En haut à gauche',
+        'tp_tc' => 'En haut au centre',
+        'tp_tr' => 'En haut à droite',
+        'tp_c' => 'Au centre',
+        'tp_bl' => 'En bas à gauche',
+        'tp_bc' => 'En bas au centre',
+        'tp_br' => 'En bas à droite',
+        'text_color' => 'Couleur du texte',
+        'bg_color' => 'Couleur de fond',
+        'order' => 'Ordre',
+        'current_slides' => 'Diapositives actuelles',
+        'caption_label' => 'Légende :',
+        'link_label' => 'Lien :',
+        'save_order' => 'Enregistrer l\'ordre',
+        'no_slides' => 'Aucune diapositive à afficher',
+        'edit_slide' => 'Modifier la diapositive',
+        'index_hint' => 'Bannières et carrousels pour la page d\'accueil : au-dessus ou au-dessous du contenu.',
+        'manage' => 'Gestion des diaporamas',
+        'creating' => 'Création d\'un diaporama',
+        'pos_top' => 'Haut',
+        'pos_bottom' => 'Bas',
+        'all_positions' => 'Toutes les positions',
+        'per_page' => 'Par page',
+        'search_do' => 'Rechercher',
+        'search_ph' => 'Rechercher par nom…',
+        'selected' => 'Sélectionnés :',
+        'delete_selected' => 'Supprimer la sélection',
+        'delete_selected_confirm' => 'Supprimer les diaporamas sélectionnés ?',
+        'cancel_sel' => 'Annuler',
+        'note' => 'Un diaporama s\'affiche sur la page d\'accueil à sa position. Un shortcode permet de l\'insérer dans n\'importe quel modèle.',
+        'select_all_title' => 'Tout sélectionner',
+        'slides_count' => 'Diapositives',
+        'shortcode' => 'Shortcode',
+        'hide_it' => 'Masquer le diaporama',
+        'publish_it' => 'Publier le diaporama',
+        'copy_shortcode' => 'Copier le shortcode',
+        'copied' => 'Copié',
+        'delete_confirm' => 'Supprimer ce diaporama ?',
+        'empty' => 'Aucun diaporama pour le moment.',
+        'press' => 'Cliquez sur',
+        'create_link' => 'créer un diaporama',
+        'to_add_first' => 'pour ajouter le premier.',
+        'done' => 'Terminé',
+    ],
+
     'delivery' => [
         'add' => 'Ajouter un mode de livraison',
         'edit' => 'Modifier le mode de livraison',
@@ -750,7 +841,6 @@ return [
         'empty' => 'Aucun mode de livraison pour le moment.',
     ],
 
-    // Раздел «Отзывы».
     'reviews' => [
         'categories_count' => 'Catégories :',
         'title' => 'Gestion des avis',
@@ -790,7 +880,6 @@ return [
         'type_optional' => 'Type (facultatif)',
     ],
 
-    // Раздел «Импорт/Экспорт» новостей.
     'newsio' => [
         'categories_count' => 'Catégories :',
         'title' => 'Import et export d\'actualités',
@@ -848,7 +937,6 @@ return [
         'choose_file' => 'Choisir un fichier',
     ],
 
-    // Вставка сборки каптчи в редакторах материалов.
     'captcha' => [
         'preset' => 'Modèle de captcha',
         'insert' => 'Insérer dans le texte',
