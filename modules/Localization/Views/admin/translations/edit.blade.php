@@ -19,7 +19,7 @@
                 📝 {{ $localeName }}
                 <code class="text-sm font-mono text-gray-500">{{ $locale }}</code>
                 @if ($isReference)
-                    <span class="text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded bg-gray-900 text-white dark:bg-gray-200 dark:text-gray-900">эталон</span>
+                    <span class="text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded bg-gray-900 text-white dark:bg-gray-200 dark:text-gray-900">{{ __('admin.translations.reference') }}</span>
                 @endif
             </h1>
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -28,7 +28,7 @@
         </div>
         <a href="{{ route('admin.localization.translations.index') }}"
            class="border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 px-4 py-2 rounded text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition inline-flex items-center gap-2">
-            <i class="fas fa-arrow-left"></i> Ко всем языкам
+            <i class="fas fa-arrow-left"></i> {{ __('admin.translations.all_languages') }}
         </a>
     </div>
 
@@ -48,20 +48,18 @@
         <div class="mb-4 rounded-lg border border-amber-200 bg-amber-50 text-amber-900 px-4 py-3 text-xs dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-200 flex gap-2">
             <i class="fas fa-exclamation-triangle mt-0.5"></i>
             <span>
-                Это <strong>эталонный</strong> язык: его набор ключей задаёт структуру для всех остальных.
-                Править текст безопасно, но добавление и удаление ключей затронет все языки —
-                такие изменения лучше делать в коде вместе со вьюхами.
+                Это <strong>{{ __('admin.translations.reference_lang') }}</strong> {{ __('admin.translations.reference_note') }}
             </span>
         </div>
     @endif
 
     <div class="grid gap-4 lg:grid-cols-4">
 
-        {{-- 📂 Файлы переводов --}}
+        {{-- 📂 {{ __('admin.translations.files') }} --}}
         <div class="lg:col-span-1">
             <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
                 <div class="px-4 py-2.5 border-b border-gray-200 dark:border-gray-800 text-sm font-semibold text-gray-700 dark:text-gray-200">
-                    Файлы переводов
+                    {{ __('admin.translations.files') }}
                 </div>
                 <div class="divide-y divide-gray-100 dark:divide-gray-800 max-h-[70vh] overflow-y-auto">
                     @foreach ($groups as $g)
@@ -101,12 +99,12 @@
                     <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex flex-wrap items-center gap-3 justify-between">
                         <div class="flex items-center gap-3 flex-1 min-w-[260px]">
                             <input type="search" x-model="query" x-on:input="apply()"
-                                   placeholder="Поиск по ключу или тексту…" autocomplete="off"
+                                   placeholder="{{ __('admin.translations.search_ph') }}" autocomplete="off"
                                    class="flex-1 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded px-3 py-1.5 text-sm">
                             @unless ($isReference)
                                 <label class="inline-flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-300 whitespace-nowrap cursor-pointer">
                                     <input type="checkbox" x-model="todoOnly" x-on:change="apply()" class="rounded">
-                                    только незаконченные
+                                    {{ __('admin.translations.only_unfinished') }}
                                 </label>
                             @endunless
                         </div>
@@ -123,7 +121,7 @@
                         <table class="min-w-full text-sm">
                             <thead class="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs uppercase tracking-wider sticky top-0 z-10">
                                 <tr>
-                                    <th class="py-2 px-3 text-left w-1/4">Ключ</th>
+                                    <th class="py-2 px-3 text-left w-1/4">{{ __('admin.translations.key') }}</th>
                                     @unless ($isReference)
                                         <th class="py-2 px-3 text-left w-1/3">Эталон ({{ $reference }})</th>
                                     @endunless
@@ -138,11 +136,11 @@
                                         <td class="py-2 px-3">
                                             <code class="font-mono text-xs text-gray-700 dark:text-gray-300 break-all">{{ $row['key'] }}</code>
                                             @if ($row['extra'])
-                                                <span class="ml-1 text-[10px] px-1 py-0.5 rounded bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200" title="Ключа нет в эталонном языке">лишний</span>
+                                                <span class="ml-1 text-[10px] px-1 py-0.5 rounded bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200" title="{{ __('admin.translations.not_in_reference') }}">{{ __('admin.translations.extra') }}</span>
                                             @elseif ($row['missing'] && !$isReference)
-                                                <span class="ml-1 text-[10px] px-1 py-0.5 rounded bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300">нет</span>
+                                                <span class="ml-1 text-[10px] px-1 py-0.5 rounded bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300">{{ __('admin.translations.none') }}</span>
                                             @elseif ($row['same'] && !$isReference)
-                                                <span class="ml-1 text-[10px] px-1 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300" title="Совпадает с эталоном">=</span>
+                                                <span class="ml-1 text-[10px] px-1 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300" title="{{ __('admin.translations.same_as_reference') }}">=</span>
                                             @endif
                                         </td>
                                         @unless ($isReference)
@@ -163,7 +161,7 @@
                     {{-- Подвал --}}
                     <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-800 flex flex-wrap items-center justify-between gap-2">
                         <span class="text-xs text-gray-500">
-                            Пустое поле = ключ удаляется из файла, текст берётся из
+                            {{ __('admin.translations.empty_note') }}
                             <code class="font-mono">{{ config('app.fallback_locale') }}</code>.
                             Перед записью создаётся <code class="font-mono">.bak</code>.
                         </span>

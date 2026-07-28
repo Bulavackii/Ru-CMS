@@ -7,7 +7,7 @@
 --}}
 @extends('layouts.admin')
 
-@section('title', 'Переводы интерфейса')
+@section('title', __('admin.translations.title'))
 
 @section('content')
 <div x-data="{ addOpen: false, deleteCode: null, deleteName: '' }">
@@ -15,20 +15,19 @@
     {{-- 🔰 Заголовок --}}
     <div class="mb-6 flex items-start justify-between flex-wrap gap-3">
         <div>
-            <h1 class="text-2xl font-bold text-gray-800 dark:text-white">📝 Переводы интерфейса</h1>
+            <h1 class="text-2xl font-bold text-gray-800 dark:text-white">📝 {{ __('admin.translations.title') }}</h1>
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                Правка языковых файлов <code class="font-mono">resources/lang</code> прямо из админки.
-                Эталон структуры ключей — <strong>{{ $reference }}</strong>.
+                {{ __('admin.translations.index_hint') }} <code class="font-mono">resources/lang</code> {{ __('admin.translations.from_admin') }} <strong>{{ $reference }}</strong>.
             </p>
         </div>
         <div class="flex items-center gap-2">
             <button type="button" x-on:click="addOpen = true"
                     class="bg-black text-white px-4 py-2 rounded text-sm hover:bg-gray-800 transition inline-flex items-center gap-2">
-                <i class="fas fa-plus"></i> Добавить язык
+                <i class="fas fa-plus"></i> {{ __('admin.translations.add_language') }}
             </button>
             <a href="{{ route('admin.localization.index') }}"
                class="border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 px-4 py-2 rounded text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition inline-flex items-center gap-2">
-                <i class="fas fa-globe"></i> Страны и форматы
+                <i class="fas fa-globe"></i> {{ __('admin.translations.countries') }}
             </a>
         </div>
     </div>
@@ -58,10 +57,7 @@
     <div class="mb-5 rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 px-4 py-3 text-xs text-gray-600 dark:text-gray-400 flex gap-2">
         <i class="fas fa-info-circle mt-0.5 text-gray-400"></i>
         <span>
-            Прогресс считается по ключам эталонного языка. <strong>Не переведено</strong> — ключ
-            отсутствует либо его значение дословно совпадает с эталоном (так бывает сразу после
-            создания языка копированием). Короткие слова вроде «Email» законно совпадают,
-            поэтому проценты — ориентир, а не точная метрика.
+            {{ __('admin.translations.progress_note') }} <strong>{{ __('admin.translations.not_translated') }}</strong> {{ __('admin.translations.not_translated_hint') }}
         </span>
     </div>
 
@@ -82,7 +78,7 @@
                         <div class="flex items-center gap-1.5 mt-0.5">
                             <code class="text-xs text-gray-500 font-mono">{{ $locale['code'] }}</code>
                             @if ($s['reference'])
-                                <span class="text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded bg-gray-900 text-white dark:bg-gray-200 dark:text-gray-900">эталон</span>
+                                <span class="text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded bg-gray-900 text-white dark:bg-gray-200 dark:text-gray-900">{{ __('admin.translations.reference') }}</span>
                             @elseif ($locale['protected'])
                                 <span class="text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200">fallback</span>
                             @endif
@@ -97,14 +93,14 @@
 
                 <div class="text-xs text-gray-500 dark:text-gray-400 mb-4 flex-1">
                     @if ($s['reference'])
-                        {{ $s['total'] }} ключей — это исходный язык проекта
+                        {{ __('admin.translations.source_lang', ['count' => $s['total']]) }}
                     @else
-                        Переведено {{ $s['translated'] }} из {{ $s['total'] }}
+                        {{ __('admin.translations.translated_of', ['done' => $s['translated'], 'total' => $s['total']]) }}
                         @if ($s['missing'] > 0)
-                            · <span class="text-red-600 dark:text-red-400">нет {{ $s['missing'] }}</span>
+                            · <span class="text-red-600 dark:text-red-400">{{ __('admin.translations.missing_n') }} {{ $s['missing'] }}</span>
                         @endif
                         @if ($s['same'] > 0)
-                            · <span class="text-amber-600 dark:text-amber-400">совпадает {{ $s['same'] }}</span>
+                            · <span class="text-amber-600 dark:text-amber-400">{{ __('admin.translations.same_n') }} {{ $s['same'] }}</span>
                         @endif
                     @endif
                 </div>
@@ -112,12 +108,12 @@
                 <div class="flex gap-2">
                     <a href="{{ route('admin.localization.translations.edit', $locale['code']) }}"
                        class="flex-1 text-center bg-black text-white px-3 py-2 rounded text-sm hover:bg-gray-800 transition">
-                        <i class="fas fa-pen mr-1"></i> Редактировать
+                        <i class="fas fa-pen mr-1"></i> {{ __('admin.edit') }}
                     </a>
                     @unless ($locale['protected'])
                         <button type="button"
                                 x-on:click="deleteCode = @js($locale['code']); deleteName = @js($locale['name'])"
-                                title="Удалить язык"
+                                title="{{ __('admin.translations.delete_language') }}"
                                 class="px-3 py-2 rounded text-sm border border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-900/20 transition">
                             <i class="fas fa-trash"></i>
                         </button>
@@ -129,7 +125,7 @@
 
     <div class="mt-5 text-xs text-gray-500 dark:text-gray-400">
         <i class="fas fa-folder-open mr-1"></i>
-        Файлы переводов ({{ count($groups) }}):
+        {{ __('admin.translations.files') }} ({{ count($groups) }}):
         @foreach ($groups as $g)<code class="font-mono">{{ $g }}</code>@if (!$loop->last), @endif @endforeach
     </div>
 
@@ -141,22 +137,21 @@
             <form method="POST" action="{{ route('admin.localization.translations.store') }}">
                 @csrf
                 <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-800">
-                    <h2 class="font-semibold text-gray-900 dark:text-white">➕ Новый язык</h2>
+                    <h2 class="font-semibold text-gray-900 dark:text-white">➕ {{ __('admin.translations.new_language') }}</h2>
                 </div>
                 <div class="px-5 py-4 space-y-4">
                     <div>
-                        <label for="code" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Код языка</label>
+                        <label for="code" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.translations.lang_code') }}</label>
                         <input type="text" name="code" id="code" required
-                               placeholder="например uk, pl, pt_BR"
+                               placeholder="{{ __('admin.translations.lang_code_ph') }}"
                                pattern="[A-Za-z]{2,3}([_-][A-Za-z]{2,8})?"
                                class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded px-3 py-2 text-sm">
                         <p class="text-xs text-gray-500 mt-1">
-                            ISO-код: 2–3 буквы, при необходимости с регионом через подчёркивание.
-                            Каталог <code class="font-mono">resources/lang/&lt;код&gt;</code> создастся автоматически.
+                            {{ __('admin.translations.lang_code_hint') }} <code class="font-mono">resources/lang/&lt;код&gt;</code> {{ __('admin.translations.created_auto') }}
                         </p>
                     </div>
                     <div>
-                        <label for="copy_from" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Скопировать строки из</label>
+                        <label for="copy_from" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.translations.copy_from') }}</label>
                         <select name="copy_from" id="copy_from"
                                 class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded px-3 py-2 text-sm">
                             @foreach ($locales as $locale)
@@ -166,18 +161,17 @@
                             @endforeach
                         </select>
                         <p class="text-xs text-gray-500 mt-1">
-                            Значения копируются как есть — интерфейс сразу работает,
-                            а в редакторе видно, что осталось перевести.
+                            {{ __('admin.translations.copy_hint') }}
                         </p>
                     </div>
                 </div>
                 <div class="px-5 py-3 border-t border-gray-200 dark:border-gray-800 flex justify-end gap-2">
                     <button type="button" x-on:click="addOpen = false"
                             class="px-4 py-2 rounded text-sm border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
-                        Отмена
+                        {{ __('admin.admin.cancel') }}
                     </button>
                     <button type="submit" class="px-4 py-2 rounded text-sm bg-black text-white hover:bg-gray-800">
-                        Создать и открыть редактор
+                        {{ __('admin.translations.create_and_open') }}
                     </button>
                 </div>
             </form>
@@ -198,17 +192,17 @@
                 <div class="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">
                     <p class="mb-1">
                         Каталог <code class="font-mono">resources/lang/<span x-text="deleteCode"></span></code>
-                        будет удалён со всеми файлами переводов.
+                        {{ __('admin.translations.will_be_deleted') }}
                     </p>
-                    <p class="text-xs text-gray-500">Из админки это необратимо — восстановить можно только из git.</p>
+                    <p class="text-xs text-gray-500">{{ __('admin.translations.irreversible') }}</p>
                 </div>
                 <div class="px-5 py-3 border-t border-gray-200 dark:border-gray-800 flex justify-end gap-2">
                     <button type="button" x-on:click="deleteCode = null"
                             class="px-4 py-2 rounded text-sm border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
-                        Отмена
+                        {{ __('admin.admin.cancel') }}
                     </button>
                     <button type="submit" class="px-4 py-2 rounded text-sm bg-red-600 text-white hover:bg-red-700">
-                        Удалить
+                        {{ __('admin.admin.delete') }}
                     </button>
                 </div>
             </form>
