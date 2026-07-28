@@ -10,20 +10,20 @@
 <div class="flex items-center justify-between mb-4">
   <div>
     <h1 class="text-2xl font-semibold">robots.txt</h1>
-    <div class="text-sm text-gray-500">Управление индексированием для поисковых систем</div>
+    <div class="text-sm text-gray-500">{{ __('admin.seo.robots_hint') }}</div>
   </div>
 
   <div class="flex items-center gap-2">
     <a href="{{ url('/robots.txt') }}" target="_blank" rel="noopener"
        class="inline-flex items-center px-3 py-2 rounded border border-gray-300 bg-white hover:bg-gray-50 transition"
-       title="Открыть текущий robots.txt">
-      Открыть robots.txt
+       title="{{ __('admin.seo.open_current') }}">
+      {{ __('admin.seo.open_robots') }}
     </a>
     @if(Route::has('seo.sitemap.xml'))
       <a href="{{ route('seo.sitemap.xml') }}" target="_blank" rel="noopener"
          class="inline-flex items-center px-3 py-2 rounded border border-gray-300 bg-white hover:bg-gray-50 transition"
-         title="Открыть sitemap.xml">
-        Открыть sitemap.xml
+         title="{{ __('admin.seo.open_sitemap') }}">
+        {{ __('admin.seo.open_sitemap') }}
       </a>
     @endif
   </div>
@@ -37,7 +37,7 @@
 
 @if ($errors->any())
   <div class="mb-4 p-3 rounded border border-red-300 bg-red-50 text-red-800">
-    <strong>Проверьте поля:</strong> {{ $errors->first() }}
+    <strong>{{ __('admin.seo.check_fields') }}</strong> {{ $errors->first() }}
   </div>
 @endif
 
@@ -48,12 +48,12 @@
   <div class="lg:col-span-2 space-y-3">
     <div class="rounded border bg-white">
       <div class="flex items-center justify-between px-3 py-2 border-b bg-gray-50">
-        <div class="text-sm font-semibold">Редактор robots.txt</div>
+        <div class="text-sm font-semibold">{{ __('admin.seo.robots_editor') }}</div>
         <div class="flex items-center gap-2">
-          <button type="button" class="px-2 py-1 text-xs rounded border hover:bg-gray-50 js-insert" data-snippet="User-agent: *\nDisallow:\n">Разрешить всё</button>
-          <button type="button" class="px-2 py-1 text-xs rounded border hover:bg-gray-50 js-insert" data-snippet="User-agent: *\nDisallow: /admin\nDisallow: /storage\n">Закрыть админку</button>
+          <button type="button" class="px-2 py-1 text-xs rounded border hover:bg-gray-50 js-insert" data-snippet="User-agent: *\nDisallow:\n">{{ __('admin.seo.allow_all') }}</button>
+          <button type="button" class="px-2 py-1 text-xs rounded border hover:bg-gray-50 js-insert" data-snippet="User-agent: *\nDisallow: /admin\nDisallow: /storage\n">{{ __('admin.seo.block_admin') }}</button>
           <button type="button" class="px-2 py-1 text-xs rounded border hover:bg-gray-50 js-insert" data-snippet="Host: {{ $host }}\nSitemap: {{ $sitemapUrl }}\n">Host + Sitemap</button>
-          <button type="button" class="px-2 py-1 text-xs rounded border hover:bg-gray-50 js-insert" data-snippet="# Пример: запрет параметров\nUser-agent: *\nDisallow: /*?*\n">Параметры</button>
+          <button type="button" class="px-2 py-1 text-xs rounded border hover:bg-gray-50 js-insert" data-snippet="# Пример: запрет параметров\nUser-agent: *\nDisallow: /*?*\n">{{ __('admin.seo.params') }}</button>
         </div>
       </div>
 
@@ -64,15 +64,15 @@
     </div>
 
     <div class="flex items-center gap-3">
-      <button class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">Сохранить</button>
-      <a href="{{ route('seo.index') }}" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded">К разделу SEO</a>
+      <button class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">{{ __('admin.admin.save') }}</button>
+      <a href="{{ route('seo.index') }}" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded">{{ __('admin.seo.to_seo') }}</a>
     </div>
   </div>
 
   {{-- Правая часть: подсказки --}}
   <aside class="space-y-3">
     <div class="p-3 rounded border bg-white">
-      <div class="font-semibold mb-1">Подсказки</div>
+      <div class="font-semibold mb-1">{{ __('admin.seo.hints') }}</div>
       <ul class="list-disc pl-5 text-sm space-y-1 text-gray-700">
         <li><code>User-agent</code> — для какого бота правило (обычно <code>*</code>).</li>
         <li><code>Disallow</code> — что запрещено. Пустое значение = всё разрешено.</li>
@@ -82,12 +82,12 @@
       </ul>
     </div>
     <div class="p-3 rounded border bg-white">
-      <div class="font-semibold mb-1">Проверка</div>
+      <div class="font-semibold mb-1">{{ __('admin.seo.check') }}</div>
       <div class="text-sm text-gray-700 space-y-1">
-        <p>После сохранения проверьте индексацию:</p>
+        <p>{{ __('admin.seo.check_note') }}</p>
         <ul class="list-disc pl-5">
-          <li><a class="text-blue-600 hover:underline" href="https://webmaster.yandex.ru/tools/robotstxt/?host={{ $host }}" target="_blank" rel="noopener">Тестер robots в Яндексе</a></li>
-          <li><a class="text-blue-600 hover:underline" href="https://search.google.com/search-console" target="_blank" rel="noopener">Robots-тестер в GSC</a></li>
+          <li><a class="text-blue-600 hover:underline" href="https://webmaster.yandex.ru/tools/robotstxt/?host={{ $host }}" target="_blank" rel="noopener">{{ __('admin.seo.yandex_tester') }}</a></li>
+          <li><a class="text-blue-600 hover:underline" href="https://search.google.com/search-console" target="_blank" rel="noopener">{{ __('admin.seo.gsc_tester') }}</a></li>
         </ul>
       </div>
     </div>
