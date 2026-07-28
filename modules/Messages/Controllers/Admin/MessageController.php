@@ -349,17 +349,19 @@ class MessageController extends Controller
             }
         }
 
+        // Ключ словаря на действие: склеивать переведённое слово с числом нельзя —
+        // порядок слов в других языках иной.
         $actions = [
-            'delete' => 'удалено',
-            'read' => 'помечено как прочитанное',
-            'unread' => 'помечено как непрочитанное',
-            'important' => 'помечено как важное',
-            'unimportant' => 'убрано из важных',
-            'archive' => 'заархивировано',
-            'unarchive' => 'восстановлено из архива',
+            'delete' => 'msg_deleted',
+            'read' => 'msg_read',
+            'unread' => 'msg_unread',
+            'important' => 'msg_important',
+            'unimportant' => 'msg_unimportant',
+            'archive' => 'msg_archived',
+            'unarchive' => 'msg_unarchived',
         ];
 
-        return back()->with('success', "{$count} сообщений {$actions[$action]}");
+        return back()->with('success', __('admin.flash.' . $actions[$action], ['count' => $count]));
     }
 
     /**

@@ -32,7 +32,7 @@ class BackupController extends Controller
     {
         BackupDatabase::dispatch();
         
-        return back()->with('success', 'Бэкап базы данных запущен в фоне');
+        return back()->with('success', __('admin.flash.backup_db_started'));
     }
 
     /**
@@ -42,7 +42,7 @@ class BackupController extends Controller
     {
         BackupFiles::dispatch();
         
-        return back()->with('success', 'Бэкап файлов запущен в фоне');
+        return back()->with('success', __('admin.flash.backup_files_started'));
     }
 
     /**
@@ -74,7 +74,7 @@ class BackupController extends Controller
 
         if (file_exists($backupPath)) {
             unlink($backupPath);
-            return back()->with('success', 'Бэкап удален');
+            return back()->with('success', __('admin.flash.backup_deleted'));
         }
 
         return back()->withErrors(['error' => 'Файл не найден']);

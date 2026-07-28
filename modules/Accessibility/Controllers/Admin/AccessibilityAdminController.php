@@ -62,7 +62,7 @@ class AccessibilityAdminController extends Controller
                 ->with('success', __('admin.flash.settings_updated'));
         } catch (\Exception $e) {
             return redirect()->route('admin.accessibility.index')
-                ->with('error', 'Ошибка при обновлении настроек: ' . $e->getMessage());
+                ->with('error', __('admin.flash.settings_error', ['message' => $e->getMessage()]));
         }
     }
 }

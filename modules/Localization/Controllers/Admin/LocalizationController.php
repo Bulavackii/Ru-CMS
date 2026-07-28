@@ -208,7 +208,7 @@ class LocalizationController extends Controller
 
         return redirect()
             ->route('admin.localization.index')
-            ->with('success', "Страна {$country->name} успешно создана");
+            ->with('success', __('admin.flash.country_created', ['name' => $country->name]));
     }
 
     /**
@@ -238,7 +238,7 @@ class LocalizationController extends Controller
 
         return redirect()
             ->route('admin.localization.index')
-            ->with('success', "Страна {$country->name} успешно обновлена");
+            ->with('success', __('admin.flash.country_updated', ['name' => $country->name]));
     }
 
     /**
@@ -344,7 +344,7 @@ class LocalizationController extends Controller
 
         return redirect()
             ->route('admin.localization.index')
-            ->with('success', "Страна {$name} успешно удалена");
+            ->with('success', __('admin.flash.country_deleted', ['name' => $name]));
     }
 
     /**
@@ -431,7 +431,7 @@ class LocalizationController extends Controller
 
         return redirect()
             ->route('admin.localization.index')
-            ->with('success', "Импортировано стран: {$imported}");
+            ->with('success', __('admin.flash.countries_imported', ['count' => $imported]));
     }
 
     /**

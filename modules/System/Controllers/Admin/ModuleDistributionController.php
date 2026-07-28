@@ -129,6 +129,6 @@ class ModuleDistributionController extends Controller
             $request->url
         );
 
-        return back()->with('success', "Репозиторий {$request->name} добавлен");
+        return back()->with('success', __('admin.flash.repo_added', ['name' => $request->name]));
     }
 }

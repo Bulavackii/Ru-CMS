@@ -223,7 +223,7 @@ class SlideshowController extends Controller
 
         return redirect()
             ->route('admin.slideshow.index')
-            ->with('success', "Удалено слайдшоу: {$count}");
+            ->with('success', __('admin.flash.slideshows_deleted', ['count' => $count]));
     }
 
     public function updateSlide(Request $request, $id)

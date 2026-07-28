@@ -92,7 +92,7 @@ class OrderController extends Controller
         // 🔁 Перенаправление с сообщением
         return redirect()
             ->route('dashboard.orders')
-            ->with('success', 'Заказ успешно оформлен, остаток обновлён.');
+            ->with('success', __('admin.flash.order_placed'));
     }
 
     /**
@@ -111,7 +111,7 @@ class OrderController extends Controller
 
         return redirect()
             ->back()
-            ->with('success', "Статус заказа #{$order->id} обновлён с '{$oldStatus}' на '{$request->status}'");
+            ->with('success', __('admin.flash.order_status_changed', ['id' => $order->id, 'from' => $oldStatus, 'to' => $request->status]));
     }
 
     /**
@@ -139,17 +139,17 @@ class OrderController extends Controller
                         ->with('qr_code', $result['qr_code']);
                 }
 
-                return redirect()->back()->with('success', 'Платеж инициализирован');
+                return redirect()->back()->with('success', __('admin.flash.payment_started'));
             }
 
-            return redirect()->back()->with('error', 'Ошибка инициализации платежа');
+            return redirect()->back()->with('error', __('admin.flash.payment_start_failed'));
         } catch (\Exception $e) {
             Log::error('Payment initiation error', [
                 'order_id' => $order->id,
                 'error' => $e->getMessage(),
             ]);
 
-            return redirect()->back()->with('error', 'Ошибка: ' . $e->getMessage());
+            return redirect()->back()->with('error', __('admin.flash.error_generic', ['message' => $e->getMessage()]));
         }
     }
 
@@ -269,7 +269,7 @@ class OrderController extends Controller
 
         return redirect()
             ->back()
-            ->with('success', "Заказ #{$order->id} удалён, остатки восстановлены");
+            ->with('success', __('admin.flash.order_deleted', ['id' => $order->id]));
     }
 
     /**

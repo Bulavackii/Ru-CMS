@@ -52,13 +52,13 @@ class CategoryController extends Controller
         if ($request->has('redirect_back_to_files')) {
             return redirect()
                 ->route('admin.files.index')
-                ->with('success', '✅ Категория создана!');
+                ->with('success', __('admin.flash.category_created'));
         }
 
         // 🔁 Иначе вернёмся на общий список категорий
         return redirect()
             ->route('admin.categories.index')
-            ->with('success', '✅ Категория создана!');
+            ->with('success', __('admin.flash.category_created'));
     }
 
     /**

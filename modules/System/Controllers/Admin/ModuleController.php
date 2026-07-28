@@ -114,8 +114,9 @@ class ModuleController extends Controller
             $module->active = !$module->active;
             $module->save();
 
-            $status = $module->active ? 'включён' : 'отключён';
-            return redirect()->route('admin.modules.index')->with('success', "Модуль «{$module->title}» {$status}.");
+            $status = $module->active ? 'module_enabled' : 'module_disabled';
+            return redirect()->route('admin.modules.index')
+                ->with('success', __('admin.flash.' . $status, ['name' => $module->title]));
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             Log::error("Module toggle: Module not found", ['id' => $id]);
@@ -464,7 +465,7 @@ class ModuleController extends Controller
 
             $zip->close();
 
-            return back()->with('success', "Архив модуля «{$module->title}» создан в /modules/archives.");
+            return back()->with('success', __('admin.flash.module_archived', ['name' => $module->title]));
         }
 
         return back()->with('error', __('admin.flash.archive_failed'));
@@ -522,7 +523,7 @@ class ModuleController extends Controller
 
         ModuleSecurityService::storeSignature($module->name, $signature, $keys['public']);
 
-        return back()->with('success', "Ключи сгенерированы и подпись сохранена для «{$module->title}».");
+        return back()->with('success', __('admin.flash.module_signed', ['name' => $module->title]));
     }
 
     /**

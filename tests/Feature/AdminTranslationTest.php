@@ -273,4 +273,48 @@ class AdminTranslationTest extends TestCase
             $this->assertSame('Slideshow', __('admin.sections.slideshow'));
         }
     }
+
+    public function test_admin_controllers_have_no_hardcoded_flash_messages(): void
+    {
+        // Флеш-сообщения видны пользователю после каждого действия в панели.
+        // Захардкоженный русский литерал в ->with('success'|'error', …)
+        // означает, что на другом языке сообщение не переведётся.
+        $files = array_merge(
+            glob(base_path('app/Http/Controllers/Admin/*.php')) ?: [],
+            glob(base_path('modules/*/Controllers/Admin/*.php')) ?: [],
+        );
+
+        $this->assertNotEmpty($files, 'Контроллеры панели не найдены — проверка бессмысленна');
+
+        $found = [];
+
+        foreach ($files as $file) {
+            $matches = [];
+            preg_match_all(
+                '~->with\(\s*\'(?:success|error|warning|info)\'\s*,\s*[\'"]([^\'"]*[А-Яа-яЁё][^\'"]*)[\'"]~u',
+                (string) file_get_contents($file),
+                $matches
+            );
+
+            foreach ($matches[1] as $literal) {
+                $found[] = basename($file) . ': ' . $literal;
+            }
+        }
+
+        $this->assertSame([], $found, "Русские литералы во флеш-сообщениях:\n" . implode("\n", $found));
+    }
+
+    public function test_flash_messages_substitute_named_parameters(): void
+    {
+        // Сообщения с подстановками переведены на именованные параметры
+        // (:name, :count), а не на интерполяцию "{$переменных}" — иначе
+        // строка не может жить в словаре.
+        app()->setLocale('ru');
+        $this->assertSame('Модуль «Seo» включён.', __('admin.flash.module_enabled', ['name' => 'Seo']));
+        $this->assertSame('Заархивировано. Сообщений: 7', __('admin.flash.msg_archived', ['count' => 7]));
+
+        app()->setLocale('en');
+        $this->assertSame('The “Seo” module has been enabled.', __('admin.flash.module_enabled', ['name' => 'Seo']));
+        $this->assertSame('Archived. Messages: 7', __('admin.flash.msg_archived', ['count' => 7]));
+    }
 }

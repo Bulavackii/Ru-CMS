@@ -75,7 +75,7 @@ class FileController extends Controller
             ]);
         }
 
-        return back()->with('success', '✅ Загружено: ' . count($saved));
+        return back()->with('success', __('admin.flash.files_uploaded', ['count' => count($saved)]));
     }
 
 
@@ -162,9 +162,9 @@ class FileController extends Controller
                 $file->delete();
             }
 
-            return back()->with('success', '🗑️ Выбранные файлы удалены.');
+            return back()->with('success', __('admin.flash.files_deleted'));
         }
 
-        return back()->with('error', '⚠️ Не выбрано ни одного файла для удаления.');
+        return back()->with('error', __('admin.flash.files_none_selected'));
     }
 }

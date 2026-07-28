@@ -48,14 +48,14 @@ class TranslationController extends Controller
         if (!$this->files->isValidLocale($locale)) {
             return redirect()
                 ->route('admin.localization.translations.index')
-                ->with('error', 'Недопустимый код локали.');
+                ->with('error', __('admin.flash.bad_locale_code'));
         }
 
         $groups = $this->files->groups();
         if ($groups === []) {
             return redirect()
                 ->route('admin.localization.translations.index')
-                ->with('error', 'Не найдено ни одного файла переводов.');
+                ->with('error', __('admin.flash.no_lang_files'));
         }
 
         // Без явной группы открываем первую — редактор всегда с контентом.
@@ -64,7 +64,7 @@ class TranslationController extends Controller
         if (!in_array($group, $groups, true)) {
             return redirect()
                 ->route('admin.localization.translations.index')
-                ->with('error', "Файл переводов «{$group}» не найден.");
+                ->with('error', __('admin.flash.lang_file_missing', ['group' => $group]));
         }
 
         $reference = TranslationFileService::REFERENCE_LOCALE;
@@ -120,14 +120,14 @@ class TranslationController extends Controller
     public function update(Request $request, string $locale, string $group): RedirectResponse
     {
         if (!$this->files->isValidLocale($locale) || !$this->files->isValidGroup($group)) {
-            return back()->with('error', 'Недопустимый язык или файл переводов.');
+            return back()->with('error', __('admin.flash.bad_locale_or_group'));
         }
 
         /** @var array<string,string> $lines */
         $lines = $request->input('lines', []);
 
         if (!is_array($lines)) {
-            return back()->with('error', 'Пустая форма — сохранять нечего.');
+            return back()->with('error', __('admin.flash.empty_form'));
         }
 
         // Пустые значения не пишем: пусть ключ отсутствует и уедет в
@@ -143,12 +143,12 @@ class TranslationController extends Controller
         try {
             $this->files->save($locale, $group, $clean);
         } catch (\Throwable $e) {
-            return back()->with('error', 'Не удалось сохранить: ' . $e->getMessage());
+            return back()->with('error', __('admin.flash.save_failed', ['message' => $e->getMessage()]));
         }
 
         return redirect()
             ->route('admin.localization.translations.edit', [$locale, $group])
-            ->with('success', "Переводы «{$group}» для языка «{$locale}» сохранены (" . count($clean) . ' строк).');
+            ->with('success', __('admin.flash.translations_saved', ['group' => $group, 'locale' => $locale, 'count' => count($clean)]));
     }
 
     /** ➕ Создание новой локали копированием из существующей. */
@@ -171,12 +171,12 @@ class TranslationController extends Controller
 
         if (!$this->files->isValidLocale($code)) {
             return back()
-                ->with('error', 'Код языка должен быть в формате ru, en, kk или pt_BR.')
+                ->with('error', __('admin.flash.locale_code_format'))
                 ->withInput();
         }
 
         if (!in_array($from, $this->files->locales(), true)) {
-            return back()->with('error', 'Язык-источник не найден.')->withInput();
+            return back()->with('error', __('admin.flash.source_locale_missing'))->withInput();
         }
 
         try {
@@ -187,7 +187,7 @@ class TranslationController extends Controller
 
         return redirect()
             ->route('admin.localization.translations.edit', [$code])
-            ->with('success', "Язык «{$code}» создан копированием из «{$from}». Теперь переведите строки.");
+            ->with('success', __('admin.flash.locale_created', ['code' => $code, 'from' => $from]));
     }
 
     /** 🗑️ Удаление локали целиком. */
@@ -201,7 +201,7 @@ class TranslationController extends Controller
 
         return redirect()
             ->route('admin.localization.translations.index')
-            ->with('success', "Язык «{$locale}» удалён.");
+            ->with('success', __('admin.flash.locale_deleted', ['locale' => $locale]));
     }
 
     /**

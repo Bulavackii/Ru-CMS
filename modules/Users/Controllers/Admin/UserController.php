@@ -76,13 +76,13 @@ class UserController extends Controller
                 // Не удаляем админов
                 $deleted = $users->filter(fn($u) => !$u->is_admin)->each->delete();
                 $count = $deleted->count();
-                return back()->with('success', "Удалено пользователей: {$count}");
+                return back()->with('success', __('admin.flash.users_deleted', ['count' => $count]));
 
             case 'assign_role':
                 $request->validate(['role_id' => 'required|exists:roles,id']);
                 $role = Role::findOrFail($request->input('role_id'));
                 $users->each(fn($u) => $u->roles()->syncWithoutDetaching([$role->id]));
-                return back()->with('success', "Роль '{$role->name}' назначена {$users->count()} пользователям");
+                return back()->with('success', __('admin.flash.role_assigned', ['role' => $role->name, 'count' => $users->count()]));
 
             default:
                 return back()->with('error', __('admin.flash.unknown_action'));

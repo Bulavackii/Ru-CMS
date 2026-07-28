@@ -88,7 +88,7 @@ class ErrorReportController extends Controller
         );
 
         // ✅ Уведомление об успешной отправке
-        return back()->with('success', '✅ Ваше сообщение отправлено. Спасибо!');
+        return back()->with('success', __('admin.flash.report_sent'));
     }
 
     /**

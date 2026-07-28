@@ -72,7 +72,7 @@ class SubscriptionController extends Controller
         ]);
 
         return redirect()->route('admin.subscriptions.promo-codes')
-            ->with('success', 'Промокод создан успешно');
+            ->with('success', __('admin.flash.promo_created'));
     }
 
     /**

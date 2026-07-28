@@ -94,21 +94,21 @@ class ReviewController extends Controller
         try {
             $this->reviewService->moderate($id, $request->action, $request->reason);
 
-            $actionText = match($request->action) {
-                'approve' => 'одобрен',
-                'reject' => 'отклонен',
-                'delete' => 'удален',
+            $message = match($request->action) {
+                'approve' => __('admin.flash.review_approved'),
+                'reject' => __('admin.flash.review_rejected'),
+                'delete' => __('admin.flash.review_removed'),
             };
 
             // Если это AJAX запрос
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => "Отзыв {$actionText} успешно",
+                    'message' => $message,
                 ]);
             }
 
-            return redirect()->back()->with('success', "Отзыв {$actionText} успешно");
+            return redirect()->back()->with('success', $message);
         } catch (\Exception $e) {
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -116,7 +116,7 @@ class ReviewController extends Controller
                     'message' => $e->getMessage(),
                 ], 422);
             }
-            return redirect()->back()->with('error', "Ошибка: {$e->getMessage()}");
+            return redirect()->back()->with('error', __('admin.flash.error_generic', ['message' => $e->getMessage()]));
         }
     }
 
@@ -139,15 +139,15 @@ class ReviewController extends Controller
                 $request->reason
             );
 
-            $actionText = match($request->action) {
-                'approve' => 'одобрено',
-                'reject' => 'отклонено',
-                'delete' => 'удалено',
+            $message = match($request->action) {
+                'approve' => __('admin.flash.reviews_approved', ['count' => $count]),
+                'reject' => __('admin.flash.reviews_rejected', ['count' => $count]),
+                'delete' => __('admin.flash.reviews_removed', ['count' => $count]),
             };
 
-            return redirect()->back()->with('success', "{$count} отзывов {$actionText} успешно");
+            return redirect()->back()->with('success', $message);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', "Ошибка: {$e->getMessage()}");
+            return redirect()->back()->with('error', __('admin.flash.error_generic', ['message' => $e->getMessage()]));
         }
     }
 
@@ -164,7 +164,7 @@ class ReviewController extends Controller
             $this->reviewService->addReply($id, $request->all(), Auth::id());
             return redirect()->back()->with('success', __('admin.flash.review_reply'));
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', "Ошибка: {$e->getMessage()}");
+            return redirect()->back()->with('error', __('admin.flash.error_generic', ['message' => $e->getMessage()]));
         }
     }
 
@@ -280,9 +280,9 @@ class ReviewController extends Controller
         try {
             $result = $this->reviewService->importReviews($json, $request->merge ?? true);
 
-            return redirect()->back()->with('success', "Импортировано: {$result['imported']}, Пропущено: {$result['skipped']}");
+            return redirect()->back()->with('success', __('admin.flash.reviews_imported', ['imported' => $result['imported'], 'skipped' => $result['skipped']]));
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', "Ошибка импорта: {$e->getMessage()}");
+            return redirect()->back()->with('error', __('admin.flash.import_error', ['message' => $e->getMessage()]));
         }
     }
 }

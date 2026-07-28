@@ -63,7 +63,7 @@ class UpdateController extends Controller
             
             if ($success) {
                 return redirect()->route('admin.updates.index')
-                    ->with('success', 'Обновление успешно установлено!');
+                    ->with('success', __('admin.flash.update_installed'));
             } else {
                 return back()->withErrors(['update' => 'Ошибка при установке обновления']);
             }

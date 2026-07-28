@@ -127,7 +127,7 @@ class ExportController extends Controller
 
         fclose($handle);
 
-        return back()->with('success', "Импортировано: {$imported}. Ошибок: " . count($errors));
+        return back()->with('success', __('admin.flash.import_done', ['imported' => $imported, 'errors' => count($errors)]));
     }
 }
 
