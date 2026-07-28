@@ -160,7 +160,7 @@ class NewsController extends Controller
         // 🎯 Используем Event вместо прямого вызова
         NewsCreated::dispatch($news);
 
-        return redirect()->route('admin.news.index')->with('success', 'Новость создана!');
+        return redirect()->route('admin.news.index')->with('success', __('admin.flash.news_created'));
     }
 
     public function edit(News $news)
@@ -222,14 +222,14 @@ class NewsController extends Controller
         // 🎯 Используем правильное событие
         NewsUpdated::dispatch($news);
 
-        return redirect()->route('admin.news.index')->with('success', 'Новость обновлена!');
+        return redirect()->route('admin.news.index')->with('success', __('admin.flash.news_updated'));
     }
 
     public function destroy(News $news)
     {
         NewsDeleted::dispatch($news);
         $news->delete();
-        return redirect()->route('admin.news.index')->with('success', 'Новость удалена!');
+        return redirect()->route('admin.news.index')->with('success', __('admin.flash.news_deleted'));
     }
 
     public function bulkAction(Request $request)
@@ -237,7 +237,7 @@ class NewsController extends Controller
         $ids = $request->input('selected', []);
 
         if (empty($ids)) {
-            return back()->with('error', 'Выберите новости для действия.');
+            return back()->with('error', __('admin.flash.news_pick'));
         }
 
         if ($request->action === 'delete') {
@@ -246,24 +246,24 @@ class NewsController extends Controller
                 NewsDeleted::dispatch($news);
             }
             News::whereIn('id', $ids)->delete();
-            return back()->with('success', 'Выбранные новости удалены.');
+            return back()->with('success', __('admin.flash.news_bulk_deleted'));
         }
 
         if ($request->action === 'publish') {
             News::whereIn('id', $ids)->update(['published' => true, 'updated_by' => auth()->id()]);
-            return back()->with('success', 'Выбранные новости опубликованы.');
+            return back()->with('success', __('admin.flash.news_bulk_published'));
         }
 
         if ($request->action === 'unpublish') {
             News::whereIn('id', $ids)->update(['published' => false, 'updated_by' => auth()->id()]);
-            return back()->with('success', 'Выбранные новости сняты с публикации.');
+            return back()->with('success', __('admin.flash.news_bulk_unpublished'));
         }
 
         if ($request->action === 'edit') {
             return redirect()->route('admin.news.bulk.edit', ['ids' => implode(',', $ids)]);
         }
 
-        return back()->with('error', 'Выберите действие.');
+        return back()->with('error', __('admin.flash.pick_action'));
     }
 
     public function bulkEdit(Request $request)
@@ -292,7 +292,7 @@ class NewsController extends Controller
             }
         }
 
-        return redirect()->route('admin.news.index')->with('success', 'Изменения сохранены.');
+        return redirect()->route('admin.news.index')->with('success', __('admin.flash.saved'));
     }
 
     private function loadTemplates(): array

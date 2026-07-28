@@ -89,7 +89,7 @@ class CategoryController extends Controller
 
         return redirect()
             ->route('admin.categories.index')
-            ->with('success', 'Категория успешно создана.');
+            ->with('success', __('admin.flash.cat_created'));
     }
 
     /**
@@ -144,7 +144,7 @@ class CategoryController extends Controller
 
         return redirect()
             ->route('admin.categories.index')
-            ->with('success', 'Категория успешно обновлена.');
+            ->with('success', __('admin.flash.cat_updated'));
     }
 
     /**
@@ -179,7 +179,7 @@ class CategoryController extends Controller
 
         return redirect()
             ->route('admin.categories.index')
-            ->with('success', 'Категория успешно удалена.');
+            ->with('success', __('admin.flash.cat_deleted'));
     }
 
     /**

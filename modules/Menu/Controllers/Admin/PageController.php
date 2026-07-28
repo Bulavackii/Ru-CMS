@@ -98,7 +98,7 @@ class PageController extends Controller
         // 🔗 Привязка категорий
         $page->categories()->sync($request->input('categories', []));
 
-        return redirect()->route('admin.pages.index')->with('success', 'Страница создана.');
+        return redirect()->route('admin.pages.index')->with('success', __('admin.flash.page_created'));
     }
 
     /**
@@ -153,7 +153,7 @@ class PageController extends Controller
         // 🔗 Обновляем привязку к категориям
         $page->categories()->sync($request->input('categories', []));
 
-        return redirect()->route('admin.pages.index')->with('success', 'Страница обновлена.');
+        return redirect()->route('admin.pages.index')->with('success', __('admin.flash.page_updated'));
     }
 
     /**
@@ -164,7 +164,7 @@ class PageController extends Controller
     public function destroy(Page $page)
     {
         $page->delete();
-        return redirect()->route('admin.pages.index')->with('success', 'Страница удалена.');
+        return redirect()->route('admin.pages.index')->with('success', __('admin.flash.page_deleted'));
     }
 
     public function preview(Page $page)

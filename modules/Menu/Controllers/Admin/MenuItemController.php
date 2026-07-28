@@ -42,7 +42,7 @@ class MenuItemController extends Controller
 
         return redirect()
             ->route('admin.menus.edit', $menu)
-            ->with('success', 'Пункт меню добавлен.');
+            ->with('success', __('admin.flash.item_added'));
     }
 
     /**
@@ -108,7 +108,7 @@ class MenuItemController extends Controller
 
         return redirect()
             ->route('admin.menus.edit', $menu)
-            ->with('success', 'Пункт меню обновлён.');
+            ->with('success', __('admin.flash.item_updated'));
     }
 
     /**
@@ -223,7 +223,7 @@ class MenuItemController extends Controller
 
         return redirect()
             ->route('admin.menus.edit', $menu)
-            ->with('success', 'Пункт меню удалён.');
+            ->with('success', __('admin.flash.item_deleted'));
     }
 
     /**

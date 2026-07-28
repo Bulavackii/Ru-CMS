@@ -59,7 +59,7 @@ class AccessibilityAdminController extends Controller
             \Cache::forget('accessibility_settings');
 
             return redirect()->route('admin.accessibility.index')
-                ->with('success', 'Настройки успешно обновлены.');
+                ->with('success', __('admin.flash.settings_updated'));
         } catch (\Exception $e) {
             return redirect()->route('admin.accessibility.index')
                 ->with('error', 'Ошибка при обновлении настроек: ' . $e->getMessage());

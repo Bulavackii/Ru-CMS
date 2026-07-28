@@ -51,7 +51,7 @@ class DeliveryMethodController extends Controller
 
         // 🔙 Возвращаем пользователя к списку с флеш-сообщением
         return redirect()->route('admin.delivery.index')
-                         ->with('success', 'Метод доставки добавлен');
+                         ->with('success', __('admin.flash.delivery_added'));
     }
 
     /**
@@ -87,7 +87,7 @@ class DeliveryMethodController extends Controller
 
         // 🔙 Перенаправление со статусом
         return redirect()->route('admin.delivery.index')
-                         ->with('success', 'Метод доставки обновлён');
+                         ->with('success', __('admin.flash.delivery_updated'));
     }
 
     /**
@@ -99,6 +99,6 @@ class DeliveryMethodController extends Controller
         $delivery->delete();
 
         // 🔙 Назад со всплывающим уведомлением
-        return back()->with('success', 'Метод доставки удалён');
+        return back()->with('success', __('admin.flash.delivery_deleted'));
     }
 }

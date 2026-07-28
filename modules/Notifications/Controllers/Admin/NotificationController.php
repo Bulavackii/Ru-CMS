@@ -103,7 +103,7 @@ class NotificationController extends Controller
         NotificationCreated::dispatch($notification);
 
         return redirect()->route('admin.notifications.index')
-                         ->with('success', 'Уведомление создано.');
+                         ->with('success', __('admin.flash.notif_created'));
     }
 
     /**
@@ -127,7 +127,7 @@ class NotificationController extends Controller
         NotificationUpdated::dispatch($notification);
 
         return redirect()->route('admin.notifications.index')
-                         ->with('success', 'Уведомление обновлено.');
+                         ->with('success', __('admin.flash.notif_updated'));
     }
 
     /**
@@ -139,7 +139,7 @@ class NotificationController extends Controller
         $notification->delete();
 
         return redirect()->route('admin.notifications.index')
-                         ->with('success', 'Уведомление удалено.');
+                         ->with('success', __('admin.flash.notif_deleted'));
     }
 
     /**
@@ -199,7 +199,7 @@ class NotificationController extends Controller
                 break;
 
             default:
-                return back()->with('error', 'Неизвестное действие.');
+                return back()->with('error', __('admin.flash.unknown_action'));
         }
 
         return back()->with('success', $message);

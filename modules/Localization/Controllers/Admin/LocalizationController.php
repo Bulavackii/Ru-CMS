@@ -443,7 +443,7 @@ class LocalizationController extends Controller
 
         return redirect()
             ->route('admin.localization.index')
-            ->with('success', 'Кеш успешно очищен');
+            ->with('success', __('admin.flash.cache_cleared'));
     }
 
     /**

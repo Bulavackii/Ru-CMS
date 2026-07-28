@@ -40,7 +40,7 @@ class MenuController extends Controller
             'active'   => $request->has('active'),
         ]);
 
-        return redirect()->route('admin.menus.index')->with('success', '📁 Меню создано.');
+        return redirect()->route('admin.menus.index')->with('success', __('admin.flash.menu_created'));
     }
 
     /** ✏️ Редактирование меню и его пунктов */
@@ -60,7 +60,7 @@ class MenuController extends Controller
         $menu->active = ! $menu->active;
         $menu->save();
 
-        return back()->with('success', 'Меню успешно обновлено.');
+        return back()->with('success', __('admin.flash.menu_updated'));
     }
 
     /** 💾 Сохранение порядка/вложенности (drag-and-drop) */
@@ -136,7 +136,7 @@ class MenuController extends Controller
 
         $menu->delete();
 
-        return redirect()->route('admin.menus.index')->with('success', 'Меню успешно удалено.');
+        return redirect()->route('admin.menus.index')->with('success', __('admin.flash.menu_deleted'));
     }
 
     /** Рекурсивное удаление ветки (используется и тут, и в MenuItemController) */
