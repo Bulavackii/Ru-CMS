@@ -1,11 +1,11 @@
 @extends('layouts.admin')
 
-@section('title', 'Добавить метод доставки')
+@section('title', __('admin.delivery.add'))
 
 @section('content')
     {{-- 🔰 Заголовок страницы --}}
     <h1 class="text-2xl font-bold mb-6 flex items-center gap-2 text-gray-800 dark:text-white">
-        ➕ Добавить метод доставки
+        ➕ {{ __('admin.delivery.add') }}
     </h1>
 
     {{-- 📝 Форма создания метода доставки --}}
@@ -17,116 +17,116 @@
         {{-- 📋 Название метода --}}
         <div>
             <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                🏷️ Название метода доставки
+                🏷️ {{ __('admin.delivery.name') }}
             </label>
             <input type="text" id="title" name="title"
                    value="{{ old('title') }}"
                    class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 shadow-sm focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:text-white"
-                   placeholder="Например: Курьером, Почта России, Самовывоз"
-                   title="Введите понятное название метода доставки"
+                   placeholder="{{ __('admin.delivery.name_ph') }}"
+                   title="{{ __('admin.delivery.name_hint') }}"
                    required>
         </div>
 
         {{-- 📝 Описание (опционально) --}}
         <div>
             <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                📄 Описание (необязательно)
+                📄 {{ __('admin.delivery.desc_opt') }}
             </label>
             <textarea id="description" name="description" rows="3"
                       class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 shadow-sm focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:text-white"
-                      placeholder="Например: Доставка курьером по Москве в течение 2-3 дней"
-                      title="Уточните условия или сроки этого метода доставки">{{ old('description') }}</textarea>
+                      placeholder="{{ __('admin.delivery.desc_ph') }}"
+                      title="{{ __('admin.delivery.desc_hint') }}">{{ old('description') }}</textarea>
         </div>
 
         {{-- 💰 Стоимость --}}
         <div>
             <label for="price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                💰 Стоимость (₽)
+                💰 {{ __('admin.delivery.price') }}
             </label>
             <input type="number" id="price" name="price" step="0.01"
                    value="{{ old('price') }}"
                    class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 shadow-sm focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:text-white"
-                   placeholder="Укажите цену, например: 299"
-                   title="Укажите стоимость данного метода доставки в рублях"
+                   placeholder="{{ __('admin.delivery.price_ph') }}"
+                   title="{{ __('admin.delivery.price_hint') }}"
                    required>
         </div>
 
         {{-- 🚚 Тип доставки --}}
         <div>
             <label for="type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                🚚 Тип доставки
+                🚚 {{ __('admin.delivery.type') }}
             </label>
             <select id="type" name="type"
                     class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 shadow-sm focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:text-white"
                     required>
-                <option value="courier" {{ old('type') === 'courier' ? 'selected' : '' }}>🚚 Курьерская доставка</option>
-                <option value="pickup" {{ old('type') === 'pickup' ? 'selected' : '' }}>🛍️ Самовывоз (Пункт выдачи)</option>
-                <option value="post" {{ old('type') === 'post' ? 'selected' : '' }}>📦 Почтовая доставка</option>
-                <option value="terminal" {{ old('type') === 'terminal' ? 'selected' : '' }}>🏧 Терминал/Почтомат</option>
+                <option value="courier" {{ old('type') === 'courier' ? 'selected' : '' }}>🚚 {{ __('admin.delivery.courier') }}</option>
+                <option value="pickup" {{ old('type') === 'pickup' ? 'selected' : '' }}>🛍️ {{ __('admin.delivery.pickup') }}</option>
+                <option value="post" {{ old('type') === 'post' ? 'selected' : '' }}>📦 {{ __('admin.delivery.post') }}</option>
+                <option value="terminal" {{ old('type') === 'terminal' ? 'selected' : '' }}>🏧 {{ __('admin.delivery.terminal') }}</option>
             </select>
         </div>
 
         {{-- 🔑 Уникальный код --}}
         <div>
             <label for="code" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                🔑 Уникальный код (опционально)
+                🔑 {{ __('admin.delivery.code') }}
             </label>
             <input type="text" id="code" name="code"
                    value="{{ old('code') }}"
                    class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 shadow-sm focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:text-white"
-                   placeholder="Например: cdek, pek, boxberry, pochta">
-            <p class="text-xs text-gray-500 mt-1">Используется для внутренней идентификации</p>
+                   placeholder="{{ __('admin.delivery.code_ph') }}">
+            <p class="text-xs text-gray-500 mt-1">{{ __('admin.delivery.code_hint') }}</p>
         </div>
 
         {{-- 📅 Сроки доставки --}}
         <div class="grid grid-cols-2 gap-4">
             <div>
                 <label for="min_days" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    📅 Мин. срок (дни)
+                    📅 {{ __('admin.delivery.min_days') }}
                 </label>
                 <input type="number" id="min_days" name="min_days" min="0" max="365"
                        value="{{ old('min_days') }}"
                        class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 shadow-sm focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:text-white"
-                       placeholder="Например: 1">
+                       placeholder="{{ __('admin.delivery.min_ph') }}">
             </div>
             <div>
                 <label for="max_days" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    📅 Макс. срок (дни)
+                    📅 {{ __('admin.delivery.max_days') }}
                 </label>
                 <input type="number" id="max_days" name="max_days" min="0" max="365"
                        value="{{ old('max_days') }}"
                        class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 shadow-sm focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:text-white"
-                       placeholder="Например: 3">
+                       placeholder="{{ __('admin.delivery.max_ph') }}">
             </div>
         </div>
 
         {{-- ⚖️ Ограничение по весу --}}
         <div>
             <label for="weight_limit" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                ⚖️ Ограничение по весу (кг)
+                ⚖️ {{ __('admin.delivery.weight') }}
             </label>
             <input type="number" id="weight_limit" name="weight_limit" step="0.01" min="0" max="1000"
                    value="{{ old('weight_limit') }}"
                    class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 shadow-sm focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:text-white"
-                   placeholder="Оставьте пустым, если без ограничений">
+                   placeholder="{{ __('admin.delivery.weight_hint') }}">
         </div>
 
         {{-- 🗺️ Доступные регионы --}}
         <div>
             <label for="regions" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                🗺️ Доступные регионы
+                🗺️ {{ __('admin.delivery.regions') }}
             </label>
             <select id="regions" name="regions[]" multiple
                     class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 shadow-sm focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:text-white"
                     size="8">
-                <option value="Все регионы РФ" {{ in_array('Все регионы РФ', old('regions', [])) ? 'selected' : '' }}>Все регионы РФ</option>
+                <option value="{{ __('admin.delivery.all_regions') }}" {{ in_array('Все регионы РФ', old('regions', [])) ? 'selected' : '' }}>{{ __('admin.delivery.all_regions') }}</option>
                 @foreach(\Modules\Delivery\Models\DeliveryMethod::getRussianRegions() as $region)
                     @if($region !== 'Все регионы РФ')
                         <option value="{{ $region }}" {{ in_array($region, old('regions', [])) ? 'selected' : '' }}>{{ $region }}</option>
                     @endif
                 @endforeach
             </select>
-            <p class="text-xs text-gray-500 mt-1">Удерживайте Ctrl/Cmd для выбора нескольких регионов. Выберите "Все регионы РФ" для доставки по всей России</p>
+            <p class="text-xs text-gray-500 mt-1">{{ __('admin.delivery.regions_hint') }}</p>
         </div>
 
         {{-- 🇷🇺 Российская служба --}}
@@ -135,7 +135,7 @@
                    {{ old('is_russian') ? 'checked' : '' }}
                    class="form-checkbox rounded text-blue-600 dark:bg-gray-700 dark:border-gray-600">
             <label for="is_russian" class="text-sm text-gray-700 dark:text-gray-300">
-                🇷🇺 Это российская служба доставки
+                🇷🇺 {{ __('admin.delivery.is_russian') }}
             </label>
         </div>
 
@@ -147,12 +147,12 @@
                        class="form-checkbox rounded text-blue-600 dark:bg-gray-700 dark:border-gray-600"
                        onchange="toggleApiSettings(this.checked)">
                 <label for="api_enabled" class="text-sm text-gray-700 dark:text-gray-300">
-                    🌐 Включить API интеграцию
+                    🌐 {{ __('admin.delivery.api_on') }}
                 </label>
             </div>
             
             <div id="api-settings" style="display: {{ old('api_enabled') ? 'block' : 'none' }};" class="mt-3 p-4 bg-gray-50 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
-                <p class="text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Настройки API (JSON):</p>
+                <p class="text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">{{ __('admin.delivery.api_settings') }}</p>
                 <textarea name="api_settings_json" id="api_settings_json" rows="6"
                           class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 shadow-sm focus:ring focus:ring-blue-300 dark:bg-gray-700 dark:text-white font-mono text-xs"
                           placeholder='{"account": "your_account", "secure_password": "your_password"}'></textarea>
@@ -173,25 +173,25 @@
         {{-- 🎁 Бесплатная доставка при сумме заказа --}}
         <div>
             <label for="free_delivery_threshold" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                🎁 Бесплатная доставка при сумме заказа (₽)
+                🎁 {{ __('admin.delivery.free_from') }}
             </label>
             <input type="number" id="free_delivery_threshold" name="free_delivery_threshold" step="0.01" min="0"
                    value="{{ old('free_delivery_threshold') }}"
                    class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 shadow-sm focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:text-white"
-                   placeholder="Оставьте пустым, если бесплатная доставка не предусмотрена">
-            <p class="text-xs text-gray-500 mt-1">Если сумма заказа больше или равна указанной, доставка будет бесплатной</p>
+                   placeholder="{{ __('admin.delivery.free_empty_hint') }}">
+            <p class="text-xs text-gray-500 mt-1">{{ __('admin.delivery.free_hint') }}</p>
         </div>
 
         {{-- 🔢 Порядок сортировки --}}
         <div>
             <label for="sort_order" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                🔢 Порядок сортировки
+                🔢 {{ __('admin.delivery.sort') }}
             </label>
             <input type="number" id="sort_order" name="sort_order" min="0"
                    value="{{ old('sort_order', 0) }}"
                    class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 shadow-sm focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:text-white"
                    placeholder="0">
-            <p class="text-xs text-gray-500 mt-1">Меньшее число = выше в списке</p>
+            <p class="text-xs text-gray-500 mt-1">{{ __('admin.delivery.sort_hint') }}</p>
         </div>
 
         {{-- ✅ Статус активности --}}
@@ -200,7 +200,7 @@
                    {{ old('active', true) ? 'checked' : '' }}
                    class="form-checkbox rounded text-blue-600 dark:bg-gray-700 dark:border-gray-600">
             <label for="active" class="text-sm text-gray-700 dark:text-gray-300">
-                ✅ Метод активен (будет доступен клиентам)
+                ✅ {{ __('admin.delivery.active_full') }}
             </label>
         </div>
 
@@ -208,7 +208,7 @@
         <div class="text-right">
             <button type="submit"
                     class="bg-black hover:bg-gray-800 text-white px-6 py-2 rounded shadow-md transition-all duration-200 transform hover:scale-105">
-                💾 Сохранить
+                💾 {{ __('admin.delivery.save') }}
             </button>
         </div>
     </form>

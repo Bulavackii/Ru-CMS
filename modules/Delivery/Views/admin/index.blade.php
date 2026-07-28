@@ -1,12 +1,12 @@
 @extends('layouts.admin')
 
-@section('title', 'Методы доставки')
+@section('title', __('admin.delivery.list'))
 
 @section('content')
     {{-- 🔘 Заголовок и кнопка добавления --}}
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-3">
         <h1 class="text-2xl font-bold text-gray-800 dark:text-white">
-            🚚 Методы доставки
+            🚚 {{ __('admin.delivery.list') }}
         </h1>
         <a href="{{ route('admin.delivery.create') }}"
            class="inline-flex items-center gap-2 bg-black text-white hover:bg-gray-800 px-4 py-2 rounded-md text-sm font-semibold transition">
@@ -20,15 +20,15 @@
             <thead class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase">
                 <tr>
                     <th class="px-6 py-3 text-left font-semibold whitespace-nowrap">🔢</th>
-                    <th class="px-6 py-3 text-left font-semibold whitespace-nowrap">📦 Название</th>
-                    <th class="px-6 py-3 text-left font-semibold whitespace-nowrap">🚚 Тип</th>
-                    <th class="px-6 py-3 text-left font-semibold whitespace-nowrap">💰 Цена</th>
-                    <th class="px-6 py-3 text-left font-semibold whitespace-nowrap">📅 Сроки</th>
-                    <th class="px-6 py-3 text-left font-semibold whitespace-nowrap">🎁 Бесплатно от</th>
-                    <th class="px-6 py-3 text-center font-semibold whitespace-nowrap">🇷🇺 РФ</th>
+                    <th class="px-6 py-3 text-left font-semibold whitespace-nowrap">📦 {{ __('admin.delivery.name2') }}</th>
+                    <th class="px-6 py-3 text-left font-semibold whitespace-nowrap">🚚 {{ __('admin.delivery.type_short') }}</th>
+                    <th class="px-6 py-3 text-left font-semibold whitespace-nowrap">💰 {{ __('admin.delivery.price_short') }}</th>
+                    <th class="px-6 py-3 text-left font-semibold whitespace-nowrap">📅 {{ __('admin.delivery.terms') }}</th>
+                    <th class="px-6 py-3 text-left font-semibold whitespace-nowrap">🎁 {{ __('admin.delivery.free_label') }}</th>
+                    <th class="px-6 py-3 text-center font-semibold whitespace-nowrap">🇷🇺 {{ __('admin.delivery.rf') }}</th>
                     <th class="px-6 py-3 text-center font-semibold whitespace-nowrap">🌐 API</th>
-                    <th class="px-6 py-3 text-center font-semibold whitespace-nowrap">✅ Активен</th>
-                    <th class="px-6 py-3 text-center font-semibold whitespace-nowrap">⚙️ Действия</th>
+                    <th class="px-6 py-3 text-center font-semibold whitespace-nowrap">✅ {{ __('admin.delivery.active') }}</th>
+                    <th class="px-6 py-3 text-center font-semibold whitespace-nowrap">⚙️ {{ __('admin.delivery.actions') }}</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
@@ -115,7 +115,7 @@
                         {{-- ⚙️ Кнопки действий --}}
                         <td class="px-6 py-4 text-center space-x-2">
                             <a href="{{ route('admin.delivery.edit', $method) }}"
-                               class="text-blue-600 hover:text-blue-800 transition" title="Редактировать">
+                               class="text-blue-600 hover:text-blue-800 transition" title="{{ __('admin.admin.edit') }}">
                                 ✏️
                             </a>
 
@@ -124,7 +124,7 @@
                                   onsubmit="return confirm('Удалить метод доставки?')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:text-red-800 transition" title="Удалить">
+                                <button type="submit" class="text-red-600 hover:text-red-800 transition" title="{{ __('admin.admin.delete') }}">
                                     🗑️
                                 </button>
                             </form>
@@ -133,7 +133,7 @@
                 @empty
                     <tr>
                         <td colspan="10" class="px-6 py-6 text-center text-gray-500 dark:text-gray-400">
-                            📭 Методов доставки пока нет.
+                            📭 {{ __('admin.delivery.empty') }}
                         </td>
                     </tr>
                 @endforelse
