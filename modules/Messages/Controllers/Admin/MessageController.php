@@ -156,7 +156,7 @@ class MessageController extends Controller
         }
 
         return redirect()->route('admin.messages.index', ['filter' => 'sent'])
-            ->with('success', 'Сообщение отправлено');
+            ->with('success', __('admin.flash.message_sent'));
     }
 
     /**
@@ -235,7 +235,7 @@ class MessageController extends Controller
         $message->delete();
 
         return redirect()->route('admin.messages.index')
-            ->with('success', 'Сообщение удалено');
+            ->with('success', __('admin.flash.message_deleted'));
     }
 
     /**
@@ -297,7 +297,7 @@ class MessageController extends Controller
         $ids = $request->input('ids', []);
 
         if (empty($ids)) {
-            return back()->with('error', 'Выберите хотя бы одно сообщение');
+            return back()->with('error', __('admin.flash.pick_message'));
         }
 
         $messages = Message::whereIn('id', $ids)

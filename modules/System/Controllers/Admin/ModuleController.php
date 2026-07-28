@@ -423,7 +423,7 @@ class ModuleController extends Controller
         $moduleDir = base_path("modules/{$module->name}");
 
         if (!File::exists($moduleDir)) {
-            return back()->with('error', 'Модуль не найден в файловой системе.');
+            return back()->with('error', __('admin.flash.module_files_missing'));
         }
 
         $archiveDir = base_path('modules/archives');
@@ -467,7 +467,7 @@ class ModuleController extends Controller
             return back()->with('success', "Архив модуля «{$module->title}» создан в /modules/archives.");
         }
 
-        return back()->with('error', 'Не удалось создать архив.');
+        return back()->with('error', __('admin.flash.archive_failed'));
     }
 
     /**
@@ -534,7 +534,7 @@ class ModuleController extends Controller
         $moduleDir = base_path("modules/{$module->name}");
 
         if (!File::exists($moduleDir)) {
-            return back()->with('error', 'Модуль не найден.');
+            return back()->with('error', __('admin.flash.module_not_found'));
         }
 
         $warnings = ModuleSecurityService::scanForMaliciousCode($moduleDir);

@@ -68,7 +68,7 @@ class SlideshowController extends Controller
 
         return redirect()
             ->route('admin.slideshow.index')
-            ->with('success', 'Слайдшоу успешно создано!');
+            ->with('success', __('admin.flash.slideshow_created'));
     }
 
     /**
@@ -144,7 +144,7 @@ class SlideshowController extends Controller
 
         return redirect()
             ->route('admin.slideshow.edit', $request->slideshow_id)
-            ->with('success', 'Слайд добавлен');
+            ->with('success', __('admin.flash.slide_added'));
     }
 
     /**
@@ -161,7 +161,7 @@ class SlideshowController extends Controller
 
         return redirect()
             ->route('admin.slideshow.edit', $slideshowId)
-            ->with('success', 'Слайд удалён');
+            ->with('success', __('admin.flash.slide_deleted'));
     }
 
     /**
@@ -178,7 +178,7 @@ class SlideshowController extends Controller
 
         return redirect()
             ->route('admin.slideshow.index')
-            ->with('success', 'Слайдшоу удалено');
+            ->with('success', __('admin.flash.slideshow_deleted'));
     }
 
     /**
@@ -262,7 +262,7 @@ class SlideshowController extends Controller
 
         return redirect()
             ->route('admin.slideshow.index')
-            ->with('success', 'Статус публикации изменён');
+            ->with('success', __('admin.flash.publish_toggled'));
     }
 
     /**
@@ -298,7 +298,7 @@ class SlideshowController extends Controller
 
         return redirect()
             ->route('admin.slideshow.index')
-            ->with('success', 'Слайдшоу обновлено');
+            ->with('success', __('admin.flash.slideshow_updated'));
     }
 
     /**

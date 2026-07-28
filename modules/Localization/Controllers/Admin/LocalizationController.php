@@ -373,7 +373,7 @@ class LocalizationController extends Controller
 
         return redirect()
             ->route('admin.localization.settings', $code)
-            ->with('success', 'Настройка успешно сохранена');
+            ->with('success', __('admin.flash.setting_saved'));
     }
 
     /**
@@ -395,12 +395,12 @@ class LocalizationController extends Controller
             $setting->delete();
             return redirect()
                 ->route('admin.localization.settings', $code)
-                ->with('success', 'Настройка успешно удалена');
+                ->with('success', __('admin.flash.setting_deleted'));
         }
 
         return redirect()
             ->route('admin.localization.settings', $code)
-            ->with('error', 'Нельзя удалить системную настройку');
+            ->with('error', __('admin.flash.system_setting'));
     }
 
     /**

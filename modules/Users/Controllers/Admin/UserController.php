@@ -85,7 +85,7 @@ class UserController extends Controller
                 return back()->with('success', "Роль '{$role->name}' назначена {$users->count()} пользователям");
 
             default:
-                return back()->with('error', 'Неизвестное действие');
+                return back()->with('error', __('admin.flash.unknown_action'));
         }
     }
 
@@ -139,7 +139,7 @@ class UserController extends Controller
 
         \App\Models\ActivityLog::log('user_created', $user, "Создан пользователь: {$user->name}");
 
-        return redirect()->route('admin.users.index')->with('success', 'Пользователь успешно создан!');
+        return redirect()->route('admin.users.index')->with('success', __('admin.flash.user_created'));
     }
 
     /**
@@ -193,7 +193,7 @@ class UserController extends Controller
 
         \App\Models\ActivityLog::log('user_updated', $user, "Обновлен пользователь: {$user->name}");
 
-        return redirect()->route('admin.users.index')->with('success', 'Пользователь успешно обновлен!');
+        return redirect()->route('admin.users.index')->with('success', __('admin.flash.user_updated'));
     }
 
     /**
@@ -204,13 +204,13 @@ class UserController extends Controller
         $user = User::find($id);
 
         if (!$user) {
-            return redirect()->route('admin.users.index')->with('error', 'Пользователь не найден');
+            return redirect()->route('admin.users.index')->with('error', __('admin.flash.user_not_found'));
         }
 
         $user->is_admin = !$user->is_admin;
         $user->save();
 
-        return redirect()->route('admin.users.index')->with('success', 'Роль пользователя изменена');
+        return redirect()->route('admin.users.index')->with('success', __('admin.flash.user_role_changed'));
     }
 
     /**
@@ -236,7 +236,7 @@ class UserController extends Controller
         $user->password = Hash::make($request->password);
         $user->save();
 
-        return redirect()->route('admin.users.index')->with('success', 'Пароль обновлён');
+        return redirect()->route('admin.users.index')->with('success', __('admin.flash.password_updated'));
     }
 
     /**
@@ -247,16 +247,16 @@ class UserController extends Controller
         $user = User::find($id);
 
         if (!$user) {
-            return redirect()->route('admin.users.index')->with('error', 'Пользователь не найден');
+            return redirect()->route('admin.users.index')->with('error', __('admin.flash.user_not_found'));
         }
 
         if ($user->is_admin) {
-            return redirect()->route('admin.users.index')->with('error', 'Невозможно удалить администратора');
+            return redirect()->route('admin.users.index')->with('error', __('admin.flash.cant_delete_admin'));
         }
 
         $user->delete();
 
-        return redirect()->route('admin.users.index')->with('success', 'Пользователь удалён');
+        return redirect()->route('admin.users.index')->with('success', __('admin.flash.user_deleted'));
     }
 
     // 🔍 AJAX-поиск пользователей

@@ -162,7 +162,7 @@ class ReviewController extends Controller
 
         try {
             $this->reviewService->addReply($id, $request->all(), Auth::id());
-            return redirect()->back()->with('success', 'Ответ добавлен успешно');
+            return redirect()->back()->with('success', __('admin.flash.review_reply'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', "Ошибка: {$e->getMessage()}");
         }

@@ -39,7 +39,7 @@ class PaymentController extends Controller
 
         return redirect()
             ->route('admin.payments.index')
-            ->with('success', 'Способ оплаты добавлен');
+            ->with('success', __('admin.flash.payment_added'));
     }
 
     /**
@@ -65,7 +65,7 @@ class PaymentController extends Controller
 
         return redirect()
             ->route('admin.payments.index')
-            ->with('success', 'Способ оплаты обновлён');
+            ->with('success', __('admin.flash.payment_updated'));
     }
 
     /**
@@ -78,7 +78,7 @@ class PaymentController extends Controller
 
         return redirect()
             ->route('admin.payments.index')
-            ->with('success', 'Способ оплаты удалён');
+            ->with('success', __('admin.flash.payment_deleted'));
     }
 
     private function normalizeSettings(array $validated, ?PaymentMethod $method = null): array
