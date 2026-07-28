@@ -12,7 +12,7 @@
         <div class="flex items-center gap-3 min-w-0">
             <span class="admin-icon-badge"><i class="fas fa-magnifying-glass-chart"></i></span>
             <div class="min-w-0">
-                <h1 class="text-xl font-bold text-gray-900 dark:text-white">SEO страницы</h1>
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('admin.seo.page_seo') }}</h1>
                 <p class="text-sm text-gray-500 dark:text-gray-400 font-mono truncate">{{ $item->slug }}</p>
             </div>
         </div>
@@ -26,7 +26,7 @@
             <a href="{{ route('seo.pages.index') }}"
                class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
                       hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition">
-                <i class="fas fa-arrow-left"></i> К списку
+                <i class="fas fa-arrow-left"></i> {{ __('admin.seo.back') }}
             </a>
         </div>
     </div>
@@ -52,11 +52,10 @@
                 <div class="border-l-4 border-amber-500 pl-3">
                     <div class="flex items-center gap-2">
                         <span class="text-amber-600">@themeIcon('lock', 'text-lg')</span>
-                        <span class="font-semibold">Поля заблокированы от перезаписи из источника</span>
+                        <span class="font-semibold">{{ __('admin.seo.locked_title') }}</span>
                     </div>
                     <p class="text-sm opacity-90 mt-1">
-                        Эта запись помечена как <b>locked</b>. Данные не будут перезаписаны ни синхронизатором,
-                        ни формами источников (Новости/Страницы).
+                        Эта запись помечена как <b>locked</b>{{ __('admin.seo.locked_note') }}
                     </p>
                     <form method="POST" action="{{ route('seo.pages.unlock', $item->id) }}" class="mt-3">
                         @csrf
@@ -66,7 +65,7 @@
                                shadow-sm ring-1 ring-inset ring-amber-700/10
                                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-600">
                             @themeIcon('unlock')
-                            Разблокировать
+                            {{ __('admin.seo.unlock') }}
                         </button>
                     </form>
                 </div>
@@ -78,11 +77,10 @@
                 <div class="border-l-4 border-emerald-500 pl-3">
                     <div class="flex items-center gap-2">
                         <span class="text-emerald-600">@themeIcon('unlock', 'text-lg')</span>
-                        <span class="font-semibold">Поля сейчас разблокированы</span>
+                        <span class="font-semibold">{{ __('admin.seo.unlocked_title') }}</span>
                     </div>
                     <p class="text-sm opacity-90 mt-1">
-                        Разрешена запись из источников (например, из модуля Новости) и синхронизация.
-                        Чтобы закрепить вручную — включите блокировку.
+                        {{ __('admin.seo.unlocked_note') }}
                     </p>
                     <form method="POST" action="{{ route('seo.pages.lock', $item->id) }}" class="mt-3">
                         @csrf
@@ -110,12 +108,12 @@
                 {{-- Slug --}}
                 <div>
                     <label class="block text-sm font-medium">Slug
-                        <span class="text-xs text-gray-500">(путь или полный URL)</span>
+                        <span class="text-xs text-gray-500">{{ __('admin.seo.path_or_url') }}</span>
                     </label>
                     <input name="slug" value="{{ old('slug', $item->slug) }}" class="mt-1 border p-2 rounded w-full"
-                        maxlength="1024" placeholder="/news/primer-1 или https://site.ru/news/primer-1">
+                        maxlength="1024" placeholder="{{ __('admin.seo.url_ph') }}">
                     <p class="text-xs text-gray-500 mt-1">
-                        Менять slug стоит только при необходимости — это влияет на URL.
+                        {{ __('admin.seo.slug_note') }}
                     </p>
                     @error('slug')
                         <div class="text-red-600 text-xs mt-1">{{ $message }}</div>
@@ -128,7 +126,7 @@
                         <label class="block text-sm font-medium">Title</label>
                         <input name="title" value="{{ old('title', $item->title) }}"
                             class="mt-1 border p-2 rounded w-full js-count" data-limit="60" maxlength="255"
-                            placeholder="До ~60 символов">
+                            placeholder="{{ __('admin.seo.title_ph') }}">
                         <div class="text-xs text-gray-500 mt-1">
                             Рекомендуем до 60 символов. <span class="js-count-out"></span>
                         </div>
@@ -139,7 +137,7 @@
                     <div>
                         <label class="block text-sm font-medium">H1</label>
                         <input name="h1" value="{{ old('h1', $item->h1) }}" class="mt-1 border p-2 rounded w-full"
-                            maxlength="255" placeholder="Основной заголовок на странице">
+                            maxlength="255" placeholder="{{ __('admin.seo.h1_ph') }}">
                         @error('h1')
                             <div class="text-red-600 text-xs mt-1">{{ $message }}</div>
                         @enderror
@@ -150,7 +148,7 @@
                 <div>
                     <label class="block text-sm font-medium">Description</label>
                     <textarea name="description" rows="2" class="mt-1 border p-2 rounded w-full js-count" data-limit="160"
-                        maxlength="255" placeholder="Краткое описание для сниппета (до 160 символов)">{{ old('description', $item->description) }}</textarea>
+                        maxlength="255" placeholder="{{ __('admin.seo.desc_ph') }}">{{ old('description', $item->description) }}</textarea>
                     <div class="text-xs text-gray-500 mt-1">
                         Лучше до 160 символов. <span class="js-count-out"></span>
                     </div>
@@ -162,13 +160,13 @@
                 {{-- Keywords --}}
                 <div>
                     <label class="block text-sm font-medium">Keywords
-                        <span class="text-xs text-gray-500">(через запятую)</span>
+                        <span class="text-xs text-gray-500">{{ __('admin.seo.comma_separated') }}</span>
                     </label>
                     <input name="keywords" value="{{ old('keywords', $item->keywords) }}"
                         class="mt-1 border p-2 rounded w-full js-count" data-limit="255" maxlength="255"
-                        placeholder="новости, мероприятия, экология">
+                        placeholder="{{ __('admin.seo.keywords_ph') }}">
                     <div class="text-xs text-gray-500 mt-1">
-                        Не обязательно. <span class="js-count-out"></span>
+                        {{ __('admin.seo.optional') }} <span class="js-count-out"></span>
                     </div>
                     @error('keywords')
                         <div class="text-red-600 text-xs mt-1">{{ $message }}</div>
@@ -178,13 +176,13 @@
                 {{-- Canonical --}}
                 <div>
                     <label class="block text-sm font-medium">Canonical
-                        <span class="text-xs text-gray-500">(можно относительный — станет абсолютным)</span>
+                        <span class="text-xs text-gray-500">{{ __('admin.seo.can_be_relative') }}</span>
                     </label>
                     <input name="canonical" value="{{ old('canonical', $item->canonical) }}"
                         class="mt-1 border p-2 rounded w-full" maxlength="1024"
-                        placeholder="/news/primer-1 или https://site.ru/news/primer-1">
+                        placeholder="{{ __('admin.seo.url_ph') }}">
                     <div class="text-xs text-gray-500 mt-1">
-                        Если оставить пустым — каноникал не будет задан.
+                        {{ __('admin.seo.no_canonical') }}
                     </div>
                     @error('canonical')
                         <div class="text-red-600 text-xs mt-1">{{ $message }}</div>
@@ -200,7 +198,7 @@
                                 {{ old('robots_index', $item->robots_index) ? 'checked' : '' }}>
                             index
                         </label>
-                        <p class="text-xs text-gray-500">Разрешить индексирование страницы.</p>
+                        <p class="text-xs text-gray-500">{{ __('admin.seo.allow_indexing') }}</p>
                         @error('robots_index')
                             <div class="text-red-600 text-xs mt-1">{{ $message }}</div>
                         @enderror
@@ -213,7 +211,7 @@
                                 {{ old('robots_follow', $item->robots_follow) ? 'checked' : '' }}>
                             follow
                         </label>
-                        <p class="text-xs text-gray-500">Разрешить переход по ссылкам со страницы.</p>
+                        <p class="text-xs text-gray-500">{{ __('admin.seo.allow_follow') }}</p>
                         @error('robots_follow')
                             <div class="text-red-600 text-xs mt-1">{{ $message }}</div>
                         @enderror
@@ -245,7 +243,7 @@
                         class="w-full border p-2 rounded" maxlength="512" placeholder="twitter:description">
                     <input name="twitter_image" value="{{ old('twitter_image', $item->og['twitter:image'] ?? '') }}"
                         class="w-full border p-2 rounded" maxlength="1024" placeholder="twitter:image (URL)">
-                    <p class="text-xs text-gray-500">Незаполненные поля не перезапишут данные при сохранении.</p>
+                    <p class="text-xs text-gray-500">{{ __('admin.seo.empty_no_overwrite') }}</p>
                 </div>
 
                 {{-- JSON-LD --}}
@@ -256,7 +254,7 @@
                     <div class="flex items-center justify-between mt-1">
                         <div class="text-xs text-gray-500">Сохраняем только валидный JSON.</div>
                         <button type="button"
-                            class="px-2 py-1 text-xs border rounded js-json-pretty">Форматировать</button>
+                            class="px-2 py-1 text-xs border rounded js-json-pretty">{{ __('admin.seo.format') }}</button>
                     </div>
                     @error('jsonld_raw')
                         <div class="text-red-600 text-xs mt-1">{{ $message }}</div>
@@ -282,17 +280,17 @@
                 <form method="post" action="{{ route('seo.pages.refresh', $item->id) }}"
                     onsubmit="return confirm('Пересинхронизировать страницу из источника без перезаписи ваших ручных правок?');">
                     @csrf
-                    <button class="px-4 py-2 border rounded hover:bg-gray-50">Пересинхронизировать</button>
+                    <button class="px-4 py-2 border rounded hover:bg-gray-50">{{ __('admin.seo.resync') }}</button>
                 </form>
 
                 {{-- Удаление --}}
                 <form action="{{ route('seo.pages.destroy', $item->id) }}" method="post"
                     onsubmit="return confirm('Удалить эту SEO-запись? Если включён автосинк из источников, она может появиться снова.');">
                     @csrf @method('DELETE')
-                    <button class="px-4 py-2 bg-red-600 text-white rounded">Удалить</button>
+                    <button class="px-4 py-2 bg-red-600 text-white rounded">{{ __('admin.admin.delete') }}</button>
                 </form>
 
-                <a href="{{ route('seo.pages.index') }}" class="inline-flex items-center gap-2 border border-gray-300 text-gray-700 hover:bg-gray-100 px-4 py-2 text-sm font-semibold transition">К списку</a>
+                <a href="{{ route('seo.pages.index') }}" class="inline-flex items-center gap-2 border border-gray-300 text-gray-700 hover:bg-gray-100 px-4 py-2 text-sm font-semibold transition">{{ __('admin.seo.back') }}</a>
             </div>
         </div>
 
@@ -324,14 +322,14 @@
             </div>
 
             <div class="p-3 rounded border bg-white">
-                <div class="font-semibold mb-1">Подсказки</div>
+                <div class="font-semibold mb-1">{{ __('admin.seo.hints') }}</div>
                 <ul class="list-disc pl-5 text-sm space-y-1 text-gray-700">
                     <li><strong>Title</strong> — заголовок сниппета (до ~60).</li>
                     <li><strong>H1</strong> — заголовок на странице.</li>
                     <li><strong>Description</strong> — краткое описание (до ~160).</li>
                     <li><strong>Canonical</strong> — укажите, если есть дубликаты.</li>
                     <li><strong>index/follow</strong> — индексация страницы и ссылок.</li>
-                    <li>Кнопка <strong>Пересинхронизировать</strong> подтянет данные из источника (Новости/Страницы) не
+                    <li>Кнопка <strong>{{ __('admin.seo.resync') }}</strong> подтянет данные из источника (Новости/Страницы) не
                         перезаписывая ваши ручные поля.</li>
                 </ul>
             </div>
@@ -342,7 +340,7 @@
                     <div class="font-semibold mb-2">Sitemap</div>
                     <button
                         class="px-3 py-2 rounded border border-sky-700 text-sky-700 bg-white hover:bg-sky-50 transition w-full">
-                        Пересобрать sitemap
+                        {{ __('admin.seo.rebuild_sitemap') }}
                     </button>
                     <div class="text-xs text-gray-500 mt-2">
                         Если очередь не настроена, пересборка выполнится синхронно (зависит от конфигурации).
@@ -378,7 +376,7 @@
                     const parsed = JSON.parse(ta.value || '{}');
                     ta.value = JSON.stringify(parsed, null, 2);
                 } catch (e) {
-                    alert('Некорректный JSON');
+                    alert(@js(__('admin.seo.bad_json')));
                 }
             });
         });

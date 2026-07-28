@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Новый адрес SEO')
+@section('title', __('admin.seo.new_seo'))
 
 @section('content')
     <div class="admin-accent-bar mb-0"></div>
@@ -9,9 +9,9 @@
         <div class="flex items-center gap-3 min-w-0">
             <span class="admin-icon-badge"><i class="fas fa-plus"></i></span>
             <div class="min-w-0">
-                <h1 class="text-xl font-bold text-gray-900 dark:text-white">Новый адрес</h1>
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('admin.seo.new_url') }}</h1>
                 <p class="text-sm text-gray-500 dark:text-gray-400">
-                    SEO-настройки для страницы, которой нет среди новостей и страниц сайта.
+                    {{ __('admin.seo.new_url_hint') }}
                 </p>
             </div>
         </div>
@@ -19,7 +19,7 @@
         <a href="{{ route('seo.pages.index') }}"
            class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
                   hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition flex-shrink-0">
-            <i class="fas fa-arrow-left"></i> К списку
+            <i class="fas fa-arrow-left"></i> {{ __('admin.seo.back') }}
         </a>
     </div>
 
@@ -40,12 +40,12 @@
             {{-- Slug --}}
             <div>
                 <label class="block text-sm font-medium">Slug
-                    <span class="text-xs text-gray-500">(путь или полный URL)</span>
+                    <span class="text-xs text-gray-500">{{ __('admin.seo.path_or_url') }}</span>
                 </label>
                 <input name="slug" value="{{ old('slug') }}" class="mt-1 border p-2 rounded w-full" maxlength="1024"
-                    required placeholder="/news/primer-1 или https://site.ru/news/primer-1">
+                    required placeholder="{{ __('admin.seo.url_ph') }}">
                 <p class="text-xs text-gray-500 mt-1">
-                    Относительный путь автоматически нормализуется (начинается со <code>/</code>, без хвостового
+                    {{ __('admin.seo.path_note') }} <code>/</code>{{ __('admin.seo.no_trailing') }}
                     <code>/</code>).
                 </p>
                 @error('slug')
@@ -58,9 +58,9 @@
                 <div>
                     <label class="block text-sm font-medium">Title</label>
                     <input name="title" value="{{ old('title') }}" class="mt-1 border p-2 rounded w-full js-count"
-                        data-limit="60" maxlength="255" placeholder="До ~60 символов">
+                        data-limit="60" maxlength="255" placeholder="{{ __('admin.seo.title_ph') }}">
                     <div class="text-xs text-gray-500 mt-1">
-                        Title для вкладки браузера и сниппета. Рекомендуем до 60 символов.
+                        {{ __('admin.seo.title_hint') }}
                         <span class="js-count-out"></span>
                     </div>
                     @error('title')
@@ -70,7 +70,7 @@
                 <div>
                     <label class="block text-sm font-medium">H1</label>
                     <input name="h1" value="{{ old('h1') }}" class="mt-1 border p-2 rounded w-full" maxlength="255"
-                        placeholder="Основной заголовок на странице">
+                        placeholder="{{ __('admin.seo.h1_ph') }}">
                     @error('h1')
                         <div class="text-red-600 text-xs mt-1">{{ $message }}</div>
                     @enderror
@@ -81,9 +81,9 @@
             <div>
                 <label class="block text-sm font-medium">Description</label>
                 <textarea name="description" rows="2" class="mt-1 border p-2 rounded w-full js-count" data-limit="160"
-                    maxlength="255" placeholder="Краткое описание для сниппета (до 160 символов)">{{ old('description') }}</textarea>
+                    maxlength="255" placeholder="{{ __('admin.seo.desc_ph') }}">{{ old('description') }}</textarea>
                 <div class="text-xs text-gray-500 mt-1">
-                    Лучше до 160 символов. Лишнее будет обрезано поисковиком.
+                    {{ __('admin.seo.desc_hint') }}
                     <span class="js-count-out"></span>
                 </div>
                 @error('description')
@@ -94,12 +94,12 @@
             {{-- Keywords --}}
             <div>
                 <label class="block text-sm font-medium">Keywords
-                    <span class="text-xs text-gray-500">(через запятую)</span>
+                    <span class="text-xs text-gray-500">{{ __('admin.seo.comma_separated') }}</span>
                 </label>
                 <input name="keywords" value="{{ old('keywords') }}" class="mt-1 border p-2 rounded w-full js-count"
-                    data-limit="255" maxlength="255" placeholder="новости, мероприятия, экология">
+                    data-limit="255" maxlength="255" placeholder="{{ __('admin.seo.keywords_ph') }}">
                 <div class="text-xs text-gray-500 mt-1">
-                    Не обязательно. <span class="js-count-out"></span>
+                    {{ __('admin.seo.optional') }} <span class="js-count-out"></span>
                 </div>
                 @error('keywords')
                     <div class="text-red-600 text-xs mt-1">{{ $message }}</div>
@@ -109,10 +109,10 @@
             {{-- Canonical --}}
             <div>
                 <label class="block text-sm font-medium">Canonical
-                    <span class="text-xs text-gray-500">(можно относительный — станет абсолютным)</span>
+                    <span class="text-xs text-gray-500">{{ __('admin.seo.can_be_relative') }}</span>
                 </label>
                 <input name="canonical" value="{{ old('canonical') }}" class="mt-1 border p-2 rounded w-full"
-                    maxlength="1024" placeholder="/news/primer-1 или https://site.ru/news/primer-1">
+                    maxlength="1024" placeholder="{{ __('admin.seo.url_ph') }}">
                 @error('canonical')
                     <div class="text-red-600 text-xs mt-1">{{ $message }}</div>
                 @enderror
@@ -127,7 +127,7 @@
                             {{ old('robots_index', true) ? 'checked' : '' }}>
                         index
                     </label>
-                    <p class="text-xs text-gray-500">Разрешить индексирование страницы.</p>
+                    <p class="text-xs text-gray-500">{{ __('admin.seo.allow_indexing') }}</p>
                     @error('robots_index')
                         <div class="text-red-600 text-xs mt-1">{{ $message }}</div>
                     @enderror
@@ -140,14 +140,14 @@
                             {{ old('robots_follow', true) ? 'checked' : '' }}>
                         follow
                     </label>
-                    <p class="text-xs text-gray-500">Разрешить переход по ссылкам со страницы.</p>
+                    <p class="text-xs text-gray-500">{{ __('admin.seo.allow_follow') }}</p>
                     @error('robots_follow')
                         <div class="text-red-600 text-xs mt-1">{{ $message }}</div>
                     @enderror
                 </div>
             </div>
             <div class="text-xs text-gray-500 -mt-2">
-                Итоговая директива: <code id="robotsPreview">
+                {{ __('admin.seo.directive') }} <code id="robotsPreview">
                     {{ old('robots_index', true) ? 'index' : 'noindex' }},
                     {{ old('robots_follow', true) ? 'follow' : 'nofollow' }}
                 </code>
@@ -170,7 +170,7 @@
                     class="w-full border p-2 rounded" maxlength="512" placeholder="twitter:description">
                 <input name="twitter_image" value="{{ old('twitter_image') }}" class="w-full border p-2 rounded"
                     maxlength="1024" placeholder="twitter:image (URL)">
-                <p class="text-xs text-gray-500">Заполняйте по необходимости — незаполненные поля не попадут в базу.</p>
+                <p class="text-xs text-gray-500">{{ __('admin.seo.fill_as_needed') }}</p>
             </div>
 
             {{-- JSON-LD --}}
@@ -179,8 +179,8 @@
                 <textarea name="jsonld_raw" rows="8" class="w-full border p-2 rounded font-mono"
                     placeholder='{"@@context":"https://schema.org","@@type":"Article",...}'>{{ old('jsonld_raw') }}</textarea>
                 <div class="flex items-center justify-between mt-2">
-                    <div class="text-xs text-gray-500">Мы сохраним JSON только если он валидный.</div>
-                    <button type="button" class="px-2 py-1 text-xs border rounded js-json-pretty">Форматировать</button>
+                    <div class="text-xs text-gray-500">{{ __('admin.seo.json_valid') }}</div>
+                    <button type="button" class="px-2 py-1 text-xs border rounded js-json-pretty">{{ __('admin.seo.format') }}</button>
                 </div>
                 @error('jsonld_raw')
                     <div class="text-red-600 text-xs mt-1">{{ $message }}</div>
@@ -188,21 +188,21 @@
             </div>
 
             <div class="flex items-center gap-3">
-                <button class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition">Создать</button>
-                <a href="{{ route('seo.pages.index') }}" class="inline-flex items-center gap-2 border border-gray-300 text-gray-700 hover:bg-gray-100 px-4 py-2 text-sm font-semibold transition">Отмена</a>
+                <button class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition">{{ __('admin.admin.create') }}</button>
+                <a href="{{ route('seo.pages.index') }}" class="inline-flex items-center gap-2 border border-gray-300 text-gray-700 hover:bg-gray-100 px-4 py-2 text-sm font-semibold transition">{{ __('admin.admin.cancel') }}</a>
             </div>
         </div>
 
         {{-- Правая колонка: подсказки --}}
         <aside class="space-y-3">
             <div class="p-3 rounded border bg-white">
-                <div class="font-semibold mb-1">Подсказки</div>
+                <div class="font-semibold mb-1">{{ __('admin.seo.hints') }}</div>
                 <ul class="list-disc pl-5 text-sm space-y-1 text-gray-700">
-                    <li><strong>Title</strong> — заголовок сниппета (до ~60 символов).</li>
-                    <li><strong>H1</strong> — заголовок на странице (может совпадать с Title).</li>
-                    <li><strong>Description</strong> — краткое описание (до ~160 символов).</li>
-                    <li><strong>Canonical</strong> — канонический адрес оригинала.</li>
-                    <li><strong>index/follow</strong> — управление индексацией и ссылками.</li>
+                    <li><strong>Title</strong> {{ __('admin.seo.hint_title') }}</li>
+                    <li><strong>H1</strong> {{ __('admin.seo.hint_h1') }}</li>
+                    <li><strong>Description</strong> {{ __('admin.seo.hint_desc') }}</li>
+                    <li><strong>Canonical</strong> {{ __('admin.seo.hint_canonical') }}</li>
+                    <li><strong>index/follow</strong> {{ __('admin.seo.hint_robots') }}</li>
                 </ul>
             </div>
         </aside>
@@ -244,7 +244,7 @@
                     const parsed = JSON.parse(ta.value || '{}');
                     ta.value = JSON.stringify(parsed, null, 2);
                 } catch (e) {
-                    alert('Некорректный JSON');
+                    alert(@js(__('admin.seo.bad_json')));
                 }
             });
         });

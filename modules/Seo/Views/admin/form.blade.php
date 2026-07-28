@@ -12,7 +12,7 @@
     <div>
       <label class="block text-sm font-medium">
         Slug
-        <span class="text-xs text-gray-500">(путь или полный URL)</span>
+        <span class="text-xs text-gray-500">{{ __('admin.seo.path_or_url') }}</span>
       </label>
       <input
         name="slug"
@@ -43,7 +43,7 @@
       >
       <div id="canonical-help" class="text-xs text-gray-500 mt-1">
         Если указать относительный путь — при сохранении станет абсолютным (на основе <code>APP_URL</code>).
-        Если оставить пустым — каноникал не будет задан.
+        {{ __('admin.seo.no_canonical') }}
       </div>
       @error('canonical')<div class="text-red-600 text-xs mt-1">{{ $message }}</div>@enderror
     </div>
