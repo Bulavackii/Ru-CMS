@@ -1,13 +1,7 @@
 <?php
 
-/**
- * 🌐 Строки публичной части сайта.
- *
- * Структура повторяет resources/lang/ru/frontend.php ключ в ключ —
- * проверяется командой `php artisan lang:check` и тестом.
- */
-
 return [
+
     'header' => [
         'menu' => 'Menu',
         'tagline' => 'Contenu & Gestion',
@@ -25,7 +19,10 @@ return [
         'theme' => 'Thème du site',
         'theme_default' => 'Comme sur le site',
         'theme_site' => 'par défaut',
+        'home_aria' => 'Vers la page d\'accueil',
+        'logo_alt' => 'Logo',
     ],
+
     'footer' => [
         'developer' => 'développeur',
         'rights' => 'tous droits réservés',
@@ -35,7 +32,12 @@ return [
         'send' => 'Envoyer',
         'sending' => 'Ouverture…',
         'to_top' => 'Haut de page',
+        'bad_email' => 'Saisissez une adresse e-mail valide',
+        'mail_subject' => 'Message depuis le site',
+        'mail_from' => 'Mon e-mail :',
+        'mail_body' => 'Message :',
     ],
+
     'news' => [
         'all' => 'Toutes les actualités',
         'copy_link' => 'Copier le lien',
@@ -57,6 +59,7 @@ return [
         'section' => 'Actualités',
         'share' => 'Partager :',
     ],
+
     'search' => [
         'title' => 'Recherche',
         'title_with' => 'Recherche : :query',
@@ -75,13 +78,13 @@ return [
         'tip_general' => 'Utilisez un terme plus général',
         'pages_section' => 'Pages du site',
     ],
+
     'account' => [
         'individual' => 'Particulier',
         'legal_entity_type' => 'Personne morale',
-        'company' => 'Personne morale',
+        'company' => 'Société',
         'amount' => 'Montant',
         'change_password' => 'Changer le mot de passe',
-        'company' => 'Société',
         'date' => 'Date',
         'delivery' => 'Livraison',
         'edit_profile' => 'Modifier le profil',
@@ -105,9 +108,10 @@ return [
         'title' => 'Espace personnel',
         'user_type' => 'Type de compte',
     ],
+
     'common' => [
         'cms_tagline' => 'CMS modulaire',
-        'fit_screen' => 'Ajuster à l\x27écran',
+        'fit_screen' => 'Ajuster à l\\x27écran',
         'download' => 'Télécharger',
         'home' => 'Accueil',
         'more' => 'Détails',
@@ -117,6 +121,7 @@ return [
         'send' => 'Envoyer',
         'loading' => 'Chargement…',
     ],
+
     'cart' => [
         'choose_delivery' => 'Choisissez un mode de livraison…',
         'choose_payment' => 'Choisissez un mode de paiement…',

@@ -1,13 +1,7 @@
 <?php
 
-/**
- * 🌐 Строки публичной части сайта.
- *
- * Структура повторяет resources/lang/ru/frontend.php ключ в ключ —
- * проверяется командой `php artisan lang:check` и тестом.
- */
-
 return [
+
     'header' => [
         'menu' => 'Меню',
         'tagline' => 'Контент & Управление',
@@ -25,7 +19,10 @@ return [
         'theme' => 'Тема оформления',
         'theme_default' => 'Как на сайте',
         'theme_site' => 'на сайте',
+        'home_aria' => 'На главную',
+        'logo_alt' => 'Логотип',
     ],
+
     'footer' => [
         'developer' => 'разработчик',
         'rights' => 'все права защищены',
@@ -35,7 +32,12 @@ return [
         'send' => 'Отправить',
         'sending' => 'Открываю…',
         'to_top' => 'Наверх',
+        'bad_email' => 'Введите корректный e-mail',
+        'mail_subject' => 'Сообщение с сайта',
+        'mail_from' => 'Мой e-mail:',
+        'mail_body' => 'Сообщение:',
     ],
+
     'news' => [
         'all' => 'Все новости',
         'copy_link' => 'Скопировать ссылку',
@@ -57,6 +59,7 @@ return [
         'section' => 'Новости',
         'share' => 'Поделиться:',
     ],
+
     'search' => [
         'title' => 'Поиск',
         'title_with' => 'Поиск: :query',
@@ -75,13 +78,13 @@ return [
         'tip_general' => 'Используйте более общее понятие',
         'pages_section' => 'Страницы сайта',
     ],
+
     'account' => [
         'individual' => 'Физическое лицо',
         'legal_entity_type' => 'Юридическое лицо',
-        'company' => 'Юридическое лицо',
+        'company' => 'Компания',
         'amount' => 'Сумма',
         'change_password' => 'Смена пароля',
-        'company' => 'Компания',
         'date' => 'Дата',
         'delivery' => 'Доставка',
         'edit_profile' => 'Редактирование профиля',
@@ -105,6 +108,7 @@ return [
         'title' => 'Личный кабинет',
         'user_type' => 'Тип пользователя',
     ],
+
     'common' => [
         'cms_tagline' => 'Модульная CMS',
         'fit_screen' => 'По экрану',
@@ -117,6 +121,7 @@ return [
         'send' => 'Отправить',
         'loading' => 'Загрузка…',
     ],
+
     'cart' => [
         'choose_delivery' => 'Выберите способ доставки…',
         'choose_payment' => 'Выберите способ оплаты…',

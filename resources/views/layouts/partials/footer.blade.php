@@ -124,11 +124,11 @@
                 <form method="GET" action="#" id="footerMailForm" x-data="{ email: '', busy: false, msg: '' }"
                     @submit.prevent="
                 msg='';
-                if(!email.match(/^[^@\s]+@[^@\s]+\.[^@\s]+$/)){ msg='Введите корректный e-mail'; return; }
+                if(!email.match(/^[^@\s]+@[^@\s]+\.[^@\s]+$/)){ msg=@js(__('frontend.footer.bad_email')); return; }
                 busy=true;
                 const to='Suglobov2015@mail.ru';
-                const subject=encodeURIComponent('Сообщение с сайта');
-                const body=encodeURIComponent('Мой e-mail: '+email+'\n\nСообщение:');
+                const subject=encodeURIComponent(@js(__('frontend.footer.mail_subject')));
+                const body=encodeURIComponent(@js(__('frontend.footer.mail_from'))+' '+email+'\n\n'+@js(__('frontend.footer.mail_body')));
                 window.location.href = 'mailto:'+to+'?subject='+subject+'&body='+body;
                 setTimeout(()=>busy=false,800);
               "
@@ -151,7 +151,7 @@
     <button id="backToTopBtn"
         class="fixed bottom-6 right-6 z-50 p-3 shadow-md transition transform hover:scale-105 opacity-0 pointer-events-none text-white"
         style="background:var(--fx-grad,#6366f1); box-shadow:0 10px 24px -8px rgba(99,102,241,.6)"
-        title="{{ __('frontend.footer.to_top') }}" aria-label="Наверх">
+        title="{{ __('frontend.footer.to_top') }}" aria-label="{{ __('frontend.footer.to_top') }}">
         @themeIcon('arrow-up')
     </button>
 </footer>

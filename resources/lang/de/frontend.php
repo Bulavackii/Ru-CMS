@@ -1,13 +1,7 @@
 <?php
 
-/**
- * 🌐 Строки публичной части сайта.
- *
- * Структура повторяет resources/lang/ru/frontend.php ключ в ключ —
- * проверяется командой `php artisan lang:check` и тестом.
- */
-
 return [
+
     'header' => [
         'menu' => 'Menü',
         'tagline' => 'Inhalt & Verwaltung',
@@ -25,7 +19,10 @@ return [
         'theme' => 'Design',
         'theme_default' => 'Wie auf der Website',
         'theme_site' => 'Standard',
+        'home_aria' => 'Zur Startseite',
+        'logo_alt' => 'Logo',
     ],
+
     'footer' => [
         'developer' => 'Entwickler',
         'rights' => 'alle Rechte vorbehalten',
@@ -35,7 +32,12 @@ return [
         'send' => 'Senden',
         'sending' => 'Wird geöffnet…',
         'to_top' => 'Nach oben',
+        'bad_email' => 'Geben Sie eine gültige E-Mail-Adresse ein',
+        'mail_subject' => 'Nachricht von der Website',
+        'mail_from' => 'Meine E-Mail:',
+        'mail_body' => 'Nachricht:',
     ],
+
     'news' => [
         'all' => 'Alle Neuigkeiten',
         'copy_link' => 'Link kopieren',
@@ -57,6 +59,7 @@ return [
         'section' => 'Neuigkeiten',
         'share' => 'Teilen:',
     ],
+
     'search' => [
         'title' => 'Suche',
         'title_with' => 'Suche: :query',
@@ -75,13 +78,13 @@ return [
         'tip_general' => 'Verwenden Sie einen allgemeineren Begriff',
         'pages_section' => 'Seiten der Website',
     ],
+
     'account' => [
         'individual' => 'Privatperson',
         'legal_entity_type' => 'Juristische Person',
-        'company' => 'Juristische Person',
+        'company' => 'Firma',
         'amount' => 'Summe',
         'change_password' => 'Passwort ändern',
-        'company' => 'Firma',
         'date' => 'Datum',
         'delivery' => 'Lieferung',
         'edit_profile' => 'Profil bearbeiten',
@@ -105,6 +108,7 @@ return [
         'title' => 'Persönliches Konto',
         'user_type' => 'Kontotyp',
     ],
+
     'common' => [
         'cms_tagline' => 'Modulares CMS',
         'fit_screen' => 'An Bildschirm anpassen',
@@ -117,6 +121,7 @@ return [
         'send' => 'Senden',
         'loading' => 'Wird geladen…',
     ],
+
     'cart' => [
         'choose_delivery' => 'Versandart wählen…',
         'choose_payment' => 'Zahlungsart wählen…',

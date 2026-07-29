@@ -1,13 +1,7 @@
 <?php
 
-/**
- * 🌐 Строки публичной части сайта.
- *
- * Структура повторяет resources/lang/ru/frontend.php ключ в ключ —
- * проверяется командой `php artisan lang:check` и тестом.
- */
-
 return [
+
     'header' => [
         'menu' => 'Menu',
         'tagline' => 'Content & Management',
@@ -25,7 +19,10 @@ return [
         'theme' => 'Site theme',
         'theme_default' => 'Site default',
         'theme_site' => 'default',
+        'home_aria' => 'To the home page',
+        'logo_alt' => 'Logo',
     ],
+
     'footer' => [
         'developer' => 'developer',
         'rights' => 'all rights reserved',
@@ -35,7 +32,12 @@ return [
         'send' => 'Send',
         'sending' => 'Opening…',
         'to_top' => 'Back to top',
+        'bad_email' => 'Enter a valid e-mail address',
+        'mail_subject' => 'Message from the website',
+        'mail_from' => 'My e-mail:',
+        'mail_body' => 'Message:',
     ],
+
     'news' => [
         'all' => 'All news',
         'copy_link' => 'Copy link',
@@ -57,6 +59,7 @@ return [
         'section' => 'News',
         'share' => 'Share:',
     ],
+
     'search' => [
         'title' => 'Search',
         'title_with' => 'Search: :query',
@@ -75,13 +78,13 @@ return [
         'tip_general' => 'Use a more general term',
         'pages_section' => 'Site pages',
     ],
+
     'account' => [
         'individual' => 'Individual',
         'legal_entity_type' => 'Legal entity',
-        'company' => 'Legal entity',
+        'company' => 'Company',
         'amount' => 'Total',
         'change_password' => 'Change password',
-        'company' => 'Company',
         'date' => 'Date',
         'delivery' => 'Delivery',
         'edit_profile' => 'Edit profile',
@@ -105,6 +108,7 @@ return [
         'title' => 'Personal account',
         'user_type' => 'Account type',
     ],
+
     'common' => [
         'cms_tagline' => 'Modular CMS',
         'fit_screen' => 'Fit to screen',
@@ -117,6 +121,7 @@ return [
         'send' => 'Send',
         'loading' => 'Loading…',
     ],
+
     'cart' => [
         'choose_delivery' => 'Choose a delivery method…',
         'choose_payment' => 'Choose a payment method…',

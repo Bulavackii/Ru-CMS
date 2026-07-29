@@ -67,9 +67,9 @@
     <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
 
       {{-- ЛОГОТИП --}}
-      <a href="{{ url('/') }}" class="hdr-logo flex items-center gap-2.5 {{ $logoWrapCls }}" aria-label="На главную">
+      <a href="{{ url('/') }}" class="hdr-logo flex items-center gap-2.5 {{ $logoWrapCls }}" aria-label="{{ __('frontend.header.home_aria') }}">
         @if($logoAbs)
-          <img src="{{ $logoAbs }}" alt="Логотип" loading="lazy" decoding="async"
+          <img src="{{ $logoAbs }}" alt="{{ __('frontend.header.logo_alt') }}" loading="lazy" decoding="async"
                style="width: {{ $logoW }}; max-width:100%; height:auto;" class="inline-block align-middle"
                onerror="this.style.display='none'">
         @else
@@ -165,7 +165,7 @@
               <span class="cart-ico__glyph"><i class="fas fa-cart-shopping"></i></span>
               <span id="cart-count" class="cart-ico__badge {{ $cartCount == 0 ? 'hidden' : '' }}">{{ $cartCount }}</span>
             </span>
-            <span class="hidden lg:inline">Корзина</span>
+            <span class="hidden lg:inline">{{ __('frontend.header.cart') }}</span>
           </a>
         @endif
 

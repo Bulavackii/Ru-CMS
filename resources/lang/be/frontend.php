@@ -1,13 +1,7 @@
 <?php
 
-/**
- * 🌐 Строки публичной части сайта.
- *
- * Структура повторяет resources/lang/ru/frontend.php ключ в ключ —
- * проверяется командой `php artisan lang:check` и тестом.
- */
-
 return [
+
     'header' => [
         'menu' => 'Меню',
         'tagline' => 'Кантэнт і Кіраванне',
@@ -25,7 +19,10 @@ return [
         'theme' => 'Тэма афармлення',
         'theme_default' => 'Як на сайце',
         'theme_site' => 'на сайце',
+        'home_aria' => 'На галоўную',
+        'logo_alt' => 'Лагатып',
     ],
+
     'footer' => [
         'developer' => 'распрацоўшчык',
         'rights' => 'усе правы абаронены',
@@ -35,7 +32,12 @@ return [
         'send' => 'Адправіць',
         'sending' => 'Адкрываю…',
         'to_top' => 'Уверх',
+        'bad_email' => 'Увядзіце карэктны e-mail',
+        'mail_subject' => 'Паведамленне з сайта',
+        'mail_from' => 'Мой e-mail:',
+        'mail_body' => 'Паведамленне:',
     ],
+
     'news' => [
         'all' => 'Усе навіны',
         'copy_link' => 'Скапіяваць спасылку',
@@ -57,6 +59,7 @@ return [
         'section' => 'Навіны',
         'share' => 'Падзяліцца:',
     ],
+
     'search' => [
         'title' => 'Пошук',
         'title_with' => 'Пошук: :query',
@@ -75,13 +78,13 @@ return [
         'tip_general' => 'Скарыстайце больш агульнае паняцце',
         'pages_section' => 'Старонкі сайта',
     ],
+
     'account' => [
         'individual' => 'Фізічная асоба',
         'legal_entity_type' => 'Юрыдычная асоба',
-        'company' => 'Юрыдычная асоба',
+        'company' => 'Кампанія',
         'amount' => 'Сума',
         'change_password' => 'Змена пароля',
-        'company' => 'Кампанія',
         'date' => 'Дата',
         'delivery' => 'Дастаўка',
         'edit_profile' => 'Рэдагаванне профілю',
@@ -105,6 +108,7 @@ return [
         'title' => 'Асабісты кабінет',
         'user_type' => 'Тып карыстальніка',
     ],
+
     'common' => [
         'cms_tagline' => 'Модульная CMS',
         'fit_screen' => 'Па экране',
@@ -117,6 +121,7 @@ return [
         'send' => 'Адправіць',
         'loading' => 'Загрузка…',
     ],
+
     'cart' => [
         'choose_delivery' => 'Выберыце спосаб дастаўкі…',
         'choose_payment' => 'Выберыце спосаб аплаты…',

@@ -1,13 +1,7 @@
 <?php
 
-/**
- * 🌐 Строки публичной части сайта.
- *
- * Структура повторяет resources/lang/ru/frontend.php ключ в ключ —
- * проверяется командой `php artisan lang:check` и тестом.
- */
-
 return [
+
     'header' => [
         'menu' => 'Menu',
         'tagline' => 'Contenuti & Gestione',
@@ -25,7 +19,10 @@ return [
         'theme' => 'Tema del sito',
         'theme_default' => 'Come sul sito',
         'theme_site' => 'predefinito',
+        'home_aria' => 'Alla pagina iniziale',
+        'logo_alt' => 'Logo',
     ],
+
     'footer' => [
         'developer' => 'sviluppatore',
         'rights' => 'tutti i diritti riservati',
@@ -35,7 +32,12 @@ return [
         'send' => 'Invia',
         'sending' => 'Apertura…',
         'to_top' => 'Torna su',
+        'bad_email' => 'Inserisci un indirizzo e-mail valido',
+        'mail_subject' => 'Messaggio dal sito',
+        'mail_from' => 'La mia e-mail:',
+        'mail_body' => 'Messaggio:',
     ],
+
     'news' => [
         'all' => 'Tutte le notizie',
         'copy_link' => 'Copia link',
@@ -57,6 +59,7 @@ return [
         'section' => 'Notizie',
         'share' => 'Condividi:',
     ],
+
     'search' => [
         'title' => 'Ricerca',
         'title_with' => 'Ricerca: :query',
@@ -75,13 +78,13 @@ return [
         'tip_general' => 'Usa un termine più generico',
         'pages_section' => 'Pagine del sito',
     ],
+
     'account' => [
         'individual' => 'Privato',
         'legal_entity_type' => 'Persona giuridica',
-        'company' => 'Persona giuridica',
+        'company' => 'Azienda',
         'amount' => 'Totale',
         'change_password' => 'Cambia password',
-        'company' => 'Azienda',
         'date' => 'Data',
         'delivery' => 'Consegna',
         'edit_profile' => 'Modifica profilo',
@@ -105,6 +108,7 @@ return [
         'title' => 'Area personale',
         'user_type' => 'Tipo di account',
     ],
+
     'common' => [
         'cms_tagline' => 'CMS modulare',
         'fit_screen' => 'Adatta allo schermo',
@@ -117,6 +121,7 @@ return [
         'send' => 'Invia',
         'loading' => 'Caricamento…',
     ],
+
     'cart' => [
         'choose_delivery' => 'Scegli un metodo di consegna…',
         'choose_payment' => 'Scegli un metodo di pagamento…',

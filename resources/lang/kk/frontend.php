@@ -1,13 +1,7 @@
 <?php
 
-/**
- * 🌐 Строки публичной части сайта.
- *
- * Структура повторяет resources/lang/ru/frontend.php ключ в ключ —
- * проверяется командой `php artisan lang:check` и тестом.
- */
-
 return [
+
     'header' => [
         'menu' => 'Мәзір',
         'tagline' => 'Мазмұн & Басқару',
@@ -25,7 +19,10 @@ return [
         'theme' => 'Безендіру тақырыбы',
         'theme_default' => 'Сайттағыдай',
         'theme_site' => 'сайтта',
+        'home_aria' => 'Басты бетке',
+        'logo_alt' => 'Логотип',
     ],
+
     'footer' => [
         'developer' => 'әзірлеуші',
         'rights' => 'барлық құқықтар қорғалған',
@@ -35,7 +32,12 @@ return [
         'send' => 'Жіберу',
         'sending' => 'Ашылуда…',
         'to_top' => 'Жоғарыға',
+        'bad_email' => 'Дұрыс e-mail енгізіңіз',
+        'mail_subject' => 'Сайттан хабарлама',
+        'mail_from' => 'Менің e-mail:',
+        'mail_body' => 'Хабарлама:',
     ],
+
     'news' => [
         'all' => 'Барлық жаңалықтар',
         'copy_link' => 'Сілтемені көшіру',
@@ -57,6 +59,7 @@ return [
         'section' => 'Жаңалықтар',
         'share' => 'Бөлісу:',
     ],
+
     'search' => [
         'title' => 'Іздеу',
         'title_with' => 'Іздеу: :query',
@@ -75,13 +78,13 @@ return [
         'tip_general' => 'Жалпырақ ұғымды қолданыңыз',
         'pages_section' => 'Сайт беттері',
     ],
+
     'account' => [
         'individual' => 'Жеке тұлға',
         'legal_entity_type' => 'Заңды тұлға',
-        'company' => 'Заңды тұлға',
+        'company' => 'Компания',
         'amount' => 'Сомасы',
         'change_password' => 'Құпия сөзді ауыстыру',
-        'company' => 'Компания',
         'date' => 'Күні',
         'delivery' => 'Жеткізу',
         'edit_profile' => 'Профильді өңдеу',
@@ -105,6 +108,7 @@ return [
         'title' => 'Жеке кабинет',
         'user_type' => 'Пайдаланушы түрі',
     ],
+
     'common' => [
         'cms_tagline' => 'Модульдік CMS',
         'fit_screen' => 'Экранға сай',
@@ -117,6 +121,7 @@ return [
         'send' => 'Жіберу',
         'loading' => 'Жүктелуде…',
     ],
+
     'cart' => [
         'choose_delivery' => 'Жеткізу әдісін таңдаңыз…',
         'choose_payment' => 'Төлем әдісін таңдаңыз…',
