@@ -123,7 +123,7 @@ class CategoryController extends Controller
             return redirect()
                 ->back()
                 ->withInput()
-                ->withErrors(['parent_id' => 'Категория не может быть родителем самой себя']);
+                ->withErrors(['parent_id' => __('admin.errors.cat_self_parent')]);
         }
 
         // Проверяем, что родитель не является потомком текущей категории
@@ -133,7 +133,7 @@ class CategoryController extends Controller
                 return redirect()
                     ->back()
                     ->withInput()
-                    ->withErrors(['parent_id' => 'Категория не может быть родителем своего потомка']);
+                    ->withErrors(['parent_id' => __('admin.errors.cat_descendant_parent')]);
             }
         }
 

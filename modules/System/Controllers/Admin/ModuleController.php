@@ -81,17 +81,17 @@ class ModuleController extends Controller
             // Проверка существования модуля в файловой системе
             $modulePath = base_path("modules/{$module->name}");
             if (!is_dir($modulePath)) {
-                return back()->withErrors(['module' => "⚠️ Модуль «{$module->title}» не найден в файловой системе!"]);
+                return back()->withErrors(['module' => __('admin.errors.module_missing_files', ['name' => $module->title])]);
             }
 
             // 🛡️ Защита ключевых модулей от отключения
             if (ProtectedModulesService::isProtected($module->name)) {
                 // Если модуль активен - не даем его отключить
                 if ($module->active) {
-                    return back()->withErrors(['module' => "⚠️ Модуль «{$module->title}» является системным и должен оставаться активным!"]);
+                    return back()->withErrors(['module' => __('admin.errors.module_system_keep_active', ['name' => $module->title])]);
                 }
                 // Если модуль неактивен - не даем его активировать (должен быть всегда активен)
-                return back()->withErrors(['module' => "⚠️ Модуль «{$module->title}» является системным и должен быть всегда активен!"]);
+                return back()->withErrors(['module' => __('admin.errors.module_system_always_active', ['name' => $module->title])]);
             }
 
             // Проверка подписи перед активацией.
@@ -107,7 +107,7 @@ class ModuleController extends Controller
             // сойтись, если её нет — модуль считается локальным и включается.
             if (!$module->active && ModuleSignature::where('module_name', $module->name)->exists()) {
                 if (!ModuleSecurityService::verifyModule($modulePath, $module->name)) {
-                    return back()->withErrors(['module' => "⚠️ Модуль «{$module->title}» подписан, но его файлы изменены — включение отменено!"]);
+                    return back()->withErrors(['module' => __('admin.errors.module_tampered', ['name' => $module->title])]);
                 }
             }
 
@@ -120,10 +120,10 @@ class ModuleController extends Controller
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             Log::error("Module toggle: Module not found", ['id' => $id]);
-            return back()->withErrors(['module' => 'Модуль не найден']);
+            return back()->withErrors(['module' => __('admin.errors.module_not_found')]);
         } catch (\Exception $e) {
             Log::error("Module toggle error", ['id' => $id, 'error' => $e->getMessage()]);
-            return back()->withErrors(['module' => "Ошибка при переключении модуля: {$e->getMessage()}"]);
+            return back()->withErrors(['module' => __('admin.errors.module_toggle_error', ['message' => $e->getMessage()])]);
         }
     }
 
@@ -151,7 +151,7 @@ class ModuleController extends Controller
 
             // Проверка на существующий модуль
             if (Module::where('name', $moduleName)->exists()) {
-                return back()->withErrors(['module' => "Модуль с именем '{$moduleName}' уже существует!"]);
+                return back()->withErrors(['module' => __('admin.errors.module_name_exists', ['name' => $moduleName])]);
             }
 
             // Временное хранилище
@@ -176,7 +176,7 @@ class ModuleController extends Controller
                     File::deleteDirectory($extractPath);
                     File::delete($zipPath);
                     DB::rollBack();
-                    return back()->withErrors(['module' => "⚠️ Архив содержит слишком много файлов (максимум {$maxFiles})"]);
+                    return back()->withErrors(['module' => __('admin.errors.archive_too_many_files', ['max' => $maxFiles])]);
                 }
 
                 // Безопасная распаковка
@@ -203,7 +203,7 @@ class ModuleController extends Controller
                         File::deleteDirectory($extractPath);
                         File::delete($zipPath);
                         DB::rollBack();
-                        return back()->withErrors(['module' => "⚠️ Обнаружен опасный путь в архиве: {$entry}"]);
+                        return back()->withErrors(['module' => __('admin.errors.archive_bad_path', ['path' => $entry])]);
                     }
 
                     // Проверка на PHP файлы в корне (может быть вредоносным)
@@ -214,7 +214,7 @@ class ModuleController extends Controller
                             File::deleteDirectory($extractPath);
                             File::delete($zipPath);
                             DB::rollBack();
-                            return back()->withErrors(['module' => "⚠️ Обнаружен вредоносный код в корневом PHP файле!"]);
+                            return back()->withErrors(['module' => __('admin.errors.archive_malicious')]);
                         }
                     }
                 }
@@ -225,7 +225,7 @@ class ModuleController extends Controller
                 File::deleteDirectory($extractPath);
                 File::delete($zipPath);
                 DB::rollBack();
-                return back()->withErrors(['module' => 'Ошибка распаковки архива']);
+                return back()->withErrors(['module' => __('admin.errors.archive_unpack_error')]);
             }
 
             // Проверка module.json
@@ -234,7 +234,7 @@ class ModuleController extends Controller
                 File::deleteDirectory($extractPath);
                 File::delete($zipPath);
                 DB::rollBack();
-                return back()->withErrors(['module' => 'Файл module.json не найден']);
+                return back()->withErrors(['module' => __('admin.errors.module_json_missing')]);
             }
 
             $data = json_decode(File::get($configPath), true);
@@ -242,7 +242,7 @@ class ModuleController extends Controller
                 File::deleteDirectory($extractPath);
                 File::delete($zipPath);
                 DB::rollBack();
-                return back()->withErrors(['module' => 'Некорректный формат module.json']);
+                return back()->withErrors(['module' => __('admin.errors.module_json_invalid')]);
             }
 
             // Проверка безопасности
@@ -294,7 +294,7 @@ class ModuleController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Module install error", ['error' => $e->getMessage()]);
-            return back()->withErrors(['module' => "Ошибка установки: {$e->getMessage()}"]);
+            return back()->withErrors(['module' => __('admin.errors.install_error', ['message' => $e->getMessage()])]);
         }
     }
 
@@ -308,7 +308,7 @@ class ModuleController extends Controller
 
             // 🛡️ Защита ключевых модулей от удаления
             if (ProtectedModulesService::isProtected($module->name)) {
-                return back()->withErrors(['module' => "⚠️ Модуль «{$module->title}» является системным и не может быть удален!"]);
+                return back()->withErrors(['module' => __('admin.errors.module_system_no_delete', ['name' => $module->title])]);
             }
 
             $moduleDir = base_path("modules/{$module->name}");
@@ -350,15 +350,15 @@ class ModuleController extends Controller
             } catch (\Exception $e) {
                 DB::rollBack();
                 Log::error("Module delete error", ['error' => $e->getMessage(), 'module' => $module->name]);
-                return back()->withErrors(['module' => "Ошибка удаления: {$e->getMessage()}"]);
+                return back()->withErrors(['module' => __('admin.errors.delete_error', ['message' => $e->getMessage()])]);
             }
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             Log::error("Module delete: Module not found", ['id' => $id]);
-            return back()->withErrors(['module' => 'Модуль не найден']);
+            return back()->withErrors(['module' => __('admin.errors.module_not_found')]);
         } catch (\Exception $e) {
             Log::error("Module delete error", ['id' => $id, 'error' => $e->getMessage()]);
-            return back()->withErrors(['module' => "Ошибка удаления: {$e->getMessage()}"]);
+            return back()->withErrors(['module' => __('admin.errors.delete_error', ['message' => $e->getMessage()])]);
         }
     }
 

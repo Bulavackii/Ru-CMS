@@ -55,7 +55,7 @@ class UpdateController extends Controller
             $updatePath = $this->updateService->downloadUpdate($version);
             
             if (!$updatePath) {
-                return back()->withErrors(['update' => 'Не удалось загрузить обновление']);
+                return back()->withErrors(['update' => __('admin.errors.update_download_failed')]);
             }
 
             // Установка
@@ -65,7 +65,7 @@ class UpdateController extends Controller
                 return redirect()->route('admin.updates.index')
                     ->with('success', __('admin.flash.update_installed'));
             } else {
-                return back()->withErrors(['update' => 'Ошибка при установке обновления']);
+                return back()->withErrors(['update' => __('admin.errors.update_install_failed')]);
             }
         } catch (\Exception $e) {
             Log::error('Update installation failed', ['error' => $e->getMessage()]);

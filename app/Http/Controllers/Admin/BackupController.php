@@ -56,7 +56,7 @@ class BackupController extends Controller
         $backupPath = storage_path("app/backups/{$type}/{$filename}");
 
         if (!file_exists($backupPath)) {
-            return back()->withErrors(['error' => 'Файл бэкапа не найден']);
+            return back()->withErrors(['error' => __('admin.errors.backup_file_missing')]);
         }
 
         return response()->download($backupPath);
@@ -77,7 +77,7 @@ class BackupController extends Controller
             return back()->with('success', __('admin.flash.backup_deleted'));
         }
 
-        return back()->withErrors(['error' => 'Файл не найден']);
+        return back()->withErrors(['error' => __('admin.errors.file_missing')]);
     }
 
     /**

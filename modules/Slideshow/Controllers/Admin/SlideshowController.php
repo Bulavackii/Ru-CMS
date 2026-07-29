@@ -116,7 +116,7 @@ class SlideshowController extends Controller
                 if ($width < 800 || $height < 400) {
                     return redirect()
                         ->route('admin.slideshow.edit', $request->slideshow_id)
-                        ->withErrors(['media' => 'Минимальный размер изображения: 800x400px. Текущий: ' . $width . 'x' . $height . 'px']);
+                        ->withErrors(['media' => __('admin.errors.slide_min_size', ['width' => $width, 'height' => $height])]);
                 }
             }
         }

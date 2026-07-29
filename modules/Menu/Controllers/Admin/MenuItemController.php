@@ -28,7 +28,7 @@ class MenuItemController extends Controller
             $parent = MenuItem::find($validated['parent_id']);
             if ($parent && !$parent->canHaveChildren()) {
                 return back()->withErrors([
-                    'parent_id' => 'Максимальная глубина вложенности - 3 уровня. Выбранный родитель уже на максимальном уровне.'
+                    'parent_id' => __('admin.errors.menu_depth_limit')
                 ])->withInput();
             }
         }
@@ -75,7 +75,7 @@ class MenuItemController extends Controller
             $parent = MenuItem::find($validated['parent_id']);
             if ($parent && !$parent->canHaveChildren()) {
                 return back()->withErrors([
-                    'parent_id' => 'Максимальная глубина вложенности - 3 уровня. Выбранный родитель уже на максимальном уровне.'
+                    'parent_id' => __('admin.errors.menu_depth_limit')
                 ])->withInput();
             }
         }
@@ -83,7 +83,7 @@ class MenuItemController extends Controller
         // Проверка, что не пытаемся сделать пункт родителем самого себя
         if ($validated['parent_id'] == $item->id) {
             return back()->withErrors([
-                'parent_id' => 'Пункт не может быть родителем самого себя.'
+                'parent_id' => __('admin.errors.item_self_parent')
             ])->withInput();
         }
 
@@ -92,7 +92,7 @@ class MenuItemController extends Controller
             $descendants = $this->getDescendants($item);
             if (in_array($validated['parent_id'], $descendants)) {
                 return back()->withErrors([
-                    'parent_id' => 'Пункт не может быть родителем своего потомка.'
+                    'parent_id' => __('admin.errors.item_descendant_parent')
                 ])->withInput();
             }
         }

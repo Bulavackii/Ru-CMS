@@ -289,15 +289,21 @@ class AdminTranslationTest extends TestCase
         $found = [];
 
         foreach ($files as $file) {
-            $matches = [];
-            preg_match_all(
-                '~->with\(\s*\'(?:success|error|warning|info)\'\s*,\s*[\'"]([^\'"]*[А-Яа-яЁё][^\'"]*)[\'"]~u',
-                (string) file_get_contents($file),
-                $matches
-            );
+            $source = (string) file_get_contents($file);
 
-            foreach ($matches[1] as $literal) {
-                $found[] = basename($file) . ': ' . $literal;
+            // Флеш после редиректа и ошибки формы — оба видны пользователю.
+            $patterns = [
+                '~->with\(\s*\'(?:success|error|warning|info)\'\s*,\s*[\'"]([^\'"]*[А-Яа-яЁё][^\'"]*)[\'"]~u',
+                '~withErrors\(\s*\[\s*[\'"][a-z_]+[\'"]\s*=>\s*[\'"]([^\'"\n]*[А-Яа-яЁё][^\'"\n]*)[\'"]~u',
+            ];
+
+            foreach ($patterns as $pattern) {
+                $matches = [];
+                preg_match_all($pattern, $source, $matches);
+
+                foreach ($matches[1] as $literal) {
+                    $found[] = basename($file) . ': ' . $literal;
+                }
             }
         }
 
