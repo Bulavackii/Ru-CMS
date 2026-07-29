@@ -1,6 +1,6 @@
 @extends('layouts.frontend')
 
-@section('title', $query !== '' ? "Поиск: {$query}" : 'Поиск по сайту')
+@section('title', $query !== '' ? __('frontend.search.title_with', ['query' => $query]) : __('frontend.search.title'))
 
 @section('content')
 @php
@@ -56,16 +56,16 @@
         <div class="min-w-0">
             <h1 class="fx-section-title text-2xl sm:text-3xl">
                 @if($query !== '')
-                    Поиск: <span class="fx-ico">{{ $query }}</span>
+                    {{ __('frontend.search.title') }}: <span class="fx-ico">{{ $query }}</span>
                 @else
-                    Поиск по сайту
+                    {{ __('frontend.search.title') }}
                 @endif
             </h1>
             <p class="fx-section-sub mt-1">
                 @if($query !== '' && !$short && $total > 0)
-                    Найдено совпадений: <strong>{{ $total }}</strong>
+                    {{ __('frontend.search.found') }} <strong>{{ $total }}</strong>
                 @else
-                    Ищем по новостям и страницам сайта
+                    {{ __('frontend.search.subtitle') }}
                 @endif
             </p>
         </div>
@@ -78,19 +78,19 @@
         {{-- ── Слишком короткий запрос ── --}}
         <div class="fx-card p-10 text-center">
             <span class="fx-badge mx-auto mb-4"><i class="fas fa-keyboard"></i></span>
-            <h2 class="fx-section-title text-lg mb-1">Слишком короткий запрос</h2>
-            <p class="fx-section-sub">Введите хотя бы два символа — так найдётся что-то осмысленное.</p>
+            <h2 class="fx-section-title text-lg mb-1">{{ __('frontend.search.too_short') }}</h2>
+            <p class="fx-section-sub">{{ __('frontend.search.too_short_hint') }}</p>
         </div>
 
     @elseif($query === '')
         {{-- ── Ещё ничего не искали ── --}}
         <div class="fx-card p-10 text-center">
             <span class="fx-badge mx-auto mb-4"><i class="fas fa-magnifying-glass"></i></span>
-            <h2 class="fx-section-title text-lg mb-1">Начните поиск</h2>
-            <p class="fx-section-sub mb-6">Введите слово или фразу — покажем новости и страницы, где они встречаются.</p>
+            <h2 class="fx-section-title text-lg mb-1">{{ __('frontend.search.start') }}</h2>
+            <p class="fx-section-sub mb-6">{{ __('frontend.search.start_hint') }}</p>
 
             <a href="{{ route('news.index') }}" class="fx-btn px-5 py-2 text-sm">
-                <i class="fas fa-newspaper"></i> Все новости
+                <i class="fas fa-newspaper"></i> {{ __('frontend.news.all') }}
             </a>
         </div>
 
@@ -98,20 +98,20 @@
         {{-- ── Ничего не найдено ── --}}
         <div class="fx-card p-10 text-center">
             <span class="fx-badge mx-auto mb-4"><i class="fas fa-circle-question"></i></span>
-            <h2 class="fx-section-title text-lg mb-1">Ничего не найдено</h2>
+            <h2 class="fx-section-title text-lg mb-1">{{ __('frontend.search.nothing') }}</h2>
             <p class="fx-section-sub mb-6">
-                По запросу «{{ $query }}» совпадений нет.
+                {{ __('frontend.search.nothing_hint', ['query' => $query]) }}
             </p>
 
             <ul class="text-sm text-gray-600 space-y-1 mb-6 inline-block text-left">
-                <li><i class="fas fa-check fx-ico mr-2"></i>Проверьте написание</li>
-                <li><i class="fas fa-check fx-ico mr-2"></i>Попробуйте одно слово вместо фразы</li>
-                <li><i class="fas fa-check fx-ico mr-2"></i>Используйте более общее понятие</li>
+                <li><i class="fas fa-check fx-ico mr-2"></i>{{ __('frontend.search.tip_spelling') }}</li>
+                <li><i class="fas fa-check fx-ico mr-2"></i>{{ __('frontend.search.tip_one_word') }}</li>
+                <li><i class="fas fa-check fx-ico mr-2"></i>{{ __('frontend.search.tip_general') }}</li>
             </ul>
 
             <div>
                 <a href="{{ route('news.index') }}" class="fx-btn px-5 py-2 text-sm">
-                    <i class="fas fa-newspaper"></i> Смотреть все новости
+                    <i class="fas fa-newspaper"></i> {{ __('frontend.news.all') }}
                 </a>
             </div>
         </div>
@@ -121,7 +121,7 @@
         @if($pages->isNotEmpty())
             <section class="mb-8">
                 <div class="flex items-center gap-2 mb-3">
-                    <h2 class="fx-section-title text-lg">Страницы сайта</h2>
+                    <h2 class="fx-section-title text-lg">{{ __('frontend.search.pages_section') }}</h2>
                     <span class="fx-chip">{{ $pages->count() }}</span>
                 </div>
 
@@ -148,7 +148,7 @@
         @if($results->total() > 0)
             <section>
                 <div class="flex items-center gap-2 mb-3">
-                    <h2 class="fx-section-title text-lg">Новости</h2>
+                    <h2 class="fx-section-title text-lg">{{ __('frontend.news.section') }}</h2>
                     <span class="fx-chip">{{ $results->total() }}</span>
                 </div>
 
@@ -183,7 +183,7 @@
 
                                 <span class="inline-flex items-center gap-1">
                                     <i class="far fa-clock fx-ico"></i>
-                                    ~{{ reading_time($news->content) }} мин
+                                    ~{{ reading_time($news->content) }} {{ __('frontend.news.reading_time') }}
                                 </span>
 
                                 @if($news->categories->isNotEmpty())
@@ -196,7 +196,7 @@
                                 @if($newsUrl)
                                     <a href="{{ $newsUrl }}"
                                        class="ml-auto text-indigo-600 font-medium no-underline hover:underline">
-                                        Читать →
+                                        {{ __('frontend.news.details') }} →
                                     </a>
                                 @endif
                             </div>

@@ -19,7 +19,9 @@ class SearchFrontendTest extends TestCase
 
     public function test_search_page_opens_without_query(): void
     {
-        $response = $this->get(route('frontend.search'));
+        // Подписи вьюхи теперь из словаря, а тестовое окружение стартует
+        // на en — привязываем локаль, иначе проверяется английский текст.
+        $response = $this->withSession(['app_locale' => 'ru'])->get(route('frontend.search'));
 
         $response->assertStatus(200);
         $response->assertViewIs('frontend.search.results');
@@ -85,7 +87,8 @@ class SearchFrontendTest extends TestCase
 
     public function test_too_short_query_is_reported(): void
     {
-        $response = $this->get(route('frontend.search', ['q' => 'a']));
+        $response = $this->withSession(['app_locale' => 'ru'])
+            ->get(route('frontend.search', ['q' => 'a']));
 
         $response->assertStatus(200);
         $response->assertSee('Слишком короткий запрос');
