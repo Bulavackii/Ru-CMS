@@ -1,17 +1,17 @@
 @extends('layouts.admin')
 
-@section('title', 'Настройки страны')
+@section('title', __('admin.localization.s_title'))
 
 @section('content')
 <div class="">
     <!-- Заголовок -->
     <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div>
-            <h1 class="text-xl font-bold text-gray-900 dark:text-white">⚙️ Настройки: {{ $country->flag ?? '🏳️' }} {{ $country->name }}</h1>
-            <p class="text-gray-500 dark:text-gray-400 mb-0">Дополнительные параметры локализации</p>
+            <h1 class="text-xl font-bold text-gray-900 dark:text-white">⚙️ {{ __('admin.localization.s_heading') }}: {{ $country->flag ?? '🏳️' }} {{ $country->name }}</h1>
+            <p class="text-gray-500 dark:text-gray-400 mb-0">{{ __('admin.localization.s_sub') }}</p>
         </div>
         <a href="{{ route('admin.localization.edit', $country->code) }}" class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 px-4 py-2 text-sm font-semibold transition">
-            <i class="fas fa-arrow-left"></i> Назад к стране
+            <i class="fas fa-arrow-left"></i> {{ __('admin.localization.s_back') }}
         </a>
     </div>
 
@@ -35,29 +35,29 @@
         <div class="">
             <div class="admin-card">
                 <div class="px-5 pt-5 pb-1 font-semibold text-gray-900 dark:text-white">
-                    <h5 class="mb-0">➕ Добавить настройку</h5>
+                    <h5 class="mb-0">➕ {{ __('admin.localization.s_add') }}</h5>
                 </div>
                 <div class="p-5">
                     <form action="{{ route('admin.localization.settings.save', $country->code) }}" method="POST">
                         @csrf
 
                         <div class="mb-3">
-                            <label for="key" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Ключ *</label>
+                            <label for="key" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.localization.s_key') }} *</label>
                             <input type="text" class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition @error('key') is-invalid @enderror"
                                    id="key" name="key" value="{{ old('key') }}"
                                    placeholder="welcome_message" required>
                             @error('key')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @else
-                                <small class="text-gray-500 dark:text-gray-400">Латинские буквы, цифры, подчеркивания</small>
+                                <small class="text-gray-500 dark:text-gray-400">{{ __('admin.localization.s_key_hint') }}</small>
                             @enderror
                         </div>
 
                         <div class="mb-3">
-                            <label for="value" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Значение</label>
+                            <label for="value" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.localization.s_value') }}</label>
                             <textarea class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition @error('value') is-invalid @enderror"
                                       id="value" name="value" rows="3"
-                                      placeholder="Введите значение...">{{ old('value') }}</textarea>
+                                      placeholder="{{ __('admin.localization.s_value_ph') }}">{{ old('value') }}</textarea>
                             @error('value')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -66,7 +66,7 @@
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
                             <div class="">
                                 <div class="mb-3">
-                                    <label for="type" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Тип *</label>
+                                    <label for="type" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.localization.s_type') }} *</label>
                                     <select class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition @error('type') is-invalid @enderror"
                                             id="type" name="type" required>
                                         @foreach($types as $value => $label)
@@ -83,7 +83,7 @@
 
                             <div class="">
                                 <div class="mb-3">
-                                    <label for="group" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Группа *</label>
+                                    <label for="group" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.localization.s_group') }} *</label>
                                     <select class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition @error('group') is-invalid @enderror"
                                             id="group" name="group" required>
                                         @foreach($groups as $value => $label)
@@ -100,17 +100,17 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="description" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Описание</label>
+                            <label for="description" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.localization.s_desc') }}</label>
                             <input type="text" class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition @error('description') is-invalid @enderror"
                                    id="description" name="description" value="{{ old('description') }}"
-                                   placeholder="Описание настройки">
+                                   placeholder="{{ __('admin.localization.s_desc_ph') }}">
                             @error('description')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <button type="submit" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition w-100">
-                            <i class="fas fa-plus"></i> Добавить настройку
+                            <i class="fas fa-plus"></i> {{ __('admin.localization.s_add') }}
                         </button>
                     </form>
                 </div>
@@ -119,7 +119,7 @@
             <!-- Быстрые настройки -->
             <div class="admin-card mt-3">
                 <div class="px-5 pt-5 pb-1 font-semibold text-gray-900 dark:text-white">
-                    <h6 class="mb-0">⚡ Быстрые настройки</h6>
+                    <h6 class="mb-0">⚡ {{ __('admin.localization.s_quick') }}</h6>
                 </div>
                 <div class="p-5">
                     <form action="{{ route('admin.localization.settings.save', $country->code) }}" method="POST" class="mb-2">
@@ -127,9 +127,9 @@
                         <input type="hidden" name="key" value="week_start">
                         <input type="hidden" name="type" value="number">
                         <input type="hidden" name="group" value="date">
-                        <input type="hidden" name="description" value="Первый день недели (0=Вс, 1=Пн)">
+                        <input type="hidden" name="description" value="{{ __('admin.localization.s_week_start_desc') }}">
                         <div class="flex gap-2">
-                            <span class="input-group-text">Первый день недели</span>
+                            <span class="input-group-text">{{ __('admin.localization.s_week_start') }}</span>
                             <input type="number" class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" name="value"
                                    value="{{ $settings['week_start'] ?? 1 }}" min="0" max="1">
                             <button class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 px-4 py-2 text-sm font-semibold transition" type="submit">✓</button>
@@ -141,9 +141,9 @@
                         <input type="hidden" name="key" value="tax_rate">
                         <input type="hidden" name="type" value="number">
                         <input type="hidden" name="group" value="currency">
-                        <input type="hidden" name="description" value="Ставка налога (%)">
+                        <input type="hidden" name="description" value="{{ __('admin.localization.s_tax_desc') }}">
                         <div class="flex gap-2">
-                            <span class="input-group-text">Налог (%)</span>
+                            <span class="input-group-text">{{ __('admin.localization.s_tax') }}</span>
                             <input type="number" class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" name="value"
                                    value="{{ $settings['tax_rate'] ?? 0 }}" min="0" max="100" step="0.1">
                             <button class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 px-4 py-2 text-sm font-semibold transition" type="submit">✓</button>
@@ -155,12 +155,12 @@
                         <input type="hidden" name="key" value="currency_position">
                         <input type="hidden" name="type" value="string">
                         <input type="hidden" name="group" value="currency">
-                        <input type="hidden" name="description" value="Позиция символа валюты">
+                        <input type="hidden" name="description" value="{{ __('admin.localization.s_cur_pos_desc') }}">
                         <div class="flex gap-2">
-                            <span class="input-group-text">Позиция валюты</span>
+                            <span class="input-group-text">{{ __('admin.localization.s_cur_pos') }}</span>
                             <select class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" name="value">
-                                <option value="before" {{ ($settings['currency_position'] ?? 'before') === 'before' ? 'selected' : '' }}>Слева</option>
-                                <option value="after" {{ ($settings['currency_position'] ?? 'before') === 'after' ? 'selected' : '' }}>Справа</option>
+                                <option value="before" {{ ($settings['currency_position'] ?? 'before') === 'before' ? 'selected' : '' }}>{{ __('admin.localization.s_before') }}</option>
+                                <option value="after" {{ ($settings['currency_position'] ?? 'before') === 'after' ? 'selected' : '' }}>{{ __('admin.localization.s_after') }}</option>
                             </select>
                             <button class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 px-4 py-2 text-sm font-semibold transition" type="submit">✓</button>
                         </div>
@@ -173,26 +173,26 @@
         <div class="lg:col-span-2">
             <div class="admin-card">
                 <div class="px-5 pt-5 pb-1 font-semibold text-gray-900 dark:text-white flex flex-wrap items-center justify-between gap-3">
-                    <h5 class="mb-0">Существующие настройки</h5>
-                    <span class="text-xs bg-indigo-100 text-indigo-800 px-2 py-0.5">{{ count($settings) }} шт.</span>
+                    <h5 class="mb-0">{{ __('admin.localization.s_existing') }}</h5>
+                    <span class="text-xs bg-indigo-100 text-indigo-800 px-2 py-0.5">{{ count($settings) }} {{ __('admin.localization.s_count_suffix') }}</span>
                 </div>
                 <div class="p-5 p-0">
                     @if(empty($settings))
                     <div class="text-center py-5 text-gray-500 dark:text-gray-400">
                         <i class="fas fa-cog fa-3x mb-3"></i>
-                        <p>Настройки отсутствуют. Добавьте первую настройку.</p>
+                        <p>{{ __('admin.localization.s_empty') }}</p>
                     </div>
                     @else
                     <div class="overflow-x-auto">
                         <table class="min-w-full text-sm">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Ключ</th>
-                                    <th>Значение</th>
-                                    <th>Тип</th>
-                                    <th>Группа</th>
-                                    <th>Описание</th>
-                                    <th class="text-right">Действия</th>
+                                    <th>{{ __('admin.localization.s_key') }}</th>
+                                    <th>{{ __('admin.localization.s_value') }}</th>
+                                    <th>{{ __('admin.localization.s_type') }}</th>
+                                    <th>{{ __('admin.localization.s_group') }}</th>
+                                    <th>{{ __('admin.localization.s_desc') }}</th>
+                                    <th class="text-right">{{ __('admin.localization.s_th_actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -220,14 +220,14 @@
                                     <td class="text-right">
                                         <form action="{{ route('admin.localization.settings.delete', $country->code) }}"
                                               method="POST" class="d-inline"
-                                              onsubmit="return confirm('Удалить настройку {{ $key }}?');">
+                                              onsubmit="return confirm(@js(__('admin.localization.s_confirm_delete', ['key' => $key])))">
                                             @csrf
                                             @method('DELETE')
                                             <input type="hidden" name="key" value="{{ $key }}">
                                             @if($setting->is_system)
-                                                <span class="badge bg-warning text-dark" title="Системная настройка">🔒</span>
+                                                <span class="badge bg-warning text-dark" title="{{ __('admin.localization.s_system') }}">🔒</span>
                                             @else
-                                                <button type="submit" class="inline-flex items-center gap-2 border border-gray-300 text-gray-700 hover:border-red-400 hover:text-red-600 px-4 py-2 text-sm font-semibold transition" title="Удалить">
+                                                <button type="submit" class="inline-flex items-center gap-2 border border-gray-300 text-gray-700 hover:border-red-400 hover:text-red-600 px-4 py-2 text-sm font-semibold transition" title="{{ __('admin.localization.s_delete') }}">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             @endif
@@ -246,22 +246,22 @@
             <!-- JSON экспорт/импорт -->
             <div class="admin-card mt-3">
                 <div class="px-5 pt-5 pb-1 font-semibold text-gray-900 dark:text-white">
-                    <h6 class="mb-0">📦 Импорт/Экспорт JSON</h6>
+                    <h6 class="mb-0">📦 {{ __('admin.localization.s_io') }}</h6>
                 </div>
                 <div class="p-5">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
                         <div class="">
                             <button class="inline-flex items-center justify-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:border-indigo-400 hover:text-indigo-600 px-4 py-2 text-sm font-semibold transition w-full mb-2" onclick="exportSettings()">
-                                <i class="fas fa-download"></i> Экспорт настроек
+                                <i class="fas fa-download"></i> {{ __('admin.localization.s_export') }}
                             </button>
-                            <small class="text-gray-500 dark:text-gray-400">Скачать все настройки этой страны в JSON</small>
+                            <small class="text-gray-500 dark:text-gray-400">{{ __('admin.localization.s_export_hint') }}</small>
                         </div>
                         <div class="">
                             <button class="inline-flex items-center justify-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:border-indigo-400 hover:text-indigo-600 px-4 py-2 text-sm font-semibold transition w-full mb-2" onclick="document.getElementById('importFile').click()">
-                                <i class="fas fa-upload"></i> Импорт настроек
+                                <i class="fas fa-upload"></i> {{ __('admin.localization.s_import') }}
                             </button>
                             <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importSettings(event)">
-                            <small class="text-gray-500 dark:text-gray-400">Загрузить настройки из JSON файла</small>
+                            <small class="text-gray-500 dark:text-gray-400">{{ __('admin.localization.s_import_hint') }}</small>
                         </div>
                     </div>
                 </div>
@@ -300,7 +300,7 @@
             try {
                 const settings = JSON.parse(e.target.result);
 
-                if (!confirm(`Импортировать ${Object.keys(settings).length} настроек? Это перезапишет существующие значения.`)) {
+                if (!confirm(@js(__('admin.localization.s_import_confirm')).replace(':count', Object.keys(settings).length))) {
                     return;
                 }
 
@@ -316,7 +316,7 @@
                     formData.append('value', typeof value === 'object' ? JSON.stringify(value) : value);
                     formData.append('type', Array.isArray(value) ? 'array' : (typeof value === 'object' ? 'json' : 'string'));
                     formData.append('group', 'imported');
-                    formData.append('description', 'Импортировано из JSON');
+                    formData.append('description', @js(__('admin.localization.s_imported_from_json')));
 
                     fetch(`/admin/localization/settings/${country}/save`, {
                         method: 'POST',
@@ -329,7 +329,7 @@
                     });
                 }
             } catch (error) {
-                alert('Ошибка импорта: ' + error.message);
+                alert(@js(__('admin.localization.s_import_error')) + ' ' + error.message);
             }
         };
         reader.readAsText(file);
