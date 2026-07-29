@@ -136,16 +136,43 @@ class LocalizationTest extends TestCase
         $this->assertSame('de', session('app_locale'));
     }
 
-    public function test_missing_key_falls_back_to_english(): void
+    public function test_install_dictionary_exists_for_every_locale(): void
     {
-        // install.php у de/fr/it пока нет — строки должны приходить из английского,
-        // а не показываться сырым ключом
-        app()->setLocale('de');
+        // Раньше здесь проверялся откат на английский: словаря install.php
+        // у de/fr/it не было. Теперь он есть у всех семи локалей, и ценность
+        // представляет обратное — что наборы ключей совпадают с эталоном.
+        $flatten = function (array $items, string $prefix = '') use (&$flatten): array {
+            $out = [];
 
-        $value = __('install.welcome.tagline');
+            foreach ($items as $key => $value) {
+                $path = $prefix === '' ? (string) $key : $prefix . '.' . $key;
+                $out += is_array($value) ? $flatten($value, $path) : [$path => $value];
+            }
 
-        $this->assertNotSame('install.welcome.tagline', $value);
-        $this->assertSame(__('install.welcome.tagline', [], 'en'), $value);
+            return $out;
+        };
+
+        $reference = $flatten(require lang_path('ru/install.php'));
+        $this->assertNotEmpty($reference);
+
+        foreach (['en', 'be', 'kk', 'de', 'fr', 'it'] as $locale) {
+            $path = lang_path($locale . '/install.php');
+            $this->assertFileExists($path, "Нет словаря установки для локали {$locale}");
+
+            $keys = $flatten(require $path);
+
+            $this->assertSame([], array_keys(array_diff_key($reference, $keys)),
+                "В локали {$locale} не хватает ключей установки");
+            $this->assertSame([], array_keys(array_diff_key($keys, $reference)),
+                "В локали {$locale} есть лишние ключи установки");
+        }
+    }
+
+    public function test_fallback_locale_is_english(): void
+    {
+        // Отсутствующий ключ обязан уезжать в английский, а не в русский:
+        // на этом держатся частичные наборы переводов.
+        $this->assertSame('en', config('app.fallback_locale'));
     }
 
     // ── SEO-разметка ──────────────────────────────────────────────────────
