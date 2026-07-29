@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Локализация')
+@section('title', __('admin.sections.localization'))
 
 @section('content')
 @php
@@ -17,9 +17,9 @@
     <div class="flex items-center gap-3 min-w-0">
         <span class="admin-icon-badge"><i class="fas fa-globe"></i></span>
         <div class="min-w-0">
-            <h1 class="text-xl font-bold text-gray-900 dark:text-white">Локализация</h1>
+            <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('admin.sections.localization') }}</h1>
             <p class="text-sm text-gray-500 dark:text-gray-400">
-                Страны, валюты, форматы даты и времени, переводы интерфейса.
+                {{ __('admin.localization.subtitle') }}
             </p>
         </div>
     </div>
@@ -28,11 +28,11 @@
         <a href="{{ route('admin.localization.translations.index') }}"
            class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
                   hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition">
-            <i class="fas fa-language"></i> Переводы интерфейса
+            <i class="fas fa-language"></i> {{ __('admin.localization.translations_link') }}
         </a>
         <a href="{{ route('admin.localization.create') }}"
            class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition">
-            <i class="fas fa-plus"></i> Добавить страну
+            <i class="fas fa-plus"></i> {{ __('admin.localization.add_country') }}
         </a>
     </div>
 </div>
@@ -42,19 +42,19 @@
 {{-- ── Сводка ── --}}
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
     @foreach([
-        ['Всего стран', $stats['total_countries'] ?? 0, 'fa-globe', 'Записей в разделе'],
-        ['Активных', $stats['active_countries'] ?? 0, 'fa-circle-check', 'Доступны на сайте'],
-        ['Всего настроек', $stats['total_settings'] ?? 0, 'fa-sliders', 'Форматы и параметры'],
-        ['Системных', $stats['system_settings'] ?? 0, 'fa-lock', 'Заданы системой'],
-    ] as [$label, $value, $icon, $hint])
+        ['countries', $stats['total_countries'] ?? 0, 'fa-globe'],
+        ['active', $stats['active_countries'] ?? 0, 'fa-circle-check'],
+        ['settings', $stats['total_settings'] ?? 0, 'fa-sliders'],
+        ['system', $stats['system_settings'] ?? 0, 'fa-lock'],
+    ] as [$stat, $value, $icon])
         <div class="admin-card p-4">
             <div class="flex items-center gap-2 text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                <i class="fas {{ $icon }} text-indigo-500"></i> {{ $label }}
+                <i class="fas {{ $icon }} text-indigo-500"></i> {{ __('admin.localization.stat_' . $stat) }}
             </div>
-            <div class="text-2xl font-bold text-gray-900 dark:text-white mt-1" data-stat="{{ \Illuminate\Support\Str::slug($label) }}">
+            <div class="text-2xl font-bold text-gray-900 dark:text-white mt-1" data-stat="{{ $stat }}">
                 {{ $value }}
             </div>
-            <div class="text-xs text-gray-400 dark:text-gray-500 mt-1">{{ $hint }}</div>
+            <div class="text-xs text-gray-400 dark:text-gray-500 mt-1">{{ __('admin.localization.stat_' . $stat . '_hint') }}</div>
         </div>
     @endforeach
 </div>
@@ -62,7 +62,7 @@
 {{-- ── Инструменты ── --}}
 <div class="admin-card p-4 mb-5" x-data="{ importOpen: false }">
     <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-2">
-        <i class="fas fa-screwdriver-wrench text-indigo-500"></i> Инструменты
+        <i class="fas fa-screwdriver-wrench text-indigo-500"></i> {{ __('admin.localization.tools') }}
     </h2>
 
     <div class="flex flex-wrap items-center gap-2">
@@ -71,7 +71,7 @@
         <button type="button" @click="importOpen = true"
                 class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
                        hover:border-indigo-400 hover:text-indigo-600 px-3 py-2 text-sm transition">
-            <i class="fas fa-download"></i> Импорт стран
+            <i class="fas fa-download"></i> {{ __('admin.localization.import') }}
         </button>
 
         <form action="{{ route('admin.localization.clear.cache') }}" method="POST" class="inline">
@@ -79,12 +79,12 @@
             <button type="submit"
                     class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
                            hover:border-indigo-400 hover:text-indigo-600 px-3 py-2 text-sm transition">
-                <i class="fas fa-arrows-rotate"></i> Очистить кеш
+                <i class="fas fa-arrows-rotate"></i> {{ __('admin.localization.clear_cache') }}
             </button>
         </form>
 
         <span class="text-sm text-gray-400 dark:text-gray-500">
-            Доступно для импорта: {{ count($presets) }} {{ trans_choice('страна|страны|стран', count($presets)) }}
+            {{ __('admin.localization.available_presets') }} {{ trans_choice('admin.localization.countries_plural', count($presets)) }}
         </span>
     </div>
 
@@ -96,9 +96,9 @@
         <div class="admin-card w-full max-w-lg p-5" @click.outside="importOpen = false">
             <div class="flex items-start justify-between gap-3 mb-4">
                 <div>
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Импорт стран</h3>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ __('admin.localization.import') }}</h3>
                     <p class="text-sm text-gray-500 dark:text-gray-400">
-                        Готовые наборы: валюта, локаль и форматы уже заполнены.
+                        {{ __('admin.localization.import_hint') }}
                     </p>
                 </div>
                 <button type="button" @click="importOpen = false"
@@ -120,11 +120,11 @@
                                 <span class="block text-xs font-mono text-gray-400">{{ $code }}</span>
                             </span>
                             @if($already)
-                                <span class="ml-auto text-xs text-green-700"><i class="fas fa-check"></i> уже добавлена</span>
+                                <span class="ml-auto text-xs text-green-700"><i class="fas fa-check"></i> {{ __('admin.localization.already_added') }}</span>
                             @endif
                         </label>
                     @empty
-                        <p class="admin-hint">Готовых наборов нет — проверьте config('localization.preset_countries').</p>
+                        <p class="admin-hint">{{ __('admin.localization.no_presets') }}</p>
                     @endforelse
                 </div>
 
@@ -132,13 +132,13 @@
                     <button type="submit"
                             class="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white
                                    px-4 py-2 text-sm font-semibold shadow-sm transition flex-1">
-                        <i class="fas fa-download"></i> Импортировать
+                        <i class="fas fa-download"></i> {{ __('admin.localization.import_submit') }}
                     </button>
                     <button type="button" @click="importOpen = false"
                             class="inline-flex items-center justify-center gap-2 border border-gray-300 dark:border-gray-600
                                    text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800
                                    px-4 py-2 text-sm font-semibold transition">
-                        Отмена
+                        {{ __('admin.localization.cancel') }}
                     </button>
                 </div>
             </form>
@@ -150,14 +150,14 @@
     {{-- ── Пустое состояние ── --}}
     <div class="admin-card p-10 text-center">
         <span class="admin-icon-badge mx-auto mb-4"><i class="fas fa-globe"></i></span>
-        <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-1">Страны не добавлены</h2>
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-1">{{ __('admin.localization.empty_title') }}</h2>
         <p class="text-sm text-gray-500 dark:text-gray-400 max-w-2xl mx-auto mb-5">
-            Страна задаёт валюту, локаль и форматы даты, времени и чисел для сайта.
-            Проще всего импортировать готовый набор и поправить под себя.
+            {{ __('admin.localization.empty_hint_1') }}
+            {{ __('admin.localization.empty_hint_2') }}
         </p>
         <a href="{{ route('admin.localization.create') }}"
            class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 text-sm font-semibold shadow-sm transition">
-            <i class="fas fa-plus"></i> Добавить страну
+            <i class="fas fa-plus"></i> {{ __('admin.localization.add_country') }}
         </a>
     </div>
 @else
@@ -166,12 +166,12 @@
         <table class="min-w-full text-sm">
             <thead class="bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
                 <tr>
-                    <th class="px-4 py-3 text-left font-semibold">Страна</th>
-                    <th class="px-4 py-3 text-left font-semibold">Валюта</th>
-                    <th class="px-4 py-3 text-left font-semibold">Локаль</th>
-                    <th class="px-4 py-3 text-center font-semibold">Настроек</th>
-                    <th class="px-4 py-3 text-center font-semibold">Статус</th>
-                    <th class="px-4 py-3 text-center font-semibold">Действия</th>
+                    <th class="px-4 py-3 text-left font-semibold">{{ __('admin.localization.th_country') }}</th>
+                    <th class="px-4 py-3 text-left font-semibold">{{ __('admin.localization.th_currency') }}</th>
+                    <th class="px-4 py-3 text-left font-semibold">{{ __('admin.localization.th_locale') }}</th>
+                    <th class="px-4 py-3 text-center font-semibold">{{ __('admin.localization.th_settings') }}</th>
+                    <th class="px-4 py-3 text-center font-semibold">{{ __('admin.localization.th_status') }}</th>
+                    <th class="px-4 py-3 text-center font-semibold">{{ __('admin.localization.th_actions') }}</th>
                 </tr>
             </thead>
 
@@ -210,9 +210,9 @@
 
                         <td class="px-4 py-3 align-top text-center">
                             @if($country->active)
-                                <span class="text-xs bg-green-100 text-green-800 px-2 py-0.5">активна</span>
+                                <span class="text-xs bg-green-100 text-green-800 px-2 py-0.5">{{ __('admin.localization.status_on') }}</span>
                             @else
-                                <span class="text-xs bg-gray-200 text-gray-700 px-2 py-0.5">выключена</span>
+                                <span class="text-xs bg-gray-200 text-gray-700 px-2 py-0.5">{{ __('admin.localization.status_off') }}</span>
                             @endif
                         </td>
 
@@ -220,17 +220,17 @@
                             <a href="{{ route('admin.localization.edit', $country->code) }}"
                                class="inline-flex items-center justify-center w-8 h-8 border border-gray-300 dark:border-gray-600
                                       text-gray-600 dark:text-gray-300 hover:border-indigo-400 hover:text-indigo-600 transition"
-                               title="Редактировать"><i class="fas fa-pen"></i></a>
+                               title="{{ __('admin.localization.act_edit') }}"><i class="fas fa-pen"></i></a>
 
                             <a href="{{ route('admin.localization.settings', $country->code) }}"
                                class="inline-flex items-center justify-center w-8 h-8 border border-gray-300 dark:border-gray-600
                                       text-gray-600 dark:text-gray-300 hover:border-indigo-400 hover:text-indigo-600 transition"
-                               title="Настройки формата"><i class="fas fa-sliders"></i></a>
+                               title="{{ __('admin.localization.act_formats') }}"><i class="fas fa-sliders"></i></a>
 
                             <button type="submit" form="delete-country-{{ $country->code }}"
                                     class="inline-flex items-center justify-center w-8 h-8 border border-gray-300 dark:border-gray-600
                                            text-gray-600 dark:text-gray-300 hover:border-red-400 hover:text-red-600 transition"
-                                    title="Удалить"><i class="fas fa-trash"></i></button>
+                                    title="{{ __('admin.localization.act_delete') }}"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>
                 @endforeach
@@ -242,7 +242,7 @@
     @foreach($countries as $country)
         <form id="delete-country-{{ $country->code }}" method="POST"
               action="{{ route('admin.localization.destroy', $country->code) }}" class="hidden"
-              onsubmit="return confirm('Удалить страну «{{ addslashes($country->name) }}» со всеми её настройками?');">
+              onsubmit="return confirm(@js(__('admin.localization.confirm_delete', ['name' => $country->name])))">
             @csrf @method('DELETE')
         </form>
     @endforeach
