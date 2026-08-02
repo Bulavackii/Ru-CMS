@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Редактировать категорию')
+@section('title', __('admin.categories.edit_title'))
 
 @section('content')
     {{-- ── Шапка страницы ── --}}
@@ -14,11 +14,11 @@
                 <div class="flex flex-wrap items-center gap-2 text-xs">
                     @if ($category->is_active)
                         <span class="inline-flex items-center gap-1 px-2 py-0.5 font-semibold bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
-                            <i class="fas fa-circle-check"></i> Активна
+                            <i class="fas fa-circle-check"></i> {{ __('admin.categories.active') }}
                         </span>
                     @else
                         <span class="inline-flex items-center gap-1 px-2 py-0.5 font-semibold bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">
-                            <i class="fas fa-ban"></i> Неактивна
+                            <i class="fas fa-ban"></i> {{ __('admin.categories.inactive') }}
                         </span>
                     @endif
                     <span class="inline-flex items-center gap-1 px-2 py-0.5 font-medium bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
@@ -40,7 +40,7 @@
 
         <a href="{{ route('admin.categories.index') }}"
            class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition shrink-0">
-            <i class="fas fa-arrow-left"></i> К списку категорий
+            <i class="fas fa-arrow-left"></i> {{ __('admin.categories.to_list') }}
         </a>
     </div>
 
@@ -48,20 +48,20 @@
     @if(isset($usageCounts) && ($usageCounts['news'] > 0 || $usageCounts['pages'] > 0 || $usageCounts['children'] > 0))
         <div class="admin-hint px-4 py-3 mb-5 text-sm">
             <div class="flex flex-wrap items-center gap-3">
-                <span class="font-medium flex items-center gap-2"><i class="fas fa-chart-simple"></i> Используется:</span>
+                <span class="font-medium flex items-center gap-2"><i class="fas fa-chart-simple"></i> {{ __('admin.categories.usage') }}</span>
                 @if($usageCounts['news'] > 0)
                     <span class="inline-flex items-center gap-1.5 bg-white dark:bg-gray-900 border border-indigo-100 dark:border-gray-700 px-2 py-1 text-xs">
-                        <i class="fas fa-newspaper text-indigo-500"></i> Новостей: <b>{{ $usageCounts['news'] }}</b>
+                        <i class="fas fa-newspaper text-indigo-500"></i> {{ __('admin.categories.usage_news') }} <b>{{ $usageCounts['news'] }}</b>
                     </span>
                 @endif
                 @if($usageCounts['pages'] > 0)
                     <span class="inline-flex items-center gap-1.5 bg-white dark:bg-gray-900 border border-indigo-100 dark:border-gray-700 px-2 py-1 text-xs">
-                        <i class="fas fa-file-lines text-indigo-500"></i> Страниц: <b>{{ $usageCounts['pages'] }}</b>
+                        <i class="fas fa-file-lines text-indigo-500"></i> {{ __('admin.categories.usage_pages') }} <b>{{ $usageCounts['pages'] }}</b>
                     </span>
                 @endif
                 @if($usageCounts['children'] > 0)
                     <span class="inline-flex items-center gap-1.5 bg-white dark:bg-gray-900 border border-indigo-100 dark:border-gray-700 px-2 py-1 text-xs">
-                        <i class="fas fa-folder-tree text-indigo-500"></i> Дочерних категорий: <b>{{ $usageCounts['children'] }}</b>
+                        <i class="fas fa-folder-tree text-indigo-500"></i> {{ __('admin.categories.usage_children') }} <b>{{ $usageCounts['children'] }}</b>
                     </span>
                 @endif
             </div>
@@ -97,14 +97,14 @@
             {{-- ── Левая колонка: основное ── --}}
             <div class="admin-card p-5 lg:col-span-2">
                 <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
-                    <i class="fas fa-tag text-indigo-500"></i> Основное
+                    <i class="fas fa-tag text-indigo-500"></i> {{ __('admin.categories.g_main') }}
                 </h2>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     {{-- Title --}}
                     <div class="md:col-span-2">
                         <label for="title" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
-                            Название категории <span class="text-red-500">*</span>
+                            {{ __('admin.categories.f_title') }} <span class="text-red-500">*</span>
                         </label>
                         <input
                             type="text"
@@ -114,8 +114,8 @@
                             maxlength="255"
                             autofocus
                             class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-                            placeholder="Например: Новости" required>
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Рекомендуется до 60 символов.</p>
+                            placeholder="{{ __('admin.categories.f_title_ph') }}" required>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('admin.categories.f_title_hint') }}</p>
                     </div>
 
                     {{-- Slug --}}
@@ -128,15 +128,15 @@
                             value="{{ old('slug', $category->slug) }}"
                             pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
                             class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-4 py-2.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-                            placeholder="Будет сгенерирован автоматически">
+                            placeholder="{{ __('admin.categories.f_slug_ph') }}">
                         <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                            Латинские буквы, цифры и дефисы. Изменение обновит ссылки в меню.
+                            {{ __('admin.categories.f_slug_hint_edit') }}
                         </p>
                     </div>
 
                     {{-- Type --}}
                     <div>
-                        <label for="type" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">Тип</label>
+                        <label for="type" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">{{ __('admin.categories.type') }}</label>
                         <input
                             type="text"
                             name="type"
@@ -144,21 +144,21 @@
                             value="{{ old('type', $category->type) }}"
                             maxlength="50"
                             class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-                            placeholder="Например: news, product">
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Для группировки категорий.</p>
+                            placeholder="{{ __('admin.categories.f_type_ph') }}">
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('admin.categories.f_type_hint') }}</p>
                     </div>
 
                     {{-- Description --}}
                     <div class="md:col-span-2">
-                        <label for="description" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">Описание</label>
+                        <label for="description" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">{{ __('admin.categories.f_desc') }}</label>
                         <textarea
                             name="description"
                             id="description"
                             rows="4"
                             maxlength="1000"
                             class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-                            placeholder="Краткое описание категории">{{ old('description', $category->description) }}</textarea>
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Максимум 1000 символов.</p>
+                            placeholder="{{ __('admin.categories.f_desc_ph') }}">{{ old('description', $category->description) }}</textarea>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('admin.categories.f_desc_hint') }}</p>
                     </div>
                 </div>
             </div>
@@ -166,18 +166,18 @@
             {{-- ── Правая колонка: параметры ── --}}
             <div class="admin-card p-5">
                 <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
-                    <i class="fas fa-sliders text-indigo-500"></i> Параметры
+                    <i class="fas fa-sliders text-indigo-500"></i> {{ __('admin.categories.g_params') }}
                 </h2>
 
                 <div class="space-y-5">
                     {{-- Parent --}}
                     <div>
-                        <label for="parent_id" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">Родительская категория</label>
+                        <label for="parent_id" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">{{ __('admin.categories.f_parent') }}</label>
                         <select
                             name="parent_id"
                             id="parent_id"
                             class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
-                            <option value="">Корневая категория</option>
+                            <option value="">{{ __('admin.categories.f_parent_root') }}</option>
                             @foreach($parentCategories ?? [] as $parent)
                                 <option value="{{ $parent->id }}" {{ old('parent_id', $category->parent_id) == $parent->id ? 'selected' : '' }}>
                                     {{ $parent->title }}
@@ -185,14 +185,14 @@
                             @endforeach
                         </select>
                         <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                            Нельзя выбрать саму категорию или её потомка.
+                            {{ __('admin.categories.f_parent_hint_edit') }}
                         </p>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         {{-- Icon --}}
                         <div>
-                            <label for="icon" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">Иконка</label>
+                            <label for="icon" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">{{ __('admin.categories.f_icon') }}</label>
                             <input
                                 type="text"
                                 name="icon"
@@ -200,13 +200,13 @@
                                 value="{{ old('icon', $category->icon) }}"
                                 maxlength="100"
                                 class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-                                placeholder="Эмодзи / HTML">
-                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Эмодзи или HTML.</p>
+                                placeholder="{{ __('admin.categories.f_icon_ph') }}">
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('admin.categories.f_icon_hint') }}</p>
                         </div>
 
                         {{-- Sort Order --}}
                         <div>
-                            <label for="sort_order" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">Порядок</label>
+                            <label for="sort_order" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">{{ __('admin.categories.f_order') }}</label>
                             <input
                                 type="number"
                                 name="sort_order"
@@ -214,7 +214,7 @@
                                 value="{{ old('sort_order', $category->sort_order) }}"
                                 min="0"
                                 class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
-                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Меньше — выше.</p>
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('admin.categories.f_order_hint') }}</p>
                         </div>
                     </div>
 
@@ -228,8 +228,8 @@
                                 {{ old('is_active', $category->is_active) ? 'checked' : '' }}
                                 class="mt-0.5">
                             <span class="text-sm text-gray-700 dark:text-gray-300">
-                                Активна
-                                <span class="block text-xs text-gray-500 dark:text-gray-400">Категория будет видна на сайте.</span>
+                                {{ __('admin.categories.active') }}
+                                <span class="block text-xs text-gray-500 dark:text-gray-400">{{ __('admin.categories.f_active_hint') }}</span>
                             </span>
                         </label>
                     </div>
@@ -241,21 +241,21 @@
         <div class="admin-card p-5 flex flex-col sm:flex-row gap-3 sm:items-center">
             <button type="submit" id="submitBtn"
                     class="inline-flex items-center justify-center gap-2 w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 text-sm font-semibold shadow-sm transition disabled:opacity-50">
-                <i class="fas fa-floppy-disk"></i> Сохранить
+                <i class="fas fa-floppy-disk"></i> {{ __('admin.categories.save') }}
             </button>
 
             <a href="{{ route('admin.categories.index') }}"
                class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-5 py-2.5 border border-gray-300 dark:border-gray-600 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-                Отмена
+                {{ __('admin.categories.cancel') }}
             </a>
 
             <span class="text-xs text-gray-500 dark:text-gray-400 sm:ml-auto">
-                Горячие клавиши: <b>Ctrl/Cmd + S</b> — сохранить, <b>Esc</b> — назад
+                {{ __('admin.categories.hotkeys') }} <b>Ctrl/Cmd + S</b> {{ __('admin.categories.hotkeys_save') }} <b>Esc</b> {{ __('admin.categories.hotkeys_back') }}
             </span>
         </div>
     
     {{-- Переводы контента на другие языки (content_translations) --}}
-    <x-admin.translations :model="$category" :fields="['title' => 'Название', 'description' => ['label' => 'Описание', 'type' => 'textarea']]" />
+    <x-admin.translations :model="$category" :fields="['title' => __('admin.categories.th_name'), 'description' => ['label' => __('admin.categories.f_desc'), 'type' => 'textarea']]" />
 
 </form>
 
