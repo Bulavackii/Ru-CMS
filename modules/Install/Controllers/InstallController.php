@@ -592,6 +592,7 @@ class InstallController extends Controller
             $this->createSubscriptionFromInstall();
             $this->applyLocalizationSettings();
             $this->seedDefaultMenu();
+            $this->seedDefaultPaymentMethods();
             $this->seedDefaultPages();
             $this->seedDefaultSlideshows();
             $this->seedDefaultFiles();
@@ -988,6 +989,20 @@ class InstallController extends Controller
      * вызывается всегда на шаге finish. Идемпотентно (страницы ищутся по slug),
      * без --reset: уже существующие страницы владельца не перезаписываются.
      */
+    /**
+     * Типовые для РФ способы оплаты после установки: ЮKassa, СБП, SberPay,
+     * Т-Банк, наличные и банковский перевод.
+     *
+     * Единый источник — команда модуля (`php artisan payments:seed-default`).
+     * Методы создаются ВЫКЛЮЧЕННЫМИ и без ключей: реквизиты владелец вводит
+     * сам в панели, в коде их нет и быть не должно. Идемпотентно (сверка по
+     * коду метода), без --reset — уже настроенное не перезаписывается.
+     */
+    private function seedDefaultPaymentMethods(): void
+    {
+        \Modules\Payments\Console\Commands\SeedDefaultPaymentMethodsCommand::seed(false);
+    }
+
     private function seedDefaultPages(): void
     {
         \Modules\Menu\Console\Commands\SeedDefaultPagesCommand::seed(false);

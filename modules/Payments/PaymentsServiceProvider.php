@@ -23,5 +23,11 @@ class PaymentsServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__ . '/Views', 'Payments');
 
         // Миграции модуля живут в единой database/migrations/.
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \Modules\Payments\Console\Commands\SeedDefaultPaymentMethodsCommand::class,
+            ]);
+        }
     }
 }
