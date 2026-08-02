@@ -136,6 +136,12 @@ return [
     ],
 
     'a11y' => [
+        'background' => 'Change the background',
+        'colorblind' => 'Colour-blind mode',
+        'dyslexia' => 'Dyslexia-friendly font',
+        'read_mode' => 'Reading mode',
+        'spacing' => 'Wider spacing',
+        'reset' => 'Reset everything',
         'widget' => 'Accessibility',
         'title' => 'Accessibility settings',
         'text_size' => 'Text size',

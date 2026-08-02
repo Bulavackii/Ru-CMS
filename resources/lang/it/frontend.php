@@ -136,6 +136,12 @@ return [
     ],
 
     'a11y' => [
+        'background' => 'Cambia lo sfondo',
+        'colorblind' => 'Modalità per daltonici',
+        'dyslexia' => 'Carattere per dislessia',
+        'read_mode' => 'Modalità lettura',
+        'spacing' => 'Spaziatura maggiore',
+        'reset' => 'Reimposta tutto',
         'widget' => 'Accessibilità',
         'title' => 'Impostazioni di accessibilità',
         'text_size' => 'Dimensione del testo',

@@ -60,7 +60,6 @@
                     ['name' => 'enable_highlight_links', 'label' => __('admin.accessibility.o_links'), 'icon' => 'fa-link'],
                     ['name' => 'enable_text_spacing', 'label' => __('admin.accessibility.o_spacing'), 'icon' => 'fa-arrows-alt-v'],
                     ['name' => 'enable_dyslexia_font', 'label' => __('admin.accessibility.o_dyslexia'), 'icon' => 'fa-font'],
-                    ['name' => 'enable_multilingual_support', 'label' => __('admin.accessibility.o_multilang'), 'icon' => 'fa-language'],
                 ];
             @endphp
 

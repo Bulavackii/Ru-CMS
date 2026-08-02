@@ -136,6 +136,12 @@ return [
     ],
 
     'a11y' => [
+        'background' => 'Hintergrund ändern',
+        'colorblind' => 'Modus für Farbenblinde',
+        'dyslexia' => 'Schrift für Legasthenie',
+        'read_mode' => 'Lesemodus',
+        'spacing' => 'Größere Abstände',
+        'reset' => 'Alles zurücksetzen',
         'widget' => 'Barrierefreiheit',
         'title' => 'Einstellungen zur Barrierefreiheit',
         'text_size' => 'Textgröße',
