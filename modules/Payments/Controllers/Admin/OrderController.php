@@ -16,18 +16,38 @@ class OrderController extends Controller
     /**
      * 📦 Список заказов в админке
      */
-    public function index()
+    public function index(Request $request)
     {
-        // 🟢 Помечаем все новые заказы как просмотренные
+        // Отметку «новый» снимаем ДО выборки, но запоминаем, какие заказы
+        // были новыми: иначе бейдж «Новый» исчезал ещё до того, как
+        // владелец увидел список.
+        $freshIds = Order::where('is_new', true)->pluck('id')->all();
         Order::where('is_new', true)->update(['is_new' => false]);
 
-        // 🔄 Загружаем заказы с отношениями
         $orders = Order::with(['paymentMethod', 'deliveryMethod', 'items', 'user'])
-            ->latest()
-            ->paginate(15);
+            ->when($request->filled('status'), fn ($q) => $q->where('status', $request->input('status')))
+            ->when($request->filled('from'), fn ($q) => $q->whereDate('created_at', '>=', $request->date('from')))
+            ->when($request->filled('to'), fn ($q) => $q->whereDate('created_at', '<=', $request->date('to')))
+            ->when($request->filled('q'), function ($query) use ($request) {
+                $term = trim((string) $request->input('q'));
 
-        // 📄 Отображаем представление
-        return view('Payments::admin.orders.index', compact('orders'));
+                // Поиск по номеру и по покупателю разом: владелец ищет
+                // «как получится» — по цифре из письма или по фамилии.
+                $query->where(function ($inner) use ($term) {
+                    $inner->where('customer_name', 'like', "%{$term}%")
+                        ->orWhere('customer_phone', 'like', "%{$term}%")
+                        ->orWhere('customer_email', 'like', "%{$term}%");
+
+                    if (ctype_digit($term)) {
+                        $inner->orWhere('id', (int) $term);
+                    }
+                });
+            })
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('Payments::admin.orders.index', compact('orders', 'freshIds'));
     }
 
     /**
