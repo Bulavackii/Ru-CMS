@@ -593,6 +593,7 @@ class InstallController extends Controller
             $this->applyLocalizationSettings();
             $this->seedDefaultMenu();
             $this->seedDefaultPaymentMethods();
+            $this->seedDefaultDeliveryMethods();
             $this->seedDefaultPages();
             $this->seedDefaultSlideshows();
             $this->seedDefaultFiles();
@@ -1001,6 +1002,18 @@ class InstallController extends Controller
     private function seedDefaultPaymentMethods(): void
     {
         \Modules\Payments\Console\Commands\SeedDefaultPaymentMethodsCommand::seed(false);
+    }
+
+    /**
+     * Типовые для РФ службы доставки после установки: Почта России, СДЭК,
+     * Boxberry, Яндекс Доставка, самовывоз и курьер по городу.
+     *
+     * Как и у оплаты: методы создаются ВЫКЛЮЧЕННЫМИ и без ключей API,
+     * идемпотентно (сверка по коду), без --reset.
+     */
+    private function seedDefaultDeliveryMethods(): void
+    {
+        \Modules\Delivery\Console\Commands\SeedDefaultDeliveryMethodsCommand::seed(false);
     }
 
     private function seedDefaultPages(): void

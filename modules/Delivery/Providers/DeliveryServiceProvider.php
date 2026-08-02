@@ -18,6 +18,12 @@ class DeliveryServiceProvider extends ServiceProvider
 {
     public function boot()
     {
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \Modules\Delivery\Console\Commands\SeedDefaultDeliveryMethodsCommand::class,
+            ]);
+        }
+
         // 🛣️ Подключаем маршруты модуля
         $this->loadRoutesFrom(__DIR__ . '/../Routes/web.php');
 

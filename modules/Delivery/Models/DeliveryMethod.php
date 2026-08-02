@@ -40,6 +40,7 @@ class DeliveryMethod extends Model
         'regions',                // 🗺️ Доступные регионы (JSON массив)
         'free_delivery_threshold', // 🎁 Порог суммы заказа для бесплатной доставки (₽)
         'sort_order',             // 🔢 Порядок сортировки
+        'docs_url',               // 📖 Где владельцу взять ключи API этой службы
     ];
 
     /**
@@ -146,7 +147,7 @@ class DeliveryMethod extends Model
             return true;
         }
 
-        if (in_array('Все регионы РФ', $this->regions)) {
+        if (in_array(self::ALL_REGIONS, $this->regions, true)) {
             return true;
         }
 
@@ -221,7 +222,7 @@ class DeliveryMethod extends Model
             'Тверь',
             'Иваново',
             'Брянск',
-            'Все регионы РФ',
+            self::ALL_REGIONS,
         ];
     }
 }
