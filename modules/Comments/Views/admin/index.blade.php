@@ -1,20 +1,20 @@
 @extends('layouts.admin')
 
-@section('title', 'Модерация комментариев')
+@section('title', __('admin.comments.title'))
 
 @section('content')
 <div class="space-y-6">
     <div class="flex justify-between items-center">
-        <h1 class="text-3xl font-bold">Комментарии</h1>
+        <h1 class="text-3xl font-bold">{{ __('admin.comments.heading') }}</h1>
         
         <div class="flex gap-2">
             <a href="{{ route('admin.comments.index', ['status' => 'pending']) }}" 
                class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600">
-                На модерации ({{ \Modules\Comments\Models\Comment::where('status', 'pending')->count() }})
+                {{ __('admin.comments.tab_pending') }} ({{ \Modules\Comments\Models\Comment::where('status', 'pending')->count() }})
             </a>
             <a href="{{ route('admin.comments.index', ['status' => 'spam']) }}" 
                class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
-                Спам ({{ \Modules\Comments\Models\Comment::where('status', 'spam')->count() }})
+                {{ __('admin.comments.tab_spam') }} ({{ \Modules\Comments\Models\Comment::where('status', 'spam')->count() }})
             </a>
         </div>
     </div>
@@ -22,19 +22,19 @@
     {{-- Фильтры --}}
     <form method="GET" class="flex gap-4">
         <select name="status" class="px-4 py-2 border rounded">
-            <option value="">Все статусы</option>
-            <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>На модерации</option>
-            <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>Одобренные</option>
-            <option value="spam" {{ request('status') === 'spam' ? 'selected' : '' }}>Спам</option>
-            <option value="trash" {{ request('status') === 'trash' ? 'selected' : '' }}>Удаленные</option>
+            <option value="">{{ __('admin.comments.all_statuses') }}</option>
+            <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>{{ __('admin.comments.st_pending') }}</option>
+            <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>{{ __('admin.comments.st_approved') }}</option>
+            <option value="spam" {{ request('status') === 'spam' ? 'selected' : '' }}>{{ __('admin.comments.st_spam') }}</option>
+            <option value="trash" {{ request('status') === 'trash' ? 'selected' : '' }}>{{ __('admin.comments.st_trash') }}</option>
         </select>
         
-        <input type="text" name="search" placeholder="Поиск..." 
+        <input type="text" name="search" placeholder="{{ __('admin.comments.search_ph') }}" 
                value="{{ request('search') }}"
                class="px-4 py-2 border rounded">
         
         <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-            Поиск
+            {{ __('admin.comments.search') }}
         </button>
     </form>
     
@@ -46,12 +46,12 @@
                     <th class="px-4 py-3 text-left">
                         <input type="checkbox" id="select-all">
                     </th>
-                    <th class="px-4 py-3 text-left">Автор</th>
-                    <th class="px-4 py-3 text-left">Комментарий</th>
-                    <th class="px-4 py-3 text-left">К объекту</th>
-                    <th class="px-4 py-3 text-left">Статус</th>
-                    <th class="px-4 py-3 text-left">Дата</th>
-                    <th class="px-4 py-3 text-left">Действия</th>
+                    <th class="px-4 py-3 text-left">{{ __('admin.comments.th_author') }}</th>
+                    <th class="px-4 py-3 text-left">{{ __('admin.comments.th_comment') }}</th>
+                    <th class="px-4 py-3 text-left">{{ __('admin.comments.th_object') }}</th>
+                    <th class="px-4 py-3 text-left">{{ __('admin.comments.th_status') }}</th>
+                    <th class="px-4 py-3 text-left">{{ __('admin.comments.th_date') }}</th>
+                    <th class="px-4 py-3 text-left">{{ __('admin.comments.th_actions') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -62,7 +62,7 @@
                     </td>
                     <td class="px-4 py-3">
                         <div>
-                            <strong>{{ $comment->author_name ?? $comment->user->name ?? 'Гость' }}</strong>
+                            <strong>{{ $comment->author_name ?? $comment->user->name ?? __('admin.comments.guest') }}</strong>
                             <div class="text-sm text-gray-500">{{ $comment->author_email ?? $comment->user->email ?? '' }}</div>
                         </div>
                     </td>
@@ -87,18 +87,18 @@
                             @if($comment->status !== 'approved')
                                 <button onclick="approveComment({{ $comment->id }})" 
                                         class="px-2 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600">
-                                    Одобрить
+                                    {{ __('admin.comments.approve') }}
                                 </button>
                             @endif
                             @if($comment->status !== 'spam')
                                 <button onclick="spamComment({{ $comment->id }})" 
                                         class="px-2 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600">
-                                    Спам
+                                    {{ __('admin.comments.spam') }}
                                 </button>
                             @endif
                             <button onclick="rejectComment({{ $comment->id }})" 
                                     class="px-2 py-1 bg-gray-500 text-white text-xs rounded hover:bg-gray-600">
-                                Удалить
+                                {{ __('admin.comments.delete') }}
                             </button>
                         </div>
                     </td>
@@ -113,13 +113,13 @@
     {{-- Массовые действия --}}
     <div class="flex gap-2">
         <select id="bulk-action" class="px-4 py-2 border rounded">
-            <option value="">Выберите действие</option>
-            <option value="approve">Одобрить</option>
-            <option value="reject">Удалить</option>
-            <option value="spam">Пометить как спам</option>
+            <option value="">{{ __('admin.comments.pick_action') }}</option>
+            <option value="approve">{{ __('admin.comments.act_approve') }}</option>
+            <option value="reject">{{ __('admin.comments.act_reject') }}</option>
+            <option value="spam">{{ __('admin.comments.act_spam') }}</option>
         </select>
         <button onclick="bulkAction()" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-            Применить
+            {{ __('admin.comments.apply') }}
         </button>
     </div>
 </div>
@@ -142,7 +142,7 @@ function spamComment(id) {
 }
 
 function rejectComment(id) {
-    if (!confirm('Удалить комментарий?')) return;
+    if (!confirm(@js(__('admin.comments.js_confirm_delete')))) return;
     fetch(`/admin/comments/${id}/reject`, { method: 'POST', headers: {'X-CSRF-TOKEN': '{{ csrf_token() }}'}})
         .then(r => r.json())
         .then(data => {
@@ -155,7 +155,7 @@ function bulkAction() {
     const ids = Array.from(document.querySelectorAll('.comment-checkbox:checked')).map(c => c.value);
     
     if (!action || ids.length === 0) {
-        alert('Выберите действие и комментарии');
+        alert(@js(__('admin.comments.js_pick')));
         return;
     }
     
