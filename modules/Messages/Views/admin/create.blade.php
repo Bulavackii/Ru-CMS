@@ -1,236 +1,239 @@
 @extends('layouts.admin')
 
-@section('title', isset($replyTo) ? 'Ответить на сообщение' : 'Новое сообщение')
+@php
+    $isReply = isset($replyTo);
+    $heading = $isReply ? __('admin.messages.reply_title') : __('admin.messages.create_title');
+@endphp
+
+@section('title', $heading)
 
 @section('content')
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-0 space-y-6">
+{{-- ── Шапка ── --}}
+<div class="admin-accent-bar mb-0"></div>
+<div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
+            flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+    <div class="flex items-center gap-3 min-w-0">
+        <span class="admin-icon-badge"><i class="fas {{ $isReply ? 'fa-reply' : 'fa-pen-to-square' }}"></i></span>
+        <div class="min-w-0">
+            <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ $heading }}</h1>
 
-        {{-- 🔙 Назад --}}
-        <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-            <a href="{{ route('admin.messages.index') }}"
-               class="inline-flex items-center hover:text-blue-600 dark:hover:text-blue-400 transition">
-                @themeIcon('arrow-left') Назад к сообщениям
-            </a>
-        </div>
-
-        {{-- 📝 Форма создания сообщения --}}
-        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow px-6 py-8 space-y-6">
-
-            <h1 class="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
-                📝 {{ isset($replyTo) ? 'Ответить на сообщение' : 'Новое сообщение' }}
-            </h1>
-
-            @if(isset($replyTo))
-                <div class="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                    <div class="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2">
-                        Ответ на сообщение:
-                    </div>
-                    <div class="text-sm text-blue-800 dark:text-blue-200">
-                        <strong>{{ $replyTo->subject }}</strong> от {{ $replyTo->sender->name ?? '—' }}
-                    </div>
-                </div>
+            @if($isReply)
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                    {{ __('admin.messages.replying_to', ['subject' => $replyTo->subject]) }}
+                </p>
+            @else
+                <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('admin.messages.subtitle') }}</p>
             @endif
-
-            {{-- 🔴 Ошибки валидации --}}
-            @if ($errors->any())
-                <div class="bg-red-100 dark:bg-red-900 border border-red-300 dark:border-red-700 text-red-800 dark:text-red-200 px-4 py-3 rounded shadow">
-                    <ul class="list-disc list-inside space-y-1">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
-            <form method="POST" action="{{ route('admin.messages.store') }}" 
-                  enctype="multipart/form-data" 
-                  id="message-form"
-                  class="space-y-6">
-                @csrf
-
-                @if(isset($replyTo))
-                    <input type="hidden" name="parent_id" value="{{ $replyTo->id }}">
-                @endif
-
-                {{-- 👤 Кому --}}
-                <div>
-                    <label for="to_user_id" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
-                        👤 Получатель *
-                    </label>
-                    <select name="to_user_id" id="to_user_id" required
-                            class="w-full border rounded-lg px-4 py-3 text-sm dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-400 @error('to_user_id') border-red-500 @enderror">
-                        <option value="">-- Выберите администратора --</option>
-                        @foreach ($admins as $admin)
-                            @if($admin->id !== Auth::id())
-                                <option value="{{ $admin->id }}" 
-                                        @selected((isset($recipient) && $recipient->id === $admin->id) || old('to_user_id') == $admin->id)>
-                                    {{ $admin->name }} ({{ $admin->email }})
-                                </option>
-                            @endif
-                        @endforeach
-                    </select>
-                    @error('to_user_id')
-                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                {{-- 🏷️ Тема --}}
-                <div>
-                    <label for="subject" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
-                        🏷️ Тема сообщения *
-                    </label>
-                    <input type="text" name="subject" id="subject" required
-                           value="{{ isset($replyTo) ? 'Re: ' . $replyTo->subject : old('subject') }}"
-                           class="w-full border rounded-lg px-4 py-3 text-sm dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-400 @error('subject') border-red-500 @enderror">
-                    @error('subject')
-                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                {{-- 💬 Текст --}}
-                <div>
-                    <label for="body" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
-                        💬 Сообщение *
-                    </label>
-                    <textarea name="body" id="body" rows="10" required
-                              placeholder="Введите сообщение для других админов..."
-                              class="w-full border rounded-lg px-4 py-3 text-sm dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-400 @error('body') border-red-500 @enderror">{{ old('body') }}</textarea>
-                    @error('body')
-                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                    <div class="mt-1 text-xs text-gray-500">
-                        <span id="char-count">0</span> символов
-                    </div>
-                </div>
-
-                {{-- 📎 Вложения --}}
-                <div>
-                    <label for="attachments" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
-                        📎 Вложения (максимум 10MB на файл)
-                    </label>
-                    <input type="file" name="attachments[]" id="attachments" multiple
-                           accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif,.zip,.rar"
-                           class="w-full border rounded-lg px-4 py-3 text-sm dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-400">
-                    <div class="mt-1 text-xs text-gray-500">
-                        Можно выбрать несколько файлов. Максимальный размер: 10MB на файл.
-                    </div>
-                    <div id="file-list" class="mt-2 space-y-1"></div>
-                </div>
-
-                {{-- ⭐ Важное сообщение --}}
-                <div>
-                    <label class="inline-flex items-center gap-3 select-none cursor-pointer">
-                        <input type="checkbox" name="is_important" value="1"
-                               {{ old('is_important') ? 'checked' : '' }}
-                               class="peer sr-only">
-                        <span class="relative inline-flex h-6 w-11 items-center rounded-full bg-gray-300 peer-checked:bg-yellow-500 transition-all">
-                            <span class="absolute left-1 peer-checked:left-6 h-4 w-4 rounded-full bg-white transition-all"></span>
-                        </span>
-                        <span class="text-sm text-gray-800 dark:text-gray-200">⭐ Пометить как важное</span>
-                    </label>
-                </div>
-
-                {{-- 📤 Кнопка отправки --}}
-                <div class="flex justify-end gap-3">
-                    <button type="button" id="save-draft" 
-                            class="inline-flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-md shadow transition">
-                        💾 Сохранить черновик
-                    </button>
-                    <button type="submit"
-                            class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-md shadow transition">
-                        @themeIcon('paper-plane') Отправить
-                    </button>
-                </div>
-            </form>
         </div>
     </div>
+
+    <a href="{{ route('admin.messages.index') }}"
+       class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+              hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition flex-shrink-0">
+        <i class="fas fa-arrow-left"></i> {{ __('admin.messages.back') }}
+    </a>
+</div>
+
+<form method="POST" action="{{ route('admin.messages.store') }}" enctype="multipart/form-data"
+      class="admin-card p-5 msg-form" x-data="messageForm()" @submit="sending = true">
+    @csrf
+
+    @if($isReply)
+        <input type="hidden" name="parent_id" value="{{ $replyTo->id }}">
+    @endif
+
+    {{-- ── Получатель ── --}}
+    <div class="mb-4">
+        <label for="to_user_id" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
+            {{ __('admin.messages.to_user') }} <span class="text-red-500">*</span>
+        </label>
+
+        <select name="to_user_id" id="to_user_id" required
+                class="w-full border px-3 py-2 text-sm dark:bg-gray-800
+                       @error('to_user_id') border-red-500 @else border-gray-300 dark:border-gray-600 @enderror">
+            <option value="">{{ __('admin.messages.to_user_ph') }}</option>
+            @foreach($admins as $admin)
+                <option value="{{ $admin->id }}"
+                    @selected(old('to_user_id', $isReply ? $replyTo->user_id : null) == $admin->id)>
+                    {{ $admin->name }} ({{ $admin->email }})
+                </option>
+            @endforeach
+        </select>
+
+        @error('to_user_id')<p class="text-sm text-red-600 mt-1">{{ $message }}</p>@enderror
+    </div>
+
+    {{-- ── Тема ── --}}
+    <div class="mb-4">
+        <label for="subject" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
+            {{ __('admin.messages.subject') }} <span class="text-red-500">*</span>
+        </label>
+
+        <input type="text" name="subject" id="subject" required maxlength="255"
+               value="{{ old('subject', $isReply ? 'Re: ' . $replyTo->subject : '') }}"
+               placeholder="{{ __('admin.messages.subject_ph') }}"
+               class="w-full border px-3 py-2 text-sm dark:bg-gray-800
+                      @error('subject') border-red-500 @else border-gray-300 dark:border-gray-600 @enderror">
+
+        @error('subject')<p class="text-sm text-red-600 mt-1">{{ $message }}</p>@enderror
+    </div>
+
+    {{-- ── Текст ── --}}
+    <div class="mb-4">
+        <label for="body" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
+            {{ __('admin.messages.body') }} <span class="text-red-500">*</span>
+        </label>
+
+        <textarea name="body" id="body" rows="10" required x-model="body"
+                  placeholder="{{ __('admin.messages.body_ph') }}"
+                  class="w-full border px-3 py-2 text-sm dark:bg-gray-800 resize-y
+                         @error('body') border-red-500 @else border-gray-300 dark:border-gray-600 @enderror">{{ old('body') }}</textarea>
+
+        <div class="flex flex-wrap items-center gap-3 mt-1">
+            <p class="admin-hint" x-text="@js(__('admin.messages.chars')).replace(':count', body.length)"></p>
+
+            {{-- Черновик пишется в localStorage. Раньше о нём сообщал alert(),
+                 который на возврате к форме всплывал прежде самой страницы. --}}
+            <span class="msg-draft" x-show="draftNote" x-cloak x-text="draftNote"></span>
+
+            <button type="button" x-show="draftNote" x-cloak @click="dropDraft()"
+                    class="text-sm font-semibold text-red-600 hover:underline">
+                {{ __('admin.messages.draft_drop') }}
+            </button>
+        </div>
+
+        @error('body')<p class="text-sm text-red-600 mt-1">{{ $message }}</p>@enderror
+    </div>
+
+    {{-- ── Вложения ── --}}
+    <div class="mb-4">
+        <span class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
+            {{ __('admin.messages.files') }}
+        </span>
+
+        <label for="attachments" class="msg-drop" :class="files.length && 'is-filled'">
+            <i class="fas fa-paperclip"></i>
+            <span x-text="files.length
+                ? @js(__('admin.messages.files_chosen')).replace(':count', files.length)
+                : @js(__('admin.messages.files_pick'))"></span>
+        </label>
+
+        <input type="file" name="attachments[]" id="attachments" multiple class="hidden"
+               accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.log,.csv,.jpg,.jpeg,.png,.gif,.webp,.zip,.rar"
+               @change="files = Array.from($event.target.files).map(f => f.name)">
+
+        <ul class="msg-files" x-show="files.length" x-cloak>
+            <template x-for="name in files" :key="name">
+                <li><i class="fas fa-file"></i> <span x-text="name"></span></li>
+            </template>
+        </ul>
+
+        <p class="admin-hint mt-1">{{ __('admin.messages.files_hint') }}</p>
+
+        @error('attachments.*')<p class="text-sm text-red-600 mt-1">{{ $message }}</p>@enderror
+    </div>
+
+    {{-- ── Важное ── --}}
+    <div class="mb-5">
+        {{-- Тумблер был на peer-checked, которого в этой сборке Tailwind нет:
+             кнопка не ехала и цвет не менялся. Общий класс admin-toggle
+             сделан настоящим CSS-селектором. --}}
+        <div class="flex items-center gap-3">
+            <label class="admin-toggle">
+                <input type="checkbox" name="is_important" value="1" @checked(old('is_important'))>
+                <span class="track"></span>
+                <span class="knob"></span>
+            </label>
+
+            <span class="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                <i class="fas fa-star msg-star"></i> {{ __('admin.messages.important') }}
+            </span>
+        </div>
+
+        <p class="admin-hint mt-1">{{ __('admin.messages.important_hint') }}</p>
+    </div>
+
+    <div class="flex flex-wrap justify-end gap-2">
+        <a href="{{ route('admin.messages.index') }}"
+           class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+                  hover:bg-gray-100 dark:hover:bg-gray-800 px-4 py-2.5 text-sm font-semibold transition">
+            {{ __('admin.messages.cancel') }}
+        </a>
+
+        <button type="submit" :disabled="sending"
+                class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white
+                       px-5 py-2.5 text-sm font-semibold shadow-sm transition">
+            <i class="fas fa-paper-plane"></i>
+            <span x-text="sending ? @js(__('admin.messages.sending')) : @js(__('admin.messages.send'))"></span>
+        </button>
+    </div>
+</form>
 @endsection
 
 @push('scripts')
 <script>
-    // Счётчик символов
-    const bodyTextarea = document.getElementById('body');
-    const charCount = document.getElementById('char-count');
-    
-    function updateCharCount() {
-        charCount.textContent = bodyTextarea.value.length;
-    }
-    
-    bodyTextarea.addEventListener('input', updateCharCount);
-    updateCharCount();
+    function messageForm() {
+        const key = 'msg-draft-{{ $isReply ? $replyTo->id : 'new' }}';
 
-    // Показ выбранных файлов
-    const fileInput = document.getElementById('attachments');
-    const fileList = document.getElementById('file-list');
-    
-    fileInput.addEventListener('change', function() {
-        fileList.innerHTML = '';
-        if (this.files.length > 0) {
-            Array.from(this.files).forEach((file, index) => {
-                const div = document.createElement('div');
-                div.className = 'text-sm text-gray-600 dark:text-gray-400 flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded';
-                div.innerHTML = `
-                    <span>📎 ${file.name}</span>
-                    <span class="text-xs">${(file.size / 1024).toFixed(2)} KB</span>
-                `;
-                fileList.appendChild(div);
-            });
-        }
-    });
+        return {
+            body: @js(old('body', '')),
+            files: [],
+            sending: false,
+            draftNote: '',
 
-    // Автосохранение черновика в localStorage
-    const form = document.getElementById('message-form');
-    const draftKey = 'message_draft_' + (new Date().toDateString());
-    
-    // Загрузка черновика
-    function loadDraft() {
-        const draft = localStorage.getItem(draftKey);
-        if (draft) {
-            try {
-                const data = JSON.parse(draft);
-                if (confirm('Найден черновик сообщения. Загрузить?')) {
-                    document.getElementById('to_user_id').value = data.to_user_id || '';
-                    document.getElementById('subject').value = data.subject || '';
-                    document.getElementById('body').value = data.body || '';
-                    updateCharCount();
+            init() {
+                // Черновик восстанавливаем только если поле пустое: иначе
+                // затёрли бы то, что вернула валидация.
+                const saved = localStorage.getItem(key);
+
+                if (saved && this.body === '') {
+                    this.body = saved;
+                    this.draftNote = @js(__('admin.messages.draft_restored'));
                 }
-            } catch (e) {
-                console.error('Ошибка загрузки черновика:', e);
-            }
-        }
-    }
-    
-    // Сохранение черновика
-    function saveDraft() {
-        const draft = {
-            to_user_id: document.getElementById('to_user_id').value,
-            subject: document.getElementById('subject').value,
-            body: document.getElementById('body').value,
-            timestamp: new Date().toISOString()
+
+                this.$watch('body', value => {
+                    if (this.sending) return;
+                    value ? localStorage.setItem(key, value) : localStorage.removeItem(key);
+                });
+
+                // Письмо ушло — черновик больше не нужен.
+                this.$el.addEventListener('submit', () => localStorage.removeItem(key));
+            },
+
+            dropDraft() {
+                localStorage.removeItem(key);
+                this.body = '';
+                this.draftNote = '';
+            },
         };
-        localStorage.setItem(draftKey, JSON.stringify(draft));
     }
-    
-    // Автосохранение каждые 30 секунд
-    setInterval(saveDraft, 30000);
-    
-    // Сохранение при изменении
-    ['to_user_id', 'subject', 'body'].forEach(id => {
-        document.getElementById(id).addEventListener('input', saveDraft);
-    });
-    
-    // Очистка черновика при отправке
-    form.addEventListener('submit', () => {
-        localStorage.removeItem(draftKey);
-    });
-    
-    // Кнопка сохранения черновика
-    document.getElementById('save-draft').addEventListener('click', () => {
-        saveDraft();
-        alert('Черновик сохранён!');
-    });
-    
-    // Загрузка при загрузке страницы
-    loadDraft();
 </script>
+@endpush
+
+@push('styles')
+<style>
+    /* Литеральный CSS: в статической сборке Tailwind нет ни произвольных
+       значений, ни прозрачности через /NN. */
+    .msg-form{ max-width:52rem; margin-inline:auto }
+
+    .msg-drop{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.5rem;
+               border:2px dashed #cbd5e1; padding:1.25rem 1rem; cursor:pointer; text-align:center;
+               font-size:.875rem; color:#64748b; transition:border-color .15s, color .15s }
+    .msg-drop:hover{ border-color:#818cf8; color:#4f46e5 }
+    .msg-drop i{ font-size:1.35rem; color:#94a3b8 }
+    .msg-drop.is-filled{ border-style:solid; border-color:#818cf8; color:#4f46e5 }
+    .msg-drop.is-filled i{ color:#6366f1 }
+
+    .msg-files{ margin-top:.5rem; display:grid; gap:.25rem; font-size:.8rem; color:#475569 }
+    .msg-files li{ display:flex; align-items:center; gap:.4rem }
+    .msg-files i{ color:#94a3b8 }
+
+    .msg-star{ color:#f59e0b }
+    .msg-draft{ font-size:.8rem; font-weight:600; color:#4f46e5 }
+
+    @media (prefers-color-scheme: dark){
+        .msg-drop{ border-color:#4b5563 }
+        .msg-files{ color:#cbd5e1 }
+    }
+</style>
 @endpush

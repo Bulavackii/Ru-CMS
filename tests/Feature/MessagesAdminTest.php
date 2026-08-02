@@ -150,4 +150,82 @@ class MessagesAdminTest extends TestCase
     {
         $this->get('/admin/messages')->assertRedirect();
     }
+
+    public function test_create_and_show_pages_open(): void
+    {
+        $message = $this->makeMessage();
+
+        $this->actingAs($this->admin)->get('/admin/messages/create')->assertOk();
+        $this->actingAs($this->admin)->get('/admin/messages/' . $message->id)->assertOk();
+        $this->actingAs($this->admin)->get('/admin/messages/' . $message->id . '/reply')->assertOk();
+    }
+
+    public function test_message_is_sent(): void
+    {
+        $this->actingAs($this->admin)->post('/admin/messages', [
+            'to_user_id' => $this->peer->id,
+            'subject' => 'Проверка отправки',
+            'body' => 'Текст письма.',
+            'is_important' => '1',
+        ])->assertSessionHasNoErrors();
+
+        $sent = Message::where('subject', 'Проверка отправки')->first();
+
+        $this->assertNotNull($sent);
+        $this->assertSame($this->admin->id, $sent->user_id);
+        $this->assertTrue($sent->is_important);
+    }
+
+    public function test_executable_attachment_is_rejected(): void
+    {
+        // Типы вложений не проверялись вовсе, а файл уходил на публичный
+        // диск — .php исполнился бы через public/storage.
+        $this->actingAs($this->admin)->post('/admin/messages', [
+            'to_user_id' => $this->peer->id,
+            'subject' => 'С вложением',
+            'body' => 'Текст письма.',
+            'attachments' => [\Illuminate\Http\UploadedFile::fake()->create('shell.php', 10)],
+        ])->assertSessionHasErrors('attachments.0');
+    }
+
+    public function test_attachment_is_stored_on_private_disk(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('local');
+        \Illuminate\Support\Facades\Storage::fake('public');
+
+        $this->actingAs($this->admin)->post('/admin/messages', [
+            'to_user_id' => $this->peer->id,
+            'subject' => 'С вложением',
+            'body' => 'Текст письма.',
+            'attachments' => [\Illuminate\Http\UploadedFile::fake()->image('screen.png')],
+        ])->assertSessionHasNoErrors();
+
+        // Публичный диск отдаётся по прямой ссылке без авторизации, и
+        // проверка прав в маршруте скачивания там ничего не значила.
+        $this->assertNotEmpty(\Illuminate\Support\Facades\Storage::disk('local')->files('message-attachments'));
+        $this->assertEmpty(\Illuminate\Support\Facades\Storage::disk('public')->files('message-attachments'));
+    }
+
+    public function test_attachment_download_is_closed_for_strangers(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('local');
+
+        $this->actingAs($this->admin)->post('/admin/messages', [
+            'to_user_id' => $this->peer->id,
+            'subject' => 'С вложением',
+            'body' => 'Текст письма.',
+            'attachments' => [\Illuminate\Http\UploadedFile::fake()->image('screen.png')],
+        ]);
+
+        $attachment = \Modules\Messages\Models\MessageAttachment::firstOrFail();
+        $stranger = User::factory()->create(['is_admin' => true]);
+
+        $this->actingAs($stranger)
+            ->get('/admin/messages/attachments/' . $attachment->id . '/download')
+            ->assertForbidden();
+
+        $this->actingAs($this->admin)
+            ->get('/admin/messages/attachments/' . $attachment->id . '/download')
+            ->assertOk();
+    }
 }

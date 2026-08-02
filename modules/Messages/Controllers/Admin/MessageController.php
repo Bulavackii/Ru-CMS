@@ -23,6 +23,22 @@ use App\Services\NotificationService;
 class MessageController extends Controller
 {
     /**
+     * Разрешённые вложения.
+     *
+     * Раньше правило было `file|max:10240` без ограничения типов, а файл
+     * уходил на ПУБЛИЧНЫЙ диск: .php исполнился бы через public/storage,
+     * а .svg/.html дали бы XSS от имени домена. Атрибут accept в форме —
+     * подсказка браузеру, а не проверка.
+     */
+    private const ATTACHMENT_MIMES = 'pdf,doc,docx,xls,xlsx,txt,log,csv,jpg,jpeg,png,gif,webp,zip,rar';
+
+    /**
+     * Диск для вложений: закрытый, отдаём только через маршрут скачивания,
+     * который проверяет права. На public проверка прав была бессмысленной —
+     * файл всё равно открывался по прямой ссылке.
+     */
+    private const ATTACHMENT_DISK = 'local';
+    /**
      * 🗂️ Список всех сообщений (входящие и исходящие)
      */
     public function index(Request $request)
@@ -104,7 +120,7 @@ class MessageController extends Controller
             'parent_id'   => 'nullable|exists:messages,id',
             'is_important' => 'nullable|boolean',
             'attachments' => 'nullable|array',
-            'attachments.*' => 'file|max:10240', // Максимум 10MB
+            'attachments.*' => 'file|max:10240|mimes:' . self::ATTACHMENT_MIMES,
         ]);
 
         // ✉️ Сохраняем сообщение в базу данных
@@ -121,7 +137,7 @@ class MessageController extends Controller
         // Обработка вложений
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
-                $path = $file->store('message-attachments', 'public');
+                $path = $file->store('message-attachments', self::ATTACHMENT_DISK);
                 
                 MessageAttachment::create([
                     'message_id' => $message->id,
@@ -222,7 +238,7 @@ class MessageController extends Controller
 
         // Удаляем вложения
         foreach ($message->attachments as $attachment) {
-            Storage::disk('public')->delete($attachment->path);
+            $this->deleteAttachmentFile($attachment->path);
             $attachment->delete();
         }
 
@@ -306,7 +322,7 @@ class MessageController extends Controller
             switch ($action) {
                 case 'delete':
                     foreach ($message->attachments as $attachment) {
-                        Storage::disk('public')->delete($attachment->path);
+                        $this->deleteAttachmentFile($attachment->path);
                         $attachment->delete();
                     }
                     $message->delete();
@@ -369,10 +385,39 @@ class MessageController extends Controller
             abort(403);
         }
 
-        if (!Storage::disk('public')->exists($attachment->path)) {
-            abort(404, 'Файл не найден');
+        $disk = $this->attachmentDisk($attachment->path);
+
+        if ($disk === null) {
+            abort(404, __('admin.messages.file_missing'));
         }
 
-        return Storage::disk('public')->download($attachment->path, $attachment->filename);
+        return Storage::disk($disk)->download($attachment->path, $attachment->filename);
+    }
+
+    /**
+     * На каком диске лежит вложение.
+     *
+     * Новые файлы уходят на закрытый диск, но у писем, отправленных до
+     * этой правки, они остались на публичном — иначе такие вложения
+     * начали бы отдавать 404.
+     */
+    private function attachmentDisk(string $path): ?string
+    {
+        foreach ([self::ATTACHMENT_DISK, 'public'] as $disk) {
+            if (Storage::disk($disk)->exists($path)) {
+                return $disk;
+            }
+        }
+
+        return null;
+    }
+
+    private function deleteAttachmentFile(string $path): void
+    {
+        $disk = $this->attachmentDisk($path);
+
+        if ($disk !== null) {
+            Storage::disk($disk)->delete($path);
+        }
     }
 }
