@@ -25,9 +25,9 @@ Route::middleware(['web', 'auth', 'admin'])
     ->name('admin.orders.')
     ->group(function () {
         Route::get('/', [OrderController::class, 'index'])->name('index');           // 📄 Список заказов
-        Route::get('/{order}', [OrderController::class, 'show'])->name('show');      // 🔍 Просмотр заказа
-        Route::put('/{order}/status', [OrderController::class, 'updateStatus'])->name('update.status'); // 🔄 Обновление статуса
-        Route::delete('/{order}', [OrderController::class, 'destroy'])->name('destroy'); // 🗑️ Удаление заказа
+        Route::get('/{order}', [OrderController::class, 'show'])->whereNumber('order')->name('show');      // 🔍 Просмотр заказа
+        Route::put('/{order}/status', [OrderController::class, 'updateStatus'])->whereNumber('order')->name('update.status'); // 🔄 Обновление статуса
+        Route::delete('/{order}', [OrderController::class, 'destroy'])->whereNumber('order')->name('destroy'); // 🗑️ Удаление заказа
         Route::get('/export/csv', [OrderController::class, 'export'])->name('export'); // 📥 Экспорт в CSV
         Route::get('/stats', [OrderController::class, 'stats'])->name('stats');       // 📊 Статистика
     });

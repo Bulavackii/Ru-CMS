@@ -119,6 +119,16 @@ class OrderController extends Controller
      */
     public function initiatePayment(Request $request, Order $order)
     {
+        // Заказ привязывается моделью по идентификатору из адреса, а
+        // маршрут закрыт только auth — без этой проверки любой вошедший
+        // пользователь мог запустить оплату ЧУЖОГО заказа и заодно
+        // сбросить его статус в pending, в том числе у уже оплаченного.
+        $user = $request->user();
+
+        if (! $user?->is_admin && $order->user_id !== $user?->id) {
+            abort(403);
+        }
+
         $paymentMethod = PaymentMethod::findOrFail($order->payment_method_id);
         
         try {
