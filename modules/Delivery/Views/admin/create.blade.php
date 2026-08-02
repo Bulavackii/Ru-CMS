@@ -1,213 +1,26 @@
 @extends('layouts.admin')
 
-@section('title', __('admin.delivery.add'))
+@section('title', __('admin.delivery.create_title'))
 
 @section('content')
-    {{-- 🔰 Заголовок страницы --}}
-    <h1 class="text-2xl font-bold mb-6 flex items-center gap-2 text-gray-800 dark:text-white">
-        ➕ {{ __('admin.delivery.add') }}
-    </h1>
+<div class="admin-accent-bar mb-0"></div>
+<div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
+            flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+    <div class="flex items-center gap-3 min-w-0">
+        <span class="admin-icon-badge"><i class="fas fa-truck"></i></span>
+        <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('admin.delivery.create_title') }}</h1>
+    </div>
 
-    {{-- 📝 Форма создания метода доставки --}}
-    <form method="POST"
-          action="{{ route('admin.delivery.store') }}"
-          class="space-y-6 bg-white dark:bg-gray-900 p-6 rounded-lg shadow max-w-2xl w-full mx-auto">
-        @csrf
+    <a href="{{ route('admin.delivery.index') }}"
+       class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+              hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition flex-shrink-0">
+        <i class="fas fa-arrow-left"></i> {{ __('admin.delivery.to_list') }}
+    </a>
+</div>
 
-        {{-- 📋 Название метода --}}
-        <div>
-            <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                🏷️ {{ __('admin.delivery.name') }}
-            </label>
-            <input type="text" id="title" name="title"
-                   value="{{ old('title') }}"
-                   class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 shadow-sm focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:text-white"
-                   placeholder="{{ __('admin.delivery.name_ph') }}"
-                   title="{{ __('admin.delivery.name_hint') }}"
-                   required>
-        </div>
+@includeIf('layouts.partials.flash')
 
-        {{-- 📝 Описание (опционально) --}}
-        <div>
-            <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                📄 {{ __('admin.delivery.desc_opt') }}
-            </label>
-            <textarea id="description" name="description" rows="3"
-                      class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 shadow-sm focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:text-white"
-                      placeholder="{{ __('admin.delivery.desc_ph') }}"
-                      title="{{ __('admin.delivery.desc_hint') }}">{{ old('description') }}</textarea>
-        </div>
-
-        {{-- 💰 Стоимость --}}
-        <div>
-            <label for="price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                💰 {{ __('admin.delivery.price') }}
-            </label>
-            <input type="number" id="price" name="price" step="0.01"
-                   value="{{ old('price') }}"
-                   class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 shadow-sm focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:text-white"
-                   placeholder="{{ __('admin.delivery.price_ph') }}"
-                   title="{{ __('admin.delivery.price_hint') }}"
-                   required>
-        </div>
-
-        {{-- 🚚 Тип доставки --}}
-        <div>
-            <label for="type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                🚚 {{ __('admin.delivery.type') }}
-            </label>
-            <select id="type" name="type"
-                    class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 shadow-sm focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:text-white"
-                    required>
-                <option value="courier" {{ old('type') === 'courier' ? 'selected' : '' }}>🚚 {{ __('admin.delivery.courier') }}</option>
-                <option value="pickup" {{ old('type') === 'pickup' ? 'selected' : '' }}>🛍️ {{ __('admin.delivery.pickup') }}</option>
-                <option value="post" {{ old('type') === 'post' ? 'selected' : '' }}>📦 {{ __('admin.delivery.post') }}</option>
-                <option value="terminal" {{ old('type') === 'terminal' ? 'selected' : '' }}>🏧 {{ __('admin.delivery.terminal') }}</option>
-            </select>
-        </div>
-
-        {{-- 🔑 Уникальный код --}}
-        <div>
-            <label for="code" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                🔑 {{ __('admin.delivery.code') }}
-            </label>
-            <input type="text" id="code" name="code"
-                   value="{{ old('code') }}"
-                   class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 shadow-sm focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:text-white"
-                   placeholder="{{ __('admin.delivery.code_ph') }}">
-            <p class="text-xs text-gray-500 mt-1">{{ __('admin.delivery.code_hint') }}</p>
-        </div>
-
-        {{-- 📅 Сроки доставки --}}
-        <div class="grid grid-cols-2 gap-4">
-            <div>
-                <label for="min_days" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    📅 {{ __('admin.delivery.min_days') }}
-                </label>
-                <input type="number" id="min_days" name="min_days" min="0" max="365"
-                       value="{{ old('min_days') }}"
-                       class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 shadow-sm focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:text-white"
-                       placeholder="{{ __('admin.delivery.min_ph') }}">
-            </div>
-            <div>
-                <label for="max_days" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    📅 {{ __('admin.delivery.max_days') }}
-                </label>
-                <input type="number" id="max_days" name="max_days" min="0" max="365"
-                       value="{{ old('max_days') }}"
-                       class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 shadow-sm focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:text-white"
-                       placeholder="{{ __('admin.delivery.max_ph') }}">
-            </div>
-        </div>
-
-        {{-- ⚖️ Ограничение по весу --}}
-        <div>
-            <label for="weight_limit" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                ⚖️ {{ __('admin.delivery.weight') }}
-            </label>
-            <input type="number" id="weight_limit" name="weight_limit" step="0.01" min="0" max="1000"
-                   value="{{ old('weight_limit') }}"
-                   class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 shadow-sm focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:text-white"
-                   placeholder="{{ __('admin.delivery.weight_hint') }}">
-        </div>
-
-        {{-- 🗺️ Доступные регионы --}}
-        <div>
-            <label for="regions" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                🗺️ {{ __('admin.delivery.regions') }}
-            </label>
-            <select id="regions" name="regions[]" multiple
-                    class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 shadow-sm focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:text-white"
-                    size="8">
-                <option value="{{ \Modules\Delivery\Models\DeliveryMethod::ALL_REGIONS }}" {{ in_array(\Modules\Delivery\Models\DeliveryMethod::ALL_REGIONS, old('regions', [])) ? 'selected' : '' }}>{{ __('admin.delivery.all_regions') }}</option>
-                @foreach(\Modules\Delivery\Models\DeliveryMethod::getRussianRegions() as $region)
-                    @if($region !== \Modules\Delivery\Models\DeliveryMethod::ALL_REGIONS)
-                        <option value="{{ $region }}" {{ in_array($region, old('regions', [])) ? 'selected' : '' }}>{{ $region }}</option>
-                    @endif
-                @endforeach
-            </select>
-            <p class="text-xs text-gray-500 mt-1">{{ __('admin.delivery.regions_hint') }}</p>
-        </div>
-
-        {{-- 🇷🇺 Российская служба --}}
-        <div class="flex items-center gap-2">
-            <input type="checkbox" name="is_russian" id="is_russian" value="1"
-                   {{ old('is_russian') ? 'checked' : '' }}
-                   class="form-checkbox rounded text-blue-600 dark:bg-gray-700 dark:border-gray-600">
-            <label for="is_russian" class="text-sm text-gray-700 dark:text-gray-300">
-                🇷🇺 {{ __('admin.delivery.is_russian') }}
-            </label>
-        </div>
-
-        {{-- 🌐 API интеграция --}}
-        <div class="space-y-3">
-            <div class="flex items-center gap-2">
-                <input type="checkbox" name="api_enabled" id="api_enabled" value="1"
-                       {{ old('api_enabled') ? 'checked' : '' }}
-                       class="form-checkbox rounded text-blue-600 dark:bg-gray-700 dark:border-gray-600"
-                       onchange="toggleApiSettings(this.checked)">
-                <label for="api_enabled" class="text-sm text-gray-700 dark:text-gray-300">
-                    🌐 {{ __('admin.delivery.api_on') }}
-                </label>
-            </div>
-            
-            <div id="api-settings" style="display: {{ old('api_enabled') ? 'block' : 'none' }};" class="mt-3 p-4 bg-gray-50 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
-                <p class="text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">{{ __('admin.delivery.api_settings') }}</p>
-                <textarea name="api_settings_json" id="api_settings_json" rows="6"
-                          class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 shadow-sm focus:ring focus:ring-blue-300 dark:bg-gray-700 dark:text-white font-mono text-xs"
-                          placeholder='{"account": "your_account", "secure_password": "your_password"}'></textarea>
-                <p class="text-xs text-gray-500 mt-1">
-                                                            {!! __('admin.delivery.creds_hint', ['cdek' => '{"account": "…", "secure_password": "…"}', 'boxberry' => '{"token": "…"}', 'post' => '{"login": "…", "password": "…"}']) !!}
-                </p>
-            </div>
-        </div>
-
-        <script>
-            function toggleApiSettings(enabled) {
-                document.getElementById('api-settings').style.display = enabled ? 'block' : 'none';
-            }
-        </script>
-
-        {{-- 🎁 Бесплатная доставка при сумме заказа --}}
-        <div>
-            <label for="free_delivery_threshold" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                🎁 {{ __('admin.delivery.free_from') }}
-            </label>
-            <input type="number" id="free_delivery_threshold" name="free_delivery_threshold" step="0.01" min="0"
-                   value="{{ old('free_delivery_threshold') }}"
-                   class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 shadow-sm focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:text-white"
-                   placeholder="{{ __('admin.delivery.free_empty_hint') }}">
-            <p class="text-xs text-gray-500 mt-1">{{ __('admin.delivery.free_hint') }}</p>
-        </div>
-
-        {{-- 🔢 Порядок сортировки --}}
-        <div>
-            <label for="sort_order" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                🔢 {{ __('admin.delivery.sort') }}
-            </label>
-            <input type="number" id="sort_order" name="sort_order" min="0"
-                   value="{{ old('sort_order', 0) }}"
-                   class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 shadow-sm focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:text-white"
-                   placeholder="0">
-            <p class="text-xs text-gray-500 mt-1">{{ __('admin.delivery.sort_hint') }}</p>
-        </div>
-
-        {{-- ✅ Статус активности --}}
-        <div class="flex items-center gap-2">
-            <input type="checkbox" name="active" id="active" value="1"
-                   {{ old('active', true) ? 'checked' : '' }}
-                   class="form-checkbox rounded text-blue-600 dark:bg-gray-700 dark:border-gray-600">
-            <label for="active" class="text-sm text-gray-700 dark:text-gray-300">
-                ✅ {{ __('admin.delivery.active_full') }}
-            </label>
-        </div>
-
-        {{-- 💾 Кнопка сохранения --}}
-        <div class="text-right">
-            <button type="submit"
-                    class="bg-black hover:bg-gray-800 text-white px-6 py-2 rounded shadow-md transition-all duration-200 transform hover:scale-105">
-                💾 {{ __('admin.delivery.save') }}
-            </button>
-        </div>
-    </form>
+<form action="{{ route('admin.delivery.store') }}" method="POST">
+    @include('Delivery::admin.form')
+</form>
 @endsection

@@ -1,143 +1,126 @@
 @extends('layouts.admin')
 
-@section('title', __('admin.delivery.list'))
+@section('title', __('admin.delivery.title'))
 
 @section('content')
-    {{-- 🔘 Заголовок и кнопка добавления --}}
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-3">
-        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">
-            🚚 {{ __('admin.delivery.list') }}
-        </h1>
-        <a href="{{ route('admin.delivery.create') }}"
-           class="inline-flex items-center gap-2 bg-black text-white hover:bg-gray-800 px-4 py-2 rounded-md text-sm font-semibold transition">
-            <i class="fas fa-plus"></i> {{ __('admin.delivery.add') }}
-        </a>
+@php
+    use Modules\Delivery\Console\Commands\SeedDefaultDeliveryMethodsCommand;
+
+    $required = SeedDefaultDeliveryMethodsCommand::credentialFields();
+@endphp
+
+{{-- ── Шапка раздела ── --}}
+<div class="admin-accent-bar mb-0"></div>
+<div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
+            flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+    <div class="flex items-center gap-3 min-w-0">
+        <span class="admin-icon-badge"><i class="fas fa-truck"></i></span>
+        <div class="min-w-0">
+            <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('admin.delivery.title') }}</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('admin.delivery.subtitle') }}</p>
+        </div>
     </div>
 
-    {{-- 📋 Таблица методов доставки --}}
-    <div class="overflow-x-auto bg-white dark:bg-gray-800 border rounded shadow-sm">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
-            <thead class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase">
-                <tr>
-                    <th class="px-6 py-3 text-left font-semibold whitespace-nowrap">🔢</th>
-                    <th class="px-6 py-3 text-left font-semibold whitespace-nowrap">📦 {{ __('admin.delivery.name2') }}</th>
-                    <th class="px-6 py-3 text-left font-semibold whitespace-nowrap">🚚 {{ __('admin.delivery.type_short') }}</th>
-                    <th class="px-6 py-3 text-left font-semibold whitespace-nowrap">💰 {{ __('admin.delivery.price_short') }}</th>
-                    <th class="px-6 py-3 text-left font-semibold whitespace-nowrap">📅 {{ __('admin.delivery.terms') }}</th>
-                    <th class="px-6 py-3 text-left font-semibold whitespace-nowrap">🎁 {{ __('admin.delivery.free_label') }}</th>
-                    <th class="px-6 py-3 text-center font-semibold whitespace-nowrap">🇷🇺 {{ __('admin.delivery.rf') }}</th>
-                    <th class="px-6 py-3 text-center font-semibold whitespace-nowrap">🌐 API</th>
-                    <th class="px-6 py-3 text-center font-semibold whitespace-nowrap">✅ {{ __('admin.delivery.active') }}</th>
-                    <th class="px-6 py-3 text-center font-semibold whitespace-nowrap">⚙️ {{ __('admin.delivery.actions') }}</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                @forelse ($methods as $method)
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                        {{-- 🔢 Порядок сортировки --}}
-                        <td class="px-6 py-4 text-gray-600 dark:text-gray-400 text-center">
-                            {{ $method->sort_order ?? 0 }}
-                        </td>
+    <a href="{{ route('admin.delivery.create') }}"
+       class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition flex-shrink-0">
+        <i class="fas fa-plus"></i> {{ __('admin.delivery.add') }}
+    </a>
+</div>
 
-                        {{-- 📦 Название метода --}}
-                        <td class="px-6 py-4 text-gray-800 dark:text-gray-100">
-                            {{ $method->title }}
-                        </td>
+@includeIf('layouts.partials.flash')
 
-                        {{-- 🚚 Тип метода --}}
-                        <td class="px-6 py-4 text-gray-600 dark:text-gray-300">
-                            @switch($method->type)
-                                @case('courier')
-                                    🚚 {{ __('admin.delivery.m_courier') }}
-                                    @break
-                                @case('pickup')
-                                    🛍️ {{ __('admin.delivery.m_pickup') }}
-                                    @break
-                                @case('post')
-                                    📦 {{ __('admin.delivery.m_post') }}
-                                    @break
-                                @case('terminal')
-                                    🏧 {{ __('admin.delivery.m_terminal') }}
-                                    @break
-                                @default
-                                    {{ $method->type }}
-                            @endswitch
-                        </td>
+@forelse($methods as $method)
+    @php
+        // Служба с включённым API, но без ключей, ничего не посчитает —
+        // сказать об этом надо в списке, а не внутри формы.
+        $needed = $required[$method->code] ?? [];
+        $settings = (array) $method->api_settings;
+        $missing = $needed !== []
+            && collect($needed)->filter(fn ($field) => blank($settings[$field] ?? null))->isNotEmpty();
+    @endphp
 
-                        {{-- 💰 Цена в ₽ --}}
-                        <td class="px-6 py-4 text-gray-800 dark:text-white font-semibold">
-                            {{ number_format($method->price, 2, ',', ' ') }} ₽
-                        </td>
+    <div class="admin-card p-4 mb-3 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-center gap-2">
+                <strong class="text-gray-900 dark:text-white">{{ $method->title }}</strong>
 
-                        {{-- 📅 Сроки доставки --}}
-                        <td class="px-6 py-4 text-gray-600 dark:text-gray-300">
-                            {{ $method->delivery_days }}
-                        </td>
+                @if($method->code)
+                    <code class="text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 px-2 py-0.5">{{ $method->code }}</code>
+                @endif
 
-                        {{-- 🎁 Бесплатная доставка от --}}
-                        <td class="px-6 py-4 text-gray-600 dark:text-gray-300">
-                            @if($method->free_delivery_threshold)
-                                <span class="text-green-600 dark:text-green-400 font-semibold">
-                                    {{ __('admin.delivery.from') }} {{ number_format($method->free_delivery_threshold, 0, ',', ' ') }} ₽
-                                </span>
-                            @else
-                                <span class="text-gray-400">—</span>
-                            @endif
-                        </td>
+                @if($method->active)
+                    <span class="text-xs bg-green-100 text-green-800 px-2 py-0.5">
+                        <i class="fas fa-circle-check"></i> {{ __('admin.delivery.on') }}
+                    </span>
+                @else
+                    <span class="text-xs bg-gray-200 text-gray-700 px-2 py-0.5">
+                        <i class="fas fa-ban"></i> {{ __('admin.delivery.off') }}
+                    </span>
+                @endif
 
-                        {{-- 🇷🇺 Российская служба --}}
-                        <td class="px-6 py-4 text-center">
-                            @if ($method->is_russian)
-                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-white text-xs font-semibold">
-                                    🇷🇺
-                                </span>
-                            @else
-                                <span class="text-gray-400">—</span>
-                            @endif
-                        </td>
+                @if($method->api_enabled)
+                    <span class="text-xs bg-indigo-100 text-indigo-800 px-2 py-0.5">{{ __('admin.delivery.api_on') }}</span>
+                @endif
 
-                        {{-- 🌐 API интеграция --}}
-                        <td class="px-6 py-4 text-center">
-                            @if ($method->api_enabled)
-                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-white text-xs font-semibold">
-                                    🌐
-                                </span>
-                            @else
-                                <span class="text-gray-400">—</span>
-                            @endif
-                        </td>
+                @if($missing)
+                    <span class="text-xs bg-red-100 text-red-800 px-2 py-0.5" title="{{ __('admin.delivery.no_keys_hint') }}">
+                        <i class="fas fa-key"></i> {{ __('admin.delivery.no_keys') }}
+                    </span>
+                @endif
+            </div>
 
-                        {{-- ✅ Статус активности --}}
-                        <td class="px-6 py-4 text-center text-xl">
-                            {!! $method->active ? '✅' : '❌' !!}
-                        </td>
+            @if($method->description)
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ $method->description }}</p>
+            @endif
 
-                        {{-- ⚙️ Кнопки действий --}}
-                        <td class="px-6 py-4 text-center space-x-2">
-                            <a href="{{ route('admin.delivery.edit', $method) }}"
-                               class="text-blue-600 hover:text-blue-800 transition" title="{{ __('admin.admin.edit') }}">
-                                ✏️
-                            </a>
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs text-gray-500 dark:text-gray-400">
+                <span><b>{{ $method->formatted_price }}</b></span>
+                <span>{{ $method->delivery_days }}</span>
 
-                            <form action="{{ route('admin.delivery.destroy', $method) }}"
-                                  method="POST" class="inline-block"
-                                  onsubmit="return confirm(@js(__('admin.delivery.confirm_delete')))">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:text-red-800 transition" title="{{ __('admin.admin.delete') }}">
-                                    🗑️
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="10" class="px-6 py-6 text-center text-gray-500 dark:text-gray-400">
-                            📭 {{ __('admin.delivery.empty') }}
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+                @if($method->free_delivery_threshold > 0)
+                    <span>{{ __('admin.delivery.f_free_from') }}
+                        <b>{{ number_format((float) $method->free_delivery_threshold, 0, ',', ' ') }}</b></span>
+                @endif
+
+                @if($method->weight_limit !== null)
+                    <span>{{ __('admin.delivery.f_weight') }}: <b>{{ (float) $method->weight_limit }}</b></span>
+                @endif
+
+                @if($method->docs_url)
+                    <a href="{{ $method->docs_url }}" target="_blank" rel="noopener"
+                       class="text-indigo-600 dark:text-indigo-400 hover:underline">
+                        <i class="fas fa-book"></i> {{ __('admin.delivery.docs') }}
+                    </a>
+                @endif
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 flex-shrink-0">
+            <a href="{{ route('admin.delivery.edit', $method->id) }}"
+               class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+                      hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition"
+               title="{{ __('admin.delivery.act_edit') }}">
+                <i class="fas fa-pen"></i>
+            </a>
+
+            <form action="{{ route('admin.delivery.destroy', $method->id) }}" method="POST"
+                  onsubmit="return confirm(@js(__('admin.delivery.confirm_delete')))">
+                @csrf
+                @method('DELETE')
+                <button type="submit"
+                        class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+                               hover:border-red-400 hover:text-red-600 px-3 py-2 text-sm font-semibold transition"
+                        title="{{ __('admin.delivery.act_delete') }}">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </form>
+        </div>
     </div>
+@empty
+    <div class="admin-card p-10 text-center">
+        <span class="admin-icon-badge mx-auto mb-4"><i class="fas fa-truck"></i></span>
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-1">{{ __('admin.delivery.empty') }}</h2>
+        <p class="admin-hint max-w-xl mx-auto">{{ __('admin.delivery.empty_hint') }}</p>
+    </div>
+@endforelse
 @endsection

@@ -12,6 +12,7 @@ Route::prefix('admin/delivery')->middleware(['web', 'auth', 'admin'])->group(fun
     Route::get('/{delivery}/edit', [DeliveryMethodController::class, 'edit'])->name('admin.delivery.edit');
     Route::put('/{delivery}', [DeliveryMethodController::class, 'update'])->name('admin.delivery.update');
     Route::delete('/{delivery}', [DeliveryMethodController::class, 'destroy'])->name('admin.delivery.destroy');
+    Route::post('/{delivery}/check', [DeliveryMethodController::class, 'check'])->name('admin.delivery.check');
 });
 
 // API маршруты для фронтенда

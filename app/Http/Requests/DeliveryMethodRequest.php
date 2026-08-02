@@ -38,6 +38,7 @@ class DeliveryMethodRequest extends FormRequest
             'regions.*' => 'nullable|string|max:255',
             'free_delivery_threshold' => 'nullable|numeric|min:0',
             'sort_order' => 'nullable|integer|min:0',
+            'docs_url' => 'nullable|url|max:255',
         ];
     }
 

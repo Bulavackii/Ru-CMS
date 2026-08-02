@@ -93,6 +93,19 @@ class DeliveryMethodController extends Controller
     /**
      * 🗑️ Удаление метода доставки.
      */
+    /**
+     * Проверка связи со службой доставки.
+     *
+     * Сохранённые ключи, а не присланные формой: проверять надо ровно то,
+     * чем служба будет пользоваться при реальном заказе.
+     */
+    public function check(DeliveryMethod $delivery)
+    {
+        $result = app(\Modules\Delivery\Services\ServiceChecker::class)->check($delivery);
+
+        return response()->json($result, $result['ok'] ? 200 : 422);
+    }
+
     public function destroy(DeliveryMethod $delivery)
     {
         // ❌ Удаляем запись
