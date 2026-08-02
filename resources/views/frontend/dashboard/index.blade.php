@@ -17,10 +17,12 @@
 @endphp
 
 {{-- ── Шапка раздела ── --}}
+{{-- Шапка с обращением по имени: страница личная, безличный заголовок
+     «Личный кабинет» этого не передавал. --}}
 <div class="acc-head">
-    <span class="fx-badge"><i class="fas fa-user"></i></span>
+    <span class="acc-avatar">{{ mb_strtoupper(mb_substr($user->name, 0, 1)) }}</span>
     <div class="min-w-0">
-        <h1 class="fx-section-title">{{ __('frontend.account.title') }}</h1>
+        <h1 class="fx-section-title">{{ __('frontend.account.hello', ['name' => $user->name]) }}</h1>
         <p class="fx-section-sub">{{ __('frontend.account.subtitle') }}</p>
     </div>
 </div>
@@ -28,6 +30,28 @@
 @if (session('success'))
     <div class="acc-flash">{{ session('success') }}</div>
 @endif
+
+@php
+    // Сводка считается по тем заказам, что уже отданы вьюхе: отдельный
+    // запрос ради двух чисел здесь не нужен.
+    $ordersTotal = $orders->sum('total');
+    $lastOrder = $orders->sortByDesc('created_at')->first();
+@endphp
+
+<div class="acc-stats">
+    <div class="acc-stat">
+        <span class="acc-stat__label">{{ __('frontend.account.orders_count') }}</span>
+        <b class="acc-stat__value">{{ $orders->count() }}</b>
+    </div>
+    <div class="acc-stat">
+        <span class="acc-stat__label">{{ __('frontend.account.spent') }}</span>
+        <b class="acc-stat__value">{{ number_format((float) $ordersTotal, 0, ',', ' ') }} ₽</b>
+    </div>
+    <div class="acc-stat">
+        <span class="acc-stat__label">{{ __('frontend.account.last_order') }}</span>
+        <b class="acc-stat__value">{{ $lastOrder ? $lastOrder->created_at->format('d.m.Y') : '—' }}</b>
+    </div>
+</div>
 
 <div class="acc-grid">
 
@@ -77,9 +101,7 @@
             @endif
         </div>
 
-        <p class="acc-count">
-            {{ __('frontend.account.orders_count') }}: <b>{{ $orders->count() }}</b>
-        </p>
+
     </section>
 </div>
 
@@ -146,6 +168,17 @@
        значений, ни динамических классов вида bg-{$color}-100 — именно на
        них держались прежние бейджи статуса, и они выводились бесцветными. */
     .acc-head{ display:flex; align-items:center; gap:.9rem; margin-bottom:1.25rem }
+    .acc-avatar{ width:3rem; height:3rem; flex:0 0 auto; display:inline-flex;
+                 align-items:center; justify-content:center;
+                 background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff;
+                 font-weight:800; font-size:1.15rem }
+
+    .acc-stats{ display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
+                gap:.6rem; margin-bottom:1rem }
+    .acc-stat{ border:1px solid #eef2f7; background:#fff; padding:.75rem 1rem }
+    .acc-stat__label{ display:block; font-size:.72rem; text-transform:uppercase;
+                      letter-spacing:.06em; color:#9ca3af }
+    .acc-stat__value{ display:block; font-size:1.25rem; color:#111827; margin-top:.15rem }
     .acc-h2{ font-size:.78rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase;
              color:#9ca3af; margin-bottom:.9rem }
 
@@ -161,7 +194,20 @@
     .acc-list dd{ margin:0; font-weight:600; color:#111827 }
     .acc-list a{ color:#4f46e5 }
 
-    .acc-actions{ display:flex; flex-wrap:wrap; gap:.5rem }
+    .acc-actions{ display:flex; flex-wrap:wrap; gap:.5rem; align-items:stretch }
+    /* Кнопки раздела задаём сами: общий .fx-btn рисовался под короткое
+       «Подробнее», и длинная подпись вылезала за его фон. */
+    .acc-actions .fx-btn,
+    .acc-actions .acc-btn-ghost{
+        display:inline-flex; align-items:center; justify-content:center; gap:.5rem;
+        padding:.6rem 1.1rem; line-height:1.25; white-space:nowrap;
+        width:auto; min-width:0; max-width:100%; text-align:center;
+    }
+    @media (max-width:520px){
+        .acc-actions{ flex-direction:column; align-items:stretch }
+        .acc-actions .fx-btn,
+        .acc-actions .acc-btn-ghost{ white-space:normal; width:100% }
+    }
     .acc-btn-ghost{ display:inline-flex; align-items:center; gap:.5rem; padding:.55rem 1rem;
                     border:1px solid #e5e7eb; background:#fff; color:#374151;
                     font-size:.85rem; font-weight:600; transition:border-color .15s, color .15s }
@@ -190,7 +236,8 @@
     .acc-empty__title{ font-weight:700; color:#111827; margin:.9rem 0 .25rem }
 
     @media (prefers-color-scheme: dark){
-        .acc-list dd, .acc-order__sum b, .acc-empty__title{ color:#f3f4f6 }
+        .acc-list dd, .acc-order__sum b, .acc-empty__title, .acc-stat__value{ color:#f3f4f6 }
+        .acc-stat{ background:transparent; border-color:#374151 }
         .acc-order, .acc-btn-ghost{ background:transparent; border-color:#374151 }
         .acc-btn-ghost{ color:#d1d5db }
     }

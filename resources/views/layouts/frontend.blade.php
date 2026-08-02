@@ -420,15 +420,9 @@
            перебивает и Tailwind-скругления, и литеральный CSS с border-radius.
            На SVG-геометрию (rx) не влияет — флаги и иконки без rx, им и не нужно. */
         body.fx-sharp, body.fx-sharp *{ border-radius:0 !important; }
-        /* Дизайнерский переход «шапка → контент»: наклонные акцент-линии темы
-           с затуханием по краям + мягкая тень-глубина. Цвета — из ТЕМЫ. */
-        .hdr-seam{ position:relative; height:22px; pointer-events:none; overflow:hidden; }
-        .hdr-seam::before{ content:''; position:absolute; left:0; right:0; top:0; height:14px;
+
             background:linear-gradient(to bottom, var(--fx-a-soft), transparent); }
-        .hdr-seam span{ position:absolute; left:-10%; right:-10%; height:2px; transform:rotate(-0.9deg); }
-        .hdr-seam span:nth-child(1){ top:6px; opacity:.4;
             background:linear-gradient(90deg, transparent, var(--color-accent,#8b5cf6), transparent); }
-        .hdr-seam span:nth-child(2){ top:11px; opacity:.7;
             background:linear-gradient(90deg, transparent, var(--color-primary,#6366f1), transparent); }
     </style>
 </head>
@@ -470,8 +464,6 @@
             <div class="fragment-zone fragment-zone--header">{!! $fragmentHeader !!}</div>
         @endif
 
-        {{-- Дизайнерский переход «шапка → контент»: наклонные акцент-линии темы --}}
-        <div class="hdr-seam" aria-hidden="true"><span></span><span></span></div>
 
         {{-- Модульное меню (позиция header) теперь встроено в саму шапку
              (layouts.partials.header) одной строкой с поиском — отдельного

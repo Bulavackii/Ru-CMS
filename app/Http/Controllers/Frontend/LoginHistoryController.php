@@ -14,10 +14,9 @@ use Illuminate\View\View;
  */
 class LoginHistoryController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
+    // Конструктора с $this->middleware('auth') здесь быть не должно:
+    // в Laravel 11+ метод удалён и вызов падает с «Call to undefined
+    // method». Доступ закрывает группа маршрутов в routes/web.php.
 
     /**
      * Показать историю входов пользователя
@@ -28,7 +27,7 @@ class LoginHistoryController extends Controller
         
         $loginHistory = LoginHistory::where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
-            ->paginate(20);
+            ->paginate(5);
 
         return view('frontend.dashboard.login-history', [
             'loginHistory' => $loginHistory,

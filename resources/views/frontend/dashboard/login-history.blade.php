@@ -1,112 +1,130 @@
-@extends('layouts.app')
+@extends('layouts.frontend')
 
-@section('title', 'История входов')
+@section('title', __('frontend.account.login_history'))
 
 @section('content')
-    <div class="container mx-auto px-4 py-8">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-            <h1 class="text-3xl font-bold mb-6 flex items-center gap-2">
-                <i class="fas fa-history"></i> История входов
-            </h1>
-
-            @if($loginHistory->isEmpty())
-                <div class="text-center py-8 text-gray-500">
-                    <i class="fas fa-history text-4xl mb-4"></i>
-                    <p>{{ __('frontend.account.history_empty') }}</p>
-                </div>
-            @else
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                        <thead class="bg-gray-50 dark:bg-gray-700">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Дата и время
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    IP адрес
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Локация
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Устройство
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Статус
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                            @foreach($loginHistory as $login)
-                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                                        {{ $login->created_at->format('d.m.Y H:i:s') }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 font-mono">
-                                        {{ $login->ip_address ?? 'N/A' }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                                        {{ $login->location ?? 'Не определено' }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                                        <div class="flex items-center gap-2">
-                                            @if($login->device_type)
-                                                @if($login->device_type === 'mobile')
-                                                    <i class="fas fa-mobile-alt"></i>
-                                                @elseif($login->device_type === 'tablet')
-                                                    <i class="fas fa-tablet-alt"></i>
-                                                @else
-                                                    <i class="fas fa-desktop"></i>
-                                                @endif
-                                            @endif
-                                            <span>
-                                                {{ $login->platform ?? 'N/A' }}
-                                                @if($login->browser)
-                                                    / {{ $login->browser }}
-                                                @endif
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        @if($login->status === 'success')
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                <i class="fas fa-check-circle mr-1"></i> Успешно
-                                            </span>
-                                        @elseif($login->status === 'failed')
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                                <i class="fas fa-times-circle mr-1"></i> Неудачно
-                                            </span>
-                                        @elseif($login->status === 'blocked')
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                                <i class="fas fa-ban mr-1"></i> Заблокировано
-                                            </span>
-                                        @else
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                                                {{ $login->status }}
-                                            </span>
-                                        @endif
-                                        
-                                        @if($login->is_suspicious)
-                                            <span class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800" title="{{ $login->suspicious_reason }}">
-                                                <i class="fas fa-exclamation-triangle mr-1"></i> Подозрительно
-                                            </span>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-
-                {{-- Пагинация --}}
-                <div class="mt-4">
-                    {{ $loginHistory->links() }}
-                </div>
-            @endif
-        </div>
+<div class="acc-head">
+    <span class="fx-badge"><i class="fas fa-clock-rotate-left"></i></span>
+    <div class="min-w-0">
+        <h1 class="fx-section-title">{{ __('frontend.account.login_history') }}</h1>
+        <p class="fx-section-sub">{{ __('frontend.account.history_hint') }}</p>
     </div>
+</div>
+
+<section class="fx-card p-5">
+    @if($loginHistory->isEmpty())
+        <div class="lh-empty">
+            <span class="fx-badge mx-auto"><i class="fas fa-clock-rotate-left"></i></span>
+            <p class="lh-empty__title">{{ __('frontend.account.history_empty') }}</p>
+            <p class="fx-section-sub">{{ __('frontend.account.history_empty_hint') }}</p>
+        </div>
+    @else
+        <p class="lh-total">
+            {{ __('frontend.account.history_total') }}: <b>{{ $loginHistory->total() }}</b>
+        </p>
+
+        {{-- Карточки вместо таблицы: на телефоне таблица из пяти колонок
+             уезжала в горизонтальную прокрутку и читалась плохо. --}}
+        @foreach($loginHistory as $login)
+            @php
+                $tone = match ($login->status) {
+                    'success' => 'ok',
+                    'failed', 'blocked' => 'bad',
+                    default => 'wait',
+                };
+                $statusLabel = match ($login->status) {
+                    'success' => __('frontend.account.h_success'),
+                    'failed' => __('frontend.account.h_failed'),
+                    'blocked' => __('frontend.account.h_blocked'),
+                    default => $login->status,
+                };
+                $deviceIcon = match ($login->device_type) {
+                    'mobile' => 'fa-mobile-screen',
+                    'tablet' => 'fa-tablet-screen-button',
+                    default => 'fa-desktop',
+                };
+            @endphp
+
+            <article class="lh-row">
+                <div class="lh-row__main">
+                    <div class="lh-row__top">
+                        <b>{{ $login->created_at->format('d.m.Y H:i:s') }}</b>
+
+                        <span class="lh-status lh-status--{{ $tone }}">{{ $statusLabel }}</span>
+
+                        @if($login->is_suspicious)
+                            <span class="lh-status lh-status--warn" title="{{ $login->suspicious_reason }}">
+                                <i class="fas fa-triangle-exclamation"></i> {{ __('frontend.account.h_suspicious') }}
+                            </span>
+                        @endif
+                    </div>
+
+                    <div class="lh-row__meta">
+                        <span><i class="fas {{ $deviceIcon }} fx-ico"></i>
+                            {{ $login->platform ?: __('frontend.account.h_unknown') }}@if($login->browser) · {{ $login->browser }}@endif
+                        </span>
+                        <span><i class="fas fa-location-dot fx-ico"></i>
+                            {{ $login->location ?: __('frontend.account.h_unknown') }}</span>
+                    </div>
+                </div>
+
+                <code class="lh-ip">{{ $login->ip_address ?: '—' }}</code>
+            </article>
+        @endforeach
+
+        {{-- Ссылки страниц сохраняют строку запроса — иначе фильтры и
+             язык слетали бы при переходе на вторую страницу. --}}
+        <div class="lh-pager">
+            {{ $loginHistory->withQueryString()->links() }}
+        </div>
+    @endif
+</section>
+
+<div class="mt-4">
+    <a href="{{ route('dashboard') }}" class="acc-btn-ghost">
+        <i class="fas fa-arrow-left"></i> {{ __('frontend.common.back') }}
+    </a>
+</div>
 @endsection
 
+@push('styles')
+<style>
+    /* Литеральный CSS: в статической сборке Tailwind нет ни произвольных
+       значений, ни части палитры, на которой держались прежние бейджи. */
+    .acc-head{ display:flex; align-items:center; gap:.9rem; margin-bottom:1.25rem }
+    .acc-btn-ghost{ display:inline-flex; align-items:center; gap:.5rem; padding:.55rem 1rem;
+                    border:1px solid #e5e7eb; background:#fff; color:#374151;
+                    font-size:.85rem; font-weight:600 }
+    .acc-btn-ghost:hover{ border-color:#a5b4fc; color:#4f46e5 }
 
+    .lh-total{ font-size:.85rem; color:#6b7280; margin-bottom:.9rem }
 
+    .lh-row{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between;
+             gap:.75rem; border:1px solid #eef2f7; background:#fff;
+             padding:.75rem 1rem; margin-bottom:.5rem }
+    .lh-row:hover{ border-color:#c7d2fe }
+    .lh-row__top{ display:flex; flex-wrap:wrap; align-items:center; gap:.5rem }
+    .lh-row__meta{ display:flex; flex-wrap:wrap; gap:.25rem 1rem; margin-top:.35rem;
+                   font-size:.8rem; color:#6b7280 }
+    .lh-ip{ font-size:.8rem; color:#4b5563; background:#f8fafc;
+            border:1px solid #eef2f7; padding:.15rem .45rem; white-space:nowrap }
 
+    .lh-status{ font-size:.72rem; font-weight:700; padding:.15rem .5rem; border:1px solid }
+    .lh-status--ok{ color:#166534; background:#f0fdf4; border-color:#bbf7d0 }
+    .lh-status--bad{ color:#991b1b; background:#fef2f2; border-color:#fecaca }
+    .lh-status--wait{ color:#3730a3; background:#eef2ff; border-color:#c7d2fe }
+    .lh-status--warn{ color:#92400e; background:#fffbeb; border-color:#fde68a }
+
+    .lh-empty{ text-align:center; padding:2.5rem 1rem }
+    .lh-empty__title{ font-weight:700; color:#111827; margin:.9rem 0 .25rem }
+
+    .lh-pager{ margin-top:1rem }
+
+    @media (prefers-color-scheme: dark){
+        .lh-row, .acc-btn-ghost{ background:transparent; border-color:#374151 }
+        .lh-empty__title{ color:#f3f4f6 }
+        .lh-ip{ background:transparent; border-color:#374151; color:#d1d5db }
+        .acc-btn-ghost{ color:#d1d5db }
+    }
+</style>
+@endpush

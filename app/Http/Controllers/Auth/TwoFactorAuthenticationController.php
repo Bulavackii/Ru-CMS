@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use App\Services\SecurityService;
 use App\Services\LoginHistoryService;
 use Illuminate\Http\Request;
@@ -16,8 +18,17 @@ use Illuminate\Http\RedirectResponse;
  *
  * Контроллер для обработки двухфакторной аутентификации
  */
-class TwoFactorAuthenticationController extends Controller
+class TwoFactorAuthenticationController extends Controller implements HasMiddleware
 {
+    /**
+     * В Laravel 11+ $this->middleware() в контроллерах удалён —
+     * вызов падал бы с «Call to undefined method».
+     */
+    public static function middleware(): array
+    {
+        return [new Middleware('guest', except: ['disable'])];
+    }
+
     protected SecurityService $securityService;
     protected LoginHistoryService $loginHistoryService;
 
@@ -27,7 +38,6 @@ class TwoFactorAuthenticationController extends Controller
     ) {
         $this->securityService = $securityService;
         $this->loginHistoryService = $loginHistoryService;
-        $this->middleware('guest')->except(['disable']);
     }
 
     /**
