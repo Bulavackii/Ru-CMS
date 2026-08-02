@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Категории')
+@section('title', __('admin.sections.categories'))
 
 @section('content')
     {{-- ── Шапка страницы: акцентная полоса + бейдж-иконка + действие ── --}}
@@ -10,30 +10,30 @@
         <div class="flex items-center gap-3 min-w-0">
             <span class="admin-icon-badge"><i class="fas fa-tags"></i></span>
             <div class="min-w-0">
-                <h1 class="text-xl font-bold text-gray-900 dark:text-white">Категории</h1>
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('admin.sections.categories') }}</h1>
                 <p class="text-sm text-gray-500 dark:text-gray-400">
-                    Группировка новостей, страниц и товаров. Вложенность, типы и массовые операции.
+                    {{ __('admin.categories.subtitle') }}
                 </p>
             </div>
         </div>
 
         <a href="{{ route('admin.categories.create') }}"
            class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition shrink-0"
-           title="Создать новую категорию">
-            <i class="fas fa-plus"></i> Создать категорию
+           title="{{ __('admin.categories.create_tip') }}">
+            <i class="fas fa-plus"></i> {{ __('admin.categories.create') }}
         </a>
     </div>
 
     {{-- ── Фильтры ── --}}
     <form method="GET" action="{{ route('admin.categories.index') }}" class="admin-card p-5 mb-5">
         <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
-            <i class="fas fa-filter text-indigo-500"></i> Фильтры
+            <i class="fas fa-filter text-indigo-500"></i> {{ __('admin.categories.filters') }}
         </h2>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {{-- Поиск --}}
             <div>
-                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Поиск</label>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.categories.search') }}</label>
                 <div class="relative">
                     <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
                          width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -43,16 +43,16 @@
                     <input type="text" name="search" value="{{ request('search') }}"
                            class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white pl-10 pr-3 py-2 text-sm
                                   focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-                           placeholder="Название, описание…">
+                           placeholder="{{ __('admin.categories.search_ph') }}">
                 </div>
             </div>
 
             {{-- Тип --}}
             <div>
-                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Тип</label>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.categories.type') }}</label>
                 <select name="type" class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
                                            focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
-                    <option value="">Все типы</option>
+                    <option value="">{{ __('admin.categories.all_types') }}</option>
                     @foreach($types ?? [] as $type)
                         <option value="{{ $type }}" {{ request('type') === $type ? 'selected' : '' }}>{{ $type }}</option>
                     @endforeach
@@ -61,11 +61,11 @@
 
             {{-- Родитель --}}
             <div>
-                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Родитель</label>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.categories.parent') }}</label>
                 <select name="parent_id" class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
                                                 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
-                    <option value="">Все категории</option>
-                    <option value="null" {{ request('parent_id') === 'null' ? 'selected' : '' }}>Корневые</option>
+                    <option value="">{{ __('admin.categories.all_parents') }}</option>
+                    <option value="null" {{ request('parent_id') === 'null' ? 'selected' : '' }}>{{ __('admin.categories.roots') }}</option>
                     @foreach($parentCategories ?? [] as $parent)
                         <option value="{{ $parent->id }}" {{ request('parent_id') == $parent->id ? 'selected' : '' }}>{{ $parent->title }}</option>
                     @endforeach
@@ -74,24 +74,24 @@
 
             {{-- Активность --}}
             <div>
-                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Активность</label>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.categories.activity') }}</label>
                 <select name="is_active" class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
                                                 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
-                    <option value="">Все</option>
-                    <option value="1" {{ request('is_active') === '1' ? 'selected' : '' }}>Активные</option>
-                    <option value="0" {{ request('is_active') === '0' ? 'selected' : '' }}>Неактивные</option>
+                    <option value="">{{ __('admin.categories.all') }}</option>
+                    <option value="1" {{ request('is_active') === '1' ? 'selected' : '' }}>{{ __('admin.categories.only_active') }}</option>
+                    <option value="0" {{ request('is_active') === '0' ? 'selected' : '' }}>{{ __('admin.categories.only_inactive') }}</option>
                 </select>
             </div>
         </div>
 
         <div class="flex items-center gap-2 mt-4">
             <button type="submit" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition">
-                <i class="fas fa-magnifying-glass"></i> Применить фильтры
+                <i class="fas fa-magnifying-glass"></i> {{ __('admin.categories.apply') }}
             </button>
             <a href="{{ route('admin.categories.index') }}"
                class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium
                       text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-                <i class="fas fa-xmark"></i> Сбросить
+                <i class="fas fa-xmark"></i> {{ __('admin.categories.reset') }}
             </a>
         </div>
     </form>
@@ -101,17 +101,17 @@
         <div class="flex flex-wrap items-center gap-3">
             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold
                          bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">
-                <i class="fas fa-check-double"></i> Выбрано: <span id="selCount">0</span>
+                <i class="fas fa-check-double"></i> {{ __('admin.categories.selected') }} <span id="selCount">0</span>
             </span>
 
             {{-- Массовое изменение типа --}}
             <div class="flex items-center gap-2">
-                <input type="text" id="bulkTypeInput" placeholder="Тип"
+                <input type="text" id="bulkTypeInput" placeholder="{{ __('admin.categories.bulk_type_ph') }}"
                        class="border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-2.5 py-1.5 text-sm w-32
                               focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
                 <button id="bulkUpdateTypeBtn"
                         class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 text-sm font-semibold shadow-sm transition">
-                    <i class="fas fa-pen"></i> Изменить тип
+                    <i class="fas fa-pen"></i> {{ __('admin.categories.bulk_type') }}
                 </button>
             </div>
 
@@ -120,29 +120,29 @@
                 <select id="bulkParentSelect"
                         class="border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-2.5 py-1.5 text-sm
                                focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
-                    <option value="">Убрать родителя</option>
+                    <option value="">{{ __('admin.categories.bulk_no_parent') }}</option>
                     @foreach($parentCategories ?? [] as $parent)
                         <option value="{{ $parent->id }}">{{ $parent->title }}</option>
                     @endforeach
                 </select>
                 <button id="bulkUpdateParentBtn"
                         class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 text-sm font-semibold shadow-sm transition">
-                    <i class="fas fa-sitemap"></i> Изменить родителя
+                    <i class="fas fa-sitemap"></i> {{ __('admin.categories.bulk_parent') }}
                 </button>
             </div>
 
             <div class="flex items-center gap-2 ml-auto">
                 <button id="bulkActivateBtn"
                         class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 text-sm font-semibold shadow-sm transition">
-                    <i class="fas fa-circle-check"></i> Активировать
+                    <i class="fas fa-circle-check"></i> {{ __('admin.categories.bulk_activate') }}
                 </button>
                 <button id="bulkDeactivateBtn"
                         class="inline-flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1.5 text-sm font-semibold shadow-sm transition">
-                    <i class="fas fa-ban"></i> Деактивировать
+                    <i class="fas fa-ban"></i> {{ __('admin.categories.bulk_deactivate') }}
                 </button>
                 <button id="bulkDeleteBtn"
                         class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 text-sm font-semibold shadow-sm transition">
-                    <i class="fas fa-trash-can"></i> Удалить
+                    <i class="fas fa-trash-can"></i> {{ __('admin.categories.bulk_delete') }}
                 </button>
             </div>
         </div>
@@ -153,12 +153,12 @@
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div class="flex items-center gap-2 font-medium">
                 <i class="fas fa-lightbulb"></i>
-                <span>Shift-клик выделяет диапазон, <kbd class="px-1.5 py-0.5 border border-indigo-300 bg-white dark:bg-gray-800">Ctrl</kbd> +
-                      <kbd class="px-1.5 py-0.5 border border-indigo-300 bg-white dark:bg-gray-800">F</kbd> — фокус на поиск.</span>
+                <span>{{ __('admin.categories.hint_keys') }} <kbd class="px-1.5 py-0.5 border border-indigo-300 bg-white dark:bg-gray-800">Ctrl</kbd> +
+                      <kbd class="px-1.5 py-0.5 border border-indigo-300 bg-white dark:bg-gray-800">F</kbd> {{ __('admin.categories.hint_keys_2') }}</span>
             </div>
             <div class="flex items-center gap-2 text-xs shrink-0">
                 <span class="bg-white dark:bg-gray-900 border border-indigo-100 dark:border-gray-700 px-2 py-1">
-                    Показано {{ $categories->count() }} из {{ $categories->total() }}
+                    {{ __('admin.categories.shown', ['shown' => $categories->count(), 'total' => $categories->total()]) }}
                 </span>
             </div>
         </div>
@@ -171,14 +171,14 @@
             <thead class="bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 uppercase text-xs tracking-wide">
             <tr>
                 <th class="px-4 py-3 w-10 text-left">
-                    <input id="checkAll" type="checkbox" class="h-4 w-4" title="Выбрать все">
+                    <input id="checkAll" type="checkbox" class="h-4 w-4" title="{{ __('admin.categories.check_all') }}">
                 </th>
-                <th class="px-4 py-3 text-left font-semibold">Название</th>
-                <th class="px-4 py-3 text-left font-semibold hidden lg:table-cell">Тип</th>
-                <th class="px-4 py-3 text-left font-semibold hidden lg:table-cell">Родитель</th>
-                <th class="px-4 py-3 text-center font-semibold hidden md:table-cell">Использование</th>
-                <th class="px-4 py-3 text-center font-semibold hidden md:table-cell">Статус</th>
-                <th class="px-4 py-3 text-center font-semibold w-16">Действия</th>
+                <th class="px-4 py-3 text-left font-semibold">{{ __('admin.categories.th_name') }}</th>
+                <th class="px-4 py-3 text-left font-semibold hidden lg:table-cell">{{ __('admin.categories.type') }}</th>
+                <th class="px-4 py-3 text-left font-semibold hidden lg:table-cell">{{ __('admin.categories.parent') }}</th>
+                <th class="px-4 py-3 text-center font-semibold hidden md:table-cell">{{ __('admin.categories.th_usage') }}</th>
+                <th class="px-4 py-3 text-center font-semibold hidden md:table-cell">{{ __('admin.categories.th_status') }}</th>
+                <th class="px-4 py-3 text-center font-semibold w-16">{{ __('admin.categories.th_actions') }}</th>
             </tr>
             </thead>
 
@@ -235,7 +235,7 @@
                                 <i class="fas fa-turn-up fa-rotate-90 text-gray-400"></i> {{ $category->parent->title }}
                             </span>
                         @else
-                            <span class="text-xs text-gray-400 dark:text-gray-500">Корневая</span>
+                            <span class="text-xs text-gray-400 dark:text-gray-500">{{ __('admin.categories.root') }}</span>
                         @endif
                     </td>
 
@@ -244,19 +244,19 @@
                         <div class="flex items-center justify-center gap-1.5 text-xs">
                             @if($category->news_count > 0)
                                 <span class="inline-flex items-center gap-1 px-2 py-0.5 font-medium
-                                             bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300" title="Новостей">
+                                             bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300" title="{{ __('admin.categories.news_count') }}">
                                     <i class="fas fa-newspaper"></i> {{ $category->news_count }}
                                 </span>
                             @endif
                             @if($category->pages_count > 0)
                                 <span class="inline-flex items-center gap-1 px-2 py-0.5 font-medium
-                                             bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300" title="Страниц">
+                                             bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300" title="{{ __('admin.categories.pages_count') }}">
                                     <i class="fas fa-file-lines"></i> {{ $category->pages_count }}
                                 </span>
                             @endif
                             @if($category->children_count > 0)
                                 <span class="inline-flex items-center gap-1 px-2 py-0.5 font-medium
-                                             bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200" title="Дочерних категорий">
+                                             bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200" title="{{ __('admin.categories.children_count') }}">
                                     <i class="fas fa-folder-tree"></i> {{ $category->children_count }}
                                 </span>
                             @endif
@@ -271,12 +271,12 @@
                         @if($category->is_active)
                             <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold whitespace-nowrap
                                          bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
-                                <i class="fas fa-circle-check"></i> Активна
+                                <i class="fas fa-circle-check"></i> {{ __('admin.categories.active') }}
                             </span>
                         @else
                             <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold whitespace-nowrap
                                          bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">
-                                <i class="fas fa-ban"></i> Неактивна
+                                <i class="fas fa-ban"></i> {{ __('admin.categories.inactive') }}
                             </span>
                         @endif
                     </td>
@@ -285,7 +285,7 @@
                     <td class="px-4 py-3 align-top text-center">
                         <a href="{{ route('admin.categories.edit', $category->id) }}"
                            class="inline-flex items-center justify-center w-8 h-8 bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition"
-                           title="Редактировать">
+                           title="{{ __('admin.categories.edit') }}">
                             <i class="fas fa-pen"></i>
                         </a>
                     </td>
@@ -294,10 +294,10 @@
                 <tr>
                     <td colspan="7" class="px-4 py-12 text-center">
                         <span class="admin-icon-badge mx-auto mb-3"><i class="fas fa-tags"></i></span>
-                        <p class="text-gray-600 dark:text-gray-300 font-medium">Категорий не найдено.</p>
+                        <p class="text-gray-600 dark:text-gray-300 font-medium">{{ __('admin.categories.empty') }}</p>
                         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                            Измените фильтры или
-                            <a href="{{ route('admin.categories.create') }}" class="text-indigo-600 dark:text-indigo-400 underline">создайте категорию</a>.
+                            {{ __('admin.categories.empty_hint') }}
+                            <a href="{{ route('admin.categories.create') }}" class="text-indigo-600 dark:text-indigo-400 underline">{{ __('admin.categories.empty_link') }}</a>.
                         </p>
                     </td>
                 </tr>
@@ -380,7 +380,7 @@
         function submitBulkDelete(){
             const ids = selectedIds();
             if(!ids.length) return;
-            if(!confirm('Удалить выбранные категории?')) return;
+            if(!confirm(@js(__('admin.categories.js_confirm_delete')))) return;
 
             fetch(bulkDeleteUrl, {
                 method:'POST',
@@ -388,13 +388,13 @@
                 body: JSON.stringify({ category_ids: ids.map(id => parseInt(id)) })
             }).then(r=>r.json()).then(data=>{
                 if(data.success){
-                    toast('Удалено: ' + data.deleted);
+                    toast(@js(__('admin.categories.js_deleted')) + ' ' + data.deleted);
                     if(data.warning) toast(data.warning, true);
                     setTimeout(()=>location.reload(), 1000);
                 } else {
-                    toast(data.error || 'Ошибка удаления', true);
+                    toast(data.error || @js(__('admin.categories.js_err_delete')), true);
                 }
-            }).catch(()=> toast('Ошибка сети', true));
+            }).catch(()=> toast(@js(__('admin.categories.js_err_net')), true));
         }
 
         bulkDeleteBtn?.addEventListener('click', submitBulkDelete);
@@ -411,12 +411,12 @@
                 body: JSON.stringify({ category_ids: ids.map(id => parseInt(id)), type: type })
             }).then(r=>r.json()).then(data=>{
                 if(data.success){
-                    toast('Обновлено: ' + data.updated);
+                    toast(@js(__('admin.categories.js_updated')) + ' ' + data.updated);
                     setTimeout(()=>location.reload(), 1000);
                 } else {
-                    toast(data.error || 'Ошибка', true);
+                    toast(data.error || @js(__('admin.categories.js_err')), true);
                 }
-            }).catch(()=> toast('Ошибка сети', true));
+            }).catch(()=> toast(@js(__('admin.categories.js_err_net')), true));
         });
 
         /* ---------- bulk update parent ---------- */
@@ -431,12 +431,12 @@
                 body: JSON.stringify({ category_ids: ids.map(id => parseInt(id)), parent_id: parentId ? parseInt(parentId) : null })
             }).then(r=>r.json()).then(data=>{
                 if(data.success){
-                    toast('Обновлено: ' + data.updated);
+                    toast(@js(__('admin.categories.js_updated')) + ' ' + data.updated);
                     setTimeout(()=>location.reload(), 1000);
                 } else {
-                    toast(data.error || 'Ошибка', true);
+                    toast(data.error || @js(__('admin.categories.js_err')), true);
                 }
-            }).catch(()=> toast('Ошибка сети', true));
+            }).catch(()=> toast(@js(__('admin.categories.js_err_net')), true));
         });
 
         /* ---------- bulk activate/deactivate ---------- */
@@ -450,10 +450,10 @@
                 body: JSON.stringify({ category_ids: ids.map(id => parseInt(id)), is_active: true })
             }).then(r=>r.json()).then(data=>{
                 if(data.success){
-                    toast('Активировано: ' + data.updated);
+                    toast(@js(__('admin.categories.js_activated')) + ' ' + data.updated);
                     setTimeout(()=>location.reload(), 1000);
                 }
-            }).catch(()=> toast('Ошибка сети', true));
+            }).catch(()=> toast(@js(__('admin.categories.js_err_net')), true));
         });
 
         bulkDeactivateBtn?.addEventListener('click', ()=>{
@@ -466,10 +466,10 @@
                 body: JSON.stringify({ category_ids: ids.map(id => parseInt(id)), is_active: false })
             }).then(r=>r.json()).then(data=>{
                 if(data.success){
-                    toast('Деактивировано: ' + data.updated);
+                    toast(@js(__('admin.categories.js_deactivated')) + ' ' + data.updated);
                     setTimeout(()=>location.reload(), 1000);
                 }
-            }).catch(()=> toast('Ошибка сети', true));
+            }).catch(()=> toast(@js(__('admin.categories.js_err_net')), true));
         });
 
         // hotkeys
