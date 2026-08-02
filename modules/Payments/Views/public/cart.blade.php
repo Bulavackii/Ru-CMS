@@ -91,23 +91,34 @@
 
                     <div class="bg-white border border-gray-200 rounded-lg shadow p-6">
                         <h2 class="text-lg font-semibold mb-4">🚚 {{ __('frontend.cart.delivery_method') }}</h2>
-                        <select name="delivery_method_id" id="delivery-method" required class="w-full border-gray-300 rounded px-4 py-2 shadow-sm focus:ring focus:ring-indigo-300 text-sm">
-                            <option value="">{{ __('frontend.cart.choose_delivery') }}</option>
-                            @foreach ($deliveryMethods as $method)
-                                <option value="{{ $method->id }}"
-                                        data-price="{{ $method->price }}"
-                                        data-description="{{ $method->description ?? '' }}"
-                                        data-code="{{ $method->code ?? '' }}"
-                                        data-days="{{ $method->delivery_days }}"
-                                        data-weight="{{ $method->weight_limit ?? '' }}"
-                                        data-regions="{{ $method->regions ? implode(', ', $method->regions) : '' }}">
-                                    {{ $method->title }} ({{ number_format($method->price, 2, ',', ' ') }} ₽)
-                                    @if($method->is_russian) (🇷🇺) @endif
-                                    @if($method->api_enabled) (🌐 API) @endif
-                                    @if($method->delivery_days !== '—') [{{ $method->delivery_days }}] @endif
-                                </option>
-                            @endforeach
-                        </select>
+                        {{-- Карточки вместо выпадающего списка: стоимость и срок видны
+                             сразу у каждой службы, а не после выбора. --}}
+                        @forelse ($deliveryMethods as $method)
+                            <label class="pay-option">
+                                <input type="radio" name="delivery_method_id" value="{{ $method->id }}" required
+                                       class="pay-option__radio"
+                                       data-price="{{ $method->price }}"
+                                       data-description="{{ $method->description ?? '' }}"
+                                       data-code="{{ $method->code ?? '' }}"
+                                       data-days="{{ $method->delivery_days }}"
+                                       data-weight="{{ $method->weight_limit ?? '' }}">
+                                <span class="pay-option__body">
+                                    <span class="pay-option__head">
+                                        <b>{{ $method->title }}</b>
+                                        <span class="pay-option__fee">{{ $method->formatted_price }}</span>
+                                    </span>
+                                    <span class="pay-option__note">
+                                        @if($method->description){{ $method->description }} · @endif
+                                        {{ $method->delivery_days }}
+                                        @if($method->free_delivery_threshold > 0)
+                                            · {{ __('frontend.cart.free_delivery_from', ['sum' => number_format((float) $method->free_delivery_threshold, 0, ',', ' ')]) }}
+                                        @endif
+                                    </span>
+                                </span>
+                            </label>
+                        @empty
+                            <p class="text-sm text-gray-500">{{ __('frontend.cart.no_delivery') }}</p>
+                        @endforelse
                         <p id="delivery-description" class="mt-2 text-sm text-gray-600 italic"></p>
                         <p id="delivery-info" class="mt-1 text-sm text-gray-500 hidden"></p>
                     </div>

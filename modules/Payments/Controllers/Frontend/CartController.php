@@ -18,7 +18,7 @@ class CartController extends Controller
     {
         $cart = session('cart', []);
         $paymentMethods = PaymentMethod::where('active', true)->orderBy('sort_order')->orderBy('id')->get();
-        $deliveryMethods = DeliveryMethod::where('active', true)->get();
+        $deliveryMethods = DeliveryMethod::where('active', true)->orderBy('sort_order')->orderBy('id')->get();
 
         return view('Payments::public.cart', compact('cart', 'paymentMethods', 'deliveryMethods'));
     }
