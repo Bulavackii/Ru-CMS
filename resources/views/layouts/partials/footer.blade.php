@@ -10,13 +10,12 @@
     <div class="absolute inset-0 z-0 opacity-10 pointer-events-none"
         style="background-image:var(--bg-image); background-repeat:repeat; background-size:auto;"></div>
 
-    <div class="relative z-10 backdrop-blur-md bg-white dark:bg-gray-800 transition-colors duration-200"
-        style="background:var(--color-footer,#ffffff)">
+    {{-- Переход «контент → подвал»: заливка не начинается резко, а
+         проявляется на первых 90 пикселях. Сквозь них виден узор страницы,
+         поэтому видимой границы не остаётся. --}}
+    <div class="relative z-10 backdrop-blur-md transition-colors duration-200 f-body"
+        style="--f-color: var(--color-footer, #ffffff)">
 
-        {{-- Мягкий переход «контент → футер». Раньше здесь была линия-«пульс»:
-             резкая графика поперёк всей ширины, к тому же в фиксированном
-             indigo, который не совпадал с выбранной темой. --}}
-        <div class="f-seam" aria-hidden="true"></div>
 
         {{-- ===== Колонки подвала. Число столбцов авто-подстраивается: слева
              «Разработчик», справа «Контакты», между ними — по одному столбцу на
@@ -179,17 +178,20 @@
     #backToTopBtn{ transition:opacity .2s ease, transform .2s ease; }
     @media (prefers-reduced-motion: reduce){ #backToTopBtn{ transition:none; } }
 
-    /* Переход «контент → футер»: подложка растворяется в фоне подвала,
-       сверху — тонкая нить акцента темы. Никакой резкой границы. */
-    .f-seam{ position:relative; height:64px; pointer-events:none; }
-    .f-seam::before{
-        content:''; position:absolute; inset:0;
-        background:linear-gradient(to bottom, transparent, var(--color-footer, #ffffff));
+    /* Переход «контент → подвал». Отдельной полосы-шва нет: заливка
+       подвала сама проявляется сверху вниз, и узор страницы просвечивает
+       сквозь неё. Первые 90px — плавный набор непрозрачности. */
+    .f-body{
+        background:linear-gradient(to bottom,
+            transparent 0,
+            color-mix(in srgb, var(--f-color) 55%, transparent) 45px,
+            var(--f-color) 90px);
+        padding-top:1.5rem;
     }
-    .f-seam::after{
-        content:''; position:absolute; left:0; right:0; bottom:0; height:2px;
-        background:var(--fx-bar, linear-gradient(90deg,#6366f1,#8b5cf6));
-        opacity:.45;
+    /* Запасной вариант для браузеров без color-mix: переход всё равно
+       плавный, просто без промежуточной ступени. */
+    @supports not (color: color-mix(in srgb, red 50%, blue)){
+        .f-body{ background:linear-gradient(to bottom, transparent 0, var(--f-color) 90px); }
     }
 
     /* ===== Оформление подвала (стиль проекта, акцент из ТЕМЫ) ===== */
