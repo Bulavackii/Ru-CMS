@@ -120,18 +120,67 @@ class YooKassaGateway extends AbstractPaymentGateway
     /**
      * Обработать webhook
      */
+    /**
+     * Обработка уведомления от ЮKassa.
+     *
+     * ⚠️ Телу запроса верить нельзя. Маршрут уведомлений публичный и без
+     * CSRF — иначе платёжная система до него не достучится. Значит, кто
+     * угодно может прислать «payment.succeeded» с чужим order_id и
+     * получить оплаченный заказ бесплатно.
+     *
+     * Поэтому статус платежа ПЕРЕСПРАШИВАЕТСЯ у API по идентификатору, и
+     * дополнительно сверяется сумма: иначе можно было бы оплатить рубль
+     * за заказ на пятнадцать тысяч.
+     */
     public function handleWebhook(array $data): bool
     {
         $event = $data['event'] ?? null;
         $payment = $data['object'] ?? [];
+        $paymentId = $payment['id'] ?? null;
+
+        if (! $paymentId) {
+            $this->log('Webhook without payment id', ['event' => $event]);
+
+            return false;
+        }
+
+        // Единственный источник правды — ответ платёжной системы.
+        $payment = $this->getPaymentStatus((string) $paymentId);
+
+        if (($payment['id'] ?? null) !== $paymentId) {
+            $this->log('Webhook payment not confirmed by API', ['payment_id' => $paymentId]);
+
+            return false;
+        }
+
+        $event = match ($payment['status'] ?? '') {
+            'succeeded' => ($payment['paid'] ?? false) === true ? 'payment.succeeded' : null,
+            'canceled' => 'payment.canceled',
+            default => null,
+        };
 
         if ($event === 'payment.succeeded') {
             $orderId = $payment['metadata']['order_id'] ?? null;
             
             if ($orderId) {
                 $order = Order::find($orderId);
+
+                // Сумма из ответа API, а не из тела уведомления.
+                $paidAmount = (float) ($payment['amount']['value'] ?? 0);
+
+                if ($order && abs($paidAmount - (float) $order->total) > 0.01) {
+                    $this->log('Webhook amount mismatch', [
+                        'order_id' => $orderId,
+                        'expected' => (float) $order->total,
+                        'paid' => $paidAmount,
+                    ]);
+
+                    return false;
+                }
+
                 if ($order && $order->status !== 'completed') {
                     $order->status = 'completed';
+                    $order->payment_id = $paymentId;
                     $order->save();
 
                     $this->log('Payment succeeded', [
