@@ -30,7 +30,9 @@ class CaptchaModuleTest extends TestCase
 
     public function test_admin_page_opens(): void
     {
-        $response = $this->actingAs($this->admin())->get(route('admin.captcha.index'));
+        $response = $this->actingAs($this->admin())
+            ->withSession(['app_locale' => 'ru'])
+            ->get(route('admin.captcha.index'));
 
         $response->assertStatus(200);
         $response->assertSee('Каптча', false);
@@ -69,11 +71,13 @@ class CaptchaModuleTest extends TestCase
     public function test_page_reports_the_real_module_state(): void
     {
         config(['captcha.enabled' => true]);
-        $this->actingAs($this->admin())->get(route('admin.captcha.index'))
+        $this->actingAs($this->admin())->withSession(['app_locale' => 'ru'])
+            ->get(route('admin.captcha.index'))
             ->assertSee('Включена', false);
 
         config(['captcha.enabled' => false]);
-        $this->actingAs($this->admin())->get(route('admin.captcha.index'))
+        $this->actingAs($this->admin())->withSession(['app_locale' => 'ru'])
+            ->get(route('admin.captcha.index'))
             ->assertSee('Выключена', false)
             ->assertSee('CAPTCHA_ENABLED=false', false);
     }
@@ -82,7 +86,8 @@ class CaptchaModuleTest extends TestCase
     {
         config(['captcha.default_type' => 'math']);
 
-        $this->actingAs($this->admin())->get(route('admin.captcha.index'))
+        $this->actingAs($this->admin())->withSession(['app_locale' => 'ru'])
+            ->get(route('admin.captcha.index'))
             ->assertSee('по умолчанию', false);
     }
 

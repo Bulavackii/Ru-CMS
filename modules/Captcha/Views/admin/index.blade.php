@@ -16,15 +16,15 @@
 --}}
 @extends('layouts.admin')
 
-@section('title', 'Каптча')
+@section('title', __('admin.captcha.title'))
 
 @section('content')
 @php
     $typeMeta = [
-        'image'    => ['title' => 'Картинка',  'icon' => 'fa-image',                'desc' => 'Код на картинке с помехами'],
-        'slider'   => ['title' => 'Слайдер',   'icon' => 'fa-arrows-left-right',    'desc' => 'Дотащить ползунок до метки'],
-        'math'     => ['title' => 'Пример',    'icon' => 'fa-calculator',           'desc' => 'Арифметика в уме'],
-        'question' => ['title' => 'Вопрос',    'icon' => 'fa-circle-question',      'desc' => 'Вопрос со свободным ответом'],
+        'image'    => ['title' => __('admin.captcha.t_image'),    'icon' => 'fa-image',             'desc' => __('admin.captcha.t_image_desc')],
+        'slider'   => ['title' => __('admin.captcha.t_slider'),   'icon' => 'fa-arrows-left-right', 'desc' => __('admin.captcha.t_slider_desc')],
+        'math'     => ['title' => __('admin.captcha.t_math'),     'icon' => 'fa-calculator',        'desc' => __('admin.captcha.t_math_desc')],
+        'question' => ['title' => __('admin.captcha.t_question'), 'icon' => 'fa-circle-question',   'desc' => __('admin.captcha.t_question_desc')],
     ];
 @endphp
 
@@ -37,22 +37,22 @@
         <div class="p-5 flex flex-wrap items-center gap-4">
             <span class="admin-icon-badge" aria-hidden="true"><i class="fas fa-shield-halved"></i></span>
             <div class="min-w-0 flex-1">
-                <h1 class="text-xl font-bold text-gray-900 dark:text-white">Каптча</h1>
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('admin.captcha.title') }}</h1>
                 <p class="text-sm text-gray-500">
-                    Соберите защиту формы, сохраните её и вставляйте в страницы, новости или свои шаблоны.
+                    {{ __('admin.captcha.subtitle') }}
                 </p>
             </div>
             <span class="cap-state {{ $enabled ? 'is-on' : 'is-off' }}">
                 <span class="cap-dot" aria-hidden="true"></span>
-                {{ $enabled ? 'Включена' : 'Выключена' }}
+                {{ $enabled ? __('admin.captcha.on') : __('admin.captcha.off') }}
             </span>
         </div>
     </div>
 
     @unless($enabled)
         <div class="admin-hint p-4 mb-5 text-sm">
-            Модуль выключен: <span class="font-mono">CAPTCHA_ENABLED=false</span> в <span class="font-mono">.env</span>.
-            Собрать и сохранить сборку можно, но на формах проверка пропустит любое значение.
+            {!! __('admin.captcha.disabled_note', ['flag' => '<span class="font-mono">CAPTCHA_ENABLED=false</span>', 'env' => '<span class="font-mono">.env</span>']) !!}
+            {{ __('admin.captcha.disabled_note2') }}
         </div>
     @endunless
 
@@ -66,17 +66,17 @@
         <section class="admin-card p-5">
             <div class="flex items-center justify-between gap-3 mb-4">
                 <h2 class="text-sm font-bold uppercase tracking-wider text-gray-400"
-                    x-text="editing ? 'Редактирование сборки' : 'Новая сборка'"></h2>
+                    x-text="editing ? @js(__('admin.captcha.editing')) : @js(__('admin.captcha.new'))"></h2>
                 <button type="button" x-cloak x-show="editing" @click="resetForm()" class="cap-link">
-                    <i class="fas fa-xmark"></i> Отменить
+                    <i class="fas fa-xmark"></i> {{ __('admin.captcha.cancel') }}
                 </button>
             </div>
 
-            <label class="cap-label">Название</label>
+            <label class="cap-label">{{ __('admin.captcha.f_name') }}</label>
             <input type="text" name="name" x-model="name" required maxlength="255"
-                   class="cap-input mb-4" placeholder="Например: Форма обратной связи">
+                   class="cap-input mb-4" placeholder="{{ __('admin.captcha.f_name_ph') }}">
 
-            <label class="cap-label">Тип</label>
+            <label class="cap-label">{{ __('admin.captcha.f_type') }}</label>
             <div class="grid grid-cols-2 gap-2 mb-4">
                 @foreach($typeMeta as $key => $meta)
                     <label class="cap-pick" :class="type === @js($key) ? 'is-picked' : ''">
@@ -94,26 +94,26 @@
                  читает для выбранного типа. --}}
             <div x-show="type === 'image'" x-cloak class="space-y-3">
                 <div>
-                    <label class="cap-label">Длина кода: <b x-text="options.image.length"></b></label>
+                    <label class="cap-label">{{ __('admin.captcha.f_len') }}: <b x-text="options.image.length"></b></label>
                     <input type="range" name="length" min="3" max="10" x-model.number="options.image.length" class="cap-range">
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="cap-label">Ширина: <b x-text="options.image.width"></b> px</label>
+                        <label class="cap-label">{{ __('admin.captcha.f_width') }}: <b x-text="options.image.width"></b> px</label>
                         <input type="range" name="width" min="80" max="600" step="10" x-model.number="options.image.width" class="cap-range">
                     </div>
                     <div>
-                        <label class="cap-label">Высота: <b x-text="options.image.height"></b> px</label>
+                        <label class="cap-label">{{ __('admin.captcha.f_height') }}: <b x-text="options.image.height"></b> px</label>
                         <input type="range" name="height" min="30" max="200" step="5" x-model.number="options.image.height" class="cap-range">
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="cap-label">Шум: <b x-text="options.image.noise"></b></label>
+                        <label class="cap-label">{{ __('admin.captcha.f_noise') }}: <b x-text="options.image.noise"></b></label>
                         <input type="range" name="noise" min="0" max="3" x-model.number="options.image.noise" class="cap-range">
                     </div>
                     <div>
-                        <label class="cap-label">Линии: <b x-text="options.image.lines"></b></label>
+                        <label class="cap-label">{{ __('admin.captcha.f_lines') }}: <b x-text="options.image.lines"></b></label>
                         <input type="range" name="lines" min="0" max="10" x-model.number="options.image.lines" class="cap-range">
                     </div>
                 </div>
@@ -122,34 +122,34 @@
             <div x-show="type === 'slider'" x-cloak class="space-y-3">
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="cap-label">Ширина: <b x-text="options.slider.width"></b> px</label>
+                        <label class="cap-label">{{ __('admin.captcha.f_width') }}: <b x-text="options.slider.width"></b> px</label>
                         <input type="range" name="width" min="160" max="600" step="10" x-model.number="options.slider.width" class="cap-range">
                     </div>
                     <div>
-                        <label class="cap-label">Высота: <b x-text="options.slider.height"></b> px</label>
+                        <label class="cap-label">{{ __('admin.captcha.f_height') }}: <b x-text="options.slider.height"></b> px</label>
                         <input type="range" name="height" min="32" max="80" step="2" x-model.number="options.slider.height" class="cap-range">
                     </div>
                 </div>
                 <div>
-                    <label class="cap-label">Допуск попадания: <b x-text="options.slider.tolerance"></b> px</label>
+                    <label class="cap-label">{{ __('admin.captcha.f_tolerance') }}: <b x-text="options.slider.tolerance"></b> px</label>
                     <input type="range" name="tolerance" min="4" max="40" x-model.number="options.slider.tolerance" class="cap-range">
-                    <p class="cap-note">Меньше допуск — строже проверка, но труднее живому человеку.</p>
+                    <p class="cap-note">{{ __('admin.captcha.tolerance_note') }}</p>
                 </div>
             </div>
 
             <div x-show="type === 'math'" x-cloak class="space-y-3">
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="cap-label">Числа от</label>
+                        <label class="cap-label">{{ __('admin.captcha.f_from') }}</label>
                         <input type="number" name="min" min="0" max="999" x-model.number="options.math.min" class="cap-input">
                     </div>
                     <div>
-                        <label class="cap-label">до</label>
+                        <label class="cap-label">{{ __('admin.captcha.f_to') }}</label>
                         <input type="number" name="max" min="1" max="1000" x-model.number="options.math.max" class="cap-input">
                     </div>
                 </div>
                 <div>
-                    <label class="cap-label">Действия</label>
+                    <label class="cap-label">{{ __('admin.captcha.f_ops') }}</label>
                     <div class="flex gap-2">
                         <template x-for="op in ['+', '-', '*']" :key="op">
                             <label class="cap-op" :class="options.math.operations.includes(op) ? 'is-picked' : ''">
@@ -159,28 +159,28 @@
                             </label>
                         </template>
                     </div>
-                    <p class="cap-note">Умножение сервис ограничивает числами до 12 — иначе пример не решить в уме.</p>
+                    <p class="cap-note">{{ __('admin.captcha.ops_note') }}</p>
                 </div>
             </div>
 
             <div x-show="type === 'question'" x-cloak class="space-y-3">
-                <label class="cap-label">Свои вопросы</label>
+                <label class="cap-label">{{ __('admin.captcha.f_questions') }}</label>
                 <template x-for="(pair, index) in options.question.questions" :key="index">
                     <div class="flex gap-2 mb-2">
                         <input type="text" :name="'questions[' + index + '][q]'" x-model="pair.q"
-                               class="cap-input flex-1" placeholder="Вопрос">
+                               class="cap-input flex-1" placeholder="{{ __('admin.captcha.q_ph') }}">
                         <input type="text" :name="'questions[' + index + '][a]'" x-model="pair.a"
-                               class="cap-input" style="max-width:9rem" placeholder="Ответ">
+                               class="cap-input" style="max-width:9rem" placeholder="{{ __('admin.captcha.a_ph') }}">
                         <button type="button" @click="options.question.questions.splice(index, 1)"
-                                class="cap-icon-btn" aria-label="Удалить"><i class="fas fa-trash"></i></button>
+                                class="cap-icon-btn" aria-label="{{ __('admin.captcha.q_delete') }}"><i class="fas fa-trash"></i></button>
                     </div>
                 </template>
                 <button type="button" @click="options.question.questions.push({q: '', a: ''})" class="cap-link">
-                    <i class="fas fa-plus"></i> Добавить вопрос
+                    <i class="fas fa-plus"></i> {{ __('admin.captcha.q_add') }}
                 </button>
                 <p class="cap-note">
-                    Если не добавить ни одного, будет использован набор по умолчанию
-                    (<span x-text="defaultQuestions.length"></span> шт.). Ответ сверяется без учёта регистра.
+                    {{ __('admin.captcha.q_note') }}
+                    (<span x-text="defaultQuestions.length"></span>{{ __('admin.captcha.q_note2') }}
                 </p>
             </div>
 
@@ -189,32 +189,32 @@
                     <input type="checkbox" name="is_active" value="1" x-model="isActive">
                     <span class="track"></span><span class="knob"></span>
                 </span>
-                <span>Активна — доступна для вставки в материалы</span>
+                <span>{{ __('admin.captcha.f_active') }}</span>
             </label>
 
             <div class="flex flex-wrap gap-2 mt-5">
                 <button type="submit" class="cap-btn">
                     <i class="fas fa-floppy-disk"></i>
-                    <span x-text="editing ? 'Сохранить изменения' : 'Сохранить сборку'"></span>
+                    <span x-text="editing ? @js(__('admin.captcha.save_changes')) : @js(__('admin.captcha.save_new'))"></span>
                 </button>
                 <button type="button" @click="refresh()" class="cap-btn cap-btn--ghost">
-                    <i class="fas fa-rotate"></i> Обновить превью
+                    <i class="fas fa-rotate"></i> {{ __('admin.captcha.refresh') }}
                 </button>
             </div>
         </section>
 
         {{-- Превью --}}
         <section class="admin-card p-5">
-            <h2 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-3">Как увидит посетитель</h2>
+            <h2 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-3">{{ __('admin.captcha.preview') }}</h2>
 
             <div class="cap-preview">
-                <div x-show="loading" class="text-xs text-gray-400">собираем…</div>
+                <div x-show="loading" class="text-xs text-gray-400">{{ __('admin.captcha.building') }}</div>
                 <div x-show="!loading" x-html="preview"></div>
             </div>
 
             <p class="cap-note mt-3">
-                Это не картинка-макет, а настоящая каптча: она собрана тем же кодом, что работает на сайте.
-                Ответ проверяется на сервере — в разметку он не попадает.
+                {{ __('admin.captcha.preview_note') }}
+                {{ __('admin.captcha.preview_note2') }}
             </p>
 
             <div x-cloak x-show="error" class="admin-hint p-3 mt-3 text-xs" x-text="error"></div>
@@ -223,7 +223,7 @@
 
     {{-- ═══ Сохранённые сборки ═══ --}}
     <section class="admin-card p-5 mt-5">
-        <h2 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-3">Сохранённые сборки</h2>
+        <h2 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-3">{{ __('admin.captcha.saved') }}</h2>
 
         @forelse($presets as $preset)
             @php $meta = $typeMeta[$preset->type] ?? ['title' => $preset->type, 'icon' => 'fa-shield-halved']; @endphp
@@ -235,7 +235,7 @@
                         <strong class="text-gray-900 dark:text-white">{{ $preset->name }}</strong>
                         <code class="cap-code">{{ $meta['title'] }}</code>
                         @if(! $preset->is_active)
-                            <span class="cap-off">выключена</span>
+                            <span class="cap-off">{{ __('admin.captcha.preset_off') }}</span>
                         @endif
                     </div>
 
@@ -243,25 +243,25 @@
                         {{-- Копирование через @js(): @json внутри onclick рвёт
                              атрибут на первой же двойной кавычке --}}
                         <button type="button" class="cap-copy"
-                                onclick="navigator.clipboard.writeText(@js($preset->shortcode())).then(() => window.toast && toast('Шорткод скопирован'))">
+                                onclick="navigator.clipboard.writeText(@js($preset->shortcode())).then(() => window.toast && toast(@js(__('admin.captcha.copy_shortcode'))))">
                             <i class="fa-regular fa-copy"></i>
                             <code>{{ $preset->shortcode() }}</code>
                         </button>
 
                         <button type="button" class="cap-copy"
-                                onclick="navigator.clipboard.writeText(@js($preset->bladeSnippet())).then(() => window.toast && toast('Вызов для шаблона скопирован'))">
-                            <i class="fa-regular fa-copy"></i> для шаблона
+                                onclick="navigator.clipboard.writeText(@js($preset->bladeSnippet())).then(() => window.toast && toast(@js(__('admin.captcha.copy_blade'))))">
+                            <i class="fa-regular fa-copy"></i> {{ __('admin.captcha.for_template') }}
                         </button>
 
                         <button type="button" class="cap-copy"
-                                onclick="navigator.clipboard.writeText(@js($preset->verifySnippet())).then(() => window.toast && toast('Проверка скопирована'))">
-                            <i class="fa-regular fa-copy"></i> проверка в контроллере
+                                onclick="navigator.clipboard.writeText(@js($preset->verifySnippet())).then(() => window.toast && toast(@js(__('admin.captcha.copy_verify'))))">
+                            <i class="fa-regular fa-copy"></i> {{ __('admin.captcha.verify_in_controller') }}
                         </button>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-1.5 flex-none">
-                    <button type="button" class="cap-icon-btn" title="Редактировать"
+                    <button type="button" class="cap-icon-btn" title="{{ __('admin.captcha.act_edit') }}"
                             @click="edit(@js([
                                 'id' => $preset->id,
                                 'name' => $preset->name,
@@ -274,53 +274,51 @@
 
                     <form method="POST" action="{{ route('admin.captcha.presets.duplicate', $preset) }}">
                         @csrf
-                        <button type="submit" class="cap-icon-btn" title="Дублировать"><i class="fa-regular fa-clone"></i></button>
+                        <button type="submit" class="cap-icon-btn" title="{{ __('admin.captcha.act_duplicate') }}"><i class="fa-regular fa-clone"></i></button>
                     </form>
 
                     <form method="POST" action="{{ route('admin.captcha.presets.destroy', $preset) }}"
-                          onsubmit="return confirm('Удалить сборку «{{ $preset->name }}»? Вставленные шорткоды перестанут что-либо показывать.')">
+                          onsubmit="return confirm(@js(__('admin.captcha.confirm_delete', ['name' => $preset->name])))">
                         @csrf @method('DELETE')
-                        <button type="submit" class="cap-icon-btn cap-icon-btn--danger" title="Удалить"><i class="fas fa-trash"></i></button>
+                        <button type="submit" class="cap-icon-btn cap-icon-btn--danger" title="{{ __('admin.captcha.act_delete') }}"><i class="fas fa-trash"></i></button>
                     </form>
                 </div>
             </div>
         @empty
             <p class="text-sm text-gray-500">
-                Пока ничего не сохранено. Соберите каптчу выше и нажмите «Сохранить сборку» —
-                после этого её можно будет вставить в страницу или новость одним выбором из списка.
+                {{ __('admin.captcha.empty') }}
             </p>
         @endforelse
     </section>
 
     {{-- ═══ Памятка ═══ --}}
     <section class="admin-card p-5 mt-5">
-        <h2 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-3">Как встроить</h2>
+        <h2 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-3">{{ __('admin.captcha.howto') }}</h2>
 
         <div class="grid gap-5 lg:grid-cols-2">
             <div>
-                <h3 class="cap-h3">1. В текст страницы или новости</h3>
-                <p class="cap-note mb-2">Вставьте шорткод — или выберите сборку из списка прямо в редакторе.</p>
+                <h3 class="cap-h3">{{ __('admin.captcha.h1') }}</h3>
+                <p class="cap-note mb-2">{{ __('admin.captcha.h1_note') }}</p>
                 <pre class="cap-pre">@verbatim
 [captcha preset="obratnaya-svyaz"]
 @endverbatim</pre>
             </div>
 
             <div>
-                <h3 class="cap-h3">2. В свой Blade-шаблон</h3>
+                <h3 class="cap-h3">{{ __('admin.captcha.h2') }}</h3>
                 <pre class="cap-pre">@verbatim
 <form method="POST" action="/feedback">
     @csrf
     {!! captcha_preset('obratnaya-svyaz') !!}
-    <button type="submit">Отправить</button>
+    <button type="submit">{{ __('admin.captcha.h2_submit') }}</button>
 </form>
 @endverbatim</pre>
             </div>
 
             <div>
-                <h3 class="cap-h3">3. Проверка в контроллере</h3>
+                <h3 class="cap-h3">{{ __('admin.captcha.h3') }}</h3>
                 <p class="cap-note mb-2">
-                    Без параметра: тип берётся из самой сборки. Так две каптчи на одной странице
-                    не мешают друг другу.
+                    {{ __('admin.captcha.h3_note') }}
                 </p>
                 <pre class="cap-pre">@verbatim
 $request->validate([
@@ -330,13 +328,12 @@ $request->validate([
             </div>
 
             <div>
-                <h3 class="cap-h3">4. Без сохранённой сборки</h3>
+                <h3 class="cap-h3">{{ __('admin.captcha.h4') }}</h3>
                 <pre class="cap-pre">@verbatim
 {!! captcha_field('math', ['min' => 1, 'max' => 20]) !!}
 @endverbatim</pre>
                 <p class="cap-note mt-2">
-                    Старый <code>captcha_img()</code> тоже работает, но выводит только картинку,
-                    без поля ответа и идентификатора.
+                    {!! __('admin.captcha.h4_note', ['fn' => '<code>captcha_img()</code>']) !!}
                 </p>
             </div>
         </div>
@@ -533,7 +530,7 @@ function captchaBuilder(defaults, defaultQuestions, presets) {
                     body,
                 });
 
-                if (!response.ok) throw new Error('сервер ответил ' + response.status);
+                if (!response.ok) throw new Error(@js(__('admin.captcha.js_server_said')) + ' ' + response.status);
 
                 const data = await response.json();
                 this.preview = data.html || '';
@@ -543,7 +540,7 @@ function captchaBuilder(defaults, defaultQuestions, presets) {
                 this.$nextTick(() => window.captchaBindSliders && window.captchaBindSliders());
             } catch (e) {
                 this.preview = '';
-                this.error = 'Не удалось собрать превью: ' + (e.message || e);
+                this.error = @js(__('admin.captcha.js_preview_failed')) + ' ' + (e.message || e);
             } finally {
                 this.loading = false;
             }
