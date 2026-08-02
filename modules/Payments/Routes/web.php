@@ -16,6 +16,7 @@ Route::middleware(['web', 'auth', 'admin'])
         Route::get('/{id}/edit', [PaymentController::class, 'edit'])->name('edit');  // ✏️ Редактировать
         Route::put('/{id}', [PaymentController::class, 'update'])->name('update');   // 🔄 Обновить
         Route::delete('/{id}', [PaymentController::class, 'destroy'])->name('destroy'); // ❌ Удалить
+        Route::post('/{id}/check', [PaymentController::class, 'check'])->name('check'); // 🔌 Проверка связи с платёжной системой
     });
 
 // 📦 Админка: управление заказами

@@ -100,6 +100,31 @@ class SeedDefaultPaymentMethodsCommand extends Command
     }
 
     /**
+     * Какие реквизиты нужны каждому драйверу.
+     *
+     * Один источник для сидера и для формы: раньше форма показывала все
+     * поля сразу (ИНН, БИК, terminal key, shop id…) независимо от системы,
+     * и владелец не понимал, что из этого заполнять.
+     *
+     * @return array<string, list<string>>
+     */
+    public static function credentialFields(): array
+    {
+        $fields = [];
+
+        foreach (self::definitions() as $definition) {
+            $fields[$definition['code']] = array_keys($definition['settings']);
+        }
+
+        // Типы, которых нет среди типовых методов, но которые можно выбрать
+        // в форме вручную.
+        return $fields + [
+            'online' => ['api_key', 'secret_key'],
+            'offline' => [],
+        ];
+    }
+
+    /**
      * @return int сколько методов реально добавлено
      */
     public static function seed(bool $reset = false): int

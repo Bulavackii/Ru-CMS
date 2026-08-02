@@ -1,23 +1,29 @@
 @extends('layouts.admin')
 
-@section('title', 'Добавить способ оплаты')
+@section('title', __('admin.payments.create_title'))
 
 @section('content')
-    <h1 class="text-2xl font-bold mb-6 flex items-center gap-2">➕ Новый способ оплаты</h1>
-
-    {{-- 🧾 Форма создания способа оплаты --}}
-    <form action="{{ route('admin.payments.store') }}" method="POST" class="space-y-6 max-w-xl bg-white dark:bg-gray-900 p-6 rounded-xl shadow border border-gray-200 dark:border-gray-700">
-        @csrf
-
-        {{-- 🔧 Поля формы (вынесены отдельно) --}}
-        @include('Payments::admin.partials.form')
-
-        {{-- 💾 Кнопка сохранения --}}
-        <div class="text-right">
-            <button type="submit"
-                    class="inline-flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-6 py-2.5 rounded-md shadow font-semibold text-sm transition">
-                <i class="fas fa-save text-xs"></i> Сохранить
-            </button>
+<div class="admin-accent-bar mb-0"></div>
+<div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
+            flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+    <div class="flex items-center gap-3 min-w-0">
+        <span class="admin-icon-badge"><i class="fas fa-credit-card"></i></span>
+        <div class="min-w-0">
+            <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('admin.payments.create_title') }}</h1>
         </div>
-    </form>
+    </div>
+
+    <a href="{{ route('admin.payments.index') }}"
+       class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+              hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition flex-shrink-0">
+        <i class="fas fa-arrow-left"></i> {{ __('admin.payments.to_list') }}
+    </a>
+</div>
+
+@includeIf('layouts.partials.flash')
+
+<form action="{{ route('admin.payments.store') }}" method="POST">
+    @csrf
+    @include('Payments::admin.partials.form')
+</form>
 @endsection

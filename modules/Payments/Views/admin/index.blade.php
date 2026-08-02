@@ -1,169 +1,124 @@
 @extends('layouts.admin')
 
-@section('title', 'Способы оплаты')
+@section('title', __('admin.payments.title'))
 
 @section('content')
-    {{-- 🔝 Заголовок и кнопка добавления --}}
-    <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">💳 Способы оплаты</h1>
-        <a href="{{ route('admin.payments.create') }}"
-           class="inline-flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-5 py-2.5 rounded-md shadow-sm text-sm font-semibold transition">
-            <i class="fas fa-plus text-xs"></i> Добавить
-        </a>
+@php
+    use Modules\Payments\Console\Commands\SeedDefaultPaymentMethodsCommand;
+
+    $required = SeedDefaultPaymentMethodsCommand::credentialFields();
+@endphp
+
+{{-- ── Шапка раздела ── --}}
+<div class="admin-accent-bar mb-0"></div>
+<div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
+            flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+    <div class="flex items-center gap-3 min-w-0">
+        <span class="admin-icon-badge"><i class="fas fa-credit-card"></i></span>
+        <div class="min-w-0">
+            <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('admin.payments.title') }}</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('admin.payments.subtitle') }}</p>
+        </div>
     </div>
 
-    {{-- 📋 Таблица способов оплаты --}}
-    <div class="overflow-x-auto bg-white dark:bg-gray-900 rounded-xl shadow border border-gray-200 dark:border-gray-800">
-        <table class="min-w-full text-sm text-left whitespace-nowrap">
-            <thead class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
-                <tr>
-                    <th class="px-6 py-3 font-semibold">🏷️ Название</th>
-                    <th class="px-6 py-3 font-semibold">⚙️ Тип</th>
-                    <th class="px-6 py-3 font-semibold">🔑 Код</th>
-                    <th class="px-6 py-3 font-semibold text-center">🇷🇺 РФ</th>
-                    <th class="px-6 py-3 font-semibold text-center">💰 Комиссия</th>
-                    <th class="px-6 py-3 font-semibold text-center">💸 Суммы</th>
-                    <th class="px-6 py-3 font-semibold text-center">✅ Статус</th>
-                    <th class="px-6 py-3 font-semibold text-center">🛠️ Действия</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                @forelse ($methods as $method)
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-                        {{-- 🏷️ Название метода --}}
-                        <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">
-                            {{ $method->title }}
-                        </td>
+    <a href="{{ route('admin.payments.create') }}"
+       class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition flex-shrink-0">
+        <i class="fas fa-plus"></i> {{ __('admin.payments.add') }}
+    </a>
+</div>
 
-                        {{-- ⚙️ Тип метода --}}
-                        <td class="px-6 py-4 text-gray-600 dark:text-gray-300 capitalize">
-                            @switch($method->type)
-                                @case('online')
-                                    💻 Онлайн
-                                    @break
-                                @case('offline')
-                                    🏦 Офлайн
-                                    @break
-                                @case('sbp')
-                                    💸 СБП
-                                    @break
-                                @case('yookassa')
-                                    💳 ЮKassa
-                                    @break
-                                @case('tinkoff')
-                                    🏦 Тинькофф
-                                    @break
-                                @case('sberbank')
-                                    🏦 Сбербанк
-                                    @break
-                                @case('sberpay')
-                                    💳 Сбербанк Pay
-                                    @break
-                                @case('qiwi')
-                                    📱 QIWI
-                                    @break
-                                @case('robokassa')
-                                    🔄 Robokassa
-                                    @break
-                                @case('cloudpayments')
-                                    ☁️ CloudPayments
-                                    @break
-                                @case('unitpay')
-                                    💳 Unitpay
-                                    @break
-                                @case('interkassa')
-                                    💳 Interkassa
-                                    @break
-                                @default
-                                    {{ $method->type }}
-                            @endswitch
-                        </td>
+@includeIf('layouts.partials.flash')
 
-                        {{-- 🔑 Код --}}
-                        <td class="px-6 py-4 text-gray-600 dark:text-gray-300">
-                            {{ $method->code ?? '—' }}
-                        </td>
+@forelse($methods as $method)
+    @php
+        // Метод без ключей выглядит рабочим, но платёж не примет —
+        // об этом надо сказать прямо в списке, а не внутри формы.
+        $needed = $required[$method->type] ?? [];
+        $settings = (array) $method->settings;
+        $missing = collect($needed)->filter(fn ($field) => blank($settings[$field] ?? null))->isNotEmpty();
+    @endphp
 
-                        {{-- 🇷🇺 Российская система --}}
-                        <td class="px-6 py-4 text-center">
-                            @if ($method->is_russian)
-                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-white text-xs font-semibold">
-                                    🇷🇺 РФ
-                                </span>
-                            @else
-                                <span class="text-gray-400">—</span>
-                            @endif
-                        </td>
+    <div class="admin-card p-4 mb-3 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-center gap-2">
+                <strong class="text-gray-900 dark:text-white">{{ $method->title }}</strong>
 
-                        {{-- 💰 Комиссия --}}
-                        <td class="px-6 py-4 text-center">
-                            @if ($method->commission !== null)
-                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-100 text-green-800 dark:bg-green-800 dark:text-white text-xs font-semibold">
-                                    {{ $method->formattedCommission }}
-                                </span>
-                            @else
-                                <span class="text-gray-400">—</span>
-                            @endif
-                        </td>
+                @if($method->code)
+                    <code class="text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 px-2 py-0.5">{{ $method->code }}</code>
+                @endif
 
-                        {{-- 💸 Суммы --}}
-                        <td class="px-6 py-4 text-center">
-                            @if ($method->min_amount || $method->max_amount)
-                                <span class="text-xs text-gray-600 dark:text-gray-300">
-                                    {{ $method->formattedAmounts }}
-                                </span>
-                            @else
-                                <span class="text-gray-400">—</span>
-                            @endif
-                        </td>
+                @if($method->active)
+                    <span class="text-xs bg-green-100 text-green-800 px-2 py-0.5">
+                        <i class="fas fa-circle-check"></i> {{ __('admin.payments.on') }}
+                    </span>
+                @else
+                    <span class="text-xs bg-gray-200 text-gray-700 px-2 py-0.5">
+                        <i class="fas fa-ban"></i> {{ __('admin.payments.off') }}
+                    </span>
+                @endif
 
-                        {{-- ✅ Статус активности --}}
-                        <td class="px-6 py-4 text-center">
-                            @if ($method->active)
-                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-100 text-green-800 dark:bg-green-800 dark:text-white text-xs font-semibold">
-                                    <i class="fas fa-check-circle"></i> Включен
-                                </span>
-                            @else
-                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-red-100 text-red-800 dark:bg-red-800 dark:text-white text-xs font-semibold">
-                                    <i class="fas fa-times-circle"></i> Выключен
-                                </span>
-                            @endif
-                        </td>
+                @if($method->test_mode)
+                    <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5">{{ __('admin.payments.test_mode') }}</span>
+                @endif
 
-                        {{-- ✏️ Действия (редактировать / удалить) --}}
-                        <td class="px-6 py-4 text-center">
-                            <div class="inline-flex items-center justify-center gap-2">
-                                {{-- ✏️ Редактировать --}}
-                                <a href="{{ route('admin.payments.edit', $method->id) }}"
-                                   class="inline-flex items-center justify-center text-blue-600 dark:text-blue-400 hover:underline text-sm font-medium"
-                                   title="Редактировать">
-                                    <i class="fas fa-pen"></i>
-                                </a>
+                @if($missing)
+                    <span class="text-xs bg-red-100 text-red-800 px-2 py-0.5" title="{{ __('admin.payments.no_keys_hint') }}">
+                        <i class="fas fa-key"></i> {{ __('admin.payments.no_keys') }}
+                    </span>
+                @endif
+            </div>
 
-                                {{-- 🗑️ Удалить --}}
-                                <form action="{{ route('admin.payments.destroy', $method->id) }}"
-                                      method="POST" class="inline"
-                                      onsubmit="return confirm('Удалить этот способ оплаты?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit"
-                                            class="inline-flex items-center justify-center text-red-600 dark:text-red-400 hover:underline text-sm font-medium"
-                                            title="Удалить">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                @empty
-                    {{-- ❗ Нет способов оплаты --}}
-                    <tr>
-                        <td colspan="8" class="px-6 py-6 text-center text-gray-500 dark:text-gray-400">
-                            🤷 Нет способов оплаты.
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+            @if($method->description)
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ $method->description }}</p>
+            @endif
+
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs text-gray-500 dark:text-gray-400">
+                <span>{{ __('admin.payments.th_type') }}: <b class="font-mono">{{ $method->type }}</b></span>
+                <span>{{ __('admin.payments.th_commission') }}: <b>{{ (float) $method->commission }}%</b></span>
+
+                @if($method->min_amount !== null || $method->max_amount !== null)
+                    <span>{{ __('admin.payments.th_limits') }}:
+                        <b>{{ $method->min_amount !== null ? (int) $method->min_amount : '—' }}</b>
+                        …
+                        <b>{{ $method->max_amount !== null ? (int) $method->max_amount : '∞' }}</b>
+                    </span>
+                @endif
+
+                @if($method->docs_url)
+                    <a href="{{ $method->docs_url }}" target="_blank" rel="noopener"
+                       class="text-indigo-600 dark:text-indigo-400 hover:underline">
+                        <i class="fas fa-book"></i> {{ __('admin.payments.docs') }}
+                    </a>
+                @endif
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 flex-shrink-0">
+            <a href="{{ route('admin.payments.edit', $method->id) }}"
+               class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+                      hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition"
+               title="{{ __('admin.payments.act_edit') }}">
+                <i class="fas fa-pen"></i>
+            </a>
+
+            <form action="{{ route('admin.payments.destroy', $method->id) }}" method="POST"
+                  onsubmit="return confirm(@js(__('admin.payments.confirm_delete', ['name' => $method->title])))">
+                @csrf
+                @method('DELETE')
+                <button type="submit"
+                        class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+                               hover:border-red-400 hover:text-red-600 px-3 py-2 text-sm font-semibold transition"
+                        title="{{ __('admin.payments.act_delete') }}">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </form>
+        </div>
     </div>
+@empty
+    <div class="admin-card p-10 text-center">
+        <span class="admin-icon-badge mx-auto mb-4"><i class="fas fa-credit-card"></i></span>
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-1">{{ __('admin.payments.empty') }}</h2>
+        <p class="admin-hint max-w-xl mx-auto">{{ __('admin.payments.empty_hint') }}</p>
+    </div>
+@endforelse
 @endsection

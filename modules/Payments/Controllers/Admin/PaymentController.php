@@ -71,6 +71,21 @@ class PaymentController extends Controller
     /**
      * ?? Удаление метода оплаты
      */
+    /**
+     * Проверка связи с платёжной системой.
+     *
+     * Сохранённые реквизиты, а не присланные формой: проверять надо ровно
+     * то, чем метод будет пользоваться при реальном заказе.
+     */
+    public function check($id)
+    {
+        $method = PaymentMethod::findOrFail($id);
+
+        $result = app(\Modules\Payments\Services\GatewayChecker::class)->check($method);
+
+        return response()->json($result, $result['ok'] ? 200 : 422);
+    }
+
     public function destroy($id)
     {
         $method = PaymentMethod::findOrFail($id);
