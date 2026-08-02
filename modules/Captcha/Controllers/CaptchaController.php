@@ -4,6 +4,7 @@ namespace Modules\Captcha\Controllers;
 
 use App\Http\Controllers\Controller;
 use Modules\Captcha\Models\CaptchaPreset;
+use Modules\Captcha\Models\CaptchaStat;
 use Modules\Captcha\Services\CaptchaService;
 use Illuminate\Http\Request;
 
@@ -97,6 +98,7 @@ class CaptchaController extends Controller
             'presets'     => CaptchaPreset::orderByDesc('id')->get(),
             'defaults'    => self::defaultOptions(),
             'questions'   => CaptchaService::defaultQuestions(),
+            'stats'       => CaptchaStat::totals(),
         ]);
     }
 

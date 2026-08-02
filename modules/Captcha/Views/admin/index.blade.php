@@ -239,6 +239,30 @@
                         @endif
                     </div>
 
+                    @php
+                        $s = $stats[$preset->id] ?? null;
+                        // Проходимость считаем от завершённых попыток, а не от
+                        // показов: показ без отправки формы ничего не говорит
+                        // о сложности каптчи.
+                        $tries = $s ? $s['passed'] + $s['failed'] : 0;
+                        $rate = $tries > 0 ? (int) round($s['passed'] / $tries * 100) : null;
+                    @endphp
+
+                    <div class="cap-stats" title="{{ __('admin.captcha.stat_hint') }}">
+                        @if($s && $s['shown'] > 0)
+                            <span><b>{{ $s['shown'] }}</b> {{ __('admin.captcha.stat_shown') }}</span>
+                            <span><b>{{ $s['passed'] }}</b> {{ __('admin.captcha.stat_passed') }}</span>
+                            <span><b>{{ $s['failed'] }}</b> {{ __('admin.captcha.stat_failed') }}</span>
+                            @if($rate !== null)
+                                <span class="cap-rate @if($rate < 50) cap-rate--bad @elseif($rate < 80) cap-rate--warn @endif">
+                                    {{ $rate }}% {{ __('admin.captcha.stat_rate') }}
+                                </span>
+                            @endif
+                        @else
+                            <span class="cap-stats__none">{{ __('admin.captcha.stat_none') }}</span>
+                        @endif
+                    </div>
+
                     <div class="flex flex-wrap items-center gap-1.5 mt-2">
                         {{-- Копирование через @js(): @json внутри onclick рвёт
                              атрибут на первой же двойной кавычке --}}
@@ -421,6 +445,15 @@ $request->validate([
     .cap-pre{margin:0;padding:.75rem;font-size:.72rem;line-height:1.5;overflow-x:auto;
         color:#e5e7eb;background:#111827;border:1px solid #374151;
         font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+
+    /* Статистика сборки: показы, попытки, проходимость */
+    .cap-stats { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .5rem;
+                 font-size: 11px; color: #6b7280; align-items: center }
+    .cap-stats b { color: #111827; font-weight: 700 }
+    .cap-stats__none { color: #9ca3af; font-style: italic }
+    .cap-rate { padding: 1px 6px; border: 1px solid #c7d2fe; color: #4338ca; background: #eef2ff }
+    .cap-rate--warn { border-color: #fde68a; color: #92400e; background: #fffbeb }
+    .cap-rate--bad  { border-color: #fecaca; color: #991b1b; background: #fef2f2 }
 </style>
 @endpush
 

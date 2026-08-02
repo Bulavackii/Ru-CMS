@@ -4,6 +4,7 @@ namespace Modules\Captcha\Services;
 
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
+use Modules\Captcha\Models\CaptchaStat;
 use Modules\Captcha\Services\YandexCaptchaService;
 
 /**
@@ -44,6 +45,13 @@ class CaptchaService
 
     /** Сколько экземпляров держим в сессии, чтобы она не пухла. */
     private const MAX_INSTANCES = 12;
+
+    /**
+     * Сборка, из которой рендерится текущая каптча. Нужна только для
+     * статистики: экземпляр запоминает её в meta, а verify() по ней
+     * понимает, чей счётчик двигать.
+     */
+    private ?int $presetId = null;
 
     /**
      * Генерация каптчи.
@@ -312,6 +320,8 @@ HTML;
 
         $passed = $this->matches($userInput, $instance);
 
+        CaptchaStat::bump($instance['meta']['preset_id'] ?? null, $passed ? 'passed' : 'failed');
+
         // Одноразовость: угаданный код нельзя переиспользовать повторной
         // отправкой той же формы
         if ($passed) {
@@ -345,6 +355,11 @@ HTML;
      */
     public function render(string $type = 'image', array $options = []): string
     {
+        // Сборка, из которой пришли параметры. Ключ служебный: он не должен
+        // попасть в генераторы, поэтому снимается здесь, а не внутри них.
+        $this->presetId = isset($options['preset_id']) ? (int) $options['preset_id'] : null;
+        unset($options['preset_id']);
+
         if ($type === 'yandex') {
             $config = config('captcha.yandex', []);
             if (!empty($config['client_key']) && !empty($config['server_key'])) {
@@ -590,6 +605,11 @@ HTML;
         }
 
         $id = Str::lower(Str::random(16));
+
+        if ($this->presetId !== null) {
+            $meta['preset_id'] = $this->presetId;
+        }
+
         $instances[$id] = [
             'code' => $code,
             'type' => $type,
@@ -598,6 +618,8 @@ HTML;
         ];
 
         Session::put(self::STORE, $instances);
+
+        CaptchaStat::bump($this->presetId, 'shown');
 
         return $id;
     }

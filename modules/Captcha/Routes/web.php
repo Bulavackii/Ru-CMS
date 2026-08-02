@@ -89,6 +89,9 @@ if (!function_exists('captcha_preset')) {
             return '';
         }
 
-        return app('captcha')->render($preset->type, array_merge((array) $preset->options, $override));
+        return app('captcha')->render(
+            $preset->type,
+            array_merge((array) $preset->options, $override, ['preset_id' => $preset->id])
+        );
     }
 }
