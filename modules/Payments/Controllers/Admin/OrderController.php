@@ -44,7 +44,7 @@ class OrderController extends Controller
                 });
             })
             ->latest()
-            ->paginate(15)
+            ->paginate(5)
             ->withQueryString();
 
         return view('Payments::admin.orders.index', compact('orders', 'freshIds'));
