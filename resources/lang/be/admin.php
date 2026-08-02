@@ -1015,6 +1015,16 @@ return [
         'o_multilang' => 'Шматмоўная падтрымка',
     ],
 
+    'orders' => [
+        'customer' => 'Пакупнік',
+        'c_name' => 'Імя',
+        'c_phone' => 'Тэлефон',
+        'c_email' => 'E-mail',
+        'c_address' => 'Адрас дастаўкі',
+        'c_comment' => 'Каментар',
+        'c_none' => 'не ўказана',
+    ],
+
     'payments' => [
         'n_yookassa' => 'Карты, СБП, кашалькі',
         'n_sbp' => 'QR-код, без карты',

@@ -5,6 +5,42 @@
 @section('content')
     <h1 class="text-2xl font-bold mb-6 flex items-center gap-2">📄 Заказ #{{ $order->id }}</h1>
 
+    {{-- 🧍 Покупатель: без этого блока заказ некуда отправлять --}}
+    <div class="admin-card p-5 mb-6">
+        <h2 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-3">
+            <i class="fas fa-user text-indigo-500"></i> {{ __('admin.orders.customer') }}
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+            <p><span class="text-gray-500">{{ __('admin.orders.c_name') }}:</span>
+               <b class="text-gray-900 dark:text-white">{{ $order->customer_name ?: __('admin.orders.c_none') }}</b></p>
+
+            <p><span class="text-gray-500">{{ __('admin.orders.c_phone') }}:</span>
+               @if($order->customer_phone)
+                   <a href="tel:{{ $order->customer_phone }}" class="text-indigo-600 dark:text-indigo-400">{{ $order->customer_phone }}</a>
+               @else
+                   <b>{{ __('admin.orders.c_none') }}</b>
+               @endif
+            </p>
+
+            <p><span class="text-gray-500">{{ __('admin.orders.c_email') }}:</span>
+               @if($order->customer_email)
+                   <a href="mailto:{{ $order->customer_email }}" class="text-indigo-600 dark:text-indigo-400">{{ $order->customer_email }}</a>
+               @else
+                   <b>{{ __('admin.orders.c_none') }}</b>
+               @endif
+            </p>
+
+            <p><span class="text-gray-500">{{ __('admin.orders.c_address') }}:</span>
+               <b class="text-gray-900 dark:text-white">{{ $order->customer_address ?: __('admin.orders.c_none') }}</b></p>
+
+            @if($order->comment)
+                <p class="md:col-span-2"><span class="text-gray-500">{{ __('admin.orders.c_comment') }}:</span>
+                   <span class="text-gray-800 dark:text-gray-200">{{ $order->comment }}</span></p>
+            @endif
+        </div>
+    </div>
+
     {{-- 🧍 Информация о заказе --}}
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow p-5 space-y-2">

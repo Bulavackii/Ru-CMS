@@ -1015,6 +1015,16 @@ return [
         'o_multilang' => 'Supporto multilingue',
     ],
 
+    'orders' => [
+        'customer' => 'Cliente',
+        'c_name' => 'Nome',
+        'c_phone' => 'Telefono',
+        'c_email' => 'E-mail',
+        'c_address' => 'Indirizzo di consegna',
+        'c_comment' => 'Commento',
+        'c_none' => 'non indicato',
+    ],
+
     'payments' => [
         'n_yookassa' => 'Carte, SBP, portafogli',
         'n_sbp' => 'QR code, senza carta',
