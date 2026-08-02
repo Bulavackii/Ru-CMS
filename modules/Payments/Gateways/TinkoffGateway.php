@@ -188,6 +188,20 @@ class TinkoffGateway extends AbstractPaymentGateway
         if ($status === 'CONFIRMED' || $status === 'AUTHORIZED') {
             $order = Order::find($orderId);
             
+
+            // Подпись подтверждает, что уведомление от банка, но не то,
+            // что заплатили нужную сумму. Amount приходит в копейках.
+            $paid = ((float) ($data['Amount'] ?? 0)) / 100;
+
+            if ($order && abs($paid - (float) $order->total) > 0.01) {
+                $this->logError('Т-Банк: сумма платежа не совпадает с заказом', [
+                    'order_id' => $orderId,
+                    'expected' => (float) $order->total,
+                    'paid' => $paid,
+                ]);
+
+                return false;
+            }
             if ($order && $order->status !== 'completed') {
                 $order->status = 'completed';
                 $order->payment_id = $data['PaymentId'] ?? null;

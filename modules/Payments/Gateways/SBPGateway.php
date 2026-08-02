@@ -104,25 +104,24 @@ class SBPGateway extends AbstractPaymentGateway
     /**
      * Обработать webhook
      */
+    /**
+     * ⚠️ Уведомления СБП НЕ обрабатываются, и это сделано намеренно.
+     *
+     * Раньше здесь заказ переводился в «оплачен» по телу запроса. Маршрут
+     * уведомлений публичный и без CSRF, поэтому кто угодно мог прислать
+     * {"status":"paid","order_id":5} и получить заказ бесплатно.
+     *
+     * Подтвердить оплату нечем: getPaymentStatus() этого драйвера —
+     * заглушка, она читает статус из НАШЕЙ базы, а не у банка. Пока
+     * драйвер не дописан до реального обращения к банку-эквайеру,
+     * безопаснее не менять статус вовсе: неоплаченный заказ владелец
+     * увидит в панели, бесплатный — нет.
+     */
     public function handleWebhook(array $data): bool
     {
-        $status = $data['status'] ?? null;
-        $orderId = $data['order_id'] ?? $data['orderId'] ?? null;
-
-        if ($status === 'success' || $status === 'paid' || $status === 'COMPLETED') {
-            $order = Order::find($orderId);
-            
-            if ($order && $order->status !== 'completed') {
-                $order->status = 'completed';
-                $order->save();
-
-                $this->log('SBP payment succeeded', [
-                    'order_id' => $orderId,
-                ]);
-
-                return true;
-            }
-        }
+        $this->logError('СБП: обработка уведомлений не реализована, статус заказа не меняется', [
+            'data' => $data,
+        ]);
 
         return false;
     }

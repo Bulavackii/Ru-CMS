@@ -160,8 +160,28 @@ class SberbankGateway extends AbstractPaymentGateway
     public function handleWebhook(array $data): bool
     {
         // Сбербанк обычно использует callback для уведомлений
+        // Сбербанк присылает callback, но верить ему нельзя: маршрут
+        // уведомлений публичный. Статус спрашиваем у банка по его же
+        // идентификатору заказа.
         $orderId = $data['orderNumber'] ?? null;
-        $status = $data['status'] ?? null;
+        $bankOrderId = $data['orderId'] ?? null;
+
+        if (! $bankOrderId) {
+            $this->logError('Сбербанк: уведомление без orderId, статус не меняем', ['data' => $data]);
+
+            return false;
+        }
+
+        $confirmed = $this->getPaymentStatus((string) $bankOrderId);
+
+        if (! ($confirmed['success'] ?? false)) {
+            $this->logError('Сбербанк: банк не подтвердил платёж', ['order_id' => $bankOrderId]);
+
+            return false;
+        }
+
+        // Решение принимаем по ответу банка, а не по телу запроса.
+        $status = $confirmed['orderStatus'] ?? $confirmed['status'] ?? null;
 
         if ($status == 2) { // Оплачен
             $order = Order::find($orderId);
