@@ -22,7 +22,7 @@ class PaymentMethodRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-            'title' => 'required|string|max:255',
+            'title' => 'required_if:active,1,true|nullable|string|max:255',
             'description' => 'nullable|string',
             'type' => 'required|in:offline,online,sbp,yookassa,tbank,tinkoff,sberbank,sberpay,qiwi,robokassa,cloudpayments,unitpay,interkassa',
             'active' => 'boolean',
@@ -73,59 +73,59 @@ class PaymentMethodRequest extends FormRequest
         if ($this->has('type')) {
             switch ($this->type) {
                 case 'yookassa':
-                    $rules['shop_id'] = 'required|string|max:255';
-                    $rules['secret_key'] = 'required|string|max:255';
-                    $rules['is_russian'] = 'required|boolean';
+                    $rules['shop_id'] = 'required_if:active,1,true|nullable|string|max:255';
+                    $rules['secret_key'] = 'required_if:active,1,true|nullable|string|max:255';
+                    $rules['is_russian'] = 'nullable|boolean';
                     break;
 
                 case 'tinkoff':
-                    $rules['terminal_key'] = 'required|string|max:255';
-                    $rules['secret_key'] = 'required|string|max:255';
-                    $rules['is_russian'] = 'required|boolean';
+                    $rules['terminal_key'] = 'required_if:active,1,true|nullable|string|max:255';
+                    $rules['secret_key'] = 'required_if:active,1,true|nullable|string|max:255';
+                    $rules['is_russian'] = 'nullable|boolean';
                     break;
 
                 case 'sberbank':
                 case 'sberpay':
-                    $rules['api_key'] = 'required|string|max:255';
+                    $rules['api_key'] = 'required_if:active,1,true|nullable|string|max:255';
                     $rules['inn'] = 'required|string|digits:10|regex:/^\d{10}$/';
-                    $rules['is_russian'] = 'required|boolean';
+                    $rules['is_russian'] = 'nullable|boolean';
                     break;
 
                 case 'sbp':
                     $rules['bik'] = 'required|string|digits:9|regex:/^\d{9}$/';
                     $rules['account'] = 'required|string|digits:20|regex:/^\d{20}$/';
                     $rules['inn'] = 'nullable|string|digits:10|regex:/^\d{10}$/';
-                    $rules['is_russian'] = 'required|boolean';
+                    $rules['is_russian'] = 'nullable|boolean';
                     break;
 
                 case 'qiwi':
-                    $rules['api_key'] = 'required|string|max:255';
+                    $rules['api_key'] = 'required_if:active,1,true|nullable|string|max:255';
                     $rules['shop_id'] = 'nullable|string|max:255';
-                    $rules['is_russian'] = 'required|boolean';
+                    $rules['is_russian'] = 'nullable|boolean';
                     break;
 
                 case 'robokassa':
-                    $rules['shop_id'] = 'required|string|max:255';
-                    $rules['secret_key'] = 'required|string|max:255';
-                    $rules['is_russian'] = 'required|boolean';
+                    $rules['shop_id'] = 'required_if:active,1,true|nullable|string|max:255';
+                    $rules['secret_key'] = 'required_if:active,1,true|nullable|string|max:255';
+                    $rules['is_russian'] = 'nullable|boolean';
                     break;
 
                 case 'cloudpayments':
-                    $rules['api_key'] = 'required|string|max:255';
-                    $rules['public_id'] = 'required|string|max:255';
-                    $rules['is_russian'] = 'required|boolean';
+                    $rules['api_key'] = 'required_if:active,1,true|nullable|string|max:255';
+                    $rules['public_id'] = 'required_if:active,1,true|nullable|string|max:255';
+                    $rules['is_russian'] = 'nullable|boolean';
                     break;
 
                 case 'unitpay':
-                    $rules['shop_id'] = 'required|string|max:255';
-                    $rules['secret_key'] = 'required|string|max:255';
-                    $rules['is_russian'] = 'required|boolean';
+                    $rules['shop_id'] = 'required_if:active,1,true|nullable|string|max:255';
+                    $rules['secret_key'] = 'required_if:active,1,true|nullable|string|max:255';
+                    $rules['is_russian'] = 'nullable|boolean';
                     break;
 
                 case 'interkassa':
-                    $rules['shop_id'] = 'required|string|max:255';
-                    $rules['secret_key'] = 'required|string|max:255';
-                    $rules['is_russian'] = 'required|boolean';
+                    $rules['shop_id'] = 'required_if:active,1,true|nullable|string|max:255';
+                    $rules['secret_key'] = 'required_if:active,1,true|nullable|string|max:255';
+                    $rules['is_russian'] = 'nullable|boolean';
                     break;
             }
         }
@@ -199,11 +199,25 @@ class PaymentMethodRequest extends FormRequest
             $currencies = null;
         }
 
+        // Переработанная форма шлёт реквизиты как settings[shop_id] и т.д.,
+        // а условные правила по типу требуют их на верхнем уровне
+        // (shop_id, secret_key…). Без этого подъёма сохранить онлайн-метод
+        // было невозможно: валидация падала на «shop id required».
+        $settings = $this->input('settings');
+
+        if (is_array($settings)) {
+            foreach ($settings as $key => $value) {
+                if (! $this->exists($key) || blank($this->input($key))) {
+                    $this->merge([$key => $value]);
+                }
+            }
+        }
+
         $this->merge([
             'currencies' => $currencies,
-            'is_russian' => $this->has('is_russian'),
-            'active' => $this->has('active'),
-            'test_mode' => $this->has('test_mode'),
+            'is_russian' => $this->boolean('is_russian'),
+            'active' => $this->boolean('active'),
+            'test_mode' => $this->boolean('test_mode'),
             'sandbox' => $this->has('sandbox'),
         ]);
     }

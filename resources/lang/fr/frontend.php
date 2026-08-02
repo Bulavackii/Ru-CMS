@@ -123,6 +123,10 @@ return [
     ],
 
     'cart' => [
+        'free_delivery_from' => 'Livraison gratuite à partir de :sum ₽',
+        'weight_exceeded' => 'La limite de poids est dépassée. Maximum : :limit kg',
+        'region_unavailable' => 'La livraison dans cette région n\'est pas disponible',
+        'no_delivery' => 'Aucun mode de livraison n\'a encore été configuré — contactez-nous.',
         'order_not_found' => 'La commande est introuvable.',
         'payment_confirmed' => 'Le paiement a été confirmé. Merci !',
         'payment_cancelled' => 'Le paiement a été annulé.',

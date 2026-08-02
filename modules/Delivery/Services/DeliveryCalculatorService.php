@@ -27,7 +27,7 @@ class DeliveryCalculatorService
                 return [
                     'price' => 0,
                     'days' => $method->min_days ?? 0,
-                    'message' => 'Бесплатная доставка при заказе от ' . number_format($method->free_delivery_threshold, 0, ',', ' ') . ' ₽',
+                    'message' => __('frontend.cart.free_delivery_from', ['sum' => number_format($method->free_delivery_threshold, 0, ',', ' ')]),
                 ];
             }
         }
@@ -38,7 +38,7 @@ class DeliveryCalculatorService
                 return [
                     'price' => 0,
                     'days' => 0,
-                    'error' => "Превышен лимит веса. Максимум: {$method->weight_limit} кг",
+                    'error' => __('frontend.cart.weight_exceeded', ['limit' => (float) $method->weight_limit]),
                 ];
             }
         }
@@ -46,11 +46,11 @@ class DeliveryCalculatorService
         // Проверка доступности в регионе
         if ($method->regions && !empty($method->regions)) {
             $region = $params['region'] ?? $params['city'] ?? '';
-            if (!in_array($region, $method->regions) && !in_array('Все регионы РФ', $method->regions)) {
+            if (!in_array($region, $method->regions, true) && !in_array(DeliveryMethod::ALL_REGIONS, $method->regions, true)) {
                 return [
                     'price' => 0,
                     'days' => 0,
-                    'error' => 'Доставка в данный регион недоступна',
+                    'error' => __('frontend.cart.region_unavailable'),
                 ];
             }
         }

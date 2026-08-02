@@ -84,9 +84,9 @@ class DeliveryMethodRequest extends FormRequest
 
         $this->merge([
             'regions' => $regions,
-            'is_russian' => $this->has('is_russian'),
-            'active' => $this->has('active'),
-            'api_enabled' => $this->has('api_enabled'),
+            'is_russian' => $this->boolean('is_russian'),
+            'active' => $this->boolean('active'),
+            'api_enabled' => $this->boolean('api_enabled'),
             'sort_order' => $this->input('sort_order', 0),
         ]);
     }
