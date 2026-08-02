@@ -117,9 +117,9 @@
                 @php
                     $selectedRegions = old('regions', $delivery->regions ?? []);
                 @endphp
-                <option value="{{ __('admin.delivery.all_regions') }}" {{ in_array('Все регионы РФ', $selectedRegions) ? 'selected' : '' }}>{{ __('admin.delivery.all_regions') }}</option>
+                <option value="{{ \Modules\Delivery\Models\DeliveryMethod::ALL_REGIONS }}" {{ in_array(\Modules\Delivery\Models\DeliveryMethod::ALL_REGIONS, $selectedRegions) ? 'selected' : '' }}>{{ __('admin.delivery.all_regions') }}</option>
                 @foreach(\Modules\Delivery\Models\DeliveryMethod::getRussianRegions() as $region)
-                    @if($region !== 'Все регионы РФ')
+                    @if($region !== \Modules\Delivery\Models\DeliveryMethod::ALL_REGIONS)
                         <option value="{{ $region }}" {{ in_array($region, $selectedRegions) ? 'selected' : '' }}>{{ $region }}</option>
                     @endif
                 @endforeach
@@ -154,9 +154,7 @@
                 <textarea name="api_settings_json" id="api_settings_json" rows="6"
                           class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 shadow-sm focus:ring focus:ring-blue-300 dark:bg-gray-700 dark:text-white font-mono text-xs">{{ old('api_settings_json', $delivery->api_settings ? json_encode($delivery->api_settings, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) : '') }}</textarea>
                 <p class="text-xs text-gray-500 mt-1">
-                    Для СДЭК: {"account": "...", "secure_password": "..."}<br>
-                    Для Boxberry: {"token": "..."}<br>
-                    Для Почты России: {"login": "...", "password": "..."}
+                                                            {!! __('admin.delivery.creds_hint', ['cdek' => '{"account": "…", "secure_password": "…"}', 'boxberry' => '{"token": "…"}', 'post' => '{"login": "…", "password": "…"}']) !!}
                 </p>
             </div>
         </div>
@@ -195,7 +193,7 @@
             <input type="checkbox" name="active" value="1"
                    class="form-checkbox rounded text-blue-600 mr-2"
                    {{ old('active', $delivery->active) ? 'checked' : '' }}>
-            Активен
+            {{ __('admin.delivery.active') }}
         </div>
 
         {{-- 💾 Кнопка обновления --}}

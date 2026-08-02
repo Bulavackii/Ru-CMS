@@ -995,6 +995,26 @@ return [
         'js_copied' => 'Il collegamento è stato copiato',
     ],
 
+    'accessibility' => [
+        'title' => 'Accessibilità',
+        'save' => 'Salva',
+        'o_enabled' => 'Mostra il pulsante del widget sul sito',
+        'o_font_size' => 'Ingrandire e ridurre il carattere',
+        'o_speech' => 'Leggi ad alta voce l\'intera pagina',
+        'o_selected_speech' => 'Leggi ad alta voce il testo selezionato',
+        'o_contrast' => 'Tema ad alto contrasto',
+        'o_background' => 'Cambia lo sfondo',
+        'o_bw' => 'Modalità monocromatica',
+        'o_colorblind' => 'Modalità per daltonici',
+        'o_sepia' => 'Tema seppia',
+        'o_reading_mask' => 'Maschera di lettura',
+        'o_read_mode' => 'Modalità lettura',
+        'o_links' => 'Evidenzia i collegamenti',
+        'o_spacing' => 'Spaziatura maggiore',
+        'o_dyslexia' => 'Carattere per dislessia',
+        'o_multilang' => 'Supporto multilingue',
+    ],
+
     'slideshow' => [
         'new' => 'Nuovo slideshow',
         'new_hint' => 'Dai un nome chiaro e indica dove mostrare il blocco in home page.',
@@ -1102,7 +1122,7 @@ return [
     ],
 
     'delivery' => [
-        'add' => 'Aggiungi un metodo di spedizione',
+        'add' => 'Aggiungi',
         'edit' => 'Modifica il metodo di spedizione',
         'list' => 'Metodi di spedizione',
         'name' => 'Nome del metodo di spedizione',
@@ -1157,6 +1177,14 @@ return [
         'rf' => 'Nazionale',
         'actions' => 'Azioni',
         'empty' => 'Ancora nessun metodo di spedizione.',
+        'm_courier' => 'Corriere',
+        'm_pickup' => 'Ritiro',
+        'm_post' => 'Posta',
+        'm_terminal' => 'Terminal',
+        'from' => 'da',
+        'confirm_delete' => 'Eliminare il metodo di spedizione?',
+        'f_name' => 'Nome',
+        'creds_hint' => 'Per CDEK: :cdek<br>Per Boxberry: :boxberry<br>Per le Poste russe: :post',
     ],
 
     'reviews' => [

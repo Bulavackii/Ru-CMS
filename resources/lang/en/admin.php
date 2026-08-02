@@ -995,6 +995,26 @@ return [
         'js_copied' => 'The link has been copied',
     ],
 
+    'accessibility' => [
+        'title' => 'Accessibility',
+        'save' => 'Save',
+        'o_enabled' => 'Show the widget button on the site',
+        'o_font_size' => 'Increase and decrease the font',
+        'o_speech' => 'Read the whole page aloud',
+        'o_selected_speech' => 'Read the selected text aloud',
+        'o_contrast' => 'High-contrast theme',
+        'o_background' => 'Change the background',
+        'o_bw' => 'Monochrome mode',
+        'o_colorblind' => 'Colour-blind mode',
+        'o_sepia' => 'Sepia theme',
+        'o_reading_mask' => 'Reading mask',
+        'o_read_mode' => 'Reading mode',
+        'o_links' => 'Highlight links',
+        'o_spacing' => 'Wider spacing',
+        'o_dyslexia' => 'Dyslexia-friendly font',
+        'o_multilang' => 'Multilingual support',
+    ],
+
     'slideshow' => [
         'new' => 'New slideshow',
         'new_hint' => 'Give it a clear name and choose where the block appears on the home page.',
@@ -1102,7 +1122,7 @@ return [
     ],
 
     'delivery' => [
-        'add' => 'Add a delivery method',
+        'add' => 'Add',
         'edit' => 'Edit the delivery method',
         'list' => 'Delivery methods',
         'name' => 'Delivery method name',
@@ -1157,6 +1177,14 @@ return [
         'rf' => 'Domestic',
         'actions' => 'Actions',
         'empty' => 'No delivery methods yet.',
+        'm_courier' => 'Courier',
+        'm_pickup' => 'Pick-up',
+        'm_post' => 'Post',
+        'm_terminal' => 'Terminal',
+        'from' => 'from',
+        'confirm_delete' => 'Delete the delivery method?',
+        'f_name' => 'Name',
+        'creds_hint' => 'For CDEK: :cdek<br>For Boxberry: :boxberry<br>For Russian Post: :post',
     ],
 
     'reviews' => [

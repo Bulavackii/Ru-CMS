@@ -10,7 +10,7 @@
         </h1>
         <a href="{{ route('admin.delivery.create') }}"
            class="inline-flex items-center gap-2 bg-black text-white hover:bg-gray-800 px-4 py-2 rounded-md text-sm font-semibold transition">
-            <i class="fas fa-plus"></i> Добавить
+            <i class="fas fa-plus"></i> {{ __('admin.delivery.add') }}
         </a>
     </div>
 
@@ -48,16 +48,16 @@
                         <td class="px-6 py-4 text-gray-600 dark:text-gray-300">
                             @switch($method->type)
                                 @case('courier')
-                                    🚚 Курьер
+                                    🚚 {{ __('admin.delivery.m_courier') }}
                                     @break
                                 @case('pickup')
-                                    🛍️ Самовывоз
+                                    🛍️ {{ __('admin.delivery.m_pickup') }}
                                     @break
                                 @case('post')
-                                    📦 Почта
+                                    📦 {{ __('admin.delivery.m_post') }}
                                     @break
                                 @case('terminal')
-                                    🏧 Терминал
+                                    🏧 {{ __('admin.delivery.m_terminal') }}
                                     @break
                                 @default
                                     {{ $method->type }}
@@ -78,7 +78,7 @@
                         <td class="px-6 py-4 text-gray-600 dark:text-gray-300">
                             @if($method->free_delivery_threshold)
                                 <span class="text-green-600 dark:text-green-400 font-semibold">
-                                    от {{ number_format($method->free_delivery_threshold, 0, ',', ' ') }} ₽
+                                    {{ __('admin.delivery.from') }} {{ number_format($method->free_delivery_threshold, 0, ',', ' ') }} ₽
                                 </span>
                             @else
                                 <span class="text-gray-400">—</span>
@@ -121,7 +121,7 @@
 
                             <form action="{{ route('admin.delivery.destroy', $method) }}"
                                   method="POST" class="inline-block"
-                                  onsubmit="return confirm('Удалить метод доставки?')">
+                                  onsubmit="return confirm(@js(__('admin.delivery.confirm_delete')))">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-red-600 hover:text-red-800 transition" title="{{ __('admin.admin.delete') }}">

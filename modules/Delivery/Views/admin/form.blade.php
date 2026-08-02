@@ -2,7 +2,7 @@
 
 {{-- 🏷️ Название метода доставки --}}
 <x-admin.input
-    label="🏷️ Название"
+    label="🏷️ {{ __('admin.delivery.f_name') }}"
     name="title"
     :value="old('title', $method->title ?? '')"
     required

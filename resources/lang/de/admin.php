@@ -995,6 +995,26 @@ return [
         'js_copied' => 'Der Link wurde kopiert',
     ],
 
+    'accessibility' => [
+        'title' => 'Barrierefreiheit',
+        'save' => 'Speichern',
+        'o_enabled' => 'Widget-Schaltfläche auf der Website anzeigen',
+        'o_font_size' => 'Schrift vergrößern und verkleinern',
+        'o_speech' => 'Ganze Seite vorlesen',
+        'o_selected_speech' => 'Markierten Text vorlesen',
+        'o_contrast' => 'Kontrastreiches Design',
+        'o_background' => 'Hintergrund ändern',
+        'o_bw' => 'Monochromer Modus',
+        'o_colorblind' => 'Modus für Farbenblinde',
+        'o_sepia' => 'Sepia-Design',
+        'o_reading_mask' => 'Lesemaske',
+        'o_read_mode' => 'Lesemodus',
+        'o_links' => 'Links hervorheben',
+        'o_spacing' => 'Größere Abstände',
+        'o_dyslexia' => 'Schrift für Legasthenie',
+        'o_multilang' => 'Mehrsprachige Unterstützung',
+    ],
+
     'slideshow' => [
         'new' => 'Neue Slideshow',
         'new_hint' => 'Geben Sie einen klaren Namen an und wählen Sie, wo der Block auf der Startseite erscheint.',
@@ -1102,7 +1122,7 @@ return [
     ],
 
     'delivery' => [
-        'add' => 'Versandart hinzufügen',
+        'add' => 'Hinzufügen',
         'edit' => 'Versandart bearbeiten',
         'list' => 'Versandarten',
         'name' => 'Name der Versandart',
@@ -1157,6 +1177,14 @@ return [
         'rf' => 'Inland',
         'actions' => 'Aktionen',
         'empty' => 'Noch keine Versandarten.',
+        'm_courier' => 'Kurier',
+        'm_pickup' => 'Selbstabholung',
+        'm_post' => 'Post',
+        'm_terminal' => 'Terminal',
+        'from' => 'ab',
+        'confirm_delete' => 'Die Versandart löschen?',
+        'f_name' => 'Name',
+        'creds_hint' => 'Für CDEK: :cdek<br>Für Boxberry: :boxberry<br>Für die Russische Post: :post',
     ],
 
     'reviews' => [

@@ -119,9 +119,9 @@
             <select id="regions" name="regions[]" multiple
                     class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 shadow-sm focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:text-white"
                     size="8">
-                <option value="{{ __('admin.delivery.all_regions') }}" {{ in_array('Все регионы РФ', old('regions', [])) ? 'selected' : '' }}>{{ __('admin.delivery.all_regions') }}</option>
+                <option value="{{ \Modules\Delivery\Models\DeliveryMethod::ALL_REGIONS }}" {{ in_array(\Modules\Delivery\Models\DeliveryMethod::ALL_REGIONS, old('regions', [])) ? 'selected' : '' }}>{{ __('admin.delivery.all_regions') }}</option>
                 @foreach(\Modules\Delivery\Models\DeliveryMethod::getRussianRegions() as $region)
-                    @if($region !== 'Все регионы РФ')
+                    @if($region !== \Modules\Delivery\Models\DeliveryMethod::ALL_REGIONS)
                         <option value="{{ $region }}" {{ in_array($region, old('regions', [])) ? 'selected' : '' }}>{{ $region }}</option>
                     @endif
                 @endforeach
@@ -157,9 +157,7 @@
                           class="w-full border border-gray-300 dark:border-gray-700 rounded px-4 py-2 shadow-sm focus:ring focus:ring-blue-300 dark:bg-gray-700 dark:text-white font-mono text-xs"
                           placeholder='{"account": "your_account", "secure_password": "your_password"}'></textarea>
                 <p class="text-xs text-gray-500 mt-1">
-                    Для СДЭК: {"account": "...", "secure_password": "..."}<br>
-                    Для Boxberry: {"token": "..."}<br>
-                    Для Почты России: {"login": "...", "password": "..."}
+                                                            {!! __('admin.delivery.creds_hint', ['cdek' => '{"account": "…", "secure_password": "…"}', 'boxberry' => '{"token": "…"}', 'post' => '{"login": "…", "password": "…"}']) !!}
                 </p>
             </div>
         </div>

@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Спецвозможности')
+@section('title', __('admin.accessibility.title'))
 
 @section('content')
     <style>
@@ -38,7 +38,7 @@
 
     <div class="bg-white dark:bg-gray-800 p-6 rounded shadow text-sm text-gray-800 dark:text-gray-100 transition duration-300 ease-in-out">
         <h1 class="text-2xl font-bold mb-6 text-blue-700 flex items-center gap-2">
-            <i class="fas fa-universal-access text-xl"></i> Спецвозможности
+            <i class="fas fa-universal-access text-xl"></i> {{ __('admin.accessibility.title') }}
         </h1>
 
         <form method="POST" action="{{ route('admin.accessibility.update') }}" class="space-y-4">
@@ -46,21 +46,21 @@
 
             @php
                 $toggles = [
-                    ['name' => 'enabled', 'label' => 'Показывать кнопку виджета на сайте', 'icon' => 'fa-eye'],
-                    ['name' => 'enable_font_size', 'label' => 'Увеличение/уменьшение шрифта', 'icon' => 'fa-text-height'],
-                    ['name' => 'enable_speech', 'label' => 'Озвучивание всей страницы', 'icon' => 'fa-volume-up'],
-                    ['name' => 'enable_selected_text_speech', 'label' => 'Озвучивание выделенного текста', 'icon' => 'fa-comment-dots'],
-                    ['name' => 'enable_contrast', 'label' => 'Контрастная тема', 'icon' => 'fa-adjust'],
-                    ['name' => 'enable_background', 'label' => 'Изменение фона', 'icon' => 'fa-palette'],
-                    ['name' => 'enable_bw_mode', 'label' => 'Монохромный режим', 'icon' => 'fa-low-vision'],
-                    ['name' => 'enable_colorblind_mode', 'label' => 'Режим для дальтоников', 'icon' => 'fa-eye'],
-                    ['name' => 'enable_sepia_mode', 'label' => 'Сепия-тема', 'icon' => 'fa-tint'],
-                    ['name' => 'enable_reading_mask', 'label' => 'Маска для чтения', 'icon' => 'fa-minus'],
-                    ['name' => 'enable_read_mode', 'label' => 'Режим чтения', 'icon' => 'fa-book'],
-                    ['name' => 'enable_highlight_links', 'label' => 'Подсветка ссылок', 'icon' => 'fa-link'],
-                    ['name' => 'enable_text_spacing', 'label' => 'Увеличенные интервалы', 'icon' => 'fa-arrows-alt-v'],
-                    ['name' => 'enable_dyslexia_font', 'label' => 'Шрифт для дислексии', 'icon' => 'fa-font'],
-                    ['name' => 'enable_multilingual_support', 'label' => 'Многоязычная поддержка', 'icon' => 'fa-language'],
+                    ['name' => 'enabled', 'label' => __('admin.accessibility.o_enabled'), 'icon' => 'fa-eye'],
+                    ['name' => 'enable_font_size', 'label' => __('admin.accessibility.o_font_size'), 'icon' => 'fa-text-height'],
+                    ['name' => 'enable_speech', 'label' => __('admin.accessibility.o_speech'), 'icon' => 'fa-volume-up'],
+                    ['name' => 'enable_selected_text_speech', 'label' => __('admin.accessibility.o_selected_speech'), 'icon' => 'fa-comment-dots'],
+                    ['name' => 'enable_contrast', 'label' => __('admin.accessibility.o_contrast'), 'icon' => 'fa-adjust'],
+                    ['name' => 'enable_background', 'label' => __('admin.accessibility.o_background'), 'icon' => 'fa-palette'],
+                    ['name' => 'enable_bw_mode', 'label' => __('admin.accessibility.o_bw'), 'icon' => 'fa-low-vision'],
+                    ['name' => 'enable_colorblind_mode', 'label' => __('admin.accessibility.o_colorblind'), 'icon' => 'fa-eye'],
+                    ['name' => 'enable_sepia_mode', 'label' => __('admin.accessibility.o_sepia'), 'icon' => 'fa-tint'],
+                    ['name' => 'enable_reading_mask', 'label' => __('admin.accessibility.o_reading_mask'), 'icon' => 'fa-minus'],
+                    ['name' => 'enable_read_mode', 'label' => __('admin.accessibility.o_read_mode'), 'icon' => 'fa-book'],
+                    ['name' => 'enable_highlight_links', 'label' => __('admin.accessibility.o_links'), 'icon' => 'fa-link'],
+                    ['name' => 'enable_text_spacing', 'label' => __('admin.accessibility.o_spacing'), 'icon' => 'fa-arrows-alt-v'],
+                    ['name' => 'enable_dyslexia_font', 'label' => __('admin.accessibility.o_dyslexia'), 'icon' => 'fa-font'],
+                    ['name' => 'enable_multilingual_support', 'label' => __('admin.accessibility.o_multilang'), 'icon' => 'fa-language'],
                 ];
             @endphp
 
@@ -78,7 +78,7 @@
             <div class="pt-6 text-right">
                 <button type="submit"
                     class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded shadow text-sm font-semibold transition duration-300 ease-in-out">
-                    <i class="fas fa-save"></i> Сохранить
+                    <i class="fas fa-save"></i> {{ __('admin.accessibility.save') }}
                 </button>
             </div>
         </form>

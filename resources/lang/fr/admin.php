@@ -995,6 +995,26 @@ return [
         'js_copied' => 'Le lien a été copié',
     ],
 
+    'accessibility' => [
+        'title' => 'Accessibilité',
+        'save' => 'Enregistrer',
+        'o_enabled' => 'Afficher le bouton du widget sur le site',
+        'o_font_size' => 'Agrandir et réduire la police',
+        'o_speech' => 'Lire toute la page à voix haute',
+        'o_selected_speech' => 'Lire le texte sélectionné à voix haute',
+        'o_contrast' => 'Thème à fort contraste',
+        'o_background' => 'Changer l\'arrière-plan',
+        'o_bw' => 'Mode monochrome',
+        'o_colorblind' => 'Mode daltonien',
+        'o_sepia' => 'Thème sépia',
+        'o_reading_mask' => 'Masque de lecture',
+        'o_read_mode' => 'Mode lecture',
+        'o_links' => 'Mettre les liens en évidence',
+        'o_spacing' => 'Espacement élargi',
+        'o_dyslexia' => 'Police adaptée à la dyslexie',
+        'o_multilang' => 'Prise en charge multilingue',
+    ],
+
     'slideshow' => [
         'new' => 'Nouveau diaporama',
         'new_hint' => 'Donnez un nom clair et indiquez où afficher le bloc sur la page d\'accueil.',
@@ -1102,7 +1122,7 @@ return [
     ],
 
     'delivery' => [
-        'add' => 'Ajouter un mode de livraison',
+        'add' => 'Ajouter',
         'edit' => 'Modifier le mode de livraison',
         'list' => 'Modes de livraison',
         'name' => 'Nom du mode de livraison',
@@ -1157,6 +1177,14 @@ return [
         'rf' => 'National',
         'actions' => 'Actions',
         'empty' => 'Aucun mode de livraison pour le moment.',
+        'm_courier' => 'Coursier',
+        'm_pickup' => 'Retrait',
+        'm_post' => 'Poste',
+        'm_terminal' => 'Terminal',
+        'from' => 'à partir de',
+        'confirm_delete' => 'Supprimer le mode de livraison ?',
+        'f_name' => 'Nom',
+        'creds_hint' => 'Pour CDEK : :cdek<br>Pour Boxberry : :boxberry<br>Pour la Poste russe : :post',
     ],
 
     'reviews' => [
