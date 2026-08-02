@@ -1,67 +1,87 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320">
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
   <!--
-    Фон сайта по умолчанию: бесшовная плитка 320×320 в акценте проекта
-    (indigo #6366f1 → violet #8b5cf6). Заменил фотографию fon.jpg — она
-    весила 369 КБ и по теме не совпадала с оформлением.
+    Фон сайта по умолчанию: бесшовная плитка 400×400 в акценте проекта
+    (indigo #6366f1 → violet #8b5cf6). Заменил фотографию fon.jpg —
+    369 КБ и тема, не совпадавшая с оформлением.
 
-    Почему SVG: меньше четырёх килобайт вместо 369, масштабируется без
-    потерь на любой плотности экрана и подключается тем же
-    background-image с repeat, что и раньше.
+    ⚠️ Насыщенность задаётся ЗДЕСЬ. Слой фона в layouts/frontend раньше
+    гасил картинку ещё и своим opacity-10: вместе с внутренними
+    прозрачностями ≤0.1 получалось меньше процента, и фон был не виден
+    вовсе. Теперь слой отдаёт SVG как есть, а интенсивность — забота
+    этого файла. Значения подобраны так, чтобы узор читался, но текст
+    поверх сохранял контраст.
 
-    Рисунок держит баланс: узор заметен, но остаётся подложкой. Все
-    непрозрачности ниже 0.1 — текст поверх не теряет контраст. Плитка
-    бесшовная: каждый элемент, выходящий за край, продублирован с
-    противоположной стороны со сдвигом на 320.
+    Плитка бесшовная: каждый элемент, выходящий за край, продублирован с
+    противоположной стороны со сдвигом на 400.
   -->
 
   <defs>
     <linearGradient id="wash" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#eef2ff"/>
-      <stop offset="0.55" stop-color="#f8fafc"/>
-      <stop offset="1" stop-color="#faf5ff"/>
+      <stop offset="0.5" stop-color="#f5f3ff"/>
+      <stop offset="1" stop-color="#fdf4ff"/>
     </linearGradient>
 
-    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="#8b5cf6" stop-opacity="0.07"/>
+    <radialGradient id="violet" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#8b5cf6" stop-opacity="0.30"/>
       <stop offset="1" stop-color="#8b5cf6" stop-opacity="0"/>
     </radialGradient>
 
-    <radialGradient id="glow2" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="#6366f1" stop-opacity="0.06"/>
+    <radialGradient id="indigo" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#6366f1" stop-opacity="0.26"/>
       <stop offset="1" stop-color="#6366f1" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="sky" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#a78bfa" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#a78bfa" stop-opacity="0"/>
     </radialGradient>
   </defs>
 
-  <rect width="320" height="320" fill="url(#wash)"/>
+  <rect width="400" height="400" fill="url(#wash)"/>
 
-  <!-- Мягкие пятна: дают глубину, размывают ощущение строгой плитки -->
-  <circle cx="60" cy="70" r="130" fill="url(#glow)"/>
-  <circle cx="380" cy="70" r="130" fill="url(#glow)"/>
-  <circle cx="60" cy="390" r="130" fill="url(#glow)"/>
-  <circle cx="250" cy="240" r="150" fill="url(#glow2)"/>
-  <circle cx="-70" cy="240" r="150" fill="url(#glow2)"/>
-  <circle cx="250" cy="-80" r="150" fill="url(#glow2)"/>
+  <!-- Цветные пятна: дают глубину и разбивают ощущение сетки.
+       Углы продублированы, чтобы свечение переходило через шов. -->
+  <circle cx="70" cy="90" r="185" fill="url(#violet)"/>
+  <circle cx="470" cy="90" r="185" fill="url(#violet)"/>
+  <circle cx="70" cy="490" r="185" fill="url(#violet)"/>
+  <circle cx="470" cy="490" r="185" fill="url(#violet)"/>
 
-  <!-- Диагональная штриховка: линии кратны 320, поэтому стыкуются -->
-  <g stroke="#6366f1" stroke-width="1" opacity="0.05">
-    <path d="M-320 320 L320 -320 M-160 320 L480 -320 M0 320 L640 -320
-             M-320 480 L320 -160 M-320 640 L320 0 M160 320 L800 -320"/>
+  <circle cx="320" cy="300" r="200" fill="url(#indigo)"/>
+  <circle cx="-80" cy="300" r="200" fill="url(#indigo)"/>
+  <circle cx="320" cy="-100" r="200" fill="url(#indigo)"/>
+
+  <circle cx="200" cy="200" r="150" fill="url(#sky)"/>
+
+  <!-- Диагональная штриховка: шаг кратен 400, поэтому линии стыкуются -->
+  <g stroke="#6366f1" stroke-width="1.5" opacity="0.16">
+    <path d="M-400 400 L400 -400 M-300 400 L500 -400 M-200 400 L600 -400
+             M-100 400 L700 -400 M0 400 L800 -400 M100 400 L900 -400
+             M-400 500 L400 -300 M-400 600 L400 -200 M-400 700 L400 -100
+             M-400 800 L400 0"/>
   </g>
 
   <!-- Узлы модульной сетки -->
-  <g fill="#6366f1" opacity="0.09">
-    <circle cx="0" cy="0" r="2.4"/>
-    <circle cx="320" cy="0" r="2.4"/>
-    <circle cx="0" cy="320" r="2.4"/>
-    <circle cx="320" cy="320" r="2.4"/>
-    <circle cx="160" cy="160" r="2.4"/>
-    <circle cx="80" cy="240" r="1.6"/>
-    <circle cx="240" cy="80" r="1.6"/>
+  <g fill="#6366f1" opacity="0.28">
+    <circle cx="0" cy="0" r="3"/>
+    <circle cx="400" cy="0" r="3"/>
+    <circle cx="0" cy="400" r="3"/>
+    <circle cx="400" cy="400" r="3"/>
+    <circle cx="200" cy="200" r="3"/>
+    <circle cx="100" cy="300" r="2"/>
+    <circle cx="300" cy="100" r="2"/>
+    <circle cx="300" cy="300" r="2"/>
+    <circle cx="100" cy="100" r="2"/>
   </g>
 
   <!-- Контуры «слоёв» — тот же символ модульности, что у иконки проекта -->
-  <g stroke="#8b5cf6" stroke-width="1.2" fill="none" opacity="0.07">
-    <path d="M160 128 L214 156 L160 184 L106 156 Z"/>
-    <path d="M160 200 L201 179 L214 186 L160 214 L106 186 L119 179 Z"/>
+  <g stroke="#8b5cf6" stroke-width="2" fill="none" opacity="0.22">
+    <path d="M200 152 L268 187 L200 222 L132 187 Z"/>
+    <path d="M200 242 L251 216 L268 225 L200 260 L132 225 L149 216 Z"/>
+  </g>
+
+  <g stroke="#6366f1" stroke-width="1.5" fill="none" opacity="0.14">
+    <path d="M0 352 L51 326 L68 335 L0 370 L-68 335 L-51 326 Z"/>
+    <path d="M400 352 L451 326 L468 335 L400 370 L332 335 L349 326 Z"/>
   </g>
 </svg>

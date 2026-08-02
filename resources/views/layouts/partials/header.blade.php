@@ -149,12 +149,6 @@
                 </a>
               @endforeach
 
-              @if($currentThemeSlug)
-                <a href="{{ route('frontend.theme.set', 'reset') }}" class="hdr-lang-item hdr-theme-reset">
-                  <i class="fas fa-rotate-left" style="font-size:.7rem; opacity:.6"></i>
-                  <span>{{ __('frontend.header.theme_default') }}</span>
-                </a>
-              @endif
             </div>
           </div>
         @endif

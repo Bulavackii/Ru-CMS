@@ -351,6 +351,27 @@
             --fx-a-glow: color-mix(in srgb, var(--color-primary, #6366f1) 65%, transparent);
         }
         /* Тонкая градиентная акцент-полоса (верх страницы, над подвалом, у секций) */
+        /* Подложка сайта. Насыщенность живёт внутри самого SVG — здесь
+           только фиксация при прокрутке и приглушение в тёмной теме,
+           иначе светлый узор бьёт по глазам. */
+        .fx-bg-layer{ opacity:1; }
+        .fx-theme-dark .fx-bg-layer,
+        .dark .fx-bg-layer{ opacity:.18; }
+
+        /* Узор нарисован в indigo, а тема может быть мятной или
+           терракотовой. Перекрашиваем слоем поверх: mix-blend-mode:color
+           берёт цвет отсюда, а светлоту — у самого узора, поэтому
+           геометрия и глубина сохраняются. */
+        .fx-bg-layer::after{
+            content:''; position:absolute; inset:0;
+            background:linear-gradient(135deg,
+                var(--color-primary, #6366f1),
+                var(--color-accent, #8b5cf6));
+            mix-blend-mode:color; opacity:.85; pointer-events:none;
+        }
+        .fx-theme-dark .fx-bg-layer::after,
+        .dark .fx-bg-layer::after{ opacity:.7; }
+
         .fx-topbar{ height:3px; background:var(--fx-bar); }
         .fx-accent-bar{ height:3px; width:100%; background:var(--fx-bar); border:0; border-radius:2px; }
         /* Градиентный бейдж-иконка у заголовков (как .admin-icon-badge) */
@@ -427,7 +448,7 @@
     style="font-family: var(--font-base, -apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif)">
 
     {{-- ЕДИНЫЙ фон-паттерн из темы --}}
-    <div class="absolute inset-0 z-0 opacity-10 dark:opacity-5 pointer-events-none"
+    <div class="fixed inset-0 z-0 pointer-events-none fx-bg-layer"
         style="background-image: var(--bg-image); background-repeat:repeat; background-size:auto"></div>
 
     <div id="wrapper" class="relative z-10 flex flex-col min-h-screen">
