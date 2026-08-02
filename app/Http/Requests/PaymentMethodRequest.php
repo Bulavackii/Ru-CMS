@@ -24,17 +24,24 @@ class PaymentMethodRequest extends FormRequest
         $rules = [
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'type' => 'required|in:offline,online,sbp,yookassa,tinkoff,sberbank,sberpay,qiwi,robokassa,cloudpayments,unitpay,interkassa',
+            'type' => 'required|in:offline,online,sbp,yookassa,tbank,tinkoff,sberbank,sberpay,qiwi,robokassa,cloudpayments,unitpay,interkassa',
             'active' => 'boolean',
-            'code' => 'nullable|string|max:50|unique:payment_methods,code,' . ($this->paymentMethod?->id ?? 'null'),
+            // Маршрут объявлен как {id}, а не {paymentMethod}, поэтому
+            // $this->paymentMethod всегда null и правило не исключало
+            // саму запись: сохранить метод, не меняя код, было нельзя.
+            'code' => 'nullable|string|max:50|unique:payment_methods,code,' . ($this->route('id') ?? 'null'),
             'is_russian' => 'boolean',
             'settings' => 'nullable|array',
             'commission' => 'nullable|numeric|min:0|max:100',
             'min_amount' => 'nullable|numeric|min:0|max:1000000',
             'max_amount' => 'nullable|numeric|min:0|max:1000000000|gte:min_amount',
+            // Поле формы — строка «RUB, USD»; в массив её превращает
+            // prepareForValidation(), правило проверяет уже массив.
             'currencies' => 'nullable|array',
             'currencies.*' => 'nullable|string|size:3',
             'test_mode' => 'boolean',
+            'sort_order' => 'nullable|integer|min:0|max:9999',
+            'docs_url' => 'nullable|url|max:255',
 
             // 🇷🇺 Российские платежные системы - дополнительные поля
             'inn' => 'nullable|string|digits:10|regex:/^\d{10}$/',
@@ -158,6 +165,24 @@ class PaymentMethodRequest extends FormRequest
      */
     public function prepareForValidation(): void
     {
+        // Реквизиты форма шлёт вложенно (settings[shop_id]), а условные
+        // правила и normalizeSettings() ждут их верхним уровнем. Поднимаем,
+        // иначе метод с реквизитами не сохранялся вовсе: валидация требовала
+        // shop_id, которого «нет».
+        $settings = $this->input('settings');
+
+        if (is_array($settings)) {
+            $lifted = array_filter(
+                $settings,
+                fn ($value, $key) => is_string($key) && ! $this->has($key),
+                ARRAY_FILTER_USE_BOTH
+            );
+
+            if ($lifted !== []) {
+                $this->merge($lifted);
+            }
+        }
+
         $currencies = $this->input('currencies');
 
         if (is_string($currencies)) {
