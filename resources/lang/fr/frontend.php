@@ -134,4 +134,23 @@ return [
         'title' => 'Votre panier',
         'total' => 'Total à payer :',
     ],
+
+    'a11y' => [
+        'widget' => 'Accessibilité',
+        'title' => 'Réglages d\'accessibilité',
+        'text_size' => 'Taille du texte',
+        'speak_selection' => 'Lire à voix haute le texte sélectionné',
+        'speak_page' => 'Lire à voix haute toute la page',
+        'contrast' => 'Contraste élevé',
+        'monochrome' => 'Monochrome',
+        'sepia' => 'Sépia',
+        'reading_mask' => 'Masque de lecture',
+        'link_highlight' => 'Mettre les liens en évidence',
+        'speak' => 'Lire à voix haute',
+        'stop' => 'Arrêter',
+        'on' => 'Activer',
+        'off' => 'Désactiver',
+        'show' => 'Afficher',
+        'hide' => 'Masquer',
+    ],
 ];

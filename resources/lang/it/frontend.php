@@ -134,4 +134,23 @@ return [
         'title' => 'Il tuo carrello',
         'total' => 'Totale da pagare:',
     ],
+
+    'a11y' => [
+        'widget' => 'Accessibilità',
+        'title' => 'Impostazioni di accessibilità',
+        'text_size' => 'Dimensione del testo',
+        'speak_selection' => 'Leggi ad alta voce il testo selezionato',
+        'speak_page' => 'Leggi ad alta voce l\'intera pagina',
+        'contrast' => 'Contrasto elevato',
+        'monochrome' => 'Monocromatico',
+        'sepia' => 'Seppia',
+        'reading_mask' => 'Maschera di lettura',
+        'link_highlight' => 'Evidenzia i collegamenti',
+        'speak' => 'Leggi ad alta voce',
+        'stop' => 'Ferma',
+        'on' => 'Attiva',
+        'off' => 'Disattiva',
+        'show' => 'Mostra',
+        'hide' => 'Nascondi',
+    ],
 ];

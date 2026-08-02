@@ -134,4 +134,23 @@ return [
         'title' => 'Ihr Warenkorb',
         'total' => 'Gesamtbetrag:',
     ],
+
+    'a11y' => [
+        'widget' => 'Barrierefreiheit',
+        'title' => 'Einstellungen zur Barrierefreiheit',
+        'text_size' => 'Textgröße',
+        'speak_selection' => 'Markierten Text vorlesen',
+        'speak_page' => 'Ganze Seite vorlesen',
+        'contrast' => 'Hoher Kontrast',
+        'monochrome' => 'Monochrom',
+        'sepia' => 'Sepia',
+        'reading_mask' => 'Lesemaske',
+        'link_highlight' => 'Links hervorheben',
+        'speak' => 'Vorlesen',
+        'stop' => 'Stopp',
+        'on' => 'Aktivieren',
+        'off' => 'Deaktivieren',
+        'show' => 'Anzeigen',
+        'hide' => 'Ausblenden',
+    ],
 ];

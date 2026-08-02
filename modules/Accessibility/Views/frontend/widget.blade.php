@@ -3,7 +3,7 @@
     <!-- Кнопка -->
     <button @click="open = !open"
         class="w-12 h-12 rounded-full bg-blue-700 text-white shadow-lg flex items-center justify-center hover:bg-blue-800 transition duration-300"
-        title="Спецвозможности" :aria-expanded="open.toString()">
+        title="{{ __('frontend.a11y.widget') }}" :aria-expanded="open.toString()">
         <i class="fas fa-universal-access text-2xl"></i>
     </button>
 
@@ -13,13 +13,13 @@
         @click.outside="open = false" style="display: none;">
 
         <h3 class="font-semibold text-base text-blue-700 flex items-center gap-2 mb-1">
-            <i class="fas fa-eye"></i> Настройки доступности
+            <i class="fas fa-eye"></i> {{ __('frontend.a11y.title') }}
         </h3>
 
         <!-- Размер текста (x-show) -->
         <div class="flex items-center justify-between" x-show="settings.enable_font_size">
             <span class="flex items-center gap-2">
-                <i class="fas fa-text-height mr-1"></i> Размер текста
+                <i class="fas fa-text-height mr-1"></i> {{ __('frontend.a11y.text_size') }}
             </span>
             <div class="flex items-center gap-2">
                 <button @click="decreaseFontSize"
@@ -87,11 +87,11 @@
 
                 this.options = [
                     {
-                        label: 'Озвучить выделенный текст',
+                        label: @js(__('frontend.a11y.speak_selection')),
                         icon: 'fas fa-comment-dots',
                         active: false,
-                        enableText: 'Озвучить',
-                        disableText: 'Стоп',
+                        enableText: @js(__('frontend.a11y.speak')),
+                        disableText: @js(__('frontend.a11y.stop')),
                         enabled: this.settings.enable_selected_text_speech,
                         action: () => {
                             if (!this.speaking) {
@@ -114,11 +114,11 @@
                         }
                     },
                     {
-                        label: 'Озвучить всю страницу',
+                        label: @js(__('frontend.a11y.speak_page')),
                         icon: 'fas fa-volume-up',
                         active: false,
-                        enableText: 'Озвучить',
-                        disableText: 'Стоп',
+                        enableText: @js(__('frontend.a11y.speak')),
+                        disableText: @js(__('frontend.a11y.stop')),
                         enabled: this.settings.enable_speech,
                         action: () => {
                             if (!this.speaking) {
@@ -138,11 +138,11 @@
                         }
                     },
                     {
-                        label: 'Контрастный режим',
+                        label: @js(__('frontend.a11y.contrast')),
                         icon: 'fas fa-adjust',
                         active: false,
-                        enableText: 'Включить',
-                        disableText: 'Отключить',
+                        enableText: @js(__('frontend.a11y.on')),
+                        disableText: @js(__('frontend.a11y.off')),
                         enabled: this.settings.enable_contrast,
                         action: () => {
                             const wrapper = document.getElementById('wrapper');
@@ -151,11 +151,11 @@
                         }
                     },
                     {
-                        label: 'Монохром',
+                        label: @js(__('frontend.a11y.monochrome')),
                         icon: 'fas fa-low-vision',
                         active: false,
-                        enableText: 'Включить',
-                        disableText: 'Отключить',
+                        enableText: @js(__('frontend.a11y.on')),
+                        disableText: @js(__('frontend.a11y.off')),
                         enabled: this.settings.enable_bw_mode,
                         action: () => {
                             const wrapper = document.getElementById('wrapper');
@@ -164,11 +164,11 @@
                         }
                     },
                     {
-                        label: 'Сепия',
+                        label: @js(__('frontend.a11y.sepia')),
                         icon: 'fas fa-tint',
                         active: false,
-                        enableText: 'Включить',
-                        disableText: 'Отключить',
+                        enableText: @js(__('frontend.a11y.on')),
+                        disableText: @js(__('frontend.a11y.off')),
                         enabled: this.settings.enable_sepia_mode,
                         action: () => {
                             const wrapper = document.getElementById('wrapper');
@@ -177,11 +177,11 @@
                         }
                     },
                     {
-                        label: 'Маска для чтения',
+                        label: @js(__('frontend.a11y.reading_mask')),
                         icon: 'fas fa-minus',
                         active: false,
-                        enableText: 'Показать',
-                        disableText: 'Скрыть',
+                        enableText: @js(__('frontend.a11y.show')),
+                        disableText: @js(__('frontend.a11y.hide')),
                         enabled: this.settings.enable_reading_mask,
                         action: () => {
                             if (!this.readingMaskActive) {
@@ -198,11 +198,11 @@
                         }
                     },
                     {
-                        label: 'Подсветка ссылок',
+                        label: @js(__('frontend.a11y.link_highlight')),
                         icon: 'fas fa-link',
                         active: this.highlightLinks,
-                        enableText: 'Включить',
-                        disableText: 'Отключить',
+                        enableText: @js(__('frontend.a11y.on')),
+                        disableText: @js(__('frontend.a11y.off')),
                         enabled: this.settings.enable_highlight_links,
                         action: () => {
                             this.highlightLinks = !this.highlightLinks;

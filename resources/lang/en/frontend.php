@@ -134,4 +134,23 @@ return [
         'title' => 'Your cart',
         'total' => 'Total to pay:',
     ],
+
+    'a11y' => [
+        'widget' => 'Accessibility',
+        'title' => 'Accessibility settings',
+        'text_size' => 'Text size',
+        'speak_selection' => 'Read the selected text aloud',
+        'speak_page' => 'Read the whole page aloud',
+        'contrast' => 'High contrast',
+        'monochrome' => 'Monochrome',
+        'sepia' => 'Sepia',
+        'reading_mask' => 'Reading mask',
+        'link_highlight' => 'Highlight links',
+        'speak' => 'Read aloud',
+        'stop' => 'Stop',
+        'on' => 'Enable',
+        'off' => 'Disable',
+        'show' => 'Show',
+        'hide' => 'Hide',
+    ],
 ];
