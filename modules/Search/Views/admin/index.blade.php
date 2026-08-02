@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
-@section('title', 'Поиск')
-@section('header', 'Поиск по системе')
+@section('title', __('admin.search.title'))
+@section('header', __('admin.search.heading'))
 
 @section('content')
 @php
@@ -28,16 +28,16 @@
     <div class="flex items-center gap-3 min-w-0">
         <span class="admin-icon-badge"><i class="fas fa-magnifying-glass"></i></span>
         <div class="min-w-0">
-            <h1 class="text-xl font-bold text-gray-900 dark:text-white">Поиск по системе</h1>
+            <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('admin.search.heading') }}</h1>
             <p class="text-sm text-gray-500 dark:text-gray-400">
-                Модули, пользователи, страницы, категории, записи и обращения — в одном месте.
+                {{ __('admin.search.subtitle') }}
             </p>
         </div>
     </div>
 
     @if($query !== '')
         <div class="text-sm text-gray-600 dark:text-gray-300 flex-shrink-0">
-            Найдено:
+            {{ __('admin.search.found') }}
             <span class="font-bold text-gray-900 dark:text-white">{{ number_format($total, 0, ',', ' ') }}</span>
         </div>
     @endif
@@ -53,7 +53,7 @@
                 <circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path>
             </svg>
             <input type="text" name="q" id="q" value="{{ $query }}" autofocus autocomplete="off"
-                   placeholder="Название, e-mail, телефон, текст записи…"
+                   placeholder="{{ __('admin.search.q_ph') }}"
                    class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white pl-10 pr-3 py-2 text-sm
                           focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
         </div>
@@ -61,27 +61,27 @@
         <select name="sort" onchange="this.form.submit()"
                 class="border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
                        focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
-            <option value="relevance" @selected($sort === 'relevance')>По релевантности</option>
-            <option value="name_asc"  @selected($sort === 'name_asc')>По названию (А-Я)</option>
-            <option value="name_desc" @selected($sort === 'name_desc')>По названию (Я-А)</option>
-            <option value="date_desc" @selected($sort === 'date_desc')>Сначала новые</option>
-            <option value="date_asc"  @selected($sort === 'date_asc')>Сначала старые</option>
+            <option value="relevance" @selected($sort === 'relevance')>{{ __('admin.search.sort_relevance') }}</option>
+            <option value="name_asc"  @selected($sort === 'name_asc')>{{ __('admin.search.sort_name_asc') }}</option>
+            <option value="name_desc" @selected($sort === 'name_desc')>{{ __('admin.search.sort_name_desc') }}</option>
+            <option value="date_desc" @selected($sort === 'date_desc')>{{ __('admin.search.sort_date_desc') }}</option>
+            <option value="date_asc"  @selected($sort === 'date_asc')>{{ __('admin.search.sort_date_asc') }}</option>
         </select>
 
         <button type="submit"
                 class="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white
                        px-5 py-2 text-sm font-semibold shadow-sm transition">
-            <i class="fas fa-magnifying-glass"></i> Искать
+            <i class="fas fa-magnifying-glass"></i> {{ __('admin.search.submit') }}
         </button>
     </div>
 
     {{-- Чипы разделов: каждый — обычная кнопка отправки формы, JS не нужен --}}
     <div class="mt-4 flex flex-wrap items-center gap-1.5">
-        <span class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 mr-1">Раздел:</span>
+        <span class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 mr-1">{{ __('admin.search.section') }}</span>
 
         <button type="submit" name="filter" value=""
                 class="search-chip {{ $filter === '' ? 'search-chip--active' : '' }}">
-            <i class="fas fa-layer-group"></i> Все
+            <i class="fas fa-layer-group"></i> {{ __('admin.search.all') }}
             @if($query !== '')<span class="search-chip__badge">{{ $total }}</span>@endif
         </button>
 
@@ -97,16 +97,16 @@
     <div class="mt-4 flex flex-wrap items-center gap-3 text-sm">
         <button type="button" id="copyLink"
                 class="inline-flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-indigo-600 transition">
-            <i class="fa-regular fa-copy"></i> Скопировать ссылку на выдачу
+            <i class="fa-regular fa-copy"></i> {{ __('admin.search.copy_link') }}
         </button>
         @if($query !== '' || $filter !== '')
             <a href="{{ route('admin.search.index') }}"
                class="inline-flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-indigo-600 transition">
-                <i class="fas fa-rotate-left"></i> Сбросить
+                <i class="fas fa-rotate-left"></i> {{ __('admin.search.reset') }}
             </a>
         @endif
         <span class="text-gray-400 dark:text-gray-500">
-            Регистр не важен · частичное совпадение · показываем до {{ $perSection }} записей в разделе
+            {{ __('admin.search.hint', ['n' => $perSection]) }}
         </span>
     </div>
 </form>
@@ -115,17 +115,17 @@
 @if($query === '')
     <div class="admin-card p-10 text-center">
         <span class="admin-icon-badge mx-auto mb-4"><i class="fas fa-magnifying-glass"></i></span>
-        <h2 class="text-lg font-bold text-gray-900 dark:text-white">Начните поиск</h2>
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white">{{ __('admin.search.start') }}</h2>
         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 mb-5">
-            Введите запрос выше — покажем совпадения по всем разделам сразу.
+            {{ __('admin.search.start_hint') }}
         </p>
 
         <div class="text-left max-w-xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-2">
             @foreach([
-                'admin@example.com' => 'найдёт пользователя по e-mail',
-                'модуль' => 'найдёт модули и записи по слову',
-                '+7' => 'найдёт всех, у кого указан телефон',
-                'о проекте' => 'найдёт страницу по названию',
+                'admin@example.com' => __('admin.search.ex_email'),
+                __('admin.search.ex_module_q') => __('admin.search.ex_module'),
+                '+7' => __('admin.search.ex_phone'),
+                __('admin.search.ex_page_q') => __('admin.search.ex_page'),
             ] as $example => $note)
                 <a href="{{ route('admin.search.index', ['q' => $example]) }}"
                    class="border border-gray-200 dark:border-gray-700 p-3 hover:border-indigo-400 transition block">
@@ -138,10 +138,10 @@
 @elseif($visibleSections->isEmpty() && empty($customResults))
     <div class="admin-card p-10 text-center">
         <span class="admin-icon-badge mx-auto mb-4"><i class="fas fa-circle-question"></i></span>
-        <h2 class="text-lg font-bold text-gray-900 dark:text-white">Ничего не найдено</h2>
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white">{{ __('admin.search.nothing') }}</h2>
         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            По запросу «{{ $query }}»{{ $filter !== '' ? ' в выбранном разделе' : '' }} совпадений нет.
-            Попробуйте укоротить запрос или выбрать раздел «Все».
+            {{ __('admin.search.nothing_hint', ['query' => $query, 'where' => $filter !== '' ? __('admin.search.in_section') : '']) }}
+            {{ __('admin.search.nothing_tip') }}
         </p>
     </div>
 @else
@@ -154,7 +154,7 @@
                     </h2>
                     <span class="text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 px-2 py-0.5">
                         @if($section['count'] > $perSection)
-                            показаны {{ $section['items']->count() }} из {{ $section['count'] }}
+                            {{ __('admin.search.shown', ['shown' => $section['items']->count(), 'total' => $section['count']]) }}
                         @else
                             {{ $section['count'] }}
                         @endif
@@ -190,9 +190,9 @@
 
                 @if($section['count'] > $perSection && $filter !== $key)
                     <p class="admin-hint mt-3">
-                        Показана часть совпадений.
+                        {{ __('admin.search.partial') }}
                         <a href="{{ route('admin.search.index', ['q' => $query, 'filter' => $key, 'sort' => $sort]) }}"
-                           class="text-indigo-600 dark:text-indigo-400 font-semibold">Открыть только «{{ $section['label'] }}»</a>
+                           class="text-indigo-600 dark:text-indigo-400 font-semibold">{{ __('admin.search.open_only', ['label' => $section['label']]) }}</a>
                     </p>
                 @endif
             </div>
@@ -253,7 +253,7 @@
             copy.addEventListener('click', function () {
                 navigator.clipboard?.writeText(window.location.href).then(() => {
                     const original = copy.innerHTML;
-                    copy.innerHTML = '<i class="fas fa-check"></i> Ссылка скопирована';
+                    copy.innerHTML = '<i class="fas fa-check"></i> ' + @js(__('admin.search.js_copied'));
                     setTimeout(() => { copy.innerHTML = original; }, 1500);
                 });
             });
