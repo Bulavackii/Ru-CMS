@@ -123,6 +123,7 @@ return [
     ],
 
     'cart' => [
+        'no_payment' => 'No payment methods have been set up yet — please contact us.',
         'choose_delivery' => 'Choose a delivery method…',
         'choose_payment' => 'Choose a payment method…',
         'delivery_method' => 'Delivery method',

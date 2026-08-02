@@ -1016,6 +1016,12 @@ return [
     ],
 
     'payments' => [
+        'n_yookassa' => 'Cartes, SBP, portefeuilles',
+        'n_sbp' => 'QR code, sans carte',
+        'n_sberpay' => 'Dans l\'application Sberbank',
+        'n_tbank' => 'Acquisition T-Bank',
+        'n_online' => 'Autre prestataire',
+        'n_offline' => 'Paiement hors du site',
         'title' => 'Moyens de paiement',
         'subtitle' => 'Ce que le client voit au moment de payer. Les moyens en ligne nécessitent les identifiants du prestataire.',
         'add' => 'Ajouter un moyen',

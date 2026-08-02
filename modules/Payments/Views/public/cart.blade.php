@@ -57,21 +57,34 @@
                 <div class="space-y-6">
                     <div class="bg-white border border-gray-200 rounded-lg shadow p-6">
                         <h2 class="text-lg font-semibold mb-4">💳 {{ __('frontend.cart.payment_method') }}</h2>
-                        <select name="payment_method_id" id="payment-method" required class="w-full border-gray-300 rounded px-4 py-2 shadow-sm focus:ring focus:ring-indigo-300 text-sm">
-                            <option value="">{{ __('frontend.cart.choose_payment') }}</option>
-                            @foreach ($paymentMethods as $method)
-                                <option value="{{ $method->id }}"
-                                        data-description="{{ $method->description ?? '' }}"
-                                        data-code="{{ $method->code ?? '' }}"
-                                        data-commission="{{ $method->commission ?? 0 }}"
-                                        data-min-amount="{{ $method->min_amount ?? 0 }}"
-                                        data-max-amount="{{ $method->max_amount ?? 0 }}">
-                                    {{ $method->title }}
-                                    @if($method->is_russian) (🇷🇺) @endif
-                                    @if($method->commission) ({{ $method->formattedCommission }}) @endif
-                                </option>
-                            @endforeach
-                        </select>
+                        {{-- Карточки вместо выпадающего списка: описание и
+                             комиссия видны сразу у каждого способа, а не
+                             после выбора. --}}
+                        @forelse ($paymentMethods as $method)
+                            <label class="pay-option">
+                                <input type="radio" name="payment_method_id" value="{{ $method->id }}" required
+                                       class="pay-option__radio"
+                                       data-description="{{ $method->description ?? '' }}"
+                                       data-code="{{ $method->code ?? '' }}"
+                                       data-commission="{{ $method->commission ?? 0 }}"
+                                       data-min-amount="{{ $method->min_amount ?? 0 }}"
+                                       data-max-amount="{{ $method->max_amount ?? 0 }}">
+                                <span class="pay-option__body">
+                                    <span class="pay-option__head">
+                                        <b>{{ $method->title }}</b>
+                                        @if($method->commission > 0)
+                                            <span class="pay-option__fee">{{ $method->formattedCommission }}</span>
+                                        @endif
+                                    </span>
+                                    @if($method->description)
+                                        <span class="pay-option__note">{{ $method->description }}</span>
+                                    @endif
+                                </span>
+                            </label>
+                        @empty
+                            <p class="text-sm text-gray-500">{{ __('frontend.cart.no_payment') }}</p>
+                        @endforelse
+
                         <p id="payment-description" class="mt-2 text-sm text-gray-600 italic"></p>
                         <p id="payment-commission" class="mt-1 text-sm text-red-600 font-semibold hidden"></p>
                     </div>
@@ -250,3 +263,19 @@
     });
     </script>
 @endsection
+
+@push('styles')
+<style>
+    /* Способы оплаты карточками. Литеральный CSS: в статической сборке
+       Tailwind нет ни :has(), ни нужных вариантов. */
+    .pay-option { display: block; border: 1px solid #e5e7eb; padding: .75rem 1rem; margin-bottom: .5rem;
+                  cursor: pointer; background: #fff; transition: border-color .15s, box-shadow .15s }
+    .pay-option:hover { border-color: #a5b4fc }
+    .pay-option:has(.pay-option__radio:checked) { border-color: #6366f1; box-shadow: inset 0 0 0 1px #6366f1 }
+    .pay-option__radio { margin-right: .6rem; vertical-align: top; margin-top: .25rem }
+    .pay-option__body { display: inline-block; width: calc(100% - 1.6rem) }
+    .pay-option__head { display: flex; align-items: center; justify-content: space-between; gap: .5rem }
+    .pay-option__fee { font-size: 12px; color: #b91c1c; white-space: nowrap }
+    .pay-option__note { display: block; font-size: 13px; color: #6b7280; margin-top: .15rem }
+</style>
+@endpush

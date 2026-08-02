@@ -1016,6 +1016,12 @@ return [
     ],
 
     'payments' => [
+        'n_yookassa' => 'Karten, SBP, Wallets',
+        'n_sbp' => 'QR-Code, ohne Karte',
+        'n_sberpay' => 'In der Sberbank-App',
+        'n_tbank' => 'T-Bank-Acquiring',
+        'n_online' => 'Anderer Anbieter',
+        'n_offline' => 'Zahlung außerhalb der Website',
         'title' => 'Zahlungsarten',
         'subtitle' => 'Was der Kunde an der Kasse sieht. Online-Methoden benötigen Zugangsdaten des Zahlungsanbieters.',
         'add' => 'Zahlungsart hinzufügen',

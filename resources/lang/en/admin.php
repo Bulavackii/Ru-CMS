@@ -1016,6 +1016,12 @@ return [
     ],
 
     'payments' => [
+        'n_yookassa' => 'Cards, SBP, wallets',
+        'n_sbp' => 'QR code, no card',
+        'n_sberpay' => 'In the Sberbank app',
+        'n_tbank' => 'T-Bank acquiring',
+        'n_online' => 'Another provider',
+        'n_offline' => 'Payment outside the site',
         'title' => 'Payment methods',
         'subtitle' => 'What the customer sees at checkout. Online methods need credentials from the payment provider.',
         'add' => 'Add a method',

@@ -123,6 +123,7 @@ return [
     ],
 
     'cart' => [
+        'no_payment' => 'Es wurden noch keine Zahlungsarten eingerichtet — bitte kontaktieren Sie uns.',
         'choose_delivery' => 'Versandart wählen…',
         'choose_payment' => 'Zahlungsart wählen…',
         'delivery_method' => 'Versandart',

@@ -9,13 +9,15 @@
     // системе.
     $credentialFields = SeedDefaultPaymentMethodsCommand::credentialFields();
 
+    // Названия платёжных систем — торговые марки, не переводятся.
+    // Переводится только короткое пояснение под названием.
     $types = [
-        'offline'  => 'Offline',
-        'online'   => 'Online',
-        'yookassa' => 'ЮKassa',
-        'sbp'      => 'СБП',
-        'sberpay'  => 'SberPay',
-        'tbank'    => 'Т-Банк',
+        'yookassa' => ['label' => 'ЮKassa',  'icon' => 'fa-wallet',       'note' => __('admin.payments.n_yookassa')],
+        'sbp'      => ['label' => 'СБП',     'icon' => 'fa-qrcode',       'note' => __('admin.payments.n_sbp')],
+        'sberpay'  => ['label' => 'SberPay', 'icon' => 'fa-mobile-screen', 'note' => __('admin.payments.n_sberpay')],
+        'tbank'    => ['label' => 'Т-Банк',  'icon' => 'fa-building-columns', 'note' => __('admin.payments.n_tbank')],
+        'online'   => ['label' => 'Online',  'icon' => 'fa-globe',        'note' => __('admin.payments.n_online')],
+        'offline'  => ['label' => 'Offline', 'icon' => 'fa-hand-holding-dollar', 'note' => __('admin.payments.n_offline')],
     ];
 
     // Подписи полей реквизитов — технические имена из документации систем,
@@ -76,16 +78,23 @@
                 @error('title') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
             </div>
 
-            <div>
-                <label for="type" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
+            <div class="md:col-span-2">
+                <label class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
                     {{ __('admin.payments.f_type') }}
                 </label>
-                <select id="type" name="type" x-model="type"
-                        class="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-800 px-3 py-2 text-sm">
-                    @foreach($types as $value => $label)
-                        <option value="{{ $value }}" @selected($currentType === $value)>{{ $label }}</option>
+
+                {{-- Карточки вместо выпадающего списка: сразу видно, какие
+                     системы поддерживаются и чем они отличаются. --}}
+                <div class="pm-types">
+                    @foreach($types as $value => $meta)
+                        <label class="pm-type" :class="type === @js($value) ? 'is-active' : ''">
+                            <input type="radio" name="type" value="{{ $value }}" x-model="type" class="sr-only">
+                            <i class="fas {{ $meta['icon'] }}"></i>
+                            <span class="pm-type__name">{{ $meta['label'] }}</span>
+                            <span class="pm-type__note">{{ $meta['note'] }}</span>
+                        </label>
                     @endforeach
-                </select>
+                </div>
             </div>
 
             <div class="md:col-span-2">
@@ -251,3 +260,18 @@
         </a>
     </div>
 </div>
+
+@push('styles')
+<style>
+    .pm-types { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .5rem }
+    .pm-type {
+        display: block; padding: .75rem; cursor: pointer; text-align: center;
+        border: 1px solid #e5e7eb; background: #fff; transition: border-color .15s, box-shadow .15s;
+    }
+    .pm-type:hover { border-color: #a5b4fc }
+    .pm-type.is-active { border-color: #6366f1; box-shadow: inset 0 0 0 1px #6366f1 }
+    .pm-type i { font-size: 1.15rem; color: #6366f1 }
+    .pm-type__name { display: block; font-weight: 700; font-size: .8rem; margin-top: .35rem; color: #111827 }
+    .pm-type__note { display: block; font-size: 11px; color: #6b7280; margin-top: .15rem }
+</style>
+@endpush

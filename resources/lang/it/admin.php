@@ -1016,6 +1016,12 @@ return [
     ],
 
     'payments' => [
+        'n_yookassa' => 'Carte, SBP, portafogli',
+        'n_sbp' => 'QR code, senza carta',
+        'n_sberpay' => 'Nell\'app Sberbank',
+        'n_tbank' => 'Acquiring T-Bank',
+        'n_online' => 'Altro fornitore',
+        'n_offline' => 'Pagamento fuori dal sito',
         'title' => 'Metodi di pagamento',
         'subtitle' => 'Che cosa vede il cliente al momento del pagamento. I metodi online richiedono le credenziali del fornitore.',
         'add' => 'Aggiungi un metodo',

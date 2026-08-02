@@ -123,6 +123,7 @@ return [
     ],
 
     'cart' => [
+        'no_payment' => 'Nessun metodo di pagamento è ancora configurato — contattaci.',
         'choose_delivery' => 'Scegli un metodo di consegna…',
         'choose_payment' => 'Scegli un metodo di pagamento…',
         'delivery_method' => 'Metodo di consegna',
