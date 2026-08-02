@@ -27,7 +27,11 @@ class SearchAdminTest extends TestCase
 
     public function test_search_page_opens_without_query(): void
     {
-        $response = $this->actingAs($this->admin())->get(route('admin.search.index'));
+        // Подписи вьюхи теперь из словаря, а тестовое окружение стартует на en —
+        // привязываем локаль, иначе проверяется английский текст.
+        $response = $this->actingAs($this->admin())
+            ->withSession(['app_locale' => 'ru'])
+            ->get(route('admin.search.index'));
 
         $response->assertStatus(200);
         $response->assertViewIs('Search::admin.index');
