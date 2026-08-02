@@ -27,60 +27,54 @@ class MessageController extends Controller
      */
     public function index(Request $request)
     {
-        $filter = $request->get('filter', 'all'); // all, inbox, sent, important, archived
-        $search = $request->get('search');
+        $filter = $request->get('filter', 'all'); // all, inbox, sent, unread, important, archived
+        $search = trim((string) $request->get('search'));
         $userId = Auth::id();
 
-        $query = Message::with(['sender', 'receiver', 'attachments'])
-            ->notArchived()
-            ->where(function ($q) use ($userId) {
-                $q->where('user_id', $userId)
-                  ->orWhere('to_user_id', $userId);
-            });
+        // Мои сообщения — и полученные, и отправленные.
+        $mine = fn ($q) => $q->where('user_id', $userId)->orWhere('to_user_id', $userId);
 
-        // Фильтрация
-        switch ($filter) {
-            case 'inbox':
-                $query->inbox($userId);
-                break;
-            case 'sent':
-                $query->sent($userId);
-                break;
-            case 'important':
-                $query->important();
-                break;
-            case 'archived':
-                $query->archived();
-                break;
-            case 'unread':
-                $query->unread()->inbox($userId);
-                break;
+        $query = Message::with(['sender', 'receiver', 'attachments'])
+            ->where($mine);
+
+        // Архив исключаем ВЕЗДЕ, кроме самой вкладки «Архив». Раньше
+        // notArchived() стоял в базовом запросе безусловно, а фильтр поверх
+        // добавлял archived() — два взаимоисключающих условия, и вкладка
+        // архива не могла показать ни одного письма никогда.
+        if ($filter !== 'archived') {
+            $query->notArchived();
         }
 
-        // Поиск
-        if ($search) {
+        match ($filter) {
+            'inbox' => $query->inbox($userId),
+            'sent' => $query->sent($userId),
+            'important' => $query->important(),
+            'archived' => $query->archived(),
+            'unread' => $query->unread()->inbox($userId),
+            default => null,
+        };
+
+        if ($search !== '') {
             $query->where(function ($q) use ($search) {
                 $q->where('subject', 'like', "%{$search}%")
-                  ->orWhere('body', 'like', "%{$search}%");
+                    ->orWhere('body', 'like', "%{$search}%");
             });
         }
 
         $messages = $query->orderByDesc('is_important')
             ->orderByDesc('created_at')
-            ->paginate(15)
-            ->appends(['filter' => $filter, 'search' => $search]);
+            ->paginate(10)
+            ->withQueryString();
 
-        // Счётчики
         $counts = [
-            'all' => Message::where(function ($q) use ($userId) {
-                $q->where('user_id', $userId)->orWhere('to_user_id', $userId);
-            })->notArchived()->count(),
+            'all' => Message::where($mine)->notArchived()->count(),
             'inbox' => Message::inbox($userId)->notArchived()->count(),
             'sent' => Message::sent($userId)->notArchived()->count(),
             'unread' => Message::inbox($userId)->unread()->notArchived()->count(),
-            'important' => Message::where(function ($q) use ($userId) {
-                $q->where('user_id', $userId)->orWhere('to_user_id', $userId);
-            })->important()->notArchived()->count(),
+            'important' => Message::where($mine)->important()->notArchived()->count(),
+            // Счётчика архива не было вовсе — вкладка стояла без числа,
+            // в отличие от всех соседних.
+            'archived' => Message::where($mine)->archived()->count(),
         ];
 
         return view('messages::admin.index', compact('messages', 'filter', 'search', 'counts'));
