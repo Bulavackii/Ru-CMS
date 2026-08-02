@@ -120,4 +120,8 @@
         <p class="admin-hint max-w-xl mx-auto">{{ __('admin.payments.empty_hint') }}</p>
     </div>
 @endforelse
+
+@if($methods->hasPages())
+    <div class="mt-4">{{ $methods->links() }}</div>
+@endif
 @endsection

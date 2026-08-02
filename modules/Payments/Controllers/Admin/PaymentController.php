@@ -14,7 +14,7 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        $methods = PaymentMethod::orderByDesc('id')->get();
+        $methods = PaymentMethod::orderBy('sort_order')->orderBy('id')->paginate(5);
 
         return view('Payments::admin.index', compact('methods'));
     }

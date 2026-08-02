@@ -13,7 +13,7 @@ class DeliveryMethodController extends Controller
      */
     public function index()
     {
-        $methods = DeliveryMethod::orderBy('sort_order')->orderBy('title')->get();
+        $methods = DeliveryMethod::orderBy('sort_order')->orderBy('title')->paginate(5);
 
         return view('Delivery::admin.index', compact('methods'));
     }
