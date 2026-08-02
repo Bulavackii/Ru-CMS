@@ -20,7 +20,6 @@
     </a>
 </div>
 
-@includeIf('layouts.partials.flash')
 
 <form action="{{ route('admin.payments.update', $method->id) }}" method="POST">
     @csrf

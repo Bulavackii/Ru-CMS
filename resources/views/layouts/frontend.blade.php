@@ -207,7 +207,7 @@
             --color-accent: {{ $cAccent }};
             --color-header: {{ $cHeader }};
             --color-footer: {{ $cFooter }};
-            --bg-image: url('{{ $bgImage ?: asset('images/fon.jpg') }}');
+            --bg-image: url('{{ $bgImage ?: asset('images/fon.svg') }}');
         }
 
         .text-theme {

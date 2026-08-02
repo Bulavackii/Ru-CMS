@@ -18,7 +18,6 @@
     </a>
 </div>
 
-@includeIf('layouts.partials.flash')
 
 <form action="{{ route('admin.delivery.update', $delivery->id) }}" method="POST">
     @method('PUT')

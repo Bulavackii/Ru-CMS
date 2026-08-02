@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320">
+  <!--
+    Фон сайта по умолчанию: бесшовная плитка 320×320 в акценте проекта
+    (indigo #6366f1 → violet #8b5cf6). Заменил фотографию fon.jpg — она
+    весила 369 КБ и по теме не совпадала с оформлением.
+
+    Почему SVG: меньше четырёх килобайт вместо 369, масштабируется без
+    потерь на любой плотности экрана и подключается тем же
+    background-image с repeat, что и раньше.
+
+    Рисунок держит баланс: узор заметен, но остаётся подложкой. Все
+    непрозрачности ниже 0.1 — текст поверх не теряет контраст. Плитка
+    бесшовная: каждый элемент, выходящий за край, продублирован с
+    противоположной стороны со сдвигом на 320.
+  -->
+
+  <defs>
+    <linearGradient id="wash" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#eef2ff"/>
+      <stop offset="0.55" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#faf5ff"/>
+    </linearGradient>
+
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#8b5cf6" stop-opacity="0.07"/>
+      <stop offset="1" stop-color="#8b5cf6" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="glow2" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#6366f1" stop-opacity="0.06"/>
+      <stop offset="1" stop-color="#6366f1" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="320" height="320" fill="url(#wash)"/>
+
+  <!-- Мягкие пятна: дают глубину, размывают ощущение строгой плитки -->
+  <circle cx="60" cy="70" r="130" fill="url(#glow)"/>
+  <circle cx="380" cy="70" r="130" fill="url(#glow)"/>
+  <circle cx="60" cy="390" r="130" fill="url(#glow)"/>
+  <circle cx="250" cy="240" r="150" fill="url(#glow2)"/>
+  <circle cx="-70" cy="240" r="150" fill="url(#glow2)"/>
+  <circle cx="250" cy="-80" r="150" fill="url(#glow2)"/>
+
+  <!-- Диагональная штриховка: линии кратны 320, поэтому стыкуются -->
+  <g stroke="#6366f1" stroke-width="1" opacity="0.05">
+    <path d="M-320 320 L320 -320 M-160 320 L480 -320 M0 320 L640 -320
+             M-320 480 L320 -160 M-320 640 L320 0 M160 320 L800 -320"/>
+  </g>
+
+  <!-- Узлы модульной сетки -->
+  <g fill="#6366f1" opacity="0.09">
+    <circle cx="0" cy="0" r="2.4"/>
+    <circle cx="320" cy="0" r="2.4"/>
+    <circle cx="0" cy="320" r="2.4"/>
+    <circle cx="320" cy="320" r="2.4"/>
+    <circle cx="160" cy="160" r="2.4"/>
+    <circle cx="80" cy="240" r="1.6"/>
+    <circle cx="240" cy="80" r="1.6"/>
+  </g>
+
+  <!-- Контуры «слоёв» — тот же символ модульности, что у иконки проекта -->
+  <g stroke="#8b5cf6" stroke-width="1.2" fill="none" opacity="0.07">
+    <path d="M160 128 L214 156 L160 184 L106 156 Z"/>
+    <path d="M160 200 L201 179 L214 186 L160 214 L106 186 L119 179 Z"/>
+  </g>
+</svg>

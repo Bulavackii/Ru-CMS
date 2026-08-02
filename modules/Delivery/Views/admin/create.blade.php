@@ -18,7 +18,6 @@
     </a>
 </div>
 
-@includeIf('layouts.partials.flash')
 
 <form action="{{ route('admin.delivery.store') }}" method="POST">
     @include('Delivery::admin.form')

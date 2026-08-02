@@ -27,7 +27,6 @@
     </a>
 </div>
 
-@includeIf('layouts.partials.flash')
 
 @forelse($methods as $method)
     @php

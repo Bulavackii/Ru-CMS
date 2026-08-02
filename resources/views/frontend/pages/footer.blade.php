@@ -1,7 +1,7 @@
 <footer class="relative text-sm text-gray-600 mt-10">
     {{-- 🖼️ Фон-узор --}}
     <div class="absolute inset-0 z-0 opacity-10 pointer-events-none"
-        style="background-image: url('{{ asset('images/fon.jpg') }}'); background-repeat: repeat; background-size: auto;">
+        style="background-image: url('{{ asset('images/fon.svg') }}'); background-repeat: repeat; background-size: auto;">
     </div>
 
     {{-- 🌫️ Основной контейнер --}}
