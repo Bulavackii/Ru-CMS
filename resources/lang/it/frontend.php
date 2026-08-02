@@ -123,6 +123,7 @@ return [
     ],
 
     'cart' => [
+        'payment_start_failed' => 'Non è stato possibile avviare il pagamento. L\'ordine è stato creato — ti contatteremo.',
         'no_payment' => 'Nessun metodo di pagamento è ancora configurato — contattaci.',
         'choose_delivery' => 'Scegli un metodo di consegna…',
         'choose_payment' => 'Scegli un metodo di pagamento…',

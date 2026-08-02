@@ -31,6 +31,9 @@ class PaymentGatewayService
                 return new YooKassaGateway($paymentMethod);
             case 'sbp':
                 return new SBPGateway($paymentMethod);
+            // Банк переименован в Т-Банк в 2024 году. Новый код методов —
+            // tbank, старый tinkoff оставлен: у кого-то метод уже заведён.
+            case 'tbank':
             case 'tinkoff':
                 return new TinkoffGateway($paymentMethod);
             case 'cloudpayments':
@@ -39,6 +42,7 @@ class PaymentGatewayService
                 return new RobokassaGateway($paymentMethod);
             case 'qiwi':
                 return new QiwiGateway($paymentMethod);
+            case 'sberpay':
             case 'sberbank':
                 return new SberbankGateway($paymentMethod);
             default:

@@ -7,6 +7,10 @@ use App\Services\NotificationService;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use App\Models\User;
+// Без этого импорта тип-хинт Order резолвился в App\Listeners\Order —
+// класса, которого не существует, и любое создание заказа роняло
+// слушателя TypeError'ом.
+use Modules\Payments\Models\Order;
 
 /**
  * 📧 Отправка уведомлений при создании заказа

@@ -219,6 +219,15 @@ class CartController extends Controller
             $orderId = session('last_order_id');
             session()->forget(['cart', 'last_order_id']);
 
+            // Онлайн-метод: создаём платёж и уводим покупателя на оплату.
+            // Офлайн-методы (наличные, счёт) платежа не создают — для них
+            // подтверждение заказа и есть конец пути.
+            $redirect = $this->startOnlinePayment((int) $orderId, $paymentMethod);
+
+            if ($redirect !== null) {
+                return redirect()->away($redirect);
+            }
+
             return redirect()->route('cart.confirm', ['id' => $orderId]);
         } catch (\Exception $e) {
             return redirect()->route('cart.index')->with('error', 'Ошибка при создании заказа: ' . $e->getMessage());
@@ -234,5 +243,53 @@ class CartController extends Controller
             'deliveryMethod' => $order->deliveryMethod,
             'order'          => $order,
         ]);
+    }
+
+    /**
+     * Начать онлайн-оплату заказа.
+     *
+     * @return string|null адрес страницы оплаты либо null, если метод
+     *                     офлайновый или драйвера для него нет
+     */
+    private function startOnlinePayment(int $orderId, PaymentMethod $paymentMethod): ?string
+    {
+        if ($paymentMethod->type === 'offline') {
+            return null;
+        }
+
+        $order = Order::find($orderId);
+
+        if (! $order) {
+            return null;
+        }
+
+        try {
+            $result = app(\Modules\Payments\Services\PaymentGatewayService::class)
+                ->createPayment($order, $paymentMethod);
+        } catch (\Throwable $e) {
+            // Платёж не начался — заказ уже создан и терять его нельзя.
+            // Владелец увидит неоплаченный заказ в панели и свяжется с
+            // покупателем, а покупатель получит внятное сообщение.
+            \Illuminate\Support\Facades\Log::warning('Не удалось начать оплату заказа', [
+                'order_id' => $orderId,
+                'error' => $e->getMessage(),
+            ]);
+
+            session()->flash('error', __('frontend.cart.payment_start_failed'));
+
+            return null;
+        }
+
+        if (! ($result['success'] ?? false)) {
+            session()->flash('error', __('frontend.cart.payment_start_failed'));
+
+            return null;
+        }
+
+        if (! empty($result['payment_id'])) {
+            $order->update(['payment_id' => $result['payment_id']]);
+        }
+
+        return $result['payment_url'] ?? $result['confirmation_url'] ?? null;
     }
 }

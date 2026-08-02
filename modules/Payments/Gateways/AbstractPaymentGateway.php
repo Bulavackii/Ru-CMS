@@ -60,7 +60,7 @@ abstract class AbstractPaymentGateway implements PaymentGatewayInterface
     protected function getWebhookUrl(): string
     {
         return $this->getConfig('webhook_url') 
-            ?? route('payments.webhook', ['gateway' => $this->getGatewayCode()]);
+            ?? route('payment.webhook', ['gateway' => $this->getGatewayCode()]);
     }
 
     /**
