@@ -35,22 +35,27 @@ Route::middleware(['web', 'auth', 'admin'])
 // 💳 Платежи
 Route::middleware(['web', 'auth'])->group(function () {
     Route::post('/orders/{order}/payment/initiate', [OrderController::class, 'initiatePayment'])->name('orders.payment.initiate');
-    Route::get('/payments/success/{order}', function ($order) {
-        return redirect()->route('dashboard.orders')->with('success', 'Платеж успешно выполнен');
-    })->name('payments.success');
-    Route::get('/payments/fail/{order}', function ($order) {
-        return redirect()->route('dashboard.orders')->with('error', 'Ошибка при выполнении платежа');
-    })->name('payments.fail');
     Route::get('/payments/sbp/qr/{order}', function ($order) {
         // Показ QR-кода для СБП
         return view('Payments::public.sbp-qr', ['order' => \Modules\Payments\Models\Order::findOrFail($order)]);
     })->name('payments.sbp.qr');
 });
 
+// ↩️ Возврат покупателя с платёжной страницы. БЕЗ auth: заказ можно
+// оформить гостем, и раньше он после оплаты попадал на форму входа.
+// Статус берётся из заказа, а не объявляется по факту перехода: успех
+// подтверждает webhook, а по этой ссылке можно просто вернуться «назад».
+Route::middleware(['web'])
+    ->withoutMiddleware(['auth', 'admin'])
+    ->group(function () {
+        Route::get('/payments/success/{order}', [OrderController::class, 'paymentReturn'])->name('payments.success');
+        Route::get('/payments/fail/{order}', [OrderController::class, 'paymentReturn'])->name('payments.fail');
+    });
+
 // 🌐 Webhook для платежных систем (публичный доступ, без CSRF)
 Route::post('/payment/webhook/{gateway}', [OrderController::class, 'webhook'])
     ->name('payment.webhook')
-    ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+    ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class, 'auth', 'admin']);
 
 // � Клиент: корзина и оформление заказа
 Route::middleware(['web'])->group(function () {

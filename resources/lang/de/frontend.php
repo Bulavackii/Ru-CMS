@@ -123,6 +123,10 @@ return [
     ],
 
     'cart' => [
+        'order_not_found' => 'Die Bestellung wurde nicht gefunden.',
+        'payment_confirmed' => 'Die Zahlung wurde bestätigt. Vielen Dank!',
+        'payment_cancelled' => 'Die Zahlung wurde abgebrochen.',
+        'payment_pending' => 'Wir warten auf die Bestätigung der Zahlung. Sobald die Bank antwortet, wird der Bestellstatus aktualisiert.',
         'payment_start_failed' => 'Die Zahlung konnte nicht gestartet werden. Die Bestellung wurde angelegt — wir melden uns bei Ihnen.',
         'no_payment' => 'Es wurden noch keine Zahlungsarten eingerichtet — bitte kontaktieren Sie uns.',
         'choose_delivery' => 'Versandart wählen…',

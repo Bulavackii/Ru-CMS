@@ -123,6 +123,10 @@ return [
     ],
 
     'cart' => [
+        'order_not_found' => 'The order was not found.',
+        'payment_confirmed' => 'The payment has been confirmed. Thank you!',
+        'payment_cancelled' => 'The payment has been cancelled.',
+        'payment_pending' => 'We are waiting for the payment to be confirmed. The order status will update as soon as the bank replies.',
         'payment_start_failed' => 'The payment could not be started. The order has been created — we will contact you.',
         'no_payment' => 'No payment methods have been set up yet — please contact us.',
         'choose_delivery' => 'Choose a delivery method…',

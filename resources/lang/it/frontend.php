@@ -123,6 +123,10 @@ return [
     ],
 
     'cart' => [
+        'order_not_found' => 'Ordine non trovato.',
+        'payment_confirmed' => 'Il pagamento è stato confermato. Grazie!',
+        'payment_cancelled' => 'Il pagamento è stato annullato.',
+        'payment_pending' => 'Attendiamo la conferma del pagamento. Lo stato dell\'ordine verrà aggiornato non appena la banca risponderà.',
         'payment_start_failed' => 'Non è stato possibile avviare il pagamento. L\'ordine è stato creato — ti contatteremo.',
         'no_payment' => 'Nessun metodo di pagamento è ancora configurato — contattaci.',
         'choose_delivery' => 'Scegli un metodo di consegna…',

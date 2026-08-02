@@ -156,6 +156,33 @@ class OrderController extends Controller
     /**
      * 💳 Обработка webhook от платежной системы
      */
+    /**
+     * Возврат покупателя с платёжной страницы.
+     *
+     * Сюда платёжная система приводит человека после оплаты ИЛИ отказа —
+     * и сюда же можно просто вернуться кнопкой «назад». Поэтому успех
+     * здесь не объявляется: показываем реальный статус заказа, а
+     * подтверждает оплату webhook.
+     */
+    public function paymentReturn(Request $request, $order)
+    {
+        $order = \Modules\Payments\Models\Order::find($order);
+
+        if (! $order) {
+            return redirect()->route('cart.index')->with('error', __('frontend.cart.order_not_found'));
+        }
+
+        $flash = match ($order->status) {
+            'completed' => ['success', __('frontend.cart.payment_confirmed')],
+            'cancelled' => ['error', __('frontend.cart.payment_cancelled')],
+            default => ['info', __('frontend.cart.payment_pending')],
+        };
+
+        return redirect()
+            ->route('cart.confirm', ['id' => $order->id])
+            ->with($flash[0], $flash[1]);
+    }
+
     public function webhook(Request $request, string $gateway)
     {
         // 📋 Логирование webhook
