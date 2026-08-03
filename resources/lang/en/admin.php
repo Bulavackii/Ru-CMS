@@ -361,6 +361,9 @@ return [
     ],
 
     'news' => [
+        'rating_group' => 'Rating',
+        'rating' => 'Review score',
+        'rating_hint' => 'From 0 to 10, decimals allowed: 8.5. Shown as a badge in the corner of the cover. Empty — no badge.',
         'create' => 'New article',
         'create_hint' => 'Fill in the content and SEO fields, then choose a display template.',
         'save' => 'Save article',

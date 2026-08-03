@@ -133,6 +133,13 @@ class NewsController extends Controller
             $data['is_promo'] = false;
         }
 
+        // Оценка — только у шаблона «Игры». У остальных обнуляем: иначе
+        // значение осталось бы висеть после смены шаблона и всплыло бы,
+        // когда материал снова станет игровым.
+        $data['rating'] = $template === 'gaming'
+            ? ($request->filled('rating') ? (float) $request->input('rating') : null)
+            : null;
+
         $news = News::create($data);
 
         if ($request->filled('categories')) {
@@ -180,6 +187,13 @@ class NewsController extends Controller
             $data['stock']    = null;
             $data['is_promo'] = false;
         }
+
+        // Оценка — только у шаблона «Игры». У остальных обнуляем: иначе
+        // значение осталось бы висеть после смены шаблона и всплыло бы,
+        // когда материал снова станет игровым.
+        $data['rating'] = $template === 'gaming'
+            ? ($request->filled('rating') ? (float) $request->input('rating') : null)
+            : null;
 
         // 🔄 Создать версию перед обновлением
         $changes = $this->detectChanges($news, $data);

@@ -22,7 +22,13 @@ class NewsRequest extends FormRequest
             'categories' => 'nullable|array',
             'categories.*' => 'integer|exists:categories,id',
             'published' => 'nullable|boolean',
-            'template' => 'nullable|string|max:50|in:about,default,ourworks,release,base-php,base-html,base-css,base-js,products,reviews,faq,gallery,slideshow,test',
+            // Список шаблонов — из общей константы, а не своей копией:
+            // эта разошлась и не пропускала новые шаблоны («Выбран
+            // недопустимый шаблон» при сохранении «Игр» и «Клиники»).
+            'template' => 'nullable|string|max:50|in:' . implode(',', array_keys(
+                \Modules\News\Controllers\Admin\NewsController::TEMPLATES
+            )),
+            'rating' => 'nullable|numeric|min:0|max:10',
             'price' => 'nullable|numeric|min:0',
             'stock' => 'nullable|integer|min:0',
             'is_promo' => 'nullable|boolean',

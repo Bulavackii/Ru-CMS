@@ -153,6 +153,17 @@
             </div>
         </div>
 
+        {{-- Оценка: только для шаблона «Игры» --}}
+        <div id="rating-fields" class="admin-card p-5 hidden animate-fade-in">
+            <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+                <i class="fas fa-star text-indigo-500"></i> {{ __('admin.news.rating_group') }}
+            </h2>
+            <x-admin.input label="{{ __('admin.news.rating') }}" name="rating" type="number"
+                step="0.1" min="0" max="10" :value="$news->rating"
+                hint="{{ __('admin.news.rating_hint') }}" />
+        </div>
+
+
         {{-- ── Содержимое ── --}}
         <div class="admin-card p-5">
             <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-2">
@@ -265,8 +276,15 @@
         document.addEventListener('DOMContentLoaded', function() {
             const templateSelect = document.getElementById('template');
             const productFields = document.getElementById('product-fields');
+            // Оценка нужна только шаблону «Игры»: у остальных материалов это
+            // поле бессмысленно и только путало бы редактора.
+            const ratingFields = document.getElementById('rating-fields');
 
             function toggleProductFields() {
+                if (ratingFields) {
+                    ratingFields.classList.toggle('hidden', templateSelect.value !== 'gaming');
+                }
+
                 if (templateSelect.value === 'products') {
                     productFields.classList.remove('hidden');
                     productFields.classList.add('animate-fade-in');
