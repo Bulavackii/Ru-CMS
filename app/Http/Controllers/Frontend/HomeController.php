@@ -58,7 +58,9 @@ class HomeController extends Controller
         });
 
         $homePages = Cache::remember('home_pages', 3600, function () {
-            return Page::select('id', 'title', 'slug', 'content', 'homepage_order')
+            // Колонки перечислены поимённо: без updated_at в карточке пустела
+            // дата обновления. Тот же промах уже был с rating и price.
+            return Page::select('id', 'title', 'slug', 'content', 'homepage_order', 'updated_at')
                 ->where('published', true)
                 ->where('show_on_homepage', true)
                 ->orderBy('homepage_order')

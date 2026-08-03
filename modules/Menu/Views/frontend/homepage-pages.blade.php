@@ -86,11 +86,18 @@
                     <p class="pg-card__text">{{ $excerpt }}</p>
                 @endif
 
-                @if ($url)
-                    <a href="{{ $url }}" class="pg-card__more">
-                        {{ __('frontend.pages.more') }} <i class="fas fa-arrow-right"></i>
-                    </a>
-                @endif
+                {{-- Нижняя полоса: дата обновления слева, ссылка справа.
+                     Раньше ссылка висела в потоке текста и сливалась с
+                     анонсом, а даты не было вовсе. --}}
+                <span class="pg-card__meta">
+                    <span class="pg-meta__date">{{ $page->updated_at?->format('d.m.Y') }}</span>
+
+                    @if ($url)
+                        <a href="{{ $url }}" class="pg-card__more">
+                            {{ __('frontend.pages.more') }} <i class="fas fa-arrow-right"></i>
+                        </a>
+                    @endif
+                </span>
             </article>
         @endforeach
     </div>
@@ -132,10 +139,19 @@
     .pg-card__text{ margin:0; font-size:.85rem; line-height:1.55; color:#64748b; flex:1;
         display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden }
 
-    .pg-card__more{ font-size:.85rem; font-weight:700; color:var(--color-primary,#6366f1) }
+    /* Нижняя полоса карточки — как в «Новостях», «Журнале» и «Играх»:
+       линия сверху, лёгкая подложка, края разведены. */
+    .pg-card__meta{ display:flex; align-items:center; justify-content:space-between; gap:.75rem;
+        margin:.65rem -1.4rem -1.3rem; padding:.55rem 1.4rem; font-size:.75rem;
+        border-top:1px solid #eef2f7; background:#f8fafc }
+    .pg-meta__date{ color:#94a3b8; font-variant-numeric:tabular-nums }
+    .pg-meta__date::before{ content:'🗓'; margin-right:.35rem; opacity:.75 }
+    .pg-card__more{ font-size:.8rem; font-weight:700; color:var(--color-primary,#6366f1);
+        white-space:nowrap }
 
     @media (prefers-color-scheme: dark){
         .pg__head, .pg-card{ background:#111827; border-color:#1f2937 }
+        .pg-card__meta{ background:#0b1220; border-color:#1f2937 }
         .pg__title, .pg-card__title a{ color:#f3f4f6 }
         .pg-chip{ background:#1e1b4b; border-color:#312e81; color:#c7d2fe }
     }
