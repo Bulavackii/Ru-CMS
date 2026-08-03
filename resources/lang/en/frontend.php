@@ -221,4 +221,9 @@ return [
         'subtitle' => 'About the project and how to work with the system',
         'more' => 'Details',
     ],
+
+    'gaming' => [
+        'title' => 'Games',
+        'subtitle' => 'Announcements, reviews and patch notes',
+    ],
 ];

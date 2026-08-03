@@ -51,8 +51,8 @@
     <div class="gm__head">
         <span class="gm__badge">🎮</span>
         <div>
-            <h2 class="gm__title">{{ $title ?? 'Игры и обновления' }}</h2>
-            <p class="gm__sub">Анонсы, обзоры и патчноуты</p>
+            <h2 class="gm__title">{{ $title ?? __('frontend.gaming.title') }}</h2>
+            <p class="gm__sub">{{ __('frontend.gaming.subtitle') }}</p>
         </div>
     </div>
 
@@ -111,7 +111,7 @@
     .gm__title{ margin:0; font-size:1.5rem; font-weight:700; color:#111827; line-height:1.2 }
     .gm__sub{ margin:.1rem 0 0; font-size:.82rem; color:#6b7280 }
 
-    .gm-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(16rem,1fr)); gap:1rem }
+    .gm-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(17.5rem,1fr)); gap:1rem }
 
     /* Карточка тёмная независимо от темы: так выглядят игровые витрины.
        Читаемость обеспечена собственным светлым текстом на своём фоне,
@@ -120,18 +120,25 @@
         overflow:hidden; transition:border-color .15s, transform .15s }
     .gm-card:hover{ border-color:var(--color-accent,#8b5cf6); transform:translateY(-3px) }
 
-    .gm-card__media{ position:relative; height:10rem;
+    /* Высота под пропорцию обложек 320x200: при 10rem картинка
+       срезалась сверху и снизу. */
+    .gm-card__media{ position:relative; height:12.5rem;
         background:linear-gradient(135deg,var(--color-primary,#6366f1),var(--color-accent,#8b5cf6)) }
     .gm-card__media img{ width:100%; height:100%; object-fit:cover; display:block }
 
     .gm-card__tag{ position:absolute; top:.6rem; left:.6rem; display:flex; align-items:center;
         justify-content:center; width:2rem; height:2rem; font-size:1rem; background:#0f172a }
-    .gm-card__score{ position:absolute; bottom:.6rem; right:.6rem; padding:.15rem .5rem;
-        font-size:.85rem; font-weight:800; color:#0f172a; background:#facc15 }
+    .gm-card__score::before{ content:'★'; margin-right:.2rem }
+    .gm-card__score{ position:absolute; bottom:.6rem; right:.6rem; padding:.2rem .55rem;
+        font-size:.85rem; font-weight:800; color:#0f172a; background:#facc15;
+        box-shadow:0 2px 8px rgba(15,23,42,.35); letter-spacing:.02em }
 
     .gm-card__body{ padding:.9rem 1rem 1.05rem; display:flex; flex-direction:column; gap:.35rem; flex:1 }
-    .gm-card__title{ margin:0; font-size:1rem; line-height:1.3; font-weight:700; color:#f8fafc }
-    .gm-card__text{ margin:0; font-size:.82rem; line-height:1.5; color:#94a3b8; flex:1 }
+        /* Обрезка строками настоящим CSS: класса line-clamp в сборке нет. */
+    .gm-card__title{ margin:0; font-size:1rem; line-height:1.3; font-weight:700; color:#f8fafc;
+        display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden }
+    .gm-card__text{ margin:0; font-size:.82rem; line-height:1.5; color:#94a3b8; flex:1;
+        display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden }
     .gm-card__meta{ font-size:.74rem; color:#64748b }
 
     @media (prefers-color-scheme: dark){
