@@ -58,7 +58,10 @@
             @php $parts = $splitIcon($item->title); @endphp
 
             <article class="clinic-card">
-                <span class="clinic-card__icon">{{ $parts['icon'] }}</span>
+                <div class="clinic-card__top">
+                    <span class="clinic-card__icon">{{ $parts['icon'] }}</span>
+                    <span class="clinic-card__date">{{ $item->created_at?->format('d.m.Y') }}</span>
+                </div>
 
                 <h3 class="clinic-card__title">
                     <a href="{{ url('/news/' . $item->slug) }}">{{ $parts['text'] }}</a>
@@ -110,7 +113,13 @@
     .clinic-card{ display:flex; flex-direction:column; gap:.6rem; padding:1.4rem 1.5rem;
         background:#fff; border:1px solid #eef2f7; transition:border-color .15s, transform .15s }
     .clinic-card:hover{ border-color:var(--color-primary,#6366f1); transform:translateY(-2px) }
+    /* Значок и дата в одной строке: низ карточки занят ценой и ссылкой,
+       поэтому дата ушла в правый верхний угол. */
+    .clinic-card__top{ display:flex; align-items:center; justify-content:space-between; gap:.75rem }
     .clinic-card__icon{ font-size:1.9rem; line-height:1 }
+    .clinic-card__date{ font-size:.75rem; color:#94a3b8; font-variant-numeric:tabular-nums;
+        white-space:nowrap }
+    .clinic-card__date::before{ content:'🗓'; margin-right:.3rem; opacity:.75 }
     /* Шрифт крупнее обычного: сайт читают в том числе пожилые пациенты. */
     .clinic-card__title{ margin:0; font-size:1.15rem; line-height:1.35; font-weight:700 }
     .clinic-card__title a{ color:#111827; text-decoration:none }
