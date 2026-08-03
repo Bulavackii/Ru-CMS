@@ -30,6 +30,7 @@ class News extends Model
         'published',
         'template',
         'price',
+        'rating',
         'stock',
         'is_promo',
         'meta_title',

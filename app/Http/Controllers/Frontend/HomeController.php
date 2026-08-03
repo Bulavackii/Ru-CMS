@@ -80,19 +80,14 @@ class HomeController extends Controller
 
     private function loadTemplates(Request $request): array
     {
-        $templateKeys = [
-            'about', 'default', 'ourworks', 'release',
-            'base-php', 'base-html', 'base-css', 'base-js',
-            'products', 'reviews', 'faq', 'slideshow', 'test',
-            // 📖 Журнал — крупный ведущий материал плюс сетка остальных.
-            'magazine',
-            // 🏥 Клиника — услуги и направления с крупным читаемым текстом.
-            'clinic',
-            // 🎮 Игры — анонсы, обзоры и патчноуты тёмными карточками.
-            'gaming',
-            // 'gallery' убран: шаблона с таким именем в проекте нет, блок
-            // молча не рендерился и только занимал лишний запрос к базе.
-        ];
+        // Единый источник — константа контроллера новостей: список в форме
+        // материала и набор блоков на главной обязаны совпадать, иначе
+        // редактор выберет шаблон, для которого блока на главной нет.
+        //
+        // Заодно с главной ушли учебные шаблоны и «Тест»: каждый лишний
+        // ключ — отдельный запрос к базе на каждой загрузке, даже когда
+        // материалов с таким шаблоном ни одного.
+        $templateKeys = array_keys(\Modules\News\Controllers\Admin\NewsController::TEMPLATES);
 
         $cart = session('cart', []);
         $templates = [];
@@ -106,7 +101,7 @@ class HomeController extends Controller
                 $query = News::with(['categories' => function ($q) {
                         $q->select('categories.id', 'categories.title', 'categories.slug');
                     }])
-                    ->select('id', 'title', 'slug', 'content', 'template', 'price', 'stock', 'is_promo', 'created_at', 'updated_at')
+                    ->select('id', 'title', 'slug', 'content', 'template', 'price', 'stock', 'is_promo', 'rating', 'created_at', 'updated_at')
                     ->where('published', true)
                     ->where('template', $key);
 

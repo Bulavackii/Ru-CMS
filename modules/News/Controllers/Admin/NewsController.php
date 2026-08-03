@@ -70,25 +70,7 @@ class NewsController extends Controller
 
         $newsList = $query->paginate(10);
 
-        $allTemplates = [
-            'default'   => 'Новости',
-            'magazine'  => 'Журнал',
-            'clinic'    => 'Клиника',
-            'gaming'    => 'Игры',
-            'ourworks'  => 'Наши услуги',
-            'release'   => 'Релизы',
-            'products'  => 'Товары',
-            'contacts'  => 'Контакты',
-            'gallery'   => 'Галерея',
-            'slideshow' => 'Слайдшоу',
-            'faq'       => 'Вопросы',
-            'reviews'   => 'Отзывы',
-            'test'      => 'Тест',
-            'base-php'  => 'Уроки PHP база',
-            'base-html' => 'Уроки HTML база',
-            'base-css'  => 'Уроки CSS база',
-            'base-js'   => 'Уроки JS база',
-        ];
+        $allTemplates = self::TEMPLATES;
 
         $usedTemplates = News::select('template')->distinct()->pluck('template')->toArray();
 
@@ -298,62 +280,43 @@ class NewsController extends Controller
         return redirect()->route('admin.news.index')->with('success', __('admin.flash.saved'));
     }
 
+    /**
+     * Шаблоны, доступные редактору в форме материала.
+     *
+     * Раньше список собирался сканом всей папки шаблонов, и в выпадающий
+     * список попадало всё подряд: четыре учебных «Урока», «Тест» и
+     * демо-страница «RU CMS». Редактор выбирал из шестнадцати пунктов,
+     * половина которых ему не нужна.
+     *
+     * Теперь список явный. Новый шаблон показывается, только когда его
+     * сюда добавили, — заодно видно, какие вообще есть.
+     */
+    public const TEMPLATES = [
+        'default'   => 'Новости',
+        'magazine'  => 'Журнал',
+        'clinic'    => 'Клиника',
+        'gaming'    => 'Игры',
+        'products'  => 'Товары',
+        'ourworks'  => 'Наши услуги',
+        'faq'       => 'Вопросы',
+        'reviews'   => 'Отзывы',
+        'release'   => 'Релизы',
+        'slideshow' => 'Слайдшоу',
+    ];
+
     private function loadTemplates(): array
     {
-        return Cache::remember('news_templates', 3600, function () {
-            $customLabels = [
-                'about'     => 'RU CMS',
-                'default'   => 'Новости',
-            'magazine'  => 'Журнал',
-                'magazine'  => 'Журнал',
-                'clinic'    => 'Клиника',
-                'gaming'    => 'Игры',
-                'ourworks'  => 'Наши услуги',
-                'release'   => 'Релизы',
-                'base-php'  => 'Уроки PHP база',
-                'base-html' => 'Уроки HTML',
-                'base-css'  => 'Уроки CSS',
-                'base-js'   => 'Уроки JS база',
-                'products'  => 'Товары',
-                'contacts'  => 'Контакты',
-                'faq'       => 'Вопросы',
-                'reviews'   => 'Отзывы',
-                'slideshow' => 'Слайдшоу',
-                'gallery'   => 'Галерея',
-                'test'      => 'Тест',
-            ];
+        // Показываем только те, у которых реально есть файл: иначе
+        // выбранный шаблон молча не отрисовался бы на сайте.
+        $path = resource_path('views/frontend/templates');
 
-            $templates = [];
-            $templatePath = resource_path('views/frontend/templates');
-
-            if (File::exists($templatePath)) {
-                foreach (File::files($templatePath) as $file) {
-                    $filename = $file->getFilename();
-                    if (str_ends_with($filename, '.blade.php')) {
-                        $key = basename($filename, '.blade.php');
-                        $templates[$key] = $customLabels[$key] ?? ucfirst($key);
-                    }
-                }
-            }
-
-            foreach ($customLabels as $key => $label) {
-                if (!isset($templates[$key])) {
-                    $file = $templatePath . DIRECTORY_SEPARATOR . $key . '.blade.php';
-                    if (File::exists($file)) {
-                        $templates[$key] = $label;
-                    }
-                }
-            }
-
-            ksort($templates);
-
-            return $templates;
-        });
+        return array_filter(
+            self::TEMPLATES,
+            fn ($key) => File::exists($path . DIRECTORY_SEPARATOR . $key . '.blade.php'),
+            ARRAY_FILTER_USE_KEY
+        );
     }
 
-    /**
-     * Определить изменения для версионирования
-     */
     private function detectChanges(News $news, array $newData): string
     {
         $changes = [];

@@ -9,17 +9,10 @@
 <div class="px-4 sm:px-6 md:px-8 py-6 sm:py-8 md:py-10">
   <div class="max-w-screen-2xl mx-auto p-4 sm:p-6 md:p-8">
     @php
-      $titles = [
-          'default'   => 'Новости',
-          'products'  => 'Товары',
-          'contacts'  => 'Контакты',
-          'gallery'   => 'Галерея',
-          'test'      => 'Тест',
-          'slideshow' => 'Слайдшоу',
-          'faq'       => 'Вопросы',
-          'reviews'   => 'Отзывы',
-          'ourworks'  => 'Наши услуги',
-      ];
+      // Подписи блоков берём из того же источника, что и список шаблонов
+      // в панели. Своя копия здесь уже разошлась: новые шаблоны выводились
+      // с заголовком вроде «Gaming», потому что подписи для них тут не было.
+      $titles = \Modules\News\Controllers\Admin\NewsController::TEMPLATES;
     @endphp
 
     {{-- Верхние слайдшоу --}}
