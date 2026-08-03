@@ -137,25 +137,67 @@ CSS,
                 'title' => 'Подсказка в панели (под шапкой)',
                 'zone'  => 'admin.header',
                 'html'  => <<<'HTML'
-<div class="frg-adm-tip">
-    <span class="frg-adm-tip__icon">🧩</span>
-    <span class="frg-adm-tip__text">
-        <strong>Это фрагмент</strong> — редактируемый блок страницы. Такие блоки выводятся
-        в шапке и подвале сайта и панели; текст, вёрстка и стиль задаются в разделе
-        «Фрагменты». Выключите этот блок там, когда он станет не нужен.
-    </span>
-    <a href="/admin/visual/fragments" class="frg-adm-tip__link">Открыть раздел</a>
+<div class="frg-start">
+    <div class="frg-start__head">
+        <span class="frg-start__badge">🚀</span>
+        <div>
+            <strong class="frg-start__title">Первые шаги</strong>
+            <span class="frg-start__sub">Четыре раздела, с которых обычно начинают. Блок убирается в «Фрагментах».</span>
+        </div>
+        <a href="/admin/visual/fragments" class="frg-start__off">Убрать блок</a>
+    </div>
+
+    <div class="frg-start__grid">
+        <a class="frg-start__card" href="/admin/news">
+            <span class="frg-start__ico">📰</span>
+            <span class="frg-start__name">Наполнить сайт</span>
+            <span class="frg-start__hint">Новости и страницы. Демо-материалы можно править и удалять.</span>
+        </a>
+        <a class="frg-start__card" href="/admin/visual/themes">
+            <span class="frg-start__ico">🎨</span>
+            <span class="frg-start__name">Выбрать оформление</span>
+            <span class="frg-start__hint">Цвета, шрифт и фон. Применяется сразу ко всему сайту.</span>
+        </a>
+        <a class="frg-start__card" href="/admin/menus">
+            <span class="frg-start__ico">🧭</span>
+            <span class="frg-start__name">Собрать меню</span>
+            <span class="frg-start__hint">Шапка, подвал и боковая панель. Порядок — перетаскиванием.</span>
+        </a>
+        <a class="frg-start__card" href="/admin/modules">
+            <span class="frg-start__ico">🧩</span>
+            <span class="frg-start__name">Отключить лишнее</span>
+            <span class="frg-start__hint">Не нужен магазин — выключите, и разделы пропадут из меню.</span>
+        </a>
+    </div>
 </div>
 HTML,
                 'css'   => <<<'CSS'
-.frg-adm-tip{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;padding:.65rem 1.25rem;
-    font-size:.82rem;line-height:1.45;color:#312e81;background:#eef2ff;
-    border-bottom:1px solid rgba(99,102,241,.25);}
-.frg-adm-tip__icon{font-size:1rem;flex:none;}
-.frg-adm-tip__text{flex:1;min-width:16rem;}
-.frg-adm-tip__link{flex:none;padding:.3rem .7rem;font-weight:600;color:#fff;
-    background:var(--admin-primary,#6366f1);white-space:nowrap;}
-.frg-adm-tip__link:hover{filter:brightness(1.08);color:#fff;}
+/* Панель первых шагов. Раньше здесь висела строчка, объяснявшая сама себя
+   и больше ничего не дававшая, — а занимала место на КАЖДОЙ странице. */
+.frg-start{padding:.9rem 1.25rem 1.1rem;background:#f8fafc;
+    border-bottom:1px solid rgba(99,102,241,.22);}
+.frg-start__head{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;margin-bottom:.75rem;}
+.frg-start__badge{display:flex;align-items:center;justify-content:center;width:2rem;height:2rem;
+    flex:none;background:var(--admin-primary,#6366f1);font-size:.95rem;}
+.frg-start__title{display:block;font-size:.95rem;color:#111827;}
+.frg-start__sub{display:block;font-size:.76rem;color:#6b7280;}
+.frg-start__off{margin-left:auto;flex:none;font-size:.74rem;font-weight:600;color:#6b7280;
+    border:1px solid #e5e7eb;padding:.3rem .7rem;background:#fff;white-space:nowrap;}
+.frg-start__off:hover{color:var(--admin-primary,#6366f1);border-color:#c7d2fe;}
+
+.frg-start__grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:.55rem;}
+.frg-start__card{display:block;padding:.7rem .85rem;background:#fff;border:1px solid #eef2f7;
+    transition:border-color .15s,transform .15s;}
+.frg-start__card:hover{border-color:#c7d2fe;transform:translateY(-1px);}
+.frg-start__ico{font-size:1.05rem;}
+.frg-start__name{display:block;margin-top:.2rem;font-size:.85rem;font-weight:700;color:#111827;}
+.frg-start__hint{display:block;margin-top:.15rem;font-size:.74rem;line-height:1.4;color:#6b7280;}
+
+@media (prefers-color-scheme: dark){
+    .frg-start{background:#0f172a;}
+    .frg-start__card{background:#111827;border-color:#1f2937;}
+    .frg-start__title,.frg-start__name{color:#f3f4f6;}
+}
 CSS,
             ],
 
