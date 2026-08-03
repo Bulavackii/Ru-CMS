@@ -41,6 +41,8 @@ return [
     ],
 
     'news' => [
+        'title' => 'News',
+        'no_video' => 'Your browser does not support video.',
         'all' => 'All news',
         'copy_link' => 'Copy link',
         'details' => 'Details',

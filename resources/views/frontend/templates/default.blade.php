@@ -1,18 +1,39 @@
-<div class="my-8 sm:my-10 md:my-12 max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16">
-    {{-- Заголовок раздела: градиентный бейдж-иконка + название + подзаголовок --}}
-    <div class="mb-6 sm:mb-8 md:mb-10 flex justify-center select-none">
-        <div class="fx-section-head">
-            <span class="fx-badge"><i class="fas fa-newspaper"></i></span>
-            <div class="text-left">
-                <h2 class="fx-section-title text-xl sm:text-2xl md:text-3xl leading-tight">{{ $title ?? 'Новости' }}</h2>
-                <div class="fx-section-sub">{{ __('frontend.news.latest') }}</div>
-            </div>
+{{--
+    ╔══════════════════════════════════════════════════════════════════╗
+    ║  📰 ШАБЛОН «НОВОСТИ»                                             ║
+    ╠══════════════════════════════════════════════════════════════════╣
+    ║  Основной шаблон ленты: обложка, категории, дата, время чтения    ║
+    ║  и краткое содержание. Подходит почти любому материалу.           ║
+    ║                                                                  ║
+    ║  ГДЕ ПРАВИТЬ СОДЕРЖИМОЕ                                          ║
+    ║    Панель → Новости → материал → поле «Шаблон» = default          ║
+    ║                                                                  ║
+    ║  ОБЛОЖКА                                                         ║
+    ║    Берётся из первого <img> или <video> в тексте материала.       ║
+    ║    Видео проигрывается прямо в карточке. Нет медиа — рисуется     ║
+    ║    заглушка, поэтому дыр в сетке не будет.                        ║
+    ║                                                                  ║
+    ║  ВРЕМЯ ЧТЕНИЯ                                                    ║
+    ║    Считается по количеству слов (150 слов в минуту) хелпером      ║
+    ║    reading_time(). Отдельно задавать не нужно.                    ║
+    ╚══════════════════════════════════════════════════════════════════╝
+--}}
+
+<section class="nw">
+    {{-- ── Заголовок раздела ── --}}
+    <div class="nw__head">
+        <span class="fx-badge"><i class="fas fa-newspaper"></i></span>
+        <div>
+            <h2 class="nw__title">{{ $title ?? __('frontend.news.title') }}</h2>
+            <p class="nw__sub">{{ __('frontend.news.latest') }}</p>
         </div>
     </div>
 
     @if ($newsList->count())
-        {{-- Контейнер карточек новостей: flex с переносом и отступами --}}
-        <div class="flex flex-wrap justify-center gap-4 sm:gap-6 md:gap-8">
+        {{-- Сетка, а не flex-wrap: карточки одной ширины и ровными рядами.
+             При переносе flex последняя строка «прилипала» к центру, а
+             карточки в ней растягивались по-разному. --}}
+        <div class="nw-grid">
             @foreach ($newsList as $news)
                 @php
                     // ==== утилиты ====
@@ -90,101 +111,124 @@
                     $vExt  = $extOf($videoSrc);
                     $vMime = $mimeMap[$vExt] ?? 'video/mp4';
                 @endphp
-
-                {{-- Карточка новости (стеклянная, indigo-акцент) --}}
-                <div class="news-card fx-card relative flex flex-col p-4 sm:p-5 w-full max-w-xs sm:max-w-sm">
-
-                    {{-- Обложка/видео + чипы поверх неё --}}
-                    <div class="relative w-full h-40 sm:h-44 md:h-48 lg:h-52 overflow-hidden mb-3 sm:mb-4 rounded-xl border border-gray-100 dark:border-gray-700">
+                <article class="nw-card">
+                    {{-- ── Обложка ── --}}
+                    <div class="nw-card__media">
                         @if ($isVideo)
-                            <video class="w-full h-full object-cover" muted autoplay loop playsinline controls
+                            <video muted autoplay loop playsinline controls
                                    @if($coverAbs && in_array($extOf($coverAbs), $IMG_EXT, true)) poster="{{ $coverAbs }}" @endif>
                                 <source src="{{ $videoSrc }}" type="{{ $vMime }}">
-                                Ваш браузер не поддерживает видео.
+                                {{ __('frontend.news.no_video') }}
                             </video>
                         @elseif ($imageSrc)
-                            <img src="{{ $imageSrc }}" alt="{{ $news->title }}" class="w-full h-full object-cover" loading="lazy" />
+                            <img src="{{ $imageSrc }}" alt="{{ $news->title }}" loading="lazy">
                         @else
-                            <div class="fx-noimg"><i class="fas fa-image fx-noimg-ico"></i><span>{{ __('frontend.news.no_image') }}</span></div>
-                        @endif
-
-                        {{-- Категории (слева сверху) --}}
-                        @if ($news->categories->count())
-                            <div class="absolute top-2.5 left-2.5 z-10 flex flex-wrap gap-1">
-                                @foreach ($news->categories as $category)
-                                    <a href="{{ url('/?category_' . $news->template . '=' . $category->id) }}"
-                                       class="fx-chip hover:brightness-95 select-none" title="{{ $category->title }}">
-                                        {{ $category->title }}
-                                    </a>
-                                @endforeach
+                            <div class="nw-card__noimg">
+                                <i class="fas fa-image"></i>
+                                <span>{{ __('frontend.news.no_image') }}</span>
                             </div>
                         @endif
 
-                        {{-- Бейдж «NEWS» (справа сверху) --}}
-                        <div class="absolute top-2.5 right-2.5 z-10 fx-chip select-none" title="Новости">
-                            <i class="fas fa-newspaper" style="font-size:.65rem"></i> NEWS
-                        </div>
+                        @if ($news->categories->count())
+                            <div class="nw-card__cats">
+                                @foreach ($news->categories->take(2) as $category)
+                                    <a href="{{ url('/?category_' . $news->template . '=' . $category->id) }}"
+                                       class="nw-chip">{{ $category->title }}</a>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
 
-                    {{-- Заголовок новости с ссылкой --}}
-                    <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-1 sm:mb-2 leading-tight break-words line-clamp-2">
-                        <a href="{{ route('news.show', $news->slug) }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition" title="{{ $news->title }}">
-                            {{ $news->title }}
+                    {{-- ── Текст ── --}}
+                    <div class="nw-card__body">
+                        <h3 class="nw-card__title">
+                            <a href="{{ route('news.show', $news->slug) }}">{{ $news->title }}</a>
+                        </h3>
+
+                        <p class="nw-card__meta">
+                            <span><i class="far fa-calendar"></i> {{ $news->created_at->format('d.m.Y') }}</span>
+                            {{-- Время чтения: считается по словам, отдельно задавать не нужно --}}
+                            <span><i class="far fa-clock"></i>
+                                {{ __('frontend.news.reading_time', ['min' => reading_time($news->content)]) }}</span>
+                        </p>
+
+                        <p class="nw-card__text">{{ Str::limit(trim(preg_replace('~\s+~u', ' ', strip_tags($news->content))), 180) }}</p>
+
+                        <a href="{{ route('news.show', $news->slug) }}" class="nw-card__more">
+                            {{ __('frontend.news.read_more') }} <i class="fas fa-arrow-right"></i>
                         </a>
-                    </h3>
-
-                    {{-- Дата публикации --}}
-                    <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-2 sm:mb-3 flex items-center gap-1.5 select-none" title="Дата публикации">
-                        <i class="far fa-calendar-alt fx-ico"></i> {{ $news->created_at->format('d.m.Y') }}
-                    </p>
-
-                    {{-- Краткое содержание --}}
-                    <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-3 sm:mb-4 line-clamp-3 sm:line-clamp-4 break-words" title="Превью новости">
-                        {!! Str::limit(strip_tags($news->content), 200) !!}
                     </div>
-
-                    {{-- Кнопка «Читать далее» --}}
-                    <a href="{{ route('news.show', $news->slug) }}"
-                       class="fx-btn mt-auto w-full py-2 sm:py-2.5 text-xs sm:text-sm select-none" aria-label="Читать подробнее новость {{ $news->title }}">
-                        Читать далее <i class="fas fa-arrow-right" style="font-size:.65rem"></i>
-                    </a>
-                </div>
+                </article>
             @endforeach
         </div>
 
-        {{-- Пагинация --}}
         @if ($newsList->hasPages())
-            <div class="mt-10 w-full flex flex-col items-center justify-center gap-2 select-none" aria-label="Пагинация новостей">
-                <div class="text-sm text-gray-500 dark:text-gray-400">
-                    Показано с <span class="font-semibold">{{ $newsList->firstItem() }}</span>
-                    по <span class="font-semibold">{{ $newsList->lastItem() }}</span>
-                    из <span class="font-semibold">{{ $newsList->total() }}</span> записей
-                </div>
-                <nav class="flex items-center space-x-2 rtl:space-x-reverse" role="navigation" aria-label="Навигация по страницам">
-                    @if ($newsList->onFirstPage())
-                        <span class="px-3 py-1.5 bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-md text-sm cursor-not-allowed"> ← {{ __('frontend.news.prev') }} </span>
-                    @else
-                        <a href="{{ $newsList->previousPageUrl() }}" class="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-indigo-400 hover:text-indigo-600 rounded-md text-sm transition" rel="prev"> ← {{ __('frontend.news.prev') }} </a>
-                    @endif
-
-                    @foreach ($newsList->getUrlRange(1, $newsList->lastPage()) as $page => $url)
-                        @if ($page == $newsList->currentPage())
-                            <span class="px-3 py-1.5 text-white rounded-md text-sm font-semibold shadow" style="background:var(--fx-grad)">{{ $page }}</span>
-                        @else
-                            <a href="{{ $url }}" class="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-indigo-400 hover:text-indigo-600 rounded-md text-sm transition">{{ $page }}</a>
-                        @endif
-                    @endforeach
-
-                    @if ($newsList->hasMorePages())
-                        <a href="{{ $newsList->nextPageUrl() }}" class="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-indigo-400 hover:text-indigo-600 rounded-md text-sm transition" rel="next"> {{ __('frontend.news.next') }} → </a>
-                    @else
-                        <span class="px-3 py-1.5 bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-md text-sm cursor-not-allowed"> {{ __('frontend.news.next') }} → </span>
-                    @endif
-                </nav>
-            </div>
+            <div class="nw-pager">{{ $newsList->links() }}</div>
         @endif
     @else
-        {{-- Сообщение, если новостей нет --}}
-        <p class="text-center text-gray-500 dark:text-gray-400 select-none">{{ __('frontend.news.empty') }}</p>
+        <div class="nw-empty">
+            <i class="fas fa-newspaper"></i>
+            <p>{{ __('frontend.news.empty') }}</p>
+        </div>
     @endif
-</div>
+</section>
+
+@push('styles')
+<style>
+    /* Литеральный CSS: в статической сборке Tailwind нет ни line-clamp,
+       ни произвольных значений, ни прозрачности через /NN. Цвета — из
+       активной темы, поэтому шаблон читается на любом оформлении. */
+    .nw{ max-width:80rem; margin:2.5rem auto; padding:0 1rem }
+
+    .nw__head{ display:inline-flex; align-items:center; gap:.75rem; padding:.7rem 1.15rem;
+        background:#fff; border:1px solid rgba(17,24,39,.08); box-shadow:0 2px 10px rgba(15,23,42,.06);
+        margin-bottom:1.5rem }
+    .nw__title{ margin:0; font-size:1.5rem; font-weight:700; color:#111827; line-height:1.2 }
+    .nw__sub{ margin:.1rem 0 0; font-size:.82rem; color:#6b7280 }
+
+    .nw-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(18rem,1fr)); gap:1rem }
+
+    .nw-card{ display:flex; flex-direction:column; background:#fff; border:1px solid #eef2f7;
+        overflow:hidden; transition:border-color .15s, transform .15s }
+    .nw-card:hover{ border-color:var(--color-primary,#6366f1); transform:translateY(-2px) }
+
+    .nw-card__media{ position:relative; height:11rem; background:#f1f5f9 }
+    .nw-card__media img, .nw-card__media video{ width:100%; height:100%; object-fit:cover; display:block }
+    .nw-card__noimg{ display:flex; flex-direction:column; align-items:center; justify-content:center;
+        gap:.4rem; height:100%; color:#94a3b8; font-size:.75rem }
+    .nw-card__noimg i{ font-size:1.6rem; opacity:.5 }
+
+    .nw-card__cats{ position:absolute; top:.6rem; left:.6rem; display:flex; flex-wrap:wrap; gap:.3rem }
+    .nw-chip{ font-size:.68rem; font-weight:700; padding:.15rem .5rem; color:#fff;
+        background:var(--color-primary,#6366f1) }
+
+    .nw-card__body{ display:flex; flex-direction:column; gap:.45rem; padding:1rem 1.1rem 1.15rem; flex:1 }
+
+    /* Обрезка строками — настоящим CSS: класса line-clamp в сборке нет,
+       и без этого длинный заголовок ломал высоту карточек в ряду. */
+    .nw-card__title{ margin:0; font-size:1.05rem; line-height:1.35; font-weight:700 }
+    .nw-card__title a{ color:#111827; display:-webkit-box; -webkit-line-clamp:2;
+        -webkit-box-orient:vertical; overflow:hidden }
+    .nw-card__title a:hover{ color:var(--color-primary,#6366f1) }
+
+    .nw-card__meta{ display:flex; flex-wrap:wrap; gap:.25rem .9rem; margin:0;
+        font-size:.75rem; color:#94a3b8 }
+
+    .nw-card__text{ margin:0; font-size:.85rem; line-height:1.55; color:#64748b; flex:1;
+        display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden }
+
+    .nw-card__more{ font-size:.85rem; font-weight:700; color:var(--color-primary,#6366f1) }
+
+    .nw-pager{ margin-top:1.5rem; display:flex; justify-content:center }
+
+    .nw-empty{ padding:3rem 1rem; text-align:center; color:#94a3b8 }
+    .nw-empty i{ font-size:2rem; display:block; margin-bottom:.75rem; opacity:.5 }
+
+    @media (prefers-color-scheme: dark){
+        .nw__head, .nw-card{ background:#111827; border-color:#1f2937 }
+        .nw__title, .nw-card__title a{ color:#f3f4f6 }
+        .nw-card__text{ color:#94a3b8 }
+        .nw-card__media{ background:#1f2937 }
+    }
+</style>
+@endpush
