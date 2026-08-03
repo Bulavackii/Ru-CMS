@@ -73,6 +73,7 @@ class NewsController extends Controller
         $allTemplates = [
             'default'   => 'Новости',
             'magazine'  => 'Журнал',
+            'clinic'    => 'Клиника',
             'ourworks'  => 'Наши услуги',
             'release'   => 'Релизы',
             'products'  => 'Товары',
@@ -304,6 +305,7 @@ class NewsController extends Controller
                 'default'   => 'Новости',
             'magazine'  => 'Журнал',
                 'magazine'  => 'Журнал',
+                'clinic'    => 'Клиника',
                 'ourworks'  => 'Наши услуги',
                 'release'   => 'Релизы',
                 'base-php'  => 'Уроки PHP база',
