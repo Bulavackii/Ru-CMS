@@ -51,6 +51,21 @@ class SystemPagesTest extends TestCase
             ->assertSee('Отладка включена', false);
     }
 
+    public function test_existing_storage_link_is_detected(): void
+    {
+        // Проверка была через is_link()/is_dir(). На Windows связь создаётся
+        // junction-ом, и обе функции возвращают false при рабочей связи —
+        // предупреждение висело при существующем симлинке.
+        if (! file_exists(public_path('storage'))) {
+            $this->markTestSkipped('В этом окружении связи public/storage нет.');
+        }
+
+        $this->actingAs($this->admin())
+            ->get('/admin/system-info')
+            ->assertOk()
+            ->assertViewHas('storageLinked', true);
+    }
+
     public function test_geolocation_page_marks_local_address(): void
     {
         $this->actingAs($this->admin())

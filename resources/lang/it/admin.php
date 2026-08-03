@@ -2005,4 +2005,20 @@ return [
         'attachments_n' => 'Allegati (:count)',
         'in_archive' => 'Archiviato',
     ],
+
+    'notif' => [
+        'title' => 'Notifiche',
+        'mark_all' => 'Segna tutte come lette',
+        'empty' => 'Nessuna notifica',
+        'empty_hint' => 'Qui appariranno i messaggi di sistema: aggiornamenti, errori, backup.',
+        'loading' => 'Caricamento…',
+        'more' => 'Dettagli',
+        'mark_read' => 'Segna come letta',
+        'remove' => 'Rimuovi',
+        'all' => 'Tutte le notifiche',
+        'just_now' => 'proprio ora',
+        'failed' => 'Caricamento non riuscito',
+        'retry' => 'Riprova',
+        'unread_one' => 'nuova',
+    ],
 ];

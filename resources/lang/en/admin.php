@@ -2005,4 +2005,20 @@ return [
         'attachments_n' => 'Attachments (:count)',
         'in_archive' => 'Archived',
     ],
+
+    'notif' => [
+        'title' => 'Notifications',
+        'mark_all' => 'Mark all as read',
+        'empty' => 'No notifications',
+        'empty_hint' => 'System messages will appear here: updates, errors, backups.',
+        'loading' => 'Loading…',
+        'more' => 'Details',
+        'mark_read' => 'Mark as read',
+        'remove' => 'Remove',
+        'all' => 'All notifications',
+        'just_now' => 'just now',
+        'failed' => 'Failed to load',
+        'retry' => 'Try again',
+        'unread_one' => 'new',
+    ],
 ];

@@ -2005,4 +2005,20 @@ return [
         'attachments_n' => 'Anhänge (:count)',
         'in_archive' => 'Archiviert',
     ],
+
+    'notif' => [
+        'title' => 'Benachrichtigungen',
+        'mark_all' => 'Alle als gelesen markieren',
+        'empty' => 'Keine Benachrichtigungen',
+        'empty_hint' => 'Hier erscheinen Systemmeldungen: Updates, Fehler, Sicherungen.',
+        'loading' => 'Wird geladen…',
+        'more' => 'Details',
+        'mark_read' => 'Als gelesen markieren',
+        'remove' => 'Entfernen',
+        'all' => 'Alle Benachrichtigungen',
+        'just_now' => 'gerade eben',
+        'failed' => 'Laden fehlgeschlagen',
+        'retry' => 'Erneut versuchen',
+        'unread_one' => 'neu',
+    ],
 ];

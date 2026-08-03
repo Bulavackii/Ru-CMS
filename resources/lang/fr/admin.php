@@ -2005,4 +2005,20 @@ return [
         'attachments_n' => 'Pièces jointes (:count)',
         'in_archive' => 'Archivé',
     ],
+
+    'notif' => [
+        'title' => 'Notifications',
+        'mark_all' => 'Tout marquer comme lu',
+        'empty' => 'Aucune notification',
+        'empty_hint' => 'Les messages du système apparaîtront ici : mises à jour, erreurs, sauvegardes.',
+        'loading' => 'Chargement…',
+        'more' => 'Détails',
+        'mark_read' => 'Marquer comme lu',
+        'remove' => 'Retirer',
+        'all' => 'Toutes les notifications',
+        'just_now' => 'à l’instant',
+        'failed' => 'Échec du chargement',
+        'retry' => 'Réessayer',
+        'unread_one' => 'nouveau',
+    ],
 ];

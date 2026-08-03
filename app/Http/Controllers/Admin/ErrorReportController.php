@@ -145,7 +145,7 @@ class ErrorReportController extends Controller
             'groups' => $this->systemGroups(),
             'extensions' => $this->loadedExtensions(),
             'debug' => (bool) config('app.debug'),
-            'storageLinked' => is_link(public_path('storage')) || is_dir(public_path('storage')),
+            'storageLinked' => $this->storageIsLinked(),
         ]);
     }
 
@@ -188,6 +188,28 @@ class ErrorReportController extends Controller
                 'f_path' => base_path(),
             ],
         ];
+    }
+
+    /**
+     * Есть ли рабочая связь public/storage → storage/app/public.
+     *
+     * Проверять через is_link()/is_dir() нельзя: на Windows связь создаётся
+     * junction-ом, и PHP не опознаёт его НИ как ссылку, НИ как каталог —
+     * обе функции возвращают false при существующей и рабочей связи (у
+     * владельца проекта из-за этого висело предупреждение). Зато realpath()
+     * разворачивает junction в цель честно.
+     */
+    private function storageIsLinked(): bool
+    {
+        $link = public_path('storage');
+
+        if (! file_exists($link)) {
+            return false;
+        }
+
+        // Отдельный случай — хостинг без симлинков: там вместо связи кладут
+        // настоящий каталог, и файлы всё равно отдаются.
+        return realpath($link) === realpath(storage_path('app/public')) || is_dir($link);
     }
 
     private function databaseVersion(): string
