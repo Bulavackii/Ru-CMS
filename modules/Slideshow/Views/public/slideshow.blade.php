@@ -30,7 +30,7 @@
   };
 @endphp
 
-<div class="w-full my-8">
+<div class="w-full my-4">
   {{-- 🎞️ Обёртка слайдера --}}
   <div class="ru-swiper swiper swiper-{{ $slideshow->id }} max-w-screen-xl mx-auto rounded-xl shadow-md overflow-hidden relative">
     {{-- 🔁 Слайды --}}

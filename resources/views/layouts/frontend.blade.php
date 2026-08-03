@@ -486,7 +486,7 @@
 
         <x-frontend-notifications />
 
-        <main class="flex-grow py-6 sm:py-8 md:py-10">
+        <main class="flex-grow py-4 sm:py-6 md:py-8">
             <div class="container mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16">
                 @yield('content')
 

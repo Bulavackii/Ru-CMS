@@ -5,7 +5,7 @@
     <div class="fragment-zone fragment-zone--footer">{!! $fragmentFooter !!}</div>
 @endif
 
-<footer class="relative text-sm mt-16" style="color:var(--color-text,#6b7280)">
+<footer class="relative text-sm mt-6" style="color:var(--color-text,#6b7280)">
     {{-- Фон сайта проступает сквозь подвал. Слой рисуется ПОВЕРХ заливки
          (см. .f-body::after), иначе непрозрачная заливка гасила узор —
          ровно та же история, что была в шапке. --}}
