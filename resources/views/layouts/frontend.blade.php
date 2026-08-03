@@ -396,6 +396,15 @@
         :root.dark .fx-chip{ background:var(--fx-a-soft); color:var(--fx-a2); }
         /* Заголовок секции */
         .fx-section-title{ font-weight:600; letter-spacing:-.01em; color:#111827; }
+
+        /* Плашка под заголовком секции.
+           На светлом фоне заголовок читался, но стоит владельцу поставить
+           свою фоновую картинку — тёмную или пёструю — и текст пропадал.
+           Белая подложка с прямыми углами, в стиле остального фронта. */
+        .fx-section-head{ display:inline-flex; align-items:center; gap:.75rem;
+            padding:.7rem 1.15rem; background:#fff; border:1px solid rgba(17,24,39,.08);
+            box-shadow:0 2px 10px rgba(15,23,42,.06); max-width:100%; }
+        :root.dark .fx-section-head{ background:#111827; border-color:rgba(255,255,255,.1); }
         :root.dark .fx-section-title{ color:#f3f4f6; }
         .fx-section-sub{ font-size:.85rem; color:#6b7280; }
         :root.dark .fx-section-sub{ color:#9ca3af; }

@@ -10,11 +10,13 @@
 
 <section class="my-8 sm:my-10 md:my-12 max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16">
     {{-- Заголовок секции: градиентный бейдж + название --}}
-    <div class="mb-6 sm:mb-8 flex items-center justify-center gap-3 select-none">
-        <span class="fx-badge"><i class="fas fa-file-lines"></i></span>
-        <div class="text-left">
-            <h2 class="fx-section-title text-xl sm:text-2xl md:text-3xl leading-tight">Полезное</h2>
-            <div class="fx-section-sub">Материалы о проекте и работе с системой</div>
+    <div class="mb-6 sm:mb-8 flex justify-center select-none">
+        <div class="fx-section-head">
+            <span class="fx-badge"><i class="fas fa-file-lines"></i></span>
+            <div class="text-left">
+                <h2 class="fx-section-title text-xl sm:text-2xl md:text-3xl leading-tight">Полезное</h2>
+                <div class="fx-section-sub">Материалы о проекте и работе с системой</div>
+            </div>
         </div>
     </div>
 
