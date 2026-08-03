@@ -26,10 +26,14 @@ class NewsController extends Controller
                     // 'categories.name' весь список новостей отдавал 500
                     $q->select('categories.id', 'categories.title', 'categories.slug');
                 }])
-                ->select('id', 'title', 'slug', 'content', 'template', 'created_at', 'updated_at')
+                // Поля шаблонов перечисляем поимённо: без rating плашка оценки
+                // не появлялась у игровых карточек, без price/stock — цена у
+                // товаров. Тот же промах уже был на главной.
+                ->select('id', 'title', 'slug', 'content', 'template',
+                    'price', 'stock', 'is_promo', 'rating', 'created_at', 'updated_at')
                 ->published()
                 ->orderByDesc('id')
-                ->paginate(10);
+                ->paginate(12);
         });
 
         // Адрес для ссылок страниц ставим ПОСЛЕ чтения из кеша.

@@ -162,7 +162,10 @@
             @endforeach
         </div>
 
-        @if ($newsList->hasPages())
+        {{-- Шаблон принимают и пагинатором, и обычной коллекцией: на
+             странице /news материалы разбиты по шаблонам, а пагинация
+             там одна на всю страницу и рисуется отдельно. --}}
+        @if (method_exists($newsList, 'hasPages') && $newsList->hasPages())
             <div class="nw-pager">{{ $newsList->links() }}</div>
         @endif
     @else
