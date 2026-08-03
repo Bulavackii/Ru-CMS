@@ -183,7 +183,7 @@
 
                                 <span class="inline-flex items-center gap-1">
                                     <i class="far fa-clock fx-ico"></i>
-                                    ~{{ reading_time($news->content) }} {{ __('frontend.news.reading_time') }}
+                                    ~{{ __('frontend.news.reading_time', ['min' => reading_time($news->content)]) }}
                                 </span>
 
                                 @if($news->categories->isNotEmpty())

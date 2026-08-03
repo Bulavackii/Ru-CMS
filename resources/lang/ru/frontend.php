@@ -59,7 +59,7 @@ return [
         'published_on' => 'Дата публикации',
         'quantity' => 'Кол-во:',
         'read_more' => 'Читать далее',
-        'reading_time' => 'мин чтения',
+        'reading_time' => ':min мин чтения',
         'section' => 'Новости',
         'share' => 'Поделиться:',
     ],

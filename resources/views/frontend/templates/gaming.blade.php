@@ -126,8 +126,11 @@
         background:linear-gradient(135deg,var(--color-primary,#6366f1),var(--color-accent,#8b5cf6)) }
     .gm-card__media img{ width:100%; height:100%; object-fit:cover; display:block }
 
+    /* Метке нужен воздух: при 2rem и font-size 1rem эмодзи упирался в
+       края квадрата и выглядел обрезанным. */
     .gm-card__tag{ position:absolute; top:.6rem; left:.6rem; display:flex; align-items:center;
-        justify-content:center; width:2rem; height:2rem; font-size:1rem; background:#0f172a }
+        justify-content:center; width:2.4rem; height:2.4rem; font-size:1.15rem; line-height:1;
+        background:#0f172a; box-shadow:0 2px 8px rgba(15,23,42,.35) }
     .gm-card__score::before{ content:'★'; margin-right:.2rem }
     .gm-card__score{ position:absolute; bottom:.6rem; right:.6rem; padding:.2rem .55rem;
         font-size:.85rem; font-weight:800; color:#0f172a; background:#facc15;

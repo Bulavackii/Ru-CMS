@@ -59,7 +59,7 @@ return [
         'published_on' => 'Publication date',
         'quantity' => 'Qty:',
         'read_more' => 'Read more',
-        'reading_time' => 'min read',
+        'reading_time' => ':min min read',
         'section' => 'News',
         'share' => 'Share:',
     ],
