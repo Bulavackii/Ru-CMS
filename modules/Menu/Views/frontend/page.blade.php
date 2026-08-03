@@ -68,9 +68,8 @@
             <div class="flex items-center gap-2">
                 <span class="text-xs text-gray-500 dark:text-gray-400 mr-1">Поделиться:</span>
                 <a href="https://vk.com/share.php?url={{ urlencode(url()->current()) }}" target="_blank" rel="noopener"
-                   class="share-btn" style="--c:#0077FF" title="ВКонтакте" aria-label="Поделиться во ВКонтакте"><i class="fab fa-vk"></i></a>
-                <a href="https://t.me/share/url?url={{ urlencode(url()->current()) }}&text={{ urlencode($page->t('title')) }}" target="_blank" rel="noopener"
-                   class="share-btn" style="--c:#26A5E4" title="Telegram" aria-label="Поделиться в Telegram"><i class="fab fa-telegram"></i></a>
+                   class="share-btn share-btn--plain" style="--c:#0077FF" title="ВКонтакте" aria-label="Поделиться во ВКонтакте"><x-icon.vk :size="16" /></a>
+                <a href="https://max.ru/share?url={{ urlencode(url()->current()) }}&text={{ urlencode($page->t('title')) }}" target="_blank" rel="noopener" class="share-btn share-btn--plain" style="--c:#3B4BF5" title="MAX" aria-label="Поделиться в MAX"><x-icon.max :size="16" /></a>
                 <button type="button" class="share-btn copy-link" data-url="{{ url()->current() }}" style="--c:#6366f1"
                         title="Скопировать ссылку" aria-label="Скопировать ссылку"><i class="fas fa-link"></i></button>
             </div>
@@ -153,5 +152,10 @@
         transition:color .15s ease, background .15s ease, border-color .15s ease, transform .15s ease; }
     :root.dark .share-btn{ border-color:rgba(255,255,255,.12); background:rgba(30,41,59,.5); color:#9ca3af; }
     .share-btn:hover{ color:#fff; background:var(--c,#6366f1); border-color:var(--c,#6366f1); transform:translateY(-2px); }
+    /* У MAX собственный цветной глиф — фон кнопки при наведении не
+       закрашиваем, иначе фирменный знак теряется. */
+    .share-btn--plain{ padding:.25rem; background:transparent; }
+    .share-btn--plain:hover{ background:transparent; border-color:var(--c,#6366f1); }
+    :root.dark .share-btn--plain{ background:transparent; }
 </style>
 @endpush

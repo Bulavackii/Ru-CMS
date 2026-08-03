@@ -72,6 +72,7 @@
 
                 <span class="mag-lead__meta">
                     🗓 {{ $lead->created_at?->format('d.m.Y') }}
+                    <span>⏱ {{ __('frontend.news.reading_time', ['min' => reading_time($lead->content)]) }}</span>
                     <span class="mag-lead__more">Читать целиком →</span>
                 </span>
             </div>
@@ -96,7 +97,8 @@
                     <div class="mag-card__body">
                         <h4 class="mag-card__title">{{ $item->title }}</h4>
                         <p class="mag-card__text">{{ $excerptOf($item, 110) }}</p>
-                        <span class="mag-card__meta">🗓 {{ $item->created_at?->format('d.m.Y') }}</span>
+                        <span class="mag-card__meta">🗓 {{ $item->created_at?->format('d.m.Y') }}
+                            · ⏱ {{ __('frontend.news.reading_time', ['min' => reading_time($item->content)]) }}</span>
                     </div>
                 </a>
             @endforeach

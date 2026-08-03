@@ -88,7 +88,8 @@
                 <div class="gm-card__body">
                     <h3 class="gm-card__title">{{ $parts['text'] }}</h3>
                     <p class="gm-card__text">{{ $excerptOf($item) }}</p>
-                    <span class="gm-card__meta">🗓 {{ $item->created_at?->format('d.m.Y') }}</span>
+                    <span class="gm-card__meta">🗓 {{ $item->created_at?->format('d.m.Y') }}
+                        · ⏱ {{ __('frontend.news.reading_time', ['min' => reading_time($item->content)]) }}</span>
                 </div>
             </a>
         @endforeach
