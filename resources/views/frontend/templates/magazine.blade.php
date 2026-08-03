@@ -126,7 +126,7 @@
         background:#fff; border:1px solid #eef2f7; margin-bottom:1rem; overflow:hidden;
         transition:border-color .15s, transform .15s }
     .mag-lead:hover{ border-color:var(--color-primary,#6366f1); transform:translateY(-2px) }
-    .mag-lead__media{ position:relative; min-height:20rem; display:flex; align-items:center;
+    .mag-lead__media{ position:relative; min-height:22rem; display:flex; align-items:center;
         justify-content:center; background:linear-gradient(135deg,var(--color-primary,#6366f1),var(--color-accent,#8b5cf6)) }
     .mag-lead__media img{ width:100%; height:100%; object-fit:cover; display:block }
     .mag-lead__letter{ font-size:7rem; font-weight:800; color:#fff; opacity:.9; line-height:1 }
@@ -145,7 +145,8 @@
     .mag-card{ display:flex; flex-direction:column; background:#fff; border:1px solid #eef2f7;
         overflow:hidden; transition:border-color .15s, transform .15s }
     .mag-card:hover{ border-color:var(--color-primary,#6366f1); transform:translateY(-2px) }
-    .mag-card__media{ height:9.5rem; display:flex; align-items:center; justify-content:center;
+    /* Высота под пропорцию 8:5: при 9.5rem обложка срезалась почти вдвое */
+    .mag-card__media{ height:13rem; display:flex; align-items:center; justify-content:center;
         background:linear-gradient(135deg,var(--color-primary,#6366f1),var(--color-accent,#8b5cf6)) }
     .mag-card__media img{ width:100%; height:100%; object-fit:cover; display:block }
     .mag-card__letter{ font-size:3rem; font-weight:800; color:#fff; opacity:.9; line-height:1 }

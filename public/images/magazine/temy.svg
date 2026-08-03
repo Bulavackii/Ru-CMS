@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Обложка журнального материала. Заменяется своей картинкой. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img">
-  <defs><linearGradient id="m-temy" x1="0" y1="200" x2="200" y2="0" gradientUnits="userSpaceOnUse">
+<!-- Обложка журнального материала, пропорция под карточку 8:5.
+     Заменяется своей картинкой того же размера. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" width="320" height="200" role="img">
+  <defs><linearGradient id="m-temy" x1="0" y1="200" x2="320" y2="0" gradientUnits="userSpaceOnUse">
     <stop stop-color="#c2185b"/><stop offset="1" stop-color="#e0407e"/></linearGradient></defs>
-  <rect width="200" height="200" fill="url(#m-temy)"/>
-  <path d="M100 40a60 60 0 1 0 0 120 20 20 0 0 0 0-40 20 20 0 0 1 0-40 60 60 0 0 0 0-40Z" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" opacity=".92"/>
+  <rect width="320" height="200" fill="url(#m-temy)"/>
+  <path d="M160 44a56 56 0 1 0 0 112 18 18 0 0 0 0-36 18 18 0 0 1 0-36 56 56 0 0 0 0-40Z" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/>
 </svg>

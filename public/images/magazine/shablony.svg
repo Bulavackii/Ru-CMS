@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Обложка журнального материала. Заменяется своей картинкой. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img">
-  <defs><linearGradient id="m-shablony" x1="0" y1="200" x2="200" y2="0" gradientUnits="userSpaceOnUse">
+<!-- Обложка журнального материала, пропорция под карточку 8:5.
+     Заменяется своей картинкой того же размера. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" width="320" height="200" role="img">
+  <defs><linearGradient id="m-shablony" x1="0" y1="200" x2="320" y2="0" gradientUnits="userSpaceOnUse">
     <stop stop-color="#0057e7"/><stop offset="1" stop-color="#3d8bff"/></linearGradient></defs>
-  <rect width="200" height="200" fill="url(#m-shablony)"/>
-  <path d="M36 44h56v34H36Zm68 0h56v34h-56ZM36 90h56v34H36Zm68 0h56v34h-56Z" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" opacity=".92"/>
+  <rect width="320" height="200" fill="url(#m-shablony)"/>
+  <path d="M52 52h84v40H52Zm100 0h84v40h-84ZM52 108h84v40H52Zm100 0h84v40h-84Z" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/>
 </svg>
