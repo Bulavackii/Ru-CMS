@@ -86,7 +86,7 @@ class FragmentsModuleTest extends TestCase
         $this->actingAs($this->admin())
             ->get(route('admin.visual.fragments.index'))
             ->assertStatus(200)
-            ->assertSee('Это фрагмент', false)
+            ->assertSee('Первые шаги', false)
             ->assertSee('Памятка редактора', false);
     }
 
@@ -288,12 +288,12 @@ class FragmentsModuleTest extends TestCase
             'html_cached' => '<div class="promo">Скидка</div>',
             'css_inline' => '.promo{color:red}',
         ]);
-        $fragment->saveTranslations(['de' => ['html_cached' => '<div class="promo">Rabatt</div>']]);
+        $fragment->saveTranslations(['en' => ['html_cached' => '<div class="promo">Discount</div>']]);
 
-        $this->withSession(['app_locale' => 'de', 'locale' => 'de'])
+        $this->withSession(['app_locale' => 'en', 'locale' => 'en'])
             ->get('/')
             ->assertStatus(200)
-            ->assertSee('Rabatt', false)
+            ->assertSee('Discount', false)
             ->assertSee('.promo{color:red}', false);
     }
 
