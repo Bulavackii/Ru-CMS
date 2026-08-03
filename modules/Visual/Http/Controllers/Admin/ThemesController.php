@@ -125,20 +125,20 @@ class ThemesController extends Controller
                 'nullable',
                 'image',
                 'mimes:jpeg,png,webp',
-                'max:5120', // 5MB
+                'max:' . max_upload_kb(5120),
                 'dimensions:max_width=2000,max_height=2000',
             ],
             'bg_image'    => [
                 'nullable',
                 'image',
                 'mimes:jpeg,png,webp',
-                'max:10240', // 10MB
+                'max:' . max_upload_kb(10240),
             ],
             'icons_zip'   => [
                 'nullable',
                 'file',
                 'mimes:zip',
-                'max:10240', // 10MB
+                'max:' . max_upload_kb(10240),
             ],
             'font_woff2'  => [
                 'nullable',
@@ -150,7 +150,7 @@ class ThemesController extends Controller
                 'nullable',
                 'file',
                 'mimes:ttf,otf',
-                'max:5120', // 5MB
+                'max:' . max_upload_kb(5120),
             ],
 
             // флаги удаления (кнопки «Удалить» в форме)

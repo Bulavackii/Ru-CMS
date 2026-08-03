@@ -99,9 +99,16 @@ class AdminFooterTest extends TestCase
     {
         $html = $this->actingAs($this->admin())->get(route('admin.dashboard'))->getContent();
 
-        // Font Awesome в панели подключён всегда, брендовые глифы в сборке есть
-        foreach (['fa-vk', 'fa-telegram', 'fa-whatsapp', 'fa-github'] as $glyph) {
-            $this->assertStringContainsString('fab ' . $glyph, $html, "Нет глифа {$glyph}");
+        // Telegram и WhatsApp убраны по решению владельца, на их месте MAX и
+        // Rutube. У всех четырёх сервисов теперь собственные цветные SVG:
+        // фирменных глифов MAX и Rutube нет ни в Font Awesome, ни в Simple
+        // Icons, а ВК и GitHub владелец просил показывать в цвете.
+        foreach (['ВКонтакте', 'MAX', 'Rutube', 'GitHub'] as $label) {
+            $this->assertStringContainsString('aria-label="' . $label . '"', $html, "Нет ссылки {$label}");
+        }
+
+        foreach (['Telegram', 'WhatsApp'] as $gone) {
+            $this->assertStringNotContainsString('aria-label="' . $gone . '"', $html);
         }
 
         // Ссылки наружу открываются в новой вкладке и без утечки referrer-окна

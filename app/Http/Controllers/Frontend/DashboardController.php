@@ -78,8 +78,6 @@ class DashboardController extends Controller
             'name'              => 'required|string|max:255',
             'address'           => 'nullable|string|max:255',
             'phone'             => 'nullable|string|max:50',
-            'telegram'          => 'nullable|string|max:50',
-            'whatsapp'          => 'nullable|string|max:50',
             'vk'                => 'nullable|string|max:255',
             'zip'               => 'nullable|string|max:20',
             'is_company'        => 'nullable|boolean',
@@ -97,8 +95,6 @@ class DashboardController extends Controller
             'name'              => $validated['name'],
             'address'           => $validated['address'] ?? null,
             'phone'             => $validated['phone'] ?? null,
-            'telegram'          => $validated['telegram'] ?? null,
-            'whatsapp'          => $validated['whatsapp'] ?? null,
             'vk'                => $validated['vk'] ?? null,
             'zip'               => $validated['zip'] ?? null,
             'is_company'        => $request->has('is_company'), // Флаг: юрлицо или нет

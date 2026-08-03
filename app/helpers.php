@@ -476,3 +476,60 @@ if (!function_exists('strip_shortcodes')) {
         return trim(preg_replace('~\[[a-z_]+(?:\s+[^\]]*)?\]~i', '', $text) ?? $text);
     }
 }
+
+if (! function_exists('max_upload_kb')) {
+    /**
+     * Сколько килобайт реально примет сервер за одну загрузку.
+     *
+     * Правила вида max:10240 в формах ничего не значат, если PHP настроен
+     * жёстче: файл сверх upload_max_filesize отбрасывается ДО того, как
+     * Laravel его увидит, и остаётся только глухое «Не удалось загрузить
+     * файл». Так на боевой машине владельца (upload_max_filesize = 2M)
+     * не грузился фон темы, хотя форма обещала 10 МБ.
+     *
+     * Берём минимум из upload_max_filesize и post_max_size: второй
+     * ограничивает весь запрос целиком.
+     */
+    function max_upload_kb(?int $appLimitKb = null): int
+    {
+        $toKb = static function (string $value): ?int {
+            $value = trim($value);
+
+            if ($value === '' || $value === '0') {
+                return null; // 0 или пусто у PHP означает «без ограничения»
+            }
+
+            $unit = strtolower(substr($value, -1));
+            $number = (float) $value;
+
+            return (int) match ($unit) {
+                'g' => $number * 1024 * 1024,
+                'm' => $number * 1024,
+                'k' => $number,
+                default => $number / 1024,
+            };
+        };
+
+        $limits = array_filter([
+            $toKb((string) ini_get('upload_max_filesize')),
+            $toKb((string) ini_get('post_max_size')),
+            $appLimitKb,
+        ]);
+
+        return $limits ? (int) min($limits) : ($appLimitKb ?? 2048);
+    }
+}
+
+if (! function_exists('max_upload_label')) {
+    /**
+     * Тот же лимит, но человеческой строкой для подсказки в форме.
+     */
+    function max_upload_label(?int $appLimitKb = null): string
+    {
+        $kb = max_upload_kb($appLimitKb);
+
+        return $kb >= 1024
+            ? rtrim(rtrim(number_format($kb / 1024, 1, ',', ' '), '0'), ',') . ' МБ'
+            : $kb . ' КБ';
+    }
+}

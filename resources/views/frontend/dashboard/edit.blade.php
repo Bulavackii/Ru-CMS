@@ -43,10 +43,6 @@
             <div class="acc-fields">
                 <x-dashboard.input name="phone" :label="__('frontend.account.f_phone')"
                     :value="old('phone', $user->phone)" />
-                <x-dashboard.input name="telegram" label="Telegram"
-                    :value="old('telegram', $user->telegram)" />
-                <x-dashboard.input name="whatsapp" label="WhatsApp"
-                    :value="old('whatsapp', $user->whatsapp)" />
                 <x-dashboard.input name="vk" label="VK"
                     :value="old('vk', $user->vk)" />
             </div>

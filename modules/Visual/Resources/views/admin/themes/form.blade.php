@@ -216,6 +216,7 @@
         <span class="text-xs text-gray-500 ml-1">Опционально. Будет повторяться как pattern.</span>
       </label>
       <input type="file" name="bg_image" accept="image/*" class="block w-full text-sm">
+      <p class="admin-hint mt-1">{{ __('admin.themes.upload_limit', ['limit' => max_upload_label(10240)]) }}</p>
       @php $bgUrl = data_get($cfg,'background_url'); @endphp
       <input type="hidden" name="remove_bg" id="removeBgFlag" value="0">
 

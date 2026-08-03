@@ -116,10 +116,10 @@
     // Настоящие брендовые глифы Font Awesome. Адреса — заглушки: реальных
     // никто не давал. Менять здесь, в одном месте.
     $socials = [
-        ['href' => 'https://vk.com/ru_cms',                'label' => 'ВКонтакте', 'icon' => 'fa-vk',       'color' => '#0077FF'],
-        ['href' => '#',                                    'label' => 'Telegram',  'icon' => 'fa-telegram', 'color' => '#26A5E4'],
-        ['href' => '#',                                    'label' => 'WhatsApp',  'icon' => 'fa-whatsapp', 'color' => '#25D366'],
-        ['href' => 'https://github.com/Bulavackii/Ru-CMS', 'label' => 'GitHub',    'icon' => 'fa-github',   'color' => '#111827'],
+        ['href' => 'https://vk.com/ru_cms',                'label' => 'ВКонтакте', 'icon' => 'vk',          'color' => '#0077FF'],
+        ['href' => 'https://max.ru',                       'label' => 'MAX',       'icon' => 'max',         'color' => '#3B4BF5'],
+        ['href' => 'https://rutube.ru',                    'label' => 'Rutube',    'icon' => 'rutube',      'color' => '#EE1B3D'],
+        ['href' => 'https://github.com/Bulavackii/Ru-CMS', 'label' => 'GitHub',    'icon' => 'github',      'color' => '#181717'],
     ];
 @endphp
 
@@ -205,7 +205,15 @@
                     <a href="{{ $social['href'] }}" target="_blank" rel="noopener"
                        class="adm-f-social" style="--c: {{ $social['color'] }}"
                        title="{{ $social['label'] }}" aria-label="{{ $social['label'] }}">
-                        <i class="fab {{ $social['icon'] }}"></i>
+                        {{-- У MAX и Rutube нет глифов в Font Awesome — для них
+                             свои SVG-компоненты. --}}
+                        @switch($social['icon'])
+                            @case('max')    <x-icon.max :size="16" /> @break
+                            @case('rutube') <x-icon.rutube :size="16" /> @break
+                            @case('vk')     <x-icon.vk :size="16" /> @break
+                            @case('github') <x-icon.github :size="16" /> @break
+                            @default        <i class="fab {{ $social['icon'] }}"></i>
+                        @endswitch
                     </a>
                 @endforeach
             </span>

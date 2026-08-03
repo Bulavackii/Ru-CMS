@@ -82,17 +82,15 @@
                 {{-- Соцсети — реальные бренд-иконки FontAwesome, бренд-цвет при наведении.
                      Адреса обезличены (демо). --}}
                 <div class="mt-4 flex items-center gap-2.5 justify-center md:justify-start">
-                    <a href="https://vk.com/example" target="_blank" rel="noopener" class="f-social" style="--c:#0077FF" title="ВКонтакте" aria-label="ВКонтакте"><i class="fab fa-vk"></i></a>
-                    <a href="https://wa.me/79001234567" target="_blank" rel="noopener" class="f-social" style="--c:#25D366" title="WhatsApp" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-                    <a href="https://t.me/example" target="_blank" rel="noopener" class="f-social" style="--c:#26A5E4" title="Telegram" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
-                    {{-- MAX и Rutube: точных иконок в открытых наборах нет —
-                         обобщённые инлайн-SVG-глифы (мессенджер / видео-плеер). --}}
-                    <a href="https://max.ru" target="_blank" rel="noopener" class="f-social" style="--c:#2787F5" title="MAX" aria-label="MAX">
-                        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3C6.48 3 2 6.58 2 11c0 2.5 1.44 4.73 3.7 6.19-.13.83-.53 1.94-1.03 2.7-.1.15.02.35.2.33 1.6-.2 2.86-.77 3.7-1.28.75.17 1.54.26 2.43.26 5.52 0 10-3.58 10-8s-4.48-8-10-8z"/></svg>
-                    </a>
-                    <a href="https://rutube.ru" target="_blank" rel="noopener" class="f-social" style="--c:#242526" title="Rutube" aria-label="Rutube">
-                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10.5 9.5l4 2.5-4 2.5z" fill="currentColor" stroke="none"/></svg>
-                    </a>
+                    <a href="https://vk.com/example" target="_blank" rel="noopener" class="f-social f-social--plain" style="--c:#0077FF" title="ВКонтакте" aria-label="ВКонтакте"><x-icon.vk :size="17" /></a>
+                    {{-- MAX и Rutube: фирменных глифов нет ни в Font Awesome,
+                         ни в Simple Icons, поэтому свои SVG-компоненты. --}}
+                    <a href="https://max.ru" target="_blank" rel="noopener" class="f-social f-social--plain"
+                       style="--c:#3B4BF5" title="MAX" aria-label="MAX"><x-icon.max :size="17" /></a>
+                    <a href="https://rutube.ru" target="_blank" rel="noopener" class="f-social f-social--plain"
+                       style="--c:#EE1B3D" title="Rutube" aria-label="Rutube"><x-icon.rutube :size="17" /></a>
+                    <a href="https://github.com/Bulavackii/Ru-CMS" target="_blank" rel="noopener" class="f-social f-social--plain"
+                       style="--c:#181717" title="GitHub" aria-label="GitHub"><x-icon.github :size="17" /></a>
                 </div>
             </section>
         </div>
@@ -161,15 +159,6 @@
         const onScroll = () => toggle((window.scrollY || document.documentElement.scrollTop) > 300);
         window.addEventListener('scroll', onScroll, { passive: true });
         onScroll();
-
-        // Фолбэк для Telegram, если deep-link не сработал
-        document.querySelectorAll('a[href^="tg://"][data-fallback]').forEach(a => {
-            a.addEventListener('click', () => {
-                setTimeout(() => {
-                    if (!a.getAttribute('data-opened')) window.open(a.getAttribute('data-fallback'), '_blank');
-                }, 600);
-            }, { passive: true });
-        });
     })();
 </script>
 
@@ -227,6 +216,12 @@
         text-decoration:none; transition:color .15s ease, background .15s ease, border-color .15s ease, transform .15s ease; }
     :root.dark .f-social{ border-color:rgba(255,255,255,.1); background:rgba(30,41,59,.45); color:#9ca3af; }
     .f-social:hover{ color:#fff; background:var(--c,#6366f1); border-color:var(--c,#6366f1); transform:translateY(-2px); }
+
+    /* Иконки со своим цветом (ВК, MAX, Rutube, GitHub) — плитка под ними
+       не закрашивается при наведении, иначе фирменный знак теряется. */
+    .f-social--plain{ padding:0; background:transparent; border-color:transparent }
+    .f-social--plain:hover{ background:transparent; border-color:var(--c,#6366f1) }
+    :root.dark .f-social--plain{ background:transparent; border-color:transparent }
 
     .f-meta-chip{ display:inline-flex; align-items:center; gap:.3rem; padding:.18rem .5rem; font-size:.66rem; font-weight:600;
         background:rgba(99,102,241,.1); color:var(--color-primary,#6366f1); letter-spacing:.02em; }

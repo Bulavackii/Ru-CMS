@@ -2044,4 +2044,8 @@ return [
         'retry' => 'Try again',
         'unread_one' => 'new',
     ],
+
+    'themes' => [
+        'upload_limit' => 'No larger than :limit — that is what the server accepts.',
+    ],
 ];
