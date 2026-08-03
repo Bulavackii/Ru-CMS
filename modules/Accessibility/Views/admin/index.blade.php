@@ -115,10 +115,12 @@
     <div class="a11y-groups" :class="!on && 'is-dimmed'">
         @foreach($groups as $group => $items)
             <section class="admin-card p-5">
-                <h2 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-3">
-                    <i class="fas fa-circle-dot text-indigo-500"></i> {{ __('admin.accessibility.' . $group) }}
+                <h2 class="a11y-group-title">
+                    <i class="fas fa-circle-dot"></i> {{ __('admin.accessibility.' . $group) }}
+                    <span class="a11y-group-count">{{ count($items) }}</span>
                 </h2>
 
+                <div class="a11y-grid">
                 @foreach($items as $option => $icon)
                     <div class="a11y-row">
                         {{-- value="1" обязателен: без него браузер шлёт "on",
@@ -140,6 +142,7 @@
                         </div>
                     </div>
                 @endforeach
+                </div>
             </section>
         @endforeach
     </div>
@@ -168,15 +171,25 @@
        значений, ни прозрачности через /NN. */
     .a11y-form{ max-width:62rem; margin-inline:auto }
 
-    .a11y-groups{ display:grid; grid-template-columns:repeat(auto-fit, minmax(20rem, 1fr)); gap:1rem;
-                  transition:opacity .2s }
-    .a11y-groups.is-dimmed{ opacity:.55 }
+    /* Одна колонка групп, внутри группы — две колонки возможностей.
+       Прежние три узкие колонки рвали подписи на три-четыре строки. */
+    .a11y-groups{ display:grid; gap:1rem; transition:opacity .2s }
+    .a11y-groups.is-dimmed{ opacity:.5 }
 
-    .a11y-row{ display:flex; align-items:flex-start; gap:.75rem; padding:.6rem 0;
-               border-bottom:1px solid #f1f5f9 }
-    .a11y-row:last-child{ border-bottom:0; padding-bottom:0 }
-    .a11y-row__label{ margin:0; font-size:.9rem; font-weight:600; color:#111827 }
-    .a11y-row__label i{ color:#818cf8; width:1.1rem; text-align:center; margin-right:.25rem }
+    .a11y-group-title{ display:flex; align-items:center; gap:.5rem; margin-bottom:.9rem;
+        font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#9ca3af;
+        padding-bottom:.6rem; border-bottom:1px solid #eef2f7 }
+    .a11y-group-title i{ color:#6366f1; font-size:.55rem }
+    .a11y-group-count{ margin-left:auto; font-size:.7rem; font-weight:700; color:#6b7280;
+        background:#f1f5f9; padding:.1rem .45rem; letter-spacing:0 }
+
+    .a11y-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(24rem, 1fr)); gap:.35rem 2rem }
+
+    .a11y-row{ display:flex; align-items:flex-start; gap:.85rem; padding:.7rem .1rem }
+    .a11y-row + .a11y-row{ border-top:1px solid #f8fafc }
+    .a11y-row__label{ margin:0 0 .1rem; font-size:.9rem; font-weight:600; color:#111827;
+        display:flex; align-items:center; gap:.45rem }
+    .a11y-row__label i{ color:#818cf8; width:1rem; text-align:center; flex:none }
 
     .a11y-state{ display:inline-flex; align-items:center; gap:.4rem; font-size:.8rem; font-weight:700 }
     .a11y-state.is-on{ color:#166534 }

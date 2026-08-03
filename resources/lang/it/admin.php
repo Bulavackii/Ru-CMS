@@ -997,6 +997,8 @@ return [
     ],
 
     'accessibility' => [
+        'subtitle' => 'Un pannello di aiuto per i visitatori con esigenze particolari. Il pulsante compare in basso a sinistra nel sito.',
+        'preview' => 'Apri il sito',
         'master' => 'Mostra il pulsante nel sito',
         'master_hint' => 'L’interruttore principale. Finché è spento, il pannello non compare nel sito, quali che siano le funzioni spuntate qui sotto.',
         'group_text' => 'Testo',

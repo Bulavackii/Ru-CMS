@@ -997,6 +997,8 @@ return [
     ],
 
     'accessibility' => [
+        'subtitle' => 'Ein Hilfsfenster für Besucher mit besonderen Bedürfnissen. Die Schaltfläche erscheint unten links auf der Website.',
+        'preview' => 'Website öffnen',
         'master' => 'Schaltfläche auf der Website anzeigen',
         'master_hint' => 'Der Hauptschalter. Solange er aus ist, erscheint das Fenster nicht auf der Website, ganz gleich welche Funktionen unten angehakt sind.',
         'group_text' => 'Text',

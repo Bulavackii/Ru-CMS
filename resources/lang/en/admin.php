@@ -997,6 +997,8 @@ return [
     ],
 
     'accessibility' => [
+        'subtitle' => 'An assistance panel for visitors with special needs. The button appears in the bottom left corner of the site.',
+        'preview' => 'Open the site',
         'master' => 'Show the button on the site',
         'master_hint' => 'The main switch. While it is off, the panel does not appear on the site no matter which features are ticked below.',
         'group_text' => 'Text',

@@ -997,6 +997,8 @@ return [
     ],
 
     'accessibility' => [
+        'subtitle' => 'Un panneau d’aide pour les visiteurs ayant des besoins particuliers. Le bouton apparaît en bas à gauche du site.',
+        'preview' => 'Ouvrir le site',
         'master' => 'Afficher le bouton sur le site',
         'master_hint' => 'L’interrupteur principal. Tant qu’il est désactivé, le panneau n’apparaît pas sur le site, quelles que soient les fonctions cochées ci-dessous.',
         'group_text' => 'Texte',
