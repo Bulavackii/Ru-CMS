@@ -75,6 +75,11 @@
         border-radius: 2px;
     }
 
+    /* Режимы-фильтры классами, а не inline-стилем: раньше монохром и сепия
+       писали в один и тот же style.filter и затирали друг друга. */
+    .a11y-mono { filter: grayscale(1) !important; }
+    .a11y-sepia { filter: sepia(1) !important; }
+
     .contrast {
         filter: contrast(1.8) invert(1);
     }
@@ -108,6 +113,7 @@
 
                 this.options = [
                     {
+                        key: 'speak_selection',
                         label: @js(__('frontend.a11y.speak_selection')),
                         icon: 'fas fa-comment-dots',
                         active: false,
@@ -121,20 +127,21 @@
                                     const msg = new SpeechSynthesisUtterance(selectedText);
                                     speechSynthesis.speak(msg);
                                     this.speaking = true;
-                                    this.options[0].active = true;
+                                    this.markOption('speak_selection', true);
                                     msg.onend = () => {
                                         this.speaking = false;
-                                        this.options[0].active = false;
+                                        this.markOption('speak_selection', false);
                                     };
                                 }
                             } else {
                                 speechSynthesis.cancel();
                                 this.speaking = false;
-                                this.options[0].active = false;
+                                this.markOption('speak_selection', false);
                             }
                         }
                     },
                     {
+                        key: 'speak_page',
                         label: @js(__('frontend.a11y.speak_page')),
                         icon: 'fas fa-volume-up',
                         active: false,
@@ -146,58 +153,20 @@
                                 const msg = new SpeechSynthesisUtterance(document.body.innerText);
                                 speechSynthesis.speak(msg);
                                 this.speaking = true;
-                                this.options[1].active = true;
+                                this.markOption('speak_page', true);
                                 msg.onend = () => {
                                     this.speaking = false;
-                                    this.options[1].active = false;
+                                    this.markOption('speak_page', false);
                                 };
                             } else {
                                 speechSynthesis.cancel();
                                 this.speaking = false;
-                                this.options[1].active = false;
+                                this.markOption('speak_page', false);
                             }
                         }
                     },
                     {
-                        label: @js(__('frontend.a11y.contrast')),
-                        icon: 'fas fa-adjust',
-                        active: false,
-                        enableText: @js(__('frontend.a11y.on')),
-                        disableText: @js(__('frontend.a11y.off')),
-                        enabled: this.settings.enable_contrast,
-                        action: () => {
-                            const wrapper = document.getElementById('wrapper');
-                            document.getElementById('wrapper').classList.toggle('contrast');
-                            this.options[2].active = !this.options[2].active;
-                        }
-                    },
-                    {
-                        label: @js(__('frontend.a11y.monochrome')),
-                        icon: 'fas fa-low-vision',
-                        active: false,
-                        enableText: @js(__('frontend.a11y.on')),
-                        disableText: @js(__('frontend.a11y.off')),
-                        enabled: this.settings.enable_bw_mode,
-                        action: () => {
-                            const wrapper = document.getElementById('wrapper');
-                            wrapper.style.filter = this.options[3].active ? '' : 'grayscale(1)';
-                            this.options[3].active = !this.options[3].active;
-                        }
-                    },
-                    {
-                        label: @js(__('frontend.a11y.sepia')),
-                        icon: 'fas fa-tint',
-                        active: false,
-                        enableText: @js(__('frontend.a11y.on')),
-                        disableText: @js(__('frontend.a11y.off')),
-                        enabled: this.settings.enable_sepia_mode,
-                        action: () => {
-                            const wrapper = document.getElementById('wrapper');
-                            wrapper.style.filter = this.options[4].active ? '' : 'sepia(1)';
-                            this.options[4].active = !this.options[4].active;
-                        }
-                    },
-                    {
+                        key: 'mask',
                         label: @js(__('frontend.a11y.reading_mask')),
                         icon: 'fas fa-minus',
                         active: false,
@@ -210,15 +179,16 @@
                                 this.maskEl.className = 'reading-mask';
                                 document.body.appendChild(this.maskEl);
                                 this.readingMaskActive = true;
-                                this.options[5].active = true;
+                                this.markOption('mask', true);
                             } else {
                                 if (this.maskEl) this.maskEl.remove();
                                 this.readingMaskActive = false;
-                                this.options[5].active = false;
+                                this.markOption('mask', false);
                             }
                         }
                     },
                     {
+                        key: 'links',
                         label: @js(__('frontend.a11y.link_highlight')),
                         icon: 'fas fa-link',
                         active: this.highlightLinks,
@@ -231,7 +201,8 @@
                             document.querySelectorAll('a').forEach(el => {
                                 el.classList.toggle('highlight-link', this.highlightLinks);
                             });
-                            this.options[6].active = this.highlightLinks;
+                            const linkOption = this.options.find(o => o.key === 'links');
+                            if (linkOption) linkOption.active = this.highlightLinks;
                         }
                     },
                     ...this.classModes()
@@ -252,6 +223,9 @@
              */
             classModeList() {
                 return [
+                    { key: 'a11y-contrast', cls: 'contrast',        icon: 'fas fa-adjust',       label: @js(__('frontend.a11y.contrast')),     enabled: this.settings.enable_contrast },
+                    { key: 'a11y-mono',     cls: 'a11y-mono',       icon: 'fas fa-low-vision',   label: @js(__('frontend.a11y.monochrome')),   enabled: this.settings.enable_bw_mode },
+                    { key: 'a11y-sepia',    cls: 'a11y-sepia',      icon: 'fas fa-tint',         label: @js(__('frontend.a11y.sepia')),        enabled: this.settings.enable_sepia_mode },
                     { key: 'a11y-bg',       cls: 'a11y-soft-bg',   icon: 'fas fa-palette',      label: @js(__('frontend.a11y.background')),   enabled: this.settings.enable_background },
                     { key: 'a11y-cb',       cls: 'a11y-colorblind', icon: 'fas fa-eye',         label: @js(__('frontend.a11y.colorblind')),   enabled: this.settings.enable_colorblind_mode },
                     { key: 'a11y-dys',      cls: 'a11y-dyslexia',  icon: 'fas fa-font',         label: @js(__('frontend.a11y.dyslexia')),     enabled: this.settings.enable_dyslexia_font },
@@ -262,6 +236,7 @@
 
             classModes() {
                 return this.classModeList().map(mode => ({
+                    key: mode.key,
                     label: mode.label,
                     icon: mode.icon,
                     active: localStorage.getItem(mode.key) === 'true',
@@ -272,6 +247,18 @@
                 }));
             },
 
+            /**
+             * Отметить пункт активным по ключу.
+             *
+             * Раньше это делалось по позиции в массиве (options[5] и т.п.):
+             * стоило добавить или убрать пункт — и отметка уезжала на соседний,
+             * молча и без ошибки.
+             */
+            markOption(key, active) {
+                const option = this.options.find(o => o.key === key);
+                if (option) option.active = active;
+            },
+
             toggleClassMode(mode) {
                 const wrapper = document.getElementById('wrapper');
                 if (!wrapper) return;
@@ -280,8 +267,7 @@
                 wrapper.classList.toggle(mode.cls, on);
                 localStorage.setItem(mode.key, on);
 
-                const option = this.options.find(o => o.label === mode.label);
-                if (option) option.active = on;
+                this.markOption(mode.key, on);
             },
 
             /** Выбор посетителя должен переживать переход на другую страницу. */
@@ -320,6 +306,8 @@
                 this.highlightLinks = false;
                 localStorage.removeItem('highlightLinks');
                 localStorage.removeItem('fontSize');
+                document.documentElement.style.fontSize = '';
+                document.body.style.fontSize = '';
                 document.querySelectorAll('a').forEach(el => el.classList.remove('highlight-link'));
 
                 this.fontSize = 16;
@@ -332,9 +320,24 @@
             },
 
             applyFontSize() {
+                // Размер ставим на <html>, а не на #wrapper.
+                //
+                // Шапка и подвал лежат ВНЕ #wrapper, поэтому не менялись
+                // вовсе. Да и внутри почти вся вёрстка в rem, а rem считается
+                // от корня документа, а не от родителя: увеличение на
+                // #wrapper влияло только на редкие места с em и наследуемым
+                // размером. Через <html> масштабируется всё сразу.
+                document.documentElement.style.fontSize = this.fontSize + 'px';
+
+                // И на body тоже: часть вёрстки наследует размер от него, а
+                // не считает от корня.
+                document.body.style.fontSize = this.fontSize + 'px';
+
+                // Прежнее значение на #wrapper иначе осталось бы висеть и
+                // задавало бы второй, конкурирующий размер.
                 const wrapper = document.getElementById('wrapper');
                 if (wrapper) {
-                    wrapper.style.fontSize = this.fontSize + 'px';
+                    wrapper.style.fontSize = '';
                 }
             },
 

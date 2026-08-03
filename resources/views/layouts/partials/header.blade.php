@@ -114,44 +114,9 @@
           </div>
         </div>
 
-        {{-- Выбор темы оформления. Список берётся из модуля Темы: добавили тему
-             в админке — она здесь, удалили — исчезла. Переключение — обычные
-             ссылки, Alpine нужен только чтобы раскрыть список. --}}
-        @php
-            $themeList = $themeOptions ?? collect();
-            $currentThemeSlug = $siteThemeSlug ?? null;
-            $currentThemeTitle = $themeList->firstWhere('slug', $currentThemeSlug)->title
-                ?? ($themeList->firstWhere('is_default', true)->title ?? 'Тема');
-            $currentThemePrimary = $themeList->firstWhere('slug', $currentThemeSlug)->primary
-                ?? ($themeList->firstWhere('is_default', true)->primary ?? '#6366f1');
-        @endphp
-
-        @if($themeList->isNotEmpty())
-          <div x-data="{ open:false }" @click.outside="open=false" @keydown.escape.window="open=false" class="hdr-lang relative">
-            <button type="button" @click="open=!open" class="hdr-icon-btn" title="{{ __('frontend.header.theme') }}" :aria-expanded="open.toString()">
-              <span class="hdr-theme-dot" style="background: {{ $currentThemePrimary }}"></span>
-              <span class="hidden lg:inline">{{ $currentThemeTitle }}</span>
-              <i class="fas fa-chevron-down" style="font-size:.58rem; opacity:.55"></i>
-            </button>
-
-            <div x-cloak x-show="open" x-transition class="hdr-lang-menu">
-              @foreach($themeList as $themeOption)
-                <a href="{{ route('frontend.theme.set', $themeOption->slug) }}"
-                   class="hdr-lang-item {{ $themeOption->slug === $currentThemeSlug ? 'is-active' : '' }}">
-                  <span class="hdr-theme-dot" style="background: {{ $themeOption->primary }}"></span>
-                  <span>{{ $themeOption->title }}</span>
-                  @if($themeOption->is_default)
-                    <span class="hdr-theme-note">{{ __('frontend.header.theme_site') }}</span>
-                  @endif
-                  @if($themeOption->slug === $currentThemeSlug)
-                    <i class="fas fa-check" style="margin-left:auto; font-size:.7rem"></i>
-                  @endif
-                </a>
-              @endforeach
-
-            </div>
-          </div>
-        @endif
+        {{-- Переключателя тем в шапке сайта нет: оформление задаётся в
+             панели (Темы → Применить), и выбор администратора применяется
+             сразу и к панели, и к сайту. --}}
 
         @if ($hasProducts)
           <a href="{{ route('cart.index') }}" class="hdr-pill" title="{{ __('frontend.header.cart') }}">

@@ -3,6 +3,8 @@
 return [
 
     'header' => [
+        'theme_current' => 'in use',
+        'theme_fallback' => 'default',
         'menu' => 'Menu',
         'tagline' => 'Content & Management',
         'search' => 'Search…',

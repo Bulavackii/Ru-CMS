@@ -170,14 +170,31 @@ Route::middleware(['web', 'auth', 'admin'])->group(function () {
     // выбор темы посетителем на фронте. 'reset' убирает личный выбор.
     // Обычная ссылка, без JS: переключатель в шапке — просто список ссылок.
     Route::get('/admin/theme/{slug}', function (string $slug) {
-        if ($slug === 'reset') {
-            session()->forget('admin_theme');
+        // Тема одна на панель и на сайт, и задаётся она здесь же.
+        //
+        // Раньше выбор писался в сессию как ЛИЧНОЕ оформление, а
+        // resolveForVisitor отдаёт сессии приоритет над темой сайта. Из-за
+        // этого кнопка «Применить» в разделе Темы выглядела нерабочей: она
+        // честно меняла тему сайта, но старый выбор в шапке её перекрывал.
+        // Теперь переключатель делает ровно то же, что и «Применить».
+        session()->forget(['admin_theme', 'site_theme']);
 
-            return back();
-        }
+        if ($slug !== 'reset') {
+            $theme = \Modules\Visual\Models\Theme::where('slug', $slug)->first();
 
-        if (\Modules\Visual\Models\Theme::where('slug', $slug)->exists()) {
-            session(['admin_theme' => $slug]);
+            if ($theme) {
+                \Modules\Visual\Models\Theme::where('id', '!=', $theme->id)
+                    ->where('is_default', true)
+                    ->update(['is_default' => false]);
+
+                $theme->is_default = true;
+                $theme->save();
+
+                // Кеш активной темы обязателен: без него сайт продолжит
+                // отдавать прежнюю тему до истечения срока хранения.
+                \Illuminate\Support\Facades\Cache::forever('active_theme_id', $theme->id);
+                \Illuminate\Support\Facades\Cache::forget('active_theme');
+            }
         }
 
         return back();
@@ -358,14 +375,15 @@ Route::get('/locale/{locale}', function (string $locale) {
 // личный выбор — посетитель снова видит оформление «как на сайте».
 // Работает без JS: это обычная ссылка, как у переключателя языка выше.
 Route::get('/theme/{slug}', function (string $slug) {
+    // Тот же выбор применяется и к панели — см. admin.theme.set.
     if ($slug === 'reset') {
-        session()->forget('site_theme');
+        session()->forget(['site_theme', 'admin_theme']);
 
         return redirect()->back();
     }
 
     if (\Modules\Visual\Models\Theme::where('slug', $slug)->exists()) {
-        session(['site_theme' => $slug]);
+        session(['site_theme' => $slug, 'admin_theme' => $slug]);
     }
 
     return redirect()->back();

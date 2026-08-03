@@ -63,20 +63,31 @@ class SeedDefaultThemesCommand extends Command
                 ],
             ],
 
+            /*
+             * Темы ниже переписаны под фоновую картинку по умолчанию — светлую,
+             * бело-голубую. Тёмные фоны её глушили, поэтому все четыре светлые,
+             * а различаются акцентом.
+             *
+             * Контраст текста к фону проверен по WCAG: везде выше 15:1, то есть
+             * с большим запасом к порогу AA (4.5:1). Акценты подобраны так,
+             * чтобы белая надпись на кнопке тоже проходила порог, — поэтому
+             * красный и малиновый взяты приглушённее фирменных.
+             */
+
             [
-                'slug'  => 'graphite',
-                'title' => 'Графит',
-                'note'  => 'Тёмная тема: глубокий серый фон, светлый текст, холодный синий акцент.',
+                'slug'  => 'scarlet',
+                'title' => 'Алый',
+                'note'  => 'Светлая тема с красным акцентом: спокойный фон, насыщенная кнопка.',
                 'tokens' => [
                     'colors' => [
-                        'bg'      => '#0f172a',
-                        'text'    => '#e2e8f0',
-                        'primary' => '#38bdf8',
-                        'accent'  => '#818cf8',
-                        'header'  => '#111c33',
-                        'footer'  => '#111c33',
+                        'bg'      => '#f7f8fa',
+                        'text'    => '#14171a',
+                        'primary' => '#d32b1a',
+                        'accent'  => '#f2542d',
+                        'header'  => '#ffffff',
+                        'footer'  => '#ffffff',
                     ],
-                    'radius' => ['md' => '10px'],
+                    'radius' => ['md' => '8px'],
                     'font'   => ['base' => "Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"],
                 ],
                 'config' => [
@@ -87,17 +98,40 @@ class SeedDefaultThemesCommand extends Command
             ],
 
             [
-                'slug'  => 'terracotta',
-                'title' => 'Терракота',
-                'note'  => 'Тёплая тема: песочный фон, кирпичный акцент, мягкие скругления.',
+                'slug'  => 'azure',
+                'title' => 'Лазурь',
+                'note'  => 'Светлая тема с синим акцентом: холодный фон, чистая типографика.',
                 'tokens' => [
                     'colors' => [
-                        'bg'      => '#fdf6ef',
-                        'text'    => '#3f2d23',
-                        'primary' => '#c2410c',
-                        'accent'  => '#d97706',
-                        'header'  => '#fffaf4',
-                        'footer'  => '#f7ece1',
+                        'bg'      => '#f5f8ff',
+                        'text'    => '#101828',
+                        'primary' => '#0057e7',
+                        'accent'  => '#3d8bff',
+                        'header'  => '#ffffff',
+                        'footer'  => '#ffffff',
+                    ],
+                    'radius' => ['md' => '12px'],
+                    'font'   => ['base' => "Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"],
+                ],
+                'config' => [
+                    'icon_mode'     => 'lucide',
+                    'font_provider' => 'local',
+                    'font_name'     => 'Inter',
+                ],
+            ],
+
+            [
+                'slug'  => 'graphite',
+                'title' => 'Графит',
+                'note'  => 'Почти монохромная тема: графитовый текст и кнопки, синие ссылки.',
+                'tokens' => [
+                    'colors' => [
+                        'bg'      => '#f7f9f9',
+                        'text'    => '#0f1419',
+                        'primary' => '#0f1419',
+                        'accent'  => '#1274c4',
+                        'header'  => '#ffffff',
+                        'footer'  => '#ffffff',
                     ],
                     'radius' => ['md' => '16px'],
                     'font'   => ['base' => "Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"],
@@ -110,42 +144,19 @@ class SeedDefaultThemesCommand extends Command
             ],
 
             [
-                'slug'  => 'mint',
-                'title' => 'Мята',
-                'note'  => 'Холодная светлая тема: прохладный фон и зелёно-бирюзовый акцент.',
+                'slug'  => 'magenta',
+                'title' => 'Пурпур',
+                'note'  => 'Светлая тема с малиновым акцентом: мягкий тёплый фон.',
                 'tokens' => [
                     'colors' => [
-                        'bg'      => '#f2fbf8',
-                        'text'    => '#0f2e26',
-                        'primary' => '#0f766e',
-                        'accent'  => '#0ea5e9',
+                        'bg'      => '#fdf6fa',
+                        'text'    => '#1a1220',
+                        'primary' => '#c2185b',
+                        'accent'  => '#e0407e',
                         'header'  => '#ffffff',
-                        'footer'  => '#e8f6f2',
+                        'footer'  => '#ffffff',
                     ],
-                    'radius' => ['md' => '14px'],
-                    'font'   => ['base' => "Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"],
-                ],
-                'config' => [
-                    'icon_mode'     => 'lucide',
-                    'font_provider' => 'local',
-                    'font_name'     => 'Inter',
-                ],
-            ],
-
-            [
-                'slug'  => 'contrast',
-                'title' => 'Контраст',
-                'note'  => 'Строгая тема повышенной читаемости: чистый белый фон, чёрный текст, прямые углы.',
-                'tokens' => [
-                    'colors' => [
-                        'bg'      => '#ffffff',
-                        'text'    => '#000000',
-                        'primary' => '#1d4ed8',
-                        'accent'  => '#b91c1c',
-                        'header'  => '#ffffff',
-                        'footer'  => '#f3f4f6',
-                    ],
-                    'radius' => ['md' => '0px'],
+                    'radius' => ['md' => '10px'],
                     'font'   => ['base' => "Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"],
                 ],
                 'config' => [
@@ -156,6 +167,9 @@ class SeedDefaultThemesCommand extends Command
             ],
         ];
     }
+
+    /** Фоновая картинка по умолчанию — отслеживается git. */
+    public const DEFAULT_BACKGROUND = '/images/theme-default-bg.png';
 
     public static function seed(bool $reset = false): void
     {
@@ -168,6 +182,11 @@ class SeedDefaultThemesCommand extends Command
                     'tokens' => $definition['tokens'],
                     'config' => array_merge($definition['config'], [
                         'note' => $definition['note'],
+                        // Фон один на весь сайт и одинаковый у всех тем.
+                        // Картинка лежит в репозитории, поэтому после чистой
+                        // установки сайт сразу выглядит как задумано, а не
+                        // на голом белом фоне.
+                        'background_url' => self::DEFAULT_BACKGROUND,
                         // CSS-переменные пересобираем из токенов — тем же способом,
                         // что и контроллер при сохранении темы
                         'css'  => self::buildCss($definition['tokens']),

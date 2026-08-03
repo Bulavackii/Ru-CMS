@@ -3,6 +3,8 @@
 return [
 
     'header' => [
+        'theme_current' => 'ужытая',
+        'theme_fallback' => 'па змаўчанні',
         'menu' => 'Меню',
         'tagline' => 'Кантэнт і Кіраванне',
         'search' => 'Пошук…',

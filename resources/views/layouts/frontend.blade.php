@@ -287,8 +287,11 @@
     </style>
 
     <style>
+        /* Переход filter убран: он держал значение на нулевом кадре, и
+           режимы спецвозможностей (сепия, монохром) вычислялись как
+           sepia(0)/grayscale(0) — класс стоял, а картинка не менялась. */
         #wrapper {
-            transition: filter 0.3s ease;
+            transition: none;
         }
 
         .accessibility-button,

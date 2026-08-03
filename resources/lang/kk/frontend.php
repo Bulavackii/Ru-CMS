@@ -3,6 +3,8 @@
 return [
 
     'header' => [
+        'theme_current' => 'қолданылуда',
+        'theme_fallback' => 'әдепкі',
         'menu' => 'Мәзір',
         'tagline' => 'Мазмұн & Басқару',
         'search' => 'Іздеу…',

@@ -3,6 +3,8 @@
 return [
 
     'header' => [
+        'theme_current' => 'применена',
+        'theme_fallback' => 'по умолчанию',
         'menu' => 'Меню',
         'tagline' => 'Контент & Управление',
         'search' => 'Поиск…',
