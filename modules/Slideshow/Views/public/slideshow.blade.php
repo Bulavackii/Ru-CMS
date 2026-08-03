@@ -4,6 +4,16 @@
   $transitionEffect = $slideshow->transition_effect ?? 'slide';
   $showPagination = $slideshow->show_pagination ?? true;
   $showNavigation = $slideshow->show_navigation ?? true;
+
+  // Показываемые слайды. Отдельного флага «активен» у пункта в базе нет,
+  // поэтому показанным считается тот, у которого есть файл и понятный тип
+  // медиа. Пункт со сломанным media_type раньше давал ПУСТОЙ кадр: место в
+  // карусели занимал, точку в пагинации получал, а показывать было нечего.
+  // Тот же список идёт в счётчик подписи — иначе он врал бы про число.
+  $slides = $slideshow->items
+      ->filter(fn ($i) => in_array($i->media_type, ['image', 'video'], true) && filled($i->file_path))
+      ->sortBy('order')
+      ->values();
   
   // Функция для получения позиции текста
   $getTextPositionClass = function($position) {
@@ -25,7 +35,7 @@
   <div class="ru-swiper swiper swiper-{{ $slideshow->id }} max-w-screen-xl mx-auto rounded-xl shadow-md overflow-hidden relative">
     {{-- 🔁 Слайды --}}
     <div class="swiper-wrapper">
-      @foreach ($slideshow->items->sortBy('order') as $item)
+      @foreach ($slides as $item)
         @php 
           $src = asset('storage/'.$item->file_path);
           $textPosition = $getTextPositionClass($item->text_position);
@@ -76,6 +86,26 @@
       @endforeach
     </div>
 
+    {{-- Подпись слайдшоу.
+         Раньше она висела отдельной строкой ПОД слайдером и смотрелась
+         оторванной от него. Теперь это накладка в левом верхнем углу —
+         единственный свободный: стрелки стоят по центру краёв, точки внизу.
+         Название берётся у самого слайдшоу, а не захардкожено. --}}
+    @php $badge = trim((string) ($slideshow->title ?? '')); @endphp
+
+    <div class="sld-badge">
+      <span class="sld-badge__ico"><i class="fas fa-images" aria-hidden="true"></i></span>
+      <span class="sld-badge__text">{{ $badge !== '' ? $badge : __('frontend.slideshow.badge') }}</span>
+
+      {{-- Счётчик обновляется на каждом переключении (см. слушатель ниже),
+           поэтому сразу видно, где мы в череде слайдов. Атрибут aria-live тут
+           намеренно НЕ ставится: слайды листаются сами, и скринридер зачитывал
+           бы новый номер каждые несколько секунд поверх остальной страницы. --}}
+      <span class="sld-badge__count">
+        <b class="sld-badge__cur">1</b><i>/</i>{{ $slides->count() }}
+      </span>
+    </div>
+
     {{-- 🔘 Пагинация и стрелки --}}
     @if($showPagination)
       <div class="swiper-pagination !bottom-2"></div>
@@ -86,50 +116,47 @@
     @endif
   </div>
 
-  {{-- Подпись слайдшоу.
-       Раньше здесь стояло захардкоженное «RU CMS - слайдшоу» — одно и то
-       же под любым слайдшоу на любом языке. Теперь берётся название самого
-       слайдшоу, а если его нет — подпись из словаря. --}}
-  @php $badge = trim((string) ($slideshow->title ?? '')); @endphp
-
-  <div class="sld-badge__row">
-    <span class="sld-badge">
-      <span class="sld-badge__ico"><i class="fas fa-images"></i></span>
-      <span class="sld-badge__text">{{ $badge !== '' ? $badge : __('frontend.slideshow.badge') }}</span>
-      <span class="sld-badge__count">{{ $slideshow->items->count() }}</span>
-    </span>
-  </div>
 </div>
 
 {{-- 🧩 Стили Swiper --}}
 @push('styles')
 <style>
-    /* Подпись под слайдшоу. Литеральный CSS: в статической сборке Tailwind
-       нет ни прозрачности через /NN, ни произвольных значений. Цвета — из
-       активной темы, поэтому бейдж не спорит с оформлением. */
-    .sld-badge__row{ display:flex; justify-content:flex-end; margin-top:.75rem }
+    /* Подпись слайдшоу — накладка поверх картинки. Литеральный CSS: в
+       статической сборке Tailwind нет ни прозрачности через /NN, ни
+       произвольных значений. Стекло тёмное: под ним произвольное
+       изображение, и на светлом оно бы потерялось. */
+    .sld-badge{ position:absolute; top:.85rem; left:.85rem; z-index:10;
+        display:inline-flex; align-items:center; gap:.55rem; max-width:calc(100% - 5.5rem);
+        padding:.3rem; font-size:.78rem; font-weight:600; color:#fff;
+        background:rgba(15,23,42,.42); border:1px solid rgba(255,255,255,.22);
+        -webkit-backdrop-filter:blur(12px) saturate(160%); backdrop-filter:blur(12px) saturate(160%);
+        box-shadow:0 6px 20px rgba(2,6,23,.28);
+        transition:background-color .15s, border-color .15s }
 
-    .sld-badge{ display:inline-flex; align-items:center; gap:.5rem; padding:.35rem .4rem .35rem .4rem;
-        font-size:.8rem; font-weight:600; color:#334155;
-        background:rgba(255,255,255,.72); border:1px solid rgba(17,24,39,.08);
-        -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
-        box-shadow:0 4px 14px rgba(15,23,42,.08); transition:border-color .15s, transform .15s }
-    .sld-badge:hover{ border-color:var(--color-primary,#6366f1); transform:translateY(-1px) }
+    /* Анимации появления здесь намеренно НЕТ. Она была, и отказ у неё скверный:
+       в фоновой вкладке время анимаций стоит, элемент застревает в стартовом
+       кадре с opacity:0 — бейджа не видно вовсе, пока вкладка не станет
+       активной. Ради декоративного въезда так рисковать нечем. */
+    .sld-badge:hover{ background:rgba(15,23,42,.58); border-color:rgba(255,255,255,.34) }
 
     .sld-badge__ico{ display:inline-flex; align-items:center; justify-content:center;
-        width:1.6rem; height:1.6rem; flex:none; font-size:.75rem; color:#fff;
+        width:1.55rem; height:1.55rem; flex:none; font-size:.72rem; color:#fff;
         background:linear-gradient(135deg,var(--color-primary,#6366f1),var(--color-accent,#8b5cf6)) }
 
-    .sld-badge__text{ padding-right:.15rem }
+    /* Длинное название не растягивает накладку на весь слайд, а обрезается. */
+    .sld-badge__text{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+        letter-spacing:.01em; text-shadow:0 1px 2px rgba(2,6,23,.35) }
 
-    /* Число слайдов — сразу видно, сколько их, без счёта точек. */
-    .sld-badge__count{ display:inline-flex; align-items:center; justify-content:center;
-        min-width:1.5rem; height:1.5rem; padding:0 .35rem; font-size:.72rem; font-weight:700;
-        color:var(--color-primary,#6366f1); background:rgba(99,102,241,.12) }
+    .sld-badge__count{ display:inline-flex; align-items:baseline; gap:.1rem; flex:none;
+        padding:.2rem .45rem; font-size:.72rem; font-variant-numeric:tabular-nums;
+        background:rgba(255,255,255,.16) }
+    .sld-badge__count b{ font-weight:700 }
+    .sld-badge__count i{ font-style:normal; opacity:.55; margin:0 .1rem }
 
-    @media (prefers-color-scheme: dark){
-        .sld-badge{ background:rgba(17,24,39,.72); border-color:rgba(255,255,255,.1); color:#e2e8f0 }
-        .sld-badge__count{ background:rgba(99,102,241,.24); color:#c7d2fe }
+    /* На узком экране название прячется — остаётся значок и счётчик. */
+    @media (max-width:480px){
+        .sld-badge{ top:.5rem; left:.5rem }
+        .sld-badge__text{ display:none }
     }
 </style>
   <link rel="stylesheet" href="{{ local_css('swiper-bundle.min.css') }}"/>
@@ -191,6 +218,16 @@
         limitRotation: true,
       };
       @endif
+
+      // Счётчик в подписи. realIndex, а не activeIndex: при loop:true
+      // Swiper добавляет клоны по краям, и activeIndex считает их тоже.
+      const badgeCur = document.querySelector('.swiper-{{ $slideshow->id }} .sld-badge__cur');
+
+      if (badgeCur) {
+        config.on = Object.assign({}, config.on, {
+          slideChange() { badgeCur.textContent = this.realIndex + 1; },
+        });
+      }
 
       new Swiper('.swiper-{{ $slideshow->id }}', config);
     });
