@@ -37,7 +37,7 @@ class ThemeServiceProvider extends ServiceProvider
         // сразу, без мигания и расхождения с классами fx-themed/fx-theme-dark.
         // Выбор личный (сессия) и активную тему сайта не меняет.
         View::composer(['layouts.frontend', 'layouts.partials.header'], function ($view) {
-            $slug = session('site_theme');
+            $slug = null; // личного выбора нет: тема сайта задаётся в панели
 
             try {
                 if (!$this->isInstalled() || !Schema::hasTable('visual_themes')) {
@@ -62,7 +62,7 @@ class ThemeServiceProvider extends ServiceProvider
         // Отдельный ключ сессии специально: администратор может смотреть сайт
         // в одном оформлении, а панель держать в другом.
         View::composer(['layouts.admin', 'layouts.admin.header'], function ($view) {
-            $slug = session('admin_theme');
+            $slug = null; // панель показывает ту же тему, что и сайт
 
             try {
                 if (!$this->isInstalled() || !Schema::hasTable('visual_themes')) {
