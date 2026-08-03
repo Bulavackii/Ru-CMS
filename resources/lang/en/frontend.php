@@ -170,6 +170,18 @@ return [
     ],
 
     'cart' => [
+        'subtitle' => 'Items in the cart: :count',
+        'per_item' => 'per item',
+        'remove' => 'Remove from the cart',
+        'continue' => 'Continue shopping',
+        'choose' => 'Choose an option',
+        'goods' => 'Goods',
+        'delivery' => 'Delivery',
+        'checkout' => 'Place the order',
+        'note' => 'By clicking the button you agree to the data processing terms.',
+        'empty_hint' => 'Add something from the catalogue — items will appear here.',
+        'to_catalogue' => 'To the catalogue',
+        'update_error' => 'The quantity could not be changed.',
         'free_delivery_from' => 'Free delivery on orders from :sum ₽',
         'weight_exceeded' => 'The weight limit is exceeded. Maximum: :limit kg',
         'region_unavailable' => 'Delivery to this region is not available',

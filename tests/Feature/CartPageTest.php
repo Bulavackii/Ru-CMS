@@ -23,6 +23,18 @@ class CartPageTest extends TestCase
         ]);
     }
 
+    /** Способы оплаты и доставки: без них списки в корзине не рендерятся. */
+    private function methods(): void
+    {
+        PaymentMethod::create([
+            'title' => 'Наличные', 'code' => 'cash', 'type' => 'offline', 'active' => true,
+        ]);
+
+        DeliveryMethod::create([
+            'title' => 'Самовывоз', 'code' => 'pickup', 'price' => 0, 'active' => true,
+        ]);
+    }
+
     private function cartWith(News $product, int $qty = 2): array
     {
         return ['cart' => [$product->id => [
@@ -55,19 +67,22 @@ class CartPageTest extends TestCase
         $this->assertEmpty(session('cart', []));
     }
 
-    public function test_totals_script_does_not_look_for_missing_selects(): void
+    public function test_selects_and_script_reference_the_same_elements(): void
     {
-        // Разметку перевели на радиокнопки, а скрипт продолжал искать
-        // <select id="delivery-method">. Переменная была null, первый же
-        // вызов падал с TypeError, скрипт умирал целиком — и «Всего к
-        // оплате» навсегда оставалось 0,00 при непустой корзине.
+        // Однажды разметку перевели на радиокнопки, а скрипт продолжал искать
+        // <select id="delivery-method">. Переменная была null, первый же вызов
+        // падал с TypeError, скрипт умирал целиком — и «Всего к оплате»
+        // навсегда оставалось 0,00 при непустой корзине. Проверяем, что
+        // разметка и скрипт снова говорят об одних и тех же элементах.
         $product = $this->product();
+        $this->methods();
 
         $html = $this->withSession($this->cartWith($product))->get('/cart')->assertOk()->getContent();
 
-        $this->assertStringNotContainsString("getElementById('delivery-method')", $html);
-        $this->assertStringNotContainsString("getElementById('payment-method')", $html);
-        $this->assertStringContainsString('deliveryRadios()', $html);
+        foreach (['payment-method', 'delivery-method'] as $id) {
+            $this->assertStringContainsString('id="' . $id . '"', $html, "В разметке нет select #{$id}");
+            $this->assertStringContainsString("getElementById('" . $id . "')", $html, "Скрипт не читает #{$id}");
+        }
     }
 
     public function test_goods_total_is_rendered_by_the_server(): void
