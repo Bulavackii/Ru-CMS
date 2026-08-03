@@ -254,4 +254,8 @@ return [
         'details' => 'Details',
         'empty' => 'There are no products yet.',
     ],
+
+    'slideshow' => [
+        'badge' => 'Slideshow',
+    ],
 ];

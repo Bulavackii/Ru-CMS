@@ -86,16 +86,52 @@
     @endif
   </div>
 
-  {{-- 🚀 CMS нового поколения --}}
-  <div class="flex justify-end mt-4">
-    <span class="text-sm font-semibold px-3 py-1 rounded-full bg-blue-100 text-blue-700 shadow inline-flex items-center gap-2">
-      📹 RU CMS - слайдшоу
+  {{-- Подпись слайдшоу.
+       Раньше здесь стояло захардкоженное «RU CMS - слайдшоу» — одно и то
+       же под любым слайдшоу на любом языке. Теперь берётся название самого
+       слайдшоу, а если его нет — подпись из словаря. --}}
+  @php $badge = trim((string) ($slideshow->title ?? '')); @endphp
+
+  <div class="sld-badge__row">
+    <span class="sld-badge">
+      <span class="sld-badge__ico"><i class="fas fa-images"></i></span>
+      <span class="sld-badge__text">{{ $badge !== '' ? $badge : __('frontend.slideshow.badge') }}</span>
+      <span class="sld-badge__count">{{ $slideshow->items->count() }}</span>
     </span>
   </div>
 </div>
 
 {{-- 🧩 Стили Swiper --}}
 @push('styles')
+<style>
+    /* Подпись под слайдшоу. Литеральный CSS: в статической сборке Tailwind
+       нет ни прозрачности через /NN, ни произвольных значений. Цвета — из
+       активной темы, поэтому бейдж не спорит с оформлением. */
+    .sld-badge__row{ display:flex; justify-content:flex-end; margin-top:.75rem }
+
+    .sld-badge{ display:inline-flex; align-items:center; gap:.5rem; padding:.35rem .4rem .35rem .4rem;
+        font-size:.8rem; font-weight:600; color:#334155;
+        background:rgba(255,255,255,.72); border:1px solid rgba(17,24,39,.08);
+        -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+        box-shadow:0 4px 14px rgba(15,23,42,.08); transition:border-color .15s, transform .15s }
+    .sld-badge:hover{ border-color:var(--color-primary,#6366f1); transform:translateY(-1px) }
+
+    .sld-badge__ico{ display:inline-flex; align-items:center; justify-content:center;
+        width:1.6rem; height:1.6rem; flex:none; font-size:.75rem; color:#fff;
+        background:linear-gradient(135deg,var(--color-primary,#6366f1),var(--color-accent,#8b5cf6)) }
+
+    .sld-badge__text{ padding-right:.15rem }
+
+    /* Число слайдов — сразу видно, сколько их, без счёта точек. */
+    .sld-badge__count{ display:inline-flex; align-items:center; justify-content:center;
+        min-width:1.5rem; height:1.5rem; padding:0 .35rem; font-size:.72rem; font-weight:700;
+        color:var(--color-primary,#6366f1); background:rgba(99,102,241,.12) }
+
+    @media (prefers-color-scheme: dark){
+        .sld-badge{ background:rgba(17,24,39,.72); border-color:rgba(255,255,255,.1); color:#e2e8f0 }
+        .sld-badge__count{ background:rgba(99,102,241,.24); color:#c7d2fe }
+    }
+</style>
   <link rel="stylesheet" href="{{ local_css('swiper-bundle.min.css') }}"/>
   <style>
     .ru-swiper .swiper-slide{display:block}

@@ -6,9 +6,9 @@
 @endif
 
 <footer class="relative text-sm mt-16" style="color:var(--color-text,#6b7280)">
-    <!-- фон-паттерн темы -->
-    <div class="absolute inset-0 z-0 opacity-10 pointer-events-none"
-        style="background-image:var(--bg-image); background-repeat:repeat; background-size:auto;"></div>
+    {{-- Фон сайта проступает сквозь подвал. Слой рисуется ПОВЕРХ заливки
+         (см. .f-body::after), иначе непрозрачная заливка гасила узор —
+         ровно та же история, что была в шапке. --}}
 
     {{-- Переход «контент → подвал»: заливка не начинается резко, а
          проявляется на первых 90 пикселях. Сквозь них виден узор страницы,
@@ -171,16 +171,36 @@
        подвала сама проявляется сверху вниз, и узор страницы просвечивает
        сквозь неё. Первые 90px — плавный набор непрозрачности. */
     .f-body{
+        position:relative;
+        /* Заливка полупрозрачная — как стекло шапки, чтобы фон сайта
+           читался сквозь подвал. */
         background:linear-gradient(to bottom,
             transparent 0,
-            color-mix(in srgb, var(--f-color) 55%, transparent) 45px,
-            var(--f-color) 90px);
+            color-mix(in srgb, var(--f-color) 35%, transparent) 45px,
+            color-mix(in srgb, var(--f-color) 62%, transparent) 90px);
         padding-top:1.5rem;
+        -webkit-backdrop-filter:blur(18px) saturate(180%);
+        backdrop-filter:blur(18px) saturate(180%);
+        border-top:1px solid rgba(255,255,255,.5);
     }
+
+    /* Фоновая картинка сайта поверх заливки — та же схема, что в шапке.
+       pointer-events:none, иначе слой перехватывал бы клики по ссылкам. */
+    .f-body::after{
+        content:''; position:absolute; inset:0; z-index:0;
+        background-image:var(--bg-image); background-repeat:repeat; background-size:auto;
+        opacity:.85; pointer-events:none;
+    }
+
+    /* Содержимое подвала — над подложкой. */
+    .f-body > *{ position:relative; z-index:1; }
     /* Запасной вариант для браузеров без color-mix: переход всё равно
        плавный, просто без промежуточной ступени. */
     @supports not (color: color-mix(in srgb, red 50%, blue)){
         .f-body{ background:linear-gradient(to bottom, transparent 0, var(--f-color) 90px); }
+        /* Без color-mix заливка непрозрачна — узор поверх неё делаем мягче,
+           иначе подвал становится пёстрым. */
+        .f-body::after{ opacity:.35; }
     }
 
     /* ===== Оформление подвала (стиль проекта, акцент из ТЕМЫ) ===== */
