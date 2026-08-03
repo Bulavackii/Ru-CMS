@@ -58,8 +58,8 @@ class ContentTranslationsTest extends TestCase
         $this->assertSame('Модульная архитектура', $news->t('title'));
 
         // Пустой перевод равносилен отсутствующему
-        $news->saveTranslations(['fr' => ['title' => '   ']]);
-        app()->setLocale('fr');
+        $news->saveTranslations(['en' => ['title' => '   ']]);
+        app()->setLocale('en');
         $this->assertSame('Модульная архитектура', $news->fresh()->t('title'));
     }
 
@@ -67,7 +67,7 @@ class ContentTranslationsTest extends TestCase
     {
         // config('app.locale') Laravel переписывает при setLocale, поэтому язык
         // оригинала берётся из отдельного ключа content_locale
-        app()->setLocale('fr');
+        app()->setLocale('en');
 
         $this->assertSame('ru', News::originalLocale());
     }
@@ -108,13 +108,13 @@ class ContentTranslationsTest extends TestCase
     public function test_news_page_shows_translated_title(): void
     {
         $news = $this->news();
-        $news->saveTranslations(['fr' => ['title' => 'Architecture modulaire', 'content' => '<p>Texte français</p>']]);
+        $news->saveTranslations(['en' => ['title' => 'Modular architecture', 'content' => '<p>English text</p>']]);
 
-        $this->withSession(['app_locale' => 'fr', 'locale' => 'fr'])
+        $this->withSession(['app_locale' => 'en', 'locale' => 'en'])
             ->get('/news/modular-architecture')
             ->assertStatus(200)
-            ->assertSee('Architecture modulaire', false)
-            ->assertSee('Texte français', false);
+            ->assertSee('Modular architecture', false)
+            ->assertSee('English text', false);
     }
 
     public function test_menu_is_translated_on_the_site(): void
