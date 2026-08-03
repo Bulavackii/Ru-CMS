@@ -88,8 +88,12 @@
                 <div class="gm-card__body">
                     <h3 class="gm-card__title">{{ $parts['text'] }}</h3>
                     <p class="gm-card__text">{{ $excerptOf($item) }}</p>
-                    <span class="gm-card__meta">🗓 {{ $item->created_at?->format('d.m.Y') }}
-                        · ⏱ {{ __('frontend.news.reading_time', ['min' => reading_time($item->content)]) }}</span>
+                    {{-- Дата и время чтения разведены по углам и отделены
+                         линией: одной строкой они сливались с анонсом. --}}
+                    <span class="gm-card__meta">
+                        <span class="gm-meta__date">{{ $item->created_at?->format('d.m.Y') }}</span>
+                        <span class="gm-meta__time">{{ __('frontend.news.reading_time', ['min' => reading_time($item->content)]) }}</span>
+                    </span>
                 </div>
             </a>
         @endforeach
@@ -126,15 +130,19 @@
         background:linear-gradient(135deg,var(--color-primary,#6366f1),var(--color-accent,#8b5cf6)) }
     .gm-card__media img{ width:100%; height:100%; object-fit:cover; display:block }
 
-    /* Метке нужен воздух: при 2rem и font-size 1rem эмодзи упирался в
-       края квадрата и выглядел обрезанным. */
-    .gm-card__tag{ position:absolute; top:.6rem; left:.6rem; display:flex; align-items:center;
-        justify-content:center; width:2.4rem; height:2.4rem; font-size:1.15rem; line-height:1;
-        background:#0f172a; box-shadow:0 2px 8px rgba(15,23,42,.35) }
+    /* Метка: полупрозрачное «стекло» с обводкой вместо глухого чёрного
+       квадрата. На цветной обложке читается мягче и не выглядит заплаткой.
+       Размер с запасом — эмодзи не должен упираться в края. */
+    .gm-card__tag{ position:absolute; top:.7rem; left:.7rem; display:inline-flex; align-items:center;
+        justify-content:center; min-width:2.5rem; height:2.5rem; padding:0 .55rem;
+        font-size:1.1rem; line-height:1; border-radius:1.25rem;
+        background:rgba(15,23,42,.55); border:1px solid rgba(255,255,255,.28);
+        backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+        box-shadow:0 4px 14px rgba(15,23,42,.35) }
     .gm-card__score::before{ content:'★'; margin-right:.2rem }
-    .gm-card__score{ position:absolute; bottom:.6rem; right:.6rem; padding:.2rem .55rem;
+    .gm-card__score{ position:absolute; bottom:.7rem; right:.7rem; padding:.25rem .6rem;
         font-size:.85rem; font-weight:800; color:#0f172a; background:#facc15;
-        box-shadow:0 2px 8px rgba(15,23,42,.35); letter-spacing:.02em }
+        border-radius:1.25rem; box-shadow:0 4px 14px rgba(15,23,42,.4); letter-spacing:.02em }
 
     .gm-card__body{ padding:.9rem 1rem 1.05rem; display:flex; flex-direction:column; gap:.35rem; flex:1 }
         /* Обрезка строками настоящим CSS: класса line-clamp в сборке нет. */
@@ -142,7 +150,16 @@
         display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden }
     .gm-card__text{ margin:0; font-size:.82rem; line-height:1.5; color:#94a3b8; flex:1;
         display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden }
-    .gm-card__meta{ font-size:.74rem; color:#64748b }
+    /* Нижняя строка карточки. Раньше это был обычный текст того же
+       приглушённого цвета, что и анонс, — строка в нём тонула. Теперь
+       отделена линией, приподнята фоном и разведена по краям. */
+    .gm-card__meta{ display:flex; align-items:center; justify-content:space-between; gap:.75rem;
+        margin:.65rem -1rem -1.05rem; padding:.55rem 1rem; font-size:.75rem;
+        border-top:1px solid #1e293b; background:#0b1220 }
+    .gm-meta__date{ color:#94a3b8; font-variant-numeric:tabular-nums }
+    .gm-meta__date::before{ content:'🗓'; margin-right:.35rem; opacity:.75 }
+    .gm-meta__time{ color:#cbd5e1; font-weight:600; white-space:nowrap }
+    .gm-meta__time::before{ content:'⏱'; margin-right:.3rem; opacity:.75 }
 
     @media (prefers-color-scheme: dark){
         .gm__head{ background:#111827; border-color:#1f2937 }
