@@ -431,10 +431,6 @@
            перебивает и Tailwind-скругления, и литеральный CSS с border-radius.
            На SVG-геометрию (rx) не влияет — флаги и иконки без rx, им и не нужно. */
         body.fx-sharp, body.fx-sharp *{ border-radius:0 !important; }
-
-            background:linear-gradient(to bottom, var(--fx-a-soft), transparent); }
-            background:linear-gradient(90deg, transparent, var(--color-accent,#8b5cf6), transparent); }
-            background:linear-gradient(90deg, transparent, var(--color-primary,#6366f1), transparent); }
     </style>
 </head>
 

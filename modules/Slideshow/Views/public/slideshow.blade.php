@@ -147,6 +147,10 @@
         <div class="swiper-pagination"></div>
       @endif
 
+      {{-- Полоса прогресса до смены слайда. Показывается только при
+           работающей автопрокрутке, поэтому её разметка тоже под условием. --}}
+      <div class="ru-progress" aria-hidden="true"><div class="ru-progress__fill"></div></div>
+
       @if ($showNavigation)
         {{-- Кнопки, а не div-ы: только так они попадают в обход по Tab и
              срабатывают на пробел/Enter. Размер 44px — минимум, за который
@@ -175,7 +179,17 @@
     /* ── Кадр слайда ────────────────────────────────────────────────── */
     .ru-swiper .swiper-slide{ display:block }
 
-    .ru-slide{ position:relative; width:100%; height:var(--ru-slide-h, 420px);
+    /* Кадр следует пропорции картинки, а не фиксированной высоте. Иначе
+       вокруг неё остаются размытые полосы: при кадре 1280x420 и баннере
+       1600x600 это 80px с каждого бока на десктопе и 38% площади на
+       телефоне. Пропорция проставляется скриптом после загрузки первого
+       слайда; до этого работает запасная 16/9.
+       Высота из настроек слайдшоу стала НИЖНЕЙ границей — кадр не будет
+       ниже неё, но может стать выше, чтобы вместить картинку целиком.
+       Потолок в 78vh не даёт вертикальному баннеру занять весь экран. */
+    .ru-slide{ position:relative; width:100%; height:auto;
+        aspect-ratio:var(--ru-ar, 16/9);
+        min-height:var(--ru-slide-h, 420px); max-height:78vh;
         overflow:hidden; background:#0f172a }
 
     /* Заглушка по краям — та же картинка, увеличенная и размытая. */
@@ -213,11 +227,14 @@
         align-items:center; gap:.5rem; padding-bottom:.25rem }
     /* Сама точка 10px, но кликается площадка 24px — иначе по ней трудно
        попасть пальцем, а увеличивать саму точку некрасиво. */
-    .ru-swiper .swiper-pagination-bullet{ position:relative; width:10px; height:10px;
-        border-radius:9999px; background-color:rgba(255,255,255,.5); opacity:1;
-        transition:background-color .2s, transform .2s }
+    /* Радиусы тут не задаются: на фронте прямые углы включены глобально
+       (body.fx-sharp с important в лейауте), и любой border-radius здесь
+       был бы мёртвым кодом. */
+    .ru-swiper .swiper-pagination-bullet{ position:relative; width:22px; height:4px;
+        background-color:rgba(255,255,255,.45); opacity:1;
+        transition:background-color .2s, width .2s }
     .ru-swiper .swiper-pagination-bullet::before{ content:''; position:absolute;
-        top:-7px; left:-7px; width:24px; height:24px }
+        top:-10px; left:-4px; right:-4px; bottom:-10px }
     .ru-swiper .swiper-pagination-bullet:hover{ background-color:rgba(255,255,255,.8) }
     /* Селектор из трёх классов и длинная форма background-color намеренно:
        у базового правила рядом та же специфичность, а таблица Swiper
@@ -225,8 +242,17 @@
        блока. Сокращённое background с var() тут проигрывало (проверено
        замером: активная точка оставалась белой). */
     .ru-swiper .swiper-pagination-bullet.swiper-pagination-bullet-active{
-        background-color:var(--color-primary,#6366f1);
-        transform:scale(1.25); box-shadow:0 0 0 3px rgba(255,255,255,.35) }
+        background-color:var(--color-primary,#6366f1); width:38px;
+        box-shadow:0 0 0 1px rgba(255,255,255,.35) }
+
+    /* ── Полоса прогресса автопрокрутки ─────────────────────────────── */
+    /* Показывает, сколько осталось до смены слайда. Ширина задаётся из
+       скрипта, а не CSS-анимацией: в фоновой вкладке время анимаций стоит,
+       и полоса застыла бы на месте (эта грабля уже ловилась на подписи). */
+    .ru-progress{ position:absolute; left:0; right:0; top:0; z-index:11;
+        height:3px; background:rgba(255,255,255,.18); pointer-events:none }
+    .ru-progress__fill{ height:100%; width:0;
+        background:linear-gradient(90deg,var(--color-primary,#6366f1),var(--color-accent,#8b5cf6)) }
 
     /* ── Подпись слайдшоу ───────────────────────────────────────────── */
     /* Стекло тёмное: под ним произвольное изображение, на светлом фоне
@@ -260,7 +286,11 @@
         /* Высота из настроек рассчитана на десктоп. На узком экране она
            делает кадр почти квадратным: широкий баннер занимает треть, а
            две трети — размытая заглушка. Считаем кадр по пропорции. */
-        .ru-swiper .ru-slide{ height:auto; aspect-ratio:16/9; min-height:170px }
+        /* Пропорция та же, что и на десктопе (её проставляет скрипт), но
+           нижняя граница из настроек тут не применяется: заданная под
+           широкий экран высота делала бы кадр почти квадратным. */
+        .ru-swiper .ru-slide{ height:auto; aspect-ratio:var(--ru-ar, 16/9);
+            min-height:0; max-height:60vh }
 
         /* Плавающая пилюля в 375px не помещается и обрезается краем кадра.
            Разворачиваем её в полосу во всю ширину внизу — читается лучше и
@@ -270,8 +300,18 @@
            перебивали бы правило (проверено замером). */
         .ru-slide .ru-slide__cap{ position:absolute; inset:auto 0 0 0; max-width:none;
             top:auto; left:0; right:0; transform:none }
-        .ru-slide .ru-slide__capInner{ display:block; width:100%; padding:.5rem .75rem;
-            font-size:.8125rem; text-align:center; box-shadow:none }
+        /* Одна строка с многоточием: в две строки подпись съедала почти
+           половину кадра, который на телефоне и так невысокий. */
+        .ru-slide .ru-slide__capInner{ display:block; width:100%; padding:.45rem .75rem;
+            font-size:.8125rem; text-align:center; box-shadow:none;
+            white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+
+        /* Точки на телефоне убраны совсем. Кадр широкого баннера тут всего
+           ~105px высотой, и точки поверх него — лишний шум; позицию и так
+           показывает счётчик «1 / 2» в подписи слайдшоу слева вверху.
+           Подняться над подписью они не могут: та занимает до двух строк,
+           и фиксированный отступ всё равно попадал бы на текст. */
+        .ru-swiper .swiper-pagination{ display:none }
 
         /* Стрелки убираем: на узком экране они закрывают картинку, а листать
            там естественнее пальцем. Точки и свайп остаются. */
@@ -359,9 +399,35 @@
       config.flipEffect = { slideShadows: true, limitRotation: true };
       @endif
 
+      // Пропорция кадра берётся у первой картинки. Без этого кадр живёт по
+      // фиксированной высоте, картинка вписывается в него целиком, и по краям
+      // остаются размытые полосы — на телефоне это была треть площади.
+      // Слайды одного слайдшоу практически всегда одного размера, поэтому
+      // первой достаточно; при ошибке загрузки остаётся запасная 16/9.
+      const setRatio = (img) => {
+        if (!img || !img.naturalWidth || !img.naturalHeight) return;
+        root.style.setProperty('--ru-ar', img.naturalWidth + ' / ' + img.naturalHeight);
+      };
+
+      const firstImg = root.querySelector('.swiper-slide img');
+      if (firstImg) {
+        if (firstImg.complete) setRatio(firstImg);
+        else firstImg.addEventListener('load', () => setRatio(firstImg), { once: true });
+      }
+
       const badgeCur = root.querySelector('.sld-badge__cur');
+      const progress = root.querySelector('.ru-progress');
+      const progressFill = root.querySelector('.ru-progress__fill');
 
       config.on = {
+        // Swiper сам сообщает, сколько осталось до смены слайда. Ведём полосу
+        // отсюда, а не CSS-анимацией: в фоновой вкладке анимации стоят, и
+        // полоса застревала бы (та же грабля, что была с подписью).
+        autoplayTimeLeft(sw, time, percentage) {
+          if (progressFill) progressFill.style.width = ((1 - percentage) * 100).toFixed(2) + '%';
+        },
+        autoplayStop() { if (progress) progress.style.opacity = '0'; },
+        autoplayStart() { if (progress) progress.style.opacity = ''; },
         slideChange() {
           // realIndex, а не activeIndex: при loop:true Swiper добавляет клоны
           // по краям, и activeIndex считает их тоже.
@@ -376,6 +442,9 @@
           });
         },
       };
+
+      // Без автопрокрутки полоса прогресса бессмысленна — показывать нечего.
+      if (!config.autoplay && progress) progress.remove();
 
       const swiper = new Swiper(root, config);
 
