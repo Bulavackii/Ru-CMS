@@ -37,13 +37,13 @@ class HomeCacheFreshnessTest extends TestCase
         ]);
 
         // Первый заход кладёт блок в кеш.
-        $this->get('/')->assertOk()->assertSee('>7<', false);
+        $this->get('/')->assertOk()->assertSee('>7.0<', false);
 
         $news->rating = 9.4;
         $news->save();
 
         // Без версии в ключе тут ещё пять минут показывалась бы семёрка.
-        $this->get('/')->assertOk()->assertSee('>9.4<', false)->assertDontSee('>7<', false);
+        $this->get('/')->assertOk()->assertSee('>9.4<', false)->assertDontSee('>7.0<', false);
     }
 
     public function test_deleting_a_material_also_refreshes_the_site(): void

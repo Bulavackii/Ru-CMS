@@ -76,6 +76,28 @@ class FreshInstallContentTest extends TestCase
         $this->assertNull($review->price, 'У обзора не должно быть цены');
     }
 
+    public function test_every_gaming_material_has_a_rating(): void
+    {
+        $this->seedDemo();
+
+        foreach (News::where('template', 'gaming')->get() as $item) {
+            $this->assertNotNull($item->rating, "У материала «{$item->title}» нет оценки");
+            $this->assertGreaterThan(0, (float) $item->rating);
+        }
+    }
+
+    public function test_rating_is_shown_with_one_decimal(): void
+    {
+        // Целая оценка должна выводиться как «9.0», а не «9»: так плашка
+        // одинаковой ширины и читается как оценка, а не как номер.
+        News::create([
+            'title' => '⭐ Обзор', 'content' => 'Текст.', 'slug' => 'obzor-format',
+            'template' => 'gaming', 'rating' => 9, 'published' => true,
+        ]);
+
+        $this->get('/')->assertOk()->assertSee('>9.0<', false);
+    }
+
     public function test_menus_and_categories_are_ready(): void
     {
         $this->seedDemo();
