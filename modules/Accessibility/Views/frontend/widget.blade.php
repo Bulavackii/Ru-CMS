@@ -1,17 +1,18 @@
 <!-- ♿ Виджет доступности -->
-<div x-data="accessibilityWidget()" x-init="init()" class="fixed bottom-6 left-6 z-50 flex flex-col items-start">
+<div x-data="accessibilityWidget()" class="a11y-fab flex flex-col items-start"
+     @click.outside="open = false" @keydown.escape.window="open = false">
     <!-- Кнопка -->
     <button @click="open = !open"
-        class="w-12 h-12 rounded-full bg-blue-700 text-white shadow-lg flex items-center justify-center hover:bg-blue-800 transition duration-300"
+        class="a11y-fab__btn"
         title="{{ __('frontend.a11y.widget') }}" :aria-expanded="open.toString()">
         <i class="fas fa-universal-access text-2xl"></i>
     </button>
 
     <!-- Панель -->
-    <div x-show="open" x-transition role="dialog" aria-modal="false"
+    <div x-show="open" role="dialog" aria-modal="false"
         :aria-label="@js(__('frontend.a11y.title'))"
-        class="mt-4 w-80 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl shadow-xl p-4 space-y-3 text-sm text-gray-800 dark:text-gray-100"
-        @click.outside="open = false" @keydown.escape.window="open = false" style="display: none;">
+        class="a11y-panel mt-4 w-80 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl shadow-xl p-4 space-y-3 text-sm text-gray-800 dark:text-gray-100"
+        x-cloak>
 
         <h3 class="font-semibold text-base text-blue-700 flex items-center gap-2 mb-1">
             <i class="fas fa-eye"></i> {{ __('frontend.a11y.title') }}
@@ -355,3 +356,32 @@
         }
     }
 </script>
+
+<style>
+    /* Кнопка виджета следует за оформлением сайта.
+       Раньше цвет был прибит классом bg-blue-700: при смене темы весь сайт
+       перекрашивался, а она оставалась синей. Позиционирование тоже здесь —
+       литеральным CSS, а не утилитами: так оно не зависит от того, какие
+       классы попали в статическую сборку Tailwind. */
+    .a11y-fab{ position:fixed; bottom:1.5rem; left:1.5rem; z-index:9999; filter:none !important; isolation:isolate }
+
+    .a11y-fab__btn{ display:flex; align-items:center; justify-content:center; width:3rem; height:3rem;
+                    border:0; cursor:pointer; border-radius:9999px;
+                    background:var(--color-primary, #6366f1); color:#fff;
+                    box-shadow:0 4px 14px rgba(15,23,42,.25);
+                    transition:transform .15s ease, box-shadow .15s ease, background .2s ease }
+    .a11y-fab__btn:hover{ transform:translateY(-2px); box-shadow:0 8px 20px rgba(15,23,42,.3) }
+    .a11y-fab__btn:focus-visible{ outline:3px solid var(--color-accent, #8b5cf6); outline-offset:3px }
+    .a11y-fab__btn i{ font-size:1.4rem }
+
+    /* Пока Alpine не поднялся, панель скрыта этим правилом, а не инлайновым
+       display:none — тот ломал первый кадр перехода. */
+    .a11y-fab [x-cloak]{ display:none !important }
+
+    /* Анимации открытия здесь намеренно нет.
+       И x-transition, и CSS-анимация оставляли панель на opacity:0: смена
+       display у x-show перезапускала переход с нулевого кадра снова и снова.
+       Панель открывалась, но была полностью прозрачной — со стороны это
+       выглядело как «нажимаю на кнопку, ничего не происходит». */
+    .a11y-panel{ opacity:1 }
+</style>

@@ -130,7 +130,6 @@
         })();
     </script>
     
-    <script defer src="{{ local_js('alpine.min.js') }}"></script>
 
     @php
         // ==== ТЕМА ====
