@@ -256,6 +256,11 @@ return [
     ],
 
     'slideshow' => [
+        'slide' => 'Slide',
+        'no_video' => 'Your browser does not support video.',
+        'prev' => 'Previous slide',
+        'next' => 'Next slide',
+        'go_to' => 'Go to slide {{index}}',
         'badge' => 'Slideshow',
     ],
 ];
