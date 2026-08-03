@@ -33,10 +33,14 @@ class SeedDefaultMenuCommand extends Command
     {
         return [
             [
+                // Шапка и боковая панель показывают ОДИН И ТОТ ЖЕ набор
+                // разделов: посетитель не должен гадать, почему сбоку пунктов
+                // больше, чем сверху. Меняете здесь — поменяйте и в sidebar.
                 'position' => 'header',
                 'title'    => 'Главное меню',
                 'items'    => [
                     ['title' => 'Главная',  'url' => '/',         'icon' => 'home'],
+                    ['title' => 'Новости',  'url' => '/news',     'icon' => 'newspaper'],
                     ['title' => 'О нас',    'url' => '/about',    'icon' => 'info'],
                     ['title' => 'Вопросы',  'url' => '/faq',      'icon' => 'help-circle'],
                     ['title' => 'Контакты', 'url' => '/contacts', 'icon' => 'mail'],
