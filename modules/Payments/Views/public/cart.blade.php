@@ -40,7 +40,10 @@
                             </div>
 
                             <div class="flex-shrink-0">
-                                <button formaction="{{ route('cart.remove') }}" formmethod="POST" name="id" value="{{ $item['id'] }}" class="text-red-600 hover:text-red-800 text-sm flex items-center gap-1">
+                                {{-- formnovalidate обязателен: кнопка лежит внутри формы оформления,
+                                     где способ оплаты и доставки помечены required.
+                                     Без него браузер требовал выбрать их, чтобы... удалить товар. --}}
+                                <button formnovalidate formaction="{{ route('cart.remove') }}" formmethod="POST" name="id" value="{{ $item['id'] }}" class="text-red-600 hover:text-red-800 text-sm flex items-center gap-1">
                                     <i class="fas fa-trash-alt"></i> Удалить
                                 </button>
                             </div>
@@ -145,8 +148,15 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const deliverySelect = document.getElementById('delivery-method');
-        const paymentSelect = document.getElementById('payment-method');
+        // Способ доставки и оплаты выбираются радиокнопками. Раньше здесь
+        // искались <select> с id delivery-method / payment-method — таких
+        // элементов в разметке нет, переменные были null, и первый же вызов
+        // updateDeliveryInfo() падал с TypeError. Скрипт умирал целиком,
+        // поэтому «Всего к оплате» навсегда оставалось 0,00.
+        const deliveryRadios = () => document.querySelectorAll('input[name="delivery_method_id"]');
+        const paymentRadios = () => document.querySelectorAll('input[name="payment_method_id"]');
+        const checkedDelivery = () => document.querySelector('input[name="delivery_method_id"]:checked');
+        const checkedPayment = () => document.querySelector('input[name="payment_method_id"]:checked');
         const deliveryDescription = document.getElementById('delivery-description');
         const deliveryInfo = document.getElementById('delivery-info');
         const paymentDescription = document.getElementById('payment-description');
@@ -155,6 +165,24 @@
         const commissionCostSpan = document.getElementById('commission-cost');
         const commissionRow = document.getElementById('commission-row');
         const grandTotalSpan = document.getElementById('grand-total');
+
+        // Сумма товаров без доставки и комиссии — нужна в двух местах.
+        const cartGoodsTotal = () => {
+            let total = 0;
+
+            document.querySelectorAll('.qty-input').forEach(input => {
+                const row = input.closest('.cart-item') || input.closest('.flex-1');
+                if (!row) return;
+
+                const priceEl = row.querySelector('.price');
+                if (!priceEl) return;
+
+                const price = parseFloat(priceEl.innerText.replace(/\s/g, '').replace(',', '.')) || 0;
+                total += (parseInt(input.value) || 0) * price;
+            });
+
+            return total;
+        };
 
         const updateTotals = () => {
             let total = 0;
@@ -178,34 +206,41 @@
         };
 
         function updateDeliveryInfo() {
-            const selected = deliverySelect.options[deliverySelect.selectedIndex];
-            if (!selected || !selected.dataset) return;
+            const chosen = checkedDelivery();
+            const price = chosen ? parseFloat(chosen.dataset.price || 0) : 0;
 
-            const price = parseFloat(selected.dataset.price || 0);
-            const desc = selected.dataset.description || '';
-            const code = selected.dataset.code || '';
-            const days = selected.dataset.days || '';
-            const weight = selected.dataset.weight || '';
-            const regions = selected.dataset.regions || '';
-
-            deliveryDescription.innerText = desc;
-            deliveryCostSpan.innerText = price.toLocaleString('ru-RU', { minimumFractionDigits: 2 });
-
-            // Добавляем информацию о типе доставки
-            let infoText = '';
-            if (code) infoText += `Код: ${code}`;
-            if (days) infoText += `${infoText ? ' • ' : ''}Сроки: ${days}`;
-            if (weight) infoText += `${infoText ? ' • ' : ''}Вес до ${weight} кг`;
-            if (regions) infoText += `${infoText ? ' • ' : ''}Регионы: ${regions}`;
-
-            if (infoText) {
-                deliveryInfo.innerText = infoText;
-                deliveryInfo.classList.remove('hidden');
-            } else {
-                deliveryInfo.classList.add('hidden');
+            if (deliveryCostSpan) {
+                deliveryCostSpan.innerText = price.toLocaleString('ru-RU', { minimumFractionDigits: 2 });
             }
 
             updateTotals();
+        }
+
+        function updatePaymentInfo() {
+            const chosen = checkedPayment();
+            // Комиссия задаётся в процентах от суммы товаров.
+            const percent = chosen ? parseFloat(chosen.dataset.commission || 0) : 0;
+            const goods = cartGoodsTotal();
+            const fee = percent > 0 ? goods * percent / 100 : 0;
+
+            if (commissionCostSpan) {
+                commissionCostSpan.innerText = fee.toLocaleString('ru-RU', { minimumFractionDigits: 2 });
+            }
+
+            if (commissionRow) {
+                commissionRow.classList.toggle('hidden', fee <= 0);
+            }
+
+            updateTotals();
+        }
+
+        deliveryRadios().forEach(r => r.addEventListener('change', updateDeliveryInfo));
+        paymentRadios().forEach(r => r.addEventListener('change', updatePaymentInfo));
+
+        updateDeliveryInfo();
+        updatePaymentInfo();
+
+        updateTotals();
         }
 
         function updatePaymentInfo() {
