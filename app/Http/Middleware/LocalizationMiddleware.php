@@ -22,7 +22,7 @@ class LocalizationMiddleware
     }
 
     /** Локали, которые интерфейс реально умеет отображать. */
-    public const SUPPORTED_LOCALES = ['ru', 'en', 'be', 'kk'];
+    public const SUPPORTED_LOCALES = ['ru', 'en'];
 
     public function handle(Request $request, Closure $next): Response
     {

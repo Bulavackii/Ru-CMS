@@ -112,11 +112,6 @@ class LocalizationTest extends TestCase
         $expectations = [
             'ru' => 'Искать',
             'en' => 'Search',
-            'be' => 'Шукаць',
-            'kk' => 'Іздеу',
-            'de' => 'Suchen',
-            'fr' => 'Rechercher',
-            'it' => 'Cerca',
         ];
 
         foreach ($expectations as $locale => $needle) {
@@ -128,12 +123,12 @@ class LocalizationTest extends TestCase
 
     public function test_locale_route_stores_choice(): void
     {
-        $this->get(route('frontend.locale.set', 'de'))->assertRedirect();
-        $this->assertSame('de', session('app_locale'));
+        $this->get(route('frontend.locale.set', 'en'))->assertRedirect();
+        $this->assertSame('en', session('app_locale'));
 
         // Недоступная локаль игнорируется
         $this->get(route('frontend.locale.set', 'zz'))->assertRedirect();
-        $this->assertSame('de', session('app_locale'));
+        $this->assertSame('en', session('app_locale'));
     }
 
     public function test_install_dictionary_exists_for_every_locale(): void
@@ -155,7 +150,8 @@ class LocalizationTest extends TestCase
         $reference = $flatten(require lang_path('ru/install.php'));
         $this->assertNotEmpty($reference);
 
-        foreach (['en', 'be', 'kk', 'de', 'fr', 'it'] as $locale) {
+        // Языков интерфейса два: русский эталонный, английский — fallback.
+        foreach (['en'] as $locale) {
             $path = lang_path($locale . '/install.php');
             $this->assertFileExists($path, "Нет словаря установки для локали {$locale}");
 
@@ -179,12 +175,12 @@ class LocalizationTest extends TestCase
 
     public function test_og_locale_and_hreflang_follow_the_language(): void
     {
-        $response = $this->withSession(['app_locale' => 'fr', 'locale' => 'fr'])->get('/');
+        $response = $this->withSession(['app_locale' => 'en', 'locale' => 'en'])->get('/');
 
-        $response->assertSee('og:locale" content="fr_FR', false);
-        // Ссылки на другие языки должны присутствовать, на текущий — нет
-        $response->assertSee('hreflang="en"', false);
-        $response->assertDontSee('hreflang="fr"', false);
+        $response->assertSee('og:locale" content="en_', false);
+        // Ссылка на другой язык присутствует, на текущий — нет
+        $response->assertSee('hreflang="ru"', false);
+        $response->assertDontSee('hreflang="en"', false);
         $response->assertSee('hreflang="x-default"', false);
     }
 

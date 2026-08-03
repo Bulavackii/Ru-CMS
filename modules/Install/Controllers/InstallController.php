@@ -26,8 +26,8 @@ class InstallController extends Controller
      */
     private const COUNTRY_PRESETS = [
         'RU' => ['name' => 'Россия', 'native_name' => 'Россия', 'flag' => '🇷🇺', 'lang' => 'Русский', 'locale' => 'ru', 'timezone' => 'Europe/Moscow', 'currency_code' => 'RUB', 'currency_symbol' => '₽', 'date_format' => 'd.m.Y', 'time_format' => 'H:i', 'decimal_separator' => ',', 'thousands_separator' => ' ', 'decimal_places' => 2],
-        'BY' => ['name' => 'Беларусь', 'native_name' => 'Беларусь', 'flag' => '🇧🇾', 'lang' => 'Беларуская', 'locale' => 'be', 'timezone' => 'Europe/Minsk', 'currency_code' => 'BYN', 'currency_symbol' => 'Br', 'date_format' => 'd.m.Y', 'time_format' => 'H:i', 'decimal_separator' => ',', 'thousands_separator' => ' ', 'decimal_places' => 2],
-        'KZ' => ['name' => 'Казахстан', 'native_name' => 'Қазақстан', 'flag' => '🇰🇿', 'lang' => 'Қазақша', 'locale' => 'kk', 'timezone' => 'Asia/Almaty', 'currency_code' => 'KZT', 'currency_symbol' => '₸', 'date_format' => 'd.m.Y', 'time_format' => 'H:i', 'decimal_separator' => ',', 'thousands_separator' => ' ', 'decimal_places' => 2],
+        'BY' => ['name' => 'Беларусь', 'native_name' => 'Беларусь', 'flag' => '🇧🇾', 'lang' => 'Русский', 'locale' => 'ru', 'timezone' => 'Europe/Minsk', 'currency_code' => 'BYN', 'currency_symbol' => 'Br', 'date_format' => 'd.m.Y', 'time_format' => 'H:i', 'decimal_separator' => ',', 'thousands_separator' => ' ', 'decimal_places' => 2],
+        'KZ' => ['name' => 'Казахстан', 'native_name' => 'Қазақстан', 'flag' => '🇰🇿', 'lang' => 'Русский', 'locale' => 'ru', 'timezone' => 'Asia/Almaty', 'currency_code' => 'KZT', 'currency_symbol' => '₸', 'date_format' => 'd.m.Y', 'time_format' => 'H:i', 'decimal_separator' => ',', 'thousands_separator' => ' ', 'decimal_places' => 2],
         'US' => ['name' => 'США', 'native_name' => 'United States', 'flag' => '🇺🇸', 'lang' => 'English', 'locale' => 'en', 'timezone' => 'America/New_York', 'currency_code' => 'USD', 'currency_symbol' => '$', 'date_format' => 'm/d/Y', 'time_format' => 'h:i A', 'decimal_separator' => '.', 'thousands_separator' => ',', 'decimal_places' => 2],
     ];
 
@@ -51,8 +51,7 @@ class InstallController extends Controller
         'admin' => 'database',
         'smtp' => 'admin',
         'license' => 'smtp',
-        'demo' => 'license',
-        'finish' => 'demo',
+        'finish' => 'license',
     ];
 
     private SecurityService $securityService;
@@ -504,7 +503,7 @@ class InstallController extends Controller
         // POST — пропуск шага разработчиком
         if ($request->boolean('developer_skip') && $this->isDeveloperMode()) {
             session(['install.completed.license' => true]);
-            return redirect()->route('install.demo');
+            return redirect()->route('install.finish');
         }
 
         // POST
@@ -552,32 +551,6 @@ class InstallController extends Controller
 
         session(['install.completed.license' => true]);
 
-        return redirect()->route('install.demo');
-    }
-
-    /** 📦 Установка демо-данных */
-    public function demo(Request $request)
-    {
-        if ($redirect = $this->guardStep('demo')) {
-            return $redirect;
-        }
-
-        if ($request->isMethod('get')) {
-            $installDemo = session('install_demo_data', false);
-            return view('Install::demo', compact('installDemo'));
-        }
-
-        // POST - установка демо-данных
-        if ($request->boolean('install_demo')) {
-            try {
-                $this->installDemoData();
-            } catch (\Throwable $e) {
-                return back()->withErrors(['demo' => __('install.errors.demo', ['error' => $e->getMessage()])]);
-            }
-        }
-
-        session(['install.completed.demo' => true]);
-
         return redirect()->route('install.finish');
     }
 
@@ -595,6 +568,9 @@ class InstallController extends Controller
             $this->seedDefaultPaymentMethods();
             $this->seedDefaultDeliveryMethods();
             $this->seedDefaultPages();
+            // Демо-контент ставится всегда: отдельного шага с выбором больше
+            // нет, а пустой сайт сразу после установки никому не нужен.
+            $this->installDemoData();
             $this->seedDefaultSlideshows();
             $this->seedDefaultFiles();
             $this->seedDefaultNotification();
@@ -661,7 +637,6 @@ class InstallController extends Controller
             'admin'    => 'install.admin',
             'smtp'     => 'install.smtp',
             'license'  => 'install.license',
-            'demo'     => 'install.demo',
         ];
 
         return redirect()

@@ -267,7 +267,7 @@ if (!function_exists('local_font_css')) {
 /**
  * 🌍 available_locales() - Доступные языки интерфейса.
  *
- * Коды каталогов resources/lang (ru/en/be/kk/de/fr/it — «сколько их есть»).
+ * Коды каталогов resources/lang. Языков интерфейса два: ru и en.
  * Эталон 'ru' идёт первым. Используется языковым переключателем в шапке,
  * роутом смены локали (frontend.locale.set) и LocalizationMiddleware (валидация).
  *
@@ -331,12 +331,7 @@ if (!function_exists('locale_flag')) {
         $p = 'preserveAspectRatio="none"';
         $flags = [
             'ru' => '<svg viewBox="0 0 3 2" '.$p.' class="flag"><rect width="3" height="2" fill="#fff"/><rect y=".667" width="3" height=".667" fill="#0039A6"/><rect y="1.333" width="3" height=".667" fill="#D52B1E"/></svg>',
-            'be' => '<svg viewBox="0 0 3 2" '.$p.' class="flag"><rect width="3" height="2" fill="#C8313E"/><rect y="1.333" width="3" height=".667" fill="#4AA657"/></svg>',
-            'de' => '<svg viewBox="0 0 3 2" '.$p.' class="flag"><rect width="3" height=".667" fill="#000"/><rect y=".667" width="3" height=".667" fill="#DD0000"/><rect y="1.333" width="3" height=".667" fill="#FFCE00"/></svg>',
             'en' => '<svg viewBox="0 0 19 10" '.$p.' class="flag"><rect width="19" height="10" fill="#B22234"/><rect y="1" width="19" height="1" fill="#fff"/><rect y="3" width="19" height="1" fill="#fff"/><rect y="5" width="19" height="1" fill="#fff"/><rect y="7" width="19" height="1" fill="#fff"/><rect y="9" width="19" height="1" fill="#fff"/><rect width="8" height="6" fill="#3C3B6E"/></svg>',
-            'fr' => '<svg viewBox="0 0 3 2" '.$p.' class="flag"><rect width="1" height="2" fill="#0055A4"/><rect x="1" width="1" height="2" fill="#fff"/><rect x="2" width="1" height="2" fill="#EF4135"/></svg>',
-            'it' => '<svg viewBox="0 0 3 2" '.$p.' class="flag"><rect width="1" height="2" fill="#009246"/><rect x="1" width="1" height="2" fill="#fff"/><rect x="2" width="1" height="2" fill="#CE2B37"/></svg>',
-            'kk' => '<svg viewBox="0 0 3 2" '.$p.' class="flag"><rect width="3" height="2" fill="#00AFCA"/><circle cx="1.5" cy="1" r=".42" fill="#FEC50C"/></svg>',
         ];
 
         return $flags[$code]

@@ -110,10 +110,6 @@ class AdminTranslationTest extends TestCase
         $this->actingAs($admin)->withSession(['app_locale' => 'en'])
             ->get(route('admin.news.index'))
             ->assertSee('News', false);
-
-        $this->actingAs($admin)->withSession(['app_locale' => 'de'])
-            ->get(route('admin.news.index'))
-            ->assertSee('Beiträge', false);
     }
 
     public function test_shared_components_use_the_dictionary(): void
@@ -179,11 +175,11 @@ class AdminTranslationTest extends TestCase
     {
         // Подписи и подсказки полей — самая массовая часть форм; без них
         // страница на другом языке остаётся наполовину русской
-        $html = $this->actingAs($this->admin())->withSession(['app_locale' => 'de'])
+        $html = $this->actingAs($this->admin())->withSession(['app_locale' => 'en'])
             ->get(route('admin.news.create'))->getContent();
 
-        $this->assertStringContainsString('Titel', $html);
-        $this->assertStringContainsString('Schlüsselwörter', $html);
+        $this->assertStringContainsString('Title', $html);
+        $this->assertStringContainsString('Keywords', $html);
         $this->assertStringNotContainsString('Ключевые слова', $html);
     }
 
@@ -266,7 +262,7 @@ class AdminTranslationTest extends TestCase
     {
         // Названия драйверов, слаги и коды локалей переводить нельзя —
         // это идентификаторы, а не подписи
-        foreach (['en', 'de'] as $locale) {
+        foreach (['en'] as $locale) {
             app()->setLocale($locale);
 
             $this->assertSame('SEO', __('admin.sections.seo'));

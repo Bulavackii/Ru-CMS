@@ -17,7 +17,6 @@
         'admin'        => ['label' => __('install.steps.admin'),        'icon' => 'user-round'],
         'smtp'         => ['label' => __('install.steps.smtp'),         'icon' => 'mail', 'optional' => true],
         'license'      => ['label' => __('install.steps.license'),      'icon' => 'key-round'],
-        'demo'         => ['label' => __('install.steps.demo'),         'icon' => 'package'],
         'finish'       => ['label' => __('install.steps.finish'),       'icon' => 'check-circle-2'],
     ];
     $__installStepKeys = array_keys($__installSteps);

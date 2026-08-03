@@ -8,7 +8,7 @@
 
     $originalLocale = config('app.content_locale', 'ru');
     $locales = array_values(array_diff(available_locales(), [$originalLocale]));
-    $names = ['en' => 'English', 'be' => 'Беларуская', 'kk' => 'Қазақша', 'de' => 'Deutsch', 'fr' => 'Français', 'it' => 'Italiano', 'ru' => 'Русский'];
+    $names = ['ru' => 'Русский', 'en' => 'English'];
 
     // Уже сохранённые переводы: [locale][field] => value
     $existing = [];
