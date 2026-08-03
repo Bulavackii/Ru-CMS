@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
@@ -1138,6 +1139,11 @@ class InstallController extends Controller
                 ]);
             }
         }
+
+        // Главная кеширует блоки по шаблонам на 5 минут (HomeController).
+        // Без сброса свежесозданные материалы не появятся там до истечения
+        // срока — со стороны это выглядит как «товары не создались».
+        Cache::flush();
 
         // Меню-хедер по умолчанию (Главная/О нас/Вопросы/Контакты) сидируется
         // отдельным идемпотентным методом seedDefaultMenu(), который ВСЕГДА
