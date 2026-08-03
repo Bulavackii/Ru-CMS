@@ -57,9 +57,9 @@
     компоновка и оформление самой шапки.
 --}}
 <header class="fx-header relative text-sm z-10">
-  {{-- фон-паттерн берём из темы --}}
-  <div class="absolute inset-0 z-[-10] opacity-10"
-       style="background-image: var(--bg-image); background-repeat:repeat; background-size:auto;"></div>
+  {{-- Фоновая картинка сайта проступает в шапке. Слой рисуется ПОВЕРХ
+       заливки стекла (см. .hdr-glass::before), иначе 82% непрозрачности
+       стекла гасили узор почти полностью. --}}
 
   <div class="hdr-glass relative z-[999] transition-colors duration-200">
 
@@ -184,8 +184,25 @@
 
   {{-- ===== Оформление шапки (стиль проекта .fx-*) ===== --}}
   <style>
-    .hdr-glass{ background:rgba(255,255,255,.82); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); }
-    :root.dark .hdr-glass{ background:rgba(15,23,42,.8); }
+    /* Стекло: заливка полупрозрачная, чтобы фон сайта читался сквозь
+       шапку, плюс размытие и лёгкая насыщенность — так «стекло» выглядит
+       стеклом, а не просто бледной плашкой. */
+    .hdr-glass{ position:relative; background:rgba(255,255,255,.62);
+        -webkit-backdrop-filter:blur(18px) saturate(180%);
+        backdrop-filter:blur(18px) saturate(180%);
+        border-bottom:1px solid rgba(255,255,255,.5);
+        box-shadow:0 1px 24px rgba(15,23,42,.06); }
+
+    /* Фоновая картинка сайта, проступающая сквозь шапку.
+       Лежит НАД заливкой стекла: под ней узор гасился почти полностью.
+       pointer-events:none — слой не должен перехватывать клики по меню. */
+    .hdr-glass::before{ content:''; position:absolute; inset:0; z-index:0;
+        background-image:var(--bg-image); background-repeat:repeat; background-size:auto;
+        opacity:.85; pointer-events:none; }
+
+    /* Содержимое шапки — над подложкой. */
+    .hdr-glass > *{ position:relative; z-index:1; }
+    :root.dark .hdr-glass{ background:rgba(15,23,42,.62); border-bottom-color:rgba(255,255,255,.08); }
 
     /* Логотип */
     .hdr-logo{ text-decoration:none; }
