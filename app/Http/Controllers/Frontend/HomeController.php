@@ -94,7 +94,10 @@ class HomeController extends Controller
 
         foreach ($templateKeys as $key) {
             // Используем кэширование для каждого шаблона
-            $cacheKey = "template_{$key}_" . md5(serialize($request->all()));
+            // Версия содержимого в ключе: без неё правка материала доезжала
+            // до сайта только после истечения пяти минут.
+            $cacheKey = "template_{$key}_v" . News::contentVersion()
+                . "_" . md5(serialize($request->all()));
 
             $templates[$key] = Cache::remember($cacheKey, 300, function () use ($key, $cart, $request) {
                 // Оптимизация: выбираем только нужные поля и используем eager loading

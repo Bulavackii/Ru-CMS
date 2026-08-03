@@ -103,4 +103,36 @@ class News extends Model
     {
         return $this->belongsTo(\App\Models\User::class, 'updated_by');
     }
+
+    /**
+     * Версия содержимого — часть ключа кеша блоков главной.
+     *
+     * Главная держит каждый блок в кеше пять минут, а сохранение материала
+     * кеш не сбрасывало: правка заголовка или оценки доезжала до сайта с
+     * задержкой до пяти минут, и выглядело это как «в панели сохранилось,
+     * на сайте нет».
+     *
+     * Полный Cache::flush() здесь не подходит: он снёс бы и active_theme_id,
+     * который живёт вечно. Поэтому меняем не кеш, а ключ — старые записи
+     * протухнут сами.
+     */
+    public static function contentVersion(): int
+    {
+        return (int) \Illuminate\Support\Facades\Cache::get('news_content_version', 1);
+    }
+
+    public static function bumpContentVersion(): void
+    {
+        \Illuminate\Support\Facades\Cache::forever(
+            'news_content_version',
+            self::contentVersion() + 1
+        );
+    }
+
+    protected static function booted(): void
+    {
+        // Любое изменение материала — новая версия ключа.
+        static::saved(fn () => self::bumpContentVersion());
+        static::deleted(fn () => self::bumpContentVersion());
+    }
 }
