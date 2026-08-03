@@ -197,6 +197,8 @@ class ThemesController extends Controller
         }
         if ($r->boolean('remove_bg')) {
             unset($cfg['background_url'], $cfg['bg_url'], $cfg['pattern_url']);
+
+            $this->spreadBackground($theme, null);
         }
 
         // Логотип
@@ -205,10 +207,17 @@ class ThemesController extends Controller
             $cfg['logo_url'] = Storage::disk($disk)->url($path);
         }
 
-        // Фон (паттерн)
+        // Фон (паттерн).
+        //
+        // Фон общий для всех тем — по прямой просьбе владельца. Раньше он
+        // лежал в конфиге только той темы, которую редактировали, и при
+        // переключении оформления картинка пропадала: выглядело так, будто
+        // загрузка сработала «только на одной базовой теме».
         if ($r->hasFile('bg_image')) {
             $path = $r->file('bg_image')->store($base, $disk);
             $cfg['background_url'] = Storage::disk($disk)->url($path);
+
+            $this->spreadBackground($theme, $cfg['background_url']);
         }
 
         // Локальные шрифты
@@ -318,5 +327,37 @@ class ThemesController extends Controller
         $over = $over ?? [];
         // array_replace_recursive как раз то, что нужно:
         return array_replace_recursive($base, $over);
+    }
+
+    /**
+     * Разносит фоновую картинку по остальным темам.
+     *
+     * Фон задаётся один на сайт: владелец меняет картинку в любой теме и
+     * ожидает увидеть её при любом оформлении. Ключи bg_url и pattern_url —
+     * прежние имена того же поля, их тоже чистим, иначе старое значение
+     * перебило бы новое при чтении (лейаут смотрит их по очереди).
+     *
+     * @param  string|null  $url  null — снять фон везде
+     */
+    private function spreadBackground(Theme $current, ?string $url): void
+    {
+        Theme::query()
+            ->when($current->exists, fn ($q) => $q->whereKeyNot($current->getKey()))
+            ->get()
+            ->each(function (Theme $theme) use ($url) {
+                $config = $theme->config ?? [];
+                $config = is_array($config) ? $config : (array) json_decode((string) $config, true);
+
+                unset($config['bg_url'], $config['pattern_url']);
+
+                if ($url === null) {
+                    unset($config['background_url']);
+                } else {
+                    $config['background_url'] = $url;
+                }
+
+                $theme->config = $config;
+                $theme->save();
+            });
     }
 }
