@@ -156,11 +156,12 @@ class AdminSidebarTest extends TestCase
 
     public function test_sidebar_colours_follow_the_selected_theme(): void
     {
-        $this->theme('indigo', '#6366f1', '#8b5cf6', true);
-        $this->theme('terracotta', '#c2410c', '#d97706');
+        // Личного выбора в сессии больше нет: панель показывает применённую
+        // тему сайта, поэтому делаем «Терракоту» активной, а не кладём её
+        // в сессию.
+        $this->theme('terracotta', '#c2410c', '#d97706', true);
 
         $html = $this->actingAs($this->admin())
-            ->withSession(['admin_theme' => 'terracotta'])
             ->get(route('admin.dashboard'))->getContent();
 
         $this->assertStringContainsString('--admin-primary: #c2410c', $html);

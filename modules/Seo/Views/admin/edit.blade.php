@@ -287,7 +287,7 @@
                 <form action="{{ route('seo.pages.destroy', $item->id) }}" method="post"
                     onsubmit="return confirm('Удалить эту SEO-запись? Если включён автосинк из источников, она может появиться снова.');">
                     @csrf @method('DELETE')
-                    <button class="px-4 py-2 bg-red-600 text-white rounded">{{ __('admin.admin.delete') }}</button>
+                    <button class="px-4 py-2 bg-red-600 text-white rounded">{{ __('admin.delete') }}</button>
                 </form>
 
                 <a href="{{ route('seo.pages.index') }}" class="inline-flex items-center gap-2 border border-gray-300 text-gray-700 hover:bg-gray-100 px-4 py-2 text-sm font-semibold transition">{{ __('admin.seo.back') }}</a>

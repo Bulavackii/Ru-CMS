@@ -840,6 +840,22 @@ return [
         'quick_category' => 'Create a category',
         'quick_slideshow' => 'Create a slideshow',
         'quick_user' => 'Create a user',
+        'admins_short' => 'admins',
+        'backup_none' => 'Never created',
+        'cache_ok' => 'Working',
+        'guest' => 'Guest',
+        'pending' => 'awaiting review',
+        'per_month' => 'per month',
+        'pub_short' => 'publ.',
+        'published_word' => 'published',
+        'queue_none' => 'Not running',
+        'queue_ok' => 'Working',
+        'st_backup' => 'Backups',
+        'st_cache' => 'Cache',
+        'st_queue' => 'Queue',
+        'st_updates' => 'Updates',
+        'system' => 'System',
+        'update_none' => 'No updates',
     ],
 
     'categories' => [
@@ -1385,6 +1401,7 @@ return [
         'check_no_driver' => 'The calculation driver for :name has not been implemented yet: the connection cannot be checked automatically.',
         'cancel' => 'Cancel',
         'days' => 'days',
+        'ru_system' => 'Russian delivery service',
     ],
 
     'reviews' => [
@@ -1647,6 +1664,8 @@ return [
         'search_ph' => 'Search by key or text…',
         'not_in_reference' => 'The key is missing from the reference language',
         'same_as_reference' => 'Matches the reference',
+        'missing_n' => 'Not translated: :count',
+        'same_n' => 'Same as the reference: :count',
     ],
 
     'seo' => [
@@ -1779,6 +1798,20 @@ return [
         'enable_news' => 'Enable seo.features.news_sitemap',
         'enable_images' => 'Enable seo.features.images_sitemap',
         'instead_of' => 'instead of',
+        'bad_json' => 'This must be valid JSON.',
+        'bulk_confirm' => 'Apply the action to the selected addresses?',
+        'card_manual' => 'Manually',
+        'card_manual_hint' => 'Write the title and description yourself — that is almost always better.',
+        'card_sitemap_hint' => 'A list of every page for search engines. Rebuild it after adding materials.',
+        'card_sync' => 'Synchronisation',
+        'card_sync_hint' => 'Pull titles and descriptions from materials where they are not set.',
+        'stat_locked' => 'Set manually',
+        'stat_locked_hint' => 'Synchronisation will not overwrite these addresses.',
+        'stat_noindex' => 'Closed from indexing',
+        'stat_problems' => 'With remarks',
+        'stat_problems_hint' => 'No title or description, or they are too long.',
+        'stat_urls' => 'Addresses',
+        'stat_urls_hint' => 'Total pages watched by SEO.',
     ],
 
     'captcha' => [

@@ -283,18 +283,18 @@ class AdminHeaderTest extends TestCase
             ->assertSee('--admin-primary: #c2410c', false);
     }
 
-    public function test_theme_choice_is_personal_and_does_not_touch_the_site(): void
+    public function test_panel_shows_the_site_theme(): void
     {
+        // Личного выбора темы больше нет: он жил в сессии и перекрывал
+        // применённую тему сайта, из-за чего кнопка «Применить» в разделе
+        // «Темы» выглядела нерабочей. Панель показывает то же оформление,
+        // что и сайт.
         $this->theme('indigo', '#6366f1', true);
         $this->theme('terracotta', '#c2410c');
 
         $this->actingAs($this->admin())->withSession(['admin_theme' => 'terracotta'])
             ->get(route('admin.dashboard'))
-            ->assertSee('--admin-primary: #c2410c', false);
-
-        // Активная тема сайта осталась прежней: выбор живёт только в сессии
-        $this->assertTrue((bool) Theme::where('slug', 'indigo')->value('is_default'));
-        $this->assertFalse((bool) Theme::where('slug', 'terracotta')->value('is_default'));
+            ->assertSee('--admin-primary: #6366f1', false);
     }
 
     public function test_theme_reset_returns_the_site_theme(): void

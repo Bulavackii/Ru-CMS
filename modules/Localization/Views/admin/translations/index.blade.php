@@ -168,7 +168,7 @@
                 <div class="px-5 py-3 border-t border-gray-200 dark:border-gray-800 flex justify-end gap-2">
                     <button type="button" x-on:click="addOpen = false"
                             class="px-4 py-2 rounded text-sm border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
-                        {{ __('admin.admin.cancel') }}
+                        {{ __('admin.cancel') }}
                     </button>
                     <button type="submit" class="px-4 py-2 rounded text-sm bg-black text-white hover:bg-gray-800">
                         {{ __('admin.translations.create_and_open') }}
@@ -199,10 +199,10 @@
                 <div class="px-5 py-3 border-t border-gray-200 dark:border-gray-800 flex justify-end gap-2">
                     <button type="button" x-on:click="deleteCode = null"
                             class="px-4 py-2 rounded text-sm border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
-                        {{ __('admin.admin.cancel') }}
+                        {{ __('admin.cancel') }}
                     </button>
                     <button type="submit" class="px-4 py-2 rounded text-sm bg-red-600 text-white hover:bg-red-700">
-                        {{ __('admin.admin.delete') }}
+                        {{ __('admin.delete') }}
                     </button>
                 </div>
             </form>

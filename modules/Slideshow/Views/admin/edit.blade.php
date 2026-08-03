@@ -294,7 +294,7 @@
           <div class="absolute top-2 right-2 flex gap-2">
             <button type="button"
                     class="grid place-items-center w-9 h-9 bg-white dark:bg-gray-900 text-indigo-600 hover:text-indigo-800 shadow"
-                    title="{{ __('admin.admin.edit') }}"
+                    title="{{ __('admin.edit') }}"
                     onclick="openEditModal({{ $slide->id }}, @js($slide->caption ?? ''), @js($slide->alt_text ?? ''), @js($slide->link ?? ''), @js($slide->text_position ?? 'bottom-right'), @js($slide->text_color ?? '#ffffff'), @js($slide->background_color ?? '#2563eb'))">
               <i class="fas fa-edit"></i>
             </button>
@@ -305,7 +305,7 @@
               @method('DELETE')
               <button type="submit"
                       class="grid place-items-center w-9 h-9 bg-white dark:bg-gray-900 text-red-600 hover:text-red-700 shadow"
-                      title="{{ __('admin.admin.delete') }}">
+                      title="{{ __('admin.delete') }}">
                 <i class="fas fa-trash-alt"></i>
               </button>
             </form>
@@ -369,8 +369,8 @@
         </div>
       </div>
       <div class="mt-5 flex justify-end gap-2">
-        <button onclick="closeEditModal()" class="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-100">{{ __('admin.admin.cancel') }}</button>
-        <button onclick="submitEdit()" class="px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white">{{ __('admin.admin.save') }}</button>
+        <button onclick="closeEditModal()" class="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-100">{{ __('admin.cancel') }}</button>
+        <button onclick="submitEdit()" class="px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white">{{ __('admin.save') }}</button>
       </div>
     </div>
   </div>

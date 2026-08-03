@@ -140,7 +140,7 @@
                             @method('DELETE')
                             <button type="submit"
                                     class="inline-flex items-center justify-center gap-1.5 w-full px-2 py-2 font-semibold whitespace-nowrap bg-red-600 hover:bg-red-700 text-white shadow-sm transition">
-                                @themeIcon('trash-alt') <span>{{ __('admin.admin.delete') }}</span>
+                                @themeIcon('trash-alt') <span>{{ __('admin.delete') }}</span>
                             </button>
                         </form>
                     </div>

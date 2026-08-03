@@ -35,7 +35,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
             <div class="{{ $roles->count() > 0 ? 'md:col-span-2' : 'md:col-span-3' }}">
-                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.admin.header.search') }}</label>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.header.search') }}</label>
                 <div class="relative">
                     <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
                          width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"

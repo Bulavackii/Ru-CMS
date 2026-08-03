@@ -153,7 +153,7 @@
 
   <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
     <div class="md:col-span-3">
-      <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.admin.header.search') }}</label>
+      <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.header.search') }}</label>
       <div class="relative">
         <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
              width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -289,7 +289,7 @@
         <option value="lock">{{ __('admin.seo.lock_sync') }}</option>
         <option value="unlock">{{ __('admin.seo.unlock') }}</option>
         <option value="sync">{{ __('admin.seo.resync') }}</option>
-        <option value="delete">{{ __('admin.admin.delete') }}</option>
+        <option value="delete">{{ __('admin.delete') }}</option>
       </select>
       <button type="submit"
               class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition"
@@ -400,7 +400,7 @@
             <a href="{{ route('seo.pages.edit', $p->id) }}"
                class="inline-flex items-center justify-center w-8 h-8 border border-gray-300 dark:border-gray-600
                       text-gray-600 dark:text-gray-300 hover:border-indigo-400 hover:text-indigo-600 transition"
-               title="{{ __('admin.admin.edit') }}"><i class="fas fa-pen"></i></a>
+               title="{{ __('admin.edit') }}"><i class="fas fa-pen"></i></a>
 
             <a href="{{ $viewUrl }}" target="_blank" rel="noopener"
                class="inline-flex items-center justify-center w-8 h-8 border border-gray-300 dark:border-gray-600
@@ -420,7 +420,7 @@
             <button type="submit" form="seo-delete-{{ $p->id }}"
                     class="inline-flex items-center justify-center w-8 h-8 border border-gray-300 dark:border-gray-600
                            text-gray-600 dark:text-gray-300 hover:border-red-400 hover:text-red-600 transition"
-                    title="{{ __('admin.admin.delete') }}"><i class="fas fa-trash"></i></button>
+                    title="{{ __('admin.delete') }}"><i class="fas fa-trash"></i></button>
           </td>
         </tr>
       @endforeach

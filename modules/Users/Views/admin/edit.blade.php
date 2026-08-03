@@ -217,13 +217,13 @@
                     <button type="submit"
                             class="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white
                                    px-4 py-2 text-sm font-semibold shadow-sm transition flex-1">
-                        <i class="fas fa-save"></i> {{ __('admin.admin.save') }}
+                        <i class="fas fa-save"></i> {{ __('admin.save') }}
                     </button>
                     <a href="{{ route('admin.users.index') }}"
                        class="inline-flex items-center justify-center gap-2 border border-gray-300 dark:border-gray-600
                               text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800
                               px-4 py-2 text-sm font-semibold transition">
-                        {{ __('admin.admin.cancel') }}
+                        {{ __('admin.cancel') }}
                     </a>
                 </div>
             </div>

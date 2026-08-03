@@ -143,7 +143,7 @@
                 <a href="{{ route('admin.news.index') }}"
                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium border border-gray-300 dark:border-gray-600
                           text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-                    {{ __('admin.admin.cancel') }}
+                    {{ __('admin.cancel') }}
                 </a>
                 <button type="submit"
                     class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 text-sm font-semibold shadow-sm transition">

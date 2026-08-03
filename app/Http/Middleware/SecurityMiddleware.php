@@ -35,8 +35,20 @@ class SecurityMiddleware
             abort(403, 'Ваш IP адрес заблокирован');
         }
 
+        // Поля, куда разметку и стили кладут НАМЕРЕННО: содержимое
+        // материалов, вёрстка фрагментов, дополнительный CSS темы.
+        // Сканировать их на инъекции бессмысленно — там по определению
+        // и теги, и комментарии, и фигурные скобки. Именно на этом
+        // владелец получил бан своего IP, сохранив фрагмент со стилями.
+        $markupFields = ['content', 'html', 'css', 'css_inline', 'html_cached',
+                         'body', 'description', 'custom_css', 'data', 'schema'];
+
         // Проверка входных данных на SQL injection
         foreach ($request->all() as $key => $value) {
+            if (in_array($key, $markupFields, true)) {
+                continue;
+            }
+
             if (is_string($value)) {
                 if ($this->securityService->detectSqlInjection($value)) {
                     $this->securityService->blockIp($ip, 60);

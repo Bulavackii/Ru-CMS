@@ -64,7 +64,7 @@
     </div>
 
     <div class="flex items-center gap-3">
-      <button class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">{{ __('admin.admin.save') }}</button>
+      <button class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">{{ __('admin.save') }}</button>
       <a href="{{ route('seo.index') }}" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded">{{ __('admin.seo.to_seo') }}</a>
     </div>
   </div>

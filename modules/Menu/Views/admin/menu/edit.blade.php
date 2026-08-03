@@ -262,7 +262,7 @@
                     {{ __('admin.menu.disable') }}
                 </button>
                 <button id="bulk-delete" class="px-3 py-1.5 rounded-md bg-red-600 text-white text-sm hover:bg-red-700">
-                    {{ __('admin.admin.delete') }}
+                    {{ __('admin.delete') }}
                 </button>
                 <span id="selected-count" class="text-sm text-gray-600 dark:text-gray-400">{{ __('admin.menu.selected_count') }}</span>
             </div>
@@ -458,13 +458,13 @@ function renderList(items, depth=0){
             </div>
 
             <div class="flex items-center gap-1">
-              <button type="button" class="edit-item-btn text-indigo-600 hover:text-indigo-700 text-sm" data-item-id="${item.id}" title="{{ __('admin.admin.edit') }}">
+              <button type="button" class="edit-item-btn text-indigo-600 hover:text-indigo-700 text-sm" data-item-id="${item.id}" title="{{ __('admin.edit') }}">
                 @themeIcon('edit')
               </button>
               <form method="POST" class="mi-del-form inline">
                 <input type="hidden" name="_token" value="${csrf}">
                 <input type="hidden" name="_method" value="DELETE">
-                <button type="submit" class="text-red-600 hover:text-red-700 text-sm" title="{{ __('admin.admin.delete') }}">
+                <button type="submit" class="text-red-600 hover:text-red-700 text-sm" title="{{ __('admin.delete') }}">
                   @themeIcon('trash')
                 </button>
               </form>
@@ -764,8 +764,8 @@ editModal.innerHTML = `
                 </div>
             </div>
             <div class="flex gap-2 justify-end mt-6">
-                <button type="button" class="close-edit-modal px-4 py-2 rounded-md border text-sm">{{ __('admin.admin.cancel') }}</button>
-                <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition">{{ __('admin.admin.save') }}</button>
+                <button type="button" class="close-edit-modal px-4 py-2 rounded-md border text-sm">{{ __('admin.cancel') }}</button>
+                <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition">{{ __('admin.save') }}</button>
             </div>
         </form>
     </div>

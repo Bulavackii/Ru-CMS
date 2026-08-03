@@ -88,7 +88,7 @@
     </div>
 
     <div class="lg:col-span-2">
-      <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.admin.header.search') }}</label>
+      <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.header.search') }}</label>
       <div class="relative">
         <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
              width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -255,14 +255,14 @@
             <div class="inline-flex items-center gap-1.5">
               <a href="{{ route('admin.slideshow.edit', $s->id) }}"
                  class="inline-flex items-center justify-center w-8 h-8 bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition"
-                 title="{{ __('admin.admin.edit') }}">
+                 title="{{ __('admin.edit') }}">
                 <i class="fa-solid fa-pen"></i>
               </a>
               <form action="{{ route('admin.slideshow.destroy', $s->id) }}" method="POST"
                     onsubmit="return confirm(@js(__('admin.slideshow.delete_confirm')));" class="inline">
                 @csrf @method('DELETE')
                 <button class="inline-flex items-center justify-center w-8 h-8 bg-red-600 hover:bg-red-700 text-white shadow-sm transition"
-                        title="{{ __('admin.admin.delete') }}">
+                        title="{{ __('admin.delete') }}">
                   <i class="fa-regular fa-trash-can"></i>
                 </button>
               </form>

@@ -58,7 +58,7 @@
 
             <button type="button" onclick="uiBulk.deleteSelected()"
                 class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-red-600 text-white hover:bg-red-700 shadow text-sm">
-                <i class="fa-solid fa-trash"></i><span class="hidden sm:inline">{{ __('admin.admin.delete') }}</span>
+                <i class="fa-solid fa-trash"></i><span class="hidden sm:inline">{{ __('admin.delete') }}</span>
             </button>
 
             <button type="button" onclick="document.getElementById('create-category-form').classList.toggle('hidden')"
@@ -242,7 +242,7 @@
                                       onsubmit="return confirm(@js(__('admin.files.delete_confirm', ['name' => $file->name])));">
                                     @csrf @method('DELETE')
                                     <input type="hidden" name="file_ids" value="{{ $file->id }}">
-                                    <button class="text-red-600 hover:text-red-700">{{ __('admin.admin.delete') }}</button>
+                                    <button class="text-red-600 hover:text-red-700">{{ __('admin.delete') }}</button>
                                 </form>
                             </div>
                         </td>

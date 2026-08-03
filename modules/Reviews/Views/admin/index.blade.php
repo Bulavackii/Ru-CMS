@@ -53,7 +53,7 @@
                 <option value="">{{ __('admin.common.select_action') }}</option>
                 <option value="approve">{{ __('admin.reviews.approve') }}</option>
                 <option value="reject">{{ __('admin.reviews.reject') }}</option>
-                <option value="delete">{{ __('admin.admin.delete') }}</option>
+                <option value="delete">{{ __('admin.delete') }}</option>
             </select>
             <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition" disabled id="bulkSubmit">
                 {{ __('admin.reviews.apply_to_selected') }}
@@ -133,7 +133,7 @@
                                   onsubmit="return confirm('Удалить отзыв #{{ $review->id }}?')">
                                 @csrf
                                 <input type="hidden" name="action" value="delete">
-                                <button type="submit" class="text-red-700 hover:underline text-xs" title="{{ __('admin.admin.delete') }}">🗑️</button>
+                                <button type="submit" class="text-red-700 hover:underline text-xs" title="{{ __('admin.delete') }}">🗑️</button>
                             </form>
                         </div>
                     </td>

@@ -371,7 +371,11 @@ class FragmentsController extends Controller
             }
         }
 
-        $data['is_active'] = (bool) ($data['is_active'] ?? true);
+        // Снятая галочка в запрос не приходит вовсе, а прежний код подставлял
+        // ?? true — то есть выключить фрагмент было невозможно в принципе:
+        // он всегда включался обратно. boolean() понимает и "on", и "1", и
+        // отсутствие ключа.
+        $data['is_active'] = $request->boolean('is_active');
         return $data;
     }
 

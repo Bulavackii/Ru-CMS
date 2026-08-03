@@ -114,9 +114,9 @@ class NotificationCenterTest extends TestCase
         // Атрибут lang был прибит к ru: и скринридер, и Intl в центре
         // уведомлений получали неверный язык на любой другой локали.
         $this->actingAs($this->admin())
-            ->withSession(['app_locale' => 'de'])
+            ->withSession(['app_locale' => 'en'])
             ->get('/admin')
             ->assertOk()
-            ->assertSee('<html lang="de"', false);
+            ->assertSee('<html lang="en"', false);
     }
 }
