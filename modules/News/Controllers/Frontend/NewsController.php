@@ -18,7 +18,7 @@ class NewsController extends Controller
     public function index()
     {
         // Кэшируем список новостей на 15 минут
-        $cacheKey = 'news_list_page_' . request()->get('page', 1);
+        $cacheKey = 'news_list_v' . News::contentVersion() . '_page_' . request()->get('page', 1);
         
         $newsList = \Illuminate\Support\Facades\Cache::remember($cacheKey, 900, function () {
             return News::with(['categories' => function ($q) {
@@ -31,6 +31,18 @@ class NewsController extends Controller
                 ->orderByDesc('id')
                 ->paginate(10);
         });
+
+        // Адрес для ссылок страниц ставим ПОСЛЕ чтения из кеша.
+        //
+        // paginate() запоминает адрес того запроса, который наполнил кеш,
+        // и дальше объект отдаётся всем как есть. Один заход с другого
+        // хоста или порта — и ссылки страниц пятнадцать минут ведут не
+        // туда: у владельца они вели на 127.0.0.1 без :8000, и страница
+        // не открывалась вовсе.
+        //
+        // Версия содержимого в ключе — чтобы правка материала была видна
+        // сразу, а не через четверть часа.
+        $newsList = $newsList->withPath(request()->url());
 
         return view('frontend.news.index', compact('newsList'));
     }

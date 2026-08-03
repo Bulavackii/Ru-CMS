@@ -136,9 +136,18 @@ class HomeController extends Controller
                     $allItems->count(),
                     $perPage,
                     $currentPage,
-                    ['path' => request()->url(), 'pageName' => $key . '_page']
+                    ['pageName' => $key . '_page']
                 );
             });
+
+            // Адрес для ссылок страниц ставим ПОСЛЕ чтения из кеша.
+            //
+            // Раньше он передавался внутрь конструктора и запекался в
+            // кешируемый объект вместе с хостом и портом. Ключ кеша host не
+            // учитывает, поэтому один запрос с другого адреса отравлял
+            // ссылки всем: в браузере они вели на 127.0.0.1 без :8000 и
+            // страница не открывалась вовсе.
+            $templates[$key] = $templates[$key]->withPath(request()->url());
         }
 
         return $templates;
