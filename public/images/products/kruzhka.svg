@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Заглушка товара. Нейтральный рисунок в палитре проекта: настоящие
+     фотографии подставляются заменой файла с тем же именем. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="Кружка">
+  <defs><linearGradient id="g-kruzhka" x1="0" y1="200" x2="200" y2="0" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#c2185b"/><stop offset="1" stop-color="#e0407e"/>
+  </linearGradient></defs>
+  <rect width="200" height="200" fill="url(#g-kruzhka)"/>
+  <rect x="60" y="72" width="66" height="72" rx="8" fill="#fff" opacity=".92"/><path d="M126 92h14a16 16 0 0 1 0 32h-14" stroke="#fff" stroke-width="8" fill="none" opacity=".8"/>
+</svg>

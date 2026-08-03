@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Заглушка товара. Нейтральный рисунок в палитре проекта: настоящие
+     фотографии подставляются заменой файла с тем же именем. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="Часы">
+  <defs><linearGradient id="g-chasy" x1="0" y1="200" x2="200" y2="0" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#0057e7"/><stop offset="1" stop-color="#3d8bff"/>
+  </linearGradient></defs>
+  <rect width="200" height="200" fill="url(#g-chasy)"/>
+  <rect x="82" y="52" width="36" height="30" rx="6" fill="#fff" opacity=".75"/><rect x="82" y="118" width="36" height="30" rx="6" fill="#fff" opacity=".75"/><circle cx="100" cy="100" r="36" fill="#fff" opacity=".95"/><path d="M100 82v18l12 8" stroke="#334155" stroke-width="4" fill="none" stroke-linecap="round"/>
+</svg>

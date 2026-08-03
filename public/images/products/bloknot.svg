@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Заглушка товара. Нейтральный рисунок в палитре проекта: настоящие
+     фотографии подставляются заменой файла с тем же именем. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="Блокнот">
+  <defs><linearGradient id="g-bloknot" x1="0" y1="200" x2="200" y2="0" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#d32b1a"/><stop offset="1" stop-color="#f2542d"/>
+  </linearGradient></defs>
+  <rect width="200" height="200" fill="url(#g-bloknot)"/>
+  <rect x="62" y="60" width="76" height="88" rx="6" fill="#fff" opacity=".92"/><path d="M78 84h44M78 100h44M78 116h30" stroke="#94a3b8" stroke-width="5" stroke-linecap="round"/>
+</svg>

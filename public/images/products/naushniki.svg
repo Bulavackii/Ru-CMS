@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Заглушка товара. Нейтральный рисунок в палитре проекта: настоящие
+     фотографии подставляются заменой файла с тем же именем. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="Наушники">
+  <defs><linearGradient id="g-naushniki" x1="0" y1="200" x2="200" y2="0" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/>
+  </linearGradient></defs>
+  <rect width="200" height="200" fill="url(#g-naushniki)"/>
+  <path d="M60 108a40 40 0 0 1 80 0v18h-10v-18a30 30 0 0 0-60 0v18H60Z" fill="#fff" opacity=".92"/><rect x="52" y="120" width="20" height="34" rx="6" fill="#fff" opacity=".92"/><rect x="128" y="120" width="20" height="34" rx="6" fill="#fff" opacity=".92"/>
+</svg>

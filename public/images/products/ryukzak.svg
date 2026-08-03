@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Заглушка товара. Нейтральный рисунок в палитре проекта: настоящие
+     фотографии подставляются заменой файла с тем же именем. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="Рюкзак">
+  <defs><linearGradient id="g-ryukzak" x1="0" y1="200" x2="200" y2="0" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#0f766e"/><stop offset="1" stop-color="#14b8a6"/>
+  </linearGradient></defs>
+  <rect width="200" height="200" fill="url(#g-ryukzak)"/>
+  <path d="M64 84h72l8 72H56Z" fill="#fff" opacity=".92"/><path d="M82 84V70a18 18 0 0 1 36 0v14" stroke="#fff" stroke-width="7" fill="none" opacity=".8"/>
+</svg>

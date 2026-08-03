@@ -1056,6 +1056,89 @@ class InstallController extends Controller
             }
         }
 
+        // 🛍️ Демо-товары.
+        //
+        // Товар в этой CMS — обычный материал с ценой, остатком и шаблоном
+        // products: корзина работает именно с News (см. CartController).
+        // Отдельная таблица products в схеме есть, но ни к чему не
+        // подключена — не используйте её, товары заводятся здесь.
+        //
+        // Картинка лежит первым тегом в содержимом: колонки cover у news
+        // нет, и шаблон берёт изображение из тела материала.
+        $goods = [
+            [
+                'title' => 'Беспроводные наушники',
+                'slug' => 'tovar-naushniki',
+                'price' => 4990,
+                'stock' => 12,
+                'content' => "<p><img src=\"/images/products/naushniki.svg\" alt=\"Беспроводные наушники\" style=\"width:100%;max-width:420px;height:auto\"></p>\n<p>Накладные наушники с шумоподавлением и автономностью до 30 часов. Складная конструкция, чехол в комплекте.</p>",
+            ],
+            [
+                'title' => 'Умные часы',
+                'slug' => 'tovar-chasy',
+                'price' => 8900,
+                'stock' => 7,
+                'content' => "<p><img src=\"/images/products/chasy.svg\" alt=\"Умные часы\" style=\"width:100%;max-width:420px;height:auto\"></p>\n<p>Пульс, шаги, сон и уведомления с телефона. Влагозащита, экран читается на солнце, зарядки хватает на неделю.</p>",
+            ],
+            [
+                'title' => 'Городской рюкзак',
+                'slug' => 'tovar-ryukzak',
+                'price' => 3450,
+                'stock' => 20,
+                'content' => "<p><img src=\"/images/products/ryukzak.svg\" alt=\"Городской рюкзак\" style=\"width:100%;max-width:420px;height:auto\"></p>\n<p>Отделение под ноутбук до 15\", влагостойкая ткань, потайной карман на спинке. Объём 22 литра.</p>",
+            ],
+            [
+                'title' => 'Керамическая кружка',
+                'slug' => 'tovar-kruzhka',
+                'price' => 690,
+                'stock' => 48,
+                'content' => "<p><img src=\"/images/products/kruzhka.svg\" alt=\"Керамическая кружка\" style=\"width:100%;max-width:420px;height:auto\"></p>\n<p>Объём 350 мл, подходит для посудомоечной машины и микроволновки. Плотные стенки дольше держат тепло.</p>",
+            ],
+            [
+                'title' => 'Блокнот в твёрдой обложке',
+                'slug' => 'tovar-bloknot',
+                'price' => 850,
+                'stock' => 35,
+                'content' => "<p><img src=\"/images/products/bloknot.svg\" alt=\"Блокнот в твёрдой обложке\" style=\"width:100%;max-width:420px;height:auto\"></p>\n<p>Формат A5, 192 страницы плотной бумаги, ляссе и резинка. Разлиновка в точку — удобна и для текста, и для схем.</p>",
+            ],
+            [
+                'title' => 'Настольная лампа',
+                'slug' => 'tovar-lampa',
+                'price' => 2790,
+                'stock' => 9,
+                'content' => "<p><img src=\"/images/products/lampa.svg\" alt=\"Настольная лампа\" style=\"width:100%;max-width:420px;height:auto\"></p>\n<p>Три уровня яркости и регулировка цветовой температуры. Питание от USB-C, поворотный плафон.</p>",
+            ],
+        ];
+
+        $productsCategoryId = DB::table('categories')->where('slug', 'products')->value('id');
+
+        foreach ($goods as $item) {
+            $existing = DB::table('news')->where('slug', $item['slug'])->value('id');
+
+            if ($existing) {
+                continue;
+            }
+
+            $goodId = DB::table('news')->insertGetId([
+                'title' => $item['title'],
+                'content' => $item['content'],
+                'slug' => $item['slug'],
+                'price' => $item['price'],
+                'stock' => $item['stock'],
+                'published' => true,
+                'template' => 'products',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            if ($productsCategoryId) {
+                DB::table('news_category')->insert([
+                    'news_id' => $goodId,
+                    'category_id' => $productsCategoryId,
+                ]);
+            }
+        }
+
         // Меню-хедер по умолчанию (Главная/О нас/Вопросы/Контакты) сидируется
         // отдельным идемпотентным методом seedDefaultMenu(), который ВСЕГДА
         // вызывается на шаге finish — вне зависимости от того, ставились ли
