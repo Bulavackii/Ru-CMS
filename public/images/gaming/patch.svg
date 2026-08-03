@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Обложка игрового материала. Заменяется своей картинкой. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" width="320" height="200" role="img">
+  <defs><linearGradient id="gm-patch" x1="0" y1="200" x2="320" y2="0" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#4338ca"/><stop offset="1" stop-color="#7c3aed"/></linearGradient></defs>
+  <rect width="320" height="200" fill="url(#gm-patch)"/>
+  <g fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" opacity=".85">
+    <path d="M108 92h34M125 75v34"/>
+    <circle cx="196" cy="86" r="6" fill="#fff" stroke="none"/>
+    <circle cx="214" cy="104" r="6" fill="#fff" stroke="none"/>
+    <rect x="78" y="62" width="164" height="76" rx="34"/>
+  </g>
+</svg>
