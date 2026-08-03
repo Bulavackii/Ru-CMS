@@ -58,7 +58,13 @@ Route::post('/payment/webhook/{gateway}', [OrderController::class, 'webhook'])
     ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class, 'auth', 'admin']);
 
 // � Клиент: корзина и оформление заказа
-Route::middleware(['web'])->group(function () {
+// Корзина и остатки — публичные: покупатель не обязан быть
+// зарегистрирован. auth/admin снимаем явно, потому что маршруты модуля
+// наследуют разный набор middleware в зависимости от того, как модуль
+// загружен (активен в таблице modules или через loadLegacyModules).
+Route::middleware(['web'])
+    ->withoutMiddleware(['auth', 'admin'])
+    ->group(function () {
     // 📥 Просмотр корзины
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 
@@ -88,8 +94,26 @@ Route::middleware(['web'])->group(function () {
     })->name('cart.count');
 
     // 📦 Получение актуального остатка товара по ID (AJAX)
+    // Из складского остатка вычитается то, что покупатель уже положил в
+    // корзину. Раньше отдавалось «сырое» число из базы, и после добавления
+    // в корзину счётчик в карточке не менялся: корзина склад не трогает,
+    // она списывается только при оформлении. Покупатель мог набрать больше,
+    // чем есть, и узнать об этом уже на оформлении заказа.
+    //
+    // Главная считает так же (HomeController), поэтому число совпадает и
+    // после перезагрузки страницы.
     Route::get('/product/{id}/stock', function ($id) {
         $product = \Modules\News\Models\News::findOrFail($id);
-        return response()->json(['stock' => $product->stock ?? 0]);
+
+        if (is_null($product->stock)) {
+            // Остаток не задан — товар считается всегда доступным.
+            return response()->json(['stock' => null]);
+        }
+
+        $inCart = (int) (session('cart', [])[$id]['qty'] ?? 0);
+
+        return response()->json([
+            'stock' => max((int) $product->stock - $inCart, 0),
+        ]);
     })->name('product.stock');
 });

@@ -227,4 +227,19 @@ return [
         'title' => 'Games',
         'subtitle' => 'Announcements, reviews and patch notes',
     ],
+
+    'products' => [
+        'title' => 'Products',
+        'subtitle' => 'Catalogue with prices and availability',
+        'sale' => 'SALE',
+        'new' => 'NEW',
+        'out_of_stock' => 'Out of stock',
+        'left' => 'Left:',
+        'qty' => 'Quantity',
+        'less' => 'Decrease',
+        'more' => 'Increase',
+        'to_cart' => 'Add to cart',
+        'details' => 'Details',
+        'empty' => 'There are no products yet.',
+    ],
 ];
