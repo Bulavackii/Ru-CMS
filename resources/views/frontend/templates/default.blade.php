@@ -145,18 +145,19 @@
                             <a href="{{ route('news.show', $news->slug) }}">{{ $news->title }}</a>
                         </h3>
 
-                        <p class="nw-card__meta">
-                            <span><i class="far fa-calendar"></i> {{ $news->created_at->format('d.m.Y') }}</span>
-                            {{-- Время чтения: считается по словам, отдельно задавать не нужно --}}
-                            <span><i class="far fa-clock"></i>
-                                {{ __('frontend.news.reading_time', ['min' => reading_time($news->content)]) }}</span>
-                        </p>
-
                         <p class="nw-card__text">{{ Str::limit(trim(preg_replace('~\s+~u', ' ', strip_tags($news->content))), 180) }}</p>
 
                         <a href="{{ route('news.show', $news->slug) }}" class="nw-card__more">
                             {{ __('frontend.news.read_more') }} <i class="fas fa-arrow-right"></i>
                         </a>
+
+                        {{-- Дата и время чтения разведены по краям и отделены
+                             линией: посреди карточки они спорили с текстом. --}}
+                        <p class="nw-card__meta">
+                            <span class="nw-meta__date">{{ $news->created_at->format('d.m.Y') }}</span>
+                            <span class="nw-meta__time">{{ __('frontend.news.reading_time', ['min' => reading_time($news->content)]) }}</span>
+                        </p>
+
                     </div>
                 </article>
             @endforeach
@@ -214,8 +215,17 @@
         -webkit-box-orient:vertical; overflow:hidden }
     .nw-card__title a:hover{ color:var(--color-primary,#6366f1) }
 
-    .nw-card__meta{ display:flex; flex-wrap:wrap; gap:.25rem .9rem; margin:0;
-        font-size:.75rem; color:#94a3b8 }
+    /* Нижняя строка карточки. Раньше она стояла сразу под заголовком, тем
+       же цветом, что и анонс, и терялась между заголовком и текстом. Теперь
+       это отдельная полоса внизу: линия сверху, лёгкая подложка, края
+       разведены. */
+    .nw-card__meta{ display:flex; align-items:center; justify-content:space-between; gap:.75rem;
+        margin:.65rem -1.1rem -1.15rem; padding:.55rem 1.1rem; font-size:.75rem;
+        border-top:1px solid #eef2f7; background:#f8fafc }
+    .nw-meta__date{ color:#94a3b8; font-variant-numeric:tabular-nums }
+    .nw-meta__date::before{ content:'🗓'; margin-right:.35rem; opacity:.75 }
+    .nw-meta__time{ color:#475569; font-weight:600; white-space:nowrap }
+    .nw-meta__time::before{ content:'⏱'; margin-right:.3rem; opacity:.75 }
 
     .nw-card__text{ margin:0; font-size:.85rem; line-height:1.55; color:#64748b; flex:1;
         display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden }
@@ -229,6 +239,8 @@
 
     @media (prefers-color-scheme: dark){
         .nw__head, .nw-card{ background:#111827; border-color:#1f2937 }
+        .nw-card__meta{ background:#0b1220; border-color:#1f2937 }
+        .nw-meta__time{ color:#cbd5e1 }
         .nw__title, .nw-card__title a{ color:#f3f4f6 }
         .nw-card__text{ color:#94a3b8 }
         .nw-card__media{ background:#1f2937 }

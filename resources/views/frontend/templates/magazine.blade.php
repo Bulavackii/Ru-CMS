@@ -71,9 +71,9 @@
                 <p class="mag-lead__text">{{ $excerptOf($lead, 260) }}</p>
 
                 <span class="mag-lead__meta">
-                    🗓 {{ $lead->created_at?->format('d.m.Y') }}
-                    <span>⏱ {{ __('frontend.news.reading_time', ['min' => reading_time($lead->content)]) }}</span>
-                    <span class="mag-lead__more">Читать целиком →</span>
+                    <span class="mag-meta__date">{{ $lead->created_at?->format('d.m.Y') }}</span>
+                    <span class="mag-meta__time">{{ __('frontend.news.reading_time', ['min' => reading_time($lead->content)]) }}</span>
+                    <span class="mag-lead__more">{{ __('frontend.news.read_full') }} →</span>
                 </span>
             </div>
         </a>
@@ -97,8 +97,12 @@
                     <div class="mag-card__body">
                         <h4 class="mag-card__title">{{ $item->title }}</h4>
                         <p class="mag-card__text">{{ $excerptOf($item, 110) }}</p>
-                        <span class="mag-card__meta">🗓 {{ $item->created_at?->format('d.m.Y') }}
-                            · ⏱ {{ __('frontend.news.reading_time', ['min' => reading_time($item->content)]) }}</span>
+                        {{-- Дата и время чтения разведены по краям и отделены
+                             линией: одной строкой они сливались с анонсом. --}}
+                        <span class="mag-card__meta">
+                            <span class="mag-meta__date">{{ $item->created_at?->format('d.m.Y') }}</span>
+                            <span class="mag-meta__time">{{ __('frontend.news.reading_time', ['min' => reading_time($item->content)]) }}</span>
+                        </span>
                     </div>
                 </a>
             @endforeach
@@ -133,8 +137,11 @@
     .mag-lead__body{ padding:2rem 2.25rem; display:flex; flex-direction:column; justify-content:center }
     .mag-lead__title{ margin:.75rem 0 .6rem; font-size:1.75rem; line-height:1.25; font-weight:700; color:#111827 }
     .mag-lead__text{ margin:0; font-size:1rem; line-height:1.6; color:#475569 }
+    /* У ведущего материала та же полоса, только шире и со ссылкой справа. */
     .mag-lead__meta{ display:flex; align-items:center; gap:1rem; flex-wrap:wrap;
-        margin-top:1.25rem; font-size:.82rem; color:#94a3b8 }
+        margin-top:1.5rem; padding-top:.85rem; font-size:.82rem; color:#94a3b8;
+        border-top:1px solid #eef2f7 }
+    .mag-lead__meta .mag-meta__time{ margin-right:auto }
     .mag-lead__more{ font-weight:700; color:var(--color-primary,#6366f1) }
 
     .mag-chip{ align-self:flex-start; font-size:.7rem; font-weight:700; letter-spacing:.04em;
@@ -153,7 +160,16 @@
     .mag-card__body{ padding:1rem 1.1rem 1.15rem; display:flex; flex-direction:column; gap:.4rem; flex:1 }
     .mag-card__title{ margin:0; font-size:1rem; line-height:1.35; font-weight:700; color:#111827 }
     .mag-card__text{ margin:0; font-size:.84rem; line-height:1.5; color:#64748b; flex:1 }
-    .mag-card__meta{ font-size:.75rem; color:#94a3b8 }
+    /* Нижняя строка карточки. Раньше это был обычный текст того же цвета,
+       что и анонс, вплотную к нему — строка в тексте тонула. Теперь у неё
+       своя полоса: линия сверху, лёгкая подложка, края разведены. */
+    .mag-card__meta{ display:flex; align-items:center; justify-content:space-between; gap:.75rem;
+        margin:.65rem -1.1rem -1.15rem; padding:.55rem 1.1rem; font-size:.75rem;
+        border-top:1px solid #eef2f7; background:#f8fafc }
+    .mag-meta__date{ color:#94a3b8; font-variant-numeric:tabular-nums }
+    .mag-meta__date::before{ content:'🗓'; margin-right:.35rem; opacity:.75 }
+    .mag-meta__time{ color:#475569; font-weight:600; white-space:nowrap }
+    .mag-meta__time::before{ content:'⏱'; margin-right:.3rem; opacity:.75 }
 
     @media (max-width: 860px){
         .mag-lead{ grid-template-columns:1fr }
@@ -164,6 +180,9 @@
 
     @media (prefers-color-scheme: dark){
         .mag__head, .mag-lead, .mag-card{ background:#111827; border-color:#1f2937 }
+        .mag-card__meta{ background:#0b1220; border-color:#1f2937 }
+        .mag-lead__meta{ border-color:#1f2937 }
+        .mag-meta__time{ color:#cbd5e1 }
         .mag__title, .mag-lead__title, .mag-card__title{ color:#f3f4f6 }
         .mag-lead__text{ color:#cbd5e1 }
         .mag-card__text{ color:#94a3b8 }

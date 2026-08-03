@@ -41,6 +41,7 @@ return [
     ],
 
     'news' => [
+        'read_full' => 'Read in full',
         'title' => 'News',
         'no_video' => 'Your browser does not support video.',
         'all' => 'All news',
