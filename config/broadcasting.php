@@ -10,7 +10,14 @@ return [
     | Возможные значения: pusher, ably, log, null, soketi
     |
     */
-    'default' => env('BROADCAST_DRIVER', 'pusher'),
+    /*
+     * Читаем BROADCAST_CONNECTION — имя переменной из Laravel 11+, именно оно
+     * стоит в .env проекта. Раньше здесь был только старый BROADCAST_DRIVER:
+     * настройка из .env не читалась вовсе, значение молча падало в дефолт
+     * 'pusher', а пакета pusher в проекте нет. Дефолт тоже заменён на 'null' —
+     * он не требует ни пакетов, ни внешнего сервиса.
+     */
+    'default' => env('BROADCAST_CONNECTION', env('BROADCAST_DRIVER', 'null')),
 
     'connections' => [
         /*

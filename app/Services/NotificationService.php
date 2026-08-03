@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Events\NotificationSent;
 
 /**
@@ -83,9 +84,20 @@ class NotificationService
 
         DB::table('admin_notifications')->insert($notification);
 
-        // Broadcast real-time уведомление
+        // Broadcast real-time уведомление.
+        //
+        // Обёрнуто в try/catch намеренно: уведомление — побочное действие, и
+        // сломанный броадкастер не должен ронять операцию, которая его
+        // вызвала. Именно так было: при неустановленном pusher создание
+        // заказа падало с RuntimeException уже ПОСЛЕ записи заказа в базу —
+        // покупатель видел ошибку, оплата не запускалась, а из всех
+        // администраторов уведомление получал только первый.
         if (config('broadcasting.default') !== 'null') {
-            event(new NotificationSent($notification));
+            try {
+                event(new NotificationSent($notification));
+            } catch (\Throwable $e) {
+                Log::warning('Уведомление сохранено, но не разослано в реальном времени: ' . $e->getMessage());
+            }
         }
 
         // Отправка Web Push уведомления

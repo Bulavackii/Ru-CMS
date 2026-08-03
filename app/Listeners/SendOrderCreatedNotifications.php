@@ -70,26 +70,28 @@ class SendOrderCreatedNotifications
      */
     protected function notifyAdmins(Order $order): void
     {
-        $admins = User::where('is_admin', true)->get();
+        // Одно уведомление на каждого администратора.
+        //
+        // Раньше их создавалось два комплекта: персональные в цикле ПЛЮС одно
+        // общее с user_id = null. Список в панели выбирает записи «мои ИЛИ
+        // общие», поэтому каждый администратор видел один и тот же заказ
+        // дважды. Оставлены персональные — у них у каждого своя отметка
+        // «прочитано», а ссылка на заказ (была только у общего) добавлена сюда.
+        $customer = $order->customer_name ?: ($order->user?->name ?: 'Гость');
+        $total = number_format((float) $order->total, 2, ',', ' ');
 
-        foreach ($admins as $admin) {
-            $this->notificationService->info(
-                "Новый заказ #{$order->id}",
-                "Создан новый заказ на сумму " . number_format($order->total, 2, ',', ' ') . " ₽",
-                $admin->id
-            );
-        }
-
-        // Также создаем уведомление для всех админов (null = для всех)
-        $this->notificationService->create([
-            'user_id' => null, // Для всех админов
-            'type' => 'info',
-            'title' => "🆕 Новый заказ #{$order->id}",
-            'message' => "Клиент: " . ($order->customer_name ?? $order->user?->name ?? 'Гость') . 
-                        " | Сумма: " . number_format($order->total, 2, ',', ' ') . " ₽",
-            'action_url' => route('admin.orders.show', $order->id),
-            'action_text' => 'Просмотреть заказ',
-        ]);
+        User::where('is_admin', true)
+            ->select('id')
+            ->each(function (User $admin) use ($order, $customer, $total) {
+                $this->notificationService->create([
+                    'user_id' => $admin->id,
+                    'type' => 'info',
+                    'title' => "Новый заказ #{$order->id}",
+                    'message' => "Клиент: {$customer} · Сумма: {$total} ₽",
+                    'action_url' => route('admin.orders.show', $order->id),
+                    'action_text' => 'Открыть заказ',
+                ]);
+            });
     }
 }
 
