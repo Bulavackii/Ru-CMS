@@ -215,4 +215,10 @@ return [
         'show' => 'Show',
         'hide' => 'Hide',
     ],
+
+    'pages' => [
+        'title' => 'Useful',
+        'subtitle' => 'About the project and how to work with the system',
+        'more' => 'Details',
+    ],
 ];

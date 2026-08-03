@@ -1,47 +1,81 @@
 {{--
-    Блок «Страницы» на главной. Выводит страницы, у которых включена галочка
-    «Показать на главной» (порядок — по homepage_order).
-
-    Показываем КАРТОЧКИ с выдержкой, а не полный контент: страниц может быть
-    несколько, и их полный текст раньше растягивал главную на несколько экранов.
-    Полный материал открывается по кнопке. Стиль — общий фронтовый (.fx-*).
+    ╔══════════════════════════════════════════════════════════════════╗
+    ║  📄 БЛОК «ПОЛЕЗНОЕ»                                              ║
+    ╠══════════════════════════════════════════════════════════════════╣
+    ║  Страницы, вынесенные на главную: о проекте, условия, помощь.     ║
+    ║  Показываем карточки с выдержкой, а не полный текст — иначе       ║
+    ║  несколько страниц растянули бы главную на пару экранов.          ║
+    ║                                                                  ║
+    ║  ЧТО СЮДА ПОПАДАЕТ                                               ║
+    ║    Панель → Страницы → материал → галочка «Показать на главной».  ║
+    ║    Порядок задаётся полем homepage_order.                         ║
+    ║                                                                  ║
+    ║  ИКОНКА КАРТОЧКИ                                                 ║
+    ║    Первый эмодзи в заголовке страницы: «❓ Частые вопросы» → в    ║
+    ║    карточке появится значок, а в заголовке останется чистый       ║
+    ║    текст. Нет эмодзи — рисуется общий значок документа.           ║
+    ║                                                                  ║
+    ║  ЦВЕТА                                                           ║
+    ║    Из активной темы (--color-primary/--color-accent), поэтому     ║
+    ║    блок одинаково читается на любом оформлении.                   ║
+    ╚══════════════════════════════════════════════════════════════════╝
 --}}
 @php use Illuminate\Support\Str; @endphp
 
-<section class="my-8 sm:my-10 md:my-12 max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16">
-    {{-- Заголовок секции: градиентный бейдж + название --}}
-    <div class="mb-6 sm:mb-8 flex justify-center select-none">
-        <div class="fx-section-head">
-            <span class="fx-badge"><i class="fas fa-file-lines"></i></span>
-            <div class="text-left">
-                <h2 class="fx-section-title text-xl sm:text-2xl md:text-3xl leading-tight">Полезное</h2>
-                <div class="fx-section-sub">Материалы о проекте и работе с системой</div>
-            </div>
+@php
+    // Иконка — ведущий эмодзи заголовка. Тот же приём, что в «Клинике» и
+    // «Играх»: редактор задаёт значок, не трогая вёрстку.
+    $splitIcon = function ($title) {
+        $title = trim((string) $title);
+
+        if (preg_match('~^(\X)\s+(.+)$~u', $title, $m) && ! preg_match('~^[\p{L}\p{N}]~u', $m[1])) {
+            return ['icon' => $m[1], 'text' => $m[2]];
+        }
+
+        return ['icon' => null, 'text' => $title];
+    };
+@endphp
+
+<section class="pg">
+    <div class="pg__head">
+        <span class="fx-badge"><i class="fas fa-file-lines"></i></span>
+        <div>
+            <h2 class="pg__title">{{ __('frontend.pages.title') }}</h2>
+            <p class="pg__sub">{{ __('frontend.pages.subtitle') }}</p>
         </div>
     </div>
 
-    <div class="grid gap-4 sm:gap-6 md:gap-8 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="pg-grid">
         @foreach ($pages as $page)
             @php
-                $excerpt = Str::limit(trim(preg_replace('/\s+/u', ' ', strip_tags((string) $page->content))), 180);
+                $parts = $splitIcon($page->t('title'));
+                $excerpt = Str::limit(trim(preg_replace('/\s+/u', ' ', strip_tags((string) $page->content))), 165);
+                $url = !empty($page->slug) ? route('frontend.pages.show', $page->slug) : null;
             @endphp
 
-            <article class="fx-card flex flex-col p-5 sm:p-6">
-                <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white leading-tight mb-2 break-words">
-                    @if (!empty($page->slug))
-                        <a href="{{ route('frontend.pages.show', $page->slug) }}"
-                           class="hover:text-indigo-600 dark:hover:text-indigo-400 transition" title="Открыть страницу">
-                            {{ $page->t('title') }}
-                        </a>
+            <article class="pg-card">
+                <span class="pg-card__ico">
+                    @if ($parts['icon'])
+                        {{ $parts['icon'] }}
                     @else
-                        {{ $page->t('title') }}
+                        <i class="fas fa-file-lines"></i>
+                    @endif
+                </span>
+
+                <h3 class="pg-card__title">
+                    @if ($url)
+                        <a href="{{ $url }}">{{ $parts['text'] }}</a>
+                    @else
+                        {{ $parts['text'] }}
                     @endif
                 </h3>
 
                 @if ($page->categories->isNotEmpty())
-                    <div class="flex flex-wrap items-center gap-1.5 mb-3">
-                        @foreach ($page->categories as $category)
-                            <a href="{{ url('/?category=' . $category->id) }}" class="fx-chip hover:brightness-95">
+                    <div class="pg-card__cats">
+                        {{-- Не больше двух: при трёх и более чипы занимали
+                             половину карточки и вытесняли текст. --}}
+                        @foreach ($page->categories->take(2) as $category)
+                            <a href="{{ url('/?category=' . $category->id) }}" class="pg-chip">
                                 {{ $category->t('title') }}
                             </a>
                         @endforeach
@@ -49,16 +83,61 @@
                 @endif
 
                 @if ($excerpt !== '')
-                    <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-4">{{ $excerpt }}</p>
+                    <p class="pg-card__text">{{ $excerpt }}</p>
                 @endif
 
-                @if (!empty($page->slug))
-                    <a href="{{ route('frontend.pages.show', $page->slug) }}"
-                       class="fx-btn mt-auto w-full py-2 sm:py-2.5 text-xs sm:text-sm">
-                        Подробнее <i class="fas fa-arrow-right" style="font-size:.65rem"></i>
+                @if ($url)
+                    <a href="{{ $url }}" class="pg-card__more">
+                        {{ __('frontend.pages.more') }} <i class="fas fa-arrow-right"></i>
                     </a>
                 @endif
             </article>
         @endforeach
     </div>
 </section>
+
+@push('styles')
+<style>
+    /* Литеральный CSS: в статической сборке Tailwind нет ни line-clamp,
+       ни произвольных значений, ни прозрачности через /NN. */
+    .pg{ max-width:80rem; margin:2.5rem auto; padding:0 1rem }
+
+    .pg__head{ display:inline-flex; align-items:center; gap:.75rem; padding:.7rem 1.15rem;
+        background:#fff; border:1px solid rgba(17,24,39,.08); box-shadow:0 2px 10px rgba(15,23,42,.06);
+        margin-bottom:1.5rem }
+    .pg__title{ margin:0; font-size:1.5rem; font-weight:700; color:#111827; line-height:1.2 }
+    .pg__sub{ margin:.1rem 0 0; font-size:.82rem; color:#6b7280 }
+
+    .pg-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(18rem,1fr)); gap:1rem }
+
+    .pg-card{ display:flex; flex-direction:column; gap:.55rem; padding:1.3rem 1.4rem;
+        background:#fff; border:1px solid #eef2f7; transition:border-color .15s, transform .15s }
+    .pg-card:hover{ border-color:var(--color-primary,#6366f1); transform:translateY(-2px) }
+
+    .pg-card__ico{ display:flex; align-items:center; justify-content:center; width:2.5rem; height:2.5rem;
+        font-size:1.2rem; color:#fff; flex:none;
+        background:linear-gradient(135deg,var(--color-primary,#6366f1),var(--color-accent,#8b5cf6)) }
+
+    /* Обрезка строками настоящим CSS: класса line-clamp в сборке нет, и
+       без этого длинный заголовок ломал высоту карточек в ряду. */
+    .pg-card__title{ margin:0; font-size:1.05rem; line-height:1.35; font-weight:700 }
+    .pg-card__title a{ color:#111827; display:-webkit-box; -webkit-line-clamp:2;
+        -webkit-box-orient:vertical; overflow:hidden }
+    .pg-card__title a:hover{ color:var(--color-primary,#6366f1) }
+
+    .pg-card__cats{ display:flex; flex-wrap:wrap; gap:.3rem }
+    .pg-chip{ font-size:.68rem; font-weight:700; padding:.12rem .45rem; color:#4f46e5;
+        background:#eef2ff; border:1px solid #e0e7ff }
+
+    .pg-card__text{ margin:0; font-size:.85rem; line-height:1.55; color:#64748b; flex:1;
+        display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden }
+
+    .pg-card__more{ font-size:.85rem; font-weight:700; color:var(--color-primary,#6366f1) }
+
+    @media (prefers-color-scheme: dark){
+        .pg__head, .pg-card{ background:#111827; border-color:#1f2937 }
+        .pg__title, .pg-card__title a{ color:#f3f4f6 }
+        .pg-chip{ background:#1e1b4b; border-color:#312e81; color:#c7d2fe }
+    }
+</style>
+@endpush
