@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Обложка журнального материала. Заменяется своей картинкой. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img">
+  <defs><linearGradient id="m-seo" x1="0" y1="200" x2="200" y2="0" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#0f766e"/><stop offset="1" stop-color="#14b8a6"/></linearGradient></defs>
+  <rect width="200" height="200" fill="url(#m-seo)"/>
+  <path d="M86 40a46 46 0 1 0 0 92 46 46 0 0 0 0-92Zm32 78 34 34" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" opacity=".92"/>
+</svg>

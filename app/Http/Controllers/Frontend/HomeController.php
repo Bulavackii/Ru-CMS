@@ -83,7 +83,11 @@ class HomeController extends Controller
         $templateKeys = [
             'about', 'default', 'ourworks', 'release',
             'base-php', 'base-html', 'base-css', 'base-js',
-            'products', 'reviews', 'faq', 'gallery', 'slideshow', 'test'
+            'products', 'reviews', 'faq', 'slideshow', 'test',
+            // 📖 Журнал — крупный ведущий материал плюс сетка остальных.
+            'magazine',
+            // 'gallery' убран: шаблона с таким именем в проекте нет, блок
+            // молча не рендерился и только занимал лишний запрос к базе.
         ];
 
         $cart = session('cart', []);
