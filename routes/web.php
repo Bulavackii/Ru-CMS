@@ -368,13 +368,22 @@ Route::get('/privacy', [\Modules\Menu\Controllers\Frontend\PageController::class
 Route::get('/terms', [\Modules\Menu\Controllers\Frontend\PageController::class, 'show'])
     ->defaults('slug', 'soglashenie')
     ->name('pages.terms');
-Route::view('/partnership', 'frontend.pages.partnership')->name('pages.partnership'); // Сотрудничество
+Route::get('/partnership', [\Modules\Menu\Controllers\Frontend\PageController::class, 'show'])
+    ->defaults('slug', 'sotrudnichestvo')
+    ->name('pages.partnership');
 Route::get('/developers', [\Modules\Menu\Controllers\Frontend\PageController::class, 'show'])
     ->defaults('slug', 'razrabotchikam')
     ->name('pages.developers');
-Route::view('/concept', 'frontend.pages.concept')->name('pages.concept'); // Концепция
+// Отдельной «Концепции» больше нет: её содержимое дублировало страницу
+// «О проекте», а в подвале этот адрес и подписан как «О проекте».
+// Прежняя ссылка сохранена и ведёт на ту же запись, что и /about.
+Route::get('/concept', [\Modules\Menu\Controllers\Frontend\PageController::class, 'show'])
+    ->defaults('slug', 'o-proekte')
+    ->name('pages.concept');
 Route::view('/sitemap', 'frontend.pages.sitemap')->name('pages.sitemap'); // Карта сайта
-Route::view('/donate', 'frontend.pages.donate')->name('pages.donate'); // Пожертвовать
+Route::get('/donate', [\Modules\Menu\Controllers\Frontend\PageController::class, 'show'])
+    ->defaults('slug', 'podderzhat-proekt')
+    ->name('pages.donate');
 
 Route::get('/search', [FrontendSearchController::class, 'index'])->name('frontend.search');
 
