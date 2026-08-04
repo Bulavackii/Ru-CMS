@@ -1,9 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Обложка журнального материала, пропорция под карточку 8:5.
-     Заменяется своей картинкой того же размера. -->
+     Заменяется своей картинкой того же размера.
+
+     Рисунок специально уравновешен с соседними обложками: прежний был
+     184x96 при вытянутых ячейках 84x40 и рядом с ними смотрелся
+     растянутым. Здесь блок 129x93 — почти квадрат, а ячейки 58x40
+     близки к пропорции самой карточки. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" width="320" height="200" role="img">
   <defs><linearGradient id="m-shablony" x1="0" y1="200" x2="320" y2="0" gradientUnits="userSpaceOnUse">
     <stop stop-color="#0057e7"/><stop offset="1" stop-color="#3d8bff"/></linearGradient></defs>
   <rect width="320" height="200" fill="url(#m-shablony)"/>
-  <path d="M52 52h84v40H52Zm100 0h84v40h-84ZM52 108h84v40H52Zm100 0h84v40h-84Z" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/>
+  <g fill="none" stroke="#fff" stroke-width="9" opacity=".9">
+    <rect x="96" y="54" width="58" height="40" rx="6"/>
+    <rect x="167" y="54" width="58" height="40" rx="6"/>
+    <rect x="96" y="107" width="58" height="40" rx="6"/>
+    <rect x="167" y="107" width="58" height="40" rx="6"/>
+  </g>
 </svg>
