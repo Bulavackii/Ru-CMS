@@ -467,6 +467,19 @@ if (!function_exists('render_shortcodes')) {
             ) ?? $html;
         }
 
+        // Карта сайта: [sitemap]. Список собирается из базы при каждом
+        // заходе — добавили страницу или раздел, они появились сами.
+        // Вписанный руками список неизбежно расходится с сайтом: прежняя
+        // карта ссылалась на «Концепцию», «Прайс-лист» и «Выполненные
+        // работы», которых давно нет.
+        if (str_contains($html, '[sitemap')) {
+            $html = preg_replace_callback(
+                '~\[sitemap\s*\]~i',
+                fn (): string => (string) view('frontend.partials.sitemap')->render(),
+                $html
+            ) ?? $html;
+        }
+
         return $html;
     }
 }

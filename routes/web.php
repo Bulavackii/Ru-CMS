@@ -380,7 +380,9 @@ Route::get('/developers', [\Modules\Menu\Controllers\Frontend\PageController::cl
 Route::get('/concept', [\Modules\Menu\Controllers\Frontend\PageController::class, 'show'])
     ->defaults('slug', 'o-proekte')
     ->name('pages.concept');
-Route::view('/sitemap', 'frontend.pages.sitemap')->name('pages.sitemap'); // Карта сайта
+Route::get('/sitemap', [\Modules\Menu\Controllers\Frontend\PageController::class, 'show'])
+    ->defaults('slug', 'karta-sayta')
+    ->name('pages.sitemap');
 Route::get('/donate', [\Modules\Menu\Controllers\Frontend\PageController::class, 'show'])
     ->defaults('slug', 'podderzhat-proekt')
     ->name('pages.donate');

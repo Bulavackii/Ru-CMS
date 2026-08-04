@@ -365,3 +365,23 @@
 /* Иконка карточки контакта — в тон значкам карточек. */
 .page-content .pc-contacts .pc-ico{ width:2rem; height:2rem; margin-bottom:.6rem;
     font-size:.8rem }
+
+/* ── Карта сайта ────────────────────────────────────────────────── */
+/* Список подставляется шорткодом [sitemap] и собирается из базы. */
+.page-content .pc-sitemap{ display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(15rem,1fr)); gap:1.25rem; margin:1.5rem 0 }
+.page-content .pc-sitemap__group{ padding:1.1rem 1.25rem; background:#fff;
+    border:1px solid #eef2f7 }
+.page-content .pc-sitemap__group h3{ margin:0 0 .6rem; font-size:.72rem; font-weight:700;
+    letter-spacing:.08em; text-transform:uppercase; color:#94a3b8 }
+.page-content .pc-sitemap__group ul{ margin:0; padding:0; list-style:none;
+    display:grid; gap:.35rem }
+.page-content .pc-sitemap__group li{ margin:0 }
+.page-content .pc-sitemap__group a{ display:inline-flex; align-items:center; gap:.45rem;
+    font-size:.92rem; color:#334155; text-decoration:none; line-height:1.4 }
+.page-content .pc-sitemap__group a::before{ content:''; width:.3rem; height:.3rem; flex:none;
+    background:var(--color-primary,#6366f1) }
+.page-content .pc-sitemap__group a:hover{ color:var(--color-primary,#6366f1) }
+
+:root.dark .page-content .pc-sitemap__group{ background:#111827; border-color:#1f2937 }
+:root.dark .page-content .pc-sitemap__group a{ color:#cbd5e1 }
