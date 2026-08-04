@@ -671,7 +671,13 @@
                 var def = item.def;
 
                 if (def.active) {
-                    item.node.classList.toggle('is-active', !!def.active(self));
+                    var on = !!def.active(self);
+
+                    item.node.classList.toggle('is-active', on);
+                    // Экранный диктор объявляет «нажата»: подсветкой цветом он
+                    // не пользуется, и без этого состояние кнопки для него
+                    // просто не существует.
+                    item.node.setAttribute('aria-pressed', on ? 'true' : 'false');
                 }
                 if (def.label !== undefined && def.currentLabel && item.label) {
                     item.label.textContent = def.currentLabel(self) || def.label;

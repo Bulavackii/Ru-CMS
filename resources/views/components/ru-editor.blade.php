@@ -52,12 +52,13 @@
         'full'   => 'undo redo | blocks | fontfamily fontsize | bold italic underline strikethrough | '
                   . 'forecolor backcolor | alignleft aligncenter alignright alignjustify | '
                   . 'bullist numlist outdent indent | link unlink | image media table | '
-                  . 'ruBlocks charmap captcha | removeformat',
+                  . 'ruBlocks charmap captcha | removeformat | '
+                  . 'searchreplace visualblocks code preview fullscreen help',
         'page'   => 'undo redo | blocks | bold italic underline | '
                   . 'alignleft aligncenter alignright | bullist numlist | link unlink | image table | '
-                  . 'ruBlocks captcha | removeformat',
-        'simple' => 'undo redo | bold italic underline | bullist numlist | link unlink | removeformat',
-        'mail'   => 'undo redo | bold italic underline | bullist numlist | link unlink | removeformat',
+                  . 'ruBlocks captcha | removeformat | code preview fullscreen',
+        'simple' => 'undo redo | bold italic underline | bullist numlist | link unlink | removeformat | code fullscreen',
+        'mail'   => 'undo redo | bold italic underline | bullist numlist | link unlink | removeformat | code',
     ];
 
     $toolbarSpec = $toolbar ?: ($presets[$preset] ?? $presets['full']);
@@ -106,6 +107,7 @@
         <script src="{{ asset('assets/js/ru-editor-format.js') }}"></script>
         <script src="{{ asset('assets/js/ru-editor-media.js') }}"></script>
         <script src="{{ asset('assets/js/ru-editor-blocks.js') }}"></script>
+        <script src="{{ asset('assets/js/ru-editor-tools.js') }}"></script>
 
         <script>
             // Строки интерфейса приходят из словаря PHP, а не зашиты в скрипт:
