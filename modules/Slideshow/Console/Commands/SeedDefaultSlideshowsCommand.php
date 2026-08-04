@@ -100,7 +100,7 @@ class SeedDefaultSlideshowsCommand extends Command
                         'position'          => $def['position'],
                         'description'       => $def['description'],
                         'published'         => true,
-                        'autoplay_delay'    => 7000,
+                        'autoplay_delay'    => 5000,
                         'transition_effect' => 'slide',
                         'height'            => $def['height'],
                         'show_pagination'   => true,

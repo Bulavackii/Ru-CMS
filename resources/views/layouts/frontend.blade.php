@@ -432,6 +432,11 @@
            На SVG-геометрию (rx) не влияет — флаги и иконки без rx, им и не нужно. */
         body.fx-sharp, body.fx-sharp *{ border-radius:0 !important; }
     </style>
+    {{-- Просмотр картинки во весь экран — общий для всего сайта: страницы,
+         новости, любые шаблоны. Раньше он жил внутри шаблона слайдшоу и
+         работал только там, а в остальных местах клик по картинке
+         перехватывали расширения браузера. --}}
+    <link rel="stylesheet" href="{{ asset('assets/css/image-viewer.css') }}">
 </head>
 
 @php
@@ -761,6 +766,7 @@
         })();
     </script>
 
+    <script src="{{ asset('assets/js/image-viewer.js') }}" defer></script>
 </body>
 
 </html>

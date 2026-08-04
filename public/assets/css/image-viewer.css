@@ -1,0 +1,47 @@
+/*
+    Просмотр картинки во весь экран — ОБЩИЙ для всего сайта.
+
+    Раньше эти стили жили внутри шаблона слайдшоу, поэтому просмотр работал
+    только в слайдере. В остальных шаблонах и на страницах клик по картинке
+    ничего не делал, и его перехватывали расширения браузера.
+*/
+
+/* ── Просмотр картинки во весь экран ────────────────────────────── */
+/* Картинка в кадре обрезана по пропорции слайдера. Клик открывает её
+   целиком, вписанной в экран: max-width/max-height в единицах вьюпорта
+   дают это при ЛЮБОЙ его ширине, без вычислений в скрипте. width/height
+   остаются auto, поэтому маленькая картинка не растягивается до мыла. */
+.ru-zoomable{ cursor:zoom-in }
+.ru-zoomable:focus-visible{ outline:3px solid var(--color-primary,#6366f1); outline-offset:-3px }
+
+.ru-viewer{ position:fixed; inset:0; z-index:9999; display:flex;
+    align-items:center; justify-content:center; padding:3.5rem 1rem 4.5rem;
+    background:rgba(2,6,23,.92);
+    -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px) }
+.ru-viewer[hidden]{ display:none }
+
+.ru-viewer__img{ max-width:96vw; max-height:calc(100vh - 8rem);
+    width:auto; height:auto; object-fit:contain; display:block;
+    box-shadow:0 24px 60px rgba(2,6,23,.6) }
+
+.ru-viewer__cap{ position:absolute; left:1rem; right:1rem; bottom:1.15rem;
+    text-align:center; color:#e2e8f0; font-size:.875rem; line-height:1.4;
+    text-shadow:0 1px 3px rgba(2,6,23,.8) }
+
+/* Кнопки просмотрщика — того же размера, что и стрелки слайдера. */
+.ru-viewer__btn{ position:absolute; display:flex; align-items:center; justify-content:center;
+    width:44px; height:44px; color:#fff; font-size:1.1rem; line-height:1;
+    background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.22);
+    transition:background-color .15s }
+.ru-viewer__btn:hover{ background:rgba(255,255,255,.24) }
+.ru-viewer__btn:focus-visible{ outline:2px solid #fff; outline-offset:2px }
+.ru-viewer__close{ top:1rem; right:1rem }
+.ru-viewer__prev{ top:50%; left:1rem; margin-top:-22px }
+.ru-viewer__next{ top:50%; right:1rem; margin-top:-22px }
+
+/* На телефоне боковые кнопки съедают место под саму картинку —
+   листать там естественнее свайпом по самой карусели. */
+@media (max-width:640px){
+    .ru-viewer{ padding:3.5rem .5rem 4rem }
+    .ru-viewer__prev, .ru-viewer__next{ display:none }
+}
