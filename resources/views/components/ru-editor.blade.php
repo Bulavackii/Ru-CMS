@@ -33,15 +33,29 @@
 @php
     $editorId = $id ?? $name;
 
+    // Сборки каптчи читаем один раз на страницу: редакторов на форме бывает
+    // несколько, а запрос к базе на каждый из них ни к чему.
+    $captchaPresets = \Illuminate\Support\Facades\Route::has('admin.captcha.index')
+        && class_exists(\Modules\Captcha\Models\CaptchaPreset::class)
+        ? \Modules\Captcha\Models\CaptchaPreset::activeList()
+            ->map(fn ($preset) => [
+                'slug' => $preset->slug,
+                'name' => $preset->name,
+                'type' => $preset->type ?? '',
+            ])->values()->all()
+        : [];
+
     // Наборы кнопок. Полный — для новостей и страниц, где верстают материал
     // целиком; простой — для писем и уведомлений, где сложная разметка только
     // мешает почтовым клиентам.
     $presets = [
         'full'   => 'undo redo | blocks | fontfamily fontsize | bold italic underline strikethrough | '
                   . 'forecolor backcolor | alignleft aligncenter alignright alignjustify | '
-                  . 'bullist numlist outdent indent | link unlink | image media | removeformat',
+                  . 'bullist numlist outdent indent | link unlink | image media table | '
+                  . 'ruBlocks charmap captcha | removeformat',
         'page'   => 'undo redo | blocks | bold italic underline | '
-                  . 'alignleft aligncenter alignright | bullist numlist | link unlink | image | removeformat',
+                  . 'alignleft aligncenter alignright | bullist numlist | link unlink | image table | '
+                  . 'ruBlocks captcha | removeformat',
         'simple' => 'undo redo | bold italic underline | bullist numlist | link unlink | removeformat',
         'mail'   => 'undo redo | bold italic underline | bullist numlist | link unlink | removeformat',
     ];
@@ -65,6 +79,11 @@
         'uploadUrl'   => Route::has('admin.files.upload') ? route('admin.files.upload') : null,
         'browseUrl'   => Route::has('admin.files.browse') ? route('admin.files.browse') : null,
         'uploadHint'  => __('admin.editor.upload_hint', ['size' => max_upload_label()]),
+        // Сохранённые сборки каптчи. Прежде выбор жил ОТДЕЛЬНЫМ выпадающим
+        // списком под полем содержимого: он не был частью редактора, не знал,
+        // где стоит курсор, и вставлял шорткод «куда получится».
+        'captchaPresets' => $captchaPresets,
+        'captchaUrl'     => Route::has('admin.captcha.index') ? route('admin.captcha.index') : null,
     ];
 @endphp
 
@@ -86,6 +105,7 @@
         <script src="{{ asset('assets/js/ru-editor-ui.js') }}"></script>
         <script src="{{ asset('assets/js/ru-editor-format.js') }}"></script>
         <script src="{{ asset('assets/js/ru-editor-media.js') }}"></script>
+        <script src="{{ asset('assets/js/ru-editor-blocks.js') }}"></script>
 
         <script>
             // Строки интерфейса приходят из словаря PHP, а не зашиты в скрипт:

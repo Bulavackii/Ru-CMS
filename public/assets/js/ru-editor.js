@@ -1045,6 +1045,7 @@
 
         setContent: function (html, options) {
             this.body.innerHTML = html || '';
+            this._chipify();
 
             // Пустой документ без блока: курсор в голом body ведёт себя
             // непредсказуемо, Enter родит текстовый узел без обёртки.
@@ -1064,6 +1065,60 @@
 
         save: function () {
             this.textarea.value = this.getContent();
+        },
+
+        /**
+         * Превратить шорткоды в тексте в наглядные плашки.
+         *
+         * В базе лежит обычный текст [captcha preset="x"] — его раскрывает
+         * render_shortcodes() при выводе материала. Посреди абзаца такой текст
+         * легко принять за опечатку и случайно испортить по букве, поэтому в
+         * редакторе он показывается цельной неделимой плашкой. Обратное
+         * превращение делает cleanOutput: наружу уходит снова текст.
+         */
+        _chipify: function () {
+            var names = RuEditor.shortcodes;
+
+            if (!names.length) {
+                return;
+            }
+
+            var pattern = new RegExp('\\[(?:' + names.join('|') + ')\\b[^\\]]*\\]', 'g');
+            var walker = this.doc.createTreeWalker(this.body, window.NodeFilter.SHOW_TEXT, null, false);
+            var found = [];
+            var node;
+
+            while ((node = walker.nextNode())) {
+                if (pattern.test(node.nodeValue)) {
+                    found.push(node);
+                }
+                pattern.lastIndex = 0;
+            }
+
+            var doc = this.doc;
+
+            found.forEach(function (textNode) {
+                var parts = textNode.nodeValue.split(pattern);
+                var codes = textNode.nodeValue.match(pattern) || [];
+                var fragment = doc.createDocumentFragment();
+
+                parts.forEach(function (part, index) {
+                    if (part) {
+                        fragment.appendChild(doc.createTextNode(part));
+                    }
+
+                    if (codes[index]) {
+                        var chip = doc.createElement('span');
+
+                        chip.setAttribute('data-ru-shortcode', codes[index]);
+                        chip.setAttribute('contenteditable', 'false');
+                        chip.textContent = codes[index];
+                        fragment.appendChild(chip);
+                    }
+                });
+
+                textNode.parentNode.replaceChild(fragment, textNode);
+            });
         },
 
         /* ── Простая шина событий ────────────────────────────────────── */
@@ -1155,6 +1210,14 @@
 
         instances: instances,
 
+        /**
+         * Шорткоды, которые редактор показывает плашкой вместо голого текста.
+         * Список тот же, что понимает render_shortcodes() в app/helpers.php —
+         * перечислен явно, чтобы обычный текст в квадратных скобках («[см.
+         * приложение 2]») случайно не превратился в плашку.
+         */
+        shortcodes: ['captcha', 'map', 'sitemap'],
+
         /** Завести редактор на textarea. */
         create: function (target, options) {
             var textarea = typeof target === 'string' ? document.querySelector(target) : target;
@@ -1238,6 +1301,15 @@
             var box = document.createElement('div');
 
             box.innerHTML = html;
+
+            // Плашки шорткодов разворачиваются обратно в текст: в базе должен
+            // лежать сам шорткод, а не разметка, которой мы его показывали.
+            Array.prototype.forEach.call(box.querySelectorAll('[data-ru-shortcode]'), function (chip) {
+                chip.parentNode.replaceChild(
+                    document.createTextNode(chip.getAttribute('data-ru-shortcode')),
+                    chip
+                );
+            });
 
             // Служебные пометки редактора наружу не уходят.
             Array.prototype.forEach.call(box.querySelectorAll('.ru-ed-selected'), function (node) {
