@@ -29,7 +29,45 @@
         type: 'menu',
         icon: 'fas fa-table',
         title: 'Таблица',
+        /**
+         * Размер выбирается наведением по сетке, а не вводом двух чисел.
+         * Числа требуют представить результат в уме; сетка показывает его
+         * сразу — так это устроено во всех редакторах текста, и людям не
+         * приходится переучиваться.
+         */
+        render: function (editor, menu) {
+            if (!editor.closest('table')) {
+                menu.appendChild(sizeGrid(editor));
+                menu.appendChild(el('div', { class: 'ru-ed-menu-head', text: t('table.more', 'Ещё') }));
+            }
+
+            menuItems(editor).forEach(function (item) {
+                if (item.head) {
+                    menu.appendChild(el('div', { class: 'ru-ed-menu-head', text: item.head }));
+                    return;
+                }
+
+                var node = el('button', { type: 'button', class: 'ru-ed-menu-item' }, [
+                    item.icon ? el('i', { class: item.icon, 'aria-hidden': 'true' }) : null,
+                    el('span', { text: item.label })
+                ]);
+
+                node.addEventListener('mousedown', function (event) { event.preventDefault(); });
+                node.addEventListener('click', function () {
+                    editor.closeMenus();
+                    item.action(editor);
+                });
+
+                menu.appendChild(node);
+            });
+        },
         items: function (editor) {
+            return menuItems(editor);
+        }
+    });
+
+    function menuItems(editor) {
+        {
             var inside = !!editor.closest('table');
 
             var list = [
@@ -56,7 +94,57 @@
                   action: function (ed) { ed.exec('tableDelete'); } }
             ]);
         }
-    });
+    }
+
+    /** Сетка 8x8: наводишь — видишь будущий размер, щёлкаешь — вставляется. */
+    function sizeGrid(editor) {
+        var box = el('div', {});
+        var grid = el('div', { class: 'ru-ed-tgrid' });
+        var label = el('div', { class: 'ru-ed-tgrid-label', text: t('table.pick_size', 'Размер таблицы') });
+        var cells = [];
+
+        for (var r = 1; r <= 8; r++) {
+            for (var c = 1; c <= 8; c++) {
+                var cell = el('i', { 'data-r': r, 'data-c': c });
+
+                cell.addEventListener('mouseenter', mark);
+                cell.addEventListener('mousedown', function (event) { event.preventDefault(); });
+                cell.addEventListener('click', pick);
+                cells.push(cell);
+                grid.appendChild(cell);
+            }
+        }
+
+        function mark(event) {
+            var r = +event.target.getAttribute('data-r');
+            var c = +event.target.getAttribute('data-c');
+
+            cells.forEach(function (cell) {
+                cell.classList.toggle('is-on',
+                    +cell.getAttribute('data-r') <= r && +cell.getAttribute('data-c') <= c);
+            });
+
+            label.textContent = c + ' x ' + r;
+        }
+
+        function pick(event) {
+            var r = +event.target.getAttribute('data-r');
+            var c = +event.target.getAttribute('data-c');
+
+            editor.closeMenus();
+            editor.exec('buildTable', { rows: r, cols: c, header: true });
+        }
+
+        grid.addEventListener('mouseleave', function () {
+            cells.forEach(function (cell) { cell.classList.remove('is-on'); });
+            label.textContent = t('table.pick_size', 'Размер таблицы');
+        });
+
+        box.appendChild(grid);
+        box.appendChild(label);
+
+        return box;
+    }
 
     RuEditor.registerCommand('insertTable', function (editor) {
         editor.saveSelection();
@@ -75,27 +163,37 @@
             ],
             onSubmit: function (values) {
                 editor.restoreSelection();
-
-                var rows = Math.max(1, Math.min(50, parseInt(values.rows, 10) || 3));
-                var cols = Math.max(1, Math.min(20, parseInt(values.cols, 10) || 3));
-                var html = '<table>';
-
-                if (values.header) {
-                    html += '<thead><tr>' + repeat('<th>&nbsp;</th>', cols) + '</tr></thead>';
-                    rows--;
-                }
-
-                html += '<tbody>';
-
-                for (var r = 0; r < rows; r++) {
-                    html += '<tr>' + repeat('<td>&nbsp;</td>', cols) + '</tr>';
-                }
-
-                html += '</tbody></table><p><br></p>';
-
-                editor.insertHtml(html);
+                editor.exec('buildTable', {
+                    rows: parseInt(values.rows, 10),
+                    cols: parseInt(values.cols, 10),
+                    header: values.header
+                });
             }
         });
+    });
+
+    /** Сама вставка. Общая для сетки и для диалога — разметка одна. */
+    RuEditor.registerCommand('buildTable', function (editor, spec) {
+        var rows = Math.max(1, Math.min(50, spec.rows || 3));
+        var cols = Math.max(1, Math.min(20, spec.cols || 3));
+        var html = '<table>';
+
+        if (spec.header) {
+            html += '<thead><tr>' + repeat('<th>&nbsp;</th>', cols) + '</tr></thead>';
+            rows--;
+        }
+
+        html += '<tbody>';
+
+        for (var r = 0; r < rows; r++) {
+            html += '<tr>' + repeat('<td>&nbsp;</td>', cols) + '</tr>';
+        }
+
+        // Пустой абзац следом: без него ниже таблицы некуда поставить курсор,
+        // если она оказалась последним блоком материала.
+        html += '</tbody></table><p><br></p>';
+
+        editor.insertHtml(html);
     });
 
     function repeat(chunk, times) {

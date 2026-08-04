@@ -428,6 +428,90 @@
         editor.insertNode(node);
     });
 
+    /* ── Плашка у ссылки ─────────────────────────────────────────────── */
+
+    /**
+     * Клик по ссылке показывает её адрес и три действия.
+     *
+     * Без этого чтобы увидеть, куда ведёт ссылка, приходилось открывать диалог
+     * правки, а чтобы просто её проверить — сохранять материал и идти на сайт.
+     * Плашка та же, что у картинки, поэтому поведение узнаётся сразу.
+     */
+    RuEditor.registerPlugin('link-tools', {
+        init: function (editor) {
+            var bubble = el('div', { class: 'ru-ed-bubble', hidden: true });
+            var address = el('span', { class: 'ru-ed-bubble-url' });
+            var current = null;
+
+            bubble.appendChild(address);
+
+            [
+                ['fas fa-arrow-up-right-from-square', t('link.open', 'Открыть в новой вкладке'), function () {
+                    window.open(current.getAttribute('href'), '_blank', 'noopener');
+                }],
+                ['fas fa-pen', t('link.edit', 'Изменить'), function () {
+                    editor.selectNode(current);
+                    editor.exec('link');
+                }],
+                ['fas fa-link-slash', t('link.remove', 'Убрать ссылку'), function () {
+                    while (current.firstChild) {
+                        current.parentNode.insertBefore(current.firstChild, current);
+                    }
+                    current.remove();
+                    hide();
+                    editor._snapshot();
+                    editor.save();
+                }]
+            ].forEach(function (item) {
+                var button = el('button', { type: 'button', title: item[1], html: '<i class="' + item[0] + '"></i>' });
+
+                button.addEventListener('mousedown', function (event) { event.preventDefault(); });
+                button.addEventListener('click', item[2]);
+                bubble.appendChild(button);
+            });
+
+            editor.shell.appendChild(bubble);
+
+            editor.doc.addEventListener('click', function (event) {
+                var link = event.target.closest && event.target.closest('a');
+
+                if (!link) {
+                    hide();
+                    return;
+                }
+
+                current = link;
+                address.textContent = link.getAttribute('href') || '';
+                place();
+            });
+
+            editor.doc.addEventListener('scroll', place, true);
+            window.addEventListener('resize', place);
+
+            function place() {
+                if (!current || !current.isConnected) {
+                    hide();
+                    return;
+                }
+
+                var box = current.getBoundingClientRect();
+                var frame = editor.frame.getBoundingClientRect();
+                var shell = editor.shell.getBoundingClientRect();
+
+                bubble.removeAttribute('hidden');
+                // Плашка живёт в документе страницы, а ссылка — внутри рамки:
+                // координаты переводим из одной системы в другую.
+                bubble.style.top = Math.max(0, (frame.top - shell.top) + box.bottom + 6) + 'px';
+                bubble.style.left = ((frame.left - shell.left) + box.left) + 'px';
+            }
+
+            function hide() {
+                current = null;
+                bubble.setAttribute('hidden', '');
+            }
+        }
+    });
+
     /* ── Очистка оформления ──────────────────────────────────────────── */
 
     RuEditor.registerButton('removeformat', {

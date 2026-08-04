@@ -2273,6 +2273,12 @@ return [
             'help.paste' => 'Paste without formatting',
             'help.tab' => 'Next table cell',
             'help.esc' => 'Close the menu or leave full screen',
+            'table.pick_size' => 'Table size',
+            'table.more' => 'More',
+            'image.width' => 'Width',
+            'link.open' => 'Open in a new tab',
+            'link.edit' => 'Edit',
+            'link.remove' => 'Remove link',
         ],
     ],
 

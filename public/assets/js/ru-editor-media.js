@@ -589,6 +589,44 @@
                 bubble.appendChild(button);
             });
 
+            // Ширина в процентах, а не в пикселях: материал читают и с
+            // телефона, и с широкого монитора, и жёсткие пиксели там ведут
+            // себя по-разному. Проценты одинаково работают везде.
+            [25, 50, 75, 100].forEach(function (percent) {
+                var button = el('button', {
+                    type: 'button',
+                    title: t('image.width', 'Ширина') + ' ' + percent + '%',
+                    text: percent + '%',
+                    style: 'width:auto;padding:0 6px;font-size:11px'
+                });
+
+                button.addEventListener('mousedown', function (event) { event.preventDefault(); });
+                button.addEventListener('click', function () {
+                    var wrap = target.closest('figure');
+                    var value = percent === 100 ? '' : percent + '%';
+
+                    if (wrap) {
+                        // У картинки с подписью ширину задаёт обёртка, иначе
+                        // подпись осталась бы во всю строку под узкой картинкой.
+                        wrap.style.width = value;
+                        target.style.width = value ? '100%' : '';
+                    } else {
+                        // Без обёртки ширину получает сама картинка. Раньше здесь
+                        // сначала выставлялось нужное значение, а следующей
+                        // строкой затиралось на 100% — размер не менялся никогда.
+                        target.style.width = value;
+                    }
+
+                    target.removeAttribute('width');
+                    target.removeAttribute('height');
+                    editor._snapshot();
+                    editor.save();
+                    place();
+                });
+
+                bubble.appendChild(button);
+            });
+
             [
                 ['edit', 'fas fa-pen', t('image.props', 'Свойства'), function () {
                     editor.selectNode(target);

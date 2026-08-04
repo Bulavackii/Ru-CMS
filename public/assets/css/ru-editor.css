@@ -45,7 +45,12 @@
 
 /* ── Панель инструментов ─────────────────────────────────────────────── */
 
+/* Панель прилипает к верху при прокрутке длинного материала: иначе, чтобы
+   сделать абзац заголовком, приходится мотать страницу вверх и обратно. */
 .ru-ed-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 5;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -197,12 +202,22 @@
     background: #fff;
 }
 
-/* Полноэкранный режим — своя реализация, без плагинов со стороны. */
+/* Полноэкранный режим — своя реализация, без плагинов со стороны.
+
+   contain и isolation здесь не украшение: они говорят браузеру, что внутри
+   этого узла ничего не влияет на остальную страницу, и он собирает его
+   отдельным слоем вместо того, чтобы каждый кадр пересобирать всё дерево под
+   ним. Без этого экран шёл волнами даже при полностью неподвижной вёрстке.
+   Непрозрачный фон — по той же причине: сквозь прозрачный слой composer
+   вынужден смотреть на всё, что под ним. */
 .ru-ed.is-fullscreen {
     position: fixed;
     inset: 0;
     z-index: 9999;
     border: 0;
+    background: #fff;
+    isolation: isolate;
+    contain: layout paint style;
 }
 
 .ru-ed.is-fullscreen .ru-ed-frame,
@@ -652,4 +667,45 @@ body.ru-ed-locked {
     color: #1e3a8a;
     background: #dbeafe;
     border-color: #93c5fd;
+}
+
+/* ── Сетка выбора размера таблицы ────────────────────────────────────── */
+
+.ru-ed-tgrid {
+    display: grid;
+    grid-template-columns: repeat(8, 20px);
+    gap: 2px;
+    padding: 6px;
+}
+
+.ru-ed-tgrid i {
+    width: 20px;
+    height: 20px;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    cursor: pointer;
+}
+
+.ru-ed-tgrid i.is-on {
+    background: var(--ru-ed-accent-soft);
+    border-color: var(--ru-ed-accent);
+}
+
+.ru-ed-tgrid-label {
+    padding: 0 6px 6px;
+    font-size: 11px;
+    color: var(--ru-ed-mut);
+    text-align: center;
+}
+
+/* ── Плашка ссылки ───────────────────────────────────────────────────── */
+
+.ru-ed-bubble .ru-ed-bubble-url {
+    max-width: 18rem;
+    padding: 0 8px;
+    font-size: 11px;
+    color: #cbd5e1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

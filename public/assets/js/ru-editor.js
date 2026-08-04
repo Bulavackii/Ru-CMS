@@ -1363,6 +1363,18 @@
 
             sanitize(box);
 
+            // Пустые style и class остаются после снятия оформления и только
+            // мусорят разметку: style="" в исходном коде выглядит как забытый
+            // хвост и сбивает при чтении.
+            Array.prototype.forEach.call(box.querySelectorAll('[style=""],[class=""]'), function (node) {
+                if (node.getAttribute('style') === '') {
+                    node.removeAttribute('style');
+                }
+                if (node.getAttribute('class') === '') {
+                    node.removeAttribute('class');
+                }
+            });
+
             // Пустой абзац, который браузер держит для курсора, в базе не нужен.
             var only = box.children.length === 1 ? box.firstElementChild : null;
 
