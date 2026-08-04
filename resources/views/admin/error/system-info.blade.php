@@ -37,18 +37,45 @@
     </div>
 @endunless
 
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+{{-- Карточки раскладываются колонками, а не сеткой: в сетке ряд тянется
+     по самой высокой карточке, и рядом с длинным «Приложением» под
+     «Сервером» оставалась пустота в пол-экрана. Здесь карточки текут
+     сверху вниз и заполняют колонку целиком. --}}
+<div class="sys-cols">
     @foreach($groups as $group => $rows)
-        <section class="admin-card p-5">
+        <section class="admin-card p-5 sys-card">
             <h2 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-3">
                 <i class="fas fa-circle-dot text-indigo-500"></i> {{ __('admin.system.' . $group) }}
             </h2>
 
             <dl class="sys-list">
                 @foreach($rows as $key => $value)
-                    <div>
+                    @php
+                        // Версия базы приходит одной длинной строкой:
+                        // «PostgreSQL 18.4 on x86_64-windows, compiled by
+                        // msvc-19.44.35227, 64-bit». В колонке она ломала
+                        // вёрстку. Оставляем название и номер, остальное —
+                        // во всплывающей подсказке.
+                        $shown = (string) $value;
+                        $full  = null;
+
+                        if (mb_strlen($shown) > 42) {
+                            $full = $shown;
+                            $shown = preg_match('~^([A-Za-z ]+\s[\d.]+)~', $full, $vm)
+                                ? trim($vm[1])
+                                : mb_substr($full, 0, 40) . '…';
+                        }
+
+                        // Настройки, на которые стоит посмотреть перед боем.
+                        $alarm = ($key === 'f_debug' && $debug)
+                            || ($key === 'f_env' && $value === 'local');
+                    @endphp
+                    <div @class(['sys-row--alarm' => $alarm])>
                         <dt>{{ __('admin.system.' . $key) }}</dt>
-                        <dd>{{ $value !== '' ? $value : __('admin.system.none') }}</dd>
+                        <dd @if($full) title="{{ $full }}" @endif>
+                            {{ $shown !== '' ? $shown : __('admin.system.none') }}
+                            @if($alarm)<i class="fas fa-triangle-exclamation sys-alarm" aria-hidden="true"></i>@endif
+                        </dd>
                     </div>
                 @endforeach
 
@@ -127,6 +154,19 @@
 <style>
     /* Литеральный CSS: в статической сборке Tailwind нет ни прозрачности
        через /NN, ни произвольных значений. */
+    /* Карточки текут колонками. В обычной сетке ряд тянется по самой
+       высокой карточке, и рядом с длинным «Приложением» под «Сервером»
+       пустовало пол-экрана. */
+    .sys-cols{ column-count:1; column-gap:1rem }
+    @media (min-width:1024px){ .sys-cols{ column-count:2 } }
+    .sys-card{ break-inside:avoid; margin-bottom:1rem }
+
+    /* Настройка, на которую стоит посмотреть перед боем: включённая
+       отладка, окружение local. Значок рядом со значением заметнее, чем
+       общая плашка сверху, — видно, о какой именно строке речь. */
+    .sys-row--alarm dd{ color:#b45309; font-weight:600 }
+    .sys-alarm{ margin-left:.35rem; font-size:.75rem; color:#f59e0b }
+
     .sys-list{ display:grid; gap:.45rem; font-size:.9rem }
     .sys-list > div{ display:flex; gap:.75rem; align-items:baseline; justify-content:space-between;
                      padding-bottom:.45rem; border-bottom:1px solid #f1f5f9 }
