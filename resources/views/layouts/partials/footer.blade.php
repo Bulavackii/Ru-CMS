@@ -22,8 +22,36 @@
              каждое footer-меню (одно меню = один столбец). Сетку и include
              модуля Меню НЕ трогаем. ===== --}}
         <style>
+            /* Три смысловых блока: бренд, группа меню, контакты. Раньше
+               каждый столбец меню был отдельной ячейкой наравне с ними, и
+               ширина делилась поровну — при двух меню получались четыре
+               колонки по 316px, а короткие списки ссылок терялись в этой
+               ширине. Теперь меню занимают одну ячейку и делят её между
+               собой: два столбца стоят рядом, три помещаются так же. */
             .footer-grid{ display:grid; grid-template-columns:1fr; }
-            @media (min-width:768px){ .footer-grid{ grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); } }
+
+            .footer-menus{ display:grid; grid-template-columns:1fr; gap:2rem 1.75rem; }
+
+            @media (min-width:768px){
+                .footer-grid{ grid-template-columns:1fr 1fr; }
+                /* Столбцы меню держатся рядом: шаг внутри группы заметно
+                   меньше, чем между блоками подвала. */
+                .footer-menus{ grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); }
+
+                /* На планшете группа занимает всю ширину сетки: зажатая в
+                   половину, она ломала три столбца на две строки (замер на
+                   820px — 2+1). Во всю ширину они снова встают в ряд. */
+                .footer-menus{ grid-column:1 / -1; }
+            }
+
+            @media (min-width:1024px){
+                /* Бренду и контактам нужно больше места: там адрес, почта и
+                   телефон. Меню — списки коротких ссылок, им хватает меньше. */
+                .footer-grid{ grid-template-columns:minmax(230px,1fr) minmax(0,1.5fr) minmax(230px,1fr); }
+                /* На широком экране группа снова в своей ячейке, между
+                   брендом и контактами. */
+                .footer-menus{ grid-column:auto; }
+            }
         </style>
         <div class="footer-grid max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-9 sm:py-11 md:py-12 gap-8 sm:gap-10 md:gap-12">
 
