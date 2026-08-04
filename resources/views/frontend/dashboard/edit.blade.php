@@ -43,8 +43,15 @@
             <div class="acc-fields">
                 <x-dashboard.input name="phone" :label="__('frontend.account.f_phone')"
                     :value="old('phone', $user->phone)" />
-                <x-dashboard.input name="vk" label="VK"
-                    :value="old('vk', $user->vk)" />
+                {{-- Адреса страниц в сетях. Подпись поясняет формат: без неё
+                     вписывали короткое имя без адреса, и проверка отклоняла
+                     ввод без внятной причины. --}}
+                <x-dashboard.input name="vk" type="url" label="ВКонтакте"
+                    :value="old('vk', $user->vk)"
+                    :hint="__('frontend.account.vk_hint')" />
+                <x-dashboard.input name="max" type="url" label="MAX"
+                    :value="old('max', $user->max)"
+                    :hint="__('frontend.account.max_hint')" />
             </div>
         </section>
 

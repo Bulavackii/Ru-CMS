@@ -24,6 +24,13 @@ class User extends Authenticatable implements JWTSubject
         'region',
         'city',
         'address',
+        // Ссылки на страницы в сетях — необязательные.
+        //
+        // vk форма принимала и контроллер записывал, но поля не было в этом
+        // списке: значение молча отбрасывалось при каждом сохранении, и
+        // ссылка никогда не появлялась в профиле.
+        'vk',
+        'max',
         'zip', // для совместимости
         'two_factor_secret',
         'two_factor_recovery_codes',

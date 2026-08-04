@@ -78,7 +78,11 @@ class DashboardController extends Controller
             'name'              => 'required|string|max:255',
             'address'           => 'nullable|string|max:255',
             'phone'             => 'nullable|string|max:50',
-            'vk'                => 'nullable|string|max:255',
+            // Адреса страниц в сетях. Проверяем как адрес: строка без
+            // проверки пропускала бы что угодно, а ссылка потом вела бы в
+            // никуда прямо из профиля.
+            'vk'                => 'nullable|url|max:255',
+            'max'               => 'nullable|url|max:255',
             'zip'               => 'nullable|string|max:20',
             'is_company'        => 'nullable|boolean',
             'company_name'      => 'nullable|string|max:255',
@@ -96,6 +100,7 @@ class DashboardController extends Controller
             'address'           => $validated['address'] ?? null,
             'phone'             => $validated['phone'] ?? null,
             'vk'                => $validated['vk'] ?? null,
+            'max'               => $validated['max'] ?? null,
             'zip'               => $validated['zip'] ?? null,
             'is_company'        => $request->has('is_company'), // Флаг: юрлицо или нет
             'company_name'      => $validated['company_name'] ?? null,

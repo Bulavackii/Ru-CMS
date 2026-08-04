@@ -38,18 +38,29 @@
     $lastOrder = $orders->sortByDesc('created_at')->first();
 @endphp
 
+{{-- Сводка: три плитки со значком. Прежние были высокими и почти
+     пустыми — подпись сверху, число снизу и много воздуха между ними. --}}
 <div class="acc-stats">
     <div class="acc-stat">
-        <span class="acc-stat__label">{{ __('frontend.account.orders_count') }}</span>
-        <b class="acc-stat__value">{{ $orders->count() }}</b>
+        <span class="acc-stat__ico"><i class="fas fa-box"></i></span>
+        <span class="acc-stat__body">
+            <b class="acc-stat__value">{{ $orders->count() }}</b>
+            <span class="acc-stat__label">{{ __('frontend.account.orders_count') }}</span>
+        </span>
     </div>
     <div class="acc-stat">
-        <span class="acc-stat__label">{{ __('frontend.account.spent') }}</span>
-        <b class="acc-stat__value">{{ number_format((float) $ordersTotal, 0, ',', ' ') }} ₽</b>
+        <span class="acc-stat__ico"><i class="fas fa-ruble-sign"></i></span>
+        <span class="acc-stat__body">
+            <b class="acc-stat__value">{{ number_format((float) $ordersTotal, 0, ',', ' ') }} ₽</b>
+            <span class="acc-stat__label">{{ __('frontend.account.spent') }}</span>
+        </span>
     </div>
     <div class="acc-stat">
-        <span class="acc-stat__label">{{ __('frontend.account.last_order') }}</span>
-        <b class="acc-stat__value">{{ $lastOrder ? $lastOrder->created_at->format('d.m.Y') : '—' }}</b>
+        <span class="acc-stat__ico"><i class="fas fa-calendar-day"></i></span>
+        <span class="acc-stat__body">
+            <b class="acc-stat__value">{{ $lastOrder ? $lastOrder->created_at->format('d.m.Y') : '—' }}</b>
+            <span class="acc-stat__label">{{ __('frontend.account.last_order') }}</span>
+        </span>
     </div>
 </div>
 
@@ -65,6 +76,30 @@
             <div><dt>{{ __('frontend.account.user_type') }}</dt>
                 <dd>{{ $user->is_company ? __('frontend.account.legal_entity_type') : __('frontend.account.individual') }}</dd></div>
 
+            {{-- Строка появляется, только если ссылка задана: пустое поле с
+                 прочерком в профиле ничего не сообщает. --}}
+            @if ($user->vk || $user->max)
+                <div>
+                    <dt>{{ __('frontend.account.socials') }}</dt>
+                    <dd>
+                        <span class="acc-socials">
+                            @if ($user->vk)
+                                <a href="{{ $user->vk }}" target="_blank" rel="noopener"
+                                   class="acc-social" style="--c:#0077FF" title="ВКонтакте">
+                                    <x-icon.vk :size="15" /> <span>ВКонтакте</span>
+                                </a>
+                            @endif
+                            @if ($user->max)
+                                <a href="{{ $user->max }}" target="_blank" rel="noopener"
+                                   class="acc-social" style="--c:#3B4BF5" title="MAX">
+                                    <x-icon.max :size="15" /> <span>MAX</span>
+                                </a>
+                            @endif
+                        </span>
+                    </dd>
+                </div>
+            @endif
+
             @if ($user->is_company)
                 <div><dt>{{ __('frontend.account.company') }}</dt><dd>{{ $user->company_name ?: '—' }}</dd></div>
                 <div><dt>{{ __('frontend.account.inn') }}</dt><dd>{{ $user->inn ?: '—' }}</dd></div>
@@ -79,29 +114,50 @@
     <section class="fx-card p-5">
         <h2 class="acc-h2"><i class="fas fa-sliders fx-ico"></i> {{ __('frontend.account.actions') }}</h2>
 
-        <div class="acc-actions">
-            <a href="{{ route('dashboard.edit') }}" class="fx-btn">
-                <i class="fas fa-pen"></i> {{ __('frontend.account.edit') }}
+        {{-- Строки с пояснением вместо ряда кнопок. Кнопки стояли в линию,
+             занимали всю ширину карточки и не говорили, что будет после
+             нажатия; под ними оставалась пустота в половину блока. --}}
+        <div class="acc-links">
+            <a href="{{ route('dashboard.edit') }}" class="acc-link">
+                <span class="acc-link__ico"><i class="fas fa-pen"></i></span>
+                <span class="acc-link__body">
+                    <span class="acc-link__title">{{ __('frontend.account.edit') }}</span>
+                    <span class="acc-link__note">{{ __('frontend.account.edit_note') }}</span>
+                </span>
+                <i class="fas fa-chevron-right acc-link__arrow"></i>
             </a>
 
             @if ($user->is_company)
-                <a href="{{ route('organization.edit') }}" class="acc-btn-ghost">
-                    <i class="fas fa-building"></i> {{ __('frontend.account.edit_org') }}
+                <a href="{{ route('organization.edit') }}" class="acc-link">
+                    <span class="acc-link__ico"><i class="fas fa-building"></i></span>
+                    <span class="acc-link__body">
+                        <span class="acc-link__title">{{ __('frontend.account.edit_org') }}</span>
+                        <span class="acc-link__note">{{ __('frontend.account.edit_org_note') }}</span>
+                    </span>
+                    <i class="fas fa-chevron-right acc-link__arrow"></i>
                 </a>
             @endif
 
-            <a href="{{ route('password.change.form') }}" class="acc-btn-ghost">
-                <i class="fas fa-lock"></i> {{ __('frontend.account.change_pass') }}
+            <a href="{{ route('password.change.form') }}" class="acc-link">
+                <span class="acc-link__ico"><i class="fas fa-lock"></i></span>
+                <span class="acc-link__body">
+                    <span class="acc-link__title">{{ __('frontend.account.change_pass') }}</span>
+                    <span class="acc-link__note">{{ __('frontend.account.change_pass_note') }}</span>
+                </span>
+                <i class="fas fa-chevron-right acc-link__arrow"></i>
             </a>
 
             @if (Route::has('dashboard.login-history'))
-                <a href="{{ route('dashboard.login-history') }}" class="acc-btn-ghost">
-                    <i class="fas fa-clock-rotate-left"></i> {{ __('frontend.account.login_history') }}
+                <a href="{{ route('dashboard.login-history') }}" class="acc-link">
+                    <span class="acc-link__ico"><i class="fas fa-clock-rotate-left"></i></span>
+                    <span class="acc-link__body">
+                        <span class="acc-link__title">{{ __('frontend.account.login_history') }}</span>
+                        <span class="acc-link__note">{{ __('frontend.account.login_history_note') }}</span>
+                    </span>
+                    <i class="fas fa-chevron-right acc-link__arrow"></i>
                 </a>
             @endif
         </div>
-
-
     </section>
 </div>
 
@@ -147,16 +203,29 @@
             </div>
         </article>
     @empty
+        {{-- Прежнее пустое состояние отправляло «к новостям»: человек ждёт
+             товары, а попадает в ленту статей. Теперь кнопка ведёт в каталог,
+             а рядом коротко сказано, что вообще будет храниться в этом
+             разделе — иначе пустая карточка не сообщает ничего. --}}
         <div class="acc-empty">
             <span class="fx-badge mx-auto"><i class="fas fa-box-open"></i></span>
             <p class="acc-empty__title">{{ __('frontend.account.orders_empty') }}</p>
             <p class="fx-section-sub">{{ __('frontend.account.orders_none_hint') }}</p>
 
-            @if (Route::has('news.index'))
-                <a href="{{ route('news.index') }}" class="fx-btn mt-4">
-                    <i class="fas fa-newspaper"></i> {{ __('frontend.account.to_catalog') }}
+            <ul class="acc-empty__facts">
+                <li>{{ __('frontend.account.orders_fact_status') }}</li>
+                <li>{{ __('frontend.account.orders_fact_docs') }}</li>
+                <li>{{ __('frontend.account.orders_fact_repeat') }}</li>
+            </ul>
+
+            <div class="acc-empty__actions">
+                <a href="{{ url('/news') }}" class="fx-btn">
+                    <i class="fas fa-store"></i> {{ __('frontend.account.to_catalog') }}
                 </a>
-            @endif
+                <a href="{{ route('cart.index') }}" class="acc-btn-ghost">
+                    <i class="fas fa-cart-shopping"></i> {{ __('frontend.account.to_cart') }}
+                </a>
+            </div>
         </div>
     @endforelse
 </section>
@@ -167,6 +236,26 @@
     /* Литеральный CSS: в статической сборке Tailwind нет ни произвольных
        значений, ни динамических классов вида bg-{$color}-100 — именно на
        них держались прежние бейджи статуса, и они выводились бесцветными. */
+    /* Ссылки на страницы в сетях: фирменный цвет проступает при наведении,
+       чтобы знак оставался узнаваемым при любом оформлении сайта. */
+    .acc-socials{ display:inline-flex; flex-wrap:wrap; gap:.4rem; justify-content:flex-end }
+    .acc-social{ display:inline-flex; align-items:center; gap:.35rem; padding:.2rem .55rem;
+        font-size:.78rem; font-weight:600; color:#475569; background:rgba(99,102,241,.08);
+        text-decoration:none; transition:color .15s, background .15s }
+    .acc-social:hover{ color:#fff; background:var(--c,#6366f1) }
+    .acc-social svg{ flex:0 0 auto }
+
+    /* Пустой раздел заказов: три строки о том, что тут будет, и два
+       действия. Прежде была одна кнопка «к новостям» и ничего больше. */
+    .acc-empty__facts{ display:grid; gap:.35rem; margin:1rem auto 0; padding:0;
+        max-width:26rem; list-style:none; font-size:.82rem; color:#64748b; text-align:left }
+    .acc-empty__facts li{ position:relative; padding-left:1.35rem }
+    .acc-empty__facts li::before{ content:'✓'; position:absolute; left:0; top:0;
+        font-weight:700; color:var(--color-primary,#6366f1) }
+
+    .acc-empty__actions{ display:flex; flex-wrap:wrap; gap:.5rem; justify-content:center;
+        margin-top:1.25rem }
+
     .acc-head{ display:flex; align-items:center; gap:.9rem; margin-bottom:1.25rem }
     .acc-avatar{ width:3rem; height:3rem; flex:0 0 auto; display:inline-flex;
                  align-items:center; justify-content:center;
@@ -175,10 +264,35 @@
 
     .acc-stats{ display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
                 gap:.6rem; margin-bottom:1rem }
-    .acc-stat{ border:1px solid #eef2f7; background:#fff; padding:.75rem 1rem }
-    .acc-stat__label{ display:block; font-size:.72rem; text-transform:uppercase;
+    .acc-stat{ display:flex; align-items:center; gap:.75rem;
+               border:1px solid #eef2f7; background:#fff; padding:.7rem .9rem }
+    .acc-stat__ico{ display:inline-flex; align-items:center; justify-content:center;
+                    width:2.2rem; height:2.2rem; flex:0 0 auto; font-size:.9rem;
+                    color:var(--color-primary,#6366f1); background:rgba(99,102,241,.1) }
+    .acc-stat__body{ display:flex; flex-direction:column; min-width:0; line-height:1.2 }
+    .acc-stat__value{ font-size:1.3rem; font-weight:800; color:#111827 }
+    .acc-stat__label{ font-size:.7rem; text-transform:uppercase;
                       letter-spacing:.06em; color:#9ca3af }
-    .acc-stat__value{ display:block; font-size:1.25rem; color:#111827; margin-top:.15rem }
+
+    /* Действия — строки со значком и пояснением. Ряд одинаковых кнопок не
+       говорил, что будет после нажатия, и занимал всю ширину карточки. */
+    .acc-links{ display:grid; gap:.4rem }
+    .acc-link{ display:flex; align-items:center; gap:.7rem; padding:.6rem .65rem;
+               text-decoration:none; color:inherit; border:1px solid #eef2f7;
+               transition:border-color .15s, background-color .15s }
+    .acc-link:hover{ border-color:var(--color-primary,#6366f1); background:#f8fafc }
+    .acc-link__ico{ display:inline-flex; align-items:center; justify-content:center;
+                    width:2rem; height:2rem; flex:0 0 auto; font-size:.82rem;
+                    color:var(--color-primary,#6366f1); background:rgba(99,102,241,.1) }
+    .acc-link__body{ display:flex; flex-direction:column; min-width:0; line-height:1.3 }
+    .acc-link__title{ font-size:.9rem; font-weight:600; color:#111827 }
+    .acc-link__note{ font-size:.75rem; color:#6b7280 }
+    .acc-link__arrow{ margin-left:auto; font-size:.7rem; color:#cbd5e1 }
+    .acc-link:hover .acc-link__arrow{ color:var(--color-primary,#6366f1) }
+
+    :root.dark .acc-link{ border-color:#374151 }
+    :root.dark .acc-link:hover{ background:#111827 }
+    :root.dark .acc-link__title{ color:#f3f4f6 }
     .acc-h2{ font-size:.78rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase;
              color:#9ca3af; margin-bottom:.9rem }
 
