@@ -32,9 +32,85 @@
             </button>
         </div>
 
+        @php
+            // Строку браузера показывали как есть — читать её человеку тяжело:
+            // это техническая строка на две строки экрана. Разбираем на
+            // понятные части, а исходник оставляем во всплывающей подсказке.
+            $ua = (string) $userAgent;
+
+            // Порядок важен: браузеры на движке Chrome пишут в строке и своё
+            // имя, и Chrome. Проверяем сначала частные случаи.
+            [$browser, $browserToken] = match (true) {
+                str_contains($ua, 'YaBrowser')                          => ['Яндекс.Браузер', 'YaBrowser'],
+                str_contains($ua, 'Edg/')                               => ['Edge', 'Edg'],
+                str_contains($ua, 'OPR/') || str_contains($ua, 'Opera') => ['Opera', 'OPR'],
+                str_contains($ua, 'Firefox')                            => ['Firefox', 'Firefox'],
+                str_contains($ua, 'Chrome')                             => ['Chrome', 'Chrome'],
+                str_contains($ua, 'Safari')                             => ['Safari', 'Version'],
+                default                                                 => [null, null],
+            };
+
+            // Версию ищем именно у определённого браузера. Общий поиск по
+            // списку брал первое совпадение в строке, и у Яндекс.Браузера
+            // показывалась версия Chrome: она стоит раньше.
+            $browserVersion = null;
+
+            if ($browserToken && preg_match('~' . $browserToken . '/(\d+)~', $ua, $verMatch)) {
+                $browserVersion = $verMatch[1];
+            }
+
+            $system = match (true) {
+                str_contains($ua, 'Windows NT 10') => 'Windows 10 или 11',
+                str_contains($ua, 'Windows')       => 'Windows',
+                str_contains($ua, 'Android')       => 'Android',
+                str_contains($ua, 'iPhone'), str_contains($ua, 'iPad') => 'iOS',
+                str_contains($ua, 'Mac OS X')      => 'macOS',
+                str_contains($ua, 'Linux')         => 'Linux',
+                default                            => null,
+            };
+
+            $isMobile = (bool) preg_match('~Mobile|Android|iPhone|iPad~', $ua);
+
+            // Языки приходят с весами: ru-RU,ru;q=0.9,en-US;q=0.8 — оставляем
+            // сами коды в порядке предпочтения, веса человеку не нужны.
+            $langs = collect(explode(',', (string) $language))
+                ->map(fn ($x) => trim(explode(';', $x)[0]))
+                ->filter()
+                ->unique()
+                ->take(5)
+                ->values();
+        @endphp
+
         <dl class="geo-list">
-            <div><dt>{{ __('admin.system.geo_device') }}</dt><dd class="geo-mono">{{ $userAgent ?: '—' }}</dd></div>
-            <div><dt>{{ __('admin.system.geo_lang') }}</dt><dd class="geo-mono">{{ $language ?: '—' }}</dd></div>
+            <div>
+                <dt>{{ __('admin.system.geo_device') }}</dt>
+                <dd>
+                    <span class="geo-chips" @if($ua) title="{{ $ua }}" @endif>
+                        @if($browser)
+                            <span class="geo-chip">{{ $browser }}@if($browserVersion) {{ $browserVersion }}@endif</span>
+                        @endif
+                        @if($system)<span class="geo-chip">{{ $system }}</span>@endif
+                        <span class="geo-chip geo-chip--soft">
+                            {{ $isMobile ? __('admin.system.geo_mobile') : __('admin.system.geo_desktop') }}
+                        </span>
+                        @unless($browser || $system)
+                            <span class="geo-chip geo-chip--soft">—</span>
+                        @endunless
+                    </span>
+                </dd>
+            </div>
+            <div>
+                <dt>{{ __('admin.system.geo_lang') }}</dt>
+                <dd>
+                    <span class="geo-chips">
+                        @forelse($langs as $i => $code)
+                            <span class="geo-chip @if($i > 0) geo-chip--soft @endif">{{ $code }}</span>
+                        @empty
+                            <span class="geo-chip geo-chip--soft">—</span>
+                        @endforelse
+                    </span>
+                </dd>
+            </div>
             <div><dt>{{ __('admin.system.geo_time') }}</dt><dd>{{ $timestamp->format('d.m.Y H:i:s') }}</dd></div>
         </dl>
     </section>
@@ -63,7 +139,7 @@
             <div class="geo-empty">
                 <i class="fas fa-map-location-dot"></i>
                 <p class="font-semibold text-gray-900 dark:text-white">{{ __('admin.system.geo_local') }}</p>
-                <p class="admin-hint">
+                <p class="geo-help">
                     {{ $isLocal
                         ? __('admin.system.geo_local_hint', ['ip' => $ip])
                         : __('admin.system.geo_failed_hint') }}
@@ -77,7 +153,7 @@
     <h2 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-2">
         <i class="fas fa-circle-info text-indigo-500"></i> {{ __('admin.system.geo_how') }}
     </h2>
-    <p class="admin-hint">{{ __('admin.system.geo_how_text') }}</p>
+    <p class="geo-help">{{ __('admin.system.geo_how_text') }}</p>
 </section>
 @endsection
 
@@ -101,6 +177,19 @@
        значений, ни прозрачности через /NN. */
     .geo-ip{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:1.35rem; font-weight:700;
              color:#111827; letter-spacing:.02em }
+
+    /* Подсказка под блоком.
+       Раньше тут стоял класс врезки-примечания: он рисует заливку и полосу
+       слева, и короткое пояснение читалось как выделенный текст. */
+    .geo-help{ margin-top:.4rem; font-size:.8rem; line-height:1.5; color:#64748b }
+
+    /* Разобранные сведения о браузере и языках.
+       Исходная строка браузера остаётся во всплывающей подсказке чипов —
+       она нужна при разборе обращения, но каждый день её читать незачем. */
+    .geo-chips{ display:inline-flex; flex-wrap:wrap; gap:.3rem; justify-content:flex-end }
+    .geo-chip{ display:inline-flex; align-items:center; padding:.16rem .5rem;
+        font-size:.75rem; font-weight:600; color:#4338ca; background:rgba(99,102,241,.1) }
+    .geo-chip--soft{ color:#64748b; background:#f1f5f9; font-weight:500 }
 
     .geo-list{ display:grid; gap:.45rem; font-size:.9rem }
     .geo-list > div{ display:flex; gap:.75rem; align-items:baseline; justify-content:space-between;

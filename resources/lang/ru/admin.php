@@ -1899,6 +1899,8 @@ return [
     ],
 
     'system' => [
+        'geo_mobile' => 'Телефон или планшет',
+        'geo_desktop' => 'Компьютер',
         'er_message_hint_short' => 'Чем подробнее, тем быстрее найдётся причина',
         'er_count_left' => 'ещё :n символов',
         'er_count_ok' => 'достаточно',
