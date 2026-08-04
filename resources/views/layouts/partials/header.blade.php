@@ -66,19 +66,30 @@
     {{-- ═══════════ Ряд 1: логотип + действия ═══════════ --}}
     <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
 
-      {{-- ЛОГОТИП --}}
-      <a href="{{ url('/') }}" class="hdr-logo flex items-center gap-2.5 {{ $logoWrapCls }}" aria-label="{{ __('frontend.header.home_aria') }}">
+      {{-- ЛОГОТИП
+
+           Своя картинка из раздела «Темы» имеет приоритет — эта ветка не
+           менялась. Но текстовый знак теперь выводится ВСЕГДА и прячется
+           лишь при живой картинке: раньше сломанная ссылка на логотип
+           оставляла шапку пустой, потому что onerror просто убирал
+           изображение и показать было нечего. --}}
+      <a href="{{ url('/') }}" class="hdr-logo {{ $logoWrapCls }}" aria-label="{{ __('frontend.header.home_aria') }}">
         @if($logoAbs)
-          <img src="{{ $logoAbs }}" alt="{{ __('frontend.header.logo_alt') }}" loading="lazy" decoding="async"
-               style="width: {{ $logoW }}; max-width:100%; height:auto;" class="inline-block align-middle"
-               onerror="this.style.display='none'">
-        @else
-          <span class="hdr-logo-badge">RU</span>
-          <span class="leading-tight">
-            <span class="hdr-logo-name block">CMS</span>
-            <span class="hdr-logo-sub hidden sm:block">{{ __('frontend.header.tagline') }}</span>
-          </span>
+          {{-- Логотип шапки виден сразу и участвует в отрисовке первого
+               экрана, поэтому грузится без отсрочки и в приоритете. --}}
+          <img src="{{ $logoAbs }}" alt="{{ __('frontend.header.logo_alt') }}"
+               fetchpriority="high" decoding="async"
+               style="width: {{ $logoW }}; max-width:100%; height:auto;" class="hdr-logo-img"
+               onerror="const m = this.closest('.hdr-logo').querySelector('.hdr-logo-mark'); this.remove(); if (m) m.hidden = false;">
         @endif
+
+        <span class="hdr-logo-mark" @if($logoAbs) hidden @endif>
+          <span class="hdr-logo-badge" aria-hidden="true">RU</span>
+          <span class="hdr-logo-text">
+            <span class="hdr-logo-name">CMS</span>
+            <span class="hdr-logo-sub">{{ __('frontend.header.tagline') }}</span>
+          </span>
+        </span>
       </a>
 
       @php
@@ -204,15 +215,50 @@
     .hdr-glass > *{ position:relative; z-index:1; }
     :root.dark .hdr-glass{ background:rgba(15,23,42,.62); border-bottom-color:rgba(255,255,255,.08); }
 
-    /* Логотип */
-    .hdr-logo{ text-decoration:none; }
-    .hdr-logo-badge{ width:2rem; height:2rem; border-radius:.6rem; display:inline-flex; align-items:center;
-        justify-content:center; background:var(--fx-grad,#6366f1); color:#fff; font-weight:700; font-size:.8rem;
-        letter-spacing:.02em; flex:0 0 auto; box-shadow:0 8px 18px -8px rgba(99,102,241,.6); }
-    .hdr-logo-name{ font-weight:800; font-size:1.3rem; line-height:1.05; color:#6366f1;
-        background:var(--fx-grad,#6366f1); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
-    .hdr-logo-sub{ font-size:.66rem; color:#6b7280; font-weight:500; letter-spacing:.02em; margin-top:1px; }
+    /* Логотип.
+       Скругления тут не задаются: на сайте прямые углы включены глобально
+       (body.fx-sharp с important), и прежний border-radius у знака был
+       мёртвым кодом — он не применялся никогда. */
+    .hdr-logo{ display:inline-flex; align-items:center; gap:.6rem; text-decoration:none; }
+    .hdr-logo-img{ display:block; }
+    .hdr-logo-mark{ display:inline-flex; align-items:center; gap:.6rem; }
+    .hdr-logo-mark[hidden]{ display:none; }
+
+    /* Знак: квадрат с буквами и тонкой внутренней подсветкой по верхней
+       грани — она даёт объём, которого не хватало плоской заливке. */
+    .hdr-logo-badge{ position:relative; width:2.4rem; height:2.4rem; flex:0 0 auto;
+        display:inline-flex; align-items:center; justify-content:center;
+        background:var(--fx-grad,#6366f1); color:#fff;
+        font-weight:800; font-size:.85rem; letter-spacing:.06em;
+        box-shadow:0 10px 20px -10px rgba(99,102,241,.75);
+        transition:transform .18s ease, box-shadow .18s ease; }
+    .hdr-logo-badge::after{ content:''; position:absolute; inset:0;
+        border-top:1px solid rgba(255,255,255,.35);
+        border-left:1px solid rgba(255,255,255,.18); pointer-events:none; }
+    .hdr-logo:hover .hdr-logo-badge{ transform:translateY(-1px);
+        box-shadow:0 14px 24px -10px rgba(99,102,241,.85); }
+
+    .hdr-logo-text{ display:flex; flex-direction:column; line-height:1.05; }
+
+    /* Заливка градиентом по контуру букв. Цвет остаётся запасным на случай,
+       если браузер не умеет обрезать фон по тексту. */
+    .hdr-logo-name{ font-weight:800; font-size:1.45rem; letter-spacing:-.02em; color:#6366f1;
+        background:var(--fx-grad,#6366f1); -webkit-background-clip:text; background-clip:text;
+        -webkit-text-fill-color:transparent; }
+
+    /* Подпись набрана в разрядку прописными: так короткая строка читается
+       как часть знака, а не как обрывок текста под ним. */
+    .hdr-logo-sub{ font-size:.58rem; font-weight:600; letter-spacing:.14em;
+        text-transform:uppercase; color:#94a3b8; margin-top:2px; white-space:nowrap; }
     :root.dark .hdr-logo-sub{ color:#9ca3af; }
+
+    /* На узком экране остаётся только знак и название — подпись не влезает
+       в строку рядом с кнопками и переносила бы шапку. */
+    @media (max-width:639px){
+        .hdr-logo-sub{ display:none; }
+        .hdr-logo-badge{ width:2.1rem; height:2.1rem; font-size:.78rem; }
+        .hdr-logo-name{ font-size:1.25rem; }
+    }
 
     /* Пилюли-действия */
     .hdr-actions .hdr-pill, .hdr-actions .hdr-icon-btn{
