@@ -145,7 +145,7 @@
           </a>
 
           @if (($user->is_admin ?? false))
-            <a href="{{ url('/admin/modules') }}" class="hdr-pill hdr-pill--accent" title="{{ __('frontend.header.admin_title') }}">
+            <a href="{{ route('admin.dashboard') }}" class="hdr-pill hdr-pill--accent" title="{{ __('frontend.header.admin_title') }}">
               <svg class="hdr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg><span class="hidden md:inline">{{ __('frontend.header.admin') }}</span>
             </a>
           @endif

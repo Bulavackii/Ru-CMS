@@ -19,7 +19,7 @@
 
             {{-- Авто-переход в админку --}}
             <div x-data="{ seconds: 5, cancelled: false }"
-                 x-init="const t = setInterval(() => { if (cancelled) { clearInterval(t); return; } seconds--; if (seconds <= 0) { clearInterval(t); window.location.href = @js(url('/admin')); } }, 1000)"
+                 x-init="const t = setInterval(() => { if (cancelled) { clearInterval(t); return; } seconds--; if (seconds <= 0) { clearInterval(t); window.location.href = @js(route('admin.dashboard')); } }, 1000)"
                  x-show="!cancelled" x-cloak
                  class="hint rounded-xl px-3 py-2 text-[11px] text-gray-500 flex items-center justify-center gap-2">
                 <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>
@@ -94,7 +94,7 @@
         {{-- Кнопки --}}
         <div class="px-6 sm:px-8 py-4 shrink-0 border-t border-gray-100 mt-3">
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2">
-                <a href="{{ url('/admin') }}"
+                <a href="{{ route('admin.dashboard') }}"
                    class="ui-btn ui-btn-primary inline-flex items-center justify-center gap-2 bg-gray-900 hover:bg-black text-white px-5 py-2.5 rounded-xl text-sm font-semibold">
                     <i data-lucide="layout-dashboard" class="w-4 h-4"></i> {{ __('install.finish.to_admin') }}
                 </a>
@@ -104,7 +104,7 @@
                 </a>
                 <button type="button"
                         id="copy-admin-url"
-                        data-url="{{ url('/admin') }}"
+                        data-url="{{ route('admin.dashboard') }}"
                         data-copy-label="{{ __('install.finish.copy_url') }}"
                         data-copied-label="{{ __('install.finish.copied') }}"
                         data-tip="{{ __('install.finish.copy_tip') }}"
@@ -122,7 +122,7 @@
         var btn = document.getElementById('copy-admin-url');
         if (!btn) return;
         btn.addEventListener('click', function(){
-            var url = btn.getAttribute('data-url') || '{{ url('/admin') }}';
+            var url = btn.getAttribute('data-url') || '{{ route('admin.dashboard') }}';
             // Подписи приходят из data-атрибутов — так они переводятся вместе
             // со всей страницей и не дублируются строками внутри скрипта.
             var copyLabel = btn.getAttribute('data-copy-label') || 'Copy URL';

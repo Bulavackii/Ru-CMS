@@ -95,8 +95,11 @@ class LoginController extends Controller
         ]);
 
         // ✅ Успешный вход — перенаправление
+        // Администратор попадает на главную панели, а не в «Модули»: там
+        // сводка по сайту, быстрые действия и последние события — с неё
+        // работу и начинают. Раздел модулей открывают редко и по делу.
         $redirectTo = $user->is_admin
-            ? '/admin/modules'
+            ? route('admin.dashboard')
             : '/dashboard';
 
         return redirect()->intended($redirectTo);
