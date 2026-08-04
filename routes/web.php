@@ -357,7 +357,9 @@ Route::get('/about', [\Modules\Menu\Controllers\Frontend\PageController::class, 
 Route::get('/faq', [\Modules\Menu\Controllers\Frontend\PageController::class, 'show'])
     ->defaults('slug', 'chastye-voprosy')
     ->name('pages.faq');
-Route::view('/contacts', 'frontend.pages.contacts')->name('pages.contacts');
+Route::get('/contacts', [\Modules\Menu\Controllers\Frontend\PageController::class, 'show'])
+    ->defaults('slug', 'kontakty')
+    ->name('pages.contacts');
 // 🔐 Статическая страница "Политика конфиденциальности"
 Route::view('/privacy', 'frontend.pages.privacy')->name('pages.privacy');
 // 📄 Навигационные страницы

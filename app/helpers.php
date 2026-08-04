@@ -433,21 +433,41 @@ if (!function_exists('render_shortcodes')) {
     {
         $html = (string) $html;
 
-        if ($html === '' || !str_contains($html, '[captcha')) {
+        if ($html === '') {
             return $html;
         }
 
-        return preg_replace_callback(
-            '~\[captcha\s+preset=(["\'])(?<slug>[a-z0-9\-_]+)\1\s*\]~i',
-            function (array $match): string {
-                if (!function_exists('captcha_preset')) {
-                    return '';
-                }
+        if (str_contains($html, '[captcha')) {
+            $html = preg_replace_callback(
+                '~\[captcha\s+preset=(["\'])(?<slug>[a-z0-9\-_]+)\1\s*\]~i',
+                function (array $match): string {
+                    if (!function_exists('captcha_preset')) {
+                        return '';
+                    }
 
-                return (string) captcha_preset($match['slug']);
-            },
-            $html
-        ) ?? $html;
+                    return (string) captcha_preset($match['slug']);
+                },
+                $html
+            ) ?? $html;
+        }
+
+        // Карта: [map q="Курск, улица Ленина 1"] или [map] с адресом по
+        // умолчанию. Пока посетитель не нажмёт кнопку, к картографу не уходит
+        // ни одного запроса — ни адреса страницы, ни IP. Это и про
+        // персональные данные, и про скорость загрузки.
+        if (str_contains($html, '[map')) {
+            $html = preg_replace_callback(
+                '~\[map(?:\s+q=(["\'])(?<q>[^"\']{1,160})\1)?\s*\]~i',
+                function (array $match): string {
+                    return (string) view('frontend.partials.map', [
+                        'query' => trim($match['q'] ?? ''),
+                    ])->render();
+                },
+                $html
+            ) ?? $html;
+        }
+
+        return $html;
     }
 }
 

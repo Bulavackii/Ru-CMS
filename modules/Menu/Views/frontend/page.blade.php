@@ -121,6 +121,68 @@
 @endsection
 
 @push('scripts')
+{{-- Карта по согласию и копирование контактов.
+
+     Оба блока — надстройка над обычной разметкой: без скрипта карта
+     остаётся ссылкой в новую вкладку, а контакты просто читаются глазами. --}}
+<script>
+(function () {
+    // ── Карта грузится только по нажатию ───────────────────────────
+    document.querySelectorAll('.page-content .pc-map').forEach(function (box) {
+        const btn = box.querySelector('.pc-map__btn');
+        const src = box.dataset.mapSrc;
+        if (!btn || !src) return;
+
+        btn.addEventListener('click', function () {
+            const frame = document.createElement('iframe');
+            frame.src = src;
+            frame.loading = 'lazy';
+            frame.title = 'Карта';
+            frame.setAttribute('allowfullscreen', '');
+            box.innerHTML = '';
+            box.appendChild(frame);
+        });
+    });
+
+    // ── Копирование телефона и почты ───────────────────────────────
+    // Кнопку добавляем скриптом: в содержимом страницы её нет, редактору
+    // достаточно написать сам контакт.
+    const cards = document.querySelectorAll('.page-content .pc-contacts li');
+    if (!cards.length || !navigator.clipboard) return;
+
+    cards.forEach(function (card) {
+        const value = card.querySelector('strong');
+        if (!value) return;
+
+        const text = value.textContent.trim();
+        if (!text) return;
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'pc-copy';
+        btn.title = 'Скопировать';
+        btn.setAttribute('aria-label', 'Скопировать: ' + text);
+        btn.innerHTML = '<i class="fas fa-copy" aria-hidden="true"></i>';
+
+        btn.addEventListener('click', function () {
+            navigator.clipboard.writeText(text).then(function () {
+                btn.classList.add('is-done');
+                btn.innerHTML = '<i class="fas fa-check" aria-hidden="true"></i>';
+
+                // Возврат к исходному виду, иначе галочка висит навсегда и
+                // непонятно, сработало ли следующее нажатие.
+                setTimeout(function () {
+                    btn.classList.remove('is-done');
+                    btn.innerHTML = '<i class="fas fa-copy" aria-hidden="true"></i>';
+                }, 1600);
+            });
+        });
+
+        card.appendChild(btn);
+    });
+})();
+</script>
+
 {{-- Поведение блока «Вопросы и ответы».
 
      Сам аккордеон — нативный тег details, он раскрывается без единой строки
