@@ -19,119 +19,88 @@
     var el = RuEditor.el;
     var t = RuEditor.t;
 
-    /* ── Полный экран ────────────────────────────────────────────────── */
+    /* ── Развернуть на высоту экрана ─────────────────────────────────── */
+
+    /*
+     * Здесь было «настоящее» полноэкранное перекрытие: position:fixed на весь
+     * экран, запрет прокрутки страницы, изоляция слоя. У владельца оно
+     * стабильно давало рябь по всему экрану, причём и с выключенным
+     * аппаратным ускорением. Воспроизвести не удалось: три попытки чинить
+     * (убрать слои с размытием фона, изолировать слой, вынести узел в body)
+     * результата не дали, а последняя вдобавок стирала содержимое — перенос
+     * узла с <iframe> перезагружает фрейм.
+     *
+     * Поэтому механизм заменён, а не подлатан. Ценность режима — вертикальное
+     * место под длинный материал, и её даёт обычная вёрстка: рамка
+     * растягивается на высоту окна ПРЯМО НА СТРАНИЦЕ. Ни перекрытия, ни
+     * фиксированного позиционирования, ни запрета прокрутки, ни слоёв — рябить
+     * попросту нечему.
+     */
 
     RuEditor.registerButton('fullscreen', {
-        icon: 'fas fa-expand',
-        title: 'Во весь экран (F11 в редакторе, Esc — выйти)',
+        icon: 'fas fa-up-right-and-down-left-from-center',
+        title: 'Развернуть на высоту экрана (Esc — свернуть)',
         action: function (editor) { editor.exec('fullscreen'); },
         active: function (editor) { return editor.fullscreen; }
     });
 
     RuEditor.registerCommand('fullscreen', function (editor) {
         editor.fullscreen = !editor.fullscreen;
-        editor.root.classList.toggle('is-fullscreen', editor.fullscreen);
-        // Страница под развёрнутым редактором не должна прокручиваться: иначе
-        // колесо мыши уводит фон, а не текст. Класс вешаем и на html: в разных
-        // раскладках прокручивается то тело документа, то корневой элемент, и
-        // запрет только на body в половине случаев не делает ничего.
-        document.body.classList.toggle('ru-ed-locked', editor.fullscreen);
-        document.documentElement.classList.toggle('ru-ed-locked', editor.fullscreen);
+        editor.root.classList.toggle('is-tall', editor.fullscreen);
 
-        // Esc должен выходить откуда угодно. Обработчик в ядре висит на
-        // документе РАМКИ и срабатывает, только пока курсор в тексте: стоило
-        // нажать кнопку на панели — и клавиша переставала работать, а выйти
-        // из развёрнутого редактора было уже нечем, кроме той же кнопки.
         if (editor.fullscreen) {
-            editor._escapeFullscreen = function (event) {
+            editor._heightBefore = editor.frame.style.height;
+            fitFrame(editor);
+
+            editor._fitFrame = function () { fitFrame(editor); };
+            window.addEventListener('resize', editor._fitFrame);
+
+            // Esc сворачивает откуда угодно: обработчик в ядре висит на
+            // документе рамки и работает, только пока курсор в тексте.
+            editor._escapeTall = function (event) {
                 if (event.key === 'Escape' && editor.fullscreen && !document.querySelector('.ru-ed-dialog-back')) {
                     event.preventDefault();
                     editor.exec('fullscreen');
                 }
             };
 
-            document.addEventListener('keydown', editor._escapeFullscreen);
-        } else if (editor._escapeFullscreen) {
-            document.removeEventListener('keydown', editor._escapeFullscreen);
-            editor._escapeFullscreen = null;
-        }
+            document.addEventListener('keydown', editor._escapeTall);
 
-        if (editor.fullscreen) {
-            editor._heightBefore = editor.frame.style.height;
-            editor.frame.style.height = '';
-            hideBackdropLayers(editor);
+            // Подводим редактор к верху окна, иначе развёрнутая рамка уходит
+            // за нижний край и полезная высота теряется.
+            editor.root.scrollIntoView({ block: 'start', behavior: 'smooth' });
         } else {
             editor.frame.style.height = editor._heightBefore || '420px';
-            showBackdropLayers(editor);
+
+            if (editor._fitFrame) {
+                window.removeEventListener('resize', editor._fitFrame);
+                editor._fitFrame = null;
+            }
+
+            if (editor._escapeTall) {
+                document.removeEventListener('keydown', editor._escapeTall);
+                editor._escapeTall = null;
+            }
         }
 
         var icon = editor.root.querySelector('[data-ru-btn="fullscreen"] i');
 
         if (icon) {
-            icon.className = editor.fullscreen ? 'fas fa-compress' : 'fas fa-expand';
+            icon.className = editor.fullscreen
+                ? 'fas fa-down-left-and-up-right-to-center'
+                : 'fas fa-up-right-and-down-left-from-center';
         }
 
         editor.focus();
     });
 
-    /*
-     * Почему редактор НЕ выносится в body на время полного экрана.
-     *
-     * Такая попытка была и выглядела разумно: в body у узла нет соседей со
-     * своими контекстами наложения, и слой собирается проще. Но перенос узла
-     * с <iframe> в другое место дерева заставляет браузер ПЕРЕЗАГРУЗИТЬ фрейм:
-     * документ создаётся заново, пустым и не редактируемым. Содержимое
-     * исчезало с экрана сразу при разворачивании и не возвращалось после
-     * выхода — при том что в поле формы оно оставалось, потому что ядро
-     * продолжало читать прежний, уже отсоединённый документ.
-     *
-     * Так что режим держится на position:fixed плюс contain/isolation в
-     * ru-editor.css: этого хватает, чтобы браузер собирал редактор отдельным
-     * слоем, и ничего никуда не переносится.
-     */
+    /** Высота рамки = окно минус панель, строка состояния и небольшой запас. */
+    function fitFrame(editor) {
+        var chrome = editor.toolbar.offsetHeight +
+                     (editor.status && editor.status.offsetParent !== null ? editor.status.offsetHeight : 0);
+        var height = Math.max(240, window.innerHeight - chrome - 24);
 
-    /**
-     * Убрать из отрисовки всё, что размывает фон под собой.
-     *
-     * Ровно из-за этого «рябил весь экран» при переходе в полноэкранный режим
-     * (нашли по сообщению владельца, подтвердили замером): в панели ЧЕТЫРЕ
-     * элемента с backdrop-filter: blur(16px) — сайдбар, шапка, стеклянная
-     * полоса и подвал. Пока они остаются в отрисовке под сплошным слоем
-     * редактора, композитор заново растеризует размытие каждый кадр, и экран
-     * идёт волнами. Свернуть в один слой их нельзя — размытие по своей природе
-     * читает то, что под ним.
-     *
-     * Ищем по вычисленному стилю, а не по именам классов панели: редактор
-     * ничего не должен знать про её разметку и обязан вести себя так же на
-     * сайте, где стеклянные полосы называются иначе.
-     */
-    function hideBackdropLayers(editor) {
-        editor._hiddenLayers = [];
-
-        Array.prototype.forEach.call(document.body.querySelectorAll('*'), function (node) {
-            // Предков редактора трогать нельзя — вместе с ними исчезнет и он.
-            if (editor.root.contains(node) || node.contains(editor.root)) {
-                return;
-            }
-
-            var style = window.getComputedStyle(node);
-            var backdrop = style.backdropFilter || style.webkitBackdropFilter;
-
-            if (backdrop && backdrop !== 'none') {
-                editor._hiddenLayers.push([node, node.style.display]);
-                node.style.display = 'none';
-            }
-        });
-    }
-
-    function showBackdropLayers(editor) {
-        (editor._hiddenLayers || []).forEach(function (pair) {
-            // Возвращаем ИСХОДНОЕ значение, а не пустую строку: у элемента мог
-            // быть свой display в атрибуте style, и затирать его нельзя.
-            pair[0].style.display = pair[1];
-        });
-
-        editor._hiddenLayers = [];
+        editor.frame.style.height = height + 'px';
     }
 
     /* ── Правка исходного кода ───────────────────────────────────────── */

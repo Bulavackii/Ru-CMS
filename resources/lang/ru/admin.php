@@ -2251,7 +2251,7 @@ return [
             'captcha.none' => 'Сборок каптчи пока нет',
             'captcha.build' => 'создать',
             'captcha.manage' => 'Конструктор сборок',
-            'btn.fullscreen' => 'Во весь экран (F11 в редакторе, Esc — выйти)',
+            'btn.fullscreen' => 'Развернуть на высоту экрана (Esc — свернуть)',
             'btn.code' => 'Исходный код',
             'btn.preview' => 'Предпросмотр',
             'btn.visualblocks' => 'Показать границы блоков',

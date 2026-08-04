@@ -2247,7 +2247,7 @@ return [
             'captcha.none' => 'No captcha presets yet',
             'captcha.build' => 'create',
             'captcha.manage' => 'Preset builder',
-            'btn.fullscreen' => 'Full screen (F11 in the editor, Esc to exit)',
+            'btn.fullscreen' => 'Expand to window height (Esc to collapse)',
             'btn.code' => 'Source code',
             'btn.preview' => 'Preview',
             'btn.visualblocks' => 'Show block borders',
