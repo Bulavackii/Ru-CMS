@@ -155,6 +155,7 @@
 
     {{-- TinyMCE --}}
     <script src="{{ asset('admin/tinymce/tinymce.min.js') }}"></script>
+    <script src="{{ asset('assets/js/editor-blocks.js') }}"></script>
     <script>
         tinymce.init({
             selector: '#editor',
@@ -166,7 +167,7 @@
             license_key: 'gpl',
             convert_urls: false,
             plugins: 'image media link lists table code visualblocks wordcount',
-            toolbar: 'undo redo | blocks styles fontfamily fontsize | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media table | code | removeformat',
+            toolbar: 'undo redo | ruBlocks | blocks fontfamily fontsize | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media table | code | removeformat',
             fontsize_formats: '12px 14px 16px 18px 24px 36px',
             // К списку добавлены i и span: иконка — это пустой тег
             // <i class="fas ...">, а редактор по умолчанию вычищает пустые
@@ -182,6 +183,13 @@
             // Готовые блоки в выпадающем списке «Стили». Без него имена
             // классов пришлось бы держать в голове или подсматривать в
             // соседней записи.
+            // Кнопка «Блоки» — вставка готовых заготовок оформления.
+            // Стандартный список «Стили» для этого не годился: он рисуется
+            // выпадающим списком с подписью «Абзац», неотличимым от соседнего,
+            // и найти блоки там было невозможно.
+            setup: function (editor) {
+                if (window.ruEditorBlocks) window.ruEditorBlocks(editor);
+            },
             style_formats_merge: true,
             style_formats: [
                 {
