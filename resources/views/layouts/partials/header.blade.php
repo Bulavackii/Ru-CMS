@@ -64,7 +64,7 @@
   <div class="hdr-glass relative z-[999] transition-colors duration-200">
 
     {{-- ═══════════ Ряд 1: логотип + действия ═══════════ --}}
-    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
+    <div class="hdr-row1 max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
 
       {{-- ЛОГОТИП
 
@@ -141,27 +141,27 @@
 
         @auth
           <a href="{{ route('dashboard') }}" class="hdr-pill" title="{{ __('frontend.header.account_title') }}">
-            <i class="fas fa-user"></i><span class="hidden md:inline">{{ __('frontend.header.account') }}</span>
+            <svg class="hdr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.6 20a7.4 7.4 0 0 1 14.8 0"/></svg><span class="hidden md:inline">{{ __('frontend.header.account') }}</span>
           </a>
 
           @if (($user->is_admin ?? false))
             <a href="{{ url('/admin/modules') }}" class="hdr-pill hdr-pill--accent" title="{{ __('frontend.header.admin_title') }}">
-              <i class="fas fa-gauge-high"></i><span class="hidden md:inline">{{ __('frontend.header.admin') }}</span>
+              <svg class="hdr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg><span class="hidden md:inline">{{ __('frontend.header.admin') }}</span>
             </a>
           @endif
 
           <form method="POST" action="{{ route('logout') }}" class="inline">
             @csrf
             <button type="submit" class="hdr-pill hdr-pill--danger" title="{{ __('frontend.header.logout') }}">
-              <i class="fas fa-right-from-bracket"></i><span class="hidden md:inline">{{ __('frontend.header.logout') }}</span>
+              <svg class="hdr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4H6.5A1.5 1.5 0 0 0 5 5.5v13A1.5 1.5 0 0 0 6.5 20H14"/><path d="M17 8.5 20.5 12 17 15.5M20.5 12H10"/></svg><span class="hidden md:inline">{{ __('frontend.header.logout') }}</span>
             </button>
           </form>
         @else
           <a href="{{ route('login') }}" class="hdr-pill" title="{{ __('frontend.header.login') }}">
-            <i class="fas fa-right-to-bracket"></i><span class="hidden md:inline">{{ __('frontend.header.login') }}</span>
+            <svg class="hdr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 4h7.5A1.5 1.5 0 0 1 19 5.5v13a1.5 1.5 0 0 1-1.5 1.5H10"/><path d="M6.5 8.5 3 12l3.5 3.5M3 12h10"/></svg><span class="hidden md:inline">{{ __('frontend.header.login') }}</span>
           </a>
           <a href="{{ route('register') }}" class="hdr-pill hdr-pill--accent" title="{{ __('frontend.header.register') }}">
-            <i class="fas fa-user-plus"></i><span class="hidden md:inline">{{ __('frontend.header.register') }}</span>
+            <svg class="hdr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="8" r="3.4"/><path d="M3.5 20a6.5 6.5 0 0 1 13 0"/><path d="M18.5 8.5v5M21 11h-5"/></svg><span class="hidden md:inline">{{ __('frontend.header.register') }}</span>
           </a>
         @endauth
       </div>
@@ -264,20 +264,54 @@
     .hdr-actions .hdr-pill, .hdr-actions .hdr-icon-btn{
         display:inline-flex; align-items:center; gap:.4rem; padding:.42rem .72rem; border-radius:9px;
         font-size:.82rem; font-weight:500; line-height:1; color:#374151; background:transparent; border:0;
-        cursor:pointer; text-decoration:none; white-space:nowrap;
+        cursor:pointer; text-decoration:none; white-space:nowrap; position:relative;
         transition:background .14s ease, color .14s ease, filter .14s ease; }
     :root.dark .hdr-actions .hdr-pill, :root.dark .hdr-actions .hdr-icon-btn{ color:#d1d5db; }
     .hdr-actions .hdr-icon-btn{ padding:.42rem .58rem; }
     .hdr-actions .hdr-pill i, .hdr-actions .hdr-icon-btn i{ font-size:1rem; line-height:1; }
-    .hdr-actions .hdr-pill:hover, .hdr-actions .hdr-icon-btn:hover{ background:rgba(99,102,241,.1); color:#4f46e5; }
-    :root.dark .hdr-actions .hdr-pill:hover, :root.dark .hdr-actions .hdr-icon-btn:hover{ background:rgba(99,102,241,.2); color:#c7d2fe; }
+    /* Ховер — полоса снизу, как у пунктов меню слева, а не заливка
+       подложкой: раньше действия справа подсвечивались прямоугольником и
+       вели себя иначе, чем навигация. Цвет берётся из активной темы, так
+       что подчёркивание меняется вместе с оформлением. */
+    .hdr-actions .hdr-pill::after, .hdr-actions .hdr-icon-btn::after{
+        content:''; position:absolute; left:.5rem; right:.5rem; bottom:2px; height:2px;
+        background:var(--color-primary,#6366f1);
+        transform:scaleX(0); transform-origin:center;
+        transition:transform .22s ease; }
+    .hdr-actions .hdr-pill:hover, .hdr-actions .hdr-icon-btn:hover{ color:var(--color-primary,#6366f1); }
+    .hdr-actions .hdr-pill:hover::after, .hdr-actions .hdr-icon-btn:hover::after,
+    .hdr-actions .hdr-pill:focus-visible::after, .hdr-actions .hdr-icon-btn:focus-visible::after{
+        transform:scaleX(1); }
+    :root.dark .hdr-actions .hdr-pill:hover, :root.dark .hdr-actions .hdr-icon-btn:hover{ color:#c7d2fe; }
+
+    /* Значки — штриховые, поэтому размер задаётся, а цвет наследуется от
+       самой кнопки и меняется вместе с ней. */
+    .hdr-actions .hdr-ico{ width:1.05rem; height:1.05rem; flex:0 0 auto; }
+    /* Залитая кнопка остаётся залитой: полоса на градиенте не читается. */
     .hdr-actions .hdr-pill--accent{ background:var(--fx-grad,#6366f1); color:#fff; box-shadow:0 8px 18px -10px rgba(99,102,241,.7); }
+    .hdr-actions .hdr-pill--accent::after{ display:none; }
     .hdr-actions .hdr-pill--accent:hover{ background:var(--fx-grad,#6366f1); color:#fff; filter:brightness(1.08); }
+
+    /* Выход подчёркивается своим цветом — он тут смысловой. */
     .hdr-actions .hdr-pill--danger{ color:#e11d48; }
-    .hdr-actions .hdr-pill--danger:hover{ background:rgba(244,63,94,.12); color:#e11d48; }
+    .hdr-actions .hdr-pill--danger::after{ background:#e11d48; }
+    .hdr-actions .hdr-pill--danger:hover{ color:#e11d48; }
+    :root.dark .hdr-actions .hdr-pill--danger:hover{ color:#fb7185; }
 
     /* Переключатель языка */
     [x-cloak]{ display:none !important; }
+    /* Верхняя строка шапки поднята над нижней.
+
+       Обе строки получают z-index:1 от правила стеклянной шапки ниже, обе
+       создают собственный контекст наложения — и при равном уровне
+       выигрывает та, что идёт в разметке позже, то есть строка поиска. Из-за
+       этого выпадающий список языков был заперт в контексте своей строки:
+       его собственный z-index:1000 не мог поднять список над полем поиска,
+       и у меню было видно только нижнюю половину, а верхний пункт уходил
+       под поле. Поднимать сам переключатель бесполезно по той же причине —
+       уровень нужен строке. */
+    .hdr-glass > .hdr-row1{ z-index:2; }
+    .hdr-lang{ z-index:1001; }
     .hdr-lang-menu{ position:absolute; right:0; top:calc(100% + .45rem); z-index:1000; min-width:11.5rem; padding:.3rem;
         background:rgba(255,255,255,.96); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
         border:1px solid rgba(17,24,39,.08); border-radius:11px; box-shadow:0 16px 40px -14px rgba(17,24,39,.3); }
