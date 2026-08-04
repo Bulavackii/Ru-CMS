@@ -26,22 +26,40 @@
 
     let viewer = null, img = null, cap = null, images = [], index = 0, opener = null;
 
-    /** Годится ли картинка для просмотра. */
-    const suits = (el) => {
+    /**
+     * Берём ли мы на себя клик по этой картинке.
+     *
+     * Перехватывать нужно ВСЕ содержательные картинки, включая обложки
+     * внутри ссылок. Пока такие пропускались, клик доставался просмотрщикам
+     * картинок из расширений браузера — они открывали снимок в натуральную
+     * величину, с прокруткой и обрезкой.
+     */
+    const handles = (el) => {
         if (!el || el.tagName !== 'IMG') return false;
         if (el.closest('.ru-viewer')) return false;
         if (el.classList.contains('no-zoom')) return false;
 
-        // Внутри ссылки клик должен вести по ссылке: у карточек новостей и
-        // товаров картинка — это переход к материалу, а не просмотр.
-        if (el.closest('a')) return false;
-
-        // Внутри шапки, подвала и боковых панелей картинки служебные.
-        if (!el.closest('main, .page-content, article, .ru-swiper')) return false;
+        // Перечисляем, где картинку трогать НЕ надо, а не где надо: список
+        // служебных зон конечен и меняется редко, а шаблонов и блоков будет
+        // сколько угодно. При обратном подходе каждый новый шаблон пришлось
+        // бы вносить сюда руками, и он снова доставался бы расширению.
+        if (el.closest('header, footer, nav, aside, form, button, .ru-viewer, .pc-map')) {
+            return false;
+        }
 
         const box = el.getBoundingClientRect();
         return box.width >= MIN_SIDE && box.height >= MIN_SIDE;
     };
+
+    /**
+     * Показывать ли картинку в просмотрщике.
+     *
+     * Обложка внутри ссылки ведёт к материалу — это привычное поведение
+     * карточки, и подменять его лупой неправильно. Такую картинку мы
+     * всё равно перехватываем, но вместо просмотра переходим по ссылке
+     * сами: так до неё не добирается расширение.
+     */
+    const suits = (el) => handles(el) && !el.closest('a');
 
     /** Соседи для листания — картинки того же блока. */
     const groupOf = (el) =>
@@ -154,10 +172,24 @@
     // перетаскивание, и перехват сломал бы листание свайпом.
     document.addEventListener('click', (e) => {
         const el = e.target.closest && e.target.closest('img');
-        if (!suits(el)) return;
+        if (!handles(el)) return;
 
+        // Перехватываем в любом случае — иначе клик достаётся расширению.
         e.preventDefault();
         e.stopPropagation();
+
+        const link = el.closest('a');
+
+        if (link && link.href) {
+            // Переходим сами, сохраняя привычное поведение обложки: новая
+            // вкладка, если ссылка так помечена, и служебные нажатия
+            // (средняя кнопка, Ctrl) — тоже в новой вкладке.
+            const blank = link.target === '_blank' || e.ctrlKey || e.metaKey;
+            if (blank) window.open(link.href, '_blank', 'noopener');
+            else window.location.href = link.href;
+            return;
+        }
+
         open(el);
     }, true);
 
@@ -174,17 +206,16 @@
     // Подсказка курсором и доступ с клавиатуры проставляются здесь, а не в
     // шаблонах: так это работает и в тех, что появятся позже.
     const mark = () => {
-        document.querySelectorAll('main img, .page-content img, article img, .ru-swiper img')
-            .forEach((el) => {
-                if (el.dataset.zoomReady) return;
-                if (!suits(el)) return;
+        document.querySelectorAll('img').forEach((el) => {
+            if (el.dataset.zoomReady) return;
+            if (!suits(el)) return;
 
-                el.dataset.zoomReady = '1';
-                el.classList.add('ru-zoomable');
-                el.setAttribute('tabindex', '0');
-                el.setAttribute('role', 'button');
-                if (!el.getAttribute('aria-label')) el.setAttribute('aria-label', T.zoom);
-            });
+            el.dataset.zoomReady = '1';
+            el.classList.add('ru-zoomable');
+            el.setAttribute('tabindex', '0');
+            el.setAttribute('role', 'button');
+            if (!el.getAttribute('aria-label')) el.setAttribute('aria-label', T.zoom);
+        });
     };
 
     document.addEventListener('DOMContentLoaded', mark);
