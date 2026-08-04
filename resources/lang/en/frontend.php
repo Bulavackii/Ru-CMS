@@ -26,6 +26,7 @@ return [
     ],
 
     'footer' => [
+        'socials' => 'Follow us',
         'about_line' => 'Open site management system: content, menus, catalogue and SEO — without a developer.',
         'since' => 'In development since',
         'sources' => 'Sources',

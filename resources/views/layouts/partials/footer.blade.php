@@ -150,9 +150,12 @@
                     </li>
                 </ul>
 
-                {{-- Соцсети — реальные бренд-иконки FontAwesome, бренд-цвет при наведении.
+                {{-- Соцсети. Ряд значков висел без подписи и читался как набор
+                     случайных кнопок; теперь у него есть заголовок в том же
+                     стиле, что подписи контактов над значениями.
                      Адреса обезличены (демо). --}}
-                <div class="mt-4 flex items-center gap-2.5 justify-center md:justify-start">
+                <p class="f-social-label">{{ __('frontend.footer.socials') }}</p>
+                <div class="f-socials">
                     <a href="https://vk.com/example" target="_blank" rel="noopener" class="f-social f-social--plain" style="--c:#0077FF" title="ВКонтакте" aria-label="ВКонтакте"><x-icon.vk :size="17" /></a>
                     {{-- MAX и Rutube: фирменных глифов нет ни в Font Awesome,
                          ни в Simple Icons, поэтому свои SVG-компоненты. --}}
@@ -276,6 +279,53 @@
     /* Контакты в подвале.
        Рамка с заливкой во всю ширину делала из ссылки отключённое поле
        ввода — теперь это строка со значком, подписью и значением. */
+    /* Столбцы меню.
+       Значок в плитке и подчёркивание значения — те же, что у контактов
+       в соседней колонке: раньше ссылки меню подсвечивались собственной
+       подложкой и выбивались из общего ряда. Число столбцов на вид не
+       влияет: их рисует партиал модуля Меню по числу footer-меню. */
+    .footer-col-title{ margin:0 0 .9rem; font-size:.95rem; font-weight:700;
+        color:#111827; }
+    :root.dark .footer-col-title{ color:#f3f4f6; }
+
+    .f-menu-list{ display:grid; gap:.15rem; margin:0; padding:0; list-style:none; }
+    .f-menu-list li{ margin:0; }
+
+    .f-menu-link{ display:flex; align-items:center; gap:.65rem; padding:.42rem .3rem;
+        text-decoration:none; color:inherit; transition:color .15s ease; }
+
+    .f-menu-ico{ display:inline-flex; align-items:center; justify-content:center;
+        width:1.85rem; height:1.85rem; flex:0 0 auto; color:var(--color-primary,#6366f1);
+        background:rgba(99,102,241,.1);
+        transition:color .15s ease, background .15s ease; }
+    .f-menu-ico svg, .f-menu-ico i{ width:.9rem; height:.9rem; font-size:.9rem; line-height:1; }
+
+    .f-menu-text{ position:relative; font-size:.85rem; color:#374151;
+        transition:color .15s ease; }
+    .f-menu-text::after{ content:''; position:absolute; left:0; right:0; bottom:-2px;
+        height:1px; background:var(--color-primary,#6366f1);
+        transform:scaleX(0); transform-origin:left; transition:transform .2s ease; }
+    .f-menu-link:hover .f-menu-text{ color:var(--color-primary,#6366f1); }
+    .f-menu-link:hover .f-menu-text::after{ transform:scaleX(1); }
+    .f-menu-link:hover .f-menu-ico{ color:#fff; background:var(--color-primary,#6366f1); }
+    .f-menu-link:focus-visible{ outline:2px solid var(--color-primary,#6366f1); outline-offset:2px; }
+    :root.dark .f-menu-text{ color:#d1d5db; }
+    :root.dark .f-menu-ico{ background:rgba(99,102,241,.2); }
+
+    /* Вложенный уровень — мельче и со сдвигом, чтобы читалась подчинённость. */
+    .f-menu-list--child{ margin:.1rem 0 .25rem 1.1rem; }
+    .f-menu-link--child .f-menu-ico{ width:1.4rem; height:1.4rem; }
+    .f-menu-link--child .f-menu-ico svg, .f-menu-link--child .f-menu-ico i{
+        width:.72rem; height:.72rem; font-size:.72rem; }
+    .f-menu-link--child .f-menu-text{ font-size:.78rem; }
+
+    /* На телефоне столбцы выравниваются по центру, как остальные блоки. */
+    @media (max-width:767px){
+        .footer-col{ text-align:center; }
+        .f-menu-link{ justify-content:center; }
+        .f-menu-list--child{ margin-left:0; }
+    }
+
     /* Блок разработчика.
        Раньше он повторял почту и телефон из колонки «Контакты» и занимал
        высоту втрое больше пользы. Теперь несёт то, чего нет рядом:
@@ -337,17 +387,37 @@
     :root.dark .f-contact__label{ color:#6b7280; }
     :root.dark .f-contact__ico{ background:rgba(99,102,241,.2); }
 
-    .f-social{ display:inline-flex; align-items:center; justify-content:center; width:2.35rem; height:2.35rem;
-        border:1px solid rgba(17,24,39,.1); background:rgba(255,255,255,.55); color:#6b7280; font-size:1.05rem;
-        text-decoration:none; transition:color .15s ease, background .15s ease, border-color .15s ease, transform .15s ease; }
-    :root.dark .f-social{ border-color:rgba(255,255,255,.1); background:rgba(30,41,59,.45); color:#9ca3af; }
-    .f-social:hover{ color:#fff; background:var(--c,#6366f1); border-color:var(--c,#6366f1); transform:translateY(-2px); }
+    /* Соцсети.
+       Значки стояли голым рядом без подписи и без опоры — читались как
+       набор случайных кнопок. Теперь над ними подпись в том же стиле, что
+       у подписей контактов, а сами они лежат в плитках такого же размера,
+       как значки контактов и меню: подвал перестал распадаться на три
+       разных языка оформления. */
+    .f-social-label{ margin:1.1rem 0 .5rem; font-size:.62rem; font-weight:700;
+        letter-spacing:.1em; text-transform:uppercase; color:#9ca3af; }
+    :root.dark .f-social-label{ color:#6b7280; }
 
-    /* Иконки со своим цветом (ВК, MAX, Rutube, GitHub) — плитка под ними
-       не закрашивается при наведении, иначе фирменный знак теряется. */
-    .f-social--plain{ padding:0; background:transparent; border-color:transparent }
-    .f-social--plain:hover{ background:transparent; border-color:var(--c,#6366f1) }
-    :root.dark .f-social--plain{ background:transparent; border-color:transparent }
+    .f-socials{ display:flex; align-items:center; gap:.45rem; flex-wrap:wrap; }
+
+    .f-social{ display:inline-flex; align-items:center; justify-content:center;
+        width:2rem; height:2rem; flex:0 0 auto; font-size:1.05rem; text-decoration:none;
+        color:#6b7280; background:rgba(99,102,241,.08);
+        transition:color .15s ease, background .15s ease, transform .15s ease; }
+    :root.dark .f-social{ color:#9ca3af; background:rgba(99,102,241,.18); }
+
+    /* Плитка заливается ФИРМЕННЫМ цветом сети, а не акцентом темы: так
+       узнаваемость знака работает на сайте с любым оформлением. */
+    .f-social:hover{ color:#fff; background:var(--c,#6366f1); transform:translateY(-2px); }
+    .f-social:focus-visible{ outline:2px solid var(--c,#6366f1); outline-offset:2px; }
+
+    /* У ВК, MAX, Rutube и GitHub собственные цветные глифы: заливать
+       плитку под ними нельзя, знак потеряется. Им — только подъём и
+       мягкая подложка фирменного цвета. */
+    .f-social--plain{ background:rgba(99,102,241,.08); }
+    .f-social--plain:hover{ background:rgba(99,102,241,.16); }
+    :root.dark .f-social--plain:hover{ background:rgba(99,102,241,.28); }
+    .f-social--plain svg{ transition:transform .15s ease; }
+    .f-social--plain:hover svg{ transform:scale(1.08); }
 
     .f-meta-chip{ display:inline-flex; align-items:center; gap:.3rem; padding:.18rem .5rem; font-size:.66rem; font-weight:600;
         background:rgba(99,102,241,.1); color:var(--color-primary,#6366f1); letter-spacing:.02em; }

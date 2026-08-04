@@ -24,11 +24,13 @@
         ['url' => '/donate',      'icon' => 'heart',  'title' => 'Поддержать проект'],
     ];
 
-    $footerColTitle = 'footer-col-title text-base font-semibold mb-4 text-center text-gray-900 dark:text-gray-100';
-    $footerLinkCls  = 'fx-underline inline-flex items-center gap-2 px-2 py-1 rounded transition '
-        . 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 '
-        . 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 '
-        . 'focus-visible:ring-blue-500 dark:focus-visible:ring-blue-400';
+    // Оформление вынесено в литеральный CSS подвала (класс f-menu-link):
+    // прежний набор Tailwind-классов давал ссылке собственный ховер с
+    // подложкой, из-за чего столбцы меню вели себя иначе, чем контакты
+    // в соседней колонке. Теперь у них общий вид: значок в плитке,
+    // подчёркивание значения.
+    $footerColTitle = 'footer-col-title';
+    $footerLinkCls  = 'f-menu-link';
 @endphp
 
 {{-- Столбцы меню лежат в собственной группе, а не прямыми детьми сетки
@@ -40,25 +42,24 @@
      меню в панели — появилась ещё одна колонка. --}}
 <div class="footer-menus">
 @forelse ($footerMenus as $menu)
-    <nav class="footer-col text-center" aria-label="{{ $menu->t('title') }}">
+    <nav class="footer-col" aria-label="{{ $menu->t('title') }}">
         <h2 class="{{ $footerColTitle }}">{{ $menu->t('title') }}</h2>
-        <ul class="space-y-2 list-none m-0 p-0 inline-block text-left">
+        <ul class="f-menu-list">
             @foreach ($menu->items as $item)
                 <li>
                     <a href="{{ $item->frontendUrl() }}" class="{{ $footerLinkCls }}"
                        @if($item->target) target="{{ $item->target }}" @endif
                        @if($item->rel) rel="{{ $item->rel }}" @endif>
-                        @themeIcon($item->displayIcon())
-                        <span class="text-[13px]">{{ $item->t('title') }}</span>
+                        <span class="f-menu-ico">@themeIcon($item->displayIcon())</span>
+                        <span class="f-menu-text">{{ $item->t('title') }}</span>
                     </a>
                     @if ($item->activeChildren && $item->activeChildren->count())
-                        <ul class="mt-1 ml-6 space-y-1 list-none">
+                        <ul class="f-menu-list f-menu-list--child">
                             @foreach ($item->activeChildren as $child)
                                 <li>
-                                    <a href="{{ $child->frontendUrl() }}"
-                                       class="fx-underline inline-flex items-center gap-2 text-[12px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition">
-                                        @themeIcon($child->displayIcon())
-                                        <span>{{ $child->title }}</span>
+                                    <a href="{{ $child->frontendUrl() }}" class="f-menu-link f-menu-link--child">
+                                        <span class="f-menu-ico">@themeIcon($child->displayIcon())</span>
+                                        <span class="f-menu-text">{{ $child->t('title') }}</span>
                                     </a>
                                 </li>
                             @endforeach
@@ -69,14 +70,14 @@
         </ul>
     </nav>
 @empty
-    <nav class="footer-col text-center" aria-label="Навигация">
+    <nav class="footer-col" aria-label="Навигация">
         <h2 class="{{ $footerColTitle }}">Навигация</h2>
-        <ul class="space-y-2 list-none m-0 p-0 inline-block text-left">
+        <ul class="f-menu-list">
             @foreach ($footerFallback as $link)
                 <li>
                     <a href="{{ url($link['url']) }}" class="{{ $footerLinkCls }}">
-                        @themeIcon($link['icon'])
-                        <span class="text-[13px]">{{ $link['title'] }}</span>
+                        <span class="f-menu-ico">@themeIcon($link['icon'])</span>
+                        <span class="f-menu-text">{{ $link['title'] }}</span>
                     </a>
                 </li>
             @endforeach
