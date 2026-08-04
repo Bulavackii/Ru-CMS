@@ -6,6 +6,33 @@
     @php
         // reading_time() считает слова с поддержкой кириллицы (см. app/helpers.php)
         $readMins = reading_time($page->t('content'));
+
+        $html = render_shortcodes($page->t('content'));
+
+        // Оглавление собирается из заголовков второго уровня, которые редактор
+        // расставил в тексте. Якоря проставляются здесь же: требовать от
+        // редактора вписывать id вручную в визуальном редакторе нельзя.
+        //
+        // Транслитерация нужна, потому что id из кириллицы работает в браузере,
+        // но ломается в ссылке: адрес превращается в проценты, и поделиться им
+        // уже неудобно.
+        $toc = [];
+
+        $html = preg_replace_callback('~<h2([^>]*)>(.*?)</h2>~su', function ($m) use (&$toc) {
+            $text = trim(html_entity_decode(strip_tags($m[2]), ENT_QUOTES, 'UTF-8'));
+
+            if ($text === '') {
+                return $m[0];
+            }
+
+            $slug = \Illuminate\Support\Str::slug($text) ?: 'razdel-' . (count($toc) + 1);
+            $toc[] = ['id' => $slug, 'text' => $text];
+
+            // Собственный id из редактора уважаем — вдруг на него уже ссылались.
+            $attrs = str_contains($m[1], 'id=') ? $m[1] : $m[1] . ' id="' . e($slug) . '"';
+
+            return '<h2' . $attrs . '>' . $m[2] . '</h2>';
+        }, $html);
     @endphp
 
     <article class="w-full max-w-screen-2xl mx-auto">
@@ -50,11 +77,25 @@
             </div>
         </header>
 
+        {{-- ===== Оглавление =====
+             Показывается только с трёх разделов: у короткой страницы оно
+             занимает больше места, чем экономит. --}}
+        @if (count($toc) >= 3)
+            <nav class="fx-card pc-toc p-5 sm:p-6 mb-6" aria-label="Содержание страницы">
+                <p class="pc-toc__title">Содержание</p>
+                <ol class="pc-toc__list">
+                    @foreach ($toc as $item)
+                        <li><a href="#{{ $item['id'] }}">{{ $item['text'] }}</a></li>
+                    @endforeach
+                </ol>
+            </nav>
+        @endif
+
         {{-- ===== Контент ===== --}}
         <div class="fx-card p-6 sm:p-8 md:p-10 mb-6">
             <div class="prose prose-sm sm:prose lg:prose-lg dark:prose-invert max-w-none page-content text-gray-800 dark:text-gray-100">
-                {{-- Шорткоды из редактора (например, вставленная каптча) --}}
-                {!! render_shortcodes($page->t('content')) !!}
+                {{-- Шорткоды уже развёрнуты выше, там же расставлены якоря --}}
+                {!! $html !!}
             </div>
         </div>
 
@@ -157,5 +198,79 @@
     .share-btn--plain{ padding:.25rem; background:transparent; }
     .share-btn--plain:hover{ background:transparent; border-color:var(--c,#6366f1); }
     :root.dark .share-btn--plain{ background:transparent; }
+
+    /* ══════════════════════════════════════════════════════════════════
+       БЛОКИ СОДЕРЖИМОГО
+
+       Готовые оформления для текста страницы. Редактор применяет их из
+       визуального редактора — достаточно поставить класс блоку, никакого
+       CSS писать не нужно:
+
+         pc-lead    — вводный абзац крупнее обычного
+         pc-grid    — сетка из блоков pc-card (2 колонки, на телефоне 1)
+         pc-card    — карточка с заголовком и текстом внутри сетки
+         pc-check   — список с галочками вместо точек
+         pc-note    — выделенная врезка-примечание
+         pc-cta     — полоса призыва к действию со ссылкой внутри
+
+       Классы литеральные: в статической сборке Tailwind нет ни прозрачности
+       через дробь, ни произвольных значений. Цвета — из активной темы.
+       ══════════════════════════════════════════════════════════════════ */
+
+    .page-content .pc-lead{ font-size:1.05rem; line-height:1.65; color:#334155 }
+    :root.dark .page-content .pc-lead{ color:#cbd5e1 }
+
+    .page-content .pc-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(17rem,1fr));
+        gap:1rem; margin:1.5rem 0; padding:0; list-style:none }
+
+    .page-content .pc-card{ margin:0; padding:1.1rem 1.25rem; background:#fff;
+        border:1px solid #eef2f7; transition:border-color .15s, transform .15s }
+    .page-content .pc-card:hover{ border-color:var(--color-primary,#6366f1); transform:translateY(-2px) }
+    .page-content .pc-card > :first-child{ margin-top:0 }
+    .page-content .pc-card > :last-child{ margin-bottom:0 }
+    .page-content .pc-card strong,
+    .page-content .pc-card h3{ display:block; margin-bottom:.35rem; font-size:1rem;
+        font-weight:700; color:#111827 }
+    :root.dark .page-content .pc-card{ background:#111827; border-color:#1f2937 }
+    :root.dark .page-content .pc-card strong,
+    :root.dark .page-content .pc-card h3{ color:#f3f4f6 }
+
+    .page-content .pc-check{ list-style:none; padding:0; margin:1.25rem 0;
+        display:grid; grid-template-columns:repeat(auto-fit,minmax(18rem,1fr)); gap:.6rem 1.5rem }
+    .page-content .pc-check li{ position:relative; padding-left:1.6rem; margin:0; line-height:1.5 }
+    .page-content .pc-check li::before{ content:'✓'; position:absolute; left:0; top:0;
+        font-weight:700; color:var(--color-primary,#6366f1) }
+
+    /* Врезка: слева акцентная полоса, чтобы её нельзя было спутать с текстом. */
+    .page-content .pc-note{ margin:1.5rem 0; padding:1rem 1.25rem; background:#f8fafc;
+        border-left:3px solid var(--color-primary,#6366f1) }
+    .page-content .pc-note > :first-child{ margin-top:0 }
+    .page-content .pc-note > :last-child{ margin-bottom:0 }
+    :root.dark .page-content .pc-note{ background:#0b1220 }
+
+    .page-content .pc-cta{ display:flex; align-items:center; justify-content:space-between;
+        gap:1rem; flex-wrap:wrap; margin:1.75rem 0 .5rem; padding:1.25rem 1.5rem; color:#fff;
+        background:linear-gradient(135deg,var(--color-primary,#6366f1),var(--color-accent,#8b5cf6)) }
+    .page-content .pc-cta > :first-child{ margin:0 }
+    .page-content .pc-cta a{ flex:none; padding:.6rem 1.35rem; font-weight:700;
+        color:#111827; background:#fff; text-decoration:none }
+    .page-content .pc-cta a:hover{ color:var(--color-primary,#6366f1) }
+
+    /* ── Оглавление ─────────────────────────────────────────────────── */
+    .pc-toc__title{ margin:0 0 .6rem; font-size:.75rem; font-weight:700;
+        letter-spacing:.08em; text-transform:uppercase; color:#94a3b8 }
+    .pc-toc__list{ margin:0; padding:0; list-style:none; display:grid;
+        grid-template-columns:repeat(auto-fit,minmax(15rem,1fr)); gap:.4rem 1.5rem;
+        counter-reset:pc-toc }
+    .pc-toc__list li{ counter-increment:pc-toc }
+    .pc-toc__list a{ display:inline-flex; gap:.5rem; font-size:.9rem; color:#334155;
+        text-decoration:none; line-height:1.4 }
+    .pc-toc__list a::before{ content:counter(pc-toc) '.'; flex:none; font-weight:700;
+        color:var(--color-primary,#6366f1) }
+    .pc-toc__list a:hover{ color:var(--color-primary,#6366f1) }
+    :root.dark .pc-toc__list a{ color:#cbd5e1 }
+
+    /* Якорь не должен уезжать под шапку при переходе из оглавления. */
+    .page-content h2[id]{ scroll-margin-top:5rem }
 </style>
 @endpush

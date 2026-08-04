@@ -345,7 +345,15 @@ Route::get('/news/{slug}', [FrontendNewsController::class, 'show'])->name('news.
 Route::get('/slideshow/{slug}', [PublicController::class, 'show'])->name('slideshow.show');
 
 // 🔗 Статические страницы
-Route::view('/about', 'frontend.pages.about')->name('pages.about');
+//
+// Страницы постепенно переезжают из Blade-вьюх в раздел «Страницы»: пока
+// вьюха лежала в коде, посетитель видел одно, а редактор в панели правил
+// совсем другую запись с похожим названием. Переехавшие адреса остаются
+// прежними, но отдают запись из базы — её видно и правится в панели.
+Route::get('/about', [\Modules\Menu\Controllers\Frontend\PageController::class, 'show'])
+    ->defaults('slug', 'o-proekte')
+    ->name('pages.about');
+
 Route::view('/faq', 'frontend.pages.faq')->name('pages.faq');
 Route::view('/contacts', 'frontend.pages.contacts')->name('pages.contacts');
 // 🔐 Статическая страница "Политика конфиденциальности"
