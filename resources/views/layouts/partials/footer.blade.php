@@ -96,7 +96,9 @@
         </div>
 
         {{-- ===== Нижняя мета-полоса ===== --}}
-        <div class="border-t border-gray-200/80 dark:border-gray-700/80 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-4 sm:py-5 backdrop-blur-sm bg-white dark:bg-gray-800 transition-colors duration-200"
+        {{-- Полоса намеренно узкая: в ней одна строка текста, и прежние
+             отступы сверху и снизу делали её выше самой надписи втрое. --}}
+        <div class="border-t border-gray-200/80 dark:border-gray-700/80 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-1.5 backdrop-blur-sm bg-white dark:bg-gray-800 transition-colors duration-200"
             style="background:var(--color-footer,#ffffff)">
             {{-- Копирайт со стеком — по центру полосы.
 
