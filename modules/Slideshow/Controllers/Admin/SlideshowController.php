@@ -289,7 +289,7 @@ class SlideshowController extends Controller
             'position'         => $request->position,
             'published'        => $request->boolean('published', false),
             'description'      => $request->description,
-            'autoplay_delay'   => $request->autoplay_delay ?? 5000,
+            'autoplay_delay'   => $request->autoplay_delay ?? 15000,
             'transition_effect' => $request->transition_effect ?? 'slide',
             'height'           => $request->height,
             'show_pagination'  => $request->boolean('show_pagination', true),

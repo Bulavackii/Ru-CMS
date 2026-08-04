@@ -21,11 +21,18 @@
     ║    углу. На телефоне она встаёт ОТДЕЛЬНЫМ блоком под кадром:     ║
     ║    поверх невысокого кадра она закрывала до трети картинки, а    ║
     ║    обрезанная в одну строку теряла смысл.                        ║
+    ║                                                                  ║
+    ║  ПРОСМОТР ВО ВЕСЬ ЭКРАН                                          ║
+    ║    Клик по картинке открывает её целиком, вписанной в экран при  ║
+    ║    любой его ширине. Стрелками и кнопками листаются остальные    ║
+    ║    слайды ТОГО ЖЕ слайдшоу, Esc и клик по фону закрывают.        ║
+    ║    Ссылка на подписи слайда работает как прежде — ведёт по       ║
+    ║    заданному адресу, а не открывает просмотр.                    ║
     ╚══════════════════════════════════════════════════════════════════╝
 --}}
 
 @php
-  $autoplayDelay = $slideshow->autoplay_delay ?? 5000;
+  $autoplayDelay = $slideshow->autoplay_delay ?? 15000;
   $transitionEffect = $slideshow->transition_effect ?? 'slide';
   $showPagination = $slideshow->show_pagination ?? true;
   $showNavigation = $slideshow->show_navigation ?? true;
@@ -90,6 +97,8 @@
                      напрямую ухудшала бы показатель LCP. Остальные — отложенно. --}}
                 <img src="{{ $src }}"
                      alt="{{ $item->t('alt_text') ?? $item->t('caption') ?? __('frontend.slideshow.slide') }}"
+                     class="ru-zoomable" tabindex="0" role="button"
+                     aria-label="{{ __('frontend.slideshow.zoom') }}"
                      @if ($index === 0) fetchpriority="high" decoding="async"
                      @else loading="lazy" decoding="async" @endif>
               @elseif ($item->media_type === 'video')
@@ -253,6 +262,46 @@
         background-color:var(--color-primary,#6366f1); width:38px;
         box-shadow:0 0 0 1px rgba(255,255,255,.35) }
 
+    /* ── Просмотр картинки во весь экран ────────────────────────────── */
+    /* Картинка в кадре обрезана по пропорции слайдера. Клик открывает её
+       целиком, вписанной в экран: max-width/max-height в единицах вьюпорта
+       дают это при ЛЮБОЙ его ширине, без вычислений в скрипте. width/height
+       остаются auto, поэтому маленькая картинка не растягивается до мыла. */
+    .ru-zoomable{ cursor:zoom-in }
+    .ru-zoomable:focus-visible{ outline:3px solid var(--color-primary,#6366f1); outline-offset:-3px }
+
+    .ru-viewer{ position:fixed; inset:0; z-index:9999; display:flex;
+        align-items:center; justify-content:center; padding:3.5rem 1rem 4.5rem;
+        background:rgba(2,6,23,.92);
+        -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px) }
+    .ru-viewer[hidden]{ display:none }
+
+    .ru-viewer__img{ max-width:96vw; max-height:calc(100vh - 8rem);
+        width:auto; height:auto; object-fit:contain; display:block;
+        box-shadow:0 24px 60px rgba(2,6,23,.6) }
+
+    .ru-viewer__cap{ position:absolute; left:1rem; right:1rem; bottom:1.15rem;
+        text-align:center; color:#e2e8f0; font-size:.875rem; line-height:1.4;
+        text-shadow:0 1px 3px rgba(2,6,23,.8) }
+
+    /* Кнопки просмотрщика — того же размера, что и стрелки слайдера. */
+    .ru-viewer__btn{ position:absolute; display:flex; align-items:center; justify-content:center;
+        width:44px; height:44px; color:#fff; font-size:1.1rem; line-height:1;
+        background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.22);
+        transition:background-color .15s }
+    .ru-viewer__btn:hover{ background:rgba(255,255,255,.24) }
+    .ru-viewer__btn:focus-visible{ outline:2px solid #fff; outline-offset:2px }
+    .ru-viewer__close{ top:1rem; right:1rem }
+    .ru-viewer__prev{ top:50%; left:1rem; margin-top:-22px }
+    .ru-viewer__next{ top:50%; right:1rem; margin-top:-22px }
+
+    /* На телефоне боковые кнопки съедают место под саму картинку —
+       листать там естественнее свайпом по самой карусели. */
+    @media (max-width:640px){
+        .ru-viewer{ padding:3.5rem .5rem 4rem }
+        .ru-viewer__prev, .ru-viewer__next{ display:none }
+    }
+
     /* ── Полоса прогресса автопрокрутки ─────────────────────────────── */
     /* Показывает, сколько осталось до смены слайда. Ширина задаётся из
        скрипта, а не CSS-анимацией: в фоновой вкладке время анимаций стоит,
@@ -342,6 +391,140 @@
 @once
 @push('scripts')
   <script src="{{ local_js('swiper-bundle.min.js') }}"></script>
+
+  {{-- Просмотр картинки во весь экран. Один на страницу, слушатель общий:
+       слайдшоу может быть несколько, заводить по просмотрщику на каждое
+       незачем. Разметка создаётся при первом открытии, а не лежит в
+       странице мёртвым грузом. --}}
+  <script>
+    (function () {
+      const T = {
+        close: @js(__('frontend.slideshow.close')),
+        prev: @js(__('frontend.slideshow.viewer_prev')),
+        next: @js(__('frontend.slideshow.viewer_next')),
+      };
+
+      let viewer = null, img = null, cap = null, images = [], index = 0, opener = null;
+
+      // Пока просмотрщик открыт, карусель под ним должна замереть. Иначе:
+      // стрелки листают И просмотрщик, И слайдер (модуль клавиатуры Swiper
+      // слушает тот же документ), а автопрокрутка меняет слайд за спиной, и
+      // после закрытия человек оказывается не там, где был.
+      const sliders = () => [...document.querySelectorAll('.ru-swiper')].map((el) => el.swiper).filter(Boolean);
+      const freezeSliders = (freeze) => {
+        sliders().forEach((sw) => {
+          if (sw.keyboard) freeze ? sw.keyboard.disable() : sw.keyboard.enable();
+          if (sw.autoplay && sw.params.autoplay) freeze ? sw.autoplay.stop() : sw.autoplay.start();
+        });
+      };
+
+      const build = () => {
+        viewer = document.createElement('div');
+        viewer.className = 'ru-viewer';
+        viewer.setAttribute('role', 'dialog');
+        viewer.setAttribute('aria-modal', 'true');
+        viewer.hidden = true;
+        viewer.innerHTML =
+          '<img class="ru-viewer__img" alt="">' +
+          '<p class="ru-viewer__cap"></p>' +
+          '<button type="button" class="ru-viewer__btn ru-viewer__close" aria-label="' + T.close + '">&times;</button>' +
+          '<button type="button" class="ru-viewer__btn ru-viewer__prev" aria-label="' + T.prev + '">&#10094;</button>' +
+          '<button type="button" class="ru-viewer__btn ru-viewer__next" aria-label="' + T.next + '">&#10095;</button>';
+
+        img = viewer.querySelector('.ru-viewer__img');
+        cap = viewer.querySelector('.ru-viewer__cap');
+
+        viewer.querySelector('.ru-viewer__close').addEventListener('click', close);
+        viewer.querySelector('.ru-viewer__prev').addEventListener('click', () => step(-1));
+        viewer.querySelector('.ru-viewer__next').addEventListener('click', () => step(1));
+
+        // Клик мимо картинки закрывает — привычное поведение просмотрщиков.
+        viewer.addEventListener('click', (e) => { if (e.target === viewer) close(); });
+
+        document.body.appendChild(viewer);
+      };
+
+      const show = () => {
+        const el = images[index];
+        if (!el) return;
+        img.src = el.currentSrc || el.src;
+        img.alt = el.alt || '';
+        cap.textContent = el.alt || '';
+      };
+
+      const step = (dir) => {
+        if (images.length < 2) return;
+        index = (index + dir + images.length) % images.length;
+        show();
+      };
+
+      const onKey = (e) => {
+        if (e.key === 'Escape') { close(); return; }
+        if (e.key === 'ArrowLeft') { step(-1); return; }
+        if (e.key === 'ArrowRight') step(1);
+      };
+
+      function open(el) {
+        if (!viewer) build();
+
+        // Листаем в пределах ТОГО слайдшоу, по которому кликнули, и только
+        // по настоящим слайдам: Swiper при зацикливании клонирует крайние,
+        // иначе одна и та же картинка встречалась бы дважды.
+        const root = el.closest('.ru-swiper') || document;
+        images = [...root.querySelectorAll('.swiper-slide:not(.swiper-slide-duplicate) .ru-zoomable')];
+        if (!images.length) images = [el];
+
+        index = Math.max(images.indexOf(el), 0);
+        opener = el;
+
+        show();
+        viewer.hidden = false;
+        freezeSliders(true);
+        // Прокрутка страницы под открытым просмотрщиком сбивает с толку.
+        document.body.style.overflow = 'hidden';
+        document.addEventListener('keydown', onKey);
+        viewer.querySelector('.ru-viewer__close').focus();
+      }
+
+      function close() {
+        if (!viewer || viewer.hidden) return;
+        viewer.hidden = true;
+        img.removeAttribute('src');
+        freezeSliders(false);
+        document.body.style.overflow = '';
+        document.removeEventListener('keydown', onKey);
+        // Фокус возвращается туда, откуда пришёл, — иначе он улетает в начало
+        // страницы и человек с клавиатуры теряет место.
+        if (opener) { opener.focus(); opener = null; }
+      }
+
+      // Делегирование: слайды создаются и клонируются Swiper-ом уже после
+      // загрузки, вешать слушатель на каждую картинку нечестно.
+      //
+      // Перехват на ФАЗЕ ПОГРУЖЕНИЯ и с остановкой всплытия: клик по картинке
+      // предназначен только просмотрщику. Иначе его видят и другие
+      // обработчики на документе — в том числе просмотрщики картинок из
+      // расширений браузера, и поверх нашего открывается ещё одно окно,
+      // которое приходится закрывать отдельно. Расширение может слушать и
+      // mousedown — такой клик мы не трогаем намеренно: на нём Swiper
+      // начинает перетаскивание, и перехват сломал бы листание свайпом.
+      document.addEventListener('click', (e) => {
+        const el = e.target.closest && e.target.closest('.ru-zoomable');
+        if (!el) return;
+        e.preventDefault();
+        e.stopPropagation();
+        open(el);
+      }, true);
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        const el = e.target.closest && e.target.closest('.ru-zoomable');
+        if (!el) return;
+        e.preventDefault();
+        open(el);
+      });
+    })();
+  </script>
 @endpush
 @endonce
 

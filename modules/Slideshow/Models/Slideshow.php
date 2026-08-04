@@ -30,7 +30,7 @@ class Slideshow extends Model
     // 🔢 Значения по умолчанию для атрибутов
     protected $attributes = [
         'published' => false,
-        'autoplay_delay' => 5000,
+        'autoplay_delay' => 15000,
         'transition_effect' => 'slide',
         'show_pagination' => true,
         'show_navigation' => true,

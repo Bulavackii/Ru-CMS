@@ -256,6 +256,10 @@ return [
     ],
 
     'slideshow' => [
+        'zoom' => 'Open full screen',
+        'close' => 'Close',
+        'viewer_prev' => 'Previous image',
+        'viewer_next' => 'Next image',
         'slide' => 'Slide',
         'no_video' => 'Your browser does not support video.',
         'prev' => 'Previous slide',
