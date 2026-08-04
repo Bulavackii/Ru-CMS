@@ -92,6 +92,9 @@ return [
     ],
 
     'account' => [
+        'fill_hint_link' => 'Fill in',
+        'fill_hint' => 'Your profile is incomplete — phone and address help at checkout.',
+        'member_since' => 'With us since',
         'login_history_note' => 'When and from where you signed in',
         'change_pass_note' => 'Current password required',
         'edit_org_note' => 'Company details for documents',

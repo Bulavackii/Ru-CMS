@@ -76,6 +76,24 @@
             <div><dt>{{ __('frontend.account.user_type') }}</dt>
                 <dd>{{ $user->is_company ? __('frontend.account.legal_entity_type') : __('frontend.account.individual') }}</dd></div>
 
+            {{-- Телефон и адрес показываем, только если заполнены: строка с
+                 прочерком места занимает столько же, а сообщает ничего.
+                 Карточка пустовала почти наполовину именно потому, что в ней
+                 было три строки из десятка заполненных полей. --}}
+            @if ($user->phone)
+                <div><dt>{{ __('frontend.account.f_phone') }}</dt>
+                    <dd><a href="tel:{{ preg_replace('~[^\d+]~', '', $user->phone) }}">{{ $user->phone }}</a></dd></div>
+            @endif
+
+            @if ($user->address)
+                <div><dt>{{ __('frontend.account.f_address') }}</dt><dd>{{ $user->address }}</dd></div>
+            @endif
+
+            @if ($user->created_at)
+                <div><dt>{{ __('frontend.account.member_since') }}</dt>
+                    <dd>{{ $user->created_at->format('d.m.Y') }}</dd></div>
+            @endif
+
             {{-- Строка появляется, только если ссылка задана: пустое поле с
                  прочерком в профиле ничего не сообщает. --}}
             @if ($user->vk || $user->max)
@@ -106,6 +124,16 @@
                 <div><dt>{{ __('frontend.account.ogrn') }}</dt><dd>{{ $user->ogrn ?: '—' }}</dd></div>
             @endif
         </dl>
+
+        @unless ($user->phone && $user->address)
+            {{-- Мягкая подсказка вместо пустоты: половина полей профиля
+                 обычно не заполнена, и карточка выглядела недоделанной. --}}
+            <p class="acc-fill-hint">
+                <i class="fas fa-circle-info"></i>
+                {{ __('frontend.account.fill_hint') }}
+                <a href="{{ route('dashboard.edit') }}">{{ __('frontend.account.fill_hint_link') }}</a>
+            </p>
+        @endunless
     </section>
 
     {{-- ── Действия ──
@@ -207,25 +235,34 @@
              товары, а попадает в ленту статей. Теперь кнопка ведёт в каталог,
              а рядом коротко сказано, что вообще будет храниться в этом
              разделе — иначе пустая карточка не сообщает ничего. --}}
+        {{-- Пустой раздел занимал 357px по высоте ради трёх строк текста:
+             значок, заголовок, подпись, список и кнопки шли столбиком по
+             центру. Теперь всё в одну строку — значок и текст слева,
+             действия справа, — а перечень идёт под ней в три колонки. --}}
         <div class="acc-empty">
-            <span class="fx-badge mx-auto"><i class="fas fa-box-open"></i></span>
-            <p class="acc-empty__title">{{ __('frontend.account.orders_empty') }}</p>
-            <p class="fx-section-sub">{{ __('frontend.account.orders_none_hint') }}</p>
+            <div class="acc-empty__row">
+                <span class="acc-empty__ico"><i class="fas fa-box-open"></i></span>
+
+                <div class="acc-empty__text">
+                    <p class="acc-empty__title">{{ __('frontend.account.orders_empty') }}</p>
+                    <p class="acc-empty__sub">{{ __('frontend.account.orders_none_hint') }}</p>
+                </div>
+
+                <div class="acc-empty__actions">
+                    <a href="{{ url('/news') }}" class="fx-btn">
+                        <i class="fas fa-store"></i> {{ __('frontend.account.to_catalog') }}
+                    </a>
+                    <a href="{{ route('cart.index') }}" class="acc-btn-ghost">
+                        <i class="fas fa-cart-shopping"></i> {{ __('frontend.account.to_cart') }}
+                    </a>
+                </div>
+            </div>
 
             <ul class="acc-empty__facts">
                 <li>{{ __('frontend.account.orders_fact_status') }}</li>
                 <li>{{ __('frontend.account.orders_fact_docs') }}</li>
                 <li>{{ __('frontend.account.orders_fact_repeat') }}</li>
             </ul>
-
-            <div class="acc-empty__actions">
-                <a href="{{ url('/news') }}" class="fx-btn">
-                    <i class="fas fa-store"></i> {{ __('frontend.account.to_catalog') }}
-                </a>
-                <a href="{{ route('cart.index') }}" class="acc-btn-ghost">
-                    <i class="fas fa-cart-shopping"></i> {{ __('frontend.account.to_cart') }}
-                </a>
-            </div>
         </div>
     @endforelse
 </section>
@@ -247,14 +284,43 @@
 
     /* Пустой раздел заказов: три строки о том, что тут будет, и два
        действия. Прежде была одна кнопка «к новостям» и ничего больше. */
-    .acc-empty__facts{ display:grid; gap:.35rem; margin:1rem auto 0; padding:0;
-        max-width:26rem; list-style:none; font-size:.82rem; color:#64748b; text-align:left }
+    /* Пустой раздел — одной строкой, а не столбиком по центру. */
+    .acc-empty__row{ display:flex; align-items:center; gap:1rem; flex-wrap:wrap }
+    .acc-empty__ico{ display:inline-flex; align-items:center; justify-content:center;
+        width:2.75rem; height:2.75rem; flex:0 0 auto; font-size:1.05rem; color:#fff;
+        background:linear-gradient(135deg,var(--color-primary,#6366f1),var(--color-accent,#8b5cf6)) }
+    .acc-empty__text{ flex:1 1 14rem; min-width:0; text-align:left }
+    .acc-empty__sub{ margin:.15rem 0 0; font-size:.85rem; color:#6b7280 }
+
+    /* Перечень в три колонки: столбиком он растягивал блок по высоте. */
+    .acc-empty__facts{ display:grid; grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));
+        gap:.4rem 1.25rem; margin:1rem 0 0; padding:.9rem 0 0; list-style:none;
+        font-size:.82rem; color:#64748b; text-align:left; border-top:1px solid #eef2f7 }
     .acc-empty__facts li{ position:relative; padding-left:1.35rem }
     .acc-empty__facts li::before{ content:'✓'; position:absolute; left:0; top:0;
         font-weight:700; color:var(--color-primary,#6366f1) }
 
-    .acc-empty__actions{ display:flex; flex-wrap:wrap; gap:.5rem; justify-content:center;
-        margin-top:1.25rem }
+    .acc-empty__actions{ display:flex; flex-wrap:wrap; gap:.5rem; margin-left:auto }
+
+    /* Кнопки в паре должны быть одинаковыми во всём, кроме заливки.
+       Замер показал расхождение: у залитой шрифт 16px и значок 18x16, у
+       второй — 13.6px и 15x14. Рядом это читается как небрежность, хотя
+       высота у обеих случайно совпадала. Задаём метрики явно. */
+    .acc-empty__actions > a{ display:inline-flex; align-items:center; justify-content:center;
+        gap:.45rem; height:40px; padding:0 1.1rem; font-size:.875rem; font-weight:600;
+        line-height:1; white-space:nowrap }
+    /* Ширина значка фиксирована: у разных глифов она своя, и подписи
+       съезжали друг относительно друга на пиксель-другой. */
+    .acc-empty__actions > a i{ width:1rem; font-size:.9rem; text-align:center; flex:0 0 auto }
+
+    /* Подсказка о незаполненном профиле. */
+    .acc-fill-hint{ display:flex; align-items:flex-start; gap:.5rem; margin:1rem 0 0;
+        padding-top:.9rem; border-top:1px solid #eef2f7;
+        font-size:.8rem; line-height:1.5; color:#6b7280 }
+    .acc-fill-hint i{ margin-top:.15rem; color:var(--color-primary,#6366f1) }
+    .acc-fill-hint a{ color:var(--color-primary,#6366f1); font-weight:600 }
+
+    :root.dark .acc-empty__facts, :root.dark .acc-fill-hint{ border-color:#374151 }
 
     .acc-head{ display:flex; align-items:center; gap:.9rem; margin-bottom:1.25rem }
     .acc-avatar{ width:3rem; height:3rem; flex:0 0 auto; display:inline-flex;
