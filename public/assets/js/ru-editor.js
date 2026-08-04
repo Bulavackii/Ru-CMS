@@ -1074,7 +1074,47 @@
         },
 
         save: function () {
+            if (this._ensureFrame()) {
+                return;
+            }
+
             this.textarea.value = this.getContent();
+        },
+
+        /**
+         * Страховка от подменённого документа рамки.
+         *
+         * Браузер пересоздаёт документ <iframe>, если узел перенесли в другое
+         * место дерева. Ядро при этом продолжает читать и писать в ПРЕЖНИЙ,
+         * уже отсоединённый документ: на экране пусто, а по всем внутренним
+         * проверкам содержимое на месте — ошибку не видно ниоткуда. Ровно так
+         * пропадал текст при попытке вынести редактор в body на время полного
+         * экрана.
+         *
+         * Возвращаем true, если пришлось собирать заново. Содержимое берётся
+         * из поля формы: оно обновляется при каждом изменении, то есть
+         * теряется в худшем случае последняя пара секунд набора.
+         */
+        _ensureFrame: function () {
+            if (this.doc === this.frame.contentDocument) {
+                return false;
+            }
+
+            if (window.console) {
+                window.console.warn('RuEditor: документ рамки подменён, собираю заново');
+            }
+
+            // Плагины рисуют свои плашки в оболочке; при повторной сборке они
+            // добавятся снова, поэтому старые убираем.
+            Array.prototype.forEach.call(this.shell.querySelectorAll('.ru-ed-bubble'), function (node) {
+                node.remove();
+            });
+
+            this.plugins = Object.create(null);
+            this.history = { stack: [], index: -1, limit: this.history.limit };
+            this._boot();
+
+            return true;
         },
 
         /**

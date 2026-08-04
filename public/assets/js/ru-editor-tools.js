@@ -59,11 +59,9 @@
         if (editor.fullscreen) {
             editor._heightBefore = editor.frame.style.height;
             editor.frame.style.height = '';
-            park(editor);
             hideBackdropLayers(editor);
         } else {
             editor.frame.style.height = editor._heightBefore || '420px';
-            unpark(editor);
             showBackdropLayers(editor);
         }
 
@@ -76,60 +74,21 @@
         editor.focus();
     });
 
-    /**
-     * Вынести редактор из вёрстки страницы прямо в body на время полного
-     * экрана и вернуть на место при выходе.
+    /*
+     * Почему редактор НЕ выносится в body на время полного экрана.
      *
-     * Просто position:fixed оказалось мало. Редактор лежит глубоко в разметке
-     * панели, где вокруг него слои со своими контекстами наложения, размытием
-     * фона и обрезкой переполнения. Даже когда по замерам DOM в развёрнутом
-     * виде полностью тих (проверено наблюдателем: двенадцать разовых
-     * изменений и ни одного повторного), экран продолжал рябить — то есть дело
-     * было не в перевёрстке, а в том, что composer каждый кадр пересобирал
-     * слой поверх всего дерева. В body у него нет ни одного соседа, который
-     * заставлял бы это делать.
+     * Такая попытка была и выглядела разумно: в body у узла нет соседей со
+     * своими контекстами наложения, и слой собирается проще. Но перенос узла
+     * с <iframe> в другое место дерева заставляет браузер ПЕРЕЗАГРУЗИТЬ фрейм:
+     * документ создаётся заново, пустым и не редактируемым. Содержимое
+     * исчезало с экрана сразу при разворачивании и не возвращалось после
+     * выхода — при том что в поле формы оно оставалось, потому что ядро
+     * продолжало читать прежний, уже отсоединённый документ.
      *
-     * Поле формы уезжает вместе с редактором, поэтому ему проставляется
-     * атрибут form: по стандарту поле связано с формой по этому атрибуту, где
-     * бы оно ни лежало. Без этого содержимое просто не ушло бы при отправке —
-     * а Ctrl+S отправляет форму прямо из развёрнутого режима.
+     * Так что режим держится на position:fixed плюс contain/isolation в
+     * ru-editor.css: этого хватает, чтобы браузер собирал редактор отдельным
+     * слоем, и ничего никуда не переносится.
      */
-    function park(editor) {
-        if (editor._parkMark) {
-            return;
-        }
-
-        editor._parkMark = document.createComment('ru-editor');
-        editor.root.parentNode.insertBefore(editor._parkMark, editor.root);
-
-        if (editor.form) {
-            if (!editor.form.id) {
-                editor.form.id = 'ru-ed-form-' + Math.random().toString(36).slice(2, 8);
-            }
-
-            editor._formBefore = editor.textarea.getAttribute('form');
-            editor.textarea.setAttribute('form', editor.form.id);
-        }
-
-        document.body.appendChild(editor.root);
-    }
-
-    function unpark(editor) {
-        if (!editor._parkMark) {
-            return;
-        }
-
-        editor._parkMark.parentNode.replaceChild(editor.root, editor._parkMark);
-        editor._parkMark = null;
-
-        if (editor.form) {
-            if (editor._formBefore === null || editor._formBefore === undefined) {
-                editor.textarea.removeAttribute('form');
-            } else {
-                editor.textarea.setAttribute('form', editor._formBefore);
-            }
-        }
-    }
 
     /**
      * Убрать из отрисовки всё, что размывает фон под собой.
