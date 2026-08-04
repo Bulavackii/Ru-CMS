@@ -113,12 +113,10 @@
             <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-2">
                 <i class="fa-solid fa-pen-nib text-indigo-500"></i> {{ __('admin.common.content') }}
             </h2>
-            <textarea name="content" id="editor" rows="12"
-                      class="w-full border border-gray-300 dark:border-gray-700 px-3 py-2 dark:bg-gray-800 dark:text-white"
-                      placeholder="{{ __('admin.pages.content_hint') }}">{{ old('content', $page->content) }}</textarea>
+            <x-ru-editor name="content" id="editor" :value="$page->content" :height="560"
+                          :placeholder="__('admin.pages.content_hint')" />
         
             {{-- Вставка сохранённой сборки каптчи в текст материала --}}
-            @include('Captcha::partials.editor-picker')
 </div>
 
         {{-- ── Публикация и сохранение ── --}}
@@ -166,86 +164,4 @@
     </form>
 
     {{-- 🧠 TinyMCE редактор --}}
-    <script src="{{ asset('admin/tinymce/tinymce.min.js') }}"></script>
-    <script src="{{ asset('assets/js/editor-blocks.js') }}"></script>
-    <script>
-        tinymce.init({
-            // Иконка — это пустой тег <i class="fas ...">, а редактор по
-            // умолчанию вычищает пустые инлайновые элементы: значок молча
-            // исчезал при первом же сохранении, вместе с обёрткой вокруг него.
-            // Проверено на живом редакторе — без этой строки не выживает.
-            extended_valid_elements: 'i[class|aria-hidden],span[class|style]',
-            // Стили содержимого — те же, что на сайте. Редактор показывает
-            // блок так, как его увидит посетитель, а не просто помечает
-            // классом; body_class нужен, потому что все правила в файле
-            // начинаются с .page-content.
-            content_css: '{{ asset('assets/css/content-blocks.css') }}',
-            body_class: 'page-content',
-
-            // Готовые блоки в выпадающем списке «Стили». Без него имена
-            // классов пришлось бы держать в голове или подсматривать в
-            // соседней записи.
-            // Кнопка «Блоки» — вставка готовых заготовок оформления.
-            // Стандартный список «Стили» для этого не годился: он рисуется
-            // выпадающим списком с подписью «Абзац», неотличимым от соседнего,
-            // и найти блоки там было невозможно.
-            setup: function (editor) {
-                if (window.ruEditorBlocks) window.ruEditorBlocks(editor);
-            },
-            style_formats_merge: true,
-            style_formats: [
-                {
-                    title: 'Блоки содержимого',
-                    items: [
-                        { title: 'Вводный абзац',        block: 'p',   classes: 'pc-lead' },
-                        { title: 'Врезка-примечание',    block: 'p',   classes: 'pc-note' },
-                        { title: 'Сетка карточек',       block: 'div', classes: 'pc-grid', wrapper: true },
-                        { title: 'Карточка',             block: 'div', classes: 'pc-card', wrapper: true },
-                        { title: 'Текст и картинка',     block: 'div', classes: 'pc-split', wrapper: true },
-                        { title: 'Полоса призыва',       block: 'div', classes: 'pc-cta', wrapper: true },
-                        { title: 'Список с галочками',   selector: 'ul', classes: 'pc-check' },
-                        { title: 'Строка цифр',          selector: 'ul', classes: 'pc-stats' },
-                        { title: 'Чипы технологий',      selector: 'ul', classes: 'pc-tech' },
-                        { title: 'Нумерованные шаги',    selector: 'ol', classes: 'pc-steps' },
-                        { title: 'Список вопросов',      block: 'div', classes: 'pc-faq', wrapper: true },
-                        { title: 'Вопрос с ответом',     block: 'details', classes: 'pc-faq__item', wrapper: true },
-                    ]
-                }
-            ],
-            selector: '#editor',
-            language: 'ru',
-            language_url: '{{ asset('admin/tinymce/langs/ru.js') }}',
-            height: 600,
-            branding: false,
-            license_key: 'gpl',
-            convert_urls: false,
-            plugins: 'image media link lists table code visualblocks wordcount',
-            toolbar: 'undo redo | ruBlocks | blocks fontfamily fontsize | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media table | code | removeformat',
-            file_picker_callback: function(callback, value, meta) {
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.accept = meta.filetype === 'image' ? 'image/*' : 'video/*';
-                input.onchange = function () {
-                    const file = this.files[0];
-                    const formData = new FormData();
-                    formData.append('file', file);
-                    fetch('{{ route('admin.upload.media') }}', {
-                        method: 'POST',
-                        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                        body: formData
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.location) {
-                            callback(data.location, { title: file.name });
-                        } else {
-                            alert('{{ __('admin.common.load_error') }}');
-                        }
-                    })
-                    .catch(error => alert(@js(__('admin.common.error')) + ' ' + error.message));
-                };
-                input.click();
-            }
-        });
-    </script>
 @endsection

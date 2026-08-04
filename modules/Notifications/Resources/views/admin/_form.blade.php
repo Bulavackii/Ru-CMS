@@ -69,10 +69,9 @@
                     <label for="editor" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
                         Текст уведомления <span class="text-red-500">*</span>
                     </label>
-                    <textarea name="message" id="editor" rows="8"
-                              class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
-                                     focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-                              placeholder="Что нужно сообщить посетителю">{{ $val('message') }}</textarea>
+                    <x-ru-editor name="message" id="editor" preset="mail" :height="280"
+                                  :value="$val('message')"
+                                  placeholder="Что нужно сообщить посетителю" />
                     @error('message')<p class="text-sm text-red-500 mt-1">{{ $message }}</p>@enderror
                 </div>
             </div>
@@ -235,24 +234,8 @@
 </form>
 
 @push('scripts')
-    <script src="{{ asset('admin/tinymce/tinymce.min.js') }}"></script>
     <script>
-        tinymce.init({
-            // Иконка — это пустой тег <i class="fas ...">, а редактор по
-            // умолчанию вычищает пустые инлайновые элементы: значок молча
-            // исчезал при первом же сохранении, вместе с обёрткой вокруг него.
-            // Проверено на живом редакторе — без этой строки не выживает.
-            extended_valid_elements: 'i[class|aria-hidden],span[class|style]',
-            selector: '#editor',
-            language: 'ru',
-            language_url: '{{ asset('admin/tinymce/langs/ru.js') }}',
-            height: 320,
-            branding: false,
-            license_key: 'gpl',
-            convert_urls: false,
-            plugins: 'link lists code',
-            toolbar: 'undo redo | bold italic underline | bullist numlist | link | code | removeformat',
-        });
+
 
         // Пипетка и текстовое поле цвета держатся друг за друга
         [['bg_color_picker', 'bg_color'], ['text_color_picker', 'text_color']].forEach(([pickerId, inputId]) => {

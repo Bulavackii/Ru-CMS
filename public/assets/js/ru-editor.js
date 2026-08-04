@@ -524,6 +524,10 @@
 
             doc.addEventListener('focus', function () {
                 self.root.classList.add('is-focused');
+                // Кто сейчас в работе. Нужно коду СНАРУЖИ редактора: на
+                // странице фрагментов есть свои кнопки вставки разметки, и им
+                // надо знать, в какой из редакторов формы класть.
+                RuEditor.activeEditor = self;
             }, true);
 
             doc.addEventListener('blur', function () {
@@ -1251,6 +1255,13 @@
 
             return made;
         },
+
+        /** Редактор, в котором последний раз стоял курсор. */
+        active: function () {
+            return RuEditor.activeEditor || instances[0] || null;
+        },
+
+        activeEditor: null,
 
         get: function (id) {
             for (var i = 0; i < instances.length; i++) {

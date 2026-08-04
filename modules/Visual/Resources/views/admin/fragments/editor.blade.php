@@ -173,9 +173,8 @@
     {{-- TinyMCE --}}
     <div>
       <label class="block text-sm mb-1">Содержимое фрагмента</label>
-      <textarea id="fragment-editor" name="html_cached" rows="20" class="border rounded w-full">
-{{ old('html_cached', $fragment->html_cached) }}
-      </textarea>
+      <x-ru-editor name="html_cached" id="fragment-editor" preset="page" :height="520"
+                   :value="$fragment->html_cached" :body-class="''" :content-css="false" />
       <div class="text-xs text-gray-500 mt-1">Ctrl/Cmd+S — сохранить форму, Ctrl/Cmd+Enter — обновить предпросмотр.</div>
     </div>
 
@@ -293,8 +292,6 @@
 @endsection
 
 @section('scripts')
-  {{-- TinyMCE 8 (локально) --}}
-  <script src="{{ asset('admin/tinymce/tinymce.min.js') }}"></script>
 
   <script>
     // ====== тема и набор иконок из PHP ======
@@ -320,34 +317,7 @@
     };
 
     // ====== TinyMCE ======
-    tinymce.init({
-            // Иконка — это пустой тег <i class="fas ...">, а редактор по
-            // умолчанию вычищает пустые инлайновые элементы: значок молча
-            // исчезал при первом же сохранении, вместе с обёрткой вокруг него.
-            // Проверено на живом редакторе — без этой строки не выживает.
-            extended_valid_elements: 'i[class|aria-hidden],span[class|style]',
-      selector: '#fragment-editor',
-      height: 520,
-      plugins: 'code link image media table lists advlist fullscreen preview anchor charmap emoticons visualblocks',
-      toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline forecolor backcolor | ' +
-               'alignleft aligncenter alignright | bullist numlist | link image media table | code fullscreen preview',
-      menubar: 'file edit view insert format tools table help',
-      branding: false,
-      license_key: 'gpl',
-      relative_urls: false,
-      convert_urls: false,
-      images_upload_url: '{{ route('admin.visual.upload.image') }}',
-      automatic_uploads: true,
-      file_picker_types: 'image media',
-      setup: (ed)=>{
-        const sync = ()=> updatePreview();
-        ed.on('init change keyup Undo Redo', sync);
 
-        // hotkeys
-        ed.addShortcut('meta+s', 'Save form', ()=>{ document.getElementById('fragmentForm').requestSubmit(); });
-        ed.addShortcut('meta+enter','Refresh preview', ()=> updatePreview());
-      }
-    });
 
     // ====== utils ======
     const $ = (sel,root=document)=>root.querySelector(sel);
@@ -372,13 +342,13 @@
     }
 
     // ====== сниппеты ======
-    function insert(html){ tinymce.activeEditor?.execCommand('mceInsertContent', false, html); }
+    function insert(html){ window.RuEditor?.active()?.insertHtml(html); }
     $('#btnIcon').addEventListener('click', ()=>openIconModal());
     $('#btnBtn').addEventListener('click', ()=>{
       insert(`<a href="#" class="inline-flex items-center gap-2 px-4 py-2 text-white rounded" style="background:var(--color-primary)">Кнопка</a>`);
     });
     $('#btnWrap').addEventListener('click', ()=>{
-      const sel = tinymce.activeEditor?.selection.getContent() || 'Карточка';
+      const sel = window.RuEditor?.active()?.getSelection().toString() || 'Карточка';
       insert(`<div class="rounded-md p-4 shadow border bg-white/90 dark:bg-gray-900/90" style="border-radius:var(--radius-md)">${sel}</div>`);
     });
     $('#btnHero').addEventListener('click', ()=>{
@@ -469,7 +439,7 @@ ${safe || '<div class="text-gray-400">Пока пусто…</div>'}
     }
 
     function updatePreview(){
-      const html = tinymce.get('fragment-editor')?.getContent() || '';
+      const html = window.RuEditor?.get('fragment-editor')?.getContent() || '';
       preview.srcdoc = buildSrcDoc(html, pvDark.checked);
     }
     pvRefresh.addEventListener('click', updatePreview);
@@ -491,7 +461,7 @@ ${safe || '<div class="text-gray-400">Пока пусто…</div>'}
         slug:  form.slug.value,
         zone:  form.zone ? form.zone.value : '',
         is_active: form.is_active.checked ? 1 : 0,
-        html_cached: tinymce.get('fragment-editor')?.getContent() || '',
+        html_cached: window.RuEditor?.get('fragment-editor')?.getContent() || '',
         schema: schemaField.value,
         data:   dataField.value,
       };
@@ -508,7 +478,7 @@ ${safe || '<div class="text-gray-400">Пока пусто…</div>'}
         form.title.value = d.title||''; form.slug.value = d.slug||'';
         if(form.zone) form.zone.value = d.zone||'';
         form.is_active.checked = !!(+d.is_active);
-        tinymce.get('fragment-editor')?.setContent(d.html_cached||'');
+        window.RuEditor?.get('fragment-editor')?.setContent(d.html_cached||'');
         schemaField.value = d.schema||''; dataField.value = d.data||'';
         validateJSON(schemaField, schemaState); validateJSON(dataField, dataState);
         updatePreview();

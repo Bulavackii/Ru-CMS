@@ -329,26 +329,29 @@ class CaptchaPresetTest extends TestCase
 
         $admin = $this->admin();
 
+        // Сборки теперь уезжают в настройки редактора, а не рисуются отдельным
+        // выпадающим списком под полем: выбор стал кнопкой панели инструментов
+        // и вставляет шорткод в позицию курсора, а не «куда получится».
         foreach ([route('admin.news.create'), route('admin.pages.create')] as $url) {
-            // Подписи партиала теперь переводятся — фиксируем локаль,
-            // иначе тест зависит от языка по умолчанию в окружении
             $this->actingAs($admin)->withSession(['app_locale' => 'ru'])->get($url)
                 ->assertStatus(200)
                 ->assertSee('Форма обратной связи', false)
-                ->assertSee('Вставить в текст', false);
+                ->assertSee('captchaPresets', false)
+                ->assertSee('ru-editor.js', false);
         }
     }
 
     public function test_editor_offers_the_constructor_when_nothing_is_saved(): void
     {
-        // Пустой выпадающий список ничего не объясняет — ведём в конструктор
+        // Пустой список ничего не объясняет — в меню кнопки остаётся один
+        // пункт со ссылкой в конструктор, а сам список сборок пуст.
         $this->assertSame(0, CaptchaPreset::count());
 
         $this->actingAs($this->admin())->withSession(['app_locale' => 'ru'])
             ->get(route('admin.news.create'))
             ->assertStatus(200)
-            ->assertSee('собрать каптчу', false)
-            ->assertDontSee('Вставить в текст', false);
+            ->assertSee('&quot;captchaPresets&quot;:[]', false)
+            ->assertSee(route('admin.captcha.index'), false);
     }
 
     public function test_constructor_page_lists_saved_presets(): void

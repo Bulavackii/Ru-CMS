@@ -32,8 +32,29 @@
         editor.fullscreen = !editor.fullscreen;
         editor.root.classList.toggle('is-fullscreen', editor.fullscreen);
         // Страница под развёрнутым редактором не должна прокручиваться: иначе
-        // колесо мыши уводит фон, а не текст.
+        // колесо мыши уводит фон, а не текст. Класс вешаем и на html: в разных
+        // раскладках прокручивается то тело документа, то корневой элемент, и
+        // запрет только на body в половине случаев не делает ничего.
         document.body.classList.toggle('ru-ed-locked', editor.fullscreen);
+        document.documentElement.classList.toggle('ru-ed-locked', editor.fullscreen);
+
+        // Esc должен выходить откуда угодно. Обработчик в ядре висит на
+        // документе РАМКИ и срабатывает, только пока курсор в тексте: стоило
+        // нажать кнопку на панели — и клавиша переставала работать, а выйти
+        // из развёрнутого редактора было уже нечем, кроме той же кнопки.
+        if (editor.fullscreen) {
+            editor._escapeFullscreen = function (event) {
+                if (event.key === 'Escape' && editor.fullscreen && !document.querySelector('.ru-ed-dialog-back')) {
+                    event.preventDefault();
+                    editor.exec('fullscreen');
+                }
+            };
+
+            document.addEventListener('keydown', editor._escapeFullscreen);
+        } else if (editor._escapeFullscreen) {
+            document.removeEventListener('keydown', editor._escapeFullscreen);
+            editor._escapeFullscreen = null;
+        }
 
         if (editor.fullscreen) {
             editor._heightBefore = editor.frame.style.height;

@@ -205,12 +205,16 @@
     border: 0;
 }
 
-.ru-ed.is-fullscreen .ru-ed-frame {
+.ru-ed.is-fullscreen .ru-ed-frame,
+.ru-ed.is-fullscreen .ru-ed-code {
     flex: 1 1 auto;
     height: auto !important;
 }
 
-/* Пока редактор развёрнут, страница под ним не должна прокручиваться. */
+/* Пока редактор развёрнут, страница под ним не должна прокручиваться.
+   Класс ставится и на html, и на body: в разных раскладках прокручивается
+   то одно, то другое, и запрет только на body срабатывал через раз. */
+html.ru-ed-locked,
 body.ru-ed-locked {
     overflow: hidden;
 }

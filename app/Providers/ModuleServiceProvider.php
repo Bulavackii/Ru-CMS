@@ -10,8 +10,6 @@ use Modules\System\Models\Module;
 
 class ModuleServiceProvider extends ServiceProvider
 {
-    private ?bool $installed = null;
-
     public function boot(): void
     {
         // Легаси-модули (Categories/News/Slideshow/Messages/Payments/Delivery/
@@ -35,14 +33,20 @@ class ModuleServiceProvider extends ServiceProvider
         $this->loadActiveModules();
     }
 
+    /**
+     * Ответ намеренно НЕ запоминается.
+     *
+     * boot() зовут повторно в тестах, и на первом подъёме таблицы modules ещё
+     * нет — RefreshDatabase накатывает миграции уже после создания приложения.
+     * Запомненное «не установлено» оставалось бы навсегда, синхронизация
+     * метаданных не выполнялась бы никогда, и это ловилось только тестом
+     * ModuleSystemTest::test_module_metadata_sync. За запрос метод зовут
+     * дважды — экономить тут нечего.
+     */
     private function isInstalled(): bool
     {
-        if ($this->installed !== null) {
-            return $this->installed;
-        }
-
         if (!file_exists(storage_path('install.lock')) || !class_exists(Module::class)) {
-            return $this->installed = false;
+            return false;
         }
 
         // Schema::hasTable открывает соединение с БД. Во время (или до)
@@ -52,9 +56,9 @@ class ModuleServiceProvider extends ServiceProvider
         // сам мастер установки /install/*) падал бы с 500 «connection failed».
         // Недоступная БД просто значит «модули из БД пока не грузим».
         try {
-            return $this->installed = Schema::hasTable('modules');
+            return Schema::hasTable('modules');
         } catch (\Throwable $e) {
-            return $this->installed = false;
+            return false;
         }
     }
 
