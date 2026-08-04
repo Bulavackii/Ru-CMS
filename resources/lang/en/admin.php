@@ -1899,6 +1899,9 @@ return [
     ],
 
     'system' => [
+        'er_message_hint_short' => 'The more detail, the faster we find the cause',
+        'er_count_left' => ':n more characters',
+        'er_count_ok' => 'enough',
         'si_title' => 'System information',
         'si_subtitle' => 'Environment, versions and settings — useful when contacting support.',
         'si_copy' => 'Copy summary',

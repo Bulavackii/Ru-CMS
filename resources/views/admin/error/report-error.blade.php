@@ -26,7 +26,14 @@
 @endunless
 
 <form action="{{ route('admin.error.report.send') }}" method="POST" enctype="multipart/form-data"
-      class="admin-card p-5 er-form" x-data="{ file: '' }">
+      class="admin-card p-5 er-form"
+      x-data="{
+          file: '',
+          size: '',
+          text: @js(old('message', '')),
+          sent: false,
+          get ready() { return this.text.trim().length >= 10; }
+      }">
     @csrf
 
     {{-- ── Сообщение ── --}}
@@ -35,16 +42,25 @@
             {{ __('admin.system.er_message') }} <span class="text-red-500">*</span>
         </label>
 
-        <textarea id="message" name="message" rows="6" required
+        <textarea id="message" name="message" rows="6" required minlength="10"
+                  x-model="text"
                   placeholder="{{ __('admin.system.er_message_ph') }}"
                   class="w-full border px-3 py-2 text-sm dark:bg-gray-800 resize-y
                          @error('message') border-red-500 @else border-gray-300 dark:border-gray-600 @enderror">{{ old('message') }}</textarea>
 
         @error('message')
             <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-        @else
-            <p class="admin-hint mt-1">{{ __('admin.system.er_message_hint') }}</p>
         @enderror
+
+        {{-- Счётчик вместо статичной подписи «минимум 10 символов»: видно,
+             сколько уже набрано и сколько осталось, а не только требование. --}}
+        <div class="er-help">
+            <span>{{ __('admin.system.er_message_hint_short') }}</span>
+            <span class="er-count" :class="ready && 'er-count--ok'"
+                  x-text="ready
+                      ? @js(__('admin.system.er_count_ok'))
+                      : @js(__('admin.system.er_count_left')).replace(':n', Math.max(0, 10 - text.trim().length))"></span>
+        </div>
     </div>
 
     {{-- ── E-mail ── --}}
@@ -61,7 +77,7 @@
         @error('email')
             <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
         @else
-            <p class="admin-hint mt-1">{{ __('admin.system.er_email_hint') }}</p>
+            <p class="er-help">{{ __('admin.system.er_email_hint') }}</p>
         @enderror
     </div>
 
@@ -74,18 +90,25 @@
         <label for="file" class="er-drop" :class="file && 'er-drop--filled'">
             <i class="fas fa-cloud-arrow-up"></i>
             <span x-text="file || @js(__('admin.system.er_file_pick'))"></span>
+            {{-- Размер показываем сразу: ограничение в 2 МБ иначе всплывает
+                 только после отправки, уже отказом. --}}
+            <span class="er-size" x-show="size" x-cloak x-text="size"></span>
         </label>
 
         <input type="file" id="file" name="file" class="hidden"
                accept=".jpg,.jpeg,.png,.gif,.webp,.txt,.log,.pdf"
-               @change="file = $event.target.files.length ? $event.target.files[0].name : ''">
+               @change="
+                   const f = $event.target.files[0];
+                   file = f ? f.name : '';
+                   size = f ? (f.size / 1048576).toFixed(2).replace('.', ',') + ' МБ' : '';
+               ">
 
         <div class="flex flex-wrap items-center gap-3 mt-1">
-            <p class="admin-hint">{{ __('admin.system.er_file_hint') }}</p>
+            <p class="er-help">{{ __('admin.system.er_file_hint') }}</p>
 
             <button type="button" x-show="file" x-cloak
                     class="text-sm font-semibold text-red-600 hover:underline"
-                    @click="file = ''; document.getElementById('file').value = ''">
+                    @click="file = ''; size = ''; document.getElementById('file').value = ''">
                 {{ __('admin.system.er_file_clear') }}
             </button>
         </div>
@@ -106,8 +129,12 @@
     </div>
 
     <div class="flex justify-end">
-        <button type="submit" x-data="{ sent: false }" @click="sent = true" :disabled="sent"
-                class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white
+        {{-- Кнопка выключена, пока сообщение короче требуемого: раньше об
+             этом узнавали только после отправки, из ответа сервера.
+             Состояние берётся из формы, а не из собственного x-data —
+             иначе кнопка не знала бы про длину текста. --}}
+        <button type="submit" @click="sent = true" :disabled="sent || !ready"
+                class="er-send inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white
                        px-5 py-2.5 text-sm font-semibold shadow-sm transition">
             <i class="fas fa-paper-plane"></i>
             <span x-text="sent ? @js(__('admin.system.er_sending')) : @js(__('admin.system.er_send'))"></span>
@@ -121,6 +148,23 @@
     /* Литеральный CSS: в статической сборке Tailwind нет ни произвольных
        значений, ни прозрачности через /NN. */
     .er-form{ max-width:46rem; margin-inline:auto }
+
+    /* Подсказка под полем.
+       Раньше тут стоял класс врезки-примечания: он рисует заливку и
+       полосу слева, и три коротких подсказки подряд читались как
+       выделенный текст, а не как пояснения к полям. */
+    .er-help{ display:flex; align-items:baseline; justify-content:space-between;
+              gap:.75rem; margin-top:.35rem; font-size:.78rem; color:#64748b }
+
+    .er-count{ flex:none; font-weight:600; color:#b45309;
+               font-variant-numeric:tabular-nums }
+    .er-count--ok{ color:#15803d }
+
+    .er-size{ font-size:.72rem; opacity:.75 }
+
+    /* Выключенная кнопка не должна выглядеть нажимаемой. */
+    .er-send:disabled{ opacity:.5; cursor:not-allowed }
+    .er-send:disabled:hover{ background:#4f46e5 }
 
     .er-drop{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.5rem;
               border:2px dashed #cbd5e1; padding:1.5rem 1rem; cursor:pointer; text-align:center;
@@ -140,6 +184,7 @@
     @media (prefers-color-scheme: dark){
         .er-context{ background:transparent; border-color:#374151; color:#cbd5e1 }
         .er-drop{ border-color:#4b5563 }
+        .er-help{ color:#94a3b8 }
     }
 </style>
 @endpush
