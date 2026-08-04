@@ -76,7 +76,10 @@ class AdminSections
      */
     public static function dashboard(): ?array
     {
-        return self::link('dashboard', 'admin.dashboard', 'dashboard', 'admin.dashboard');
+        // Звёздочка в образце: у главной панели два адреса — канонический
+        // /admin/dashboard и прежний /admin. Без неё логотип не подсвечивался
+        // бы как текущий раздел при заходе по старому адресу.
+        return self::link('dashboard', 'admin.dashboard', 'dashboard', 'admin.dashboard*');
     }
 
     /**

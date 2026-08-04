@@ -143,7 +143,20 @@ Route::middleware(['web', 'auth'])->group(function () {
 // 🛠️ Админка и модули
 Route::middleware(['web', 'auth', 'admin'])->group(function () {
     // Dashboard
-    Route::get('/admin', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('admin.dashboard');
+    // Главная панели доступна по двум адресам, и это не прихоть.
+    //
+    // Рядом лежит НАСТОЯЩАЯ папка public/admin (в ней tinymce), и встроенный
+    // сервер php artisan serve при совпадении пути с каталогом пытается
+    // открыть в нём index.php вместо передачи запроса в Laravel — голый
+    // /admin отдаёт 404 ещё до приложения. На боевом сервере с nginx или
+    // apache этого не происходит, но ссылки в панели ведут именно на голый
+    // адрес, и на локальной разработке логотип выглядел сломанным.
+    //
+    // Поэтому канонический адрес — /admin/dashboard: у него нет двойника на
+    // диске, и он работает везде одинаково. Прежний /admin оставлен: на него
+    // ссылаются закладки и внешние ссылки.
+    Route::get('/admin', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('admin.dashboard.root');
+    Route::get('/admin/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('admin.dashboard');
     Route::post('/admin/dashboard/save-widget-order', [\App\Http\Controllers\Admin\DashboardController::class, 'saveWidgetOrder'])->name('admin.dashboard.save-widget-order');
     
     Route::get('/admin/modules', [ModuleController::class, 'index'])->name('admin.modules.index');
