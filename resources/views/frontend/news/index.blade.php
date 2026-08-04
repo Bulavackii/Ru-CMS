@@ -13,10 +13,19 @@
         $groups = $newsList->getCollection()->groupBy(fn ($item) => $item->template ?: 'default');
 
         // Порядок групп — как в общем списке шаблонов, чтобы он не прыгал
-        // от страницы к странице.
+        // от страницы к странице. Тот же порядок задаёт разбиение на
+        // страницы в контроллере: страница набирается целыми группами.
         $ordered = collect(array_keys($labels))
             ->filter(fn ($key) => $groups->has($key))
             ->values();
+
+        // Шаблоны, которых нет в общем списке (переименовали, удалили),
+        // дописываем в конец. Раньше такие материалы просто НЕ выводились:
+        // группа для них создавалась, но перебор шёл только по известным
+        // ключам — и они молча пропадали со страницы.
+        $ordered = $ordered->merge(
+            $groups->keys()->reject(fn ($key) => in_array($key, array_keys($labels), true))
+        )->values();
     @endphp
 
     <div class="nw-page">
@@ -33,9 +42,18 @@
             ])
         @endforeach
 
-        {{-- Пагинация одна на всю страницу, а не по группе --}}
+        {{-- Пагинация одна на всю страницу, а не по группе.
+
+             Подпись задаётся вручную: страница набирается целыми группами, и
+             стандартный счётчик записей выдавал бессмыслицу вроде «показано с
+             1 по 15 из 5» — пятнадцать карточек при пяти группах. --}}
         @if ($newsList->hasPages())
-            <div class="nw-page__pager">{{ $newsList->links() }}</div>
+            <div class="nw-page__pager">
+                {{ $newsList->links('pagination::tailwind', [
+                    'summary' => 'Страница ' . $newsList->currentPage() . ' из ' . $newsList->lastPage()
+                        . ' · разделов: ' . $newsList->total(),
+                ]) }}
+            </div>
         @endif
     </div>
 @endsection

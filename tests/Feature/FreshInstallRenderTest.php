@@ -50,18 +50,76 @@ class FreshInstallRenderTest extends TestCase
         $seed->setAccessible(true);
         $seed->invoke($controller);
 
-        $html = $this->get('/news')->assertOk()->getContent();
+        // Страница набирается ЦЕЛЫМИ группами, поэтому шаблоны разъезжаются
+        // по страницам — собираем разметку со всех.
+        $pages = [];
+
+        for ($page = 1; $page <= 4; $page++) {
+            $pages[$page] = $this->get('/news?page=' . $page)->assertOk()->getContent();
+        }
+
+        $all = implode('', $pages);
 
         // Материалы разбиты по шаблонам, а не свалены в одну ленту.
-        $this->assertMatchesRegularExpression('~(gm|clinic|mag|nw)__title~', $html);
+        $this->assertMatchesRegularExpression('~(gm|clinic|mag|nw)__title~', $all);
 
         // Выборка перечисляет колонки поимённо: без rating плашка оценки
         // не появлялась, без price — цена у товаров.
-        preg_match_all('~gm-card__score">([^<]+)~u', $html, $scores);
-        $this->assertNotEmpty($scores[1], 'На странице новостей нет оценок у игровых карточек');
+        preg_match_all('~gm-card__score">([^<]+)~u', $all, $scores);
+        $this->assertNotEmpty($scores[1], 'Ни на одной странице новостей нет оценок у игровых карточек');
 
         foreach ($scores[1] as $score) {
             $this->assertMatchesRegularExpression('~^\d+\.\d$~', $score);
+        }
+    }
+
+    /**
+     * Группа шаблона не должна разрываться между страницами.
+     *
+     * Раньше постранично резался плоский список, а группировка делалась во
+     * вьюхе — раздел из пяти материалов оказывался разложен на две страницы
+     * (два и три), что читателю выглядело случайным разрывом.
+     */
+    public function test_news_pages_never_split_a_template_group(): void
+    {
+        User::factory()->create(['is_admin' => true]);
+
+        $controller = app(\Modules\Install\Controllers\InstallController::class);
+        $seed = new \ReflectionMethod($controller, 'installDemoData');
+        $seed->setAccessible(true);
+        $seed->invoke($controller);
+
+        $bySlug = \Modules\News\Models\News::published()->get(['slug', 'template'])
+            ->groupBy(fn ($n) => filled($n->template) ? $n->template : 'default');
+
+        $pages = [];
+
+        for ($page = 1; $page <= 6; $page++) {
+            $pages[$page] = $this->get('/news?page=' . $page)->assertOk()->getContent();
+        }
+
+        foreach ($bySlug as $template => $items) {
+            $found = [];
+
+            foreach ($pages as $page => $html) {
+                $count = $items->filter(fn ($n) => str_contains($html, '/news/' . $n->slug . '"'))->count();
+
+                if ($count > 0) {
+                    $found[$page] = $count;
+                }
+            }
+
+            $this->assertNotEmpty($found, "Группа «{$template}» не выведена ни на одной странице");
+            $this->assertCount(
+                1,
+                $found,
+                "Группа «{$template}» разорвана между страницами: " . json_encode($found)
+            );
+            $this->assertSame(
+                $items->count(),
+                reset($found),
+                "Группа «{$template}» выведена не полностью"
+            );
         }
     }
 }

@@ -98,38 +98,16 @@
         {{-- ===== Нижняя мета-полоса ===== --}}
         <div class="border-t border-gray-200/80 dark:border-gray-700/80 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-4 sm:py-5 backdrop-blur-sm bg-white dark:bg-gray-800 transition-colors duration-200"
             style="background:var(--color-footer,#ffffff)">
-            <div class="max-w-screen-2xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-xs">
+            {{-- Копирайт со стеком — по центру полосы.
 
-                {{-- Мета: копирайт + стек --}}
-                <div class="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-gray-500 dark:text-gray-400">
-                    <span>© {{ date('Y') }} <b class="text-gray-700 dark:text-gray-300 font-medium">RU CMS</b> — {{ __('frontend.footer.rights') }}</span>
-                    <span class="f-meta-chip">PHP {{ PHP_VERSION }}</span>
-                    <span class="f-meta-chip">Laravel {{ app()->version() }}</span>
-                </div>
-
-                {{-- Напишите нам (mailto) — Alpine-логика без изменений --}}
-                <form method="GET" action="#" id="footerMailForm" x-data="{ email: '', busy: false, msg: '' }"
-                    @submit.prevent="
-                msg='';
-                if(!email.match(/^[^@\s]+@[^@\s]+\.[^@\s]+$/)){ msg=@js(__('frontend.footer.bad_email')); return; }
-                busy=true;
-                const to='Suglobov2015@mail.ru';
-                const subject=encodeURIComponent(@js(__('frontend.footer.mail_subject')));
-                const body=encodeURIComponent(@js(__('frontend.footer.mail_from'))+' '+email+'\n\n'+@js(__('frontend.footer.mail_body')));
-                window.location.href = 'mailto:'+to+'?subject='+subject+'&body='+body;
-                setTimeout(()=>busy=false,800);
-              "
-                    class="w-full md:flex-1 md:max-w-xl md:ml-6 flex flex-col sm:flex-row gap-2 text-sm">
-                    <label for="newsletter" class="sr-only">{{ __('frontend.footer.write_us') }}</label>
-                    <input id="newsletter" type="email" name="email" x-model="email"
-                        placeholder="{{ __('frontend.footer.email') }}"
-                        class="f-mail-input flex-1" required>
-                    <button type="submit" :disabled="busy" class="f-submit">
-                        <span x-show="!busy" class="inline-flex items-center gap-2">@themeIcon('mail') {{ __('frontend.footer.send') }}</span>
-                        <span x-show="busy">{{ __('frontend.footer.sending') }}</span>
-                    </button>
-                    <p x-text="msg" class="text-red-600 text-[12px] sm:self-center"></p>
-                </form>
+                 Форма «Напишите нам» отсюда убрана по просьбе владельца: поле
+                 и кнопка занимали половину полосы, а вели всего лишь в
+                 почтовый клиент через mailto. Адрес для связи и так есть выше,
+                 в колонке контактов. --}}
+            <div class="max-w-screen-2xl mx-auto flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-xs text-gray-500 dark:text-gray-400">
+                <span>© {{ date('Y') }} <b class="text-gray-700 dark:text-gray-300 font-medium">RU CMS</b> — {{ __('frontend.footer.rights') }}</span>
+                <span class="f-meta-chip">PHP {{ PHP_VERSION }}</span>
+                <span class="f-meta-chip">Laravel {{ app()->version() }}</span>
             </div>
         </div>
     </div>
@@ -247,14 +225,7 @@
         background:rgba(99,102,241,.1); color:var(--color-primary,#6366f1); letter-spacing:.02em; }
     :root.dark .f-meta-chip{ background:rgba(99,102,241,.2); color:#c7d2fe; }
 
-    .f-mail-input{ padding:.5rem .8rem; border:1px solid rgba(17,24,39,.14); background:rgba(255,255,255,.7);
         color:#111827; font-size:.85rem; transition:border-color .15s ease, box-shadow .15s ease; }
-    :root.dark .f-mail-input{ background:rgba(30,41,59,.7); border-color:rgba(255,255,255,.12); color:#f3f4f6; }
-    .f-mail-input::placeholder{ color:#9ca3af; }
-    .f-mail-input:focus{ outline:none; border-color:#818cf8; box-shadow:0 0 0 3px rgba(99,102,241,.18); }
-    .f-submit{ display:inline-flex; align-items:center; justify-content:center; gap:.4rem; padding:.5rem 1rem;
         background:var(--fx-grad,#6366f1); color:#fff; font-weight:500; font-size:.85rem; white-space:nowrap;
         box-shadow:0 8px 18px -10px rgba(99,102,241,.7); transition:filter .15s ease, transform .15s ease; }
-    .f-submit:hover{ filter:brightness(1.07); transform:translateY(-1px); }
-    .f-submit:disabled{ opacity:.6; }
 </style>
