@@ -993,6 +993,34 @@
                 return node;
             }
 
+            // Курсор может стоять в узле, который такое содержимое держать не
+            // умеет: в конце списка это сам <ul>, и картинка вставала между
+            // пунктами как прямой ребёнок списка — разметка невалидная, а на
+            // сайте такой узел вылезал за границы блока. Поднимаемся до
+            // ближайшего места, где вставка законна.
+            var host = range.startContainer;
+
+            host = host.nodeType === 3 ? host.parentNode : host;
+
+            if (/^(UL|OL|TABLE|THEAD|TBODY|TFOOT|TR|DL)$/.test(host.nodeName)) {
+                var outer = host;
+
+                while (outer.parentNode && outer.parentNode !== this.body &&
+                       /^(UL|OL|TABLE|THEAD|TBODY|TFOOT|TR|DL|LI|TD|TH)$/.test(outer.parentNode.nodeName)) {
+                    outer = outer.parentNode;
+                }
+
+                outer.parentNode.insertBefore(node, outer.nextSibling);
+
+                var placed = this.doc.createRange();
+
+                placed.setStartAfter(node);
+                placed.collapse(true);
+                this.setRange(placed);
+
+                return node;
+            }
+
             range.deleteContents();
             range.insertNode(node);
 

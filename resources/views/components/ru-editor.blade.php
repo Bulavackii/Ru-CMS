@@ -39,9 +39,9 @@
     $presets = [
         'full'   => 'undo redo | blocks | fontfamily fontsize | bold italic underline strikethrough | '
                   . 'forecolor backcolor | alignleft aligncenter alignright alignjustify | '
-                  . 'bullist numlist outdent indent | link unlink | removeformat',
+                  . 'bullist numlist outdent indent | link unlink | image media | removeformat',
         'page'   => 'undo redo | blocks | bold italic underline | '
-                  . 'alignleft aligncenter alignright | bullist numlist | link unlink | removeformat',
+                  . 'alignleft aligncenter alignright | bullist numlist | link unlink | image | removeformat',
         'simple' => 'undo redo | bold italic underline | bullist numlist | link unlink | removeformat',
         'mail'   => 'undo redo | bold italic underline | bullist numlist | link unlink | removeformat',
     ];
@@ -57,6 +57,14 @@
         // Оформление содержимого — тот же файл, что подключён на сайте.
         // Автор видит текст ровно таким, каким его увидит посетитель.
         'contentCss'  => $contentCss ? [asset('assets/css/content-blocks.css')] : [],
+        'csrf'        => csrf_token(),
+        // Загрузка идёт в модуль Файлы, а не в отдельный каталог: только так
+        // картинка из материала попадает в медиатеку и её потом можно выбрать
+        // повторно. Прежний загрузчик редактора складывал файлы мимо неё, и
+        // два хранилища жили независимо друг от друга.
+        'uploadUrl'   => Route::has('admin.files.upload') ? route('admin.files.upload') : null,
+        'browseUrl'   => Route::has('admin.files.browse') ? route('admin.files.browse') : null,
+        'uploadHint'  => __('admin.editor.upload_hint', ['size' => max_upload_label()]),
     ];
 @endphp
 
@@ -77,6 +85,7 @@
         <script src="{{ asset('assets/js/ru-editor.js') }}"></script>
         <script src="{{ asset('assets/js/ru-editor-ui.js') }}"></script>
         <script src="{{ asset('assets/js/ru-editor-format.js') }}"></script>
+        <script src="{{ asset('assets/js/ru-editor-media.js') }}"></script>
 
         <script>
             // Строки интерфейса приходят из словаря PHP, а не зашиты в скрипт:

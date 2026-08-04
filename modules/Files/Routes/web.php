@@ -7,6 +7,9 @@ use Modules\Files\Controllers\Admin\FileCategoryController;
 Route::prefix('admin/files')->middleware(['web', 'auth', 'admin'])->name('admin.files.')->group(function () {
     Route::get('/', [FileController::class, 'index'])->name('index');
     Route::post('/upload', [FileController::class, 'upload'])->name('upload');
+    // Строго ДО /{file}: иначе «browse» уедет в привязку модели как
+    // идентификатор файла и вернёт 404 вместо списка.
+    Route::get('/browse', [FileController::class, 'browse'])->name('browse');
     Route::get('/{file}', [FileController::class, 'show'])->name('show');
     Route::put('/{file}', [FileController::class, 'update'])->name('update');
     Route::post('/{file}/crop', [FileController::class, 'crop'])->name('crop');

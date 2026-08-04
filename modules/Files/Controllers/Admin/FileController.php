@@ -95,6 +95,74 @@ class FileController extends Controller
     }
 
     /**
+     * 🔎 Список файлов в JSON — для выбора из медиатеки в редакторе.
+     *
+     * До появления этого метода у модуля не было НИ ОДНОГО эндпоинта, отдающего
+     * список: index() возвращает вьюху. Поэтому редактор материалов не мог
+     * предложить уже загруженный файл — каждую картинку приходилось загружать
+     * заново, и в библиотеке копились дубли одного и того же.
+     *
+     * Отдаёт ровно то, что нужно вставке (адрес, размеры, подпись), а не всю
+     * запись целиком: остальное в редакторе не используется, а отдавать лишнее
+     * из административного эндпоинта незачем.
+     */
+    public function browse(Request $request): JsonResponse
+    {
+        $query = File::query();
+
+        if ($request->filled('type')) {
+            // Тип приходит от кнопки редактора: картинка, видео, документ.
+            match ($request->input('type')) {
+                'image' => $query->where('mime_type', 'like', 'image/%'),
+                'video' => $query->where('mime_type', 'like', 'video/%'),
+                'audio' => $query->where('mime_type', 'like', 'audio/%'),
+                default => $query,
+            };
+        }
+
+        if ($request->filled('category_id')) {
+            $query->where('category_id', (int) $request->input('category_id'));
+        }
+
+        if ($request->filled('q')) {
+            $search = '%' . $request->input('q') . '%';
+
+            // ilike ради регистронезависимого поиска по-русски: в PostgreSQL
+            // like регистр учитывает, и «Логотип» не находился по запросу
+            // «логотип». Оператор выбирается по драйверу — боевая база
+            // PostgreSQL, но тесты гоняются на SQLite, а он про ilike не знает
+            // и уронил бы запрос целиком.
+            $like = $query->getConnection()->getDriverName() === 'pgsql' ? 'ilike' : 'like';
+
+            $query->where(function ($inner) use ($search, $like) {
+                $inner->where('original_name', $like, $search)
+                      ->orWhere('alt_text', $like, $search)
+                      ->orWhere('description', $like, $search);
+            });
+        }
+
+        $files = $query->orderByDesc('created_at')->paginate(30, ['*'], 'page');
+
+        return response()->json([
+            'success' => true,
+            'files' => collect($files->items())->map(fn (File $file) => [
+                'id'        => $file->id,
+                'name'      => $file->original_name,
+                'url'       => $file->url,
+                'mime_type' => $file->mime_type,
+                'is_image'  => $file->isImage(),
+                'width'     => $file->width,
+                'height'    => $file->height,
+                'alt_text'  => $file->alt_text,
+                'size'      => $file->human_size,
+            ])->all(),
+            'page'      => $files->currentPage(),
+            'last_page' => $files->lastPage(),
+            'total'     => $files->total(),
+        ]);
+    }
+
+    /**
      * 📤 Загрузка файла(ов)
      */
     public function upload(Request $request): JsonResponse
