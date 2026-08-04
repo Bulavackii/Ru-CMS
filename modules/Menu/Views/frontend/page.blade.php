@@ -121,6 +121,213 @@
 @endsection
 
 @push('scripts')
+{{-- Поведение блока «Вопросы и ответы».
+
+     Сам аккордеон — нативный тег details, он раскрывается без единой строки
+     скрипта. Здесь только надстройка: поиск, кнопки «развернуть/свернуть»,
+     постоянные ссылки на вопрос и разметка для поисковиков. Если скрипт не
+     выполнится, страница остаётся полностью рабочей. --}}
+<script>
+(function () {
+    // Блоков вопросов на странице может быть несколько — по одному на раздел.
+    // Сначала здесь брался только первый: счётчик показывал три вопроса вместо
+    // пятнадцати, поиск искал в одном разделе, а остальные вопросы оставались
+    // без якорей.
+    const groups = [...document.querySelectorAll('.page-content .pc-faq')];
+    if (!groups.length) return;
+
+    const faq = groups[0];
+    const items = groups.flatMap((g) => [...g.querySelectorAll('details.pc-faq__item')]);
+    if (!items.length) return;
+
+    // Идентификатор строится из текста вопроса: на такую ссылку можно
+    // сослаться в переписке, и она переживёт перестановку вопросов местами.
+    const translit = (t) => {
+        const map = {'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ё':'e','ж':'zh',
+            'з':'z','и':'i','й':'y','к':'k','л':'l','м':'m','н':'n','о':'o','п':'p',
+            'р':'r','с':'s','т':'t','у':'u','ф':'f','х':'h','ц':'c','ч':'ch','ш':'sh',
+            'щ':'sch','ъ':'','ы':'y','ь':'','э':'e','ю':'yu','я':'ya'};
+        return t.toLowerCase().replace(/[а-яё]/g, (c) => (c in map ? map[c] : c))
+            .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
+    };
+
+    const seen = new Set();
+
+    items.forEach((item, n) => {
+        const summary = item.querySelector('summary');
+        if (!summary) return;
+
+        if (!item.id) {
+            let id = 'v-' + (translit(summary.textContent.trim()) || (n + 1));
+            while (seen.has(id)) id += '-' + (n + 1);
+            item.id = id;
+        }
+
+        seen.add(item.id);
+
+        // Адрес в строке браузера следует за раскрытым вопросом — его можно
+        // просто скопировать, отдельная кнопка «поделиться» не нужна.
+        item.addEventListener('toggle', () => {
+            if (item.open) history.replaceState(null, '', '#' + item.id);
+        });
+    });
+
+    // Заголовок раздела запоминаем ЗАРАНЕЕ: панель поиска встаёт перед первым
+    // блоком и перестаёт быть его соседом — искать заголовок по соседству
+    // после вставки уже нельзя, и у первого раздела он оставался висеть.
+    const headings = new Map();
+
+    groups.forEach((group) => {
+        const prev = group.previousElementSibling;
+        if (prev && /^H[23]$/.test(prev.tagName)) headings.set(group, prev);
+    });
+
+    const bar = document.createElement('div');
+    bar.className = 'pc-faq-bar';
+    bar.innerHTML =
+        '<input type="search" class="pc-faq-bar__input" ' +
+               'placeholder="Поиск по вопросам и ответам" aria-label="Поиск по вопросам">' +
+        '<span class="pc-faq-bar__count" role="status"></span>' +
+        '<button type="button" class="pc-faq-bar__btn" data-all="1">Развернуть всё</button>' +
+        '<button type="button" class="pc-faq-bar__btn" data-all="0">Свернуть всё</button>';
+
+    faq.parentNode.insertBefore(bar, faq);
+
+    const empty = document.createElement('p');
+    empty.className = 'pc-faq-empty';
+    empty.hidden = true;
+    empty.textContent = 'Ничего не нашлось. Попробуйте другое слово.';
+    const last = groups[groups.length - 1];
+    last.parentNode.insertBefore(empty, last.nextSibling);
+
+    const input = bar.querySelector('.pc-faq-bar__input');
+    const count = bar.querySelector('.pc-faq-bar__count');
+
+    const setCount = (shown) => {
+        count.textContent = shown === items.length
+            ? 'Вопросов: ' + items.length
+            : 'Найдено: ' + shown + ' из ' + items.length;
+    };
+
+    setCount(items.length);
+
+    // Ищем и по вопросу, и по ответу: человек чаще помнит слово из ответа,
+    // чем точную формулировку вопроса.
+    let timer = null;
+
+    const filter = () => {
+        const q = input.value.trim().toLowerCase();
+        let shown = 0;
+
+        items.forEach((item) => {
+            const hit = q === '' || item.textContent.toLowerCase().includes(q);
+            item.hidden = !hit;
+
+            if (hit) {
+                shown++;
+                // При поиске ответ сразу виден — иначе пришлось бы открывать
+                // каждый найденный вопрос вручную.
+                if (q !== '') item.open = true;
+            }
+        });
+
+        if (q === '') items.forEach((item) => { item.open = false; });
+
+        // Заголовок раздела без единого найденного вопроса только мешает.
+        groups.forEach((group) => {
+            const visible = [...group.querySelectorAll('details.pc-faq__item')]
+                .some((item) => !item.hidden);
+
+            group.hidden = !visible;
+
+            const heading = headings.get(group);
+            if (heading) heading.hidden = !visible;
+        });
+
+        empty.hidden = shown !== 0;
+        setCount(shown);
+    };
+
+    input.addEventListener('input', () => {
+        clearTimeout(timer);
+        timer = setTimeout(filter, 150);
+    });
+
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') { input.value = ''; filter(); }
+    });
+
+    // Клавиша поиска, как в почтовых клиентах и трекерах задач.
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey) return;
+        const tag = (e.target.tagName || '').toLowerCase();
+        if (tag === 'input' || tag === 'textarea' || e.target.isContentEditable) return;
+        e.preventDefault();
+        input.focus();
+    });
+
+    bar.querySelectorAll('.pc-faq-bar__btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const open = btn.dataset.all === '1';
+            items.forEach((item) => { if (!item.hidden) item.open = open; });
+        });
+    });
+
+    const openFromHash = () => {
+        const id = decodeURIComponent(location.hash.slice(1));
+        if (!id) return;
+
+        const target = items.find((item) => item.id === id);
+        if (!target) return;
+
+        target.open = true;
+        target.scrollIntoView({ block: 'center' });
+    };
+
+    openFromHash();
+    window.addEventListener('hashchange', openFromHash);
+
+    // Разметка для поисковиков собирается из готового списка: редактору
+    // ничего размечать не нужно — добавил вопрос, он попал и сюда.
+    // Ключи схемы собираются из символа и слова, а не пишутся целиком.
+    // Blade компилирует конструкции вида «собака плюс слово» ВЕЗДЕ, включая
+    // содержимое тега script и комментарии, — литеральный ключ ломал
+    // компиляцию всего шаблона (страница отдавала 500).
+    const AT = String.fromCharCode(64);
+
+    const answerOf = (item) => [...item.children]
+        .filter((el) => el.tagName !== 'SUMMARY')
+        .map((el) => el.textContent.trim())
+        .join(' ')
+        .trim();
+
+    const questions = items.map((item) => {
+        const q = {};
+        q[AT + 'type'] = 'Question';
+        q.name = ((item.querySelector('summary') || {}).textContent || '').trim();
+
+        const a = {};
+        a[AT + 'type'] = 'Answer';
+        a.text = answerOf(item);
+        q.acceptedAnswer = a;
+
+        return q;
+    }).filter((q) => q.name && q.acceptedAnswer.text);
+
+    const data = {};
+    data[AT + 'context'] = 'https://schema.org';
+    data[AT + 'type'] = 'FAQPage';
+    data.mainEntity = questions;
+
+    if (questions.length) {
+        const tag = document.createElement('script');
+        tag.type = 'application/ld+json';
+        tag.textContent = JSON.stringify(data);
+        document.head.appendChild(tag);
+    }
+})();
+</script>
+
 <script>
     // Копирование ссылки на страницу + короткий тост
     function pageToast(message, isError = false) {

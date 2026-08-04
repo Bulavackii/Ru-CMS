@@ -134,3 +134,120 @@
     .page-content .pc-cta{ flex-direction:column; align-items:stretch; text-align:center }
     .page-content .pc-cta a{ text-align:center }
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   ВОПРОСЫ И ОТВЕТЫ
+
+   Аккордеон на нативном <details>: раскрывается без единой строки JS,
+   читается скринридером, ищется браузерным поиском по странице и
+   переживает визуальный редактор без специальных настроек (проверено).
+   Скрипт страницы добавляет сверху поиск и якоря, но всё содержимое
+   доступно и без него.
+   ══════════════════════════════════════════════════════════════════ */
+
+.page-content .pc-faq{ display:grid; gap:.6rem; margin:1.5rem 0 }
+
+.page-content .pc-faq__item{ background:#fff; border:1px solid #eef2f7;
+    transition:border-color .15s }
+.page-content .pc-faq__item:hover{ border-color:#c7d2fe }
+.page-content .pc-faq__item[open]{ border-color:var(--color-primary,#6366f1) }
+
+.page-content .pc-faq__item > summary{ display:flex; align-items:flex-start; gap:.75rem;
+    padding:.95rem 1.15rem; font-weight:600; color:#111827; cursor:pointer;
+    list-style:none; user-select:none }
+/* Родной треугольник убираем в обоих движках — рисуем свою стрелку. */
+.page-content .pc-faq__item > summary::-webkit-details-marker{ display:none }
+.page-content .pc-faq__item > summary::marker{ content:'' }
+
+.page-content .pc-faq__item > summary::after{ content:'⌄'; margin-left:auto; flex:none;
+    font-size:1.15rem; line-height:1; color:#94a3b8; transform:translateY(-2px);
+    transition:transform .2s, color .15s }
+.page-content .pc-faq__item[open] > summary::after{ transform:translateY(2px) rotate(180deg);
+    color:var(--color-primary,#6366f1) }
+.page-content .pc-faq__item > summary:hover{ color:var(--color-primary,#6366f1) }
+.page-content .pc-faq__item > summary:focus-visible{ outline:2px solid var(--color-primary,#6366f1);
+    outline-offset:-2px }
+
+/* Номер вопроса — счётчиком, чтобы редактор не проставлял его руками. */
+.page-content .pc-faq{ counter-reset:pc-faq }
+.page-content .pc-faq__item{ counter-increment:pc-faq }
+.page-content .pc-faq__item > summary::before{ content:counter(pc-faq); flex:none;
+    display:flex; align-items:center; justify-content:center; width:1.5rem; height:1.5rem;
+    font-size:.7rem; font-weight:800; color:var(--color-primary,#6366f1);
+    background:#eef2ff }
+.page-content .pc-faq__item[open] > summary::before{ color:#fff;
+    background:var(--color-primary,#6366f1) }
+
+.page-content .pc-faq__item > :not(summary){ margin:0 1.15rem .95rem;
+    padding-left:2.25rem; color:#475569; line-height:1.6 }
+.page-content .pc-faq__item > summary + *{ margin-top:.15rem }
+
+:root.dark .page-content .pc-faq__item{ background:#111827; border-color:#1f2937 }
+:root.dark .page-content .pc-faq__item > summary{ color:#f3f4f6 }
+:root.dark .page-content .pc-faq__item > :not(summary){ color:#cbd5e1 }
+:root.dark .page-content .pc-faq__item > summary::before{ background:#1e1b4b }
+
+@media (max-width:640px){
+    .page-content .pc-faq__item > summary{ padding:.8rem .9rem; font-size:.95rem }
+    .page-content .pc-faq__item > :not(summary){ margin:0 .9rem .8rem; padding-left:2.25rem }
+}
+
+/* Панель над списком вопросов. Её создаёт скрипт страницы, поэтому в
+   содержимом её нет — редактору достаточно списка вопросов. */
+.page-content .pc-faq-bar{ display:flex; align-items:center; gap:.5rem; flex-wrap:wrap;
+    margin:1.5rem 0 .75rem }
+.page-content .pc-faq-bar__input{ flex:1 1 14rem; min-width:0; height:42px;
+    padding:0 .9rem; font-size:.9rem; color:#0f172a;
+    background:#fff; border:1px solid #e2e8f0 }
+.page-content .pc-faq-bar__input:focus{ outline:none; border-color:var(--color-primary,#6366f1);
+    box-shadow:0 0 0 3px rgba(99,102,241,.15) }
+.page-content .pc-faq-bar__count{ flex:none; font-size:.8rem; color:#64748b;
+    font-variant-numeric:tabular-nums }
+.page-content .pc-faq-bar__btn{ flex:none; height:42px; padding:0 .85rem;
+    font-size:.82rem; font-weight:600; color:#334155;
+    background:#fff; border:1px solid #e2e8f0; cursor:pointer;
+    transition:border-color .15s, color .15s }
+.page-content .pc-faq-bar__btn:hover{ border-color:var(--color-primary,#6366f1);
+    color:var(--color-primary,#6366f1) }
+.page-content .pc-faq-bar__btn:focus-visible{ outline:2px solid var(--color-primary,#6366f1);
+    outline-offset:2px }
+
+.page-content .pc-faq-empty{ margin:1.5rem 0; padding:1.5rem; text-align:center;
+    color:#64748b; background:#f8fafc; border:1px dashed #cbd5e1 }
+
+:root.dark .page-content .pc-faq-bar__input,
+:root.dark .page-content .pc-faq-bar__btn{ color:#e2e8f0; background:#111827; border-color:#1f2937 }
+:root.dark .page-content .pc-faq-empty{ color:#94a3b8; background:#0b1220; border-color:#334155 }
+
+@media (max-width:640px){
+    /* Счётчик уезжает под поле, кнопки делят строку пополам. */
+    .page-content .pc-faq-bar__input{ flex:1 1 100% }
+    .page-content .pc-faq-bar__count{ order:3; flex:1 1 100%; text-align:center }
+    .page-content .pc-faq-bar__btn{ flex:1 1 0 }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   ВИД В ВИЗУАЛЬНОМ РЕДАКТОРЕ
+
+   Класс mce-content-body есть только у тела документа внутри редактора,
+   поэтому правила ниже действуют ТОЛЬКО там и никак не влияют на сайт.
+
+   Аккордеон внутри редактора не раскрывается: клик по заголовку там —
+   это установка курсора, а не переключение. Из-за этого ответы были
+   недоступны для правки. Поэтому в редакторе показываем их все сразу.
+   ══════════════════════════════════════════════════════════════════ */
+
+.mce-content-body details.pc-faq__item > *:not(summary){ display:block !important }
+
+/* Стрелка в редакторе только путает: раскрывать нечего, всё уже видно. */
+.mce-content-body details.pc-faq__item > summary::after{ display:none }
+
+/* Подсказка, что на сайте это свернётся в аккордеон. */
+.mce-content-body .pc-faq{ position:relative; padding-top:1.6rem;
+    border-top:1px dashed #c7d2fe }
+.mce-content-body .pc-faq::before{ content:'Вопросы и ответы — на сайте свёрнуты в список';
+    position:absolute; top:.25rem; left:0; font-size:.7rem; font-weight:600;
+    letter-spacing:.03em; color:#818cf8 }
+
+.mce-content-body details.pc-faq__item{ border-color:#c7d2fe }
+.mce-content-body details.pc-faq__item > summary{ cursor:text }

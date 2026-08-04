@@ -245,6 +245,8 @@
                         { title: 'Строка цифр',          selector: 'ul', classes: 'pc-stats' },
                         { title: 'Чипы технологий',      selector: 'ul', classes: 'pc-tech' },
                         { title: 'Нумерованные шаги',    selector: 'ol', classes: 'pc-steps' },
+                        { title: 'Список вопросов',      block: 'div', classes: 'pc-faq', wrapper: true },
+                        { title: 'Вопрос с ответом',     block: 'details', classes: 'pc-faq__item', wrapper: true },
                     ]
                 }
             ],
