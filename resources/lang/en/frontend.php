@@ -92,6 +92,15 @@ return [
     ],
 
     'account' => [
+        'pw_short' => ':n more characters',
+        'pw_weak' => 'Weak',
+        'pw_fair' => 'Fair',
+        'pw_good' => 'Good',
+        'pw_strong' => 'Strong',
+        'pw_mismatch' => 'Passwords do not match',
+        'pw_match' => 'Passwords match',
+        'pw_generate' => 'Generate password',
+        'pw_show' => 'Show passwords',
         'edit_hint' => 'Contacts and company details — visible to the administrator only',
         'g_contacts' => 'Contacts',
         'g_company' => 'Company details',
