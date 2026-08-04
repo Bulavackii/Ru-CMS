@@ -59,8 +59,10 @@
         if (editor.fullscreen) {
             editor._heightBefore = editor.frame.style.height;
             editor.frame.style.height = '';
+            hideBackdropLayers(editor);
         } else {
             editor.frame.style.height = editor._heightBefore || '420px';
+            showBackdropLayers(editor);
         }
 
         var icon = editor.root.querySelector('[data-ru-btn="fullscreen"] i');
@@ -71,6 +73,50 @@
 
         editor.focus();
     });
+
+    /**
+     * Убрать из отрисовки всё, что размывает фон под собой.
+     *
+     * Ровно из-за этого «рябил весь экран» при переходе в полноэкранный режим
+     * (нашли по сообщению владельца, подтвердили замером): в панели ЧЕТЫРЕ
+     * элемента с backdrop-filter: blur(16px) — сайдбар, шапка, стеклянная
+     * полоса и подвал. Пока они остаются в отрисовке под сплошным слоем
+     * редактора, композитор заново растеризует размытие каждый кадр, и экран
+     * идёт волнами. Свернуть в один слой их нельзя — размытие по своей природе
+     * читает то, что под ним.
+     *
+     * Ищем по вычисленному стилю, а не по именам классов панели: редактор
+     * ничего не должен знать про её разметку и обязан вести себя так же на
+     * сайте, где стеклянные полосы называются иначе.
+     */
+    function hideBackdropLayers(editor) {
+        editor._hiddenLayers = [];
+
+        Array.prototype.forEach.call(document.body.querySelectorAll('*'), function (node) {
+            // Предков редактора трогать нельзя — вместе с ними исчезнет и он.
+            if (editor.root.contains(node) || node.contains(editor.root)) {
+                return;
+            }
+
+            var style = window.getComputedStyle(node);
+            var backdrop = style.backdropFilter || style.webkitBackdropFilter;
+
+            if (backdrop && backdrop !== 'none') {
+                editor._hiddenLayers.push([node, node.style.display]);
+                node.style.display = 'none';
+            }
+        });
+    }
+
+    function showBackdropLayers(editor) {
+        (editor._hiddenLayers || []).forEach(function (pair) {
+            // Возвращаем ИСХОДНОЕ значение, а не пустую строку: у элемента мог
+            // быть свой display в атрибуте style, и затирать его нельзя.
+            pair[0].style.display = pair[1];
+        });
+
+        editor._hiddenLayers = [];
+    }
 
     /* ── Правка исходного кода ───────────────────────────────────────── */
 
@@ -375,6 +421,141 @@
             onSubmit: function () {}
         });
     });
+
+    /* ── Мелочи, которые экономят время при наборе ───────────────────── */
+
+    RuEditor.registerPlugin('assist', {
+        init: function (editor) {
+            editor.doc.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter' && !event.shiftKey) {
+                    leaveHeading(editor, event);
+                    linkify(editor);
+                } else if (event.key === ' ') {
+                    linkify(editor);
+                }
+            });
+
+            // Уход со страницы с несохранённым текстом. Черновик в хранилище
+            // спасает не всегда: на другом устройстве его не будет, а материал
+            // могут писать час. Предупреждение стандартное, браузер сам решает,
+            // показывать ли его.
+            if (editor.options.confirmLeave === false) {
+                return;
+            }
+
+            var dirty = false;
+
+            editor.on('change', function () { dirty = true; });
+
+            if (editor.form) {
+                editor.form.addEventListener('submit', function () { dirty = false; });
+            }
+
+            window.addEventListener('beforeunload', function (event) {
+                if (dirty) {
+                    event.preventDefault();
+                    // Текст сообщения браузеры давно игнорируют и показывают
+                    // своё, но непустое значение обязательно.
+                    event.returnValue = '';
+                }
+            });
+        }
+    });
+
+    /**
+     * Enter в конце заголовка начинает обычный абзац, а не второй заголовок.
+     *
+     * Поведение по умолчанию продолжает тот же блок: набрал заголовок, нажал
+     * Enter — и следующий абзац тоже заголовок, что замечают через три строки.
+     */
+    function leaveHeading(editor, event) {
+        var block = editor.closest('h1,h2,h3,h4,h5,h6,blockquote');
+
+        if (!block) {
+            return;
+        }
+
+        var range = editor.getRange();
+
+        if (!range || !range.collapsed) {
+            return;
+        }
+
+        // Курсор именно в КОНЦЕ блока? В середине Enter должен делить текст,
+        // как обычно.
+        var tail = range.cloneRange();
+
+        tail.selectNodeContents(block);
+        tail.setStart(range.endContainer, range.endOffset);
+
+        if (tail.toString().trim() !== '') {
+            return;
+        }
+
+        event.preventDefault();
+
+        var paragraph = editor.doc.createElement('p');
+
+        paragraph.appendChild(editor.doc.createElement('br'));
+        block.parentNode.insertBefore(paragraph, block.nextSibling);
+
+        var placed = editor.doc.createRange();
+
+        placed.setStart(paragraph, 0);
+        placed.collapse(true);
+        editor.setRange(placed);
+
+        editor._snapshot();
+        editor.save();
+        editor._updateState();
+    }
+
+    var ADDRESS = /(^|[\s(])((?:https?:\/\/|www\.)[^\s<>()]{4,})$/i;
+
+    /**
+     * Набранный адрес сам становится ссылкой по пробелу или переводу строки.
+     * Иначе на каждую ссылку нужно открывать диалог, хотя адрес уже написан.
+     */
+    function linkify(editor) {
+        var range = editor.getRange();
+
+        if (!range || !range.collapsed || range.startContainer.nodeType !== 3) {
+            return;
+        }
+
+        var node = range.startContainer;
+
+        // Внутри уже существующей ссылки делать нечего.
+        if (node.parentNode.closest && node.parentNode.closest('a')) {
+            return;
+        }
+
+        var match = node.nodeValue.slice(0, range.startOffset).match(ADDRESS);
+
+        if (!match) {
+            return;
+        }
+
+        var address = match[2];
+        var start = range.startOffset - address.length;
+        var link = editor.doc.createElement('a');
+
+        link.setAttribute('href', /^www\./i.test(address) ? 'https://' + address : address);
+        link.textContent = address;
+
+        var target = editor.doc.createRange();
+
+        target.setStart(node, start);
+        target.setEnd(node, range.startOffset);
+        target.deleteContents();
+        target.insertNode(link);
+
+        var after = editor.doc.createRange();
+
+        after.setStartAfter(link);
+        after.collapse(true);
+        editor.setRange(after);
+    }
 
     /* ── Клавиши и доступность ───────────────────────────────────────── */
 
