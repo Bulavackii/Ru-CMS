@@ -57,9 +57,10 @@ class SeedDefaultMenuCommand extends Command
                 'position' => 'footer',
                 'title'    => 'Информация',
                 'items'    => [
-                    ['title' => 'О проекте',   'url' => '/concept', 'icon' => 'info'],
-                    ['title' => 'Соглашение',  'url' => '/terms',   'icon' => 'file-text'],
-                    ['title' => 'Карта сайта', 'url' => '/sitemap', 'icon' => 'map'],
+                    ['title' => 'О проекте',         'url' => '/concept', 'icon' => 'info'],
+                    ['title' => 'Соглашение',        'url' => '/terms',   'icon' => 'file-text'],
+                    ['title' => 'Конфиденциальность', 'url' => '/privacy', 'icon' => 'shield'],
+                    ['title' => 'Карта сайта',       'url' => '/sitemap', 'icon' => 'map'],
                 ],
             ],
             [

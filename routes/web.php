@@ -361,11 +361,17 @@ Route::get('/contacts', [\Modules\Menu\Controllers\Frontend\PageController::clas
     ->defaults('slug', 'kontakty')
     ->name('pages.contacts');
 // 🔐 Статическая страница "Политика конфиденциальности"
-Route::view('/privacy', 'frontend.pages.privacy')->name('pages.privacy');
+Route::get('/privacy', [\Modules\Menu\Controllers\Frontend\PageController::class, 'show'])
+    ->defaults('slug', 'konfidencialnost')
+    ->name('pages.privacy');
 // 📄 Навигационные страницы
-Route::view('/terms', 'frontend.pages.terms')->name('pages.terms'); // Соглашение
+Route::get('/terms', [\Modules\Menu\Controllers\Frontend\PageController::class, 'show'])
+    ->defaults('slug', 'soglashenie')
+    ->name('pages.terms');
 Route::view('/partnership', 'frontend.pages.partnership')->name('pages.partnership'); // Сотрудничество
-Route::view('/developers', 'frontend.pages.developers')->name('pages.developers'); // Разработчикам
+Route::get('/developers', [\Modules\Menu\Controllers\Frontend\PageController::class, 'show'])
+    ->defaults('slug', 'razrabotchikam')
+    ->name('pages.developers');
 Route::view('/concept', 'frontend.pages.concept')->name('pages.concept'); // Концепция
 Route::view('/sitemap', 'frontend.pages.sitemap')->name('pages.sitemap'); // Карта сайта
 Route::view('/donate', 'frontend.pages.donate')->name('pages.donate'); // Пожертвовать
