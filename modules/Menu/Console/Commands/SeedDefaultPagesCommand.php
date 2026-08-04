@@ -45,10 +45,10 @@ class SeedDefaultPagesCommand extends Command
 содержимое правится в визуальном редакторе — без вёрстки и без разработчика.</p>
 
 <ul class="pc-stats">
-  <li><b>10</b><span>готовых модулей</span></li>
-  <li><b>5</b><span>тем оформления</span></li>
-  <li><b>3</b><span>уровня меню</span></li>
-  <li><b>0</b><span>строк кода</span></li>
+  <li><strong>10</strong><span>готовых модулей</span></li>
+  <li><strong>5</strong><span>тем оформления</span></li>
+  <li><strong>3</strong><span>уровня меню</span></li>
+  <li><strong>0</strong><span>строк кода</span></li>
 </ul>
 
 <h2>Собрана из модулей</h2>
@@ -340,28 +340,38 @@ HTML,
                 'meta_keywords' => 'контакты, связаться, адрес, телефон',
                 'homepage_order' => 4,
                 'content' => <<<'HTML'
-<p class="pc-lead">Напишите или позвоните — ответим в рабочее время. Здесь же
-адрес и карта проезда. Все данные на этой странице заменяются в панели
+<p class="pc-lead">Напишите или позвоните — ответим в рабочее время. Ниже адрес,
+карта проезда и ответы на частые обращения. Все данные меняются в панели
 управления: раздел «Страницы», материал «Контакты».</p>
+
+<ul class="pc-actions">
+  <li><a href="tel:+79001234567"><i class="fas fa-phone"></i> Позвонить</a></li>
+  <li><a href="mailto:info@example.com"><i class="fas fa-envelope"></i> Написать письмо</a></li>
+  <li class="is-plain"><a href="https://yandex.ru/maps/?text=Москва, улица Примерная, 1" target="_blank" rel="noopener"><i class="fas fa-route"></i> Проложить маршрут</a></li>
+</ul>
 
 <ul class="pc-contacts">
   <li>
-    <b>Телефон</b>
+    <span class="pc-ico"><i class="fas fa-phone"></i></span>
+    <span>Телефон</span>
     <strong><a href="tel:+79001234567">+7 (900) 123-45-67</a></strong>
-    <small>Будни с 9:00 до 18:00</small>
+    <small>Звонок бесплатный по России</small>
   </li>
   <li>
-    <b>Электронная почта</b>
+    <span class="pc-ico"><i class="fas fa-envelope"></i></span>
+    <span>Электронная почта</span>
     <strong><a href="mailto:info@example.com">info@example.com</a></strong>
     <small>Отвечаем в течение рабочего дня</small>
   </li>
   <li>
-    <b>Адрес</b>
+    <span class="pc-ico"><i class="fas fa-location-dot"></i></span>
+    <span>Адрес</span>
     <strong>г. Москва, ул. Примерная, 1</strong>
     <small>Вход со двора, второй этаж</small>
   </li>
-  <li>
-    <b>Часы работы</b>
+  <li data-hours="1-5:9-18">
+    <span class="pc-ico"><i class="fas fa-clock"></i></span>
+    <span>Часы работы</span>
     <strong>Пн–Пт, 9:00–18:00</strong>
     <small>Суббота и воскресенье — выходные</small>
   </li>
@@ -373,6 +383,23 @@ HTML,
 стороннему сервису не передаются.</p>
 
 [map q="Москва, улица Примерная, 1"]
+
+<h2>Реквизиты</h2>
+
+<ul class="pc-contacts">
+  <li>
+    <span class="pc-ico"><i class="fas fa-building"></i></span>
+    <span>Организация</span>
+    <strong>ООО «Пример»</strong>
+    <small>Полное наименование по уставу</small>
+  </li>
+  <li>
+    <span class="pc-ico"><i class="fas fa-hashtag"></i></span>
+    <span>ИНН / КПП</span>
+    <strong>0000000000 / 000000000</strong>
+    <small>Для договоров и счетов</small>
+  </li>
+</ul>
 
 <h2>Частые обращения</h2>
 
@@ -394,11 +421,18 @@ HTML,
     <p>На ту же почту. Приложите адрес страницы и, если можно, снимок экрана —
     это заметно ускоряет разбор.</p>
   </details>
+
+  <details class="pc-faq__item">
+    <summary>Работаете ли вы с другими городами?</summary>
+    <p>Да, вопросы решаем по почте и телефону. Личная встреча — по
+    договорённости.</p>
+  </details>
 </div>
 
 <p class="pc-note">Это демонстрационные контакты. Замените их своими в панели
 управления — страница откроется в визуальном редакторе, и разметку трогать
-не придётся.</p>
+не придётся. Значок «сейчас открыто» считается по расписанию, записанному
+в карточке часов работы.</p>
 HTML,
             ],
         ];

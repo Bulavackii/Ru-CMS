@@ -144,6 +144,42 @@
         });
     });
 
+    // ── Значок «сейчас открыто» ────────────────────────────────────
+    // Расписание берётся из атрибута карточки в формате «дни:часы»,
+    // например 1-5:9-18 — понедельник–пятница с 9 до 18. Редактору его
+    // менять не обязательно: без атрибута значка просто нет.
+    document.querySelectorAll('.page-content .pc-contacts li[data-hours]').forEach(function (card) {
+        const parts = String(card.dataset.hours).split(':');
+        if (parts.length !== 2) return;
+
+        const days = parts[0].split('-').map(Number);
+        const hours = parts[1].split('-').map(Number);
+        if (days.length !== 2 || hours.length !== 2 || days.some(isNaN) || hours.some(isNaN)) return;
+
+        const now = new Date();
+        // Воскресенье в JS — ноль; приводим к привычной нумерации, где
+        // понедельник первый, а воскресенье седьмое.
+        const day = now.getDay() === 0 ? 7 : now.getDay();
+        const minutes = now.getHours() * 60 + now.getMinutes();
+
+        const workday = day >= days[0] && day <= days[1];
+        const worktime = minutes >= hours[0] * 60 && minutes < hours[1] * 60;
+        const open = workday && worktime;
+
+        const badge = document.createElement('span');
+        badge.className = 'pc-now' + (open ? '' : ' is-closed');
+
+        if (open) {
+            badge.textContent = 'Сейчас открыто';
+        } else if (workday && minutes < hours[0] * 60) {
+            badge.textContent = 'Откроется в ' + hours[0] + ':00';
+        } else {
+            badge.textContent = 'Сейчас закрыто';
+        }
+
+        card.appendChild(badge);
+    });
+
     // ── Копирование телефона и почты ───────────────────────────────
     // Кнопку добавляем скриптом: в содержимом страницы её нет, редактору
     // достаточно написать сам контакт.
@@ -151,7 +187,10 @@
     if (!cards.length || !navigator.clipboard) return;
 
     cards.forEach(function (card) {
-        const value = card.querySelector('strong');
+        // Значение — полужирный тег. Подпись рядом набрана обычным span,
+        // поэтому они не спутаются, а по позиции считать нельзя: перед
+        // ними может стоять значок.
+        const value = card.querySelector('b, strong');
         if (!value) return;
 
         const text = value.textContent.trim();

@@ -83,12 +83,18 @@
     gap:1px; margin:1.75rem 0; padding:0; list-style:none; background:#e2e8f0;
     border:1px solid #e2e8f0 }
 .page-content .pc-stats li{ margin:0; padding:1.1rem .9rem; text-align:center; background:#fff }
-.page-content .pc-stats b{ display:block; font-size:1.75rem; line-height:1.1; font-weight:800;
-    color:var(--color-primary,#6366f1); font-variant-numeric:tabular-nums }
-.page-content .pc-stats span{ display:block; margin-top:.3rem; font-size:.8rem; color:#64748b }
+/* Число задаётся полужирным тегом, подпись — обычным span. Так они не
+   спутаются: визуальный редактор нормализует b в strong, и правило на
+   одном лишь b после первого сохранения переставало работать (проверено
+   на живом редакторе). Перечислены оба тега — и до, и после сохранения. */
+.page-content .pc-stats li > b,
+.page-content .pc-stats li > strong{ display:block; font-size:1.75rem; line-height:1.1;
+    font-weight:800; color:var(--color-primary,#6366f1); font-variant-numeric:tabular-nums }
+.page-content .pc-stats li > span{ display:block; margin-top:.3rem; font-size:.8rem;
+    color:#64748b }
 :root.dark .page-content .pc-stats{ background:#1f2937; border-color:#1f2937 }
 :root.dark .page-content .pc-stats li{ background:#111827 }
-:root.dark .page-content .pc-stats span{ color:#94a3b8 }
+:root.dark .page-content .pc-stats li > span{ color:#94a3b8 }
 
 /* ── Шаги ───────────────────────────────────────────────────────── */
 /* Номер рисуется счётчиком: редактор просто добавляет пункт списка,
@@ -267,11 +273,15 @@
     background:#fff; border:1px solid #eef2f7; transition:border-color .15s }
 .page-content .pc-contacts li:hover{ border-color:var(--color-primary,#6366f1) }
 
-/* Подпись поля — мелкая и приглушённая, значение крупное. */
-.page-content .pc-contacts b{ display:block; margin-bottom:.3rem; font-size:.7rem;
-    font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#94a3b8 }
-.page-content .pc-contacts strong{ display:block; font-size:1.05rem; font-weight:700;
-    color:#111827; line-height:1.35 }
+/* Подпись поля — обычный span, значение — полужирный тег. Считать по
+   позиции нельзя: перед ними может стоять значок, и нумерация съезжает.
+   Различать по тегу надёжно ровно потому, что span редактор не трогает. */
+.page-content .pc-contacts li > span:not(.pc-ico){ display:block; margin-bottom:.3rem;
+    font-size:.7rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+    color:#94a3b8 }
+.page-content .pc-contacts li > b,
+.page-content .pc-contacts li > strong{ display:block; font-size:1.05rem;
+    font-weight:700; color:#111827; line-height:1.35 }
 .page-content .pc-contacts a{ color:inherit; text-decoration:none }
 .page-content .pc-contacts a:hover{ color:var(--color-primary,#6366f1) }
 .page-content .pc-contacts small{ display:block; margin-top:.3rem; font-size:.82rem;
@@ -290,7 +300,8 @@
     border-color:var(--color-primary,#6366f1) }
 
 :root.dark .page-content .pc-contacts li{ background:#111827; border-color:#1f2937 }
-:root.dark .page-content .pc-contacts strong{ color:#f3f4f6 }
+:root.dark .page-content .pc-contacts li > b,
+:root.dark .page-content .pc-contacts li > strong{ color:#f3f4f6 }
 :root.dark .page-content .pc-copy{ color:#94a3b8; background:#0b1220; border-color:#1f2937 }
 
 /* ── Карта ──────────────────────────────────────────────────────── */
@@ -309,3 +320,43 @@
 
 :root.dark .page-content .pc-map{ background:#0b1220; border-color:#1f2937 }
 :root.dark .page-content .pc-map__stub{ color:#c7d2fe }
+
+/* ── Быстрые действия ───────────────────────────────────────────── */
+/* Крупные кнопки для главных действий: позвонить, написать, проложить
+   маршрут. На телефоне это основной способ связаться, поэтому они стоят
+   вверху и растягиваются на всю ширину. */
+.page-content .pc-actions{ display:flex; flex-wrap:wrap; gap:.6rem; margin:1.5rem 0;
+    padding:0; list-style:none }
+.page-content .pc-actions li{ margin:0; flex:1 1 12rem }
+.page-content .pc-actions a{ display:flex; align-items:center; justify-content:center;
+    gap:.55rem; min-height:48px; padding:.7rem 1.2rem; font-size:.95rem; font-weight:700;
+    color:#fff; text-decoration:none;
+    background:linear-gradient(135deg,var(--color-primary,#6366f1),var(--color-accent,#8b5cf6));
+    transition:filter .15s, transform .15s }
+.page-content .pc-actions a:hover{ filter:brightness(1.07); transform:translateY(-1px) }
+.page-content .pc-actions a:focus-visible{ outline:2px solid var(--color-primary,#6366f1);
+    outline-offset:2px }
+
+/* Второстепенное действие — та же форма, но без заливки. */
+.page-content .pc-actions li.is-plain a{ color:#334155; background:#fff;
+    border:1px solid #e2e8f0 }
+.page-content .pc-actions li.is-plain a:hover{ color:var(--color-primary,#6366f1);
+    border-color:var(--color-primary,#6366f1); filter:none }
+:root.dark .page-content .pc-actions li.is-plain a{ color:#cbd5e1; background:#111827;
+    border-color:#1f2937 }
+
+/* ── Значок «сейчас открыто» ────────────────────────────────────── */
+/* Подпись ставит скрипт, разбирая расписание из атрибута карточки. */
+.page-content .pc-now{ display:inline-flex; align-items:center; gap:.4rem;
+    margin-top:.45rem; padding:.16rem .55rem; font-size:.72rem; font-weight:700;
+    color:#166534; background:#dcfce7 }
+.page-content .pc-now::before{ content:''; width:.45rem; height:.45rem; flex:none;
+    border-radius:9999px; background:#22c55e }
+.page-content .pc-now.is-closed{ color:#9a3412; background:#ffedd5 }
+.page-content .pc-now.is-closed::before{ background:#f97316 }
+:root.dark .page-content .pc-now{ color:#bbf7d0; background:#14532d }
+:root.dark .page-content .pc-now.is-closed{ color:#fed7aa; background:#7c2d12 }
+
+/* Иконка карточки контакта — в тон значкам карточек. */
+.page-content .pc-contacts .pc-ico{ width:2rem; height:2rem; margin-bottom:.6rem;
+    font-size:.8rem }
