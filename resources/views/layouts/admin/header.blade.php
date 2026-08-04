@@ -287,19 +287,28 @@
             <div class="ahd-group">
                 @include('components.admin.notifications-center')
 
-                <a href="{{ route('admin.orders.index') }}" class="ahd-btn" title="{{ __('admin.header.orders') }}"
-                   aria-label="{{ __('admin.header.orders') }}">
-                    @themeIcon('shopping-cart')
-                    @if($newOrders>0)<span class="ahd-badge bg-green-600">{{ $newOrders }}</span>@endif
-                </a>
+                {{-- Заказы и сообщения приходят из модулей Payments и Messages.
+                     Выключили модуль — кнопка уходит из шапки вместе с разделом
+                     в левом меню, иначе она вела бы в раздел, которого для
+                     администратора больше нет. Остальные кнопки обоймы ведут в
+                     ядро и есть всегда. --}}
+                @if(module_enabled('Payments'))
+                    <a href="{{ route('admin.orders.index') }}" class="ahd-btn" title="{{ __('admin.header.orders') }}"
+                       aria-label="{{ __('admin.header.orders') }}">
+                        @themeIcon('shopping-cart')
+                        @if($newOrders>0)<span class="ahd-badge bg-green-600">{{ $newOrders }}</span>@endif
+                    </a>
+                @endif
 
-                <a href="{{ route('admin.messages.index') }}" class="ahd-btn" title="{{ __('admin.header.messages') }}"
-                   aria-label="{{ __('admin.header.messages') }}">
-                    @themeIcon('message')
-                    @if($unreadMessages>0)<span class="ahd-badge bg-indigo-500">{{ $unreadMessages }}</span>@endif
-                </a>
+                @if(module_enabled('Messages'))
+                    <a href="{{ route('admin.messages.index') }}" class="ahd-btn" title="{{ __('admin.header.messages') }}"
+                       aria-label="{{ __('admin.header.messages') }}">
+                        @themeIcon('message')
+                        @if($unreadMessages>0)<span class="ahd-badge bg-indigo-500">{{ $unreadMessages }}</span>@endif
+                    </a>
+                @endif
 
-                @if($licenseWarning)
+                @if($licenseWarning && Route::has('admin.subscriptions.index'))
                     <a href="{{ route('admin.subscriptions.index') }}"
                        class="ahd-btn {{ $licenseWarning['is_expired'] || $licenseWarning['is_critical'] ? 'text-red-400' : 'text-yellow-400' }}"
                        title="{{ __('admin.header.license') }}: {{ $licenseWarning['is_expired'] ? __('admin.header.license_expired') : __('admin.header.license_expires') . ' ' . $licenseWarning['days_left'] }}"

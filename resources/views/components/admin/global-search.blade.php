@@ -168,11 +168,22 @@ function globalSearch() {
 
         // Куда чаще всего идут из шапки. Показывается, пока поле пустое —
         // чтобы поиск сразу что-то предлагал, а не встречал пустотой.
+        //
+        // Каждая подсказка ведёт в свой модуль: выключенный модуль не должен
+        // предлагаться в поиске, иначе панель зовёт туда, откуда раздел уже
+        // убран. Заодно проверяется сам маршрут — на случай отсутствующего.
+        @php
+            $searchShortcuts = array_values(array_filter([
+                ['route' => 'admin.news.create',  'module' => 'News',   'title' => __('admin.header.quick_news'),  'icon' => 'fas fa-newspaper text-blue-500'],
+                ['route' => 'admin.pages.create', 'module' => 'Menu',   'title' => __('admin.header.quick_page'),  'icon' => 'fas fa-file text-green-500'],
+                ['route' => 'admin.users.create', 'module' => 'Users',  'title' => __('admin.header.quick_user'),  'icon' => 'fas fa-user-plus text-purple-500'],
+                ['route' => 'admin.search.index', 'module' => 'Search', 'title' => __('admin.header.search_full'), 'icon' => 'fas fa-list text-indigo-500'],
+            ], fn (array $s) => \Illuminate\Support\Facades\Route::has($s['route']) && module_enabled($s['module'])));
+        @endphp
         shortcuts: [
-            { title: @js(__('admin.header.quick_news')),  note: '', url: @js(route('admin.news.create')),  icon: 'fas fa-newspaper text-blue-500' },
-            { title: @js(__('admin.header.quick_page')),  note: '', url: @js(route('admin.pages.create')), icon: 'fas fa-file text-green-500' },
-            { title: @js(__('admin.header.quick_user')),  note: '', url: @js(route('admin.users.create')), icon: 'fas fa-user-plus text-purple-500' },
-            { title: @js(__('admin.header.search_full')), note: '', url: @js(route('admin.search.index')), icon: 'fas fa-list text-indigo-500' },
+            @foreach($searchShortcuts as $shortcut)
+                { title: @js($shortcut['title']), note: '', url: @js(route($shortcut['route'])), icon: @js($shortcut['icon']) },
+            @endforeach
         ],
 
         init() {

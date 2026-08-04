@@ -586,3 +586,76 @@ if (! function_exists('social_links')) {
         return array_values(array_filter($links, static fn (array $l): bool => filled($l['href'])));
     }
 }
+
+if (! function_exists('module_active_names')) {
+    /**
+     * Имена включённых модулей или null, если выяснить это нечем.
+     *
+     * null — не «модулей нет», а «состояние неизвестно»: идёт установка, БД
+     * ещё не настроена или недоступна. В таком случае вызывающий код обязан
+     * считать включённым всё, иначе мастер установки остался бы без модулей,
+     * которые ему самому и нужны.
+     *
+     * Ответ запоминается в контейнере, а не в static-переменной: static живёт
+     * до конца PHP-процесса, то есть протёк бы между тестами PHPUnit (все они
+     * идут одним процессом) и между запросами Octane. Контейнер же у каждого
+     * экземпляра приложения свой.
+     *
+     * @return array<int, string>|null
+     */
+    function module_active_names(): ?array
+    {
+        $key = 'modules.active_names';
+        $app = app();
+
+        // Обёртка массивом намеренно: instance() с null не считается
+        // связанным (bound() проверяет isset), и значение выяснялось бы заново
+        // при каждом обращении — ровно в том случае, когда БД недоступна и
+        // каждая попытка стоит дороже всего.
+        if (! $app->bound($key)) {
+            $names = null;
+
+            try {
+                if (file_exists(storage_path('install.lock'))
+                    && class_exists(\Modules\System\Models\Module::class)
+                    && \Illuminate\Support\Facades\Schema::hasTable('modules')) {
+                    $names = \Modules\System\Models\Module::where('active', true)
+                        ->pluck('name')
+                        ->all();
+
+                    // Пустая таблица — это «модули ещё не переписаны в БД», а не
+                    // «администратор выключил все двадцать». Так бывает сразу
+                    // после чистой установки (наполняет её ModuleServiceProvider
+                    // при первом запросе) и в тестах, где таблица создаётся
+                    // миграцией и остаётся пустой. Считать это выключением
+                    // значило бы показать панель вообще без разделов.
+                    if ($names === [] && \Modules\System\Models\Module::count() === 0) {
+                        $names = null;
+                    }
+                }
+            } catch (\Throwable $e) {
+                $names = null;
+            }
+
+            $app->instance($key, ['names' => $names]);
+        }
+
+        return $app->make($key)['names'];
+    }
+}
+
+if (! function_exists('module_enabled')) {
+    /**
+     * Включён ли модуль. Пока состояние неизвестно — да (см. выше).
+     *
+     * Нужен маршрутам: routes/web.php подключает файлы семи модулей напрямую,
+     * и без этой проверки они регистрировались независимо от того, выключен
+     * модуль в панели или нет.
+     */
+    function module_enabled(string $name): bool
+    {
+        $names = module_active_names();
+
+        return $names === null || in_array($name, $names, true);
+    }
+}

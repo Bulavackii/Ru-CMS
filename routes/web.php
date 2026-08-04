@@ -336,11 +336,20 @@ Route::middleware(['web', 'auth', 'admin'])->group(function () {
     Route::delete('/admin/categories/bulk-delete', [\Modules\Categories\Controllers\Admin\CategoryController::class, 'bulkDelete'])
         ->name('admin.categories.bulkDelete');
 
-    // require (not require_once): route files are re-executed on every fresh
-    // app boot (each PHPUnit test, each Octane/Swoole worker request). Since
-    // require_once tracks included files at the PHP-process level rather than
-    // per-application, it silently no-ops on the 2nd+ boot within one process
-    // and these routes vanish from every router after the first boot.
+    // Маршруты модулей, которые подключаются отсюда, а не провайдером.
+    //
+    // Подключаются ВСЕГДА, независимо от того, выключен модуль в панели или
+    // нет. Выключение убирает раздел из меню (см. App\Support\AdminSections),
+    // но не снимает маршруты: на них ссылается слишком многое за пределами
+    // самого модуля — корзина в шапке сайта, ссылки на страницы на главной,
+    // быстрые действия панели. Снятый маршрут превращает route() в исключение,
+    // и «выключил модуль слайдшоу» оборачивалось бы пятисоткой на всём сайте.
+    //
+    // require, а не require_once: файл маршрутов выполняется заново на каждом
+    // подъёме приложения (каждый тест PHPUnit, каждый запрос воркера Octane).
+    // require_once помнит включённые файлы на уровне процесса PHP, а не
+    // приложения, поэтому со второго подъёма молча ничего не делал бы — и
+    // маршруты пропадали бы из роутера навсегда.
     require base_path('modules/Categories/Routes/web.php');
     require base_path('modules/Slideshow/Routes/web.php');
     require base_path('modules/Notifications/Routes/web.php');

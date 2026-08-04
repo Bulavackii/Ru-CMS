@@ -20,7 +20,8 @@ class AdminSections
 {
     /**
      * Разделы по смысловым группам — в том порядке, в котором их показывает
-     * сайдбар. Пункты необязательных модулей отсеиваются по Route::has().
+     * сайдбар. Пункт исчезает, если модуль выключен в разделе «Модули» или
+     * если его маршрута нет вовсе.
      *
      * @return array<string, array<int, array<string, mixed>>>
      */
@@ -28,40 +29,42 @@ class AdminSections
     {
         $groups = [
             __('admin.section_groups.content') => [
-                self::link('menus', 'admin.menus.index', 'dashboard', 'admin.menus.*'),
-                self::link('news', 'admin.news.index', 'file-text', 'admin.news.*'),
-                self::link('pages', 'admin.pages.index', 'file-text', 'admin.pages.*'),
-                self::link('categories', 'admin.categories.index', 'folder', 'admin.categories.*'),
-                self::link('slideshow', 'admin.slideshow.index', 'image', 'admin.slideshow.*'),
-                self::link('files', 'admin.files.index', 'folder', 'admin.files.*'),
-                self::link('newsio', 'admin.newsio.index', 'arrow-up', 'admin.newsio.*'),
+                self::link('menus', 'admin.menus.index', 'dashboard', 'admin.menus.*', module: 'Menu'),
+                self::link('news', 'admin.news.index', 'file-text', 'admin.news.*', module: 'News'),
+                self::link('pages', 'admin.pages.index', 'file-text', 'admin.pages.*', module: 'Menu'),
+                self::link('categories', 'admin.categories.index', 'folder', 'admin.categories.*', module: 'Categories'),
+                self::link('slideshow', 'admin.slideshow.index', 'image', 'admin.slideshow.*', module: 'Slideshow'),
+                self::link('files', 'admin.files.index', 'folder', 'admin.files.*', module: 'Files'),
+                self::link('newsio', 'admin.newsio.index', 'arrow-up', 'admin.newsio.*', module: 'NewsIO'),
             ],
 
             __('admin.section_groups.system') => [
-                self::url('modules', '/admin/modules', 'puzzle', 'admin/modules'),
-                self::url('users', '/admin/users', 'user', 'admin/users'),
-                self::url('search', '/admin/search', 'search', 'admin/search'),
-                self::link('notifications', 'admin.notifications.index', 'bell', 'admin.notifications.*', 'notifications'),
+                // Все пункты идут через link(): он один умеет отсеять и
+                // отсутствующий маршрут, и выключенный модуль. Раньше часть
+                // разделов задавалась прямым путём — такой пункт не исчезал
+                // никогда, каким бы ни был флаг модуля.
+                self::link('modules', 'admin.modules.index', 'puzzle', 'admin/modules'),
+                self::link('users', 'admin.users.index', 'user', 'admin.users.*', module: 'Users'),
+                self::link('search', 'admin.search.index', 'search', 'admin/search', module: 'Search'),
+                self::link('notifications', 'admin.notifications.index', 'bell', 'admin.notifications.*', 'notifications', module: 'Notifications'),
                 // SEO живёт в отдельном модуле с собственным префиксом маршрутов,
                 // поэтому активным раздел считается и по имени маршрута, и по пути
-                (self::link('seo', 'seo.pages.index', 'search', 'seo.*')
-                    ?? self::url('seo', '/admin/seo/pages', 'search', 'admin/seo*'))
-                    + ['also' => 'admin/seo*'],
-                self::link('themes', 'admin.visual.themes.index', 'palette', 'admin.visual.themes.*'),
-                self::link('fragments', 'admin.visual.fragments.index', 'puzzle', 'admin.visual.fragments.*'),
-                self::link('localization', 'admin.localization.index', 'globe', 'admin.localization.*'),
-                self::link('captcha', 'admin.captcha.index', 'shield', 'admin.captcha.*'),
-                self::url('accessibility', '/admin/accessibility', 'user', 'admin/accessibility*'),
+                self::link('seo', 'seo.pages.index', 'search', 'seo.*', also: 'admin/seo*', module: 'Seo'),
+                self::link('themes', 'admin.visual.themes.index', 'palette', 'admin.visual.themes.*', module: 'Visual'),
+                self::link('fragments', 'admin.visual.fragments.index', 'puzzle', 'admin.visual.fragments.*', module: 'Visual'),
+                self::link('localization', 'admin.localization.index', 'globe', 'admin.localization.*', module: 'Localization'),
+                self::link('captcha', 'admin.captcha.index', 'shield', 'admin.captcha.*', module: 'Captcha'),
+                self::link('accessibility', 'admin.accessibility.index', 'user', 'admin/accessibility*', module: 'Accessibility'),
             ],
 
             __('admin.section_groups.payments') => [
-                self::link('payments', 'admin.payments.index', 'credit-card', 'admin.payments.*'),
-                self::link('orders', 'admin.orders.index', 'shopping-cart', 'admin.orders.*', 'orders'),
-                self::link('delivery', 'admin.delivery.index', 'truck', 'admin.delivery.*'),
+                self::link('payments', 'admin.payments.index', 'credit-card', 'admin.payments.*', module: 'Payments'),
+                self::link('orders', 'admin.orders.index', 'shopping-cart', 'admin.orders.*', 'orders', module: 'Payments'),
+                self::link('delivery', 'admin.delivery.index', 'truck', 'admin.delivery.*', module: 'Delivery'),
             ],
         ];
 
-        // Пункты отключённых модулей выпадают как null
+        // Пункты отсутствующих маршрутов и выключенных модулей выпадают как null
         return array_map(fn (array $links) => array_values(array_filter($links)), $groups);
     }
 
@@ -152,8 +155,16 @@ class AdminSections
     }
 
     /**
-     * Пункт по имени маршрута. Возвращает null, если маршрута нет
-     * (модуль отключён) — вызывающий код такие пункты отбрасывает.
+     * Пункт по имени маршрута. Возвращает null, если пункт показывать не надо —
+     * вызывающий код такие отбрасывает.
+     *
+     * Не надо в двух случаях: маршрута нет вовсе или модуль выключен в разделе
+     * «Модули». Второе проверяется отдельно и намеренно: маршруты выключенного
+     * модуля из роутера НЕ убираются (на них ссылается корзина в шапке сайта,
+     * ссылки на страницы на главной, быстрые действия панели — снятый маршрут
+     * ронял бы всё это пятисоткой), поэтому по Route::has() выключение не
+     * видно. Раньше проверки на модуль не было вовсе, и раздел оставался в
+     * меню после выключения — с чего эта правка и началась.
      *
      * $key — ключ словаря admin.php (в каталоге каждой локали), а не готовая
      * подпись: по нему берутся и название раздела, и синонимы для поиска.
@@ -166,12 +177,18 @@ class AdminSections
         string $icon,
         string $pattern,
         ?string $counter = null,
+        ?string $also = null,
+        ?string $module = null,
     ): ?array {
         if (! Route::has($route)) {
             return null;
         }
 
-        return [
+        if ($module !== null && ! module_enabled($module)) {
+            return null;
+        }
+
+        return ($also ? ['also' => $also] : []) + [
             'key'      => $key,
             'label'    => __('admin.sections.' . $key),
             'url'      => route($route),
@@ -182,25 +199,6 @@ class AdminSections
             // Ключ из App\Support\AdminCounters — у раздела рядом с названием
             // покажется число «есть новое». null — счётчика нет.
             'counter'  => $counter,
-        ];
-    }
-
-    /**
-     * Пункт по прямому пути — там, где именованного маршрута нет.
-     * Путь остаётся относительным (как было в разметке сайдбара): абсолютный
-     * URL прибил бы схему и хост, что мешает за прокси и в тестах.
-     */
-    private static function url(string $key, string $path, string $icon, string $pattern): array
-    {
-        return [
-            'key'      => $key,
-            'label'    => __('admin.sections.' . $key),
-            'url'      => $path,
-            'icon'     => $icon,
-            'pattern'  => $pattern,
-            'is_route' => false,
-            'keywords' => self::keywords($key),
-            'counter'  => null,
         ];
     }
 

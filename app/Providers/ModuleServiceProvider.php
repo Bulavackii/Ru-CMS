@@ -10,6 +10,8 @@ use Modules\System\Models\Module;
 
 class ModuleServiceProvider extends ServiceProvider
 {
+    private ?bool $installed = null;
+
     public function boot(): void
     {
         // Легаси-модули (Categories/News/Slideshow/Messages/Payments/Delivery/
@@ -35,8 +37,12 @@ class ModuleServiceProvider extends ServiceProvider
 
     private function isInstalled(): bool
     {
+        if ($this->installed !== null) {
+            return $this->installed;
+        }
+
         if (!file_exists(storage_path('install.lock')) || !class_exists(Module::class)) {
-            return false;
+            return $this->installed = false;
         }
 
         // Schema::hasTable открывает соединение с БД. Во время (или до)
@@ -46,9 +52,9 @@ class ModuleServiceProvider extends ServiceProvider
         // сам мастер установки /install/*) падал бы с 500 «connection failed».
         // Недоступная БД просто значит «модули из БД пока не грузим».
         try {
-            return Schema::hasTable('modules');
+            return $this->installed = Schema::hasTable('modules');
         } catch (\Throwable $e) {
-            return false;
+            return $this->installed = false;
         }
     }
 
@@ -205,6 +211,11 @@ class ModuleServiceProvider extends ServiceProvider
                 continue;
             }
 
+            // Маршруты грузятся независимо от того, выключен модуль в
+            // панели или нет. Выключение убирает раздел из меню (см.
+            // App\Support\AdminSections), но не снимает маршруты: на них
+            // ссылается слишком многое за пределами самого модуля, а route()
+            // на незарегистрированное имя — это исключение, то есть 500.
             if ($config['routes'] ?? false) {
                 $routeFile = "$base/Routes/web.php";
                 if (is_file($routeFile)) {
@@ -212,6 +223,11 @@ class ModuleServiceProvider extends ServiceProvider
                 }
             }
 
+            // А вьюхи — у всех и всегда. Базовый лейаут и глобальные
+            // компоненты обращаются к Menu::/Notifications::/Categories:: на
+            // каждой странице сайта; без зарегистрированного пространства имён
+            // выключенный модуль ронял бы 500 на страницах, к которым он сам
+            // отношения не имеет.
             if ($config['views'] ?? false) {
                 $viewDirs = ["$base/Views", "$base/Resources/views"];
                 foreach ($viewDirs as $dir) {
@@ -270,12 +286,12 @@ class ModuleServiceProvider extends ServiceProvider
                 return;
             }
 
-            $shouldManuallyLoadSeo = true;
-            if (class_exists(\Modules\System\Models\Module::class) && Schema::hasTable('modules')) {
-                $shouldManuallyLoadSeo = !Module::where('name', 'Seo')->where('active', true)->exists();
-            }
+            // Грузим руками, только если модуль не подхватит loadActiveModules()
+            // (то есть пока он не активен или состояние выяснить нечем).
+            // Повторная загрузка задвоила бы маршруты.
+            $active = module_active_names();
 
-            if (!$shouldManuallyLoadSeo) {
+            if ($active !== null && in_array('Seo', $active, true)) {
                 return;
             }
 

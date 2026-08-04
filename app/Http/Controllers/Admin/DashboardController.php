@@ -13,6 +13,7 @@ use App\Models\User;
 use Modules\Payments\Models\Order;
 use Modules\Messages\Models\Message;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Route;
 
 /**
  * 📊 DashboardController - Главная страница админки с виджетами
@@ -175,44 +176,35 @@ class DashboardController extends Controller
      */
     private function getQuickActions(): array
     {
-        return [
-            [
-                'title' => __('admin.dashboard.quick_news'),
-                'icon' => 'newspaper',
-                'url' => route('admin.news.create'),
-                'color' => 'blue',
-            ],
-            [
-                'title' => __('admin.dashboard.quick_page'),
-                'icon' => 'file',
-                'url' => route('admin.pages.create'),
-                'color' => 'green',
-            ],
-            [
-                'title' => __('admin.dashboard.quick_file'),
-                'icon' => 'upload',
-                'url' => route('admin.files.index'),
-                'color' => 'purple',
-            ],
-            [
-                'title' => __('admin.dashboard.quick_category'),
-                'icon' => 'folder',
-                'url' => route('admin.categories.create'),
-                'color' => 'orange',
-            ],
-            [
-                'title' => __('admin.dashboard.quick_slideshow'),
-                'icon' => 'image',
-                'url' => route('admin.slideshow.create'),
-                'color' => 'pink',
-            ],
-            [
-                'title' => __('admin.dashboard.quick_user'),
-                'icon' => 'user-plus',
-                'url' => route('admin.users.create'),
-                'color' => 'indigo',
-            ],
+        // Каждое действие ведёт в СВОЙ модуль, а модуль можно выключить в
+        // «Модулях» — тогда действие должно уйти с главной вместе с разделом
+        // из левого меню. Раньше список был жёстким, и панель предлагала
+        // «Добавить слайд» при выключенном слайдшоу.
+        $actions = [
+            ['key' => 'quick_news',      'icon' => 'newspaper', 'route' => 'admin.news.create',       'module' => 'News',       'color' => 'blue'],
+            ['key' => 'quick_page',      'icon' => 'file',      'route' => 'admin.pages.create',      'module' => 'Menu',       'color' => 'green'],
+            ['key' => 'quick_file',      'icon' => 'upload',    'route' => 'admin.files.index',       'module' => 'Files',      'color' => 'purple'],
+            ['key' => 'quick_category',  'icon' => 'folder',    'route' => 'admin.categories.create', 'module' => 'Categories', 'color' => 'orange'],
+            ['key' => 'quick_slideshow', 'icon' => 'image',     'route' => 'admin.slideshow.create',  'module' => 'Slideshow',  'color' => 'pink'],
+            ['key' => 'quick_user',      'icon' => 'user-plus', 'route' => 'admin.users.create',      'module' => 'Users',      'color' => 'indigo'],
         ];
+
+        $available = [];
+
+        foreach ($actions as $action) {
+            if (! Route::has($action['route']) || ! module_enabled($action['module'])) {
+                continue;
+            }
+
+            $available[] = [
+                'title' => __('admin.dashboard.' . $action['key']),
+                'icon'  => $action['icon'],
+                'url'   => route($action['route']),
+                'color' => $action['color'],
+            ];
+        }
+
+        return $available;
     }
 
     /**
