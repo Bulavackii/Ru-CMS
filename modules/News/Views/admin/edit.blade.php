@@ -216,7 +216,10 @@
             plugins: 'image media link lists table code visualblocks wordcount',
             toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media table | code | removeformat',
             fontsize_formats: '10px 12px 14px 16px 18px 24px 36px',
-            extended_valid_elements: 'iframe[src|frameborder|style|scrolling|class|width|height|name|align|allow|allowfullscreen|sandbox]',
+            // К списку добавлены i и span: иконка — это пустой тег
+            // <i class="fas ...">, а редактор по умолчанию вычищает пустые
+            // инлайновые элементы, и значок исчезал при первом сохранении.
+            extended_valid_elements: 'iframe[src|frameborder|style|scrolling|class|width|height|name|align|allow|allowfullscreen|sandbox],i[class|aria-hidden],span[class|style]',
             valid_children: '+body[iframe]',
             file_picker_types: 'image media',
             content_style: `

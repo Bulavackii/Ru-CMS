@@ -321,6 +321,11 @@
 
     // ====== TinyMCE ======
     tinymce.init({
+            // Иконка — это пустой тег <i class="fas ...">, а редактор по
+            // умолчанию вычищает пустые инлайновые элементы: значок молча
+            // исчезал при первом же сохранении, вместе с обёрткой вокруг него.
+            // Проверено на живом редакторе — без этой строки не выживает.
+            extended_valid_elements: 'i[class|aria-hidden],span[class|style]',
       selector: '#fragment-editor',
       height: 520,
       plugins: 'code link image media table lists advlist fullscreen preview anchor charmap emoticons visualblocks',
