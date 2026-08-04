@@ -7,18 +7,20 @@
     ║    Там же настраиваются высота, задержка автопрокрутки, эффект   ║
     ║    перехода, стрелки и точки.                                    ║
     ║                                                                  ║
-    ║  ВЫСОТА                                                          ║
-    ║    На экранах шире 768px берётся высота из настроек слайдшоу.    ║
-    ║    На телефоне она НЕ применяется: заданная под десктоп высота   ║
-    ║    делает слайд почти квадратным, и широкий баннер занимает      ║
-    ║    треть кадра, а остальное — размытая заглушка. Там кадр        ║
-    ║    считается по пропорции, поэтому картинка заполняет его почти  ║
-    ║    целиком.                                                      ║
+    ║  РАЗМЕР КАДРА                                                    ║
+    ║    Кадр следует пропорции первой картинки — так вокруг неё не    ║
+    ║    остаётся размытых полос. Высота из настроек слайдшоу задаёт   ║
+    ║    НИЖНЮЮ границу: кадр не будет ниже неё, но станет выше, если  ║
+    ║    этого требует картинка. На телефоне нижняя граница не         ║
+    ║    применяется — заданная под широкий экран высота делала бы     ║
+    ║    кадр почти квадратным.                                        ║
     ║                                                                  ║
     ║  ПОДПИСЬ СЛАЙДА                                                  ║
     ║    Положение, цвет текста и цвет фона задаются у каждого слайда. ║
-    ║    На телефоне подпись становится полосой во всю ширину внизу —  ║
-    ║    плавающая пилюля там не помещается и обрезается.              ║
+    ║    На широком экране подпись лежит поверх картинки в выбранном   ║
+    ║    углу. На телефоне она встаёт ОТДЕЛЬНЫМ блоком под кадром:     ║
+    ║    поверх невысокого кадра она закрывала до трети картинки, а    ║
+    ║    обрезанная в одну строку теряла смысл.                        ║
     ╚══════════════════════════════════════════════════════════════════╝
 --}}
 
@@ -101,24 +103,30 @@
               @endif
             </div>
 
-            {{-- 💬 Подпись слайда --}}
-            @if ($item->caption)
-              <div class="ru-slide__cap absolute {{ $textPosition }} z-10">
-                @if (!empty($item->link))
-                  <a href="{{ $item->link }}" target="_blank" rel="noopener"
-                     class="ru-slide__capInner"
-                     style="color: {{ $textColor }}; background-color: {{ $bgColor }};">
-                    {{ $item->t('caption') }}
-                  </a>
-                @else
-                  <span class="ru-slide__capInner"
-                        style="color: {{ $textColor }}; background-color: {{ $bgColor }};">
-                    {{ $item->t('caption') }}
-                  </span>
-                @endif
-              </div>
-            @endif
           </div>
+
+          {{-- 💬 Подпись слайда. Лежит РЯДОМ с кадром, а не внутри него:
+               на широком экране она накладывается на картинку (коробка у
+               слайда та же, позиционирование не меняется), а на телефоне
+               встаёт обычным блоком под кадром. Внутри кадра этого было не
+               сделать: там жёсткая пропорция и обрезка по краям, и подпись
+               могла только висеть поверх картинки, закрывая её. --}}
+          @if ($item->caption)
+            <div class="ru-slide__cap absolute {{ $textPosition }} z-10">
+              @if (!empty($item->link))
+                <a href="{{ $item->link }}" target="_blank" rel="noopener"
+                   class="ru-slide__capInner"
+                   style="color: {{ $textColor }}; background-color: {{ $bgColor }};">
+                  {{ $item->t('caption') }}
+                </a>
+              @else
+                <span class="ru-slide__capInner"
+                      style="color: {{ $textColor }}; background-color: {{ $bgColor }};">
+                  {{ $item->t('caption') }}
+                </span>
+              @endif
+            </div>
+          @endif
         </div>
       @endforeach
     </div>
@@ -177,7 +185,7 @@
        берутся из активной темы через переменные. */
 
     /* ── Кадр слайда ────────────────────────────────────────────────── */
-    .ru-swiper .swiper-slide{ display:block }
+    .ru-swiper .swiper-slide{ display:block; position:relative }
 
     /* Кадр следует пропорции картинки, а не фиксированной высоте. Иначе
        вокруг неё остаются размытые полосы: при кадре 1280x420 и баннере
@@ -295,23 +303,25 @@
         /* Плавающая пилюля в 375px не помещается и обрезается краем кадра.
            Разворачиваем её в полосу во всю ширину внизу — читается лучше и
            не зависит от выбранного положения. */
-        /* Селектор из двух классов намеренно: таблица Tailwind грузится
-           ПОЗЖЕ этого блока, и при равной специфичности её bottom-4/right-4
-           перебивали бы правило (проверено замером). */
-        .ru-slide .ru-slide__cap{ position:absolute; inset:auto 0 0 0; max-width:none;
-            top:auto; left:0; right:0; transform:none }
-        /* Одна строка с многоточием: в две строки подпись съедала почти
-           половину кадра, который на телефоне и так невысокий. */
-        .ru-slide .ru-slide__capInner{ display:block; width:100%; padding:.45rem .75rem;
-            font-size:.8125rem; text-align:center; box-shadow:none;
-            white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+        /* Подпись перестаёт быть накладкой и встаёт под кадром обычным
+           блоком. Поверх картинки на телефоне она закрывала до трети
+           невысокого кадра, а обрезанная в одну строку теряла смысл —
+           теперь читается целиком и ничего не перекрывает.
+           Селектор из двух классов намеренно: таблица Tailwind грузится
+           ПОЗЖЕ этого блока, и при равной специфичности её absolute и
+           bottom-4/right-4 перебили бы правило (проверено замером). */
+        .swiper-slide .ru-slide__cap{ position:static; max-width:none; transform:none }
+        .swiper-slide .ru-slide__capInner{ display:block; width:100%;
+            padding:.5rem .75rem; font-size:.8125rem; line-height:1.35;
+            text-align:center; box-shadow:none }
 
-        /* Точки на телефоне убраны совсем. Кадр широкого баннера тут всего
-           ~105px высотой, и точки поверх него — лишний шум; позицию и так
-           показывает счётчик «1 / 2» в подписи слайдшоу слева вверху.
-           Подняться над подписью они не могут: та занимает до двух строк,
-           и фиксированный отступ всё равно попадал бы на текст. */
-        .ru-swiper .swiper-pagination{ display:none }
+        /* Точки остаются на своём месте: подпись уехала из кадра, и
+           перекрывать друг друга им больше нечем. */
+
+        /* Бейдж с названием слайдшоу на телефоне убран. Кадр широкого
+           баннера тут невысокий, и подпись поверх него закрывает картинку;
+           это украшение, а не содержимое. Позицию показывают точки. */
+        .ru-swiper .sld-badge{ display:none }
 
         /* Стрелки убираем: на узком экране они закрывают картинку, а листать
            там естественнее пальцем. Точки и свайп остаются. */
@@ -355,6 +365,13 @@
         // экранах; watchOverflow заодно гасит листание, если слайд один.
         watchOverflow: true,
         keyboard: { enabled: true, onlyInViewport: true },
+        // На узком экране подпись стоит ПОД кадром, и слайды с разной длиной
+        // подписи получаются разной высоты. Без autoHeight контейнер держал бы
+        // высоту самого длинного, оставляя под короткими пустоту.
+        breakpoints: {
+          0: { autoHeight: true },
+          768: { autoHeight: false },
+        },
         a11y: {
           prevSlideMessage: @js(__('frontend.slideshow.prev')),
           nextSlideMessage: @js(__('frontend.slideshow.next')),
@@ -404,9 +421,42 @@
       // остаются размытые полосы — на телефоне это была треть площади.
       // Слайды одного слайдшоу практически всегда одного размера, поэтому
       // первой достаточно; при ошибке загрузки остаётся запасная 16/9.
+      // Объявлено заранее: пропорция проставляется после загрузки картинки,
+      // то есть уже ПОСЛЕ создания слайдера, и его нужно об этом уведомить.
+      let swiper = null;
+
+      // Высота слайда меняется дважды после запуска: когда становится
+      // известна пропорция кадра и когда переносится подпись под ним. Swiper
+      // замеряет высоту один раз при инициализации и сам её не пересчитывает
+      // — без этого вызова нижняя строка подписи уходила под край и
+      // обрезалась (кадр уже вырос, а контейнер остался прежним).
+      const pagination = root.querySelector('.swiper-pagination');
+      const narrow = window.matchMedia('(max-width: 767px)');
+
+      // Точки прижаты к низу слайдера. На узком экране в слайд входит ещё и
+      // подпись под кадром, и точки оказывались поверх её текста. Поднимаем
+      // их над подписью — её высота зависит от длины текста, в CSS такое не
+      // вычислить, поэтому отступ задаётся здесь.
+      const placePagination = () => {
+        if (!pagination) return;
+
+        if (!narrow.matches) { pagination.style.bottom = ''; return; }
+
+        const cap = root.querySelector('.swiper-slide-active .ru-slide__cap');
+        pagination.style.bottom = cap ? (Math.round(cap.getBoundingClientRect().height) + 8) + 'px' : '';
+      };
+
+      const remeasure = () => {
+        if (!swiper || swiper.destroyed) return;
+        swiper.update();
+        if (swiper.params.autoHeight) swiper.updateAutoHeight(0);
+        placePagination();
+      };
+
       const setRatio = (img) => {
         if (!img || !img.naturalWidth || !img.naturalHeight) return;
         root.style.setProperty('--ru-ar', img.naturalWidth + ' / ' + img.naturalHeight);
+        remeasure();
       };
 
       const firstImg = root.querySelector('.swiper-slide img');
@@ -429,6 +479,10 @@
         autoplayStop() { if (progress) progress.style.opacity = '0'; },
         autoplayStart() { if (progress) progress.style.opacity = ''; },
         slideChange() {
+          // У соседнего слайда подпись может быть другой длины — значит и
+          // место для точек другое.
+          placePagination();
+
           // realIndex, а не activeIndex: при loop:true Swiper добавляет клоны
           // по краям, и activeIndex считает их тоже.
           if (badgeCur) badgeCur.textContent = this.realIndex + 1;
@@ -446,7 +500,19 @@
       // Без автопрокрутки полоса прогресса бессмысленна — показывать нечего.
       if (!config.autoplay && progress) progress.remove();
 
-      const swiper = new Swiper(root, config);
+      swiper = new Swiper(root, config);
+
+      // Пропорция могла быть известна ещё до создания слайдера (картинка из
+      // кеша) — тогда remeasure выше отработал вхолостую, повторяем.
+      remeasure();
+
+      // Отложенные картинки соседних слайдов приходят позже и тоже меняют
+      // высоту, а поворот экрана меняет и ширину, и пропорцию подписи.
+      root.querySelectorAll('img').forEach((img) => {
+        if (!img.complete) img.addEventListener('load', remeasure, { once: true });
+      });
+      window.addEventListener('orientationchange', () => setTimeout(remeasure, 120));
+      narrow.addEventListener('change', remeasure);
 
       // Пока человек проигрывает видео, карусель не должна его перелистывать.
       root.querySelectorAll('video').forEach((v) => {
