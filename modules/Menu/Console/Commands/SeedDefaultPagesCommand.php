@@ -347,7 +347,7 @@ HTML,
 <ul class="pc-actions">
   <li><a href="tel:+79001234567"><i class="fas fa-phone"></i> Позвонить</a></li>
   <li><a href="mailto:info@example.com"><i class="fas fa-envelope"></i> Написать письмо</a></li>
-  <li class="is-plain"><a href="https://yandex.ru/maps/?text=Москва, улица Примерная, 1" target="_blank" rel="noopener"><i class="fas fa-route"></i> Проложить маршрут</a></li>
+  <li class="is-plain"><a href="https://yandex.ru/maps/?text=Москва, Тверская улица, 7" target="_blank" rel="noopener"><i class="fas fa-route"></i> Проложить маршрут</a></li>
 </ul>
 
 <ul class="pc-contacts">
@@ -366,8 +366,8 @@ HTML,
   <li>
     <span class="pc-ico"><i class="fas fa-location-dot"></i></span>
     <span>Адрес</span>
-    <strong>г. Москва, ул. Примерная, 1</strong>
-    <small>Вход со двора, второй этаж</small>
+    <strong>г. Москва, Тверская улица, 7</strong>
+    <small>Центральный телеграф, вход с Тверской</small>
   </li>
   <li data-hours="1-5:9-18">
     <span class="pc-ico"><i class="fas fa-clock"></i></span>
@@ -382,7 +382,7 @@ HTML,
 <p>Карта загрузится только после вашего согласия — до нажатия данные
 стороннему сервису не передаются.</p>
 
-[map q="Москва, улица Примерная, 1"]
+[map q="Москва, Тверская улица, 7"]
 
 <h2>Реквизиты</h2>
 

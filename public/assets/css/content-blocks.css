@@ -316,7 +316,12 @@
 .page-content .pc-map__btn{ padding:.65rem 1.4rem; font-size:.9rem; font-weight:700;
     color:#fff; background:var(--color-primary,#6366f1); border:0; cursor:pointer }
 .page-content .pc-map__btn:hover{ filter:brightness(1.07) }
-.page-content .pc-map iframe{ display:block; width:100%; height:24rem; border:0 }
+/* Отступ обнуляется намеренно: типографика содержимого вешает на iframe
+   margin 24px сверху и снизу, и внутри рамки карты оставались полосы фона
+   (замер: зазор по 25px с каждой стороны). Высота тянется за экраном —
+   на телефоне карта не должна занимать его целиком. */
+.page-content .pc-map iframe{ display:block; width:100%; margin:0; border:0;
+    height:clamp(20rem, 58vh, 34rem) }
 
 :root.dark .page-content .pc-map{ background:#0b1220; border-color:#1f2937 }
 :root.dark .page-content .pc-map__stub{ color:#c7d2fe }

@@ -90,7 +90,11 @@ class ContentSecurityPolicy
                 "img-src 'self' data: https:",
                 "font-src 'self' data:",
                 "connect-src 'self'",
-                "frame-src 'self'",
+                // Карта на странице контактов встраивается фреймом Яндекса.
+                // При 'self' он молча оставался пустым: политика режет чужой
+                // фрейм без единого следа на странице. Разрешён ровно домен
+                // карт и только на сайте — в панели чужие фреймы запрещены.
+                "frame-src 'self' https://yandex.ru https://*.yandex.ru",
                 "object-src 'none'",
                 "base-uri 'self'",
                 "form-action 'self'",

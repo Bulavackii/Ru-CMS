@@ -17,7 +17,9 @@
         $query = config('app.name') . ', Россия';
     }
 
-    $src = 'https://yandex.ru/map-widget/v1/?text=' . rawurlencode($query) . '&z=15';
+    // z=17 — уровень дома. На 15 открывался весь центр города, и найти
+    // нужное здание было нельзя, хотя карта отмечала его меткой.
+    $src = 'https://yandex.ru/map-widget/v1/?text=' . rawurlencode($query) . '&z=17';
     $link = 'https://yandex.ru/maps/?text=' . rawurlencode($query);
 @endphp
 
