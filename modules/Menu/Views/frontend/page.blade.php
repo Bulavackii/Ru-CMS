@@ -272,5 +272,70 @@
 
     /* Якорь не должен уезжать под шапку при переходе из оглавления. */
     .page-content h2[id]{ scroll-margin-top:5rem }
+
+    /* ── Иконка в карточке ──────────────────────────────────────────── */
+    /* Значок — обычная иконка Font Awesome внутри квадрата с градиентом.
+       Редактор меняет только имя иконки в классе, оформление остаётся. */
+    .page-content .pc-ico{ display:inline-flex; align-items:center; justify-content:center;
+        width:2.4rem; height:2.4rem; margin-bottom:.75rem; flex:none;
+        font-size:.95rem; color:#fff;
+        background:linear-gradient(135deg,var(--color-primary,#6366f1),var(--color-accent,#8b5cf6)) }
+
+    /* ── Цифры ──────────────────────────────────────────────────────── */
+    .page-content .pc-stats{ display:grid; grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));
+        gap:1px; margin:1.75rem 0; padding:0; list-style:none; background:#e2e8f0;
+        border:1px solid #e2e8f0 }
+    .page-content .pc-stats li{ margin:0; padding:1.1rem .9rem; text-align:center; background:#fff }
+    .page-content .pc-stats b{ display:block; font-size:1.75rem; line-height:1.1; font-weight:800;
+        color:var(--color-primary,#6366f1); font-variant-numeric:tabular-nums }
+    .page-content .pc-stats span{ display:block; margin-top:.3rem; font-size:.8rem; color:#64748b }
+    :root.dark .page-content .pc-stats{ background:#1f2937; border-color:#1f2937 }
+    :root.dark .page-content .pc-stats li{ background:#111827 }
+    :root.dark .page-content .pc-stats span{ color:#94a3b8 }
+
+    /* ── Шаги ───────────────────────────────────────────────────────── */
+    /* Номер рисуется счётчиком: редактор просто добавляет пункт списка,
+       перенумеровывать руками ничего не нужно. */
+    .page-content .pc-steps{ counter-reset:pc-step; list-style:none; padding:0; margin:1.5rem 0;
+        display:grid; grid-template-columns:repeat(auto-fit,minmax(15rem,1fr)); gap:1rem }
+    .page-content .pc-steps li{ counter-increment:pc-step; position:relative; margin:0;
+        padding:1.1rem 1.25rem 1.1rem 3.4rem; background:#fff; border:1px solid #eef2f7 }
+    .page-content .pc-steps li::before{ content:counter(pc-step); position:absolute;
+        left:1.1rem; top:1.05rem; display:flex; align-items:center; justify-content:center;
+        width:1.7rem; height:1.7rem; font-size:.8rem; font-weight:800; color:#fff;
+        background:var(--color-primary,#6366f1) }
+    .page-content .pc-steps strong{ display:block; margin-bottom:.2rem; color:#111827 }
+    :root.dark .page-content .pc-steps li{ background:#111827; border-color:#1f2937 }
+    :root.dark .page-content .pc-steps strong{ color:#f3f4f6 }
+
+    /* ── Текст и картинка рядом ─────────────────────────────────────── */
+    .page-content .pc-split{ display:grid; grid-template-columns:1fr 1fr; align-items:center;
+        gap:1.75rem; margin:1.75rem 0 }
+    .page-content .pc-split > div > :first-child{ margin-top:0 }
+    .page-content .pc-split img{ width:100%; height:auto; display:block; margin:0;
+        border:1px solid #eef2f7 }
+    @media (max-width:768px){
+        .page-content .pc-split{ grid-template-columns:1fr; gap:1.1rem }
+    }
+    :root.dark .page-content .pc-split img{ border-color:#1f2937 }
+
+    /* ── Технологии ─────────────────────────────────────────────────── */
+    .page-content .pc-tech{ display:flex; flex-wrap:wrap; gap:.45rem; margin:1.25rem 0;
+        padding:0; list-style:none }
+    .page-content .pc-tech li{ margin:0; padding:.35rem .8rem; font-size:.8rem; font-weight:600;
+        color:#4338ca; background:#eef2ff; border:1px solid #e0e7ff }
+    :root.dark .page-content .pc-tech li{ color:#c7d2fe; background:#1e1b4b; border-color:#312e81 }
+
+    @media (max-width:640px){
+        /* Четыре числа в столбик занимают пол-экрана и перестают читаться
+           как один блок — на телефоне их две пары. */
+        .page-content .pc-stats{ grid-template-columns:1fr 1fr }
+        .page-content .pc-stats b{ font-size:1.5rem }
+
+        /* Кнопка призыва не помещалась в строку и выходила за край карточки:
+           на узком экране блок складывается, кнопка занимает всю ширину. */
+        .page-content .pc-cta{ flex-direction:column; align-items:stretch; text-align:center }
+        .page-content .pc-cta a{ text-align:center }
+    }
 </style>
 @endpush

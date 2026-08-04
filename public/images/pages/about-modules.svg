@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Модульная сборка сайта">
+  <defs>
+    <linearGradient id="am-g1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/>
+    </linearGradient>
+    <linearGradient id="am-g2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#818cf8"/><stop offset="1" stop-color="#c4b5fd"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="640" height="400" fill="#f5f3ff"/>
+
+  <!-- окно панели -->
+  <rect x="60" y="52" width="520" height="300" fill="#ffffff" stroke="#e0e7ff" stroke-width="2"/>
+  <rect x="60" y="52" width="520" height="34" fill="url(#am-g1)"/>
+  <circle cx="82" cy="69" r="5" fill="#ffffff" opacity=".85"/>
+  <circle cx="100" cy="69" r="5" fill="#ffffff" opacity=".6"/>
+  <circle cx="118" cy="69" r="5" fill="#ffffff" opacity=".4"/>
+
+  <!-- боковое меню -->
+  <rect x="60" y="86" width="120" height="266" fill="#eef2ff"/>
+  <rect x="76" y="108" width="88" height="9" fill="url(#am-g1)"/>
+  <rect x="76" y="132" width="72" height="8" fill="#c7d2fe"/>
+  <rect x="76" y="152" width="80" height="8" fill="#c7d2fe"/>
+  <rect x="76" y="172" width="64" height="8" fill="#c7d2fe"/>
+  <rect x="76" y="192" width="76" height="8" fill="#c7d2fe"/>
+
+  <!-- блоки-модули -->
+  <rect x="204" y="110" width="164" height="96" fill="url(#am-g1)"/>
+  <rect x="392" y="110" width="164" height="96" fill="#ffffff" stroke="#c7d2fe" stroke-width="2"/>
+  <rect x="204" y="228" width="164" height="96" fill="#ffffff" stroke="#c7d2fe" stroke-width="2"/>
+  <rect x="392" y="228" width="164" height="96" fill="url(#am-g2)"/>
+
+  <rect x="224" y="132" width="72" height="8" fill="#ffffff" opacity=".9"/>
+  <rect x="224" y="150" width="112" height="7" fill="#ffffff" opacity=".55"/>
+  <rect x="224" y="166" width="92" height="7" fill="#ffffff" opacity=".55"/>
+
+  <rect x="412" y="132" width="72" height="8" fill="#a5b4fc"/>
+  <rect x="412" y="150" width="112" height="7" fill="#e0e7ff"/>
+  <rect x="412" y="166" width="92" height="7" fill="#e0e7ff"/>
+
+  <rect x="224" y="250" width="72" height="8" fill="#a5b4fc"/>
+  <rect x="224" y="268" width="112" height="7" fill="#e0e7ff"/>
+  <rect x="224" y="284" width="92" height="7" fill="#e0e7ff"/>
+
+  <rect x="412" y="250" width="72" height="8" fill="#ffffff" opacity=".9"/>
+  <rect x="412" y="268" width="112" height="7" fill="#ffffff" opacity=".6"/>
+  <rect x="412" y="284" width="92" height="7" fill="#ffffff" opacity=".6"/>
+
+  <!-- связи между модулями -->
+  <path d="M368 158 H392 M368 276 H392 M286 206 V228 M474 206 V228" stroke="#a5b4fc" stroke-width="2" fill="none"/>
+</svg>
