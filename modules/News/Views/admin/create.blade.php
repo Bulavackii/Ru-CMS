@@ -166,12 +166,40 @@
             license_key: 'gpl',
             convert_urls: false,
             plugins: 'image media link lists table code visualblocks wordcount',
-            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media table | code | removeformat',
+            toolbar: 'undo redo | blocks styles fontfamily fontsize | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media table | code | removeformat',
             fontsize_formats: '12px 14px 16px 18px 24px 36px',
             // К списку добавлены i и span: иконка — это пустой тег
             // <i class="fas ...">, а редактор по умолчанию вычищает пустые
             // инлайновые элементы, и значок исчезал при первом сохранении.
             extended_valid_elements: 'iframe[src|frameborder|style|scrolling|class|width|height|name|align|allow|allowfullscreen|sandbox],i[class|aria-hidden],span[class|style]',
+            // Стили содержимого — те же, что на сайте. Редактор показывает
+            // блок так, как его увидит посетитель, а не просто помечает
+            // классом; body_class нужен, потому что все правила в файле
+            // начинаются с .page-content.
+            content_css: '{{ asset('assets/css/content-blocks.css') }}',
+            body_class: 'page-content',
+
+            // Готовые блоки в выпадающем списке «Стили». Без него имена
+            // классов пришлось бы держать в голове или подсматривать в
+            // соседней записи.
+            style_formats_merge: true,
+            style_formats: [
+                {
+                    title: 'Блоки содержимого',
+                    items: [
+                        { title: 'Вводный абзац',        block: 'p',   classes: 'pc-lead' },
+                        { title: 'Врезка-примечание',    block: 'p',   classes: 'pc-note' },
+                        { title: 'Сетка карточек',       block: 'div', classes: 'pc-grid', wrapper: true },
+                        { title: 'Карточка',             block: 'div', classes: 'pc-card', wrapper: true },
+                        { title: 'Текст и картинка',     block: 'div', classes: 'pc-split', wrapper: true },
+                        { title: 'Полоса призыва',       block: 'div', classes: 'pc-cta', wrapper: true },
+                        { title: 'Список с галочками',   selector: 'ul', classes: 'pc-check' },
+                        { title: 'Строка цифр',          selector: 'ul', classes: 'pc-stats' },
+                        { title: 'Чипы технологий',      selector: 'ul', classes: 'pc-tech' },
+                        { title: 'Нумерованные шаги',    selector: 'ol', classes: 'pc-steps' },
+                    ]
+                }
+            ],
             valid_children: '+body[iframe]',
             file_picker_types: 'image media',
 
