@@ -618,7 +618,27 @@ return [
         'items_plural' => '{0} :count items|{1} :count item|[2,*] :count items',
     ],
 
-    'users' => [
+        'account' => [
+        'title' => 'My account',
+        'subtitle' => 'Your details and sign-in protection',
+        'profile' => 'Profile',
+        'security' => 'Security',
+        'name' => 'Name',
+        'email' => 'Email',
+        'role' => 'Role',
+        'role_admin' => 'Administrator',
+        'role_user' => 'User',
+        'id' => 'Identifier',
+        'updated' => 'Last change',
+        'change_password' => 'Change password',
+        'change_password_note' => 'Current password required',
+        'two_factor' => 'Two-factor check',
+        'two_factor_note' => 'App code on every sign-in',
+        'login_history' => 'Sign-in history',
+        'login_history_note' => 'When and from where you signed in',
+        'reset_hint' => 'Forgot your password? Restore it from the sign-in form. The email arrives if mail delivery is configured.',
+    ],
+'users' => [
         'pw_short' => ':n more characters',
         'pw_weak' => 'Weak',
         'pw_fair' => 'Fair',

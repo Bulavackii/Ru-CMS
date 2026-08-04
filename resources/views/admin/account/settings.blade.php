@@ -1,52 +1,143 @@
 @extends('layouts.admin')
 
-@section('title', 'Настройки учётной записи')
+@section('title', __('admin.account.title'))
 
 @section('content')
-    {{-- 🔰 Заголовок страницы --}}
-    <h1 class="text-3xl font-extrabold mb-6 text-gray-800 dark:text-white flex items-center gap-3">
-        👤 Моя учётная запись
-    </h1>
+    {{-- Шапка в общем для панели виде: акцентная полоса и значок в плитке.
+         Раньше тут стоял обычный заголовок с эмодзи, и страница выбивалась
+         из ряда остальных разделов. --}}
+    <div class="admin-accent-bar mb-0"></div>
+    <div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
+                flex items-center gap-3">
+        <span class="admin-icon-badge"><i class="fas fa-user-gear"></i></span>
+        <div class="min-w-0">
+            <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('admin.account.title') }}</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('admin.account.subtitle') }}</p>
+        </div>
+    </div>
 
-    {{-- 🧩 Сетка карточек --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 max-w-6xl">
+    {{-- Семь отдельных карточек с одной строкой в каждой давали рваную
+         сетку и последний ряд из единственной плитки. Сведено в два блока
+         по смыслу: кто я и как защищён вход. --}}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
 
-        {{-- 👤 Имя пользователя --}}
-        <x-admin-info-card icon="fas fa-user text-blue-500" title="Имя">
-            {{ $user->name }}
-        </x-admin-info-card>
+        <section class="admin-card p-5">
+            <h2 class="acc-head">
+                <i class="fas fa-id-card text-indigo-500"></i> {{ __('admin.account.profile') }}
+            </h2>
 
-        {{-- 📧 Email --}}
-        <x-admin-info-card icon="fas fa-envelope text-indigo-600" title="Email">
-            {{ $user->email }}
-        </x-admin-info-card>
+            <dl class="acc-list">
+                <div>
+                    <dt>{{ __('admin.account.name') }}</dt>
+                    <dd>{{ $user->name }}</dd>
+                </div>
+                <div>
+                    <dt>{{ __('admin.account.email') }}</dt>
+                    <dd>{{ $user->email }}</dd>
+                </div>
+                <div>
+                    <dt>{{ __('admin.account.role') }}</dt>
+                    <dd>{{ $user->is_admin ? __('admin.account.role_admin') : __('admin.account.role_user') }}</dd>
+                </div>
+                <div>
+                    <dt>{{ __('admin.account.id') }}</dt>
+                    <dd class="acc-mono">{{ $user->id }}</dd>
+                </div>
+                <div>
+                    <dt>{{ __('admin.account.updated') }}</dt>
+                    <dd>{{ $user->updated_at?->format('d.m.Y H:i') ?? '—' }}</dd>
+                </div>
+            </dl>
+        </section>
 
-        {{-- 🔑 Смена пароля --}}
-        <x-admin-info-card icon="fas fa-key text-yellow-500" title="Безопасность">
-            <a href="{{ route('password.change.form') }}"
-               class="text-blue-600 hover:underline font-medium">
-                Сменить пароль
-            </a>
-        </x-admin-info-card>
+        <section class="admin-card p-5">
+            <h2 class="acc-head">
+                <i class="fas fa-shield-halved text-indigo-500"></i> {{ __('admin.account.security') }}
+            </h2>
 
-        {{-- 📨 Напоминание пароля (в разработке) --}}
-        <x-admin-info-card icon="fas fa-envelope-open-text text-cyan-500" title="Восстановление">
-            <span class="text-gray-400 text-xs italic">Отправка пароля на почту — скоро</span>
-        </x-admin-info-card>
+            <div class="acc-actions">
+                <a href="{{ route('password.change.form') }}" class="acc-action">
+                    <span class="acc-action__ico"><i class="fas fa-key"></i></span>
+                    <span class="acc-action__body">
+                        <span class="acc-action__title">{{ __('admin.account.change_password') }}</span>
+                        <span class="acc-action__note">{{ __('admin.account.change_password_note') }}</span>
+                    </span>
+                    <i class="fas fa-chevron-right acc-action__arrow"></i>
+                </a>
 
-        {{-- 🕓 Последняя активность --}}
-        <x-admin-info-card icon="fas fa-clock text-orange-500" title="Последняя активность">
-            {{ $user->updated_at->format('d.m.Y H:i') }}
-        </x-admin-info-card>
+                {{-- Маршруты проверяются: двухфакторная проверка и история
+                     входов живут в отдельных частях проекта и могут быть
+                     отключены. Ссылка на несуществующий маршрут уронила бы
+                     страницу целиком. --}}
+                @if (Route::has('two-factor.setup'))
+                    <a href="{{ route('two-factor.setup') }}" class="acc-action">
+                        <span class="acc-action__ico"><i class="fas fa-mobile-screen"></i></span>
+                        <span class="acc-action__body">
+                            <span class="acc-action__title">{{ __('admin.account.two_factor') }}</span>
+                            <span class="acc-action__note">{{ __('admin.account.two_factor_note') }}</span>
+                        </span>
+                        <i class="fas fa-chevron-right acc-action__arrow"></i>
+                    </a>
+                @endif
 
-        {{-- 🆔 ID пользователя --}}
-        <x-admin-info-card icon="fas fa-hashtag text-gray-600" title="ID пользователя">
-            {{ $user->id }}
-        </x-admin-info-card>
+                @if (Route::has('dashboard.login-history'))
+                    <a href="{{ route('dashboard.login-history') }}" class="acc-action">
+                        <span class="acc-action__ico"><i class="fas fa-clock-rotate-left"></i></span>
+                        <span class="acc-action__body">
+                            <span class="acc-action__title">{{ __('admin.account.login_history') }}</span>
+                            <span class="acc-action__note">{{ __('admin.account.login_history_note') }}</span>
+                        </span>
+                        <i class="fas fa-chevron-right acc-action__arrow"></i>
+                    </a>
+                @endif
+            </div>
 
-        {{-- 💾 Версия БД --}}
-        <x-admin-info-card icon="fas fa-database text-blue-400" title="Версия базы данных">
-            {{ $dbVersion }}
-        </x-admin-info-card>
+            {{-- Карточка «Восстановление — скоро» убрана: она обещала то, чего
+                 нет. Восстановление по почте в системе есть и работает, но
+                 через форму входа на сайте и только при настроенной отправке
+                 писем — об этом и сказано. --}}
+            <p class="acc-help">{{ __('admin.account.reset_hint') }}</p>
+        </section>
     </div>
 @endsection
+
+@push('styles')
+<style>
+    /* Литеральный CSS: в статической сборке проекта нет ни произвольных
+       значений, ни прозрачности через дробь. */
+    .acc-head{ display:flex; align-items:center; gap:.5rem; margin-bottom:.9rem;
+        font-size:.75rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+        color:#94a3b8 }
+
+    .acc-list{ display:grid; gap:.5rem; font-size:.9rem }
+    .acc-list > div{ display:flex; align-items:baseline; justify-content:space-between;
+        gap:1rem; padding-bottom:.5rem; border-bottom:1px solid #f1f5f9 }
+    .acc-list > div:last-child{ padding-bottom:0; border-bottom:0 }
+    .acc-list dt{ color:#64748b }
+    .acc-list dd{ margin:0; font-weight:600; color:#0f172a; text-align:right; word-break:break-word }
+    .acc-mono{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace }
+
+    /* Действия — строками со значком, а не голыми ссылками: видно, что это
+       переход, и есть место для пояснения, куда именно. */
+    .acc-actions{ display:grid; gap:.4rem }
+    .acc-action{ display:flex; align-items:center; gap:.75rem; padding:.65rem .7rem;
+        text-decoration:none; color:inherit; border:1px solid #eef2f7;
+        transition:border-color .15s, background-color .15s }
+    .acc-action:hover{ border-color:var(--admin-primary,#6366f1); background:#f8fafc }
+    .acc-action__ico{ display:inline-flex; align-items:center; justify-content:center;
+        width:2rem; height:2rem; flex:0 0 auto; font-size:.85rem;
+        color:var(--admin-primary,#6366f1); background:rgba(99,102,241,.1) }
+    .acc-action__body{ display:flex; flex-direction:column; min-width:0; line-height:1.3 }
+    .acc-action__title{ font-size:.9rem; font-weight:600; color:#0f172a }
+    .acc-action__note{ font-size:.75rem; color:#64748b }
+    .acc-action__arrow{ margin-left:auto; font-size:.7rem; color:#cbd5e1 }
+    .acc-action:hover .acc-action__arrow{ color:var(--admin-primary,#6366f1) }
+
+    .acc-help{ margin-top:.9rem; font-size:.78rem; line-height:1.5; color:#64748b }
+
+    .dark .acc-list > div{ border-color:#1f2937 }
+    .dark .acc-list dd, .dark .acc-action__title{ color:#f3f4f6 }
+    .dark .acc-action{ border-color:#1f2937 }
+    .dark .acc-action:hover{ background:#111827 }
+</style>
+@endpush
