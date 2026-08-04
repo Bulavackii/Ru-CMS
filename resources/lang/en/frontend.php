@@ -26,6 +26,12 @@ return [
     ],
 
     'footer' => [
+        'about_line' => 'Open site management system: content, menus, catalogue and SEO — without a developer.',
+        'since' => 'In development since',
+        'sources' => 'Sources',
+        'write' => 'Write',
+        'call' => 'Call',
+        'address' => 'Address',
         'developer' => 'developer',
         'rights' => 'all rights reserved',
         'contacts' => 'Contacts',

@@ -66,15 +66,34 @@
                         </div>
                     </div>
 
-                    {{-- Обезличенные тестовые сведения (компактно) --}}
-                    <ul class="f-devlist f-devlist--tight">
-                        <li><span class="f-ico">@themeIcon('user')</span>
-                            <span><b class="text-gray-700 dark:text-gray-300 font-medium">Иван Иванов</b> — {{ __('frontend.footer.developer') }}</span></li>
-                        <li><span class="f-ico">@themeIcon('mail')</span>
-                            <a href="mailto:info@example.com" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">info@example.com</a></li>
-                        <li><span class="f-ico">@themeIcon('phone')</span>
-                            <a href="tel:+79001234567" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">+7 (900) 123-45-67</a></li>
+                    {{-- Почта и телефон отсюда убраны: ровно те же значения
+                         стоят в колонке «Контакты» справа, и посетитель видел
+                         один и тот же адрес дважды в одной полосе. Здесь
+                         остаётся то, чего больше нигде нет — кто сделал,
+                         на чём собрано и где взять исходники. --}}
+                    <p class="f-brand-about">{{ __('frontend.footer.about_line') }}</p>
+
+                    <ul class="f-brand-facts">
+                        <li>
+                            <span class="f-ico">@themeIcon('user')</span>
+                            <span><b>Иван Иванов</b> — {{ __('frontend.footer.developer') }}</span>
+                        </li>
+                        <li>
+                            <span class="f-ico">@themeIcon('calendar')</span>
+                            <span>{{ __('frontend.footer.since') }} {{ date('Y') }}</span>
+                        </li>
                     </ul>
+
+                    {{-- Чипы: версия системы и лицензия. Ровно та пара сведений,
+                         которую ищут, прежде чем брать проект в работу. --}}
+                    <div class="f-brand-chips">
+                        <span class="f-brand-chip">v{{ config('app.version', '1.0.0') }}</span>
+                        <span class="f-brand-chip">MIT</span>
+                        <a href="https://github.com/Bulavackii/Ru-CMS" target="_blank" rel="noopener"
+                           class="f-brand-chip f-brand-chip--link">
+                            <x-icon.github :size="12" /> {{ __('frontend.footer.sources') }}
+                        </a>
+                    </div>
                 </div>
             </section>
 
@@ -91,21 +110,45 @@
                     {{ __('frontend.footer.contacts') }}
                 </h2>
 
-                {{-- Обезличенные тестовые сведения --}}
-                <div class="space-y-2">
-                    <a href="mailto:info@example.com" class="f-contact">
-                        <span class="f-ico">@themeIcon('mail')</span><span>info@example.com</span>
-                        <span class="f-ext">@themeIcon('arrow-up-right-from-square')</span>
-                    </a>
-                    <a href="tel:+79001234567" class="f-contact">
-                        <span class="f-ico">@themeIcon('phone')</span><span>+7 (900) 123-45-67</span>
-                    </a>
-                    <a href="https://yandex.ru/maps/?text={{ urlencode('Москва, улица Примерная, 1') }}"
-                       target="_blank" rel="noopener" class="f-contact">
-                        <span class="f-ico">@themeIcon('map')</span><span>г. Москва, ул. Примерная, 1</span>
-                        <span class="f-ext">@themeIcon('arrow-up-right-from-square')</span>
-                    </a>
-                </div>
+                {{-- Обезличенные тестовые сведения.
+
+                     Раньше каждая строка была рамкой с заливкой во всю ширину и
+                     читалась как отключённое поле ввода, а не как ссылка. Теперь
+                     это обычные строки: значок в плитке, над значением — подпись,
+                     что это за контакт. --}}
+                <ul class="f-contacts">
+                    <li>
+                        <a href="mailto:info@example.com" class="f-contact">
+                            <span class="f-contact__ico">@themeIcon('mail')</span>
+                            <span class="f-contact__body">
+                                <span class="f-contact__label">{{ __('frontend.footer.write') }}</span>
+                                <span class="f-contact__value">info@example.com</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="tel:+79001234567" class="f-contact">
+                            <span class="f-contact__ico">@themeIcon('phone')</span>
+                            <span class="f-contact__body">
+                                <span class="f-contact__label">{{ __('frontend.footer.call') }}</span>
+                                <span class="f-contact__value">+7 (900) 123-45-67</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://yandex.ru/maps/?text={{ urlencode('Москва, Тверская улица, 7') }}"
+                           target="_blank" rel="noopener" class="f-contact">
+                            <span class="f-contact__ico">@themeIcon('map')</span>
+                            <span class="f-contact__body">
+                                <span class="f-contact__label">{{ __('frontend.footer.address') }}</span>
+                                <span class="f-contact__value">г. Москва, Тверская улица, 7</span>
+                            </span>
+                            {{-- Значок внешней ссылки только там, где уход со
+                                 сайта действительно происходит. --}}
+                            <span class="f-contact__ext" aria-hidden="true">@themeIcon('arrow-up-right-from-square')</span>
+                        </a>
+                    </li>
+                </ul>
 
                 {{-- Соцсети — реальные бренд-иконки FontAwesome, бренд-цвет при наведении.
                      Адреса обезличены (демо). --}}
@@ -230,14 +273,69 @@
     .f-ico{ display:inline-flex; color:var(--color-primary,#6366f1); flex:0 0 auto; }
     .f-ico svg, .f-ico i{ width:1rem; height:1rem; font-size:1rem; line-height:1; }
 
-    .f-contact{ display:flex; align-items:center; gap:.6rem; padding:.5rem .65rem; font-size:.82rem; text-decoration:none;
-        border:1px solid rgba(17,24,39,.1); background:rgba(255,255,255,.55); color:#374151;
-        transition:border-color .15s ease, background .15s ease, transform .15s ease, color .15s ease; }
-    :root.dark .f-contact{ border-color:rgba(255,255,255,.1); background:rgba(30,41,59,.45); color:#d1d5db; }
-    .f-contact:hover{ border-color:var(--color-primary,#6366f1); background:rgba(99,102,241,.06); transform:translateY(-1px); }
-    .f-contact > span:nth-child(2){ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-    .f-ext{ margin-left:auto; opacity:.4; }
-    .f-ext svg, .f-ext i{ width:.72rem; height:.72rem; font-size:.72rem; }
+    /* Контакты в подвале.
+       Рамка с заливкой во всю ширину делала из ссылки отключённое поле
+       ввода — теперь это строка со значком, подписью и значением. */
+    /* Блок разработчика.
+       Раньше он повторял почту и телефон из колонки «Контакты» и занимал
+       высоту втрое больше пользы. Теперь несёт то, чего нет рядом:
+       строку о проекте, автора, год и чипы «версия / лицензия / исходники». */
+    .f-brand-about{ margin:.1rem 0 .7rem; font-size:.78rem; line-height:1.5; color:#6b7280; }
+    :root.dark .f-brand-about{ color:#9ca3af; }
+
+    .f-brand-facts{ display:grid; gap:.4rem; margin:0 0 .8rem; padding:0; list-style:none;
+        font-size:.8rem; }
+    .f-brand-facts li{ display:flex; align-items:center; gap:.5rem; margin:0; }
+    .f-brand-facts b{ font-weight:600; color:#374151; }
+    :root.dark .f-brand-facts b{ color:#d1d5db; }
+
+    .f-brand-chips{ display:flex; flex-wrap:wrap; gap:.35rem; }
+    .f-brand-chip{ display:inline-flex; align-items:center; gap:.3rem;
+        padding:.22rem .5rem; font-size:.66rem; font-weight:700; letter-spacing:.03em;
+        color:#4338ca; background:rgba(99,102,241,.1); text-decoration:none;
+        transition:background .15s ease, color .15s ease; }
+    .f-brand-chip--link:hover{ color:#fff; background:var(--color-primary,#6366f1); }
+    :root.dark .f-brand-chip{ color:#c7d2fe; background:rgba(99,102,241,.2); }
+
+    .f-contacts{ display:grid; gap:.15rem; margin:0; padding:0; list-style:none; }
+    .f-contacts li{ margin:0; }
+
+    .f-contact{ display:flex; align-items:center; gap:.65rem; padding:.45rem .3rem;
+        text-decoration:none; color:inherit; transition:color .15s ease; }
+
+    /* Значок в плитке цвета темы: он же связывает блок с карточками
+       контактов на самой странице «Контакты». */
+    .f-contact__ico{ display:inline-flex; align-items:center; justify-content:center;
+        width:2rem; height:2rem; flex:0 0 auto; color:var(--color-primary,#6366f1);
+        background:rgba(99,102,241,.1);
+        transition:color .15s ease, background .15s ease; }
+    .f-contact__ico svg, .f-contact__ico i{ width:.95rem; height:.95rem; font-size:.95rem; }
+
+    .f-contact__body{ display:flex; flex-direction:column; min-width:0; line-height:1.25; }
+    .f-contact__label{ font-size:.62rem; font-weight:700; letter-spacing:.1em;
+        text-transform:uppercase; color:#9ca3af; }
+    .f-contact__value{ font-size:.85rem; font-weight:500; color:#374151;
+        overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+        transition:color .15s ease; }
+
+    /* Подчёркивание, как у пунктов меню рядом: блок перестаёт быть
+       чужеродным в ряду колонок подвала. */
+    .f-contact__value{ position:relative; }
+    .f-contact__value::after{ content:''; position:absolute; left:0; right:0; bottom:-2px;
+        height:1px; background:var(--color-primary,#6366f1);
+        transform:scaleX(0); transform-origin:left; transition:transform .2s ease; }
+    .f-contact:hover .f-contact__value{ color:var(--color-primary,#6366f1); }
+    .f-contact:hover .f-contact__value::after{ transform:scaleX(1); }
+    .f-contact:hover .f-contact__ico{ color:#fff; background:var(--color-primary,#6366f1); }
+    .f-contact:focus-visible{ outline:2px solid var(--color-primary,#6366f1); outline-offset:2px; }
+
+    .f-contact__ext{ margin-left:auto; flex:0 0 auto; opacity:.35; transition:opacity .15s ease; }
+    .f-contact__ext svg, .f-contact__ext i{ width:.7rem; height:.7rem; font-size:.7rem; }
+    .f-contact:hover .f-contact__ext{ opacity:.75; }
+
+    :root.dark .f-contact__value{ color:#d1d5db; }
+    :root.dark .f-contact__label{ color:#6b7280; }
+    :root.dark .f-contact__ico{ background:rgba(99,102,241,.2); }
 
     .f-social{ display:inline-flex; align-items:center; justify-content:center; width:2.35rem; height:2.35rem;
         border:1px solid rgba(17,24,39,.1); background:rgba(255,255,255,.55); color:#6b7280; font-size:1.05rem;
