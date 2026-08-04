@@ -150,22 +150,7 @@
                     </li>
                 </ul>
 
-                {{-- Соцсети. Ряд значков висел без подписи и читался как набор
-                     случайных кнопок; теперь у него есть заголовок в том же
-                     стиле, что подписи контактов над значениями.
-                     Адреса обезличены (демо). --}}
-                <p class="f-social-label">{{ __('frontend.footer.socials') }}</p>
-                <div class="f-socials">
-                    <a href="https://vk.com/example" target="_blank" rel="noopener" class="f-social f-social--plain" style="--c:#0077FF" title="ВКонтакте" aria-label="ВКонтакте"><x-icon.vk :size="17" /></a>
-                    {{-- MAX и Rutube: фирменных глифов нет ни в Font Awesome,
-                         ни в Simple Icons, поэтому свои SVG-компоненты. --}}
-                    <a href="https://max.ru" target="_blank" rel="noopener" class="f-social f-social--plain"
-                       style="--c:#3B4BF5" title="MAX" aria-label="MAX"><x-icon.max :size="17" /></a>
-                    <a href="https://rutube.ru" target="_blank" rel="noopener" class="f-social f-social--plain"
-                       style="--c:#EE1B3D" title="Rutube" aria-label="Rutube"><x-icon.rutube :size="17" /></a>
-                    <a href="https://github.com/Bulavackii/Ru-CMS" target="_blank" rel="noopener" class="f-social f-social--plain"
-                       style="--c:#181717" title="GitHub" aria-label="GitHub"><x-icon.github :size="17" /></a>
-                </div>
+
             </section>
         </div>
 
@@ -180,10 +165,27 @@
                  и кнопка занимали половину полосы, а вели всего лишь в
                  почтовый клиент через mailto. Адрес для связи и так есть выше,
                  в колонке контактов. --}}
-            <div class="max-w-screen-2xl mx-auto flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-xs text-gray-500 dark:text-gray-400">
-                <span>© {{ date('Y') }} <b class="text-gray-700 dark:text-gray-300 font-medium">RU CMS</b> — {{ __('frontend.footer.rights') }}</span>
-                <span class="f-meta-chip">PHP {{ PHP_VERSION }}</span>
-                <span class="f-meta-chip">Laravel {{ app()->version() }}</span>
+            {{-- Соцсети переехали сюда из колонки контактов: к контактам они
+                 отношения не имеют, а высоту подвала съедали заметно —
+                 подпись, отступ и ряд плиток. В узкой полосе они занимают
+                 ту же строку, что копирайт. --}}
+            <div class="max-w-screen-2xl mx-auto f-meta-row text-xs text-gray-500 dark:text-gray-400">
+                <div class="f-socials">
+                    <span class="f-social-label">{{ __('frontend.footer.socials') }}</span>
+                    <a href="https://vk.com/example" target="_blank" rel="noopener" class="f-social f-social--plain" style="--c:#0077FF" title="ВКонтакте" aria-label="ВКонтакте"><x-icon.vk :size="17" /></a>
+                    <a href="https://max.ru" target="_blank" rel="noopener" class="f-social f-social--plain"
+                       style="--c:#3B4BF5" title="MAX" aria-label="MAX"><x-icon.max :size="17" /></a>
+                    <a href="https://rutube.ru" target="_blank" rel="noopener" class="f-social f-social--plain"
+                       style="--c:#EE1B3D" title="Rutube" aria-label="Rutube"><x-icon.rutube :size="17" /></a>
+                    <a href="https://github.com/Bulavackii/Ru-CMS" target="_blank" rel="noopener" class="f-social f-social--plain"
+                       style="--c:#181717" title="GitHub" aria-label="GitHub"><x-icon.github :size="17" /></a>
+                </div>
+
+                <div class="f-meta-copy">
+                    <span>© {{ date('Y') }} <b class="text-gray-700 dark:text-gray-300 font-medium">RU CMS</b> — {{ __('frontend.footer.rights') }}</span>
+                    <span class="f-meta-chip">PHP {{ PHP_VERSION }}</span>
+                    <span class="f-meta-chip">Laravel {{ app()->version() }}</span>
+                </div>
             </div>
         </div>
     </div>
@@ -393,14 +395,28 @@
        у подписей контактов, а сами они лежат в плитках такого же размера,
        как значки контактов и меню: подвал перестал распадаться на три
        разных языка оформления. */
-    .f-social-label{ margin:1.1rem 0 .5rem; font-size:.62rem; font-weight:700;
+    /* Нижняя полоса: соцсети слева, копирайт справа. На узком экране
+       обе группы встают по центру друг под другом. */
+    .f-meta-row{ display:flex; align-items:center; justify-content:space-between;
+        gap:.75rem 1rem; flex-wrap:wrap; }
+    .f-meta-copy{ display:flex; align-items:center; flex-wrap:wrap;
+        gap:.4rem .6rem; }
+    @media (max-width:767px){
+        .f-meta-row{ justify-content:center; }
+        .f-meta-copy{ justify-content:center; width:100%; }
+        .f-socials{ justify-content:center; width:100%; }
+    }
+
+    /* Подпись стоит в строку со значками, а не над ними: в узкой полосе
+       второй строке места нет. */
+    .f-social-label{ margin:0 .15rem 0 0; font-size:.6rem; font-weight:700;
         letter-spacing:.1em; text-transform:uppercase; color:#9ca3af; }
     :root.dark .f-social-label{ color:#6b7280; }
 
-    .f-socials{ display:flex; align-items:center; gap:.45rem; flex-wrap:wrap; }
+    .f-socials{ display:flex; align-items:center; gap:.35rem; flex-wrap:wrap; }
 
     .f-social{ display:inline-flex; align-items:center; justify-content:center;
-        width:2rem; height:2rem; flex:0 0 auto; font-size:1.05rem; text-decoration:none;
+        width:1.6rem; height:1.6rem; flex:0 0 auto; font-size:.9rem; text-decoration:none;
         color:#6b7280; background:rgba(99,102,241,.08);
         transition:color .15s ease, background .15s ease, transform .15s ease; }
     :root.dark .f-social{ color:#9ca3af; background:rgba(99,102,241,.18); }
