@@ -561,3 +561,28 @@ if (! function_exists('max_upload_label')) {
             : $kb . ' КБ';
     }
 }
+
+if (! function_exists('social_links')) {
+    /**
+     * Ссылки на страницы проекта в сетях — один список на подвал сайта и
+     * подвал панели.
+     *
+     * Раньше список был записан в двух шаблонах, и адреса уже разошлись:
+     * в панели стоял vk.com/ru_cms, на сайте vk.com/example. Теперь адреса
+     * приходят из конфигурации, то есть правятся в .env, а не в разметке.
+     *
+     * Пустое значение убирает значок из ряда, а не рисует ссылку в никуда:
+     * не у каждого владельца есть страница в каждой из сетей.
+     */
+    function social_links(): array
+    {
+        $links = [
+            ['key' => 'vk',     'label' => 'ВКонтакте', 'color' => '#0077FF', 'href' => config('app.social.vk')],
+            ['key' => 'max',    'label' => 'MAX',       'color' => '#3B4BF5', 'href' => config('app.social.max')],
+            ['key' => 'rutube', 'label' => 'Rutube',    'color' => '#EE1B3D', 'href' => config('app.social.rutube')],
+            ['key' => 'github', 'label' => 'GitHub',    'color' => '#181717', 'href' => config('app.social.github')],
+        ];
+
+        return array_values(array_filter($links, static fn (array $l): bool => filled($l['href'])));
+    }
+}

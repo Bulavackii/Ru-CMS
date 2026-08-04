@@ -93,6 +93,22 @@ return [
         'developer' => 'Developer',
         'repository' => 'Repository',
         'installed' => 'Installed',
+
+        'server_time' => 'Server time',
+
+        'render' => 'Render',
+
+        'render_hint' => 'Time the server spent building this page',
+
+        'ms' => 'ms',
+
+        'memory' => 'Memory',
+
+        'memory_hint' => 'Peak memory used by this request',
+
+        'uptime_days' => '{0}less than a day|{1}:count day|[2,*]:count days',
+
+        'socials' => 'Find us',
     ],
 
     'sections' => [

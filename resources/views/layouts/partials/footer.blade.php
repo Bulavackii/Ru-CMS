@@ -170,16 +170,27 @@
                  подпись, отступ и ряд плиток. В узкой полосе они занимают
                  ту же строку, что копирайт. --}}
             <div class="max-w-screen-2xl mx-auto f-meta-row text-xs text-gray-500 dark:text-gray-400">
-                <div class="f-socials">
-                    <span class="f-social-label">{{ __('frontend.footer.socials') }}</span>
-                    <a href="https://vk.com/example" target="_blank" rel="noopener" class="f-social f-social--plain" style="--c:#0077FF" title="ВКонтакте" aria-label="ВКонтакте"><x-icon.vk :size="17" /></a>
-                    <a href="https://max.ru" target="_blank" rel="noopener" class="f-social f-social--plain"
-                       style="--c:#3B4BF5" title="MAX" aria-label="MAX"><x-icon.max :size="17" /></a>
-                    <a href="https://rutube.ru" target="_blank" rel="noopener" class="f-social f-social--plain"
-                       style="--c:#EE1B3D" title="Rutube" aria-label="Rutube"><x-icon.rutube :size="17" /></a>
-                    <a href="https://github.com/Bulavackii/Ru-CMS" target="_blank" rel="noopener" class="f-social f-social--plain"
-                       style="--c:#181717" title="GitHub" aria-label="GitHub"><x-icon.github :size="17" /></a>
-                </div>
+                {{-- Адреса приходят из social_links() (app/helpers.php) — один
+                     список на подвал сайта и подвал панели. Записанные в обоих
+                     шаблонах, они уже разошлись: здесь стоял vk.com/example,
+                     в панели vk.com/ru_cms. --}}
+                @if($socialLinks = social_links())
+                    <div class="f-socials">
+                        <span class="f-social-label">{{ __('frontend.footer.socials') }}</span>
+                        @foreach($socialLinks as $social)
+                            <a href="{{ $social['href'] }}" target="_blank" rel="noopener"
+                               class="f-social f-social--plain" style="--c:{{ $social['color'] }}"
+                               title="{{ $social['label'] }}" aria-label="{{ $social['label'] }}">
+                                @switch($social['key'])
+                                    @case('vk')     <x-icon.vk :size="17" /> @break
+                                    @case('max')    <x-icon.max :size="17" /> @break
+                                    @case('rutube') <x-icon.rutube :size="17" /> @break
+                                    @case('github') <x-icon.github :size="17" /> @break
+                                @endswitch
+                            </a>
+                        @endforeach
+                    </div>
+                @endif
 
                 <div class="f-meta-copy">
                     <span>© {{ date('Y') }} <b class="text-gray-700 dark:text-gray-300 font-medium">RU CMS</b> — {{ __('frontend.footer.rights') }}</span>

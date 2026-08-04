@@ -100,6 +100,24 @@
 
     $debugOn = (bool) config('app.debug');
 
+    // Сколько система работает. Одна дата установки отвечает «когда», но не
+    // «давно ли» — а на глаз это считает не каждый.
+    $uptimeDays = $installedAt ? (int) $installedAt->startOfDay()->diffInDays(now()->startOfDay()) : null;
+
+    // Показатели ЭТОГО запроса. Верхний ряд перечисляет настройки, которые
+    // не меняются неделями; здесь — то, что у каждой страницы своё, и по чему
+    // сразу видно подтормаживающий раздел.
+    //
+    // Отсчёт от LARAVEL_START, который ставит public/index.php. В консоли и
+    // тестах входной точки нет, поэтому константы может не быть.
+    $renderMs = defined('LARAVEL_START')
+        ? (int) round((microtime(true) - LARAVEL_START) * 1000)
+        : null;
+
+    // Пиковое потребление, а не текущее: важен максимум, до которого запрос
+    // доходил, иначе цифра ничего не говорит о запасе до memory_limit.
+    $memoryPeak = memory_get_peak_usage(true);
+
     // Ряд технических значений. Всё берётся из конфигурации как есть —
     // ничего не додумываем: чего нет, того и не показываем.
     $tech = [
@@ -109,18 +127,13 @@
         ['label' => __('admin.footer.cache'),           'value' => config('cache.default')],
         ['label' => __('admin.footer.queue'),           'value' => config('queue.default')],
         ['label' => __('admin.footer.environment'),     'value' => app()->environment()],
-        ['label' => __('admin.footer.timezone'),        'value' => config('app.timezone')],
         ['label' => __('admin.footer.locale'),          'value' => app()->getLocale()],
     ];
 
-    // Настоящие брендовые глифы Font Awesome. Адреса — заглушки: реальных
-    // никто не давал. Менять здесь, в одном месте.
-    $socials = [
-        ['href' => 'https://vk.com/ru_cms',                'label' => 'ВКонтакте', 'icon' => 'vk',          'color' => '#0077FF'],
-        ['href' => 'https://max.ru',                       'label' => 'MAX',       'icon' => 'max',         'color' => '#3B4BF5'],
-        ['href' => 'https://rutube.ru',                    'label' => 'Rutube',    'icon' => 'rutube',      'color' => '#EE1B3D'],
-        ['href' => 'https://github.com/Bulavackii/Ru-CMS', 'label' => 'GitHub',    'icon' => 'github',      'color' => '#181717'],
-    ];
+    // Один список на подвал сайта и подвал панели (см. social_links() в
+    // app/helpers.php). Раньше он был записан в обоих шаблонах, и адреса
+    // успели разойтись: здесь стоял vk.com/ru_cms, на сайте vk.com/example.
+    $socials = social_links();
 @endphp
 
 <footer class="admin-glass mt-auto border-t border-gray-200 dark:border-gray-800 text-sm text-gray-600 dark:text-gray-400"
@@ -173,50 +186,99 @@
 
     </div>
 
-    {{-- Закрывающая мета-полоса: копирайт, разработчик, дата установки, соцсети.
-         Соцсети живут здесь, а не в верхнем ряду: там чипы ровно занимают
-         строку, и иконки всё равно переносились на отдельную строку, оставляя
-         под собой пустую половину. --}}
+    {{-- Нижняя полоса: слева — про саму систему, в середине — что с сервером
+         прямо сейчас, справа — сети.
+
+         Раньше здесь стояли копирайт и четыре значка, а между ними полтора
+         экрана пустоты. Заполнена она не «чем-нибудь», а тем, чего в верхнем
+         ряду нет по существу: тот перечисляет настройки, которые не меняются
+         неделями, а часы, время отрисовки и память — величины этой самой
+         страницы. Пояс переехал к часам: показывать его отдельным чипом рядом
+         со временем в том же поясе — повтор.
+
+         Сети живут здесь, а не в верхнем ряду: там чипы ровно занимают строку,
+         и значки всё равно переносились на отдельную, оставляя под собой
+         пустую половину. --}}
     <div class="border-t border-gray-200 dark:border-gray-800">
-        <div class="w-full px-4 py-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500">
-            <span>© {{ date('Y') }} RU CMS</span>
+        <div class="w-full px-4 py-1.5 adm-f-meta text-xs text-gray-500">
 
-            <span class="adm-f-dot" aria-hidden="true">·</span>
-            <span>
-                {{ __('admin.footer.developer') }}
-                <a href="https://github.com/Bulavackii" target="_blank" rel="noopener" class="adm-f-link">Bulavackii</a>
-            </span>
+            {{-- Про систему --}}
+            <div class="adm-f-grp">
+                <span>© {{ date('Y') }} RU CMS</span>
 
-            <span class="adm-f-dot" aria-hidden="true">·</span>
-            <a href="https://github.com/Bulavackii/Ru-CMS" target="_blank" rel="noopener" class="adm-f-link">
-                {{ __('admin.footer.repository') }}
-            </a>
-
-            @if($installedAt)
                 <span class="adm-f-dot" aria-hidden="true">·</span>
                 <span>
-                    {{ __('admin.footer.installed') }}
-                    <span class="font-mono">{{ $installedAt->translatedFormat('d.m.Y') }}</span>
+                    {{ __('admin.footer.developer') }}
+                    <a href="https://github.com/Bulavackii" target="_blank" rel="noopener" class="adm-f-link">Bulavackii</a>
                 </span>
-            @endif
 
-            <span class="ml-auto flex items-center gap-1.5 flex-none">
-                @foreach($socials as $social)
-                    <a href="{{ $social['href'] }}" target="_blank" rel="noopener"
-                       class="adm-f-social" style="--c: {{ $social['color'] }}"
-                       title="{{ $social['label'] }}" aria-label="{{ $social['label'] }}">
-                        {{-- У MAX и Rutube нет глифов в Font Awesome — для них
-                             свои SVG-компоненты. --}}
-                        @switch($social['icon'])
-                            @case('max')    <x-icon.max :size="16" /> @break
-                            @case('rutube') <x-icon.rutube :size="16" /> @break
-                            @case('vk')     <x-icon.vk :size="16" /> @break
-                            @case('github') <x-icon.github :size="16" /> @break
-                            @default        <i class="fab {{ $social['icon'] }}"></i>
-                        @endswitch
-                    </a>
-                @endforeach
-            </span>
+                <span class="adm-f-dot" aria-hidden="true">·</span>
+                <a href="https://github.com/Bulavackii/Ru-CMS" target="_blank" rel="noopener" class="adm-f-link">
+                    {{ __('admin.footer.repository') }}
+                </a>
+
+                @if($installedAt)
+                    <span class="adm-f-dot" aria-hidden="true">·</span>
+                    <span>
+                        {{ __('admin.footer.installed') }}
+                        <span class="font-mono">{{ $installedAt->translatedFormat('d.m.Y') }}</span>
+                        <span class="adm-f-mut">({{ trans_choice('admin.footer.uptime_days', $uptimeDays, ['count' => $uptimeDays]) }})</span>
+                    </span>
+                @endif
+            </div>
+
+            {{-- Про этот запрос --}}
+            <div class="adm-f-grp adm-f-mid">
+                <span class="adm-f-live" title="{{ __('admin.footer.server_time') }} · {{ __('admin.footer.timezone') }}: {{ config('app.timezone') }}">
+                    <i class="fas fa-clock adm-f-ico"></i>
+                    {{-- Часы идут: застывшее время отрисовки — ровно та подпись
+                         «Обновлено: сейчас», которую отсюда однажды уже убрали
+                         за то, что она не значила ничего. Сдвиг пояса приходит
+                         числом, чтобы показывать время СЕРВЕРА, а не браузера
+                         (у администратора он бывает другим). --}}
+                    <time class="adm-f-clock font-mono"
+                          data-epoch="{{ now()->getTimestamp() }}"
+                          data-offset="{{ now()->utcOffset() * 60 }}">{{ now()->format('H:i:s') }}</time>
+                    <span class="adm-f-mut">{{ config('app.timezone') }}</span>
+                </span>
+
+                @if($renderMs !== null)
+                    <span class="adm-f-dot" aria-hidden="true">·</span>
+                    <span class="adm-f-live" title="{{ __('admin.footer.render_hint') }}">
+                        <i class="fas fa-bolt adm-f-ico"></i>
+                        <span class="adm-f-key">{{ __('admin.footer.render') }}</span>
+                        <span class="font-mono">{{ $renderMs }} {{ __('admin.footer.ms') }}</span>
+                    </span>
+                @endif
+
+                <span class="adm-f-dot" aria-hidden="true">·</span>
+                <span class="adm-f-live" title="{{ __('admin.footer.memory_hint') }}">
+                    <i class="fas fa-microchip adm-f-ico"></i>
+                    <span class="adm-f-key">{{ __('admin.footer.memory') }}</span>
+                    <span class="font-mono">{{ $formatSize($memoryPeak) }}</span>
+                </span>
+            </div>
+
+            {{-- Сети --}}
+            @if($socials)
+                <div class="adm-f-grp adm-f-end">
+                    <span class="adm-f-soc-label">{{ __('admin.footer.socials') }}</span>
+                    @foreach($socials as $social)
+                        <a href="{{ $social['href'] }}" target="_blank" rel="noopener"
+                           class="adm-f-social" style="--c: {{ $social['color'] }}"
+                           title="{{ $social['label'] }}" aria-label="{{ $social['label'] }}">
+                            {{-- Глифов MAX и Rutube нет ни в одном открытом
+                                 наборе — для них свои SVG-компоненты. --}}
+                            @switch($social['key'])
+                                @case('max')    <x-icon.max :size="16" /> @break
+                                @case('rutube') <x-icon.rutube :size="16" /> @break
+                                @case('vk')     <x-icon.vk :size="16" /> @break
+                                @case('github') <x-icon.github :size="16" /> @break
+                            @endswitch
+                        </a>
+                    @endforeach
+                </div>
+            @endif
         </div>
     </div>
 
@@ -257,5 +319,53 @@
         .adm-f-link{color:var(--admin-primary,#4f46e5);font-weight:500}
         .adm-f-link:hover{text-decoration:underline}
         .adm-f-dot{opacity:.45}
+        .adm-f-mut{color:#9ca3af}
+
+        /* Три полосы содержимого в одной строке: по краям — сколько нужно,
+           середина забирает остаток и встаёт по центру. Сеткой, а не flex:
+           при переносе flex-строки её остаток нечем прижать, и правый край
+           уезжает (тот же случай, что описан в CLAUDE.md про подвал сайта). */
+        .adm-f-meta{display:grid;grid-template-columns:auto 1fr auto;
+            align-items:center;gap:.35rem 1.25rem}
+        .adm-f-grp{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem .5rem;min-width:0}
+        .adm-f-mid{justify-self:center}
+        .adm-f-end{justify-self:end}
+        /* Ниже 1280px три полосы в строку не помещаются — раскладываем
+           столбцом по центру, ничего не пряча. */
+        @media (max-width:1279px){
+            .adm-f-meta{grid-template-columns:1fr;justify-items:center;gap:.4rem}
+            .adm-f-grp{justify-content:center}
+            .adm-f-mid,.adm-f-end{justify-self:center}
+        }
+
+        .adm-f-live{display:inline-flex;align-items:center;gap:.3rem;white-space:nowrap}
+        .adm-f-clock{color:#4b5563;font-weight:600;font-variant-numeric:tabular-nums}
+        .dark .adm-f-clock{color:#d1d5db}
+
+        .adm-f-soc-label{margin-right:.15rem;font-size:.6rem;font-weight:700;
+            letter-spacing:.08em;text-transform:uppercase;color:#9ca3af}
     </style>
+
+    <script>
+        /* Часы подвала. Время берём с сервера (epoch + его сдвиг от UTC) и
+           дальше идём сами: перезапрашивать страницу ради секундной стрелки
+           незачем, а часы браузера могут показывать другой пояс.
+           Сдвиг применяем к метке времени и читаем её через getUTC* — так
+           выходит стенное время сервера независимо от настроек машины. */
+        (function () {
+            var el = document.querySelector('.adm-f-clock');
+            if (!el) return;
+
+            var base = parseInt(el.dataset.epoch, 10) + parseInt(el.dataset.offset, 10);
+            if (isNaN(base)) return;
+
+            var started = Date.now();
+            var pad = function (n) { return n < 10 ? '0' + n : '' + n; };
+
+            setInterval(function () {
+                var d = new Date((base + Math.floor((Date.now() - started) / 1000)) * 1000);
+                el.textContent = pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes()) + ':' + pad(d.getUTCSeconds());
+            }, 1000);
+        })();
+    </script>
 </footer>
