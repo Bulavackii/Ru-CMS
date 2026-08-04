@@ -1,0 +1,651 @@
+/* ============================================================================
+   RU Editor — оформление обвязки редактора.
+   ----------------------------------------------------------------------------
+   Здесь ТОЛЬКО обвязка: панель инструментов, меню, диалоги, строка состояния.
+   Оформление самого содержимого живёт в content-blocks.css и подключается
+   ВНУТРЬ рамки редактирования — так автор видит текст ровно таким, каким его
+   увидит посетитель.
+
+   Литеральный CSS, а не Tailwind-утилиты: в собранном public/assets/css/
+   tailwind.min.css нет ни opacity-модификаторов, ни произвольных значений,
+   ни dark:-вариантов (подробности — в CLAUDE.md). Акцент берётся из
+   --admin-primary, то есть следует за выбранным оформлением панели.
+
+   Прямые края намеренно: панель добавляет body.admin-sharp с правилом
+   border-radius:0 !important на всё подряд, и скругления здесь всё равно
+   были бы стёрты. Пишем сразу то, что получится.
+   ========================================================================= */
+
+.ru-ed {
+    --ru-ed-accent: var(--admin-primary, #6366f1);
+    --ru-ed-accent-soft: var(--admin-primary-soft, rgba(99, 102, 241, .14));
+    --ru-ed-border: #e5e7eb;
+    --ru-ed-bg: #ffffff;
+    --ru-ed-bar: #f8fafc;
+    --ru-ed-ink: #374151;
+    --ru-ed-mut: #6b7280;
+
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--ru-ed-border);
+    background: var(--ru-ed-bg);
+    font-size: 14px;
+    color: var(--ru-ed-ink);
+}
+
+.ru-ed.is-focused {
+    border-color: var(--ru-ed-accent);
+    box-shadow: 0 0 0 3px var(--ru-ed-accent-soft);
+}
+
+/* Скрытое поле формы остаётся в разметке: submit отправляет именно его. */
+.ru-ed-source {
+    display: none;
+}
+
+/* ── Панель инструментов ─────────────────────────────────────────────── */
+
+.ru-ed-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px;
+    padding: 4px;
+    background: var(--ru-ed-bar);
+    border-bottom: 1px solid var(--ru-ed-border);
+}
+
+/* Разделитель между смысловыми группами кнопок. */
+.ru-ed-sep {
+    width: 1px;
+    height: 20px;
+    margin: 0 4px;
+    background: var(--ru-ed-border);
+    flex: none;
+}
+
+.ru-ed-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 6px;
+    font-size: 13px;
+    line-height: 1;
+    color: var(--ru-ed-ink);
+    background: transparent;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background .12s ease, color .12s ease, border-color .12s ease;
+}
+
+.ru-ed-btn:hover:not(:disabled) {
+    background: #eef2f7;
+    border-color: #e2e8f0;
+}
+
+.ru-ed-btn:disabled {
+    opacity: .4;
+    cursor: default;
+}
+
+/* Кнопка «нажата» — когда курсор стоит внутри соответствующего оформления.
+   Без этого автор не понимает, полужирный ли текст под курсором. */
+.ru-ed-btn.is-active {
+    color: var(--ru-ed-accent);
+    background: var(--ru-ed-accent-soft);
+    border-color: transparent;
+}
+
+.ru-ed-btn:focus-visible {
+    outline: 2px solid var(--ru-ed-accent);
+    outline-offset: -1px;
+}
+
+.ru-ed-btn i {
+    width: 14px;
+    text-align: center;
+    font-size: 13px;
+}
+
+/* ── Выпадающие списки панели ────────────────────────────────────────── */
+
+.ru-ed-drop {
+    position: relative;
+    display: inline-flex;
+}
+
+.ru-ed-drop > .ru-ed-btn {
+    min-width: 0;
+    padding: 0 8px;
+}
+
+.ru-ed-drop-label {
+    max-width: 9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ru-ed-drop-caret {
+    font-size: 9px;
+    opacity: .55;
+}
+
+.ru-ed-menu {
+    position: absolute;
+    top: calc(100% + 3px);
+    left: 0;
+    z-index: 40;
+    min-width: 11rem;
+    max-height: 20rem;
+    overflow-y: auto;
+    padding: 3px;
+    background: #fff;
+    border: 1px solid var(--ru-ed-border);
+    box-shadow: 0 18px 36px -16px rgba(15, 23, 42, .45);
+}
+
+.ru-ed-menu[hidden] {
+    display: none;
+}
+
+.ru-ed-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 6px 9px;
+    font-size: 13px;
+    line-height: 1.35;
+    text-align: left;
+    color: var(--ru-ed-ink);
+    background: none;
+    border: 0;
+    cursor: pointer;
+}
+
+.ru-ed-menu-item:hover,
+.ru-ed-menu-item.is-active {
+    background: var(--ru-ed-accent-soft);
+    color: var(--ru-ed-accent);
+}
+
+.ru-ed-menu-item small {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--ru-ed-mut);
+}
+
+.ru-ed-menu-head {
+    padding: 7px 9px 3px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: #9ca3af;
+}
+
+/* ── Рамка редактирования ────────────────────────────────────────────── */
+
+.ru-ed-frame {
+    display: block;
+    width: 100%;
+    border: 0;
+    background: #fff;
+}
+
+/* Полноэкранный режим — своя реализация, без плагинов со стороны. */
+.ru-ed.is-fullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    border: 0;
+}
+
+.ru-ed.is-fullscreen .ru-ed-frame {
+    flex: 1 1 auto;
+    height: auto !important;
+}
+
+/* Пока редактор развёрнут, страница под ним не должна прокручиваться. */
+body.ru-ed-locked {
+    overflow: hidden;
+}
+
+/* ── Правка исходного кода ───────────────────────────────────────────── */
+
+.ru-ed-code {
+    display: block;
+    width: 100%;
+    padding: 12px 14px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: #0f172a;
+    background: #f8fafc;
+    border: 0;
+    outline: none;
+    resize: none;
+    tab-size: 2;
+}
+
+.ru-ed-code[hidden] {
+    display: none;
+}
+
+/* ── Строка состояния ────────────────────────────────────────────────── */
+
+.ru-ed-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 8px;
+    font-size: 11px;
+    color: var(--ru-ed-mut);
+    background: var(--ru-ed-bar);
+    border-top: 1px solid var(--ru-ed-border);
+}
+
+/* Путь до узла под курсором: p › ul › li. Помогает понять, где ты стоишь,
+   когда блоки вложены друг в друга. */
+.ru-ed-path {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.ru-ed-path button {
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    cursor: pointer;
+}
+
+.ru-ed-path button:hover {
+    color: var(--ru-ed-accent);
+}
+
+.ru-ed-path span {
+    opacity: .5;
+}
+
+.ru-ed-counts {
+    margin-left: auto;
+    display: flex;
+    gap: 10px;
+    flex: none;
+}
+
+/* Тянуть за нижний край, меняя высоту. */
+.ru-ed-grip {
+    flex: none;
+    width: 14px;
+    height: 14px;
+    cursor: ns-resize;
+    color: #cbd5e1;
+}
+
+/* ── Диалоги ─────────────────────────────────────────────────────────── */
+
+.ru-ed-dialog-back {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 6vh 16px 16px;
+    background: rgba(15, 23, 42, .45);
+    overflow-y: auto;
+}
+
+.ru-ed-dialog {
+    width: 100%;
+    max-width: 34rem;
+    background: #fff;
+    border: 1px solid var(--ru-ed-border);
+    box-shadow: 0 30px 60px -25px rgba(15, 23, 42, .6);
+}
+
+.ru-ed-dialog.is-wide {
+    max-width: 56rem;
+}
+
+.ru-ed-dialog-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--ru-ed-border);
+}
+
+.ru-ed-dialog-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.ru-ed-dialog-close {
+    margin-left: auto;
+    padding: 4px 8px;
+    color: var(--ru-ed-mut);
+    background: none;
+    border: 0;
+    cursor: pointer;
+}
+
+.ru-ed-dialog-close:hover {
+    color: #111827;
+}
+
+.ru-ed-dialog-body {
+    padding: 16px;
+}
+
+.ru-ed-dialog-foot {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: var(--ru-ed-bar);
+    border-top: 1px solid var(--ru-ed-border);
+}
+
+.ru-ed-dialog-foot .ru-ed-primary {
+    margin-left: auto;
+}
+
+.ru-ed-field {
+    display: block;
+    margin-bottom: 12px;
+}
+
+.ru-ed-field > span {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.ru-ed-field input[type="text"],
+.ru-ed-field input[type="url"],
+.ru-ed-field input[type="number"],
+.ru-ed-field select,
+.ru-ed-field textarea {
+    width: 100%;
+    padding: 7px 10px;
+    font-size: 13px;
+    color: #111827;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    outline: none;
+}
+
+.ru-ed-field input:focus,
+.ru-ed-field select:focus,
+.ru-ed-field textarea:focus {
+    border-color: var(--ru-ed-accent);
+    box-shadow: 0 0 0 3px var(--ru-ed-accent-soft);
+}
+
+.ru-ed-field small {
+    display: block;
+    margin-top: 4px;
+    font-size: 11px;
+    color: var(--ru-ed-mut);
+}
+
+.ru-ed-row {
+    display: flex;
+    gap: 12px;
+}
+
+.ru-ed-row > * {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.ru-ed-check {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+}
+
+.ru-ed-primary,
+.ru-ed-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 34px;
+    padding: 0 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+.ru-ed-primary {
+    color: var(--admin-on-primary, #fff);
+    background: var(--ru-ed-accent);
+}
+
+.ru-ed-primary:hover {
+    filter: brightness(1.08);
+}
+
+.ru-ed-ghost {
+    color: var(--ru-ed-ink);
+    background: #fff;
+    border-color: #d1d5db;
+}
+
+.ru-ed-ghost:hover {
+    background: #f1f5f9;
+}
+
+/* ── Вкладки в диалоге ───────────────────────────────────────────────── */
+
+.ru-ed-tabs {
+    display: flex;
+    gap: 2px;
+    padding: 0 16px;
+    background: var(--ru-ed-bar);
+    border-bottom: 1px solid var(--ru-ed-border);
+}
+
+.ru-ed-tab {
+    padding: 9px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ru-ed-mut);
+    background: none;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+}
+
+.ru-ed-tab.is-active {
+    color: var(--ru-ed-accent);
+    border-bottom-color: var(--ru-ed-accent);
+}
+
+.ru-ed-pane[hidden] {
+    display: none;
+}
+
+/* ── Сетка медиатеки ─────────────────────────────────────────────────── */
+
+.ru-ed-lib-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.ru-ed-lib-bar input[type="search"] {
+    flex: 1 1 auto;
+    padding: 7px 10px;
+    font-size: 13px;
+    border: 1px solid #d1d5db;
+    outline: none;
+}
+
+.ru-ed-lib {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+    max-height: 22rem;
+    overflow-y: auto;
+    padding: 2px;
+}
+
+.ru-ed-lib-item {
+    position: relative;
+    display: block;
+    padding: 0;
+    background: #f1f5f9;
+    border: 2px solid transparent;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.ru-ed-lib-item img {
+    display: block;
+    width: 100%;
+    height: 84px;
+    object-fit: cover;
+}
+
+.ru-ed-lib-item.is-file {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 84px;
+    font-size: 22px;
+    color: #94a3b8;
+}
+
+.ru-ed-lib-item.is-active {
+    border-color: var(--ru-ed-accent);
+}
+
+.ru-ed-lib-name {
+    display: block;
+    padding: 4px 6px;
+    font-size: 11px;
+    line-height: 1.3;
+    text-align: left;
+    color: var(--ru-ed-mut);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: #fff;
+}
+
+.ru-ed-lib-empty,
+.ru-ed-lib-more {
+    grid-column: 1 / -1;
+    padding: 18px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--ru-ed-mut);
+}
+
+/* Зона перетаскивания файла в диалоге загрузки. */
+.ru-ed-drop-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 26px 16px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--ru-ed-mut);
+    background: #f8fafc;
+    border: 2px dashed #cbd5e1;
+    cursor: pointer;
+}
+
+.ru-ed-drop-zone.is-over {
+    border-color: var(--ru-ed-accent);
+    background: var(--ru-ed-accent-soft);
+    color: var(--ru-ed-accent);
+}
+
+.ru-ed-drop-zone i {
+    font-size: 22px;
+}
+
+/* ── Плашка выбранной картинки внутри рамки ──────────────────────────── */
+
+.ru-ed-bubble {
+    position: absolute;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px;
+    background: #111827;
+    box-shadow: 0 10px 24px -12px rgba(15, 23, 42, .8);
+}
+
+.ru-ed-bubble[hidden] {
+    display: none;
+}
+
+.ru-ed-bubble button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    font-size: 12px;
+    color: #e5e7eb;
+    background: none;
+    border: 0;
+    cursor: pointer;
+}
+
+.ru-ed-bubble button:hover,
+.ru-ed-bubble button.is-active {
+    color: #fff;
+    background: rgba(255, 255, 255, .15);
+}
+
+.ru-ed-shell {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    flex: 1 1 auto;
+}
+
+/* Сообщение об ошибке загрузки — рядом с зоной, а не alert-ом. */
+.ru-ed-note {
+    margin-top: 10px;
+    padding: 8px 10px;
+    font-size: 12px;
+    color: #92400e;
+    background: #fef3c7;
+    border: 1px solid #fcd34d;
+}
+
+.ru-ed-note[hidden] {
+    display: none;
+}
+
+.ru-ed-note.is-busy {
+    color: #1e3a8a;
+    background: #dbeafe;
+    border-color: #93c5fd;
+}

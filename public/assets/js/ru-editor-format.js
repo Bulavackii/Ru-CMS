@@ -1,0 +1,472 @@
+/* ============================================================================
+   RU Editor — оформление текста: начертания, блоки, списки, цвет, ссылки.
+   ----------------------------------------------------------------------------
+   Всё зарегистрировано через публичные реестры ядра (registerButton /
+   registerCommand) — тем же способом, каким свою кнопку добавит кто угодно.
+   Ничего «привилегированного» у встроенных кнопок нет.
+   ========================================================================= */
+
+(function (window) {
+    'use strict';
+
+    var RuEditor = window.RuEditor;
+
+    if (!RuEditor) {
+        return;
+    }
+
+    var el = RuEditor.el;
+    var t = RuEditor.t;
+
+    /* ── Отмена и повтор ─────────────────────────────────────────────── */
+
+    RuEditor.registerCommand('undo', function (editor) {
+        editor.undo();
+    });
+
+    RuEditor.registerCommand('redo', function (editor) {
+        editor.redo();
+    });
+
+    RuEditor.registerButton('undo', {
+        icon: 'fas fa-rotate-left',
+        title: 'Отменить (Ctrl+Z)',
+        // Кнопка сама зовёт историю: через exec() снимок лёг бы поверх того,
+        // что мы только что откатили.
+        action: function (editor) { editor.undo(); },
+        enabled: function (editor) { return editor.canUndo(); }
+    });
+
+    RuEditor.registerButton('redo', {
+        icon: 'fas fa-rotate-right',
+        title: 'Повторить (Ctrl+Y)',
+        action: function (editor) { editor.redo(); },
+        enabled: function (editor) { return editor.canRedo(); }
+    });
+
+    /* ── Начертания ──────────────────────────────────────────────────── */
+
+    [
+        ['bold', 'fas fa-bold', 'Полужирный (Ctrl+B)'],
+        ['italic', 'fas fa-italic', 'Курсив (Ctrl+I)'],
+        ['underline', 'fas fa-underline', 'Подчёркнутый (Ctrl+U)'],
+        ['strikeThrough', 'fas fa-strikethrough', 'Зачёркнутый'],
+        ['subscript', 'fas fa-subscript', 'Подстрочный'],
+        ['superscript', 'fas fa-superscript', 'Надстрочный']
+    ].forEach(function (item) {
+        RuEditor.registerButton(item[0].toLowerCase(), {
+            icon: item[1],
+            title: item[2],
+            command: item[0],
+            active: function (editor) { return editor.queryState(item[0]); }
+        });
+    });
+
+    /* ── Блоки: абзац, заголовки, цитата, код ────────────────────────── */
+
+    var BLOCKS = [
+        { tag: 'p', label: 'Абзац' },
+        { tag: 'h1', label: 'Заголовок 1', style: 'font-size:20px;font-weight:800' },
+        { tag: 'h2', label: 'Заголовок 2', style: 'font-size:18px;font-weight:800' },
+        { tag: 'h3', label: 'Заголовок 3', style: 'font-size:16px;font-weight:700' },
+        { tag: 'h4', label: 'Заголовок 4', style: 'font-size:15px;font-weight:700' },
+        { tag: 'h5', label: 'Заголовок 5', style: 'font-size:14px;font-weight:700' },
+        { tag: 'h6', label: 'Заголовок 6', style: 'font-size:13px;font-weight:700' },
+        { tag: 'blockquote', label: 'Цитата', style: 'font-style:italic' },
+        { tag: 'pre', label: 'Программный код', style: 'font-family:ui-monospace,Consolas,monospace' }
+    ];
+
+    function currentBlock(editor) {
+        var node = editor.closest(BLOCKS.map(function (b) { return b.tag; }).join(','));
+
+        return node ? node.tagName.toLowerCase() : 'p';
+    }
+
+    RuEditor.registerButton('blocks', {
+        type: 'menu',
+        label: 'Абзац',
+        title: 'Тип блока',
+        currentLabel: function (editor) {
+            var tag = currentBlock(editor);
+            var found = BLOCKS.filter(function (b) { return b.tag === tag; })[0];
+
+            return found ? found.label : 'Абзац';
+        },
+        items: function () {
+            return BLOCKS.map(function (block) {
+                return {
+                    label: block.label,
+                    style: block.style,
+                    active: function (editor) { return currentBlock(editor) === block.tag; },
+                    action: function (editor) { editor.exec('formatBlock', block.tag); }
+                };
+            });
+        }
+    });
+
+    RuEditor.registerCommand('formatBlock', function (editor, tag) {
+        // Некоторые движки хотят угловые скобки, некоторые — нет; с ними
+        // работает везде.
+        editor.native('formatBlock', '<' + String(tag).toLowerCase() + '>');
+    });
+
+    /* ── Шрифт и кегль ───────────────────────────────────────────────── */
+
+    var FONTS = [
+        { label: 'Шрифт сайта', value: '' },
+        { label: 'Системный', value: 'system-ui, -apple-system, sans-serif' },
+        { label: 'Arial', value: 'Arial, Helvetica, sans-serif' },
+        { label: 'Georgia', value: 'Georgia, serif' },
+        { label: 'Times New Roman', value: '"Times New Roman", Times, serif' },
+        { label: 'Courier New', value: '"Courier New", ui-monospace, monospace' },
+        { label: 'Verdana', value: 'Verdana, Geneva, sans-serif' }
+    ];
+
+    RuEditor.registerButton('fontfamily', {
+        type: 'menu',
+        label: 'Шрифт',
+        title: 'Гарнитура',
+        items: function () {
+            return FONTS.map(function (font) {
+                return {
+                    label: font.label,
+                    style: font.value ? 'font-family:' + font.value : null,
+                    action: function (editor) {
+                        // Пустое значение = «как на сайте»: снимаем свой шрифт,
+                        // а не подставляем ещё один.
+                        editor.exec(font.value ? 'applyStyle' : 'clearStyle', {
+                            prop: 'font-family',
+                            value: font.value
+                        });
+                    }
+                };
+            });
+        }
+    });
+
+    var SIZES = ['12px', '14px', '16px', '18px', '20px', '24px', '30px', '36px', '48px'];
+
+    RuEditor.registerButton('fontsize', {
+        type: 'menu',
+        label: 'Кегль',
+        title: 'Размер шрифта',
+        items: function () {
+            return [{ label: 'Как в тексте', action: function (editor) {
+                editor.exec('clearStyle', { prop: 'font-size' });
+            } }].concat(SIZES.map(function (size) {
+                return {
+                    label: size,
+                    style: 'font-size:' + size,
+                    action: function (editor) {
+                        editor.exec('applyStyle', { prop: 'font-size', value: size });
+                    }
+                };
+            }));
+        }
+    });
+
+    /**
+     * Применить встроенный стиль к выделению.
+     *
+     * execCommand('fontSize') умеет только семь ступеней и пишет устаревший
+     * тег <font> — в разметке сайта ему делать нечего. Оборачиваем выделение
+     * в span со стилем сами.
+     */
+    RuEditor.registerCommand('applyStyle', function (editor, options) {
+        var range = editor.getRange();
+
+        if (!range || range.collapsed) {
+            return;
+        }
+
+        var span = editor.doc.createElement('span');
+
+        span.style[toCamel(options.prop)] = options.value;
+
+        try {
+            span.appendChild(range.extractContents());
+            range.insertNode(span);
+            editor.selectNode(span);
+        } catch (error) {
+            // Выделение пересекает границы блоков — оборачиваем поштучно.
+            editor.native('insertHTML',
+                '<span style="' + options.prop + ':' + options.value + '">' +
+                editor.getSelection().toString() + '</span>');
+        }
+    });
+
+    RuEditor.registerCommand('clearStyle', function (editor, options) {
+        var range = editor.getRange();
+
+        if (!range) {
+            return;
+        }
+
+        var box = editor.doc.createElement('div');
+
+        box.appendChild(range.extractContents());
+
+        Array.prototype.forEach.call(box.querySelectorAll('[style]'), function (node) {
+            node.style[toCamel(options.prop)] = '';
+
+            if (!node.getAttribute('style')) {
+                node.removeAttribute('style');
+            }
+            // Пустой span без атрибутов только мусорит разметку.
+            if (node.tagName === 'SPAN' && !node.attributes.length) {
+                while (node.firstChild) {
+                    node.parentNode.insertBefore(node.firstChild, node);
+                }
+                node.remove();
+            }
+        });
+
+        range.insertNode(box.firstChild ? drain(box, editor.doc) : editor.doc.createTextNode(''));
+    });
+
+    function drain(box, doc) {
+        var fragment = doc.createDocumentFragment();
+
+        while (box.firstChild) {
+            fragment.appendChild(box.firstChild);
+        }
+
+        return fragment;
+    }
+
+    function toCamel(prop) {
+        return prop.replace(/-([a-z])/g, function (all, letter) {
+            return letter.toUpperCase();
+        });
+    }
+
+    /* ── Цвет ────────────────────────────────────────────────────────── */
+
+    var PALETTE = [
+        '#111827', '#374151', '#6b7280', '#9ca3af', '#d1d5db', '#ffffff',
+        '#dc2626', '#ea580c', '#ca8a04', '#16a34a', '#0891b2', '#2563eb',
+        '#6366f1', '#7c3aed', '#c026d3', '#db2777', '#78350f', '#065f46'
+    ];
+
+    function colorButton(name, command, icon, title) {
+        RuEditor.registerButton(name, {
+            type: 'menu',
+            icon: icon,
+            title: title,
+            render: function (editor, menu) {
+                menu.appendChild(el('div', { class: 'ru-ed-menu-head', text: t('color.pick', 'Цвет') }));
+
+                var grid = el('div', {
+                    style: 'display:grid;grid-template-columns:repeat(6,1fr);gap:4px;padding:4px'
+                });
+
+                PALETTE.forEach(function (color) {
+                    var swatch = el('button', {
+                        type: 'button',
+                        title: color,
+                        style: 'width:24px;height:24px;border:1px solid #d1d5db;cursor:pointer;background:' + color
+                    });
+
+                    swatch.addEventListener('mousedown', function (event) { event.preventDefault(); });
+                    swatch.addEventListener('click', function () {
+                        editor.closeMenus();
+                        editor.exec(command, color);
+                    });
+
+                    grid.appendChild(swatch);
+                });
+
+                menu.appendChild(grid);
+
+                var reset = el('button', {
+                    type: 'button',
+                    class: 'ru-ed-menu-item',
+                    text: t('color.reset', 'Убрать цвет')
+                });
+
+                reset.addEventListener('mousedown', function (event) { event.preventDefault(); });
+                reset.addEventListener('click', function () {
+                    editor.closeMenus();
+                    editor.exec('clearStyle', { prop: command === 'foreColor' ? 'color' : 'background-color' });
+                });
+
+                menu.appendChild(reset);
+            }
+        });
+    }
+
+    colorButton('forecolor', 'foreColor', 'fas fa-palette', 'Цвет текста');
+    colorButton('backcolor', 'hiliteColor', 'fas fa-highlighter', 'Цвет фона');
+
+    RuEditor.registerCommand('foreColor', function (editor, color) {
+        editor.exec('applyStyle', { prop: 'color', value: color });
+    });
+
+    RuEditor.registerCommand('hiliteColor', function (editor, color) {
+        editor.exec('applyStyle', { prop: 'background-color', value: color });
+    });
+
+    /* ── Выравнивание ────────────────────────────────────────────────── */
+
+    [
+        ['alignleft', 'justifyLeft', 'fas fa-align-left', 'По левому краю'],
+        ['aligncenter', 'justifyCenter', 'fas fa-align-center', 'По центру'],
+        ['alignright', 'justifyRight', 'fas fa-align-right', 'По правому краю'],
+        ['alignjustify', 'justifyFull', 'fas fa-align-justify', 'По ширине']
+    ].forEach(function (item) {
+        RuEditor.registerButton(item[0], {
+            icon: item[2],
+            title: item[3],
+            command: item[1],
+            active: function (editor) { return editor.queryState(item[1]); }
+        });
+    });
+
+    /* ── Списки и отступы ────────────────────────────────────────────── */
+
+    RuEditor.registerButton('bullist', {
+        icon: 'fas fa-list-ul',
+        title: 'Маркированный список',
+        command: 'insertUnorderedList',
+        active: function (editor) { return editor.queryState('insertUnorderedList'); }
+    });
+
+    RuEditor.registerButton('numlist', {
+        icon: 'fas fa-list-ol',
+        title: 'Нумерованный список',
+        command: 'insertOrderedList',
+        active: function (editor) { return editor.queryState('insertOrderedList'); }
+    });
+
+    RuEditor.registerButton('outdent', {
+        icon: 'fas fa-outdent',
+        title: 'Уменьшить отступ',
+        command: 'outdent'
+    });
+
+    RuEditor.registerButton('indent', {
+        icon: 'fas fa-indent',
+        title: 'Увеличить отступ',
+        command: 'indent'
+    });
+
+    /* ── Ссылки ──────────────────────────────────────────────────────── */
+
+    RuEditor.registerButton('link', {
+        icon: 'fas fa-link',
+        title: 'Ссылка (Ctrl+K)',
+        action: function (editor) { editor.exec('link'); },
+        active: function (editor) { return !!editor.closest('a'); }
+    });
+
+    RuEditor.registerButton('unlink', {
+        icon: 'fas fa-link-slash',
+        title: 'Убрать ссылку',
+        command: 'unlink',
+        enabled: function (editor) { return !!editor.closest('a'); }
+    });
+
+    RuEditor.registerCommand('link', function (editor) {
+        var existing = editor.closest('a');
+        var selected = editor.getSelection().toString();
+
+        editor.saveSelection();
+
+        RuEditor.dialog({
+            title: t('link.title', 'Ссылка'),
+            fields: [
+                { name: 'href', label: t('link.href', 'Адрес'), type: 'text', value: existing ? existing.getAttribute('href') : '', required: true,
+                  hint: t('link.hint', 'Внутренний путь (/contacts) или полный адрес (https://…)') },
+                { name: 'text', label: t('link.text', 'Текст'), type: 'text', value: existing ? existing.textContent : selected },
+                { name: 'blank', label: t('link.blank', 'Открывать в новой вкладке'), type: 'check',
+                  value: existing ? existing.getAttribute('target') === '_blank' : false }
+            ],
+            onSubmit: function (values) {
+                editor.restoreSelection();
+
+                var href = values.href.trim();
+
+                if (!href) {
+                    return;
+                }
+
+                var text = (values.text || '').trim() || href;
+
+                if (existing) {
+                    existing.setAttribute('href', href);
+                    existing.textContent = text;
+                    setBlank(existing, values.blank);
+                    editor._snapshot();
+                    editor.save();
+                    return;
+                }
+
+                var link = editor.doc.createElement('a');
+
+                link.setAttribute('href', href);
+                link.textContent = text;
+                setBlank(link, values.blank);
+
+                editor.exec('insertNodeCommand', link);
+            }
+        });
+    });
+
+    function setBlank(link, blank) {
+        if (blank) {
+            link.setAttribute('target', '_blank');
+            // rel обязателен вместе с target: без него открытая вкладка
+            // получает доступ к window.opener исходной страницы.
+            link.setAttribute('rel', 'noopener');
+        } else {
+            link.removeAttribute('target');
+            link.removeAttribute('rel');
+        }
+    }
+
+    RuEditor.registerCommand('insertNodeCommand', function (editor, node) {
+        editor.insertNode(node);
+    });
+
+    /* ── Очистка оформления ──────────────────────────────────────────── */
+
+    RuEditor.registerButton('removeformat', {
+        icon: 'fas fa-eraser',
+        title: 'Убрать оформление',
+        command: 'removeFormat'
+    });
+
+    RuEditor.registerCommand('removeFormat', function (editor) {
+        editor.native('removeFormat');
+        // Родной removeFormat не трогает встроенные стили на span-ах, которые
+        // мы же и ставим цветом и кеглем — снимаем их отдельно.
+        var range = editor.getRange();
+
+        if (!range || range.collapsed) {
+            return;
+        }
+
+        var box = editor.doc.createElement('div');
+
+        box.appendChild(range.extractContents());
+
+        Array.prototype.forEach.call(box.querySelectorAll('[style]'), function (node) {
+            node.removeAttribute('style');
+        });
+
+        Array.prototype.forEach.call(box.querySelectorAll('span:not([class])'), function (node) {
+            while (node.firstChild) {
+                node.parentNode.insertBefore(node.firstChild, node);
+            }
+            node.remove();
+        });
+
+        var fragment = editor.doc.createDocumentFragment();
+
+        while (box.firstChild) {
+            fragment.appendChild(box.firstChild);
+        }
+
+        range.insertNode(fragment);
+    });
+}(window));
