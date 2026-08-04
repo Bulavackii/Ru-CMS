@@ -32,7 +32,7 @@
 --}}
 
 @php
-  $autoplayDelay = $slideshow->autoplay_delay ?? 15000;
+  $autoplayDelay = $slideshow->autoplay_delay ?? 10000;
   $transitionEffect = $slideshow->transition_effect ?? 'slide';
   $showPagination = $slideshow->show_pagination ?? true;
   $showNavigation = $slideshow->show_navigation ?? true;
