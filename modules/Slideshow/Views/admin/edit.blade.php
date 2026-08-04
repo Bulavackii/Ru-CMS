@@ -76,7 +76,7 @@
         </div>
         <div>
           <label class="block font-medium mb-1 text-gray-700 dark:text-gray-300">⏱️ {{ __('admin.slideshow.autoplay') }}</label>
-          <input type="number" name="autoplay_delay" value="{{ old('autoplay_delay', $slideshow->autoplay_delay ?? 10000) }}" min="1000" max="30000" step="500"
+          <input type="number" name="autoplay_delay" value="{{ old('autoplay_delay', $slideshow->autoplay_delay ?? 7000) }}" min="1000" max="30000" step="500"
                  class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 px-3 py-2">
         </div>
         <div>
