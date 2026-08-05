@@ -275,7 +275,7 @@
     function embedAt(editor, x, y) {
         var found = null;
 
-        Array.prototype.forEach.call(editor.body.querySelectorAll('iframe,video'), function (node) {
+        Array.prototype.forEach.call(editor.body.querySelectorAll('iframe,video,audio'), function (node) {
             var box = node.getBoundingClientRect();
 
             if (x >= box.left && x <= box.right && y >= box.top && y <= box.bottom) {
