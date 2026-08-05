@@ -15,14 +15,10 @@ use Illuminate\Support\Facades\DB;
  */
 class MonitoringService
 {
-    protected string $telegramToken;
-    protected string $telegramChatId;
     protected bool $enabled;
 
     public function __construct()
     {
-        $this->telegramToken = config('services.telegram.token');
-        $this->telegramChatId = config('services.telegram.chat_id');
         $this->enabled = config('monitoring.enabled', true);
     }
 
@@ -189,31 +185,15 @@ class MonitoringService
     }
 
     /**
-     * Отправка в Telegram
+     * Отправка оповещения о сбое.
+     *
+     * Раньше метод был прибит к Telegram. Теперь адрес задаёт владелец
+     * (services.alerts.webhook) — CMS не зависит ни от одного стороннего
+     * сервиса и молчит, пока адрес не задан.
      */
     protected function sendToTelegram(array $data, ?string $customMessage = null): void
     {
-        if (!$this->telegramToken || !$this->telegramChatId) {
-            return;
-        }
-
-        try {
-            $message = $customMessage ?? "🚨 Ошибка в приложении\n\n";
-            $message .= "Сообщение: " . ($data['message'] ?? 'N/A') . "\n";
-            $message .= "Файл: " . ($data['file'] ?? 'N/A') . ":" . ($data['line'] ?? 'N/A') . "\n";
-            $message .= "URL: " . ($data['url'] ?? 'N/A') . "\n";
-            $message .= "IP: " . ($data['ip'] ?? 'N/A') . "\n";
-            $message .= "Время: " . ($data['timestamp'] ?? now()->toDateTimeString());
-
-            Http::timeout(5)->post("https://api.telegram.org/bot{$this->telegramToken}/sendMessage", [
-                'chat_id' => $this->telegramChatId,
-                'text' => $message,
-                'parse_mode' => 'HTML',
-            ]);
-        } catch (\Exception $e) {
-            // Игнорируем ошибки Telegram
-            Log::warning('Failed to send Telegram notification', ['error' => $e->getMessage()]);
-        }
+        send_alert('error', $customMessage ?? ($data['message'] ?? 'Ошибка в приложении'), $data);
     }
 
     /**

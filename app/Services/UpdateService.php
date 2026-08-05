@@ -26,7 +26,7 @@ class UpdateService
 
     public function __construct()
     {
-        $this->updateServerUrl = config('app.update_server_url', 'https://updates.rucms.ru/api');
+        $this->updateServerUrl = config('app.update_server_url', '');
         $this->licenseKey = config('app.license_key', '');
         $this->currentVersion = config('app.version', '1.0.0');
     }
@@ -36,8 +36,27 @@ class UpdateService
      */
     public function checkForUpdates(): array
     {
+        // Пустой адрес или автономный режим — запроса нет вовсе.
+        //
+        // Раньше здесь стоял чужой адрес по умолчанию, и главная страница
+        // панели ходила туда при каждой отрисовке, отправляя лицензионный
+        // ключ и версии окружения. Единственный вызов наружу, работавший без
+        // ведома владельца.
+        // Настройку читаем здесь, а не берём из свойства: сервис —
+        // одиночка, свойство заполняется в конструкторе один раз, и при
+        // изменении настроек (тесты, переключение режима на лету) там
+        // остался бы прежний адрес.
+        $this->updateServerUrl = (string) config('app.update_server_url', '');
+
+        if (! $this->updateServerUrl || ! outbound_allowed()) {
+            return [
+                'available' => false,
+                'current_version' => $this->currentVersion,
+            ];
+        }
+
         $cacheKey = 'updates:available';
-        
+
         return Cache::remember($cacheKey, 3600, function () {
             try {
                 $response = Http::timeout(10)->post("{$this->updateServerUrl}/check", [

@@ -60,7 +60,7 @@ class CloudPaymentsGateway extends AbstractPaymentGateway
         $apiSecret = $this->getConfig('api_secret');
 
         try {
-            $response = Http::withBasicAuth($publicId, $apiSecret)
+            $response = Http::timeout(20)->withBasicAuth($publicId, $apiSecret)
                 ->get("https://api.cloudpayments.ru/payments/find", [
                     'TransactionId' => $paymentId,
                 ]);
@@ -148,7 +148,7 @@ class CloudPaymentsGateway extends AbstractPaymentGateway
         $refundAmount = number_format($amount, 2, '.', '');
 
         try {
-            $response = Http::withBasicAuth($publicId, $apiSecret)
+            $response = Http::timeout(20)->withBasicAuth($publicId, $apiSecret)
                 ->post('https://api.cloudpayments.ru/payments/refund', [
                     'TransactionId' => $paymentId,
                     'Amount' => $refundAmount,

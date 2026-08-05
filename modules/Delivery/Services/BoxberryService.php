@@ -28,7 +28,7 @@ class BoxberryService implements DeliveryServiceInterface
             $weight = $params['weight'] ?? 1;
             $price = $params['price'] ?? 0;
 
-            $response = Http::get($this->apiUrl, [
+            $response = Http::timeout(15)->get($this->apiUrl, [
                 'token' => $this->token,
                 'method' => 'DeliveryCosts',
                 'target' => $target,
@@ -60,7 +60,7 @@ class BoxberryService implements DeliveryServiceInterface
     public function getPickupPoints(string $city, ?string $region = null): array
     {
         try {
-            $response = Http::get($this->apiUrl, [
+            $response = Http::timeout(15)->get($this->apiUrl, [
                 'token' => $this->token,
                 'method' => 'ListPoints',
                 'CityName' => $city,
@@ -91,7 +91,7 @@ class BoxberryService implements DeliveryServiceInterface
     public function track(string $trackingNumber): array
     {
         try {
-            $response = Http::get($this->apiUrl, [
+            $response = Http::timeout(15)->get($this->apiUrl, [
                 'token' => $this->token,
                 'method' => 'ParselStory',
                 'ImId' => $trackingNumber,
@@ -119,7 +119,7 @@ class BoxberryService implements DeliveryServiceInterface
     public function createOrder(array $orderData): array
     {
         try {
-            $response = Http::post($this->apiUrl, array_merge([
+            $response = Http::timeout(15)->post($this->apiUrl, array_merge([
                 'token' => $this->token,
                 'method' => 'ParselCreate',
             ], $orderData));

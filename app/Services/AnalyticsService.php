@@ -149,7 +149,7 @@ class AnalyticsService
         $end = $end ?? now();
 
         try {
-            $response = Http::withHeaders([
+            $response = Http::timeout(10)->withHeaders([
                 'Authorization' => "OAuth {$this->yandexApiKey}",
             ])->get("https://api-metrika.yandex.net/stat/v1/data", [
                 'ids' => $this->yandexCounterId,

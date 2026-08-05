@@ -55,7 +55,7 @@ class YooKassaGateway extends AbstractPaymentGateway
         ];
 
         try {
-            $response = Http::withBasicAuth($shopId, $secretKey)
+            $response = Http::timeout(20)->withBasicAuth($shopId, $secretKey)
                 ->post($baseUrl, $paymentData);
 
             if ($response->successful()) {
@@ -99,7 +99,7 @@ class YooKassaGateway extends AbstractPaymentGateway
         $secretKey = $this->getConfig('secret_key');
 
         try {
-            $response = Http::withBasicAuth($shopId, $secretKey)
+            $response = Http::timeout(20)->withBasicAuth($shopId, $secretKey)
                 ->get("https://api.yookassa.ru/v3/payments/{$paymentId}");
 
             if ($response->successful()) {
@@ -231,7 +231,7 @@ class YooKassaGateway extends AbstractPaymentGateway
         }
 
         try {
-            $response = Http::withBasicAuth($shopId, $secretKey)
+            $response = Http::timeout(20)->withBasicAuth($shopId, $secretKey)
                 ->post("https://api.yookassa.ru/v3/refunds", $refundData);
 
             if ($response->successful()) {

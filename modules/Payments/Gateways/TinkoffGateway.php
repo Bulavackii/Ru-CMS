@@ -65,7 +65,7 @@ class TinkoffGateway extends AbstractPaymentGateway
         $paymentData['Token'] = $this->generateToken($paymentData, $secretKey);
 
         try {
-            $response = Http::post($baseUrl, $paymentData);
+            $response = Http::timeout(20)->post($baseUrl, $paymentData);
 
             if ($response->successful()) {
                 $data = $response->json();
@@ -142,7 +142,7 @@ class TinkoffGateway extends AbstractPaymentGateway
         $data['Token'] = $this->generateToken($data, $secretKey);
 
         try {
-            $response = Http::post('https://securepay.tinkoff.ru/v2/GetState', $data);
+            $response = Http::timeout(20)->post('https://securepay.tinkoff.ru/v2/GetState', $data);
 
             if ($response->successful()) {
                 $result = $response->json();
@@ -254,7 +254,7 @@ class TinkoffGateway extends AbstractPaymentGateway
         $data['Token'] = $this->generateToken($data, $secretKey);
 
         try {
-            $response = Http::post('https://securepay.tinkoff.ru/v2/Cancel', $data);
+            $response = Http::timeout(20)->post('https://securepay.tinkoff.ru/v2/Cancel', $data);
 
             if ($response->successful()) {
                 $result = $response->json();

@@ -685,3 +685,74 @@ if (! function_exists('asset_v')) {
         return $url . (str_contains($url, '?') ? '&' : '?') . 'v=' . filemtime($file);
     }
 }
+
+if (! function_exists('outbound_allowed')) {
+    /**
+     * Можно ли сейчас выходить в интернет.
+     *
+     * Один рубильник на всю систему (APP_STANDALONE в .env). Смысл в том,
+     * чтобы «не ходить наружу» было ОДНИМ решением, а не двадцатью: гасить
+     * оплату, доставку, SMS, оповещения, обновления и выгрузки SEO по
+     * отдельности — верный способ однажды пропустить одну и не заметить.
+     *
+     * Проверять эту функцию обязан КАЖДЫЙ исходящий вызов перед отправкой.
+     */
+    function outbound_allowed(): bool
+    {
+        return ! config('app.standalone', false);
+    }
+}
+
+if (! function_exists('send_alert')) {
+    /**
+     * Сообщить о сбое на заданный владельцем адрес.
+     *
+     * Раньше здесь был жёстко прошитый Telegram, причём в обработчике
+     * исключений он вызывался через file_get_contents БЕЗ таймаута: при
+     * недоступности сервиса каждая необработанная ошибка подвешивала запрос
+     * до default_socket_timeout, то есть до минуты. Внешний сервис получал
+     * возможность положить сайт.
+     *
+     * Теперь это обычный POST с JSON на адрес из настроек — куда его
+     * направить, решает владелец: бот MAX, корпоративный чат, своя
+     * страница-приёмник. CMS не привязана ни к одному сервису.
+     *
+     * Никогда не бросает исключений: оповещение об ошибке не имеет права
+     * стать второй ошибкой.
+     */
+    function send_alert(string $level, string $message, array $context = []): bool
+    {
+        $url = (string) config('services.alerts.webhook', '');
+
+        if ($url === '' || ! outbound_allowed()) {
+            return false;
+        }
+
+        try {
+            $headers = ['Accept' => 'application/json'];
+            $token = (string) config('services.alerts.token', '');
+
+            if ($token !== '') {
+                $headers['Authorization'] = 'Bearer ' . $token;
+            }
+
+            return \Illuminate\Support\Facades\Http::withHeaders($headers)
+                ->timeout((int) config('services.alerts.timeout', 5))
+                ->post($url, [
+                    'level'   => $level,
+                    'message' => $message,
+                    'site'    => config('app.name'),
+                    'url'     => request()?->fullUrl(),
+                    'user'    => auth()->id(),
+                    'time'    => now()->toDateTimeString(),
+                    'context' => $context,
+                ])->successful();
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Не удалось отправить оповещение', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return false;
+        }
+    }
+}

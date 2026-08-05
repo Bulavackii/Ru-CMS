@@ -31,7 +31,7 @@ class PochtaService implements DeliveryServiceInterface
             $weight = $params['weight'] ?? 1000; // граммы
             $mailType = $params['mail_type'] ?? 'POSTAL_PARCEL'; // Посылка
 
-            $response = Http::withBasicAuth($this->login, $this->password)
+            $response = Http::timeout(20)->withBasicAuth($this->login, $this->password)
                 ->withHeaders([
                     'Content-Type' => 'application/json',
                     'Accept' => 'application/json',
@@ -65,7 +65,7 @@ class PochtaService implements DeliveryServiceInterface
     public function getPickupPoints(string $city, ?string $region = null): array
     {
         try {
-            $response = Http::withBasicAuth($this->login, $this->password)
+            $response = Http::timeout(20)->withBasicAuth($this->login, $this->password)
                 ->withHeaders([
                     'Accept' => 'application/json',
                 ])
@@ -98,7 +98,7 @@ class PochtaService implements DeliveryServiceInterface
     public function track(string $trackingNumber): array
     {
         try {
-            $response = Http::get('https://www.pochta.ru/tracking', [
+            $response = Http::timeout(15)->get('https://www.pochta.ru/tracking', [
                 'p' => $trackingNumber,
             ]);
 
@@ -121,7 +121,7 @@ class PochtaService implements DeliveryServiceInterface
     public function createOrder(array $orderData): array
     {
         try {
-            $response = Http::withBasicAuth($this->login, $this->password)
+            $response = Http::timeout(20)->withBasicAuth($this->login, $this->password)
                 ->withHeaders([
                     'Content-Type' => 'application/json',
                     'Accept' => 'application/json',

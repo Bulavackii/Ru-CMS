@@ -58,7 +58,7 @@ class SberbankGateway extends AbstractPaymentGateway
         }
 
         try {
-            $response = Http::post("{$baseUrl}/register.do", $registerData);
+            $response = Http::timeout(20)->post("{$baseUrl}/register.do", $registerData);
 
             if ($response->successful()) {
                 $data = $response->json();
@@ -105,7 +105,7 @@ class SberbankGateway extends AbstractPaymentGateway
             : 'https://securepayments.sberbank.ru/payment/rest';
 
         try {
-            $response = Http::post("{$baseUrl}/getOrderStatus.do", [
+            $response = Http::timeout(20)->post("{$baseUrl}/getOrderStatus.do", [
                 'userName' => $userName,
                 'password' => $password,
                 'orderId' => $paymentId,
@@ -230,7 +230,7 @@ class SberbankGateway extends AbstractPaymentGateway
             : 'https://securepayments.sberbank.ru/payment/rest';
 
         try {
-            $response = Http::post("{$baseUrl}/refund.do", [
+            $response = Http::timeout(20)->post("{$baseUrl}/refund.do", [
                 'userName' => $userName,
                 'password' => $password,
                 'orderId' => $paymentId,

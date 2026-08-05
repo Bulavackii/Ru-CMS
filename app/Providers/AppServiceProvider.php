@@ -43,6 +43,8 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->guardOutboundRequests();
+
         // Проверка установки обрабатывается через middleware RedirectIfInstalled
         // Не нужно делать редирект здесь, так как это нарушает жизненный цикл Laravel
 
@@ -67,5 +69,60 @@ class AppServiceProvider extends ServiceProvider
         View::composer('*', function ($view) {
             $view->with('currentLocale', app()->getLocale());
         });
+    }
+
+    /**
+     * Автономный режим: ни один запрос не уходит наружу.
+     *
+     * Заслон стоит на самом HTTP-клиенте, а не в двадцати сервисах по
+     * отдельности. Смысл именно в этом: гасить оплату, доставку, SMS,
+     * оповещения, обновления и выгрузки SEO поштучно — верный способ однажды
+     * пропустить одну и не заметить. Здесь же выхода нет ни у кого, включая
+     * код, который напишут после.
+     *
+     * Свои адреса остаются доступны. Автономный режим означает «не ходить в
+     * интернет», а не «остаться без базы»: Elasticsearch на localhost, служба
+     * в закрытой сети или собственный сервер обновлений во внутреннем контуре
+     * работают как обычно.
+     */
+    private function guardOutboundRequests(): void
+    {
+        \Illuminate\Support\Facades\Http::globalRequestMiddleware(function ($request) {
+            if (outbound_allowed()) {
+                return $request;
+            }
+
+            $host = strtolower((string) $request->getUri()->getHost());
+
+            if ($this->isInternalHost($host)) {
+                return $request;
+            }
+
+            // Бросаем исключение, а не подменяем ответ: все исходящие вызовы в
+            // проекте обёрнуты в try/catch, поэтому возможность деградирует
+            // молча, а не роняет страницу. Заодно попадает в журнал.
+            throw new \RuntimeException(
+                'Автономный режим: запрос к ' . $host . ' отменён (APP_STANDALONE=true)'
+            );
+        });
+    }
+
+    /** Свой сервер, локальная сеть или собственный домен. */
+    private function isInternalHost(string $host): bool
+    {
+        if ($host === '' || $host === 'localhost' || str_ends_with($host, '.local')) {
+            return true;
+        }
+
+        if (filter_var($host, FILTER_VALIDATE_IP)) {
+            // Публичный адрес — наружу; частный и петлевой — свои.
+            return ! filter_var(
+                $host,
+                FILTER_VALIDATE_IP,
+                FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
+            );
+        }
+
+        return $host === strtolower((string) parse_url((string) config('app.url'), PHP_URL_HOST));
     }
 }

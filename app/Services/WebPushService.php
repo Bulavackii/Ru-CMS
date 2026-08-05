@@ -39,7 +39,7 @@ class WebPushService
             $encryptedPayload = $this->encryptPayload($payload, $subscription);
             $authHeader = $this->generateAuthHeader($subscription->endpoint);
 
-            $response = Http::withHeaders([
+            $response = Http::timeout(10)->withHeaders([
                 'Authorization' => $authHeader,
                 'Content-Type' => 'application/octet-stream',
                 'Content-Encoding' => 'aes128gcm',

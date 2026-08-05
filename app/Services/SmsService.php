@@ -48,7 +48,7 @@ class SmsService
                 return false;
             }
 
-            $response = Http::get('https://sms.ru/sms/send', [
+            $response = Http::timeout(10)->get('https://sms.ru/sms/send', [
                 'api_id' => $apiId,
                 'to' => $phone,
                 'msg' => $message,
@@ -84,7 +84,7 @@ class SmsService
                 return false;
             }
 
-            $response = Http::withBasicAuth($accountSid, $authToken)
+            $response = Http::timeout(10)->withBasicAuth($accountSid, $authToken)
                 ->post("https://api.twilio.com/2010-04-01/Accounts/{$accountSid}/Messages.json", [
                     'From' => $from,
                     'To' => $phone,

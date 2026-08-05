@@ -62,7 +62,7 @@ class SearchService
                 ];
             }
 
-            $response = Http::post("{$this->elasticsearchHost}/{$index}/_search", $body);
+            $response = Http::timeout(10)->post("{$this->elasticsearchHost}/{$index}/_search", $body);
 
             if ($response->successful()) {
                 $data = $response->json();
@@ -146,7 +146,7 @@ class SearchService
                 'updated_at' => $model->updated_at?->toIso8601String(),
             ];
 
-            Http::put("{$this->elasticsearchHost}/{$index}/_doc/{$id}", $document);
+            Http::timeout(10)->put("{$this->elasticsearchHost}/{$index}/_doc/{$id}", $document);
 
             return true;
         } catch (\Exception $e) {
@@ -171,7 +171,7 @@ class SearchService
             $index = config('services.elasticsearch.index', 'cms_content');
             $id = get_class($model) . '_' . $model->id;
 
-            Http::delete("{$this->elasticsearchHost}/{$index}/_doc/{$id}");
+            Http::timeout(10)->delete("{$this->elasticsearchHost}/{$index}/_doc/{$id}");
 
             return true;
         } catch (\Exception $e) {

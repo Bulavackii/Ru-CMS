@@ -93,7 +93,7 @@ class PullMetrica implements ShouldQueue, ShouldBeUnique
         }
 
         try {
-            $resp = Http::withHeaders([
+            $resp = Http::timeout(20)->withHeaders([
                     'Authorization' => 'OAuth ' . $token,
                     'Accept'        => 'application/json',
                 ])

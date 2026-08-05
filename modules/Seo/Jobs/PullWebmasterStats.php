@@ -60,7 +60,7 @@ class PullWebmasterStats implements ShouldQueue, ShouldBeUnique
 
         try {
             // Небольшой встроенный retry на сетевые мелочи (дополнительно к $tries/$backoff)
-            $resp = Http::withHeaders(['Authorization' => 'OAuth '.$token])
+            $resp = Http::timeout(20)->withHeaders(['Authorization' => 'OAuth '.$token])
                 ->timeout($timeout)
                 ->retry(2, 500) // 2 повтора с шагом 500мс
                 ->get($endpoint);

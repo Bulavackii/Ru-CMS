@@ -92,35 +92,22 @@ class Handler extends ExceptionHandler
     }
 
     /**
-     * Отправка ошибки в Telegram
+     * Отправка оповещения о необработанной ошибке.
+     *
+     * Здесь был file_get_contents на api.telegram.org БЕЗ таймаута. Если
+     * сервис недоступен или заблокирован, каждая необработанная ошибка
+     * подвешивала запрос до default_socket_timeout — то есть до минуты.
+     * Внешний сервис получал возможность положить сайт, и починка одной
+     * ошибки превращалась в отказ всего сайта.
+     *
+     * Теперь это общий канал оповещений с таймаутом: адрес задаёт владелец,
+     * а без адреса не отправляется ничего.
      */
     protected function sendToTelegram(Throwable $e): void
     {
-        try {
-            $message = "🚨 CMS Error\n\n";
-            $message .= "Message: " . $e->getMessage() . "\n";
-            $message .= "File: " . $e->getFile() . ":" . $e->getLine() . "\n";
-            $message .= "URL: " . request()->fullUrl() . "\n";
-            $message .= "User: " . (auth()->id() ?? 'Guest') . "\n";
-            $message .= "Time: " . now()->toDateTimeString();
-
-            // Отправка через Telegram Bot API
-            $token = config('services.telegram.token');
-            $chatId = config('services.telegram.chat_id');
-
-            if ($token && $chatId) {
-                file_get_contents("https://api.telegram.org/bot{$token}/sendMessage?" . http_build_query([
-                    'chat_id' => $chatId,
-                    'text' => $message,
-                    'parse_mode' => 'HTML',
-                ]));
-            }
-        } catch (Throwable $telegramError) {
-            // Если Telegram недоступен, просто логируем
-            Log::channel('daily')->error('Failed to send Telegram notification', [
-                'error' => $telegramError->getMessage(),
-            ]);
-        }
+        send_alert('error', $e->getMessage(), [
+            'file' => $e->getFile() . ':' . $e->getLine(),
+        ]);
     }
 
     /**

@@ -56,7 +56,7 @@ class GatewayChecker
     private function checkYooKassa(array $settings): array
     {
         try {
-            $response = Http::withBasicAuth((string) $settings['shop_id'], (string) $settings['secret_key'])
+            $response = Http::timeout(20)->withBasicAuth((string) $settings['shop_id'], (string) $settings['secret_key'])
                 ->timeout(self::TIMEOUT)
                 ->acceptJson()
                 ->get('https://api.yookassa.ru/v3/payments', ['limit' => 1]);

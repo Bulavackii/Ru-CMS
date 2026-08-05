@@ -57,7 +57,7 @@ class QiwiGateway extends AbstractPaymentGateway
         ];
 
         try {
-            $response = Http::withHeaders([
+            $response = Http::timeout(20)->withHeaders([
                 'Authorization' => 'Bearer ' . $secretKey,
                 'Content-Type' => 'application/json',
             ])->put("{$baseUrl}/{$billId}", $paymentData);
@@ -98,7 +98,7 @@ class QiwiGateway extends AbstractPaymentGateway
         $secretKey = $this->getConfig('secret_key');
 
         try {
-            $response = Http::withHeaders([
+            $response = Http::timeout(20)->withHeaders([
                 'Authorization' => 'Bearer ' . $secretKey,
             ])->get("https://api.qiwi.com/partner/bill/v1/bills/{$paymentId}");
 
@@ -185,7 +185,7 @@ class QiwiGateway extends AbstractPaymentGateway
         $refundAmount = number_format($amount, 2, '.', '');
 
         try {
-            $response = Http::withHeaders([
+            $response = Http::timeout(20)->withHeaders([
                 'Authorization' => 'Bearer ' . $secretKey,
                 'Content-Type' => 'application/json',
             ])->post("https://api.qiwi.com/partner/bill/v1/bills/{$paymentId}/refund", [

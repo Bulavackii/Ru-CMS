@@ -17,6 +17,12 @@ class UpdateServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        // Адрес сервера обновлений ПУСТ по умолчанию: проверка выключена,
+        // чтобы CMS не ходила наружу без ведома владельца. Тестам, которые
+        // проверяют саму проверку, адрес нужен — задаём его явно.
+        config(['app.update_server_url' => 'https://updates.example.test/api']);
+
         $this->service = app(UpdateService::class);
     }
 
@@ -68,6 +74,36 @@ class UpdateServiceTest extends TestCase
 
         $this->assertEquals($result1, $result2);
         Http::assertSentCount(1); // Должен быть только один HTTP запрос
+    }
+
+    /** @test */
+    public function it_does_not_call_anything_without_an_update_server()
+    {
+        // Ключевая гарантия: из коробки CMS не стучится никуда. Раньше здесь
+        // стоял чужой адрес по умолчанию, и главная страница панели отправляла
+        // на него лицензионный ключ и версии окружения при каждой отрисовке.
+        config(['app.update_server_url' => '']);
+        Cache::forget('updates:available');
+        Http::fake();
+
+        $result = app(UpdateService::class)->checkForUpdates();
+
+        Http::assertNothingSent();
+        $this->assertFalse($result['available']);
+    }
+
+    /** @test */
+    public function it_stays_silent_in_standalone_mode()
+    {
+        // Автономный режим гасит проверку, даже если адрес сервера задан.
+        config(['app.standalone' => true]);
+        Cache::forget('updates:available');
+        Http::fake();
+
+        $result = app(UpdateService::class)->checkForUpdates();
+
+        Http::assertNothingSent();
+        $this->assertFalse($result['available']);
     }
 }
 

@@ -33,7 +33,7 @@ class YandexCaptchaService
         }
 
         try {
-            $response = Http::post("{$this->apiUrl}/validate", [
+            $response = Http::timeout(10)->post("{$this->apiUrl}/validate", [
                 'secret' => $this->serverKey,
                 'token' => $token,
                 'ip' => $ip ?? request()->ip(),
