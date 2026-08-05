@@ -807,6 +807,18 @@ return [
 
     'files' => [
 
+        'clear_selection' => 'Clear selection',
+
+        'showing' => 'Showing :from–:to of :total',
+
+        'confirm_bulk' => 'Delete the selected files (:count)? This cannot be undone.',
+
+        'confirm_one' => 'Delete this file? This cannot be undone.',
+
+        'delete_failed' => 'Could not delete. See the log for details.',
+
+        'bulk_deleted' => 'Files deleted: :count',
+
         'too_big' => 'The file is larger than allowed (:size).',
         'categories_count' => 'Categories:',
         'title' => 'Files',

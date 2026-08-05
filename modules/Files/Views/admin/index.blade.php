@@ -101,11 +101,57 @@
 
 {{-- ── Сетка файлов ── --}}
 @if($files->count())
+    {{-- Полоса выбора. Появляется, только когда что-то отмечено: постоянная
+         панель с неактивными кнопками занимает место и ничего не сообщает. --}}
+    <div id="bulk-bar" class="admin-card p-3 mb-4 hidden items-center gap-3">
+        <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <input type="checkbox" id="bulk-all">
+            {{ __('admin.files.select_all') }}
+        </label>
+
+        <span class="text-sm text-gray-500 dark:text-gray-400">
+            {{ __('admin.files.selected') }} <b id="bulk-count">0</b>
+        </span>
+
+        <div class="ml-auto flex items-center gap-2">
+            <button type="button" id="bulk-clear"
+                    class="inline-flex items-center gap-2 px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600
+                           text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                {{ __('admin.files.clear_selection') }}
+            </button>
+            <button type="button" id="bulk-delete"
+                    class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 transition">
+                <i class="fas fa-trash"></i> {{ __('admin.common.delete') }}
+            </button>
+        </div>
+    </div>
+
     <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4" id="files-grid">
         @foreach($files as $file)
-            <div class="admin-card p-3 hover:shadow-lg transition cursor-pointer file-item"
+            {{-- Плитка целиком открывает карточку, поэтому отметка и кнопки
+                 гасят всплытие: раньше любой щелчок по ним заодно распахивал
+                 модалку поверх только что нажатого действия. --}}
+            <div class="admin-card p-3 hover:shadow-lg transition cursor-pointer file-item relative group"
                  data-file-id="{{ $file->id }}"
+                 data-file-name="{{ $file->original_name }}"
                  onclick="openFileModal({{ $file->id }})">
+
+                <label class="file-pick" onclick="event.stopPropagation()">
+                    <input type="checkbox" class="file-check" value="{{ $file->id }}">
+                </label>
+
+                <div class="file-actions" onclick="event.stopPropagation()">
+                    <a href="{{ route('admin.files.download', $file) }}"
+                       class="file-action" title="{{ __('admin.files.download') }}">
+                        <i class="fas fa-download"></i>
+                    </a>
+                    <button type="button" class="file-action file-action--danger"
+                            title="{{ __('admin.common.delete') }}"
+                            onclick="deleteOne({{ $file->id }}, this)">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+
                 @if($file->isImage())
                     <img src="{{ Storage::url($file->path) }}"
                          alt="{{ $file->alt_text ?? $file->original_name }}"
@@ -128,9 +174,47 @@
         @endforeach
     </div>
 
-    {{-- Пагинация --}}
-    <div class="mt-6">
-        {{ $files->links('vendor.pagination.tailwind') }}
+    {{-- Постраничный вывод.
+
+         Сводка показывается всегда, а не только когда страниц несколько:
+         при восемнадцати файлах и двадцати четырёх на странице ссылок нет
+         вовсе, и понять, всё ли показано, было неоткуда. Рядом — выбор
+         размера страницы: у кого-то библиотека на три файла, у кого-то на
+         три тысячи. --}}
+    <div class="mt-6 flex flex-col md:flex-row md:items-center gap-3">
+        <form method="GET" class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+            @foreach(request()->except(['per_page', 'page']) as $key => $value)
+                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+            @endforeach
+
+            <span>{{ __('admin.files.per_page') }}</span>
+            <select name="per_page" onchange="this.form.submit()"
+                    class="border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-2 py-1 text-sm
+                           focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
+                @foreach([24, 48, 96] as $size)
+                    <option value="{{ $size }}" {{ (int) request('per_page', 24) === $size ? 'selected' : '' }}>{{ $size }}</option>
+                @endforeach
+            </select>
+
+            {{-- Свою подпись показываем ТОЛЬКО когда страница одна: у общего
+                 компонента пагинации она уже есть, и на нескольких страницах
+                 счётчик выводился бы дважды. --}}
+            @unless($files->hasPages())
+                <span class="text-gray-400">
+                    {{ __('admin.files.showing', [
+                        'from'  => $files->firstItem(),
+                        'to'    => $files->lastItem(),
+                        'total' => $files->total(),
+                    ]) }}
+                </span>
+            @endunless
+        </form>
+
+        {{-- Тот же компонент, что в кабинете на «Истории входов», — один файл
+             на все двадцать восемь списков проекта. --}}
+        <div class="md:ml-auto flex-1">
+            {{ $files->withQueryString()->links() }}
+        </div>
     </div>
 @else
     {{-- Пустое состояние: раньше его не было вовсе и страница выглядела «пустой» --}}
@@ -198,7 +282,114 @@
     </div>
 </div>
 
+@push('styles')
+<style>
+    /* Отметка и кнопки появляются при наведении, а у отмеченного файла
+       отметка видна всегда — иначе непонятно, что именно выбрано. */
+    .file-pick{ position:absolute; top:8px; left:8px; z-index:2; opacity:0; transition:opacity .15s ease }
+    .file-item:hover .file-pick,
+    .file-item.is-picked .file-pick{ opacity:1 }
+    .file-pick input{ width:18px; height:18px; cursor:pointer }
+
+    .file-actions{ position:absolute; top:8px; right:8px; z-index:2; display:flex; gap:4px;
+                   opacity:0; transition:opacity .15s ease }
+    .file-item:hover .file-actions{ opacity:1 }
+    .file-action{ display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px;
+                  font-size:11px; color:#374151; background:rgba(255,255,255,.94);
+                  border:1px solid #e5e7eb; cursor:pointer }
+    .file-action:hover{ color:#111827; background:#fff }
+    .file-action--danger:hover{ color:#fff; background:#dc2626; border-color:#dc2626 }
+
+    .file-item.is-picked{ outline:2px solid var(--admin-primary); outline-offset:-2px }
+
+    #bulk-bar.is-open{ display:flex }
+</style>
+@endpush
+
 @push('scripts')
+<script>
+    // ── Выбор файлов и массовое удаление ─────────────────────────────
+    (function () {
+        const bar = document.getElementById('bulk-bar');
+        if (!bar) { return; }
+
+        const countBox = document.getElementById('bulk-count');
+        const checks = () => Array.from(document.querySelectorAll('.file-check'));
+        const picked = () => checks().filter(c => c.checked);
+
+        const sync = () => {
+            const list = picked();
+
+            bar.classList.toggle('is-open', list.length > 0);
+            countBox.textContent = list.length;
+            document.getElementById('bulk-all').checked = list.length === checks().length && list.length > 0;
+
+            checks().forEach(c => c.closest('.file-item').classList.toggle('is-picked', c.checked));
+        };
+
+        document.addEventListener('change', e => {
+            if (e.target.classList.contains('file-check')) { sync(); }
+        });
+
+        document.getElementById('bulk-all').addEventListener('change', e => {
+            checks().forEach(c => { c.checked = e.target.checked; });
+            sync();
+        });
+
+        document.getElementById('bulk-clear').addEventListener('click', () => {
+            checks().forEach(c => { c.checked = false; });
+            sync();
+        });
+
+        document.getElementById('bulk-delete').addEventListener('click', () => {
+            const ids = picked().map(c => Number(c.value));
+            if (!ids.length) { return; }
+
+            if (!confirm(@js(__('admin.files.confirm_bulk')).replace(':count', ids.length))) { return; }
+
+            fetch(@js(route('admin.files.bulkDelete')), {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ ids: ids }),
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (!data.success) { throw new Error(data.message || 'error'); }
+                // Перезагружаем страницу, а не убираем плитки на месте: после
+                // удаления меняется и разбивка по страницам, и счётчики.
+                window.location.reload();
+            })
+            .catch(() => alert(@js(__('admin.files.delete_failed'))));
+        });
+
+        // Одиночное удаление той же кнопкой на плитке.
+        window.deleteOne = function (id, button) {
+            if (!confirm(@js(__('admin.files.confirm_one')))) { return; }
+
+            fetch(@js(route('admin.files.index')) + '/' + id, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                },
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (!data.success) { throw new Error(); }
+                button.closest('.file-item').remove();
+                sync();
+            })
+            .catch(() => alert(@js(__('admin.files.delete_failed'))));
+        };
+
+        sync();
+    })();
+</script>
+
 <script>
 let selectedFiles = [];
 

@@ -55,7 +55,13 @@ class FileController extends Controller
             });
         }
 
-        $files = $query->orderByDesc('created_at')->paginate(24);
+        // Размер страницы выбирает человек: у кого-то библиотека на три файла,
+        // у кого-то на три тысячи. Значение зажато в известные варианты —
+        // произвольное число из адреса позволило бы запросить всё разом.
+        $perPage = (int) $request->input('per_page', 24);
+        $perPage = in_array($perPage, [24, 48, 96], true) ? $perPage : 24;
+
+        $files = $query->orderByDesc('created_at')->paginate($perPage)->withQueryString();
         $categories = FileCategory::orderBy('name')->get();
 
         return view('Files::admin.index', compact('files', 'categories'));
@@ -440,6 +446,56 @@ class FileController extends Controller
                 'message' => 'Ошибка удаления: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * 🗑️ Удаление нескольких файлов разом.
+     *
+     * Метод с таким же именем есть в App\Http\Controllers\Admin\FileController,
+     * и маршрут вёл именно туда — в тот самый дубль ядра, который для медиатеки
+     * давно не используется (все остальные действия идут в этот контроллер).
+     * Тот дубль сносил запись и файл, но не трогал уменьшенные копии: они
+     * оставались на диске навсегда.
+     *
+     * @return JsonResponse
+     */
+    public function bulkDelete(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'ids'   => 'required|array|min:1',
+            'ids.*' => 'integer|exists:files,id',
+        ]);
+
+        $deleted = 0;
+        $failed = [];
+
+        foreach (File::whereIn('id', $validated['ids'])->get() as $file) {
+            try {
+                if (Storage::disk('public')->exists($file->path)) {
+                    Storage::disk('public')->delete($file->path);
+                    $this->deleteThumbnails($file->path);
+                }
+
+                $file->delete();
+                $deleted++;
+            } catch (\Throwable $e) {
+                // Один сбойный файл не должен обрывать всю пачку: остальные
+                // удаляются, а имя проблемного возвращается в ответе.
+                $failed[] = $file->original_name;
+
+                Log::error('Не удалось удалить файл пачкой', [
+                    'file_id' => $file->id,
+                    'error'   => $e->getMessage(),
+                ]);
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'deleted' => $deleted,
+            'failed'  => $failed,
+            'message' => __('admin.files.bulk_deleted', ['count' => $deleted]),
+        ]);
     }
 
     /**

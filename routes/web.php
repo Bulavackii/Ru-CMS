@@ -310,28 +310,23 @@ Route::middleware(['web', 'auth', 'admin'])->group(function () {
         Route::get('/{message}', [MessageController::class, 'show'])->name('admin.messages.show');
     });
 
-    // Маршруты для управления файлами
-    Route::prefix('admin/files')->name('admin.files.')->group(function () {
-        // Страница списка файлов
-        Route::get('/', [FileController::class, 'index'])->name('index');
-
-        // Загрузка файла
-        Route::post('/upload', [FileController::class, 'upload'])->name('upload');
-
-        // Скачивание файла
-        Route::get('/download/{id}', [FileController::class, 'download'])->name('download');
-
-        // Фильтрация файлов по категориям
-        Route::get('/filter', [FileController::class, 'filter'])->name('filter');
-    });
+    // Маршруты медиатеки объявлены в самом модуле (modules/Files/Routes/web.php),
+    // здесь их больше нет.
+    //
+    // Раньше та же четвёрка имён (admin.files.index/upload/download/filter) плюс
+    // bulk-delete была объявлена и тут, но вела в дубль контроллера из ядра —
+    // давно не используемый. Какой из двух ответит,
+    // решала случайность: побеждал тот, чьи маршруты зарегистрировались позже,
+    // а модульные грузятся только при включённом модуле. То есть стоило
+    // выключить Файлы — и раздел не пропадал, а начинал отвечать другим кодом:
+    // без чистки уменьшенных копий, с другой проверкой типов при загрузке.
+    // Ровно это и вскрыл тест на массовое удаление.
 
     Route::get('/admin/error-report', [ErrorReportController::class, 'form'])->name('admin.error.report');
     Route::post('/admin/error-report', [ErrorReportController::class, 'send'])->name('admin.error.report.send');
 
     Route::get('/admin/geolocation', [ErrorReportController::class, 'geolocation'])->name('admin.geolocation');
     Route::get('/admin/system-info', [ErrorReportController::class, 'systemInfo'])->name('admin.system_info');
-
-    Route::delete('/admin/files/bulk-delete', [FileController::class, 'bulkDelete'])->name('admin.files.bulkDelete');
 
     Route::delete('/admin/categories/bulk-delete', [\Modules\Categories\Controllers\Admin\CategoryController::class, 'bulkDelete'])
         ->name('admin.categories.bulkDelete');
