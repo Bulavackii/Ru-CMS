@@ -90,9 +90,9 @@ return [
         'news' => 'News',
         'media' => 'Media',
         'media_hint' => 'Size of files in storage/app/public, recalculated hourly',
-        'developer' => 'Developer',
+        'developer' => 'Developer:',
         'repository' => 'Repository',
-        'installed' => 'Installed',
+        'installed' => 'Installed:',
 
         'server_time' => 'Server time',
 
@@ -102,7 +102,7 @@ return [
 
         'ms' => 'ms',
 
-        'memory' => 'Memory',
+        'memory' => 'Memory:',
 
         'memory_hint' => 'Peak memory used by this request',
 

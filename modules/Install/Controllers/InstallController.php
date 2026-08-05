@@ -65,9 +65,55 @@ class InstallController extends Controller
     }
 
     /** 🚀 Стартовая страница с выбором языка и страны */
+
+    /**
+     * По одной стране на каждый доступный язык.
+     *
+     * Страна нужна не сама по себе, а как источник пояса, валюты и форматов:
+     * что-то подставить при установке всё равно надо. Уточняются они потом в
+     * разделе «Локализация» — на первом экране это лишний выбор.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function localeChoices(): array
+    {
+        $available = function_exists('available_locales') ? available_locales() : ['ru'];
+        $seen = [];
+        $choices = [];
+
+        foreach (self::COUNTRY_PRESETS as $code => $country) {
+            $locale = $country['locale'] ?? 'ru';
+
+            // Первая страна с этим языком и выигрывает: в списке пресетов
+            // Россия стоит раньше Беларуси и Казахстана, поэтому русский
+            // достаётся ей, а не им.
+            if (! in_array($locale, $available, true) || isset($seen[$locale])) {
+                continue;
+            }
+
+            $seen[$locale] = true;
+            $choices[$code] = $country;
+        }
+
+        // Ни одного словаря не нашлось — показываем хотя бы русский, иначе на
+        // первом шаге установки не будет ни одной кнопки.
+        return $choices ?: ['RU' => self::COUNTRY_PRESETS['RU']];
+    }
+
     public function welcome(Request $request)
     {
-        $presetCountries = self::COUNTRY_PRESETS;
+        // На первом шаге выбирают ЯЗЫК, а не страну, поэтому показываем ровно
+        // столько кнопок, сколько языков реально есть в resources/lang.
+        //
+        // Раньше кнопок было четыре: Россия, Беларусь, Казахстан, США. Пока у
+        // проекта были четыре словаря, каждая меняла язык. После того как
+        // беларуский и казахский убрали, три кнопки из четырёх стали вести на
+        // русский — под заголовком «Язык интерфейса» человек видел три
+        // одинаковые подписи «Русский», различающиеся только флагом.
+        //
+        // Список строится по каталогам словарей, а не задан вручную: появится
+        // новый язык с готовым пресетом — кнопка добавится сама.
+        $presetCountries = $this->localeChoices();
 
         if ($request->has('country_code')) {
             $countryCode = strtoupper($request->get('country_code'));

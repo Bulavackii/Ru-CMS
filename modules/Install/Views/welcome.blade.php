@@ -50,7 +50,9 @@
                     ];
                 @endphp
                 <form method="GET" action="{{ route('install.welcome') }}">
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    {{-- Колонок ровно столько, сколько кнопок: при двух языках сетка на
+                         четыре оставляла половину строки пустой. --}}
+                    <div class="grid gap-2.5 {{ count($presetCountries) > 2 ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-2' }}">
                         @foreach($presetCountries as $code => $country)
                             @php $isSel = ($currentCountry ?? 'RU') === $code; @endphp
                             <button type="submit"
@@ -128,7 +130,7 @@
                    class="ui-btn w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-800 bg-white/70 hover:bg-white border border-white/70">
                     <i data-lucide="star" class="w-4 h-4"></i><span>{{ __('install.welcome.features') }}</span>
                 </a>
-                <a href="https://github.com/Bulavackii/Ru-CMS" target="_blank" rel="noopener"
+                <a href="https://github.com/#" target="_blank" rel="noopener"
                    data-tip="{{ __('install.welcome.github_tip') }}"
                    class="ui-btn w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-500 bg-black/5 hover:bg-black/10 border border-white/50">
                     <i data-lucide="github" class="w-4 h-4"></i><span>GitHub</span>

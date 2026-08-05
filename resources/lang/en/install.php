@@ -51,7 +51,7 @@ return [
         'lang_title'   => 'Interface language',
         'lang_change'  => '— can be changed later',
         'selected'     => 'Selected',
-        'lang_note'    => 'Sets the interface language, date format, currency and time zone.',
+        'lang_note'    => 'Sets the interface language. Date format, currency and time zone come from the same choice — adjust them later under “Localization”.',
         'f_easy'       => 'Easy wizard',
         'f_easy_sub'   => '5 minutes to launch',
         'f_easy_tip'   => 'Only the fields you need, nothing extra — up and running in 5 minutes',
