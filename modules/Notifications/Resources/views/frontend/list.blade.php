@@ -35,9 +35,14 @@
                             border:1px solid rgba(17,24,39,.1);
                             box-shadow:0 18px 40px -18px rgba(17,24,39,.45);">
 
-                    <button class="notif-close" aria-label="Закрыть"
-                            style="position:absolute; top:10px; right:12px; font-size:20px; line-height:1;
-                                   background:transparent; border:0; color:inherit; cursor:pointer; opacity:.6;">&times;</button>
+                    {{-- У согласия крестика нет: закрыть его молча — значит не
+                         ответить ни да, ни нет, а решение нужно однозначное.
+                         Вместо него две кнопки внизу. --}}
+                    @if ($n->type !== 'cookie')
+                        <button class="notif-close" aria-label="{{ __('frontend.consent.close') }}"
+                                style="position:absolute; top:10px; right:12px; font-size:20px; line-height:1;
+                                       background:transparent; border:0; color:inherit; cursor:pointer; opacity:.6;">&times;</button>
+                    @endif
 
                     @if ($n->icon || $n->title)
                         <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
@@ -65,6 +70,20 @@
                             {!! $n->message !!}
                         @endif
                     </div>
+
+                    @if ($n->type === 'cookie')
+                        {{-- Кнопки рисуются самим уведомлением, а не пишутся
+                             в тексте: так согласие нельзя случайно испортить
+                             правкой из панели, а обработчик всегда на месте. --}}
+                        <div class="notif-consent">
+                            <button type="button" class="notif-consent__yes" data-consent="1">
+                                {{ __('frontend.consent.accept') }}
+                            </button>
+                            <button type="button" class="notif-consent__no" data-consent="0">
+                                {{ __('frontend.consent.essential') }}
+                            </button>
+                        </div>
+                    @endif
                 </div>
             @endforeach
         </div>
@@ -72,6 +91,20 @@
 
     <style>
         .notif-item a{ font-weight:600; color:#4f46e5; text-decoration:underline; }
+
+        /* Согласие: кнопки в строку, на узком экране — друг под другом. */
+        .notif-consent{ display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+        .notif-consent button{
+            flex:1 1 auto; min-width:150px; padding:9px 16px; font-size:.85rem; font-weight:600;
+            line-height:1.2; cursor:pointer; border:1px solid transparent; transition:filter .15s ease, background .15s ease;
+        }
+        .notif-consent__yes{ color:#fff; background:#4f46e5; }
+        .notif-consent__yes:hover{ filter:brightness(1.1); }
+        .notif-consent__no{ color:#374151; background:#fff; border-color:#d1d5db; }
+        .notif-consent__no:hover{ background:#f3f4f6; }
+        /* Уведомление о согласии заметнее прочих: его нужно прочитать. */
+        .notif-item.is-consent{ padding-right:20px; }
+
         .notif-item a:hover{ color:#4338ca; }
         .notif-close:hover{ opacity:1; }
         /* Появление — чистой CSS-анимацией. Раньше видимость включал JS (класс
@@ -90,25 +123,59 @@
             document.querySelectorAll('.notif-item').forEach(box => {
                 const duration = parseInt(box.dataset.duration, 10) || 0;
                 const cookieKey = box.dataset.cookie;
+                const consent = box.querySelector('.notif-consent');
 
-                // Уже закрытое «одноразовое» уведомление не показываем совсем
+                // Уже отвеченное уведомление не показываем совсем
                 if (cookieKey && document.cookie.split('; ').some(c => c.startsWith(cookieKey + '='))) {
                     box.remove();
                     return;
                 }
 
-                const hide = () => {
-                    if (cookieKey) {
-                        document.cookie = `${cookieKey}=1; path=/; max-age=31536000; samesite=lax`;
-                    }
+                // Согласие живёт до закрытия браузера: cookie БЕЗ max-age
+                // стирается вместе с сеансом. Обычные баннеры закрываются на
+                // год — там это разумно, а решение о персональных данных
+                // разумнее спрашивать заново.
+                const remember = (value) => {
+                    if (!cookieKey) return;
+                    const life = consent ? '' : ' max-age=31536000;';
+                    document.cookie = `${cookieKey}=${value}; path=/;${life} samesite=lax`;
+                };
+
+                const hide = (value) => {
+                    remember(value === undefined ? 1 : value);
                     box.classList.add('is-hiding');
                     setTimeout(() => box.remove(), 320);
                 };
 
-                box.querySelector('.notif-close')?.addEventListener('click', hide);
+                box.querySelector('.notif-close')?.addEventListener('click', () => hide());
+
+                if (consent) {
+                    box.classList.add('is-consent');
+
+                    consent.querySelectorAll('[data-consent]').forEach(button => {
+                        button.addEventListener('click', () => {
+                            const yes = button.dataset.consent === '1';
+
+                            hide(yes ? 1 : 0);
+
+                            // Счётчики запускаются ТОЛЬКО после согласия и сразу
+                            // же, без перезагрузки: иначе первый просмотр — тот,
+                            // ради которого человек и пришёл, — теряется.
+                            if (yes && typeof window.ruStartAnalytics === 'function') {
+                                window.ruStartAnalytics();
+                            }
+
+                            document.dispatchEvent(new CustomEvent('ru:consent', { detail: { accepted: yes } }));
+                        });
+                    });
+
+                    // У согласия таймер не работает: молчание согласием не
+                    // считается, ответ должен быть осознанным.
+                    return;
+                }
 
                 if (duration > 0) {
-                    setTimeout(hide, duration * 1000);
+                    setTimeout(() => hide(), duration * 1000);
                 }
             });
 

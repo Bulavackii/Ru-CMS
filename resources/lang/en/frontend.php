@@ -186,6 +186,17 @@ return [
         'items' => 'items',
     ],
 
+
+    'consent' => [
+
+        'accept' => 'Accept',
+
+        'essential' => 'Essential only',
+
+        'close' => 'Close',
+
+    ],
+
     'common' => [
         'cms_tagline' => 'Modular CMS',
         'fit_screen' => 'Fit to screen',

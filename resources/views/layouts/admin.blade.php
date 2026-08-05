@@ -101,7 +101,7 @@
     .admin-toggle input:checked ~ .knob{left:calc(100% - 1.4rem + 2px)}
     .dark .admin-toggle .track{background:#4b5563}
   </style>
-  
+
   {{-- Vite для основного JS (Alpine и другие) --}}
   @vite(['resources/js/app.js'])
 
@@ -126,7 +126,7 @@
 <body class="admin-sharp bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-colors duration-200 min-h-screen">
   {{-- Мобильное меню --}}
   @include('layouts.admin.mobile-menu')
-  
+
   {{-- фиксированный сайдбар --}}
   @include('layouts.admin.sidebar')
 
@@ -157,7 +157,7 @@
        намеренно: там @vite нет, мастеру установки Alpine взять больше неоткуда. --}}
   <script src="{{ asset('js/admin/notifications.js') }}"></script>
   @stack('scripts')
-  
+
   {{-- Обработка ошибок загрузки ресурсов --}}
   <script>
     (function() {
@@ -167,14 +167,14 @@
           console.warn('Alpine.js не загружен. Проверьте путь к файлу.');
         }
       });
-      
+
       // Обработка ошибок загрузки скриптов
       document.addEventListener('error', function(e) {
         if (e.target.tagName === 'SCRIPT') {
           console.error('Ошибка загрузки скрипта:', e.target.src);
         }
       }, true);
-      
+
       // Обработка ошибок загрузки стилей
       document.addEventListener('error', function(e) {
         if (e.target.tagName === 'LINK' && e.target.rel === 'stylesheet') {

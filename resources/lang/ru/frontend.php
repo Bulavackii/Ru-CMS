@@ -186,6 +186,17 @@ return [
         'items' => 'товаров',
     ],
 
+
+    'consent' => [
+
+        'accept' => 'Принять',
+
+        'essential' => 'Только необходимые',
+
+        'close' => 'Закрыть',
+
+    ],
+
     'common' => [
         'cms_tagline' => 'Модульная CMS',
         'fit_screen' => 'По экрану',

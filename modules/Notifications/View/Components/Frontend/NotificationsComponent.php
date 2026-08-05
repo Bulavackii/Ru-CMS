@@ -42,6 +42,23 @@ class NotificationsComponent extends Component
                 ->values();
         });
 
+        // Уже отвеченные баннеры не отдаём вовсе.
+        //
+        // Отбор идёт ПОСЛЕ кеша и на каждый запрос: ответ хранится в cookie
+        // посетителя, а кеш общий на всех — внутри него это решение принимать
+        // нельзя. Скрипт баннера и так убрал бы его на клиенте, но тогда показ
+        // засчитывался бы тому, кто ничего не увидел, а разметка ездила бы
+        // впустую в каждом ответе.
+        $this->notifications = $this->notifications
+            ->reject(function (Notification $notification) {
+                $key = $notification->type === 'cookie'
+                    ? ($notification->cookie_key ?: 'notif_' . $notification->id)
+                    : null;
+
+                return $key && request()->cookie($key) !== null;
+            })
+            ->values();
+
         // 👁️ Счётчик показов: поле views_count было, но никто его не считал
         Notification::countViews($this->notifications->pluck('id')->all());
     }

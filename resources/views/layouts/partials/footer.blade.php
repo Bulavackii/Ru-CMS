@@ -76,7 +76,7 @@
                     <ul class="f-brand-facts">
                         <li>
                             <span class="f-ico">@themeIcon('user')</span>
-                            <span><b>Иван Иванов</b> — {{ __('frontend.footer.developer') }}</span>
+                            <span><b>Булавацкий Д.О.</b> — {{ __('frontend.footer.developer') }}</span>
                         </li>
                         <li>
                             <span class="f-ico">@themeIcon('calendar')</span>
@@ -89,7 +89,7 @@
                     <div class="f-brand-chips">
                         <span class="f-brand-chip">v{{ config('app.version', '1.0.0') }}</span>
                         <span class="f-brand-chip">MIT</span>
-                        <a href="https://github.com/Bulavackii/Ru-CMS" target="_blank" rel="noopener"
+                        <a href="https://github.com/#" target="_blank" rel="noopener"
                            class="f-brand-chip f-brand-chip--link">
                             <x-icon.github :size="12" /> {{ __('frontend.footer.sources') }}
                         </a>

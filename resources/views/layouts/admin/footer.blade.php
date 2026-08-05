@@ -209,13 +209,10 @@
                 <span class="adm-f-dot" aria-hidden="true">·</span>
                 <span>
                     {{ __('admin.footer.developer') }}
-                    <a href="https://github.com/Bulavackii" target="_blank" rel="noopener" class="adm-f-link">Bulavackii</a>
+                    Булавацкий Д.О.
                 </span>
 
-                <span class="adm-f-dot" aria-hidden="true">·</span>
-                <a href="https://github.com/Bulavackii/Ru-CMS" target="_blank" rel="noopener" class="adm-f-link">
-                    {{ __('admin.footer.repository') }}
-                </a>
+
 
                 @if($installedAt)
                     <span class="adm-f-dot" aria-hidden="true">·</span>

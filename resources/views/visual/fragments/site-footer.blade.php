@@ -43,10 +43,10 @@
             <div>
                 <h3 class="text-base font-semibold mb-4 text-center" style="color:var(--color-text,#111827)">Мы в соцсетях</h3>
                 <div class="flex justify-center flex-wrap gap-3 text-[18px]">
-                    <a href="https://vk.com/ru_cms" target="_blank" class="transition transform hover:scale-110" aria-label="VK" style="color:var(--color-primary,#2563eb)">@themeIcon('vk')</a>
-                    <a href="https://max.ru" target="_blank" class="transition transform hover:scale-110" aria-label="MAX"><x-icon.max :size="20" /></a>
-                    <a href="https://rutube.ru" target="_blank" class="transition transform hover:scale-110" aria-label="Rutube"><x-icon.rutube :size="20" /></a>
-                    <a href="https://github.com/Bulavackii/Ru-CMS" class="transition transform hover:scale-110" aria-label="GitHub" style="color:var(--color-text,#6b7280)">@themeIcon('github')</a>
+                    <a href="https://vk.com/#" target="_blank" class="transition transform hover:scale-110" aria-label="VK" style="color:var(--color-primary,#2563eb)">@themeIcon('vk')</a>
+                    <a href="https://max.ru/#" target="_blank" class="transition transform hover:scale-110" aria-label="MAX"><x-icon.max :size="20" /></a>
+                    <a href="https://rutube.ru/#" target="_blank" class="transition transform hover:scale-110" aria-label="Rutube"><x-icon.rutube :size="20" /></a>
+                    <a href="https://github.com/#" class="transition transform hover:scale-110" aria-label="GitHub" style="color:var(--color-text,#6b7280)">@themeIcon('github')</a>
                     <a href="#" class="transition transform hover:scale-110" aria-label="YouTube" style="color:#ef4444">@themeIcon('youtube')</a>
                 </div>
             </div>

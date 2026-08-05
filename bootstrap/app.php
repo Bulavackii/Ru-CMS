@@ -108,6 +108,17 @@ return Application::configure(basePath: dirname(__DIR__))
             'block.if.installed' => \App\Http\Middleware\BlockIfInstalled::class,
         ]);
 
+        // Согласие на cookie ставит САМ БРАУЗЕР, поэтому шифровать его нельзя.
+        //
+        // Laravel по умолчанию шифрует все cookie и молча выбрасывает те, что
+        // не расшифровались. Значение ru_consent пишет скрипт баннера обычным
+        // текстом — сервер его просто не видел, request()->cookie() возвращал
+        // null, и счётчики не запускались бы ни на одной странице, кроме той,
+        // где нажали «Принять». Секрета в этом значении нет: 1 или 0.
+        $middleware->encryptCookies(except: [
+            \Modules\Notifications\Console\Commands\SeedDefaultNotificationCommand::CONSENT_COOKIE,
+        ]);
+
         // Глобальный middleware для безопасности (кроме установки)
         // SkipDatabaseForInstall должен выполняться ПЕРВЫМ, чтобы переключить драйвер сессий до StartSession
         $middleware->web(prepend: [

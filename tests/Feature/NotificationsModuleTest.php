@@ -228,14 +228,36 @@ class NotificationsModuleTest extends TestCase
         SeedDefaultNotificationCommand::seed(false);
         SeedDefaultNotificationCommand::seed(false);
 
-        $this->assertSame(1, Notification::count());
+        // Уведомлений заводится два, и повторный вызов их не дублирует.
+        $this->assertSame(2, Notification::count());
 
-        $notification = Notification::firstOrFail();
-        $this->assertSame(SeedDefaultNotificationCommand::DEMO_TITLE, $notification->title);
+        $demo = Notification::where('title', SeedDefaultNotificationCommand::DEMO_TITLE)->firstOrFail();
         // Образец для правки, а не живое объявление на свежем сайте
-        $this->assertFalse($notification->enabled);
+        $this->assertFalse($demo->enabled);
+        $this->get('/')->assertDontSee($demo->title);
+    }
 
-        $this->get('/')->assertDontSee($notification->title);
+    public function test_consent_banner_is_seeded_enabled_and_gates_analytics(): void
+    {
+        // Согласие на cookie нужно любому сайту по 152-ФЗ, поэтому оно
+        // единственное, что заводится ВКЛЮЧЁННЫМ. Заодно оно управляет
+        // счётчиками: пока ответа нет, Метрика не запускается.
+        SeedDefaultNotificationCommand::seed(false);
+
+        $consent = Notification::where('title', SeedDefaultNotificationCommand::CONSENT_TITLE)->firstOrFail();
+
+        $this->assertTrue($consent->enabled);
+        $this->assertSame('cookie', $consent->type);
+        $this->assertSame(SeedDefaultNotificationCommand::CONSENT_COOKIE, $consent->cookie_key);
+
+        // Без ответа баннер показывается…
+        $this->get('/')->assertSee('notif-consent', false);
+
+        // …а с ответом больше не отдаётся вовсе: разметка не ездит впустую и
+        // показ не засчитывается тому, кто ничего не увидел.
+        $this->withUnencryptedCookie(SeedDefaultNotificationCommand::CONSENT_COOKIE, '1')
+            ->get('/')
+            ->assertDontSee('notif-consent', false);
     }
 
     // ── Разведение с центром уведомлений админки ──────────────────────────

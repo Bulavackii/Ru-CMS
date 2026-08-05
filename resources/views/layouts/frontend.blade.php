@@ -39,19 +39,41 @@
 @if (config('seo.features.metrica') && config('seo.metrica.counter_id'))
     @php
         $metricaCounterId = (int) config('seo.metrica.counter_id');
+        // Согласие на счётчики. Cookie ставит баннер «Уведомления» с типом
+        // cookie; ключ тот же, что у него в поле «Ключ cookie».
+        $analyticsConsent = request()->cookie('ru_consent') === '1';
     @endphp
     <!-- Yandex.Metrika counter -->
     <script type="text/javascript">
-        (function(m,e,t,r,i,k,a){
-            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-            m[i].l=1*new Date();
-            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id={{ $metricaCounterId }}', 'ym');
+        // Счётчик вынесен в функцию и НЕ запускается сам.
+        //
+        // Раньше он подключался при каждой отрисовке страницы, то есть данные
+        // посетителя уходили наружу до того, как он что-либо разрешил. Теперь
+        // запуск происходит либо здесь (если согласие уже дано в этом сеансе),
+        // либо из баннера согласия сразу после нажатия «Принять» — без
+        // перезагрузки, чтобы не потерять первый просмотр.
+        window.ruStartAnalytics = function () {
+            if (window.ruAnalyticsStarted) { return; }
+            window.ruAnalyticsStarted = true;
 
-        ym({{ $metricaCounterId }}, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+            (function(m,e,t,r,i,k,a){
+                m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+                m[i].l=1*new Date();
+                for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+                k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+            })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id={{ $metricaCounterId }}', 'ym');
+
+            ym({{ $metricaCounterId }}, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+        };
+
+        @if ($analyticsConsent)
+            window.ruStartAnalytics();
+        @endif
     </script>
-    <noscript><div><img src="https://mc.yandex.ru/watch/{{ $metricaCounterId }}" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    @if ($analyticsConsent)
+        {{-- Пиксель без скриптов — тоже обращение наружу, поэтому и он за согласием. --}}
+        <noscript><div><img src="https://mc.yandex.ru/watch/{{ $metricaCounterId }}" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    @endif
     <!-- /Yandex.Metrika counter -->
 @endif
 

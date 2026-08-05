@@ -15,12 +15,12 @@
                     Модульная система управления контентом для России и СНГ
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="{{ route('admin.dashboard') }}" 
+                    <a href="{{ route('admin.dashboard') }}"
                        class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-lg font-semibold">
                         <i class="fas fa-gauge-high mr-2"></i>
                         Перейти в админ-панель
                     </a>
-                    <a href="{{ route('login') }}" 
+                    <a href="{{ route('login') }}"
                        class="inline-flex items-center px-6 py-3 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 transition text-lg font-semibold">
                         <i class="fas fa-sign-in-alt mr-2"></i>
                         Войти в систему
@@ -35,7 +35,7 @@
         <h2 class="text-3xl font-bold text-center mb-12 text-gray-900">
             ✨ Возможности системы
         </h2>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {{-- Безопасность --}}
             <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition">
@@ -165,7 +165,7 @@
                         <div class="text-sm text-gray-600">Управление контентом и настройками</div>
                     </div>
                 </a>
-                <a href="https://github.com/Bulavackii/Ru-CMS" target="_blank" class="flex items-center p-4 bg-white rounded-lg hover:shadow-md transition border border-gray-200">
+                <a href="https://github.com/#" target="_blank" class="flex items-center p-4 bg-white rounded-lg hover:shadow-md transition border border-gray-200">
                     <i class="fab fa-github text-2xl text-gray-800 mr-4"></i>
                     <div>
                         <div class="font-semibold text-gray-900">GitHub</div>
@@ -173,7 +173,7 @@
                     </div>
                 </a>
             </div>
-            
+
             {{-- Быстрые ссылки на модули в админке --}}
             <div class="mt-6 pt-6 border-t border-gray-200">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">🚀 Быстрый старт в админ-панели:</h3>
@@ -197,7 +197,7 @@
 
     {{-- Скрыть приветствие --}}
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 text-center">
-        <button onclick="hideWelcome()" 
+        <button onclick="hideWelcome()"
                 class="text-gray-500 hover:text-gray-700 text-sm">
             <i class="fas fa-times mr-1"></i> Скрыть это приветствие
         </button>

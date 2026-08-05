@@ -77,7 +77,7 @@
             </div>
 
             {{-- ── Оформление ── --}}
-            <div class="admin-card p-5">
+            <div class="admin-card p-5" x-data="{ type: @js($val('type', 'text')) }">
                 <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
                     <i class="fas fa-palette text-indigo-500"></i> Оформление
                 </h2>
@@ -85,14 +85,25 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <label for="type" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Тип</label>
-                        <select id="type" name="type"
+                        <select id="type" name="type" x-model="type"
                                 class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
                                        focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
-                            <option value="text" @selected($val('type', 'text') === 'text')>Текст — разметка вырезается</option>
-                            <option value="html" @selected($val('type') === 'html')>HTML — ссылки и форматирование</option>
-                            <option value="cookie" @selected($val('type') === 'cookie')>Одноразовое — больше не покажем</option>
+                            <option value="text">Текст — разметка вырезается</option>
+                            <option value="html">HTML — ссылки и форматирование</option>
+                            <option value="cookie">Согласие — с кнопками «Принять» и «Только необходимые»</option>
                         </select>
-                        <p class="admin-hint mt-1">«Одноразовое» запоминается в браузере после закрытия.</p>
+
+                        {{-- Подсказка меняется вместе с типом: у согласия
+                             поведение другое во всём, и общая фраза про
+                             «запоминается в браузере» вводила в заблуждение. --}}
+                        <p class="admin-hint mt-1" x-show="type !== 'cookie'" x-cloak>
+                            Закрывается крестиком и больше не показывается в этом браузере.
+                        </p>
+                        <p class="admin-hint mt-1" x-show="type === 'cookie'" x-cloak>
+                            Кнопки добавляются сами, крестика нет — ответ должен быть осознанным.
+                            Выбор держится <b>до закрытия браузера</b>, потом спросим снова.
+                            Пока не нажали «Принять», Яндекс.Метрика не запускается.
+                        </p>
                     </div>
 
                     <div>
@@ -106,13 +117,20 @@
                         </select>
                     </div>
 
-                    <div>
+                    {{-- Поле показывается только там, где работает: у обычных
+                         баннеров оно не значило ничего и просто занимало место
+                         в строке. --}}
+                    <div x-show="type === 'cookie'" x-cloak>
                         <label for="cookie_key" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Ключ cookie</label>
                         <input type="text" id="cookie_key" name="cookie_key" value="{{ $val('cookie_key') }}"
-                               placeholder="welcome_notice"
+                               placeholder="ru_consent"
                                class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
                                       focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
-                        <p class="admin-hint mt-1">Только для типа «одноразовое». Пусто — ключ по id.</p>
+                        <p class="admin-hint mt-1">
+                            По этому ключу сайт понимает, что ответил посетитель.
+                            Для согласия на cookie он должен быть <code>ru_consent</code> — именно его
+                            проверяют счётчики. Пусто — ключ соберётся по номеру уведомления.
+                        </p>
                         @error('cookie_key')<p class="text-sm text-red-500 mt-1">{{ $message }}</p>@enderror
                     </div>
 
