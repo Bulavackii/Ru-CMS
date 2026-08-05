@@ -59,18 +59,14 @@
             <select name="category_id" class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
                                               focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
                 <option value="">{{ __('admin.common.all') }}</option>
-                {{-- Категории общие для проекта и разложены по типам: у новостей,
-                     страниц и товаров свои наборы, и без разделителей они слились
-                     бы в один плоский перечень. Название лежит в title, а не в
-                     name — у своей, ныне удалённой модели было наоборот. --}}
-                @foreach($categories->groupBy('type') as $type => $group)
-                    <optgroup label="{{ $type ?: __('admin.categories.no_type') }}">
-                        @foreach($group as $category)
-                            <option value="{{ $category->id }}" {{ (int) request('category_id') === $category->id ? 'selected' : '' }}>
-                                {{ $category->title }}
-                            </option>
-                        @endforeach
-                    </optgroup>
+                {{-- Категории общие для проекта. Название лежит в title, а не в
+                     name — у своей, ныне удалённой модели было наоборот. Тип
+                     (news/page/product) не показываем: это служебный слаг, и
+                     разложенные по нему группы дают заголовок ради одной строки. --}}
+                @foreach($categories as $category)
+                    <option value="{{ $category->id }}" {{ (int) request('category_id') === $category->id ? 'selected' : '' }}>
+                        {{ $category->title }}
+                    </option>
                 @endforeach
             </select>
         </div>
@@ -279,14 +275,10 @@
                         class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
                                focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
                     <option value="">{{ __('admin.common.without_category') }}</option>
-                    @foreach($categories->groupBy('type') as $type => $group)
-                        <optgroup label="{{ $type ?: __('admin.categories.no_type') }}">
-                            @foreach($group as $category)
-                                <option value="{{ $category->id }}" {{ (int) request('category_id') === $category->id ? 'selected' : '' }}>
-                                    {{ $category->title }}
-                                </option>
-                            @endforeach
-                        </optgroup>
+                    @foreach($categories as $category)
+                        <option value="{{ $category->id }}" {{ (int) request('category_id') === $category->id ? 'selected' : '' }}>
+                            {{ $category->title }}
+                        </option>
                     @endforeach
                 </select>
             </div>
@@ -561,12 +553,8 @@ function openFileModal(fileId) {
                             class="flex-1 border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
                                    focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
                         <option value="">{{ __('admin.common.without_category') }}</option>
-                        @foreach($categories->groupBy('type') as $type => $group)
-                            <optgroup label="{{ $type ?: __('admin.categories.no_type') }}">
-                                @foreach($group as $category)
-                                    <option value="{{ $category->id }}">{{ $category->title }}</option>
-                                @endforeach
-                            </optgroup>
+                        @foreach($categories as $category)
+                            <option value="{{ $category->id }}">{{ $category->title }}</option>
                         @endforeach
                     </select>
                     <button type="button" onclick="saveFileCategory(${fileId})"

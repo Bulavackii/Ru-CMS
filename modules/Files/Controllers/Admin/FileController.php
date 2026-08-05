@@ -64,10 +64,9 @@ class FileController extends Controller
         $files = $query->orderByDesc('created_at')->paginate($perPage)->withQueryString();
         // Категории — общие для проекта: те же, что владелец завёл в разделе
         // «Категории» для новостей, страниц и товаров. Свои у медиатеки были,
-        // но остались пустыми и удалены. Сортировка по типу и названию: в
-        // выпадающем списке они разложены по типам, иначе «Новости», «Товары»
-        // и «Услуги» смешались бы в один плоский перечень.
-        $categories = Category::orderBy('type')->orderBy('title')->get();
+        // но остались пустыми и удалены. Порядок по названию: тип — служебный
+        // слаг, человеку он ни о чём не говорит и в списке не показывается.
+        $categories = Category::orderBy('title')->get();
 
         return view('Files::admin.index', compact('files', 'categories'));
     }
@@ -155,12 +154,11 @@ class FileController extends Controller
             // запросом: подборщику в редакторе он нужен ровно один раз, при
             // первой отрисовке, и второй круг к серверу ради десятка строк
             // ничего не даёт.
-            'categories' => Category::orderBy('type')->orderBy('title')
-                ->get(['id', 'title', 'type'])
+            'categories' => Category::orderBy('title')
+                ->get(['id', 'title'])
                 ->map(fn (Category $category) => [
                     'id'    => $category->id,
                     'title' => $category->title,
-                    'type'  => $category->type,
                 ])->all(),
         ]);
     }

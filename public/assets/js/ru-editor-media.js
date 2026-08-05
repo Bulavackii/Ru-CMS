@@ -722,10 +722,7 @@
                     category.appendChild(el('option', { value: '', text: t('media.category', 'Все категории') }));
 
                     data.categories.forEach(function (item) {
-                        category.appendChild(el('option', {
-                            value: String(item.id),
-                            text: item.type ? item.title + ' · ' + item.type : item.title
-                        }));
+                        category.appendChild(el('option', { value: String(item.id), text: item.title }));
                     });
 
                     if (!data.categories.length) {

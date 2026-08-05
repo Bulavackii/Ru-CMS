@@ -926,7 +926,6 @@ return [
         'search_ph' => 'Name, description…',
         'type' => 'Type',
         'all_types' => 'All types',
-        'no_type' => 'No type',
         'parent' => 'Parent',
         'all_parents' => 'All categories',
         'roots' => 'Root ones',
