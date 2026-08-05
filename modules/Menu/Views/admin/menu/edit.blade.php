@@ -38,7 +38,7 @@
     </div>
 
     {{-- ───────────────────── Help block ───────────────────── --}}
-    <div class="admin-hint mb-6 p-4 text-sm">
+    <div class="admin-note mb-6 p-4 text-sm">
         @themeIcon('lightbulb')
         {{ __('admin.menu.drag_hint_1') }}
         <kbd class="px-1.5 py-0.5 border border-indigo-300 bg-white dark:bg-gray-800">Ctrl</kbd> + <kbd class="px-1.5 py-0.5 border border-indigo-300 bg-white dark:bg-gray-800">S</kbd> {{ __('admin.menu.drag_hint_2') }}

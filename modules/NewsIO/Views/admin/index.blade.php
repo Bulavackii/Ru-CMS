@@ -138,7 +138,7 @@
           </label>
         </div>
 
-        <aside class="admin-hint px-3 py-2 text-xs">
+        <aside class="admin-note px-3 py-2 text-xs">
           <i class="fas fa-lightbulb"></i> {{ __('admin.newsio.tip') }}
         </aside>
 

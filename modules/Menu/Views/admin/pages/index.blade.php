@@ -148,7 +148,7 @@
   </div>
 
   {{-- ── Подсказка ── --}}
-  <div class="admin-hint px-4 py-3 mb-5 text-sm">
+  <div class="admin-note px-4 py-3 mb-5 text-sm">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
       <div class="flex items-center gap-2 font-medium">
         <i class="fa-solid fa-lightbulb"></i>

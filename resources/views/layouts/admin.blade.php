@@ -85,8 +85,21 @@
     .admin-card{background:#fff;border:1px solid #e5e7eb;transition:box-shadow .2s ease,transform .2s ease}
     .admin-card:hover{box-shadow:0 12px 24px -10px var(--admin-primary-glow);transform:translateY(-2px)}
     .dark .admin-card{background:#1f2937;border-color:#374151}
-    .admin-hint{border-left:3px solid var(--admin-primary);background:var(--admin-primary-soft);color:var(--admin-primary-ink)}
-    .dark .admin-hint{background:var(--admin-primary-soft);color:#c7d2fe}
+    /* Пояснение под полем — обычный мелкий серый текст.
+       Раньше здесь была заливка с полосой слева, и короткая подсказка вроде
+       «0 — висит, пока не закроют» читалась как выделенный маркером текст:
+       на форме с десятком полей глаз цеплялся за подсказки, а не за поля.
+       Тот же вывод уже был сделан в Геолокации (.geo-help) — теперь правило
+       общее для всей панели. */
+    .admin-hint{font-size:.8rem;line-height:1.5;color:#64748b}
+    .dark .admin-hint{color:#94a3b8}
+
+    /* Врезка-примечание — то, чем .admin-hint был раньше. Оставлена для
+       случаев, где текст ДОЛЖЕН выделяться: предупреждение над формой,
+       пояснение к разделу целиком. Отличается наличием отступов в месте
+       применения — короткие подсказки под полями их не имеют. */
+    .admin-note{border-left:3px solid var(--admin-primary);background:var(--admin-primary-soft);color:var(--admin-primary-ink)}
+    .dark .admin-note{background:var(--admin-primary-soft);color:#c7d2fe}
 
     /* Рабочий тумблер. Tailwind-вариант peer-checked: в статической сборке
        ОТСУТСТВУЕТ (как dark:/opacity/arbitrary), из-за чего все тумблеры на

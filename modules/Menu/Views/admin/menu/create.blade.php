@@ -130,7 +130,7 @@
                     </div>
                 </div>
 
-                <div class="admin-hint mt-4 p-3 text-xs">
+                <div class="admin-note mt-4 p-3 text-xs">
                     @themeIcon('lightbulb') <b>{{ __('admin.menu.tip') }}</b> {{ __('admin.menu.tip_text') }}
                 </div>
             </div>

@@ -46,7 +46,7 @@
 
     {{-- Использование категории --}}
     @if(isset($usageCounts) && ($usageCounts['news'] > 0 || $usageCounts['pages'] > 0 || $usageCounts['children'] > 0))
-        <div class="admin-hint px-4 py-3 mb-5 text-sm">
+        <div class="admin-note px-4 py-3 mb-5 text-sm">
             <div class="flex flex-wrap items-center gap-3">
                 <span class="font-medium flex items-center gap-2"><i class="fas fa-chart-simple"></i> {{ __('admin.categories.usage') }}</span>
                 @if($usageCounts['news'] > 0)

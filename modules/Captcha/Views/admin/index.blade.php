@@ -50,7 +50,7 @@
     </div>
 
     @unless($enabled)
-        <div class="admin-hint p-4 mb-5 text-sm">
+        <div class="admin-note p-4 mb-5 text-sm">
             {!! __('admin.captcha.disabled_note', ['flag' => '<span class="font-mono">CAPTCHA_ENABLED=false</span>', 'env' => '<span class="font-mono">.env</span>']) !!}
             {{ __('admin.captcha.disabled_note2') }}
         </div>
@@ -217,7 +217,7 @@
                 {{ __('admin.captcha.preview_note2') }}
             </p>
 
-            <div x-cloak x-show="error" class="admin-hint p-3 mt-3 text-xs" x-text="error"></div>
+            <div x-cloak x-show="error" class="admin-note p-3 mt-3 text-xs" x-text="error"></div>
         </section>
     </form>
 
