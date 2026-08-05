@@ -59,31 +59,34 @@
         action: function (editor) { editor.exec('media'); }
     });
 
+    /**
+     * Видео. Свой файл — тегом video с настройками проигрывателя, ссылка на
+     * площадку — встроенным окном её проигрывателя.
+     *
+     * Раньше здесь был один диалог с адресом и двумя числами: выбрать ролик из
+     * медиатеки было нельзя, а настройки проигрывателя отсутствовали вовсе.
+     */
     RuEditor.registerCommand('media', function (editor) {
-        editor.saveSelection();
-
-        RuEditor.dialog({
+        openMediaDialog(editor, {
+            type: 'video',
             title: t('media.title', 'Видео'),
-            fields: [
-                {
-                    name: 'url',
-                    label: t('media.url', 'Адрес ролика или файла'),
-                    type: 'text',
-                    required: true,
-                    hint: t('media.hint', 'Ссылка на YouTube, RuTube, VK Видео или прямой адрес файла .mp4')
-                },
-                {
-                    type: 'row',
-                    fields: [
-                        { name: 'width', label: t('media.width', 'Ширина'), type: 'number', value: 640 },
-                        { name: 'height', label: t('media.height', 'Высота'), type: 'number', value: 360 }
-                    ]
-                }
-            ],
-            onSubmit: function (values) {
+            urlHint: t('media.hint', 'Ссылка на YouTube, RuTube, VK Видео или прямой адрес файла .mp4'),
+            extras: function (box, api) {
+                playerFields(box, api, {
+                    poster: true,
+                    // Звук по умолчанию не выключаем: браузеры разрешают
+                    // самозапуск только беззвучным, поэтому «сам играет»
+                    // включает и «без звука» — но решает это автор.
+                    hint: t('media.autoplay_hint', 'Браузеры запускают ролик сами только без звука')
+                });
+            },
+            onPick: function (file, values) {
                 editor.restoreSelection();
 
-                var html = buildEmbed(values.url.trim(), values.width, values.height);
+                var url = (values.url || '').trim();
+                var html = isEmbeddable(url)
+                    ? buildEmbed(url, values.width)
+                    : buildPlayer('video', url, values);
 
                 if (html) {
                     editor.insertHtml(html);
@@ -91,6 +94,228 @@
             }
         });
     });
+
+    /* ── Кнопка «Звук» ───────────────────────────────────────────────── */
+
+    RuEditor.registerButton('audio', {
+        icon: 'fas fa-volume-high',
+        title: 'Звук',
+        action: function (editor) { editor.exec('audio'); }
+    });
+
+    RuEditor.registerCommand('audio', function (editor) {
+        openMediaDialog(editor, {
+            type: 'audio',
+            title: t('audio.title', 'Звук'),
+            urlHint: t('audio.hint', 'Прямой адрес файла .mp3, .ogg или .wav'),
+            extras: function (box, api) {
+                playerFields(box, api, { poster: false });
+            },
+            onPick: function (file, values) {
+                editor.restoreSelection();
+
+                var html = buildPlayer('audio', (values.url || '').trim(), values);
+
+                if (html) {
+                    editor.insertHtml(html);
+                }
+            }
+        });
+    });
+
+    /* ── Кнопка «Файл» ───────────────────────────────────────────────── */
+
+    RuEditor.registerButton('file', {
+        icon: 'fas fa-paperclip',
+        title: 'Файл для скачивания',
+        action: function (editor) { editor.exec('file'); }
+    });
+
+    /**
+     * Любой файл — карточкой со значком, названием и размером.
+     *
+     * Просто ссылка тоже работает, но посетитель не понимает, что его ждёт:
+     * договор на двадцать мегабайт и заметка на две строки выглядят одинаково.
+     * Карточка показывает тип и вес до нажатия.
+     */
+    RuEditor.registerCommand('file', function (editor) {
+        openMediaDialog(editor, {
+            type: 'file',
+            title: t('file.title', 'Файл для скачивания'),
+            urlHint: t('file.hint', 'Прямой адрес файла'),
+            extras: function (box, api) {
+                var label = el('input', { type: 'text', placeholder: t('file.label_hint', 'По умолчанию — имя файла') });
+
+                api.inputs.label = label;
+
+                var card = el('input', { type: 'checkbox' });
+
+                card.checked = true;
+                api.inputs.card = card;
+
+                box.appendChild(el('label', { class: 'ru-ed-field' }, [
+                    el('span', { text: t('file.label', 'Подпись') }),
+                    label
+                ]));
+
+                box.appendChild(el('label', { class: 'ru-ed-field ru-ed-check' }, [
+                    card,
+                    el('span', { text: t('file.as_card', 'Карточкой со значком и размером'), style: 'margin:0;font-weight:500' })
+                ]));
+            },
+            onPick: function (file, values) {
+                editor.restoreSelection();
+
+                var url = (values.url || '').trim();
+
+                if (!url) {
+                    return;
+                }
+
+                var name = (values.label || '').trim() || (file && file.name) || url.split('/').pop();
+
+                if (!values.card) {
+                    editor.insertHtml('<a href="' + RuEditor.escapeHtml(url) + '" download>' +
+                                      RuEditor.escapeHtml(name) + '</a>');
+                    return;
+                }
+
+                // Тип берём из АДРЕСА, а не из подписи: подпись пишет человек
+                // («Договор оферты»), и расширения в ней обычно нет.
+                var ext = (file && file.ext) || '';
+
+                if (!ext) {
+                    ext = (url.split(/[?#]/)[0].split('.').pop() || '').toLowerCase();
+
+                    if (ext.length > 5 || ext.indexOf('/') !== -1) {
+                        ext = '';
+                    }
+                }
+
+                var size = file && file.size ? file.size : '';
+
+                editor.insertHtml(
+                    '<p class="pc-file"><a href="' + RuEditor.escapeHtml(url) + '" download>' +
+                    (ext ? '<span class="pc-file__ext">' + RuEditor.escapeHtml(ext) + '</span>' : '') +
+                    '<span class="pc-file__name">' + RuEditor.escapeHtml(name) + '</span>' +
+                    (size ? '<span class="pc-file__size">' + RuEditor.escapeHtml(size) + '</span>' : '') +
+                    '</a></p><p><br></p>'
+                );
+            }
+        });
+    });
+
+    /* ── Настройки проигрывателя ─────────────────────────────────────── */
+
+    function playerFields(box, api, options) {
+        var row = el('div', { class: 'ru-ed-row' });
+
+        [
+            ['controls', t('player.controls', 'Показывать управление'), true],
+            ['autoplay', t('player.autoplay', 'Запускать сразу'), false],
+            ['loop', t('player.loop', 'Повторять'), false],
+            ['muted', t('player.muted', 'Без звука'), false]
+        ].forEach(function (item) {
+            var check = el('input', { type: 'checkbox' });
+
+            check.checked = item[2];
+            api.inputs[item[0]] = check;
+
+            row.appendChild(el('label', { class: 'ru-ed-field ru-ed-check' }, [
+                check,
+                el('span', { text: item[1], style: 'margin:0;font-weight:500' })
+            ]));
+        });
+
+        box.appendChild(row);
+
+        var preload = el('select', {});
+
+        [
+            ['metadata', t('player.preload_meta', 'Только сведения о файле')],
+            ['none', t('player.preload_none', 'Ничего не грузить заранее')],
+            ['auto', t('player.preload_auto', 'Грузить сразу')]
+        ].forEach(function (item) {
+            preload.appendChild(el('option', { value: item[0], text: item[1] }));
+        });
+
+        api.inputs.preload = preload;
+
+        var width = el('input', { type: 'number', min: 10, max: 100, value: 100 });
+
+        api.inputs.width = width;
+
+        var pair = el('div', { class: 'ru-ed-row' }, [
+            el('label', { class: 'ru-ed-field' }, [
+                el('span', { text: t('player.preload', 'Предзагрузка') }),
+                preload,
+                el('small', { text: t('player.preload_hint', '«Грузить сразу» тянет весь файл при открытии страницы') })
+            ]),
+            el('label', { class: 'ru-ed-field' }, [
+                el('span', { text: t('player.width', 'Ширина, % от текста') }),
+                width
+            ])
+        ]);
+
+        box.appendChild(pair);
+
+        if (options.poster) {
+            var poster = el('input', { type: 'text', placeholder: 'https://…' });
+
+            api.inputs.poster = poster;
+
+            box.appendChild(el('label', { class: 'ru-ed-field' }, [
+                el('span', { text: t('player.poster', 'Заставка до запуска') }),
+                poster,
+                el('small', { text: t('player.poster_hint', 'Адрес картинки. Без неё браузер показывает первый кадр или пустоту') })
+            ]));
+        }
+
+        if (options.hint) {
+            box.appendChild(el('small', { text: options.hint, style: 'display:block;color:#6b7280' }));
+        }
+    }
+
+    /** Разметка своего проигрывателя. */
+    function buildPlayer(tag, url, values) {
+        if (!url) {
+            return '';
+        }
+
+        var attrs = ['src="' + RuEditor.escapeHtml(url) + '"'];
+
+        if (values.controls) { attrs.push('controls'); }
+        if (values.loop) { attrs.push('loop'); }
+        if (values.muted) { attrs.push('muted'); }
+        if (values.autoplay) {
+            attrs.push('autoplay');
+            // Самозапуск со звуком браузеры блокируют, и ролик просто не
+            // играет. Добавляем беззвучность сами, иначе настройка молча
+            // ничего не делает.
+            if (!values.muted) {
+                attrs.push('muted');
+            }
+        }
+
+        attrs.push('preload="' + RuEditor.escapeHtml(values.preload || 'metadata') + '"');
+
+        if (tag === 'video' && values.poster) {
+            attrs.push('poster="' + RuEditor.escapeHtml(String(values.poster).trim()) + '"');
+        }
+
+        var width = parseInt(values.width, 10);
+
+        if (width && width > 0 && width < 100) {
+            attrs.push('style="width:' + width + '%"');
+        }
+
+        return '<p><' + tag + ' ' + attrs.join(' ') + '></' + tag + '></p><p><br></p>';
+    }
+
+    /** Адрес ведёт на площадку с роликом, а не на файл. */
+    function isEmbeddable(url) {
+        return /youtube\.com|youtu\.be|rutube\.ru|vk\.com\/video/i.test(url);
+    }
 
     /**
      * Разбор адреса ролика.
@@ -100,16 +325,22 @@
      * известные площадки приводим к их адресу встраивания, а неизвестное
      * считаем прямым файлом и отдаём тегу video.
      */
-    function buildEmbed(url, width, height) {
+    function buildEmbed(url, width) {
         if (!url) {
             return '';
         }
 
-        var w = parseInt(width, 10) || 640;
-        var h = parseInt(height, 10) || 360;
+        // Ширина в процентах, высота — из пропорции 16:9. Жёсткие пиксели у
+        // встроенного окна означают, что на телефоне ролик либо вылезет за
+        // край, либо останется крохотным.
+        var percent = parseInt(width, 10);
+
+        percent = percent && percent > 0 && percent <= 100 ? percent : 100;
+
+        var style = 'width:' + percent + '%;aspect-ratio:16/9;height:auto';
         var frame = function (src) {
-            return '<p><iframe src="' + RuEditor.escapeHtml(src) + '" width="' + w + '" height="' + h +
-                   '" frameborder="0" allowfullscreen loading="lazy"></iframe></p>';
+            return '<p><iframe src="' + RuEditor.escapeHtml(src) + '" style="' + style +
+                   '" frameborder="0" allowfullscreen loading="lazy"></iframe></p><p><br></p>';
         };
 
         var youtube = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]{6,})/i);
@@ -128,11 +359,6 @@
 
         if (vk) {
             return frame('https://vk.com/video_ext.php?oid=' + vk[1] + '&id=' + vk[2]);
-        }
-
-        if (/\.(mp4|webm|ogv|ogg)(\?.*)?$/i.test(url)) {
-            return '<p><video src="' + RuEditor.escapeHtml(url) + '" width="' + w +
-                   '" height="' + h + '" controls></video></p>';
         }
 
         return frame(url);
@@ -263,7 +489,8 @@
 
                 pane.appendChild(el('label', { class: 'ru-ed-field' }, [
                     el('span', { text: t('media.url_label', 'Адрес файла') }),
-                    input
+                    input,
+                    spec.urlHint ? el('small', { text: spec.urlHint }) : null
                 ]));
             }
         });
@@ -283,27 +510,38 @@
             onOpen: function (api) {
                 var extra = el('div', {});
 
-                var alt = el('input', { type: 'text' });
+                if (spec.type === 'image') {
+                    var alt = el('input', { type: 'text' });
 
-                alt.value = spec.current ? spec.current.alt : '';
-                api.inputs.alt = alt;
+                    alt.value = spec.current ? spec.current.alt : '';
+                    api.inputs.alt = alt;
 
-                var caption = el('input', { type: 'text' });
+                    var caption = el('input', { type: 'text' });
 
-                caption.value = spec.current ? spec.current.caption : '';
-                api.inputs.caption = caption;
+                    caption.value = spec.current ? spec.current.caption : '';
+                    api.inputs.caption = caption;
 
-                extra.appendChild(el('div', { class: 'ru-ed-row' }, [
-                    el('label', { class: 'ru-ed-field' }, [
-                        el('span', { text: t('image.alt', 'Описание (alt)') }),
-                        alt,
-                        el('small', { text: t('image.alt_hint', 'Читают поисковики и экранные дикторы — без него картинка для них пустая') })
-                    ]),
-                    el('label', { class: 'ru-ed-field' }, [
-                        el('span', { text: t('image.caption', 'Подпись под картинкой') }),
-                        caption
-                    ])
-                ]));
+                    extra.appendChild(el('div', { class: 'ru-ed-row' }, [
+                        el('label', { class: 'ru-ed-field' }, [
+                            el('span', { text: t('image.alt', 'Описание (alt)') }),
+                            alt,
+                            el('small', { text: t('image.alt_hint', 'Читают поисковики и экранные дикторы — без него картинка для них пустая') })
+                        ]),
+                        el('label', { class: 'ru-ed-field' }, [
+                            el('span', { text: t('image.caption', 'Подпись под картинкой') }),
+                            caption
+                        ])
+                    ]));
+                } else {
+                    // У остальных вставок alt и подпись не нужны, зато нужны
+                    // свои настройки — их добавляет вызывающая команда.
+                    api.inputs.alt = { value: '' };
+                    api.inputs.caption = { value: '' };
+                }
+
+                if (spec.extras) {
+                    spec.extras(extra, api);
+                }
 
                 api.body.appendChild(extra);
             },
@@ -317,7 +555,12 @@
                 }
 
                 api.keepOpen = false;
-                spec.onPick(picked.file, { url: url, alt: values.alt, caption: values.caption });
+                // Отдаём ВСЕ значения диалога, а не три отобранных: настройки
+                // проигрывателя и подпись файла добавляет вызывающая команда
+                // через extras, и до неё они иначе просто не доезжали —
+                // вставка выходила без управления, повтора и заставки.
+                values.url = url;
+                spec.onPick(picked.file, values);
             }
         });
     }
@@ -369,15 +612,42 @@
                 picked.file = uploaded;
                 api.payload.url = uploaded.url;
                 api.note('');
-
                 preview.innerHTML = '';
-                preview.appendChild(el('img', {
-                    src: uploaded.url,
-                    alt: '',
-                    style: 'max-height:150px;margin-top:12px;border:1px solid #e5e7eb'
-                }));
 
-                if (!api.inputs.alt.value && uploaded.alt_text) {
+                // Показываем то, что подходит типу. Раньше превью всегда было
+                // картинкой, и загруженное видео или документ рисовались
+                // значком «битое изображение» — выглядело как неудача, хотя
+                // файл уже лежал на сервере.
+                var kind = uploaded.kind || (uploaded.is_image ? 'image' : 'file');
+
+                if (kind === 'image') {
+                    preview.appendChild(el('img', {
+                        src: uploaded.url,
+                        alt: '',
+                        style: 'max-height:150px;margin-top:12px;border:1px solid #e5e7eb'
+                    }));
+                } else if (kind === 'video') {
+                    preview.appendChild(el('video', {
+                        src: uploaded.url,
+                        controls: true,
+                        style: 'max-height:150px;margin-top:12px;border:1px solid #e5e7eb'
+                    }));
+                } else if (kind === 'audio') {
+                    preview.appendChild(el('audio', {
+                        src: uploaded.url,
+                        controls: true,
+                        style: 'width:100%;margin-top:12px'
+                    }));
+                } else {
+                    preview.appendChild(el('p', {
+                        style: 'margin-top:12px;font-size:13px;color:#374151',
+                        html: '<i class="fas fa-check" style="color:#16a34a"></i> ' +
+                              RuEditor.escapeHtml(uploaded.name || uploaded.url) +
+                              (uploaded.size ? ' <span style="color:#6b7280">(' + RuEditor.escapeHtml(uploaded.size) + ')</span>' : '')
+                    }));
+                }
+
+                if (api.inputs.alt && !api.inputs.alt.value && uploaded.alt_text) {
                     api.inputs.alt.value = uploaded.alt_text;
                 }
             }).catch(function (error) {
@@ -528,8 +798,22 @@
 
         var data = new FormData();
 
+        // Один раз, а не в два поля сразу. Раньше файл клался и в «file», и в
+        // «files[]» — «на случай, если сервер ждёт массив». Сервер берёт первое
+        // же непустое поле, зато тело запроса выходило вдвое больше файла: ролик
+        // на 3 МБ отправлялся шестью, упирался в post_max_size и возвращался
+        // ошибкой «слишком большой», хотя до предела было далеко.
         data.append('file', file);
-        data.append('files[]', file);
+
+        // Размер проверяем ДО отправки. Иначе браузер честно закачивает
+        // мегабайты, сервер обрывает соединение, и человек получает голое
+        // «413» — техническую подробность, из которой ничего не следует.
+        if (opts.maxUploadBytes && file.size > opts.maxUploadBytes) {
+            return Promise.reject(new Error(
+                t('media.too_big', 'Файл больше, чем разрешает сервер') +
+                ' (' + (opts.uploadLimitLabel || '') + ')'
+            ));
+        }
 
         return window.fetch(opts.uploadUrl, {
             method: 'POST',
@@ -541,6 +825,14 @@
                 Accept: 'application/json'
             }
         }).then(function (response) {
+            if (response.status === 413) {
+                // Сервер оборвал приём: предел задан в php.ini
+                // (upload_max_filesize и post_max_size), и его не обойти ни
+                // настройками CMS, ни этим кодом.
+                throw new Error(t('media.too_big', 'Файл больше, чем разрешает сервер') +
+                                ' (' + (opts.uploadLimitLabel || '') + ')');
+            }
+
             if (!response.ok) {
                 throw new Error(t('media.upload_failed', 'Не удалось загрузить файл') + ' (' + response.status + ')');
             }
@@ -615,6 +907,16 @@
                         // сначала выставлялось нужное значение, а следующей
                         // строкой затиралось на 100% — размер не менялся никогда.
                         target.style.width = value;
+                    }
+
+                    // Высоту снимаем обязательно. Если её задали раньше — тянули
+                    // за угол или вписали руками, — то ширина менялась, а высота
+                    // оставалась прежней, и картинка сплющивалась. Пропорция
+                    // должна следовать за шириной сама.
+                    target.style.height = '';
+
+                    if (wrap) {
+                        wrap.style.height = '';
                     }
 
                     target.removeAttribute('width');

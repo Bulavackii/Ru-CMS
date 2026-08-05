@@ -15,39 +15,6 @@ use Intervention\Image\Drivers\Gd\Driver;
 
 class FileController extends Controller
 {
-    /**
-     * Разрешённые расширения загрузки.
-     *
-     * SVG намеренно НЕ входит: он может содержать <script> и при открытии по
-     * прямой ссылке даёт XSS от имени домена (файлы библиотеки публичны через
-     * симлинк public/storage). Демо-SVG из ресурсов модуля кладёт сидер в обход
-     * формы — на них ограничение не распространяется.
-     */
-    public const ALLOWED_EXTENSIONS = [
-        // изображения
-        'jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'bmp', 'ico',
-        // видео и аудио
-        'mp4', 'webm', 'ogg', 'mp3', 'wav',
-        // документы и архивы
-        'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'csv', 'zip',
-    ];
-
-    /** Разрешённые MIME-типы (вторая проверка — по содержимому файла). */
-    public const ALLOWED_MIME_TYPES = [
-        'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif', 'image/bmp',
-        'image/x-icon', 'image/vnd.microsoft.icon',
-        'video/mp4', 'video/webm', 'video/ogg', 'audio/mpeg', 'audio/ogg', 'audio/wav', 'audio/x-wav',
-        'application/pdf',
-        'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/vnd.ms-excel',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'application/vnd.ms-powerpoint',
-        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-        'text/plain', 'text/csv',
-        'application/zip', 'application/x-zip-compressed',
-    ];
-
     protected ImageManager $imageManager;
 
     public function __construct()
@@ -111,11 +78,20 @@ class FileController extends Controller
         $query = File::query();
 
         if ($request->filled('type')) {
-            // Тип приходит от кнопки редактора: картинка, видео, документ.
+            // Тип приходит от кнопки редактора: картинка, видео, звук.
+            //
+            // Отбор идёт и по MIME, и по расширению: MIME определяется по
+            // содержимому и у части файлов приезжает как application/octet-stream
+            // (так бывает у .m4a и .mov), а по имени они узнаются надёжно.
+            $video = (array) config('files.video_extensions', []);
+            $audio = (array) config('files.audio_extensions', []);
+
             match ($request->input('type')) {
                 'image' => $query->where('mime_type', 'like', 'image/%'),
-                'video' => $query->where('mime_type', 'like', 'video/%'),
-                'audio' => $query->where('mime_type', 'like', 'audio/%'),
+                'video' => $query->where(fn ($q) => $q->where('mime_type', 'like', 'video/%')
+                    ->orWhere(fn ($e) => $this->whereExtension($e, $video))),
+                'audio' => $query->where(fn ($q) => $q->where('mime_type', 'like', 'audio/%')
+                    ->orWhere(fn ($e) => $this->whereExtension($e, $audio))),
                 default => $query,
             };
         }
@@ -151,6 +127,10 @@ class FileController extends Controller
                 'url'       => $file->url,
                 'mime_type' => $file->mime_type,
                 'is_image'  => $file->isImage(),
+                // Чем вставлять файл, решает не редактор: правило одно на
+                // отбор в списке и на вставку, и живёт оно здесь.
+                'kind'      => $this->kindOf($file),
+                'ext'       => strtolower(pathinfo((string) $file->original_name, PATHINFO_EXTENSION)),
                 'width'     => $file->width,
                 'height'    => $file->height,
                 'alt_text'  => $file->alt_text,
@@ -162,31 +142,82 @@ class FileController extends Controller
         ]);
     }
 
+    /** Отбор по расширению в имени файла — на любом драйвере одинаково. */
+    private function whereExtension($query, array $extensions)
+    {
+        foreach ($extensions as $extension) {
+            $query->orWhere('original_name', 'like', '%.' . $extension);
+        }
+
+        return $query;
+    }
+
+    /** Картинка, видео, звук или просто файл. */
+    private function kindOf(File $file): string
+    {
+        $mime = (string) $file->mime_type;
+        $ext = strtolower(pathinfo((string) $file->original_name, PATHINFO_EXTENSION));
+
+        if (str_starts_with($mime, 'image/')) {
+            return 'image';
+        }
+        if (str_starts_with($mime, 'video/') || in_array($ext, (array) config('files.video_extensions', []), true)) {
+            return 'video';
+        }
+        if (str_starts_with($mime, 'audio/') || in_array($ext, (array) config('files.audio_extensions', []), true)) {
+            return 'audio';
+        }
+
+        return 'file';
+    }
+
+    /**
+     * Запрещено ли расширение к загрузке.
+     *
+     * Медиатека принимает файлы любого типа, кроме опасных — список и разбор
+     * почему живут в config/files.php. Точка входа одна, чтобы правило не
+     * разъехалось между проверкой формы и проверкой самого файла.
+     */
+    public static function isBlockedExtension(?string $extension): bool
+    {
+        $extension = strtolower(trim((string) $extension, ". \t\n\r\0\x0B"));
+
+        if ($extension === '') {
+            // Файл без расширения веб-сервер отдаст как поток байтов и
+            // исполнять не станет — это безопасный случай.
+            return false;
+        }
+
+        return in_array($extension, array_map('strtolower', (array) config('files.blocked_extensions', [])), true);
+    }
+
     /**
      * 📤 Загрузка файла(ов)
      */
     public function upload(Request $request): JsonResponse
     {
-        // ⚠️ Белый список типов обязателен: файлы медиа-библиотеки лежат в
-        // storage/app/public и доступны по прямой ссылке БЕЗ авторизации.
-        // Без ограничения сюда можно было загрузить .php (исполнится на сервере
-        // через симлинк public/storage) или .svg/.html со скриптом внутри (XSS
-        // от имени домена). Валидируем и расширение, и MIME.
-        $extensions = implode(',', self::ALLOWED_EXTENSIONS);
-        $mimes = implode(',', self::ALLOWED_MIME_TYPES);
+        // Тип файла больше не ограничен белым списком: он мешал класть в
+        // библиотеку шрифты, субтитры, чертежи и архивы — всё, ради чего её и
+        // открывают. Вместо этого запрещены конкретные опасные расширения
+        // (см. config/files.php): файлы лежат в storage/app/public и доступны
+        // по прямой ссылке без авторизации, поэтому .php исполнился бы на
+        // сервере, а .html и .svg открылись бы как страницы этого домена и
+        // получили доступ к сессии администратора.
+        $maxSize = max(1024, min(
+            (int) config('files.max_size_kb', 262144),
+            max_upload_kb((int) config('files.max_size_kb', 262144))
+        ));
 
         $request->validate([
-            'file' => "sometimes|file|max:10240|mimes:{$extensions}|mimetypes:{$mimes}",
+            'file' => "sometimes|file|max:{$maxSize}",
             'files' => 'sometimes|array',
-            'files.*' => "file|max:10240|mimes:{$extensions}|mimetypes:{$mimes}",
+            'files.*' => "file|max:{$maxSize}",
             'category_id' => 'nullable|exists:file_categories,id',
             'alt_text' => 'nullable|string|max:255',
             'description' => 'nullable|string',
         ], [
-            'file.mimes' => 'Недопустимый тип файла. Разрешены: ' . $extensions . '.',
-            'file.mimetypes' => 'Недопустимый тип файла.',
-            'files.*.mimes' => 'Недопустимый тип файла. Разрешены: ' . $extensions . '.',
-            'files.*.mimetypes' => 'Недопустимый тип файла.',
+            'file.max' => __('admin.files.too_big', ['size' => max_upload_label($maxSize)]),
+            'files.*.max' => __('admin.files.too_big', ['size' => max_upload_label($maxSize)]),
         ]);
 
         try {
@@ -217,17 +248,27 @@ class FileController extends Controller
                 $mimeType = $uploadedFile->getMimeType();
                 $size = $uploadedFile->getSize();
 
-                // Вторая линия защиты: правила валидации могут быть обойдены при
-                // прямом вызове метода из другого кода, поэтому проверяем ещё раз
-                // сам файл — и расширение, и определённый по содержимому MIME.
+                // Вторая линия защиты: правила валидации можно обойти прямым
+                // вызовом метода из другого кода, поэтому проверяем сам файл.
+                //
+                // Смотрим ВСЕ части имени, а не только последнюю: «отчёт.php.jpg»
+                // на части серверов исполняется как PHP, потому что Apache с
+                // mod_php разбирает имя по точкам слева направо.
                 $extension = strtolower((string) $uploadedFile->getClientOriginalExtension());
+                $blocked = null;
 
-                if (! in_array($extension, self::ALLOWED_EXTENSIONS, true)
-                    || ! in_array((string) $mimeType, self::ALLOWED_MIME_TYPES, true)) {
+                foreach (explode('.', $originalName) as $part) {
+                    if (self::isBlockedExtension($part)) {
+                        $blocked = $part;
+                        break;
+                    }
+                }
+
+                if ($blocked !== null) {
                     $rejected[] = $originalName;
-                    Log::warning('Отклонена загрузка файла недопустимого типа', [
+                    Log::warning('Отклонена загрузка файла опасного типа', [
                         'original_name' => $originalName,
-                        'extension'     => $extension,
+                        'extension'     => $blocked,
                         'mime'          => $mimeType,
                         'user_id'       => auth()->id(),
                     ]);
@@ -274,13 +315,23 @@ class FileController extends Controller
                     'url' => $file->url,
                     'name' => $file->original_name,
                     'size' => $file->human_size,
+                    // Те же поля, что отдаёт browse(): редактор показывает
+                    // превью по виду файла, и без них загруженное видео
+                    // рисовалось значком «битое изображение».
+                    'kind' => $this->kindOf($file),
+                    'ext' => strtolower(pathinfo((string) $file->original_name, PATHINFO_EXTENSION)),
+                    'is_image' => $file->isImage(),
+                    'alt_text' => $file->alt_text,
                 ];
             }
 
             $message = count($createdFiles) . ' файл(ов) успешно загружено';
 
             if ($rejected) {
-                $message .= '. Отклонены (недопустимый тип): ' . implode(', ', $rejected);
+                // Пишем именно «опасный», а не «недопустимый»: разрешено всё,
+                // кроме того, что исполняется на сервере или в браузере, и
+                // человек должен понимать, что дело не в прихоти списка.
+                $message .= '. Отклонены (тип опасен для сайта): ' . implode(', ', $rejected);
             }
 
             return response()->json([

@@ -16,7 +16,13 @@
    были бы стёрты. Пишем сразу то, что получится.
    ========================================================================= */
 
-.ru-ed {
+/* Переменные объявлены на КОРНЕ документа, а не только на .ru-ed.
+   Диалоги добавляются в body — снаружи редактора, — и там переменные с .ru-ed
+   не действуют. Из-за этого главная кнопка окна («Вставить», «Сохранить»)
+   получала background: var(--ru-ed-accent) без значения, то есть прозрачный
+   фон, и белая надпись на белом окне становилась невидимой: кнопка была на
+   месте и нажималась, но человек её не видел. */
+:root {
     --ru-ed-accent: var(--admin-primary, #6366f1);
     --ru-ed-accent-soft: var(--admin-primary-soft, rgba(99, 102, 241, .14));
     --ru-ed-border: #e5e7eb;
@@ -24,7 +30,9 @@
     --ru-ed-bar: #f8fafc;
     --ru-ed-ink: #374151;
     --ru-ed-mut: #6b7280;
+}
 
+.ru-ed {
     display: flex;
     flex-direction: column;
     border: 1px solid var(--ru-ed-border);
@@ -686,4 +694,86 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+/* ── Растягивание вставок мышью ───────────────────────────────────────── */
+
+/* Рамка с ручками лежит в документе страницы поверх рамки редактирования:
+   внутрь неё её не положить — там отдельный документ, а ручки должны быть
+   кликабельны и не попадать в сохраняемую разметку. */
+.ru-ed-resize {
+    position: absolute;
+    z-index: 25;
+    pointer-events: none;
+    outline: 1px solid var(--ru-ed-accent, #6366f1);
+    outline-offset: 0;
+}
+
+.ru-ed-resize[hidden] {
+    display: none;
+}
+
+.ru-ed-handle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #fff;
+    border: 1px solid var(--ru-ed-accent, #6366f1);
+    pointer-events: auto;
+}
+
+.ru-ed-handle.is-nw { top: -5px;   left: -5px;                     cursor: nwse-resize }
+.ru-ed-handle.is-n  { top: -5px;   left: 50%; margin-left: -5px;   cursor: ns-resize }
+.ru-ed-handle.is-ne { top: -5px;   right: -5px;                    cursor: nesw-resize }
+.ru-ed-handle.is-e  { top: 50%;    right: -5px; margin-top: -5px;  cursor: ew-resize }
+.ru-ed-handle.is-se { bottom: -5px; right: -5px;                   cursor: nwse-resize }
+.ru-ed-handle.is-s  { bottom: -5px; left: 50%; margin-left: -5px;  cursor: ns-resize }
+.ru-ed-handle.is-sw { bottom: -5px; left: -5px;                    cursor: nesw-resize }
+.ru-ed-handle.is-w  { top: 50%;    left: -5px; margin-top: -5px;   cursor: ew-resize }
+
+/* У проигрывателя звука высота своя — вертикальные ручки только сбивали бы
+   с толку, предлагая то, что всё равно не применится. */
+.ru-ed-resize.is-flat .ru-ed-handle.is-n,
+.ru-ed-resize.is-flat .ru-ed-handle.is-s,
+.ru-ed-resize.is-flat .ru-ed-handle.is-nw,
+.ru-ed-resize.is-flat .ru-ed-handle.is-ne,
+.ru-ed-resize.is-flat .ru-ed-handle.is-sw,
+.ru-ed-resize.is-flat .ru-ed-handle.is-se {
+    display: none;
+}
+
+.ru-ed-resize-size {
+    position: absolute;
+    right: 0;
+    bottom: -22px;
+    padding: 1px 6px;
+    font: 600 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: #fff;
+    background: var(--ru-ed-accent, #6366f1);
+    white-space: nowrap;
+}
+
+/* Пока тянут, курсор не должен превращаться в текстовый над страницей и
+   выделять её содержимое. */
+body.ru-ed-resizing,
+body.ru-ed-resizing * {
+    user-select: none !important;
+}
+
+/* ── Карточка файла и вставки в списке медиатеки ──────────────────────── */
+
+.ru-ed-lib-item.is-file i {
+    font-size: 24px;
+}
+
+.ru-ed-lib-kind {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    padding: 1px 5px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #fff;
+    background: rgba(17, 24, 39, .72);
 }

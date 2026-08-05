@@ -51,11 +51,11 @@
     $presets = [
         'full'   => 'undo redo | blocks | fontfamily fontsize | bold italic underline strikethrough | '
                   . 'forecolor backcolor | alignleft aligncenter alignright alignjustify | '
-                  . 'bullist numlist outdent indent | link unlink | image media table | '
+                  . 'bullist numlist outdent indent | link unlink | image media audio file table | '
                   . 'ruBlocks charmap captcha | removeformat | '
                   . 'searchreplace visualblocks code preview fullscreen help',
         'page'   => 'undo redo | blocks | bold italic underline | '
-                  . 'alignleft aligncenter alignright | bullist numlist | link unlink | image table | '
+                  . 'alignleft aligncenter alignright | bullist numlist | link unlink | image media audio file table | '
                   . 'ruBlocks captcha | removeformat | code preview fullscreen',
         'simple' => 'undo redo | bold italic underline | bullist numlist | link unlink | removeformat | code fullscreen',
         'mail'   => 'undo redo | bold italic underline | bullist numlist | link unlink | removeformat | code',
@@ -80,6 +80,11 @@
         'uploadUrl'   => Route::has('admin.files.upload') ? route('admin.files.upload') : null,
         'browseUrl'   => Route::has('admin.files.browse') ? route('admin.files.browse') : null,
         'uploadHint'  => __('admin.editor.upload_hint', ['size' => max_upload_label()]),
+        // Предел проверяется ещё в браузере: иначе человек честно ждёт
+        // закачки мегабайтов, сервер обрывает приём, и в ответ приходит
+        // голое «413» — техническая подробность, из которой ничего не следует.
+        'maxUploadBytes'   => max_upload_kb() * 1024,
+        'uploadLimitLabel' => max_upload_label(),
         // Сохранённые сборки каптчи. Прежде выбор жил ОТДЕЛЬНЫМ выпадающим
         // списком под полем содержимого: он не был частью редактора, не знал,
         // где стоит курсор, и вставлял шорткод «куда получится».
@@ -107,6 +112,7 @@
         <script src="{{ asset('assets/js/ru-editor-format.js') }}"></script>
         <script src="{{ asset('assets/js/ru-editor-media.js') }}"></script>
         <script src="{{ asset('assets/js/ru-editor-blocks.js') }}"></script>
+        <script src="{{ asset('assets/js/ru-editor-resize.js') }}"></script>
         <script src="{{ asset('assets/js/ru-editor-tools.js') }}"></script>
 
         <script>

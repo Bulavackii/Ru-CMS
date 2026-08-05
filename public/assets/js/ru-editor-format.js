@@ -309,10 +309,10 @@
     /* ── Выравнивание ────────────────────────────────────────────────── */
 
     [
-        ['alignleft', 'justifyLeft', 'fas fa-align-left', 'По левому краю'],
-        ['aligncenter', 'justifyCenter', 'fas fa-align-center', 'По центру'],
-        ['alignright', 'justifyRight', 'fas fa-align-right', 'По правому краю'],
-        ['alignjustify', 'justifyFull', 'fas fa-align-justify', 'По ширине']
+        ['alignleft', 'justifyLeft', 'fas fa-align-left', 'По левому краю', 'left'],
+        ['aligncenter', 'justifyCenter', 'fas fa-align-center', 'По центру', 'center'],
+        ['alignright', 'justifyRight', 'fas fa-align-right', 'По правому краю', 'right'],
+        ['alignjustify', 'justifyFull', 'fas fa-align-justify', 'По ширине', null]
     ].forEach(function (item) {
         RuEditor.registerButton(item[0], {
             icon: item[2],
@@ -320,7 +320,57 @@
             command: item[1],
             active: function (editor) { return editor.queryState(item[1]); }
         });
+
+        // Своя команда поверх браузерной: выделена картинка, ролик или
+        // проигрыватель — двигаем ЕГО, иначе выравнивается абзац.
+        //
+        // Раньше кнопки звали только execCommand, а он работает с текстом:
+        // у картинки, ставшей блоком, text-align:center не центрует ничего, и
+        // выравнивание молча не срабатывало на всех вставках сразу.
+        RuEditor.registerCommand(item[1], function (editor) {
+            if (item[4] && alignMedia(editor, item[4])) {
+                return;
+            }
+
+            editor.native(item[1]);
+        });
     });
+
+    function alignMedia(editor, mode) {
+        var node = editor.selectedMedia;
+
+        if (!node || !node.isConnected) {
+            return false;
+        }
+
+        // У картинки с подписью двигаем обёртку целиком: иначе подпись
+        // осталась бы на прежнем месте.
+        var box = node.closest('figure') || node;
+
+        box.style.float = '';
+        box.style.display = '';
+        box.style.marginLeft = '';
+        box.style.marginRight = '';
+
+        if (mode === 'center') {
+            // Блок плюс авто-поля: единственный способ, который работает и
+            // для картинки, и для видео, и для проигрывателя звука.
+            box.style.display = 'block';
+            box.style.marginLeft = 'auto';
+            box.style.marginRight = 'auto';
+        } else if (mode === 'left') {
+            box.style.float = 'left';
+            box.style.marginRight = '1rem';
+        } else if (mode === 'right') {
+            box.style.float = 'right';
+            box.style.marginLeft = '1rem';
+        }
+
+        editor._snapshot();
+        editor.save();
+
+        return true;
+    }
 
     /* ── Списки и отступы ────────────────────────────────────────────── */
 

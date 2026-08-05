@@ -94,8 +94,18 @@
 
             var values = collect();
 
-            if (spec.onSubmit && spec.onSubmit(values, api) === false) {
-                return;
+            try {
+                if (spec.onSubmit && spec.onSubmit(values, api) === false) {
+                    return;
+                }
+            } catch (error) {
+                // Окно закрываем в любом случае. Оставленный висеть диалог
+                // перехватывает щелчки на всю страницу, и следующее действие
+                // попадает уже в него — со стороны выглядит так, будто
+                // редактор перестал слушаться вовсе.
+                if (window.console) {
+                    window.console.error('RuEditor: обработчик диалога упал', error);
+                }
             }
 
             if (!api.keepOpen) {

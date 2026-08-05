@@ -327,6 +327,13 @@
                 'body.is-empty::before{content:attr(data-placeholder);color:#9ca3af;pointer-events:none;display:block}',
                 'body :focus{outline:none}',
                 'img{max-width:100%;height:auto}',
+                'video,audio{max-width:100%}',
+                'audio{width:100%}',
+                // Ролик с чужой площадки внутри редактора мышь не получает:
+                // иначе нажатие уходит в его документ, и вставку невозможно
+                // ни выделить, ни потянуть за угол. На сайте он работает как
+                // обычно — правило действует только здесь.
+                'iframe{max-width:100%;pointer-events:none}',
                 'table{border-collapse:collapse}',
                 // Служебная разметка редактора: границы блоков и выбранный узел.
                 'body.ru-ed-blocks *{outline:1px dashed rgba(99,102,241,.45)}',
@@ -1220,8 +1227,11 @@
                'table,thead,tbody,tfoot,tr,th,td,caption,colgroup,col,div,span,' +
                'details,summary,iframe,video,audio,source').split(','),
         attrs: ('class,id,href,src,alt,title,target,rel,width,height,style,colspan,rowspan,' +
-                'data-hours,data-ru-shortcode,open,controls,loading,allow,allowfullscreen,' +
-                'frameborder,srcset,sizes,type,start,reversed,datetime,aria-hidden,aria-label').split(',')
+                'data-hours,data-ru-shortcode,open,loading,allow,allowfullscreen,' +
+                'frameborder,srcset,sizes,type,start,reversed,datetime,aria-hidden,aria-label,' +
+                // Настройки проигрывателей. Без них чистка снимала бы всё, что
+                // автор выставил в диалоге, и ролик сохранялся бы голым.
+                'controls,autoplay,loop,muted,preload,poster,playsinline,download,controlslist').split(',')
     };
 
     function sanitize(root, allow) {
@@ -1429,9 +1439,14 @@
             });
 
             // Пустой абзац, который браузер держит для курсора, в базе не нужен.
+            //
+            // «Пустой» = ни текста, ни вложенных узлов. Раньше проверялся
+            // короткий список (img, iframe, hr), и материал из одного
+            // проигрывателя или одной таблицы сохранялся как ПУСТАЯ строка:
+            // всё, что автор вставил, молча пропадало при сохранении.
             var only = box.children.length === 1 ? box.firstElementChild : null;
 
-            if (only && only.tagName === 'P' && !only.textContent.trim() && !only.querySelector('img,iframe,hr')) {
+            if (only && only.tagName === 'P' && !only.textContent.trim() && !only.querySelector(':not(br)')) {
                 return '';
             }
 

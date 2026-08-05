@@ -385,3 +385,67 @@
 
 :root.dark .page-content .pc-sitemap__group{ background:#111827; border-color:#1f2937 }
 :root.dark .page-content .pc-sitemap__group a{ color:#cbd5e1 }
+
+/* ── Карточка файла для скачивания ───────────────────────────────────────
+   Один файл на сайт и на редактор, поэтому карточка выглядит одинаково и там,
+   и там. Простая ссылка тоже работает, но по ней не видно, что ждёт
+   посетителя: договор на двадцать мегабайт и заметка на две строки читаются
+   одинаково. */
+
+.page-content .pc-file {
+    margin: 1.1rem 0;
+}
+
+.page-content .pc-file a {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+    padding: .8rem 1rem;
+    text-decoration: none;
+    color: #1f2937;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    transition: border-color .15s ease, background .15s ease;
+}
+
+.page-content .pc-file a:hover {
+    border-color: #6366f1;
+    background: #eef2ff;
+}
+
+.page-content .pc-file__ext {
+    flex: 0 0 auto;
+    min-width: 2.9rem;
+    padding: .3rem .4rem;
+    font: 700 .7rem/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    text-align: center;
+    text-transform: uppercase;
+    color: #fff;
+    background: #6366f1;
+}
+
+.page-content .pc-file__name {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.page-content .pc-file__size {
+    flex: 0 0 auto;
+    font-size: .8rem;
+    color: #6b7280;
+}
+
+/* Проигрыватели не должны вылезать за колонку текста. */
+.page-content video,
+.page-content audio,
+.page-content iframe {
+    max-width: 100%;
+}
+
+.page-content audio {
+    width: 100%;
+}
