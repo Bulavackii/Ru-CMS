@@ -579,7 +579,7 @@ document.getElementById('fileModal')?.addEventListener('click', (e) => {
 });
 
 function deleteFile(fileId) {
-    if (!confirm(@js(__('admin.files.delete_one')))) return;
+    if (!confirm(@js(__('admin.files.confirm_one')))) return;
     
     fetch(`/admin/files/${fileId}`, {
         method: 'DELETE',
