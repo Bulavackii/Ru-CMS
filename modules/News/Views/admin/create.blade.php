@@ -59,6 +59,25 @@
                     </div>
                 </div>
 
+                <div class="admin-card p-5">
+                    <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2 flex items-center gap-2">
+                        <i class="fas fa-folder-open text-indigo-500"></i> {{ __('admin.common.categories') }}
+                    </h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{ __('admin.news.categories_hint') }}</p>
+                    <div class="flex flex-wrap gap-2">
+                        @forelse ($categories as $category)
+                            <label class="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-300 dark:border-gray-600 cursor-pointer text-sm
+                                          hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-700 transition">
+                                <input type="checkbox" name="categories[]" value="{{ $category->id }}"
+                                    {{ in_array($category->id, old('categories', [])) ? 'checked' : '' }}>
+                                {{ $category->title }}
+                            </label>
+                        @empty
+                            <p class="text-sm text-gray-400 dark:text-gray-500">{{ __('admin.common.no_categories') }}</p>
+                        @endforelse
+                    </div>
+                </div>
+
                 {{-- Поля шаблона «Товары» --}}
                 <div id="product-fields" class="admin-card p-5 hidden animate-fade-in">
                     <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
@@ -115,24 +134,6 @@
                     </div>
                 </div>
 
-                <div class="admin-card p-5">
-                    <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2 flex items-center gap-2">
-                        <i class="fas fa-folder-open text-indigo-500"></i> {{ __('admin.common.categories') }}
-                    </h2>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{ __('admin.news.categories_hint') }}</p>
-                    <div class="flex flex-wrap gap-2">
-                        @forelse ($categories as $category)
-                            <label class="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-300 dark:border-gray-600 cursor-pointer text-sm
-                                          hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-700 transition">
-                                <input type="checkbox" name="categories[]" value="{{ $category->id }}"
-                                    {{ in_array($category->id, old('categories', [])) ? 'checked' : '' }}>
-                                {{ $category->title }}
-                            </label>
-                        @empty
-                            <p class="text-sm text-gray-400 dark:text-gray-500">{{ __('admin.common.no_categories') }}</p>
-                        @endforelse
-                    </div>
-                </div>
 
                 <div class="admin-card p-5">
                     <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
