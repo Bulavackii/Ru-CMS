@@ -59,7 +59,7 @@ class FileController extends Controller
         // у кого-то на три тысячи. Значение зажато в известные варианты —
         // произвольное число из адреса позволило бы запросить всё разом.
         $perPage = (int) $request->input('per_page', 24);
-        $perPage = in_array($perPage, [24, 48, 96], true) ? $perPage : 24;
+        $perPage = in_array($perPage, [12, 24, 48, 96], true) ? $perPage : 24;
 
         $files = $query->orderByDesc('created_at')->paginate($perPage)->withQueryString();
         $categories = FileCategory::orderBy('name')->get();

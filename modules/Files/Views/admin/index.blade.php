@@ -110,7 +110,7 @@
         </label>
 
         <span class="text-sm text-gray-500 dark:text-gray-400">
-            {{ __('admin.files.selected') }} <b id="bulk-count">0</b>
+            {{ __('admin.common.selected') }} <b id="bulk-count">0</b>
         </span>
 
         <div class="ml-auto flex items-center gap-2">
@@ -121,7 +121,7 @@
             </button>
             <button type="button" id="bulk-delete"
                     class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 transition">
-                <i class="fas fa-trash"></i> {{ __('admin.common.delete') }}
+                <i class="fas fa-trash"></i> {{ __('admin.common.delete_selected') }}
             </button>
         </div>
     </div>
@@ -187,11 +187,11 @@
                 <input type="hidden" name="{{ $key }}" value="{{ $value }}">
             @endforeach
 
-            <span>{{ __('admin.files.per_page') }}</span>
+            <span>{{ __('admin.common.per_page') }}</span>
             <select name="per_page" onchange="this.form.submit()"
                     class="border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-2 py-1 text-sm
                            focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
-                @foreach([24, 48, 96] as $size)
+                @foreach([12, 24, 48, 96] as $size)
                     <option value="{{ $size }}" {{ (int) request('per_page', 24) === $size ? 'selected' : '' }}>{{ $size }}</option>
                 @endforeach
             </select>

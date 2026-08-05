@@ -178,6 +178,8 @@ return [
     'common' => [
         'close' => 'Close',
         'selected' => 'Selected',
+        'per_page' => 'Per page',
+        'delete' => 'Delete',
         'publish' => 'Publish',
         'unpublish' => 'Unpublish',
         'filters' => 'Filters',
