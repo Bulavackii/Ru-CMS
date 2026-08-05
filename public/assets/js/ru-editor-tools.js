@@ -71,6 +71,7 @@
             editor.root.scrollIntoView({ block: 'start', behavior: 'smooth' });
         } else {
             editor.frame.style.height = editor._heightBefore || '420px';
+            resetWidth(editor);
 
             if (editor._fitFrame) {
                 window.removeEventListener('resize', editor._fitFrame);
@@ -94,13 +95,80 @@
         editor.focus();
     });
 
-    /** Высота рамки = окно минус панель, строка состояния и небольшой запас. */
+    /**
+     * Размеры развёрнутого вида: высота — по окну, ширина — во всё свободное
+     * место страницы.
+     *
+     * Вширь растягиваем отрицательными полями, то есть обычной вёрсткой:
+     * редактор остаётся в потоке, ничего не перекрывает и слоёв не создаёт.
+     * Раньше он рос только по высоте и оставался в колонке содержимого, а
+     * запас по бокам простаивал.
+     */
     function fitFrame(editor) {
         var chrome = editor.toolbar.offsetHeight +
                      (editor.status && editor.status.offsetParent !== null ? editor.status.offsetHeight : 0);
-        var height = Math.max(240, window.innerHeight - chrome - 24);
 
-        editor.frame.style.height = height + 'px';
+        editor.frame.style.height = Math.max(240, window.innerHeight - chrome - 24) + 'px';
+
+        // Поля сбрасываем ДО замера: иначе мерили бы уже растянутый вид, и с
+        // каждым пересчётом он уезжал бы всё дальше.
+        resetWidth(editor);
+
+        var rect = editor.root.getBoundingClientRect();
+        var bounds = freeBounds(editor);
+
+        editor.root.style.marginLeft = Math.min(0, bounds.left - rect.left) + 'px';
+        editor.root.style.marginRight = Math.min(0, rect.right - bounds.right) + 'px';
+    }
+
+    /**
+     * Докуда можно растянуться вбок, не заехав под закреплённые полосы.
+     *
+     * В панели слева висит боковое меню с position:fixed — оно нарисовано
+     * поверх содержимого, и уехавший под него редактор потерял бы левый край
+     * панели инструментов. Ищем такие полосы по вычисленному стилю, а не по
+     * именам классов: редактор не должен знать разметку панели и обязан так же
+     * вести себя на сайте.
+     *
+     * Помехой считаем только то, что занимает больше половины высоты окна и
+     * прижато к краю: шапка и подвал по бокам не мешают.
+     */
+    function freeBounds(editor) {
+        var width = document.documentElement.clientWidth;
+        var bounds = { left: 0, right: width };
+
+        Array.prototype.forEach.call(document.body.querySelectorAll('*'), function (node) {
+            if (editor.root.contains(node) || node.contains(editor.root)) {
+                return;
+            }
+
+            var style = window.getComputedStyle(node);
+
+            if (style.position !== 'fixed' || style.display === 'none' || style.visibility === 'hidden') {
+                return;
+            }
+
+            var box = node.getBoundingClientRect();
+
+            if (box.width <= 0 || box.height < window.innerHeight / 2) {
+                return;
+            }
+
+            if (box.left <= 0 && box.right > bounds.left && box.right < width / 2) {
+                bounds.left = box.right;
+            }
+
+            if (box.right >= width && box.left < bounds.right && box.left > width / 2) {
+                bounds.right = box.left;
+            }
+        });
+
+        return bounds;
+    }
+
+    function resetWidth(editor) {
+        editor.root.style.marginLeft = '';
+        editor.root.style.marginRight = '';
     }
 
     /* ── Правка исходного кода ───────────────────────────────────────── */
