@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\Files\Controllers\Admin\FileController;
-use Modules\Files\Controllers\Admin\FileCategoryController;
 
 Route::prefix('admin/files')->middleware(['web', 'auth', 'admin'])->name('admin.files.')->group(function () {
     Route::get('/', [FileController::class, 'index'])->name('index');
@@ -21,11 +20,8 @@ Route::prefix('admin/files')->middleware(['web', 'auth', 'admin'])->name('admin.
     Route::delete('/{file}', [FileController::class, 'destroy'])->name('destroy');
 });
 
-// Маршруты для категорий файлов
-Route::prefix('admin/file-categories')->middleware(['web', 'auth', 'admin'])->name('admin.file-categories.')->group(function () {
-    Route::get('/', [FileCategoryController::class, 'index'])->name('index');
-    Route::post('/', [FileCategoryController::class, 'store'])->name('store');
-    Route::put('/{category}', [FileCategoryController::class, 'update'])->name('update');
-    Route::delete('/{category}', [FileCategoryController::class, 'destroy'])->name('destroy');
-});
+// Своих категорий у медиатеки больше нет: файлы раскладываются по общим
+// категориям проекта (раздел «Категории»). Группа admin.file-categories.*
+// удалена — её index рендерил вьюху Files::admin.categories, которой в модуле
+// не существует, то есть маршрут отдавал 500 на каждый заход.
 

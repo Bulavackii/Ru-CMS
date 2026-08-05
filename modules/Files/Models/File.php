@@ -36,11 +36,15 @@ class File extends Model
     }
 
     /**
-     * Категория файла
+     * Категория файла — из общего раздела «Категории», а не своя.
+     *
+     * У модуля была параллельная таблица `file_categories`; она осталась пустой
+     * за всё время и удалена миграцией link_files_to_shared_categories.
+     * У этой модели название лежит в `title`, а не в `name`.
      */
     public function category()
     {
-        return $this->belongsTo(FileCategory::class);
+        return $this->belongsTo(\Modules\Categories\Models\Category::class);
     }
 
     /**

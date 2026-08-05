@@ -4,7 +4,7 @@ namespace Modules\Files\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Modules\Files\Models\File;
-use Modules\Files\Models\FileCategory;
+use Modules\Categories\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
@@ -62,7 +62,12 @@ class FileController extends Controller
         $perPage = in_array($perPage, [12, 24, 48, 96], true) ? $perPage : 24;
 
         $files = $query->orderByDesc('created_at')->paginate($perPage)->withQueryString();
-        $categories = FileCategory::orderBy('name')->get();
+        // Категории — общие для проекта: те же, что владелец завёл в разделе
+        // «Категории» для новостей, страниц и товаров. Свои у медиатеки были,
+        // но остались пустыми и удалены. Сортировка по типу и названию: в
+        // выпадающем списке они разложены по типам, иначе «Новости», «Товары»
+        // и «Услуги» смешались бы в один плоский перечень.
+        $categories = Category::orderBy('type')->orderBy('title')->get();
 
         return view('Files::admin.index', compact('files', 'categories'));
     }
@@ -81,7 +86,7 @@ class FileController extends Controller
      */
     public function browse(Request $request): JsonResponse
     {
-        $query = File::query();
+        $query = File::with('category');
 
         if ($request->filled('type')) {
             // Тип приходит от кнопки редактора: картинка, видео, звук.
@@ -141,10 +146,22 @@ class FileController extends Controller
                 'height'    => $file->height,
                 'alt_text'  => $file->alt_text,
                 'size'      => $file->human_size,
+                'category'  => $file->category?->title,
             ])->all(),
             'page'      => $files->currentPage(),
             'last_page' => $files->lastPage(),
             'total'     => $files->total(),
+            // Список категорий едет вместе со списком файлов, а не отдельным
+            // запросом: подборщику в редакторе он нужен ровно один раз, при
+            // первой отрисовке, и второй круг к серверу ради десятка строк
+            // ничего не даёт.
+            'categories' => Category::orderBy('type')->orderBy('title')
+                ->get(['id', 'title', 'type'])
+                ->map(fn (Category $category) => [
+                    'id'    => $category->id,
+                    'title' => $category->title,
+                    'type'  => $category->type,
+                ])->all(),
         ]);
     }
 
@@ -218,7 +235,7 @@ class FileController extends Controller
             'file' => "sometimes|file|max:{$maxSize}",
             'files' => 'sometimes|array',
             'files.*' => "file|max:{$maxSize}",
-            'category_id' => 'nullable|exists:file_categories,id',
+            'category_id' => 'nullable|exists:categories,id',
             'alt_text' => 'nullable|string|max:255',
             'description' => 'nullable|string',
         ], [
@@ -545,7 +562,7 @@ class FileController extends Controller
         $validated = $request->validate([
             'alt_text' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'category_id' => 'nullable|exists:file_categories,id',
+            'category_id' => 'nullable|exists:categories,id',
             'tags' => 'nullable|array',
         ]);
 

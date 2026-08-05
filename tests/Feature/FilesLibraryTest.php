@@ -4,7 +4,9 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use Modules\Categories\Models\Category;
 use Modules\Files\Models\File;
 use Tests\TestCase;
 
@@ -97,5 +99,75 @@ class FilesLibraryTest extends TestCase
             ->get(route('admin.files.index', ['per_page' => 48]))
             ->assertOk()
             ->assertViewHas('files', fn ($files) => $files->perPage() === 48);
+    }
+
+    public function test_files_use_shared_project_categories(): void
+    {
+        // Своей таблицы категорий у медиатеки быть не должно: она осталась
+        // пустой за всё время и удалена миграцией. Файлы раскладываются по тем
+        // же категориям, что новости, страницы и товары.
+        $this->assertFalse(
+            Schema::hasTable('file_categories'),
+            'Параллельная таблица категорий файлов вернулась'
+        );
+
+        $category = Category::create(['title' => 'Каталог', 'slug' => 'katalog', 'type' => 'product']);
+        $file = $this->makeFile();
+
+        $file->update(['category_id' => $category->id]);
+
+        $this->assertInstanceOf(Category::class, $file->fresh()->category);
+        $this->assertSame('Каталог', $file->fresh()->category->title);
+    }
+
+    public function test_library_filters_by_category(): void
+    {
+        $wanted = Category::create(['title' => 'Обложки', 'slug' => 'oblozhki', 'type' => 'news']);
+        $other  = Category::create(['title' => 'Прочее', 'slug' => 'prochee', 'type' => 'news']);
+
+        $mine = $this->makeFile('mine.jpg');
+        $mine->update(['category_id' => $wanted->id]);
+
+        $foreign = $this->makeFile('foreign.jpg');
+        $foreign->update(['category_id' => $other->id]);
+
+        $this->actingAs($this->admin())
+            ->get(route('admin.files.index', ['category_id' => $wanted->id]))
+            ->assertOk()
+            ->assertViewHas('files', fn ($files) => $files->total() === 1
+                && $files->first()->id === $mine->id);
+    }
+
+    public function test_editor_picker_filters_by_category_and_lists_them(): void
+    {
+        // Подборщик в редакторе получает список категорий вместе с файлами:
+        // отдельного эндпоинта под него нет, а второй запрос ради десятка
+        // строк ничего не даёт.
+        $category = Category::create(['title' => 'Баннеры', 'slug' => 'bannery', 'type' => 'page']);
+
+        $mine = $this->makeFile('banner.jpg');
+        $mine->update(['category_id' => $category->id]);
+        $this->makeFile('loose.jpg');
+
+        $response = $this->actingAs($this->admin())
+            ->getJson(route('admin.files.browse', ['category_id' => $category->id]))
+            ->assertOk()
+            ->assertJsonPath('total', 1)
+            ->assertJsonPath('files.0.category', 'Баннеры');
+
+        $this->assertContains(
+            $category->id,
+            array_column($response->json('categories'), 'id'),
+            'Список категорий не приехал в подборщик'
+        );
+    }
+
+    public function test_unknown_category_is_rejected(): void
+    {
+        $file = $this->makeFile();
+
+        $this->actingAs($this->admin())
+            ->putJson(route('admin.files.update', $file), ['category_id' => 999999])
+            ->assertStatus(422);
     }
 }

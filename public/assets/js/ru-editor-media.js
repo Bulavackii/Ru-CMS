@@ -669,7 +669,11 @@
     function renderLibrary(editor, pane, api, picked, type) {
         var grid = el('div', { class: 'ru-ed-lib' });
         var search = el('input', { type: 'search', placeholder: t('media.search', 'Поиск по названию…') });
-        var state = { page: 1, last: 1, busy: false };
+        // Отбор по категориям проекта: тем же, что в разделе «Категории».
+        // Список приезжает вместе с первой страницей файлов, поэтому здесь
+        // он пустой — заполняется в load() один раз.
+        var category = el('select', { class: 'ru-ed-lib-cat' });
+        var state = { page: 1, last: 1, busy: false, cats: false };
 
         var reload = RuEditor.debounce(function () {
             state.page = 1;
@@ -678,8 +682,13 @@
         }, 300);
 
         search.addEventListener('input', reload);
+        category.addEventListener('change', function () {
+            state.page = 1;
+            grid.innerHTML = '';
+            load();
+        });
 
-        pane.appendChild(el('div', { class: 'ru-ed-lib-bar' }, [search]));
+        pane.appendChild(el('div', { class: 'ru-ed-lib-bar' }, [search, category]));
         pane.appendChild(grid);
 
         function load() {
@@ -693,6 +702,7 @@
                 (editor.options.browseUrl.indexOf('?') === -1 ? '?' : '&') +
                 'type=' + encodeURIComponent(type || '') +
                 '&q=' + encodeURIComponent(search.value) +
+                '&category_id=' + encodeURIComponent(category.value || '') +
                 '&page=' + state.page;
 
             window.fetch(url, {
@@ -703,6 +713,25 @@
             }).then(function (data) {
                 state.busy = false;
                 state.last = data.last_page || 1;
+
+                // Категории заполняем ровно один раз: пересборка списка на
+                // каждой странице сбрасывала бы выбор пользователя.
+                if (!state.cats && data.categories) {
+                    state.cats = true;
+
+                    category.appendChild(el('option', { value: '', text: t('media.category', 'Все категории') }));
+
+                    data.categories.forEach(function (item) {
+                        category.appendChild(el('option', {
+                            value: String(item.id),
+                            text: item.type ? item.title + ' · ' + item.type : item.title
+                        }));
+                    });
+
+                    if (!data.categories.length) {
+                        category.style.display = 'none';
+                    }
+                }
 
                 var more = grid.querySelector('.ru-ed-lib-more');
 
@@ -745,7 +774,11 @@
         }
 
         function tile(file) {
-            var node = el('button', { type: 'button', class: 'ru-ed-lib-item', title: file.name }, [
+            var node = el('button', {
+                type: 'button',
+                class: 'ru-ed-lib-item',
+                title: file.category ? file.name + ' · ' + file.category : file.name
+            }, [
                 file.is_image
                     ? el('img', { src: file.url, alt: file.alt_text || file.name, loading: 'lazy' })
                     : el('span', { class: 'is-file', html: '<i class="fas fa-file"></i>' }),

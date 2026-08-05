@@ -505,6 +505,18 @@
     outline: none;
 }
 
+/* Список категорий рядом с поиском. Ширину не даём расти: длинное название
+   иначе съедало бы поле поиска, а строка тут одна на оба элемента. */
+.ru-ed-lib-cat {
+    flex: 0 1 11rem;
+    max-width: 11rem;
+    padding: 7px 10px;
+    font-size: 13px;
+    border: 1px solid #d1d5db;
+    background: #fff;
+    outline: none;
+}
+
 .ru-ed-lib {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));

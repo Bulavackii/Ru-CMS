@@ -59,12 +59,18 @@
             <select name="category_id" class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
                                               focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
                 <option value="">{{ __('admin.common.all') }}</option>
-                @foreach($categories as $category)
-                    {{-- У модели Categories поле называется title (не name) —
-                         раньше здесь был $category->name и список был пустым. --}}
-                    <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
-                        {{ $category->title }}
-                    </option>
+                {{-- Категории общие для проекта и разложены по типам: у новостей,
+                     страниц и товаров свои наборы, и без разделителей они слились
+                     бы в один плоский перечень. Название лежит в title, а не в
+                     name — у своей, ныне удалённой модели было наоборот. --}}
+                @foreach($categories->groupBy('type') as $type => $group)
+                    <optgroup label="{{ $type ?: __('admin.categories.no_type') }}">
+                        @foreach($group as $category)
+                            <option value="{{ $category->id }}" {{ (int) request('category_id') === $category->id ? 'selected' : '' }}>
+                                {{ $category->title }}
+                            </option>
+                        @endforeach
+                    </optgroup>
                 @endforeach
             </select>
         </div>
@@ -262,6 +268,29 @@
                 </label>
             </div>
             <div id="fileList" class="space-y-2"></div>
+
+            {{-- Категория выбирается при загрузке: иначе назначать её пришлось бы
+                 каждому файлу отдельно уже после, и фильтр по категориям остался
+                 бы бесполезным. Значение подставляется текущим фильтром — когда
+                 разбираешь библиотеку по разделам, это ровно то, что нужно. --}}
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.common.category') }}</label>
+                <select name="category_id" id="uploadCategory"
+                        class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
+                               focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                    <option value="">{{ __('admin.common.without_category') }}</option>
+                    @foreach($categories->groupBy('type') as $type => $group)
+                        <optgroup label="{{ $type ?: __('admin.categories.no_type') }}">
+                            @foreach($group as $category)
+                                <option value="{{ $category->id }}" {{ (int) request('category_id') === $category->id ? 'selected' : '' }}>
+                                    {{ $category->title }}
+                                </option>
+                            @endforeach
+                        </optgroup>
+                    @endforeach
+                </select>
+            </div>
+
             <div class="flex gap-3">
                 <button type="submit" class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm transition">
                     <i class="fas fa-upload"></i> {{ __('admin.files.upload') }}
@@ -455,6 +484,13 @@ document.getElementById('uploadForm').addEventListener('submit', async function(
     });
     formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
 
+    // FormData здесь собирается с нуля, а не из формы, поэтому категорию
+    // надо доложить явно — иначе выбранное значение никуда не уедет.
+    const uploadCategory = document.getElementById('uploadCategory');
+    if (uploadCategory && uploadCategory.value) {
+        formData.append('category_id', uploadCategory.value);
+    }
+
     try {
         const response = await fetch('{{ route("admin.files.upload") }}', {
             method: 'POST',
@@ -519,6 +555,27 @@ function openFileModal(fileId) {
                     </button>
                 </div>
 
+                <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1">{{ __('admin.common.category') }}</label>
+                <div class="flex gap-2 mb-5">
+                    <select id="fileCategorySelect"
+                            class="flex-1 border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
+                                   focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                        <option value="">{{ __('admin.common.without_category') }}</option>
+                        @foreach($categories->groupBy('type') as $type => $group)
+                            <optgroup label="{{ $type ?: __('admin.categories.no_type') }}">
+                                @foreach($group as $category)
+                                    <option value="{{ $category->id }}">{{ $category->title }}</option>
+                                @endforeach
+                            </optgroup>
+                        @endforeach
+                    </select>
+                    <button type="button" onclick="saveFileCategory(${fileId})"
+                            class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm font-medium
+                                   text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition whitespace-nowrap">
+                        <i class="fa-regular fa-floppy-disk"></i> {{ __('admin.save') }}
+                    </button>
+                </div>
+
                 <div class="flex flex-wrap gap-2">
                     <a href="/admin/files/${fileId}/download"
                        class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium
@@ -536,8 +593,39 @@ function openFileModal(fileId) {
                     </button>
                 </div>
             `;
+            // Текущая категория выставляется ПОСЛЕ вставки разметки: до этого
+            // элемента в документе ещё нет.
+            const categorySelect = document.getElementById('fileCategorySelect');
+            if (categorySelect) {
+                categorySelect.value = f.category ? String(f.category.id) : '';
+            }
+
             document.getElementById('fileModal').classList.remove('hidden');
         });
+}
+
+/* Смена категории файла. Отдельной кнопкой, а не по change: случайная
+   прокрутка колесом над списком иначе молча переложила бы файл. */
+function saveFileCategory(fileId) {
+    const select = document.getElementById('fileCategorySelect');
+    if (!select) return;
+
+    fetch(`/admin/files/${fileId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify({ category_id: select.value || null }),
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (!data.success) throw new Error();
+        // Перезагрузка нужна: файл мог уехать из текущей выборки по фильтру.
+        window.location.reload();
+    })
+    .catch(() => alert(@js(__('admin.files.unknown_error'))));
 }
 
 /* Закрытие карточки файла. Раньше её нельзя было закрыть вообще: не было ни
