@@ -100,9 +100,10 @@
                     // растянутой вставки атрибуты хранят исходный размер, и
                     // угол начинал бы тянуть с чужой пропорции.
                     ratio: box.height ? box.width / box.height : 0,
-                    // Звук по высоте не тянут: у проигрывателя она своя и
-                    // растянутый он выглядит сломанным.
-                    lockHeight: target.tagName === 'AUDIO'
+                    // Пропорцию углом держат только вставки с собственным
+                    // соотношением сторон. У проигрывателя звука и таблицы его
+                    // нет: там обе стороны тянутся независимо.
+                    keepRatio: /^(IMG|VIDEO|IFRAME)$/.test(target.tagName)
                 };
 
                 document.body.classList.add('ru-ed-resizing');
@@ -132,13 +133,15 @@
                 if (horizontal) {
                     width = Math.max(40, drag.width + dx);
                 }
-                if (vertical && !drag.lockHeight) {
-                    height = Math.max(40, drag.height + dy);
+                if (vertical) {
+                    height = Math.max(24, drag.height + dy);
                 }
 
                 // Угол держит пропорцию, если не зажат Shift: перекошенная
                 // картинка — почти всегда промах, а не замысел.
-                if (horizontal && vertical && drag.ratio && !event.shiftKey && !drag.lockHeight) {
+                var locked = horizontal && vertical && drag.ratio && drag.keepRatio && !event.shiftKey;
+
+                if (locked) {
                     height = width / drag.ratio;
                 }
 
@@ -147,7 +150,7 @@
                 if (width > limit) {
                     width = limit;
 
-                    if (horizontal && vertical && drag.ratio && !event.shiftKey && !drag.lockHeight) {
+                    if (locked) {
                         height = width / drag.ratio;
                     }
                 }
@@ -197,16 +200,18 @@
                     target.removeAttribute('width');
                 }
 
-                if (vertical && !drag.lockHeight) {
+                if (vertical) {
                     target.style.height = height + 'px';
                     target.removeAttribute('height');
-                } else if (horizontal && !drag.lockHeight && target.tagName !== 'TABLE') {
-                    // Тянут за бок — высота идёт следом, иначе картинка
-                    // сплющивается по мере сужения.
+                } else if (horizontal && drag.keepRatio) {
+                    // Тянут за бок вставку с собственной пропорцией — высота
+                    // идёт следом, иначе картинка сплющивается по мере сужения.
+                    // У проигрывателя звука и таблицы высоту, наоборот, не
+                    // трогаем: заданную вручную сбрасывать нельзя.
                     target.style.height = 'auto';
                 }
 
-                badge.textContent = width + ' x ' + (drag.lockHeight ? '—' : height);
+                badge.textContent = width + ' x ' + height;
             }
 
             /* ── Положение рамки с ручками ───────────────────────────── */
@@ -235,7 +240,6 @@
                 frame.style.left = left + 'px';
                 frame.style.width = box.width + 'px';
                 frame.style.height = box.height + 'px';
-                frame.classList.toggle('is-flat', target.tagName === 'AUDIO');
 
                 if (!drag) {
                     badge.textContent = Math.round(box.width) + ' x ' + Math.round(box.height);

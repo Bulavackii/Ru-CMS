@@ -731,16 +731,10 @@
 .ru-ed-handle.is-sw { bottom: -5px; left: -5px;                    cursor: nesw-resize }
 .ru-ed-handle.is-w  { top: 50%;    left: -5px; margin-top: -5px;   cursor: ew-resize }
 
-/* У проигрывателя звука высота своя — вертикальные ручки только сбивали бы
-   с толку, предлагая то, что всё равно не применится. */
-.ru-ed-resize.is-flat .ru-ed-handle.is-n,
-.ru-ed-resize.is-flat .ru-ed-handle.is-s,
-.ru-ed-resize.is-flat .ru-ed-handle.is-nw,
-.ru-ed-resize.is-flat .ru-ed-handle.is-ne,
-.ru-ed-resize.is-flat .ru-ed-handle.is-sw,
-.ru-ed-resize.is-flat .ru-ed-handle.is-se {
-    display: none;
-}
+/* Ручки одинаковы у всего: картинка, видео, звук, ролик, таблица. Сначала у
+   проигрывателя звука вертикальные были спрятаны — «высота у него своя», — но
+   это оказалось решением за автора: браузер честно растягивает полосу
+   управления, и распорядиться местом он вправе сам. */
 
 .ru-ed-resize-size {
     position: absolute;
