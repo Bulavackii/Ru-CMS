@@ -35,118 +35,138 @@
     <form method="POST" action="{{ route('admin.news.store') }}" enctype="multipart/form-data" class="space-y-5 w-full">
         @csrf
 
-        {{-- ── Основное ── --}}
-        <div class="admin-card p-5">
-            <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
-                <i class="fas fa-file-lines text-indigo-500"></i> {{ __('admin.common.basic') }}
-            </h2>
-            <div class="space-y-4">
-                <x-admin.input label="{{ __('admin.common.f_title') }}" name="title" required
-                    hint="{{ __('admin.news.title_hint') }}" />
-                <x-admin.input label="URL (slug)" name="slug"
-                    hint="{{ __('admin.news.slug_hint') }}" />
-                <x-admin.select label="{{ __('admin.common.f_template') }}" name="template" :options="$templates"
-                    hint="{{ __('admin.news.template_hint') }}" />
-            </div>
-        </div>
+        {{-- Две колонки, как на правке и в Категориях: слева то, над чем
+             работают, справа служебное. Одним столбцом во всю ширину короткие
+             поля растягивались на полторы тысячи пикселей. --}}
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-5 items-start">
 
-        {{-- ── SEO ── --}}
-        <div class="admin-card p-5">
-            <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
-                <i class="fas fa-magnifying-glass text-indigo-500"></i> SEO
-            </h2>
-            <div class="space-y-4">
-                <x-admin.input label="Meta Title" name="meta_title"
-                    hint="{{ __('admin.news.meta_title_hint') }}" />
-                <div>
-                    <label for="meta_description" class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Meta Description</label>
-                    <textarea name="meta_description" id="meta_description" rows="3"
-                        class="w-full border border-gray-300 dark:border-gray-700 px-3 py-2 dark:bg-gray-800 dark:text-gray-100
-                               focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-                        placeholder="{{ __('admin.news.desc_hint') }}">{{ old('meta_description') }}</textarea>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ __('admin.news.seo_hint') }}</p>
+            {{-- ── Левая колонка ── --}}
+            <div class="xl:col-span-2 space-y-5">
+
+                <div class="admin-card p-5">
+                    <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+                        <i class="fas fa-file-lines text-indigo-500"></i> {{ __('admin.common.basic') }}
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="md:col-span-2">
+                            <x-admin.input label="{{ __('admin.common.f_title') }}" name="title" required
+                                hint="{{ __('admin.news.title_hint') }}" />
+                        </div>
+                        <x-admin.input label="URL (slug)" name="slug"
+                            hint="{{ __('admin.news.slug_hint') }}" />
+                        <x-admin.select label="{{ __('admin.common.f_template') }}" name="template" :options="$templates"
+                            hint="{{ __('admin.news.template_hint') }}" />
+                    </div>
                 </div>
-                <x-admin.input label="{{ __('admin.common.f_keywords') }}" name="meta_keywords" hint="{{ __('admin.news.keywords_hint') }}" />
-            </div>
-        </div>
 
-        {{-- ── Категории ── --}}
-        <div class="admin-card p-5">
-            <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2 flex items-center gap-2">
-                <i class="fas fa-folder-open text-indigo-500"></i> {{ __('admin.common.categories') }}
-            </h2>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{ __('admin.news.categories_hint') }}</p>
-            <div class="flex flex-wrap gap-2">
-                @forelse ($categories as $category)
-                    <label class="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-300 dark:border-gray-600 cursor-pointer text-sm
-                                  hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-700 transition">
-                        <input type="checkbox" name="categories[]" value="{{ $category->id }}"
-                            {{ in_array($category->id, old('categories', [])) ? 'checked' : '' }}>
-                        {{ $category->title }}
+                {{-- Поля шаблона «Товары» --}}
+                <div id="product-fields" class="admin-card p-5 hidden animate-fade-in">
+                    <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+                        <i class="fas fa-bag-shopping text-indigo-500"></i> {{ __('admin.news.product') }}
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <x-admin.input label="{{ __('admin.news.price') }}" name="price" type="number" step="0.01"
+                            hint="{{ __('admin.news.price_hint') }}" />
+                        <x-admin.input label="{{ __('admin.news.stock') }}" name="stock" type="number"
+                            hint="{{ __('admin.news.stock_hint') }}" />
+                        <label class="md:col-span-2 inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                            <input type="checkbox" name="is_promo" value="1" {{ old('is_promo') ? 'checked' : '' }}>
+                            {{ __('admin.news.sale') }}
+                        </label>
+                    </div>
+                </div>
+
+                {{-- Оценка: только для шаблона «Игры» --}}
+                <div id="rating-fields" class="admin-card p-5 hidden animate-fade-in">
+                    <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+                        <i class="fas fa-star text-indigo-500"></i> {{ __('admin.news.rating_group') }}
+                    </h2>
+                    <div class="md:w-1/2">
+                        <x-admin.input label="{{ __('admin.news.rating') }}" name="rating" type="number"
+                            step="0.1" min="0" max="10"
+                            hint="{{ __('admin.news.rating_hint') }}" />
+                    </div>
+                </div>
+            </div>
+
+            {{-- ── Правая колонка ── --}}
+            <div class="space-y-5">
+
+                <div class="admin-card p-5 space-y-4">
+                    <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                        <i class="fas fa-circle-check text-indigo-500"></i> {{ __('admin.news.publish') }}
+                    </h2>
+
+                    <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                        <input type="checkbox" name="published" value="1" checked>
+                        {{ __('admin.news.publish_now') }}
                     </label>
-                @empty
-                    <p class="text-sm text-gray-400 dark:text-gray-500">{{ __('admin.common.no_categories') }}</p>
-                @endforelse
+
+                    <div class="flex items-center gap-2">
+                        <button type="submit"
+                            class="inline-flex items-center justify-center gap-2 flex-1 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition">
+                            <i class="fas fa-floppy-disk"></i> {{ __('admin.news.save') }}
+                        </button>
+                        <a href="{{ route('admin.news.index') }}"
+                           class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium border border-gray-300 dark:border-gray-600
+                                  text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                            {{ __('admin.cancel') }}
+                        </a>
+                    </div>
+                </div>
+
+                <div class="admin-card p-5">
+                    <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2 flex items-center gap-2">
+                        <i class="fas fa-folder-open text-indigo-500"></i> {{ __('admin.common.categories') }}
+                    </h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{ __('admin.news.categories_hint') }}</p>
+                    <div class="flex flex-wrap gap-2">
+                        @forelse ($categories as $category)
+                            <label class="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-300 dark:border-gray-600 cursor-pointer text-sm
+                                          hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-700 transition">
+                                <input type="checkbox" name="categories[]" value="{{ $category->id }}"
+                                    {{ in_array($category->id, old('categories', [])) ? 'checked' : '' }}>
+                                {{ $category->title }}
+                            </label>
+                        @empty
+                            <p class="text-sm text-gray-400 dark:text-gray-500">{{ __('admin.common.no_categories') }}</p>
+                        @endforelse
+                    </div>
+                </div>
+
+                <div class="admin-card p-5">
+                    <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+                        <i class="fas fa-magnifying-glass text-indigo-500"></i> SEO
+                    </h2>
+                    <div class="space-y-4">
+                        <x-admin.input label="Meta Title" name="meta_title"
+                            hint="{{ __('admin.news.meta_title_hint') }}" />
+                        <div>
+                            <label for="meta_description" class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Meta Description</label>
+                            <textarea name="meta_description" id="meta_description" rows="3"
+                                class="w-full border border-gray-300 dark:border-gray-700 px-3 py-2 dark:bg-gray-800 dark:text-gray-100
+                                       focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                                placeholder="{{ __('admin.news.desc_hint') }}">{{ old('meta_description') }}</textarea>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ __('admin.news.seo_hint') }}</p>
+                        </div>
+                        <x-admin.input label="{{ __('admin.common.f_keywords') }}" name="meta_keywords" hint="{{ __('admin.news.keywords_hint') }}" />
+                    </div>
+                </div>
             </div>
         </div>
 
-        {{-- ── Поля шаблона «Товары» ── --}}
-        <div id="product-fields" class="admin-card p-5 hidden animate-fade-in">
-            <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
-                <i class="fas fa-bag-shopping text-indigo-500"></i> {{ __('admin.news.product') }}
-            </h2>
-            <div class="space-y-4">
-                <x-admin.input label="{{ __('admin.news.price') }}" name="price" type="number" step="0.01"
-                    hint="{{ __('admin.news.price_hint') }}" />
-                <x-admin.input label="{{ __('admin.news.stock') }}" name="stock" type="number"
-                    hint="{{ __('admin.news.stock_hint') }}" />
-                <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                    <input type="checkbox" name="is_promo" value="1" {{ old('is_promo') ? 'checked' : '' }}>
-                    {{ __('admin.news.sale') }}
-                </label>
-            </div>
-        </div>
+        {{-- Содержимое — отдельной строкой во всю ширину.
 
-        {{-- ── Оценка: только для шаблона «Игры» ── --}}
-        <div id="rating-fields" class="admin-card p-5 hidden animate-fade-in">
-            <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
-                <i class="fas fa-star text-indigo-500"></i> {{ __('admin.news.rating_group') }}
-            </h2>
-            <x-admin.input label="{{ __('admin.news.rating') }}" name="rating" type="number"
-                step="0.1" min="0" max="10" 
-                hint="{{ __('admin.news.rating_hint') }}" />
-        </div>
-
-
-        {{-- ── Содержимое ── --}}
+             В колонке редактор делил место с полями настроек и получал две
+             трети экрана. Текст здесь главное: чем шире полоса набора, тем
+             ближе она к тому, что увидит посетитель, и тем меньше переносов
+             там, где их на сайте не будет. --}}
         <div class="admin-card p-5">
             <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-2">
                 <i class="fas fa-pen-nib text-indigo-500"></i> {{ __('admin.common.content') }}
             </h2>
             <x-ru-editor name="content" id="editor" :height="520" />
             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ __('admin.news.content_hint') }}</p>
-        
-            {{-- Вставка сохранённой сборки каптчи в текст материала --}}
-</div>
-
-        {{-- ── Публикация и сохранение ── --}}
-        <div class="admin-card p-5 flex flex-col sm:flex-row sm:items-center gap-4">
-            <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                <input type="checkbox" name="published" value="1" checked>
-                {{ __('admin.news.publish_now') }}
-            </label>
-
-            <div class="sm:ml-auto flex items-center gap-2">
-                <a href="{{ route('admin.news.index') }}"
-                   class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium border border-gray-300 dark:border-gray-600
-                          text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-                    {{ __('admin.cancel') }}
-                </a>
-                <button type="submit"
-                    class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 text-sm font-semibold shadow-sm transition">
-                    <i class="fas fa-floppy-disk"></i> {{ __('admin.news.save') }}
-                </button>
-            </div>
         </div>
     </form>
 
