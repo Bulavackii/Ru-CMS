@@ -35,6 +35,13 @@ class SyncModules extends Command
             Module::updateOrCreate(
                 ['name' => $data['name']],
                 [
+                    // Название писалось НЕ здесь, а только в
+                    // ModuleServiceProvider::syncModuleMetadata() при первом
+                    // веб-запросе. Команду зовёт мастер установки, поэтому
+                    // сразу после установки таблица оставалась с пустыми
+                    // названиями — до первого захода в панель. Две дороги к
+                    // одной таблице должны заполнять её одинаково.
+                    'title' => $data['title'] ?? $data['name'],
                     'version' => $data['version'],
                     'active' => $data['active'] ?? false,
                     'installed_at' => now(),
