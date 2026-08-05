@@ -71,7 +71,7 @@
         'lang'        => app()->getLocale(),
         // Оформление содержимого — тот же файл, что подключён на сайте.
         // Автор видит текст ровно таким, каким его увидит посетитель.
-        'contentCss'  => $contentCss ? [asset('assets/css/content-blocks.css')] : [],
+        'contentCss'  => $contentCss ? [asset_v('assets/css/content-blocks.css')] : [],
         'csrf'        => csrf_token(),
         // Загрузка идёт в модуль Файлы, а не в отдельный каталог: только так
         // картинка из материала попадает в медиатеку и её потом можно выбрать
@@ -103,17 +103,17 @@
 
 @once
     @push('styles')
-        <link rel="stylesheet" href="{{ asset('assets/css/ru-editor.css') }}">
+        <link rel="stylesheet" href="{{ asset_v('assets/css/ru-editor.css') }}">
     @endpush
 
     @push('scripts')
-        <script src="{{ asset('assets/js/ru-editor.js') }}"></script>
-        <script src="{{ asset('assets/js/ru-editor-ui.js') }}"></script>
-        <script src="{{ asset('assets/js/ru-editor-format.js') }}"></script>
-        <script src="{{ asset('assets/js/ru-editor-media.js') }}"></script>
-        <script src="{{ asset('assets/js/ru-editor-blocks.js') }}"></script>
-        <script src="{{ asset('assets/js/ru-editor-resize.js') }}"></script>
-        <script src="{{ asset('assets/js/ru-editor-tools.js') }}"></script>
+        <script src="{{ asset_v('assets/js/ru-editor.js') }}"></script>
+        <script src="{{ asset_v('assets/js/ru-editor-ui.js') }}"></script>
+        <script src="{{ asset_v('assets/js/ru-editor-format.js') }}"></script>
+        <script src="{{ asset_v('assets/js/ru-editor-media.js') }}"></script>
+        <script src="{{ asset_v('assets/js/ru-editor-blocks.js') }}"></script>
+        <script src="{{ asset_v('assets/js/ru-editor-resize.js') }}"></script>
+        <script src="{{ asset_v('assets/js/ru-editor-tools.js') }}"></script>
 
         <script>
             // Строки интерфейса приходят из словаря PHP, а не зашиты в скрипт:
