@@ -377,6 +377,14 @@ return [
     ],
 
     'news' => [
+
+        'state_published' => 'Published',
+
+        'state_draft' => 'Draft',
+
+        'state_published_hint' => 'Visible to site visitors',
+
+        'state_draft_hint' => 'Visible only in the admin panel',
         'rating_group' => 'Rating',
         'rating' => 'Review score',
         'rating_hint' => 'From 0 to 10, decimals allowed: 8.5. Shown as a badge in the corner of the cover. Empty — no badge.',

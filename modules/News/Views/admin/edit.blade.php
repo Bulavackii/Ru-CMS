@@ -96,6 +96,22 @@
                             hint="{{ __('admin.news.slug_hint_edit') }}" />
                         <x-admin.select label="{{ __('admin.common.f_template') }}" name="template" :options="$templates" :selected="$news->template"
                             hint="{{ __('admin.news.template_hint_edit') }}" />
+                        {{-- Оценка — тонкой строкой внутри «Основного», а не
+                             отдельной карточкой. Одно число в карточке на всю
+                             ширину оставляло под собой пустоту в полсотни
+                             пикселей и растягивало левую колонку ниже правой. --}}
+                        <div id="rating-fields" class="md:col-span-2 hidden animate-fade-in">
+                            <div class="flex flex-wrap items-center gap-x-3 gap-y-2 border border-gray-200 dark:border-gray-700 px-4 py-3">
+                                <label for="rating" class="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 flex-none">
+                                    <i class="fas fa-star text-indigo-500"></i> {{ __('admin.news.rating') }}
+                                </label>
+                                <input type="number" name="rating" id="rating" step="0.1" min="0" max="10"
+                                    value="{{ old('rating', $news->rating) }}"
+                                    class="w-24 flex-none border border-gray-300 dark:border-gray-700 px-3 py-1.5 text-sm dark:bg-gray-800 dark:text-gray-100
+                                           focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                                <span class="text-xs text-gray-500 dark:text-gray-400 flex-1 min-w-0">{{ __('admin.news.rating_hint') }}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -136,16 +152,6 @@
                 </div>
 
                 {{-- Оценка: только для шаблона «Игры» --}}
-                <div id="rating-fields" class="admin-card p-5 hidden animate-fade-in">
-                    <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
-                        <i class="fas fa-star text-indigo-500"></i> {{ __('admin.news.rating_group') }}
-                    </h2>
-                    <div class="md:w-1/2">
-                        <x-admin.input label="{{ __('admin.news.rating') }}" name="rating" type="number"
-                            step="0.1" min="0" max="10" :value="$news->rating"
-                            hint="{{ __('admin.news.rating_hint') }}" />
-                    </div>
-                </div>
             </div>
 
             {{-- ── Правая колонка: служебное ── --}}
@@ -154,23 +160,37 @@
                 {{-- Публикация и сохранение наверху: это то, ради чего сюда
                      заходят, и мотать за кнопкой вниз через весь редактор
                      незачем. --}}
-                <div class="admin-card p-5 space-y-4">
+                <div class="admin-card p-5 space-y-4" x-data="{ live: {{ $news->published ? 'true' : 'false' }} }">
                     <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 flex items-center gap-2">
                         <i class="fas fa-circle-check text-indigo-500"></i> {{ __('admin.news.publish') }}
                     </h2>
 
-                    <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                        <input type="checkbox" name="published" value="1" {{ $news->published ? 'checked' : '' }}>
-                        {{ __('admin.news.publish') }}
-                    </label>
+                    {{-- Тумблер вместо голой галочки: состояние читается с
+                         одного взгляда, а подпись рядом прямо говорит, что это
+                         значит для посетителя. Галочка сообщала только «есть
+                         или нет», и приходилось помнить, что она включает. --}}
+                    <div class="flex items-start gap-3">
+                        <label class="admin-toggle mt-0.5">
+                            <input type="checkbox" name="published" value="1" x-model="live" @checked($news->published)>
+                            <span class="track"></span>
+                            <span class="knob"></span>
+                        </label>
 
-                    <div class="flex items-center gap-2">
+                        <div class="min-w-0">
+                            <p class="text-sm font-semibold text-gray-900 dark:text-white"
+                               x-text="live ? @js(__('admin.news.state_published')) : @js(__('admin.news.state_draft'))"></p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400"
+                               x-text="live ? @js(__('admin.news.state_published_hint')) : @js(__('admin.news.state_draft_hint'))"></p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 pt-1 border-t border-gray-100 dark:border-gray-800">
                         <button type="submit"
-                            class="inline-flex items-center justify-center gap-2 flex-1 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition">
+                            class="inline-flex items-center justify-center gap-2 flex-1 mt-3 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition">
                             <i class="fas fa-floppy-disk"></i> {{ __('admin.common.save_changes') }}
                         </button>
                         <a href="{{ route('admin.news.index') }}"
-                           class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium border border-gray-300 dark:border-gray-600
+                           class="inline-flex items-center mt-3 px-4 py-2 text-sm font-medium border border-gray-300 dark:border-gray-600
                                   text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
                             {{ __('admin.cancel') }}
                         </a>
