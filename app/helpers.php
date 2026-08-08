@@ -5,15 +5,52 @@
  *
  * Файлы вендорятся из @fontsource в public/assets/fonts/{slug}/ и не
  * требуют обращения к Google Fonts/Bunny Fonts. Ключ — slug для
- * font_provider='local' в настройках темы, значение — CSS font-family
- * и подпись для UI.
+ * font_provider='local' в настройках темы, значение — CSS font-family,
+ * подпись для UI и вид гарнитуры (для группировки в списках).
+ *
+ * ⚖️ Лицензии. Все шрифты, кроме Roboto Slab, распространяются под SIL Open
+ * Font License 1.1; Roboto Slab — под Apache License 2.0. Обе разрешают
+ * коммерческое использование и распространение в составе продукта. OFL при
+ * этом ТРЕБУЕТ, чтобы файл лицензии сопровождал шрифт, поэтому рядом с
+ * каждым набором лежит его LICENSE — не удалять при чистке репозитория.
+ *
+ * Ubuntu намеренно не берём: он под собственной Ubuntu Font Licence с
+ * оговорками об именовании производных. Лицензия свободная, но особая, а
+ * заводить единственное исключение ради одной гарнитуры незачем.
+ *
+ * В наборе только гарнитуры С КИРИЛЛИЦЕЙ: латинский шрифт на русском сайте
+ * подменяется системным, и владелец видит не то, что выбрал.
  */
 if (!defined('LOCAL_FONTS')) {
     define('LOCAL_FONTS', [
-        'inter' => ['family' => 'Inter', 'label' => 'Inter'],
-        'roboto' => ['family' => 'Roboto', 'label' => 'Roboto'],
-        'pt-sans' => ['family' => 'PT Sans', 'label' => 'PT Sans'],
-        'manrope' => ['family' => 'Manrope', 'label' => 'Manrope'],
+        // Без засечек — основной рабочий текст
+        'inter'          => ['family' => 'Inter',          'label' => 'Inter',          'kind' => 'sans'],
+        'roboto'         => ['family' => 'Roboto',         'label' => 'Roboto',         'kind' => 'sans'],
+        'open-sans'      => ['family' => 'Open Sans',      'label' => 'Open Sans',      'kind' => 'sans'],
+        'montserrat'     => ['family' => 'Montserrat',     'label' => 'Montserrat',     'kind' => 'sans'],
+        'manrope'        => ['family' => 'Manrope',        'label' => 'Manrope',        'kind' => 'sans'],
+        'nunito'         => ['family' => 'Nunito',         'label' => 'Nunito',         'kind' => 'sans'],
+        'rubik'          => ['family' => 'Rubik',          'label' => 'Rubik',          'kind' => 'sans'],
+        'raleway'        => ['family' => 'Raleway',        'label' => 'Raleway',        'kind' => 'sans'],
+        'fira-sans'      => ['family' => 'Fira Sans',      'label' => 'Fira Sans',      'kind' => 'sans'],
+        'noto-sans'      => ['family' => 'Noto Sans',      'label' => 'Noto Sans',      'kind' => 'sans'],
+        'golos-text'     => ['family' => 'Golos Text',     'label' => 'Golos Text',     'kind' => 'sans'],
+        'onest'          => ['family' => 'Onest',          'label' => 'Onest',          'kind' => 'sans'],
+        'pt-sans'        => ['family' => 'PT Sans',        'label' => 'PT Sans',        'kind' => 'sans'],
+        'oswald'         => ['family' => 'Oswald',         'label' => 'Oswald',         'kind' => 'sans'],
+
+        // С засечками — заголовки и длинные тексты
+        'pt-serif'       => ['family' => 'PT Serif',       'label' => 'PT Serif',       'kind' => 'serif'],
+        'merriweather'   => ['family' => 'Merriweather',   'label' => 'Merriweather',   'kind' => 'serif'],
+        'lora'           => ['family' => 'Lora',           'label' => 'Lora',           'kind' => 'serif'],
+        'roboto-slab'    => ['family' => 'Roboto Slab',    'label' => 'Roboto Slab',    'kind' => 'serif'],
+
+        // Моноширинные — код и таблицы
+        'jetbrains-mono' => ['family' => 'JetBrains Mono', 'label' => 'JetBrains Mono', 'kind' => 'mono'],
+        'roboto-mono'    => ['family' => 'Roboto Mono',    'label' => 'Roboto Mono',    'kind' => 'mono'],
+
+        // Рукописный — акценты, подписи
+        'caveat'         => ['family' => 'Caveat',         'label' => 'Caveat',         'kind' => 'hand'],
     ]);
 }
 

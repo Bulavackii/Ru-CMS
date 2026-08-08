@@ -68,9 +68,9 @@
                   . 'bullist numlist outdent indent | link unlink | image media audio file table | '
                   . 'charmap | removeformat | '
                   . 'searchreplace visualblocks code preview fullscreen help',
-        'page'   => 'undo redo | forms captcha ruBlocks | blocks | bold italic underline | '
+        'page'   => 'undo redo | forms captcha ruBlocks | blocks | fontfamily | bold italic underline | '
                   . 'alignleft aligncenter alignright | bullist numlist | link unlink | image media audio file table | '
-                  . 'removeformat | code preview fullscreen',
+                  . 'removeformat | visualblocks code preview fullscreen',
         'simple' => 'undo redo | bold italic underline | bullist numlist | link unlink | removeformat | code fullscreen',
         'mail'   => 'undo redo | bold italic underline | bullist numlist | link unlink | removeformat | code',
     ];
@@ -85,7 +85,19 @@
         'lang'        => app()->getLocale(),
         // Оформление содержимого — тот же файл, что подключён на сайте.
         // Автор видит текст ровно таким, каким его увидит посетитель.
-        'contentCss'  => $contentCss ? [asset_v('assets/css/content-blocks.css')] : [],
+        // Оформление содержимого плюс сами гарнитуры. Без вторых выбор шрифта
+        // в панели ничего бы не менял: рамка редактора — отдельный документ,
+        // и шрифты страницы в неё не попадают. Файлы крошечные (по паре
+        // килобайт), а woff2 скачивается только если шрифт реально выбран.
+        'contentCss'  => $contentCss
+            ? [
+                asset_v('assets/css/content-blocks.css'),
+                // Гарнитуры содержимого одним файлом. Без них выбор шрифта в
+                // панели ничего бы не показывал: рамка редактора — отдельный
+                // документ, и шрифты страницы в неё не попадают.
+                asset_v('assets/css/content-fonts.css'),
+            ]
+            : [],
         'csrf'        => csrf_token(),
         // Загрузка идёт в модуль Файлы, а не в отдельный каталог: только так
         // картинка из материала попадает в медиатеку и её потом можно выбрать
@@ -93,6 +105,15 @@
         // два хранилища жили независимо друг от друга.
         'uploadUrl'   => Route::has('admin.files.upload') ? route('admin.files.upload') : null,
         'browseUrl'   => Route::has('admin.files.browse') ? route('admin.files.browse') : null,
+        // Свои шрифты — из одного реестра с темами и с рамкой редактора.
+        // Второй список в скрипте неизбежно разошёлся бы с этим.
+        'fonts'       => collect(LOCAL_FONTS)
+            ->map(fn ($font, $slug) => [
+                'slug'   => $slug,
+                'family' => $font['family'],
+                'label'  => $font['label'],
+                'kind'   => $font['kind'] ?? 'sans',
+            ])->values()->all(),
         'uploadHint'  => __('admin.editor.upload_hint', ['size' => max_upload_label()]),
         // Предел проверяется ещё в браузере: иначе человек честно ждёт
         // закачки мегабайтов, сервер обрывает приём, и в ответ приходит

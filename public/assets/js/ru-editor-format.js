@@ -112,36 +112,84 @@
 
     /* ── Шрифт и кегль ───────────────────────────────────────────────── */
 
-    var FONTS = [
-        { label: 'Шрифт сайта', value: '' },
+    /**
+     * Гарнитуры.
+     *
+     * Две группы, и это не косметика. Свои — те, что лежат в проекте
+     * (public/assets/fonts) и подключены и в рамке редактора, и на сайте:
+     * выбрал такую — посетитель увидит ровно её. Их список приходит из
+     * настроек (реестр LOCAL_FONTS в PHP), чтобы не держать второй перечень,
+     * который неизбежно разойдётся с первым.
+     *
+     * Системные есть не у всех: на телефоне и на Linux половины из них нет, и
+     * текст покажется запасной гарнитурой из стека. Поэтому у каждой указан
+     * стек, а не одно имя. Гарнитур без кириллицы (Impact, Tahoma) в списке
+     * нет вовсе: на русском тексте они всё равно подменяются системными.
+     */
+    var SYSTEM_FONTS = [
         { label: 'Системный', value: 'system-ui, -apple-system, sans-serif' },
         { label: 'Arial', value: 'Arial, Helvetica, sans-serif' },
-        { label: 'Georgia', value: 'Georgia, serif' },
+        { label: 'Verdana', value: 'Verdana, Geneva, sans-serif' },
+        { label: 'Trebuchet MS', value: '"Trebuchet MS", Verdana, sans-serif' },
+        { label: 'Georgia', value: 'Georgia, "Times New Roman", serif' },
         { label: 'Times New Roman', value: '"Times New Roman", Times, serif' },
+        { label: 'Palatino', value: '"Palatino Linotype", Palatino, Georgia, serif' },
         { label: 'Courier New', value: '"Courier New", ui-monospace, monospace' },
-        { label: 'Verdana', value: 'Verdana, Geneva, sans-serif' }
+        { label: 'Моноширинный', value: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' }
     ];
+
+    /** Запасной стек по виду гарнитуры — на случай, если шрифт не подгрузился. */
+    var FALLBACK = {
+        sans: 'system-ui, sans-serif',
+        serif: 'Georgia, serif',
+        mono: 'ui-monospace, monospace',
+        hand: 'cursive'
+    };
+
+    function fontItems(editor) {
+        var own = editor.options.fonts || [];
+
+        var items = [{
+            label: t('font.site', 'Шрифт сайта'),
+            action: function (ed) { ed.exec('clearStyle', { prop: 'font-family' }); }
+        }];
+
+        if (own.length) {
+            items.push({ head: t('font.own_head', 'Шрифты проекта') });
+
+            own.forEach(function (font) {
+                var stack = '"' + font.family + '", ' + (FALLBACK[font.kind] || FALLBACK.sans);
+
+                items.push({
+                    label: font.label,
+                    style: 'font-family:' + stack,
+                    action: function (ed) {
+                        ed.exec('applyStyle', { prop: 'font-family', value: stack });
+                    }
+                });
+            });
+        }
+
+        items.push({ head: t('font.system_head', 'Системные') });
+
+        SYSTEM_FONTS.forEach(function (font) {
+            items.push({
+                label: font.label,
+                style: 'font-family:' + font.value,
+                action: function (ed) {
+                    ed.exec('applyStyle', { prop: 'font-family', value: font.value });
+                }
+            });
+        });
+
+        return items;
+    }
 
     RuEditor.registerButton('fontfamily', {
         type: 'menu',
         label: 'Шрифт',
         title: 'Гарнитура',
-        items: function () {
-            return FONTS.map(function (font) {
-                return {
-                    label: font.label,
-                    style: font.value ? 'font-family:' + font.value : null,
-                    action: function (editor) {
-                        // Пустое значение = «как на сайте»: снимаем свой шрифт,
-                        // а не подставляем ещё один.
-                        editor.exec(font.value ? 'applyStyle' : 'clearStyle', {
-                            prop: 'font-family',
-                            value: font.value
-                        });
-                    }
-                };
-            });
-        }
+        items: fontItems
     });
 
     var SIZES = ['12px', '14px', '16px', '18px', '20px', '24px', '30px', '36px', '48px'];
