@@ -1956,7 +1956,7 @@ return [
         'h2' => 'Insert into a theme template',
         'h2_text' => 'If the form belongs in the markup — in the footer, say — call it from a Blade template.',
         'h3' => 'Where submissions go',
-        'h3_text' => 'Every submission is stored in the panel, under the form’s “Submissions”. Email is extra: if the message fails to send, the submission is still kept.',
+        'h3_text' => 'There is no separate section in the panel menu: submissions open from the envelope button next to the form in the list below. Email is extra, and if the message fails to send, the submission is still kept.',
         'h4' => 'Spam protection',
         'h4_text' => 'Every form carries a hidden honeypot field and a rate limit. For forms with valuable submissions, add a captcha in the settings.',
         't_text' => 'Line',
