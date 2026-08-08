@@ -155,7 +155,7 @@
                     }
                 }
 
-                apply(Math.round(width), Math.round(height), horizontal, vertical);
+                apply(Math.round(width), Math.round(height), horizontal, vertical, locked);
                 place();
             }
 
@@ -183,7 +183,7 @@
                 });
             }
 
-            function apply(width, height, horizontal, vertical) {
+            function apply(width, height, horizontal, vertical, locked) {
                 // Та же коробка, что у выравнивания и удаления. Раньше здесь
                 // искалась только figure, и ширина ролика уходила на сам тег
                 // мимо его обёртки — размер и положение спорили друг с другом.
@@ -203,15 +203,29 @@
                     target.removeAttribute('width');
                 }
 
-                if (vertical) {
+                // Высота в ПИКСЕЛЯХ при ширине в процентах — ловушка: на сайте
+                // колонка другой ширины, ширина пересчитывается, а высота нет,
+                // и картинка выходит растянутой. Замер: в редакторе колонка
+                // 854, на странице 1087, и картинка, растянутая за угол,
+                // рендерилась с пропорцией 2.178 вместо 1.778 — на 23% шире,
+                // чем надо. За бок при этом всё было верно: там высота auto.
+                //
+                // Поэтому вставке с собственной пропорцией пикселей по высоте
+                // не задаём никогда. Тянули угол с сохранением пропорции —
+                // высоту считает браузер. Меняли пропорцию намеренно (угол с
+                // Shift или грань сверху-снизу) — запоминаем СООТНОШЕНИЕ
+                // сторон: оно переживает любую ширину колонки.
+                if (drag.keepRatio) {
+                    target.style.height = 'auto';
+                    target.style.aspectRatio = locked || !vertical
+                        ? ''
+                        : Math.round(width) + ' / ' + Math.round(height);
+                    target.removeAttribute('height');
+                } else if (vertical) {
+                    // У проигрывателя звука и таблицы своей пропорции нет —
+                    // там высота в пикселях и есть то, что задал автор.
                     target.style.height = height + 'px';
                     target.removeAttribute('height');
-                } else if (horizontal && drag.keepRatio) {
-                    // Тянут за бок вставку с собственной пропорцией — высота
-                    // идёт следом, иначе картинка сплющивается по мере сужения.
-                    // У проигрывателя звука и таблицы высоту, наоборот, не
-                    // трогаем: заданную вручную сбрасывать нельзя.
-                    target.style.height = 'auto';
                 }
 
                 badge.textContent = width + ' x ' + height;

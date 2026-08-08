@@ -152,6 +152,18 @@ class EditorObjectsTest extends TestCase
         $this->assertStringContainsString("registerPlugin('player-preview'", $this->js('ru-editor-media.js'));
     }
 
+    public function test_resize_never_writes_pixel_height_on_ratio_media(): void
+    {
+        // Высота в пикселях при ширине в процентах ломает пропорцию на сайте:
+        // там колонка другой ширины, ширина пересчитывается, а высота нет.
+        // Замер: картинка, растянутая за угол, рендерилась с пропорцией 2.178
+        // вместо 1.778 — на 23% шире, чем надо.
+        $js = $this->js('ru-editor-resize.js');
+
+        $this->assertStringContainsString('if (drag.keepRatio) {', $js);
+        $this->assertStringContainsString("target.style.aspectRatio = locked || !vertical", $js);
+    }
+
     public function test_form_is_inline_so_alignment_moves_it(): void
     {
         // Тем же способом, что и всё остальное содержимое: строчный блок
