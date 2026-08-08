@@ -89,6 +89,14 @@ class PageController extends Controller
         $data['published'] = $request->has('published');
         $data['show_on_homepage'] = $request->has('show_on_homepage');
 
+        // 🔢 Порядок на главной: пустое поле приводим к нулю, а не к NULL.
+        // Колонка объявлена NOT NULL DEFAULT 0, но умолчание срабатывает
+        // только когда столбца нет в запросе вовсе. Здесь он есть — пустую
+        // строку глобальный посредник превращает в null, правило nullable
+        // пропускает её дальше, и в базу уходит явный NULL. Создание страницы
+        // с незаполненным полем падало с ошибкой ограничения.
+        $data['homepage_order'] = $data['homepage_order'] ?? 0;
+
         // 🔗 Генерация slug, если не указан
         $data['slug'] = $data['slug'] ?? Str::slug($data['title']) . '-' . uniqid();
 
@@ -138,6 +146,10 @@ class PageController extends Controller
         // 🧩 Чекбоксы: если не переданы — значит false
         $data['published'] = $request->has('published');
         $data['show_on_homepage'] = $request->has('show_on_homepage');
+
+        // 🔢 Порядок на главной — то же, что и при создании: NOT NULL-колонка
+        // не принимает null, а пустое поле формы приходит именно им.
+        $data['homepage_order'] = $data['homepage_order'] ?? 0;
 
         // 🆕 Сгенерировать slug при отсутствии
         if (empty($data['slug'])) {

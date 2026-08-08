@@ -398,4 +398,40 @@ class MenuModuleTest extends TestCase
         $this->assertTrue((bool) $page->published);
         $this->assertTrue((bool) $page->show_on_homepage);
     }
+
+    public function test_page_is_created_with_empty_homepage_order(): void
+    {
+        // Форма шлёт незаполненное поле пустой строкой, глобальный посредник
+        // превращает её в null, а колонка объявлена NOT NULL: умолчание базы
+        // тут не спасает, оно срабатывает только когда столбца нет в запросе
+        // вовсе. Создание страницы падало с ошибкой ограничения — и прежние
+        // тесты этого не ловили ровно потому, что поле не отправляли.
+        $this->actingAs($this->admin)
+            ->post(route('admin.pages.store'), [
+                'title'          => 'Без порядка',
+                'homepage_order' => '',
+                '_submitted'     => '1',
+            ])
+            ->assertRedirect(route('admin.pages.index'));
+
+        $page = Page::where('title', 'Без порядка')->first();
+
+        $this->assertNotNull($page, 'Страница не создалась');
+        $this->assertSame(0, (int) $page->homepage_order);
+    }
+
+    public function test_page_survives_editing_with_empty_homepage_order(): void
+    {
+        $page = Page::create(['title' => 'Правка', 'slug' => 'pravka', 'homepage_order' => 5]);
+
+        $this->actingAs($this->admin)
+            ->put(route('admin.pages.update', $page), [
+                'title'          => 'Правка',
+                'slug'           => 'pravka',
+                'homepage_order' => '',
+            ])
+            ->assertRedirect(route('admin.pages.index'));
+
+        $this->assertSame(0, (int) $page->fresh()->homepage_order);
+    }
 }

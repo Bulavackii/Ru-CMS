@@ -68,6 +68,12 @@ class RoleController extends Controller
             'permissions.*' => 'exists:permissions,id',
         ]);
 
+        // Приоритет: пустое поле приходит как null, а колонка объявлена
+        // NOT NULL. Умолчание базы срабатывает только когда столбца нет в
+        // запросе вовсе — здесь он есть, и запись падала бы с ошибкой
+        // ограничения. При создании роли это уже учтено, при правке не было.
+        $validated['priority'] = $validated['priority'] ?? $role->priority ?? 0;
+
         $oldData = $role->toArray();
         $role->update($validated);
 
