@@ -898,19 +898,21 @@
             var bubble = el('div', { class: 'ru-ed-bubble', hidden: true });
             var target = null;
 
+            // Здесь ОБТЕКАНИЕ, а не выравнивание: положение в строке задают
+            // кнопки на панели инструментов. Раньше эти четыре кнопки делали
+            // и то и другое сразу, своей копией кода, и обещали сочетания,
+            // которых не бывает: у плавающего объекта нет «по центру».
             [
-                ['left', 'fas fa-align-left', t('image.left', 'Слева, текст обтекает')],
-                ['center', 'fas fa-align-center', t('image.center', 'По центру')],
-                ['right', 'fas fa-align-right', t('image.right', 'Справа, текст обтекает')],
+                ['left', 'fas fa-indent', t('image.left', 'Слева, текст обтекает')],
+                ['right', 'fas fa-outdent', t('image.right', 'Справа, текст обтекает')],
                 ['none', 'fas fa-align-justify', t('image.none', 'Без обтекания')]
             ].forEach(function (item) {
                 var button = el('button', { type: 'button', title: item[2], html: '<i class="' + item[1] + '"></i>' });
 
                 button.addEventListener('mousedown', function (event) { event.preventDefault(); });
                 button.addEventListener('click', function () {
-                    align(target, item[0]);
-                    editor._snapshot();
-                    editor.save();
+                    editor.selectNode(target);
+                    RuEditor.objects.wrap(editor, item[0]);
                     place();
                 });
 
@@ -930,7 +932,7 @@
 
                 button.addEventListener('mousedown', function (event) { event.preventDefault(); });
                 button.addEventListener('click', function () {
-                    var wrap = target.closest('figure');
+                    var wrap = target.closest(RuEditor.objects.BOXES);
                     var value = percent === 100 ? '' : percent + '%';
 
                     if (wrap) {
@@ -971,12 +973,10 @@
                     editor.exec('image');
                 }],
                 ['remove', 'fas fa-trash', t('image.remove', 'Удалить'), function () {
-                    var figure = target.closest('figure');
+                    var node = target;
 
-                    (figure || target).remove();
                     hide();
-                    editor._snapshot();
-                    editor.save();
+                    RuEditor.objects.remove(editor, node);
                 }]
             ].forEach(function (item) {
                 var button = el('button', { type: 'button', title: item[2], html: '<i class="' + item[1] + '"></i>' });
@@ -989,9 +989,14 @@
             editor.shell.appendChild(bubble);
 
             editor.doc.addEventListener('click', function (event) {
-                var img = event.target.tagName === 'IMG' ? event.target : null;
+                // Раньше плашка была только у картинки: у ролика и звука не
+                // было ни обтекания, ни ширины, ни удаления — вставленное
+                // видео нельзя было убрать ничем, кроме правки исходного кода.
+                var node = event.target.closest
+                    ? event.target.closest('img,video,audio,iframe,table')
+                    : null;
 
-                if (!img) {
+                if (!node || !editor.body.contains(node)) {
                     hide();
                     return;
                 }
@@ -1000,8 +1005,8 @@
                     target.classList.remove('ru-ed-selected');
                 }
 
-                target = img;
-                img.classList.add('ru-ed-selected');
+                target = node;
+                node.classList.add('ru-ed-selected');
                 place();
             });
 
@@ -1035,28 +1040,6 @@
                 bubble.setAttribute('hidden', '');
             }
 
-            function align(img, mode) {
-                if (!img) {
-                    return;
-                }
-
-                var node = img.closest('figure') || img;
-
-                node.style.float = '';
-                node.style.margin = '';
-                node.style.display = '';
-
-                if (mode === 'left') {
-                    node.style.float = 'left';
-                    node.style.margin = '0 1rem 1rem 0';
-                } else if (mode === 'right') {
-                    node.style.float = 'right';
-                    node.style.margin = '0 0 1rem 1rem';
-                } else if (mode === 'center') {
-                    node.style.display = 'block';
-                    node.style.margin = '1rem auto';
-                }
-            }
         }
     });
 

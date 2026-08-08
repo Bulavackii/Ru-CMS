@@ -147,6 +147,7 @@
     @push('scripts')
         <script src="{{ asset_v('assets/js/ru-editor.js') }}"></script>
         <script src="{{ asset_v('assets/js/ru-editor-ui.js') }}"></script>
+        <script src="{{ asset_v('assets/js/ru-editor-objects.js') }}"></script>
         <script src="{{ asset_v('assets/js/ru-editor-format.js') }}"></script>
         <script src="{{ asset_v('assets/js/ru-editor-media.js') }}"></script>
         <script src="{{ asset_v('assets/js/ru-editor-blocks.js') }}"></script>

@@ -184,7 +184,10 @@
             }
 
             function apply(width, height, horizontal, vertical) {
-                var node = target.closest('figure') || target;
+                // Та же коробка, что у выравнивания и удаления. Раньше здесь
+                // искалась только figure, и ширина ролика уходила на сам тег
+                // мимо его обёртки — размер и положение спорили друг с другом.
+                var node = target.closest(RuEditor.objects.BOXES) || target;
 
                 if (horizontal) {
                     // Проценты, а не пиксели: материал читают и с телефона.
