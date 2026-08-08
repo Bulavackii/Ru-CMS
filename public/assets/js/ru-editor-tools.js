@@ -622,7 +622,7 @@
 
                 // Ctrl+Shift+V — вставка без оформления. Флаг снимает сам
                 // обработчик вставки в ядре, сразу после срабатывания.
-                if (mod && event.shiftKey && event.key.toLowerCase() === 'v') {
+                if (mod && event.shiftKey && RuEditor.letter(event) === 'v') {
                     editor._plainPasteOnce = true;
                 }
 
@@ -643,7 +643,7 @@
                     return;
                 }
 
-                var key = event.key.toLowerCase();
+                var key = RuEditor.letter(event);
 
                 // Ctrl+S сохраняет материал, а не страницу браузером: рефлекс
                 // у всех один, и терять текст из-за него обидно.

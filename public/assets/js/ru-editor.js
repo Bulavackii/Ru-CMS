@@ -26,6 +26,32 @@
 (function (window, document) {
     'use strict';
 
+    /**
+     * Буква нажатой клавиши, не зависящая от раскладки.
+     *
+     * event.key отдаёт СИМВОЛ: на русской раскладке Ctrl+B приходит как «и»,
+     * и все сочетания молча переставали работать — приходилось переключать
+     * язык ради каждого выделения полужирным.
+     *
+     * event.code отдаёт физическую клавишу («KeyB») и раскладки не замечает,
+     * но есть не у всякого события — у созданного скриптом его может не быть.
+     * Поэтому смотрим оба и берём то, что нашлось.
+     */
+    function letter(event) {
+        var code = event.code || '';
+
+        if (/^Key[A-Z]$/.test(code)) {
+            return code.slice(3).toLowerCase();
+        }
+
+        if (/^Digit[0-9]$/.test(code)) {
+            return code.slice(5);
+        }
+
+        return (event.key || '').toLowerCase();
+    }
+
+
     if (window.RuEditor) {
         return;
     }
@@ -641,7 +667,7 @@
         },
 
         _onKeyDown: function (event) {
-            var key = event.key.toLowerCase();
+            var key = letter(event);
             var mod = event.ctrlKey || event.metaKey;
 
             if (mod && key === 'z' && !event.shiftKey) {
@@ -1410,6 +1436,7 @@
             return RuEditor;
         },
 
+        letter: letter,
         t: t,
         el: el,
         escapeHtml: escapeHtml,
