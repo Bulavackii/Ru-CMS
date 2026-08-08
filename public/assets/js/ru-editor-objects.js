@@ -60,6 +60,17 @@
      *   • единственный объект в блоке — курсор рядом с ним в том же абзаце.
      */
     function objectAt(editor) {
+        // Сначала — вставка, выбранная щелчком (её ведут растягивание и
+        // всплывающая панель). Без этого звук оставался единственным, что не
+        // выравнивалось: у проигрывателя с родными кнопками щелчок съедают
+        // сами кнопки, курсор на него не встаёт, и выравнивание уходило в
+        // СОСЕДНИЙ блок — кнопка загоралась, а полоса не двигалась.
+        var chosen = editor.selectedMedia;
+
+        if (chosen && chosen.isConnected && editor.body.contains(chosen)) {
+            return chosen;
+        }
+
         var node = editor.closest(OBJECTS);
 
         if (node) {
@@ -496,6 +507,23 @@
                 editor.selectNode(node);
                 editor.selectedMedia = node;
                 editor._updateState();
+            });
+
+            // Курсор ушёл от вставки — выбор снимаем. Иначе следующее
+            // выравнивание досталось бы ей, а не абзацу, в котором стоит
+            // курсор: выбор щелчком сам по себе не заканчивается.
+            editor.doc.addEventListener('selectionchange', function () {
+                var chosen = editor.selectedMedia;
+
+                if (!chosen || !chosen.isConnected) {
+                    return;
+                }
+
+                var range = editor.getRange();
+
+                if (range && !range.intersectsNode(chosen)) {
+                    editor.selectedMedia = null;
+                }
             });
 
             editor.doc.addEventListener('keydown', function (event) {

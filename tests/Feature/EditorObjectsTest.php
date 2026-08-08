@@ -106,6 +106,20 @@ class EditorObjectsTest extends TestCase
         $this->assertStringContainsString('if (!box.style.width) {', $js);
     }
 
+    public function test_alignment_follows_the_clicked_object(): void
+    {
+        // Курсор — не единственный признак выбора. У проигрывателя с родными
+        // кнопками щелчок съедают сами кнопки, курсор на него не встаёт, и
+        // выравнивание уходило в СОСЕДНИЙ блок: кнопка загоралась, а полоса
+        // не двигалась. Опираемся на выбор, который ведут растягивание и
+        // всплывающая панель, и снимаем его, когда курсор ушёл в текст.
+        $js = $this->js('ru-editor-objects.js');
+
+        $this->assertStringContainsString('var chosen = editor.selectedMedia;', $js);
+        $this->assertStringContainsString("addEventListener('selectionchange'", $js);
+        $this->assertStringContainsString('editor.selectedMedia = null;', $js);
+    }
+
     public function test_form_is_inline_so_alignment_moves_it(): void
     {
         // Тем же способом, что и всё остальное содержимое: строчный блок
