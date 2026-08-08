@@ -363,8 +363,40 @@ class FormsModuleTest extends TestCase
 
         $html = render_shortcodes('<p style="text-align: center;">[form slug="' . $form->slug . '"]</p>');
 
-        $this->assertStringStartsWith('<div style="text-align: center;">', $html, 'Выравнивание потерялось');
+        $this->assertStringStartsWith('<div', $html, 'Абзац не стал блоком');
+        $this->assertStringContainsString('text-align: center', $html, 'Выравнивание потерялось');
         $this->assertStringContainsString('rf-form', $html, 'Форма не раскрылась');
+    }
+
+    public function test_alignment_survives_the_editor_trailing_space(): void
+    {
+        // Редактор дописывает после плашки неразрывный пробел, чтобы курсор
+        // было куда поставить. Простая проверка «внутри абзаца только
+        // шорткод» на нём спотыкалась — и выравнивание не работало ровно в том
+        // случае, ради которого всё затевалось: плашку вставили кнопкой и
+        // подвинули по центру.
+        $form = $this->form();
+        $code = '[form slug="' . $form->slug . '"]';
+
+        foreach ([$code . '&nbsp;', '&nbsp;' . $code, $code . '<br>', ' ' . $code . ' '] as $inner) {
+            $html = render_shortcodes('<p style="text-align: center;">' . $inner . '</p>');
+
+            $this->assertStringStartsWith('<div', $html, 'Не сработало на варианте: ' . $inner);
+            $this->assertStringContainsString('sc-align-center', $html, 'Нет метки выравнивания: ' . $inner);
+        }
+    }
+
+    public function test_alignment_marker_keeps_existing_classes(): void
+    {
+        // Метка дописывается к классу абзаца через пробел: без него получался
+        // один несуществующий класс вместо двух рабочих.
+        $form = $this->form();
+
+        $html = render_shortcodes(
+            '<p class="pc-lead" style="text-align:right">[form slug="' . $form->slug . '"]</p>'
+        );
+
+        $this->assertStringContainsString('class="sc-align-right pc-lead"', $html);
     }
 
     public function test_ordinary_paragraphs_are_left_alone(): void
