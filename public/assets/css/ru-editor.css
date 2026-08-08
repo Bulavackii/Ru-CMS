@@ -783,3 +783,94 @@ body.ru-ed-resizing * {
     color: #fff;
     background: rgba(17, 24, 39, .72);
 }
+
+/* ============================================================================
+   Размер шрифта и цвета — по образцу привычного редактора документов.
+   ========================================================================= */
+
+/* Список размеров — узкий столбец одинаковых чисел. Набирать каждое число
+   его собственным кеглем нельзя: список растягивается на пол-экрана, числа
+   выстраиваются лесенкой, и сравнивать их глазами становится труднее. */
+.ru-ed-menu--sizes {
+    min-width: 92px;
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.ru-ed-size {
+    display: block;
+    width: 100%;
+    padding: 4px 14px;
+    font: inherit;
+    font-size: 13px;
+    line-height: 1.5;
+    color: inherit;
+    text-align: left;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+}
+
+.ru-ed-size:hover { background: rgba(99, 102, 241, .12) }
+
+.ru-ed-size.is-active {
+    font-weight: 700;
+    color: #4f46e5;
+    background: rgba(99, 102, 241, .14);
+}
+
+/* ── Палитра ── */
+
+.ru-ed-menu--colors { min-width: 214px }
+
+.ru-ed-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 2px;
+    padding: 4px 8px 8px;
+}
+
+.ru-ed-swatch {
+    width: 100%;
+    aspect-ratio: 1;
+    padding: 0;
+    border: 1px solid rgba(17, 24, 39, .18);
+    cursor: pointer;
+    transition: transform .08s ease, box-shadow .12s ease;
+}
+
+.ru-ed-swatch:hover {
+    transform: scale(1.18);
+    box-shadow: 0 0 0 1px #4f46e5;
+}
+
+/* Свой цвет: поле выбора занимает всю строку и невидимо — щелчок по строке
+   открывает системную палитру, а подпись остаётся читаемой. */
+.ru-ed-color-input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+label.ru-ed-menu-item { position: relative }
+
+/* Полоска запомненного цвета под значком — видно, что применится следующим
+   нажатием, не открывая список. */
+.ru-ed-btn[data-ru-btn="forecolor"],
+.ru-ed-btn[data-ru-btn="backcolor"] { position: relative }
+
+.ru-ed-btn[data-ru-btn="forecolor"]::after,
+.ru-ed-btn[data-ru-btn="backcolor"]::after {
+    content: "";
+    position: absolute;
+    left: 6px;
+    right: 6px;
+    bottom: 4px;
+    height: 3px;
+    background: var(--ru-ink, transparent);
+}
