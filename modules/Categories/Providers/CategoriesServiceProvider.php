@@ -41,5 +41,11 @@ class CategoriesServiceProvider extends ServiceProvider
 
         // Миграции модуля живут в единой database/migrations/ вместе со
         // всеми остальными и подхватываются Laravel автоматически.
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \Modules\Categories\Console\Commands\SeedDefaultCategoriesCommand::class,
+            ]);
+        }
     }
 }

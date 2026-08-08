@@ -623,6 +623,10 @@ class InstallController extends Controller
             $this->seedDefaultNotification();
             $this->seedDefaultThemes();
             $this->seedDefaultFragments();
+            // Категории — последними из содержимого: команда не только заводит
+            // набор, но и раскладывает по нему уже созданные новости, страницы
+            // и файлы. Вызови её раньше — привязывать будет нечего.
+            $this->seedDefaultCategories();
             $this->seedContentTranslations();
             $this->seedRolesAndPermissions();
             $this->hardenPublicStorage();
@@ -906,28 +910,13 @@ class InstallController extends Controller
         // Идемпотентно: если категория с таким slug уже есть (повторный заход
         // на шаг демо-данных), переиспользуем её id, а не вставляем дубль —
         // slug уникален, иначе была бы ошибка 23505 (unique violation).
-        $categoryIds = [];
-        $categories = [
-            ['title' => 'Новости', 'slug' => 'news', 'type' => 'news'],
-            ['title' => 'Товары', 'slug' => 'products', 'type' => 'product'],
-            ['title' => 'Услуги', 'slug' => 'services', 'type' => 'page'],
-        ];
-
-        foreach ($categories as $cat) {
-            $existingId = DB::table('categories')->where('slug', $cat['slug'])->value('id');
-            if ($existingId) {
-                $categoryIds[] = $existingId;
-                continue;
-            }
-            $categoryIds[] = DB::table('categories')->insertGetId([
-                'title' => $cat['title'],
-                'slug' => $cat['slug'],
-                'type' => $cat['type'],
-                'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        }
+        // Набор категорий описан в ОДНОМ месте — команде модуля Категории.
+        // Раньше он дублировался здесь тремя штуками, и два определения уже
+        // разошлись: демо-новости шаблонов magazine, clinic и gaming не
+        // получали категорию вовсе, а заведённая тут же «Услуги» не
+        // доставалась ни одной странице. Возвращается карта «слаг → id»;
+        // раскладку по материалам делает та же команда в конце установки.
+        $categoryIds = \Modules\Categories\Console\Commands\SeedDefaultCategoriesCommand::ensure();
 
         // Демо-новости
         $newsItems = [
@@ -1089,15 +1078,15 @@ class InstallController extends Controller
                 ]);
             }
 
-            if (!empty($categoryIds)) {
+            if (!empty($categoryIds['news'])) {
                 $alreadyLinked = DB::table('news_category')
                     ->where('news_id', $newsId)
-                    ->where('category_id', $categoryIds[0])
+                    ->where('category_id', $categoryIds['news'])
                     ->exists();
                 if (!$alreadyLinked) {
                     DB::table('news_category')->insert([
                         'news_id' => $newsId,
-                        'category_id' => $categoryIds[0],
+                        'category_id' => $categoryIds['news'],
                     ]);
                 }
             }
@@ -1455,6 +1444,16 @@ class InstallController extends Controller
      * (в панели они прямо на это указывают). Любой выключается переключателем
      * в разделе. Единый источник — команда модуля (`fragments:seed-default`).
      */
+    /**
+     * Категории по умолчанию и раскладка по ним материалов.
+     *
+     * Единый источник — команда модуля (`php artisan categories:seed-default`).
+     */
+    private function seedDefaultCategories(): void
+    {
+        \Modules\Categories\Console\Commands\SeedDefaultCategoriesCommand::seed(false);
+    }
+
     private function seedDefaultFragments(): void
     {
         \Modules\Visual\Console\Commands\SeedDefaultFragmentsCommand::seed(false);
