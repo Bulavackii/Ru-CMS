@@ -601,26 +601,6 @@
      * автор видел вставку и мог её удалить одним нажатием: обычный текст
      * [captcha preset="x"] посреди абзаца легко принять за опечатку.
      */
-    /**
-     * Клик по плашке шорткода выделяет её.
-     *
-     * Плашка помечена contenteditable="false", и щелчок по ней НЕ ставит
-     * курсор внутрь текста: выделение остаётся там, где было, а то и пустым.
-     * Из-за этого кнопки выравнивания молча ничего не делали — им нечего было
-     * выравнивать. Выделяем плашку сами, и дальше всё работает как с картинкой.
-     */
-    RuEditor.registerPlugin('shortcode-select', {
-        init: function (editor) {
-            editor.doc.addEventListener('click', function (event) {
-                var chip = event.target.closest && event.target.closest('[data-ru-shortcode]');
-
-                if (chip && editor.body.contains(chip)) {
-                    editor.selectNode(chip);
-                }
-            });
-        }
-    });
-
     RuEditor.registerCommand('insertShortcode', function (editor, code) {
         var chip = editor.doc.createElement('span');
 

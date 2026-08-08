@@ -356,70 +356,6 @@
 
     /* ── Выравнивание ────────────────────────────────────────────────── */
 
-    // Отдаём наружу: этим же выравниванием пользуется всплывающая панель у
-    // картинки и проигрывателя. Раньше у неё была своя копия — с тем же
-    // багом полной ширины, который здесь уже починен.
-    RuEditor.alignMedia = alignMedia;
-
-    /**
-     * Какое выравнивание сейчас в силе — по РАЗМЕТКЕ, а не по браузеру.
-     *
-     * Кнопки подсвечивались через queryCommandState, а он рассчитан на
-     * результат execCommand и видит только выравнивание текста. Всё, что
-     * редактор выставляет сам, ему неизвестно:
-     *   • плашка шорткода — выделен узел contenteditable="false",
-     *     запрос про выравнивание возвращает пустоту, и не горело НИЧЕГО;
-     *   • картинка и проигрыватель — двигаются полями и обтеканием,
-     *     а не выравниванием текста, и горела кнопка «по левому краю»,
-     *     то есть подсвечивалась ЗАВЕДОМО НЕ ТА.
-     *
-     * Читаем вычисленный стиль: он одинаково отвечает и когда выравнивание
-     * записано в самом блоке, и когда унаследовано от родителя.
-     */
-    function alignStateOf(editor) {
-        var media = editor.selectedMedia;
-
-        if (media && media.isConnected) {
-            var box = media.closest('figure, .pc-player') || media;
-
-            if (box.style.float === 'left') {
-                return 'left';
-            }
-
-            if (box.style.float === 'right') {
-                return 'right';
-            }
-
-            return box.style.marginLeft === 'auto' && box.style.marginRight === 'auto'
-                ? 'center'
-                : 'left';
-        }
-
-        var chip = chipUnderSelection(editor);
-        var block = chip
-            ? chip.parentElement
-            : editor.closest('p,h1,h2,h3,h4,h5,h6,blockquote,li,div,td,th');
-
-        if (!block || block === editor.body || !block.isConnected) {
-            return 'left';
-        }
-
-        var value = editor.doc.defaultView.getComputedStyle(block).textAlign;
-
-        // start/end — это «как в языке», для русского и любого письма слева
-        // направо начало строки слева. Пустое значение приходит, когда стиль
-        // не задан вовсе.
-        if (!value || value === 'start' || value === 'justify-all') {
-            return value === 'justify-all' ? 'justify' : 'left';
-        }
-
-        if (value === 'end') {
-            return 'right';
-        }
-
-        return value;
-    }
-
     [
         ['alignleft', 'justifyLeft', 'fas fa-align-left', 'По левому краю', 'left'],
         ['aligncenter', 'justifyCenter', 'fas fa-align-center', 'По центру', 'center'],
@@ -430,7 +366,7 @@
             icon: item[2],
             title: item[3],
             command: item[1],
-            active: function (editor) { return alignStateOf(editor) === (item[4] || 'justify'); }
+            active: function (editor) { return editor.queryState(item[1]); }
         });
 
         // Своя команда поверх браузерной: выделена картинка, ролик или
@@ -444,20 +380,12 @@
                 return;
             }
 
-            if (alignChip(editor, item[4])) {
-                return;
-            }
-
-            if (alignEmptyBlock(editor, item[4])) {
-                return;
-            }
-
             editor.native(item[1]);
         });
     });
 
-    function alignMedia(editor, mode, node) {
-        node = node || editor.selectedMedia;
+    function alignMedia(editor, mode) {
+        var node = editor.selectedMedia;
 
         if (!node || !node.isConnected) {
             return false;
@@ -473,259 +401,19 @@
         box.style.marginLeft = '';
         box.style.marginRight = '';
 
-        // Обёртку СЖИМАЕМ по содержимому, и это не украшательство.
-        //
-        // figure — блок, и без ширины он занимает всю строку. Авто-поля у
-        // блока во всю ширину не двигают ничего: картинка 200px оставалась
-        // прижатой к левому краю, хотя разметка выглядела «отцентрованной»
-        // (замер: фигура 1014px, картинка 200px, слева 0 — справа 814).
-        // Ровно так же обтекание float у блока полной ширины не даёт тексту
-        // встать рядом. Сжатая обёртка чинит оба случая сразу.
-        //
-        // Проигрыватель звука — исключение: его полоса перемотки рассчитана
-        // на всю ширину, сжимать её нечем и незачем.
-        // Ширину, заданную автором (потянул за уголок), НЕ трогаем — иначе
-        // выравнивание сбрасывало бы размер. Подгоняем только когда её нет.
-        //
-        // Звук — исключение: его полоса перемотки рассчитана на всю строку,
-        // сжимать её нечем и незачем.
-        if (mode && !box.style.width && !box.classList.contains('pc-audio')) {
-            if (box !== node && node.style.width) {
-                // У ролика ширину задаёт САМ ТЕГ (проценты из формы вставки),
-                // а двигать нужно обёртку — она занимает всю строку, и
-                // центрировать её было нечего: кнопки не делали ничего
-                // видимого. Переносим размер на обёртку, тег растягиваем в неё.
-                box.style.width = node.style.width;
-                node.style.width = '100%';
-            } else {
-                box.style.width = 'fit-content';
-                box.style.maxWidth = '100%';
-
-                // У ролика оформление растягивает тег на всю обёртку, а
-                // обёртку мы сжимаем по тегу — замкнутый круг. Возвращаем
-                // ролику его собственный размер, иначе сжимать не по чему.
-                if (box.classList.contains('pc-player--video')) {
-                    node.style.width = 'auto';
-                }
-            }
-        }
-
-        // «Без обтекания» возвращает всё как было — в том числе нашу
-        // подгонку ширины. Заданный автором размер при этом остаётся: его мы
-        // не ставили, значит и снимать не нам.
-        if (!mode && box.style.width === 'fit-content') {
-            box.style.width = '';
-            box.style.maxWidth = '';
-        }
-
-        // Проигрыватель звука НЕ обтекается текстом. Его полоса тянется на
-        // всю строку, и обтекание сжимает её по содержимому: в замере флекс
-        // схлопывался до 30 пикселей — от проигрывателя оставалась полоска.
-        // Двигаем полями: пока автор не сузил его сам, все три кнопки честно
-        // ничего не меняют, потому что двигать во всю строку нечего.
-        if (box.classList.contains('pc-audio')) {
-            box.style.display = 'block';
-            box.style.marginLeft = mode === 'right' || mode === 'center' ? 'auto' : '0';
-            box.style.marginRight = mode === 'left' || mode === 'center' ? 'auto' : '0';
-
-            editor._snapshot();
-            editor.save();
-
-            return true;
-        }
-
         if (mode === 'center') {
+            // Блок плюс авто-поля: единственный способ, который работает и
+            // для картинки, и для видео, и для проигрывателя звука.
             box.style.display = 'block';
             box.style.marginLeft = 'auto';
             box.style.marginRight = 'auto';
         } else if (mode === 'left') {
             box.style.float = 'left';
-
-            // Ноль у прижатого края — не придирка: у figure браузер по
-            // умолчанию ставит поля 40px с обеих сторон, и «прижатая влево»
-            // картинка висела бы в сорока пикселях от текста.
-            box.style.marginLeft = '0';
             box.style.marginRight = '1rem';
         } else if (mode === 'right') {
             box.style.float = 'right';
-            box.style.marginRight = '0';
             box.style.marginLeft = '1rem';
         }
-
-        editor._snapshot();
-        editor.save();
-
-        return true;
-    }
-
-    /**
-     * Новый абзац наследует выравнивание предыдущего.
-     *
-     * Enter в обычном абзаце обрабатывает сам браузер, и выравнивание он
-     * переносит не всегда: у пустого абзаца — почти никогда. Получалось так,
-     * что выравнивание в панели показано справа, а курсор после Enter мигает
-     * слева, и текст снова приходится двигать.
-     *
-     * Свой обработчик Enter писать нельзя — на нём держатся списки, таблицы и
-     * деление текста посередине. Поэтому запоминаем выравнивание ДО нажатия и
-     * дописываем его новому блоку после, если браузер этого не сделал.
-     */
-    RuEditor.registerPlugin('align-inherit', {
-        init: function (editor) {
-            var carried = null;
-
-            var blockOf = function () {
-                return editor.closest('p,h1,h2,h3,h4,h5,h6,blockquote,li,div');
-            };
-
-            // Слушаем СОБЫТИЯ ВВОДА, а не клавиши.
-            //
-            // Первая версия ловила Enter по event.key — и это оказалось
-            // хрупко: абзац делится не только клавишей. Его делят вставка из
-            // буфера, голосовой ввод, автозамена в мобильной клавиатуре и
-            // программный вызов. Во всех этих случаях key не приходит вовсе,
-            // а inputType === 'insertParagraph' приходит всегда.
-            //
-            // beforeinput случается ДО деления — там ещё виден исходный блок с
-            // его выравниванием. input случается ПОСЛЕ — там уже новый блок,
-            // которому это выравнивание и дописываем.
-            editor.doc.addEventListener('beforeinput', function (event) {
-                if (event.inputType !== 'insertParagraph') {
-                    carried = null;
-                    return;
-                }
-
-                var block = blockOf();
-
-                carried = block && block !== editor.body ? (block.style.textAlign || '') : '';
-            });
-
-            editor.doc.addEventListener('input', function (event) {
-                if (event.inputType !== 'insertParagraph' || !carried) {
-                    return;
-                }
-
-                var block = blockOf();
-
-                // Дописываем, только если браузер НЕ перенёс стиль сам:
-                // перетирать уже выставленное значение незачем.
-                if (block && block !== editor.body && !block.style.textAlign) {
-                    block.style.textAlign = carried;
-                }
-
-                carried = null;
-            });
-        }
-    });
-
-    /**
-     * Выравнивание ПУСТОГО абзаца.
-     *
-     * Браузерная команда на пустом блоке молча ничего не делает: ей нечего
-     * выравнивать, и стиль не появляется вовсе. Для человека это выглядит так,
-     * будто кнопка сломана, и вынуждает сначала набрать текст у левого края, а
-     * потом двигать — хотя во всех редакторах принято наоборот: поставил
-     * выравнивание и печатаешь уже там, где нужно.
-     *
-     * Ставим стиль сами. Пустому блоку вдобавок нужен перенос строки внутри:
-     * без него у него нулевая высота, курсор ставить некуда и он остаётся в
-     * начале строки независимо от выравнивания.
-     */
-    function alignEmptyBlock(editor, mode) {
-        var range = editor.getRange();
-
-        if (!range || !range.collapsed) {
-            return false;
-        }
-
-        var block = editor.closest('p,div,h1,h2,h3,h4,h5,h6,li,blockquote,td,th');
-
-        if (!block || block === editor.body || block.textContent.trim() !== '') {
-            return false;
-        }
-
-        // Картинка или проигрыватель — не пустой блок, хоть текста в нём и нет.
-        if (block.querySelector('img,video,audio,iframe,table,[data-ru-shortcode]')) {
-            return false;
-        }
-
-        if (!block.querySelector('br')) {
-            block.appendChild(editor.doc.createElement('br'));
-        }
-
-        block.style.textAlign = mode || 'justify';
-
-        // Возвращаем курсор в этот же блок: после правки разметки выделение
-        // могло съехать, а человек ждёт, что сразу начнёт печатать.
-        var caret = editor.doc.createRange();
-        caret.setStart(block, 0);
-        caret.collapse(true);
-        editor.setRange(caret);
-
-        editor._snapshot();
-        editor.save();
-
-        return true;
-    }
-
-    /**
-     * Выравнивание плашки шорткода — формы, каптчи, карты.
-     *
-     * Плашка не картинка: двигать её саму нельзя, у неё нет своей ширины.
-     * Выравнивается АБЗАЦ, в котором она стоит. Браузерная команда этого не
-     * делает: плашка помечена contenteditable="false", и execCommand на ней
-     * не срабатывает — кнопки молча ничего не меняли.
-     *
-     * Если плашка лежит прямо в теле документа, без абзаца (так бывает после
-     * вставки в пустой редактор), заворачиваем её в абзац: выравнивать иначе
-     * нечего.
-     */
-    /**
-     * Плашка под выделением.
-     *
-     * closest() ищет ВВЕРХ по дереву, а выделенная целиком плашка лежит
-     * ВНИЗ: selectNode ставит границы выделения в родительский абзац, вокруг
-     * неё. Поэтому одного closest мало — кнопки выравнивания молча ничего не
-     * делали ровно после щелчка по плашке, то есть в самом частом случае.
-     */
-    function chipUnderSelection(editor) {
-        var chip = editor.closest('[data-ru-shortcode]');
-
-        if (chip) {
-            return chip;
-        }
-
-        var range = editor.getRange();
-
-        if (!range || range.startContainer !== range.endContainer) {
-            return null;
-        }
-
-        if (range.endOffset - range.startOffset !== 1) {
-            return null;
-        }
-
-        var node = range.startContainer.childNodes[range.startOffset];
-
-        return node && node.nodeType === 1 && node.matches('[data-ru-shortcode]') ? node : null;
-    }
-
-    function alignChip(editor, mode) {
-        var chip = chipUnderSelection(editor);
-
-        if (!chip) {
-            return false;
-        }
-
-        var block = chip.parentElement;
-
-        if (!block || block === editor.body) {
-            block = editor.doc.createElement('p');
-            chip.parentNode.insertBefore(block, chip);
-            block.appendChild(chip);
-        }
-
-        block.style.textAlign = mode || 'justify';
 
         editor._snapshot();
         editor.save();

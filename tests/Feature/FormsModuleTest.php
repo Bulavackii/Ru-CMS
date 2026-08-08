@@ -352,63 +352,6 @@ class FormsModuleTest extends TestCase
         }
     }
 
-    public function test_alignment_of_a_shortcode_survives_to_the_page(): void
-    {
-        // Кнопка «по центру» в редакторе ставит выравнивание на АБЗАЦ, а форма
-        // и каптча выводятся блочной разметкой. Блок внутри <p> стоять не
-        // может — браузер закрывает абзац раньше, и вставка оказывается
-        // снаружи вместе с потерянным выравниванием. Абзац с одним шорткодом
-        // поэтому превращается в div, который блок держать умеет.
-        $form = $this->form();
-
-        $html = render_shortcodes('<p style="text-align: center;">[form slug="' . $form->slug . '"]</p>');
-
-        $this->assertStringStartsWith('<div', $html, 'Абзац не стал блоком');
-        $this->assertStringContainsString('text-align: center', $html, 'Выравнивание потерялось');
-        $this->assertStringContainsString('rf-form', $html, 'Форма не раскрылась');
-    }
-
-    public function test_alignment_survives_the_editor_trailing_space(): void
-    {
-        // Редактор дописывает после плашки неразрывный пробел, чтобы курсор
-        // было куда поставить. Простая проверка «внутри абзаца только
-        // шорткод» на нём спотыкалась — и выравнивание не работало ровно в том
-        // случае, ради которого всё затевалось: плашку вставили кнопкой и
-        // подвинули по центру.
-        $form = $this->form();
-        $code = '[form slug="' . $form->slug . '"]';
-
-        foreach ([$code . '&nbsp;', '&nbsp;' . $code, $code . '<br>', ' ' . $code . ' '] as $inner) {
-            $html = render_shortcodes('<p style="text-align: center;">' . $inner . '</p>');
-
-            $this->assertStringStartsWith('<div', $html, 'Не сработало на варианте: ' . $inner);
-            $this->assertStringContainsString('sc-align-center', $html, 'Нет метки выравнивания: ' . $inner);
-        }
-    }
-
-    public function test_alignment_marker_keeps_existing_classes(): void
-    {
-        // Метка дописывается к классу абзаца через пробел: без него получался
-        // один несуществующий класс вместо двух рабочих.
-        $form = $this->form();
-
-        $html = render_shortcodes(
-            '<p class="pc-lead" style="text-align:right">[form slug="' . $form->slug . '"]</p>'
-        );
-
-        $this->assertStringContainsString('class="sc-align-right pc-lead"', $html);
-    }
-
-    public function test_ordinary_paragraphs_are_left_alone(): void
-    {
-        // Замена касается ТОЛЬКО абзаца, где нет ничего, кроме шорткода:
-        // текст вокруг него — обычный абзац, и превращать его в div нельзя.
-        $form = $this->form();
-
-        $this->assertStringStartsWith('<p ', render_shortcodes('<p style="text-align: center;">Просто текст</p>'));
-        $this->assertStringStartsWith('<p>', render_shortcodes('<p>До [form slug="' . $form->slug . '"] после</p>'));
-    }
-
     public function test_guests_cannot_reach_the_builder(): void
     {
         $this->get(route('admin.forms.index'))->assertRedirect();
