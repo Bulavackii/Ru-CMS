@@ -352,6 +352,31 @@ class FormsModuleTest extends TestCase
         }
     }
 
+    public function test_alignment_of_a_shortcode_survives_to_the_page(): void
+    {
+        // Кнопка «по центру» в редакторе ставит выравнивание на АБЗАЦ, а форма
+        // и каптча выводятся блочной разметкой. Блок внутри <p> стоять не
+        // может — браузер закрывает абзац раньше, и вставка оказывается
+        // снаружи вместе с потерянным выравниванием. Абзац с одним шорткодом
+        // поэтому превращается в div, который блок держать умеет.
+        $form = $this->form();
+
+        $html = render_shortcodes('<p style="text-align: center;">[form slug="' . $form->slug . '"]</p>');
+
+        $this->assertStringStartsWith('<div style="text-align: center;">', $html, 'Выравнивание потерялось');
+        $this->assertStringContainsString('rf-form', $html, 'Форма не раскрылась');
+    }
+
+    public function test_ordinary_paragraphs_are_left_alone(): void
+    {
+        // Замена касается ТОЛЬКО абзаца, где нет ничего, кроме шорткода:
+        // текст вокруг него — обычный абзац, и превращать его в div нельзя.
+        $form = $this->form();
+
+        $this->assertStringStartsWith('<p ', render_shortcodes('<p style="text-align: center;">Просто текст</p>'));
+        $this->assertStringStartsWith('<p>', render_shortcodes('<p>До [form slug="' . $form->slug . '"] после</p>'));
+    }
+
     public function test_guests_cannot_reach_the_builder(): void
     {
         $this->get(route('admin.forms.index'))->assertRedirect();

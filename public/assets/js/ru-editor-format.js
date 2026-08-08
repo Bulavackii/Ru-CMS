@@ -380,6 +380,10 @@
                 return;
             }
 
+            if (alignChip(editor, item[4])) {
+                return;
+            }
+
             editor.native(item[1]);
         });
     });
@@ -413,6 +417,41 @@
             box.style.float = 'right';
             box.style.marginLeft = '1rem';
         }
+
+        editor._snapshot();
+        editor.save();
+
+        return true;
+    }
+
+    /**
+     * Выравнивание плашки шорткода — формы, каптчи, карты.
+     *
+     * Плашка не картинка: двигать её саму нельзя, у неё нет своей ширины.
+     * Выравнивается АБЗАЦ, в котором она стоит. Браузерная команда этого не
+     * делает: плашка помечена contenteditable="false", и execCommand на ней
+     * не срабатывает — кнопки молча ничего не меняли.
+     *
+     * Если плашка лежит прямо в теле документа, без абзаца (так бывает после
+     * вставки в пустой редактор), заворачиваем её в абзац: выравнивать иначе
+     * нечего.
+     */
+    function alignChip(editor, mode) {
+        var chip = editor.closest('[data-ru-shortcode]');
+
+        if (!chip) {
+            return false;
+        }
+
+        var block = chip.parentElement;
+
+        if (!block || block === editor.body) {
+            block = editor.doc.createElement('p');
+            chip.parentNode.insertBefore(block, chip);
+            block.appendChild(chip);
+        }
+
+        block.style.textAlign = mode || 'justify';
 
         editor._snapshot();
         editor.save();
