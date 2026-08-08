@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
+use Modules\Captcha\Console\Commands\SeedDefaultCaptchaPresetsCommand as CaptchaSeeder;
 use Modules\Captcha\Models\CaptchaPreset;
 use Modules\Captcha\Services\CaptchaService;
 use Tests\TestCase;
@@ -95,14 +96,18 @@ class CaptchaPresetTest extends TestCase
     public function test_answer_never_appears_in_the_markup(string $type, array $options = []): void
     {
         $html = $this->service()->render($type, $options);
-        $instances = Session::get('captcha.instances', []);
 
-        $answer = '';
-        foreach ($instances as $instance) {
-            if ($instance['type'] === $type) {
-                $answer = (string) $instance['code'];
-            }
-        }
+        // Ответ берём по идентификатору ИМЕННО этой разметки, а не по типу.
+        // Прежняя версия перебирала все экземпляры в сессии и брала последний
+        // подходящий по типу — а их там может быть несколько, если каптча
+        // рисовалась раньше в том же прогоне. Тогда сравнивался ответ от одной
+        // каптчи с разметкой другой, и тест то проходил, то падал на случайном
+        // совпадении цифр.
+        preg_match('~name="captcha_id" value="([^"]+)"~', $html, $match);
+
+        $this->assertNotEmpty($match[1] ?? '', 'В разметке нет идентификатора экземпляра');
+
+        $answer = (string) Session::get('captcha.instances.' . $match[1] . '.code', '');
 
         $this->assertNotSame('', $answer, 'Сервер не запомнил ответ');
         $this->assertStringNotContainsString(
@@ -382,5 +387,53 @@ class CaptchaPresetTest extends TestCase
         $this->assertTrue(function_exists('captcha_preset'));
         $this->assertTrue(function_exists('captcha_field'));
         $this->assertTrue(Route::has('admin.captcha.index'));
+    }
+
+    public function test_default_presets_cover_every_type(): void
+    {
+        // Набор сборок — это и рабочие варианты, и показ возможностей: если
+        // очередной вид проверки нигде не заведён, посмотреть на него негде.
+        $types = [];
+
+        foreach (CaptchaSeeder::definitions() as $definition) {
+            $types[$definition['type']] = true;
+        }
+
+        $this->assertSame(
+            [],
+            array_values(array_diff(CaptchaPreset::TYPES, array_keys($types))),
+            'Эти виды каптчи не показаны ни в одной сборке по умолчанию'
+        );
+    }
+
+    public function test_default_presets_are_seeded_and_render(): void
+    {
+        CaptchaSeeder::seed();
+
+        $presets = CaptchaPreset::all();
+
+        $this->assertGreaterThanOrEqual(6, $presets->count(), 'Набор сборок подозрительно мал');
+        $this->assertSame(
+            $presets->count(),
+            $presets->pluck('slug')->unique()->count(),
+            'Слаги сборок повторяются — шорткоды будут вести не туда'
+        );
+
+        foreach ($presets as $preset) {
+            $html = captcha_preset($preset->slug);
+
+            $this->assertNotSame('', $html, 'Сборка «' . $preset->name . '» ничего не нарисовала');
+            $this->assertStringContainsString('name="captcha"', $html, 'В сборке «' . $preset->name . '» нет поля ответа');
+        }
+    }
+
+    public function test_seeding_twice_does_not_duplicate(): void
+    {
+        CaptchaSeeder::seed();
+        $first = CaptchaPreset::count();
+
+        CaptchaSeeder::seed();
+
+        $this->assertSame($first, CaptchaPreset::count(), 'Повторный прогон задваивает сборки');
     }
 }

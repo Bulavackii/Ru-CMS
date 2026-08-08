@@ -623,6 +623,7 @@ class InstallController extends Controller
             $this->seedDefaultNotification();
             $this->seedDefaultThemes();
             $this->seedDefaultForms();
+            $this->seedDefaultCaptchaPresets();
             $this->seedDefaultFragments();
             // Категории — последними из содержимого: команда не только заводит
             // набор, но и раскладывает по нему уже созданные новости, страницы
@@ -1445,6 +1446,18 @@ class InstallController extends Controller
      * (в панели они прямо на это указывают). Любой выключается переключателем
      * в разделе. Единый источник — команда модуля (`fragments:seed-default`).
      */
+    /**
+     * Сборки каптчи по умолчанию.
+     *
+     * Единый источник — команда модуля (`php artisan captcha:seed-default`).
+     * Ставится рядом с формами: каптча вставляется в форму, и пустой список
+     * сборок делал бы настройку формы тупиковой.
+     */
+    private function seedDefaultCaptchaPresets(): void
+    {
+        \Modules\Captcha\Console\Commands\SeedDefaultCaptchaPresetsCommand::seed(false);
+    }
+
     /**
      * Формы по умолчанию.
      *

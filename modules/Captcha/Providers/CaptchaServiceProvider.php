@@ -62,5 +62,11 @@ class CaptchaServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../Resources/assets' => public_path('vendor/captcha'),
         ], 'captcha-assets');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \Modules\Captcha\Console\Commands\SeedDefaultCaptchaPresetsCommand::class,
+            ]);
+        }
     }
 }
