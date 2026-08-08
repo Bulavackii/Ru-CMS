@@ -1,6 +1,59 @@
 @extends('layouts.admin')
 @section('title', $theme->exists ? 'Редактировать тему' : 'Создать тему')
 
+@php
+    $t   = $theme->tokens ?? [];
+    $cfg = $theme->config ?? [];
+
+    /*
+     * Список шрифтов строится ИЗ ТОГО, ЧТО ДЕЙСТВИТЕЛЬНО ЛЕЖИТ НА СЕРВЕРЕ.
+     *
+     * Раньше он был вписан в эту вьюху руками и разошёлся с набором файлов:
+     * предлагалось четырнадцать шрифтов, которых нет (выбрав Poppins, автор
+     * молча получал системный), и не предлагалось семь, которые есть.
+     * Второе определение одного и того же в этом проекте расходилось уже не
+     * раз — поэтому источник теперь один.
+     */
+    $kinds = [
+        'sans'  => 'Без засечек',
+        'serif' => 'С засечками',
+        'mono'  => 'Моноширинные',
+        'hand'  => 'Рукописные',
+    ];
+
+    $fontGroups = [];
+
+    foreach (LOCAL_FONTS as $font) {
+        $tail = match ($font['kind']) {
+            'serif' => 'serif',
+            'mono'  => 'ui-monospace, monospace',
+            'hand'  => 'cursive',
+            default => 'system-ui, sans-serif',
+        };
+
+        $fontGroups[$font['kind']][$font['family'] . ', ' . $tail] = $font['label'];
+    }
+
+    $systemStack = '-apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif';
+    $font        = old('tokens.font.base', data_get($t, 'font.base', $systemStack));
+
+    /*
+     * Записанный ранее набор шрифтов может не совпасть ни с одним пунктом
+     * списка: у существующих тем встречаются наборы, собранные до того, как
+     * список стал строиться из установленных файлов. Если такой набор не
+     * показать отдельным пунктом, браузер выберет первый — и первое же
+     * сохранение молча заменило бы шрифт темы.
+     */
+    $known = collect($fontGroups)->flatMap(fn ($list) => array_keys($list))->push($systemStack);
+    $customFont = $font && !$known->contains($font) ? $font : null;
+    $provider    = old('config.font_provider', data_get($cfg, 'font_provider'));
+    $fname       = old('config.font_name', data_get($cfg, 'font_name'));
+    $radius      = old('tokens.radius.md', data_get($t, 'radius.md', '12px'));
+    $logoUrl     = data_get($cfg, 'logo_url');
+    $bgUrl       = data_get($cfg, 'background_url');
+    $iconMode    = old('config.icon_mode', data_get($cfg, 'icon_mode', 'lucide'));
+@endphp
+
 @section('content')
 <div class="admin-accent-bar mb-0"></div>
 <div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
@@ -34,271 +87,305 @@
 
 <form id="themeForm" method="POST" enctype="multipart/form-data"
       action="{{ $theme->exists ? route('admin.visual.themes.update',$theme) : route('admin.visual.themes.store') }}"
-      class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
   @csrf
   @if($theme->exists) @method('PUT') @endif
 
-  <div class="lg:col-span-2 space-y-6">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label class="block text-sm font-medium mb-1">Название</label>
-        <input type="text" name="title" class="border rounded px-3 py-2 w-full" value="{{ old('title',$theme->title) }}" required>
+  <div class="lg:col-span-2 space-y-5">
+
+    {{-- ── Название ─────────────────────────────────────────────── --}}
+    <section class="admin-card p-5">
+      <div class="thm-head">
+        <span class="thm-head__ico"><i class="fas fa-tag"></i></span>
+        <div>
+          <h2 class="thm-head__title">Название</h2>
+          <p class="admin-hint">Как тема называется в списке и по какому адресу к ней обращаться.</p>
+        </div>
       </div>
-      <div>
-        <label class="block text-sm font-medium mb-1">Slug</label>
-        <input type="text" name="slug" class="border rounded px-3 py-2 w-full" value="{{ old('slug',$theme->slug) }}" required>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="thm-label">Название</label>
+          <input type="text" name="title" class="admin-field" value="{{ old('title',$theme->title) }}" required>
+        </div>
+        <div>
+          <label class="thm-label">Адрес (slug)</label>
+          <input type="text" name="slug" class="admin-field" spellcheck="false"
+                 value="{{ old('slug',$theme->slug) }}" required>
+          <p class="admin-hint mt-1">Латиница, цифры и дефисы.</p>
+        </div>
       </div>
-    </div>
+    </section>
 
-    @php $t = $theme->tokens ?? []; $cfg = $theme->config ?? []; @endphp
-
-    <div>
-      <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-2"><i class="fas fa-swatchbook text-indigo-500"></i> Цвета</h3>
-      <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-        <x-color name="tokens[colors][bg]"      label="Фон сайта"  :value="old('tokens.colors.bg',     data_get($t,'colors.bg','#ffffff'))" />
-        <x-color name="tokens[colors][text]"    label="Текст"      :value="old('tokens.colors.text',   data_get($t,'colors.text','#111827'))" />
-        <x-color name="tokens[colors][primary]" label="Primary"    :value="old('tokens.colors.primary',data_get($t,'colors.primary','#2563eb'))" />
-        <x-color name="tokens[colors][accent]"  label="Accent"     :value="old('tokens.colors.accent', data_get($t,'colors.accent','#10b981'))" />
-        <x-color name="tokens[colors][header]"  label="Header фон" :value="old('tokens.colors.header', data_get($t,'colors.header','#ffffff'))" />
-        <x-color name="tokens[colors][footer]"  label="Footer фон" :value="old('tokens.colors.footer', data_get($t,'colors.footer','#ffffff'))" />
+    {{-- ── Цвета ────────────────────────────────────────────────── --}}
+    <section class="admin-card p-5">
+      <div class="thm-head">
+        <span class="thm-head__ico"><i class="fas fa-swatchbook"></i></span>
+        <div>
+          <h2 class="thm-head__title">Цвета</h2>
+          <p class="admin-hint">Меняются сразу в примере справа.</p>
+        </div>
       </div>
-    </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div>
-        <label class="block text-sm font-medium mb-1">Шрифт (base, локальный фолбэк)</label>
-        @php
-          $font = old('tokens.font.base', data_get($t,'font.base','-apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif'));
-        @endphp
-        <select name="tokens[font][base]" class="border rounded px-3 py-2 w-full" id="fontBase">
-          @php
-            $presetFonts = [
-              '-apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif' => '🍎 macOS (системный San Francisco + Inter)',
-              'Inter, system-ui, sans-serif' => 'Inter',
-              'Roboto, system-ui, sans-serif' => 'Roboto',
-              'Open Sans, system-ui, sans-serif' => 'Open Sans',
-              'Lato, system-ui, sans-serif' => 'Lato',
-              'Montserrat, system-ui, sans-serif' => 'Montserrat',
-              'Poppins, system-ui, sans-serif' => 'Poppins',
-              'Nunito, system-ui, sans-serif' => 'Nunito',
-              'Source Sans 3, system-ui, sans-serif' => 'Source Sans 3',
-              'Merriweather, serif' => 'Merriweather',
-              'Playfair Display, serif' => 'Playfair Display',
-              'PT Sans, system-ui, sans-serif' => 'PT Sans',
-              'PT Serif, serif' => 'PT Serif',
-              'Ubuntu, system-ui, sans-serif' => 'Ubuntu',
-              'Fira Sans, system-ui, sans-serif' => 'Fira Sans',
-              'Oswald, system-ui, sans-serif' => 'Oswald',
-              'Raleway, system-ui, sans-serif' => 'Raleway',
-              'Rubik, system-ui, sans-serif' => 'Rubik',
-              'Noto Sans, system-ui, sans-serif' => 'Noto Sans',
-              'Noto Serif, serif' => 'Noto Serif',
-              'Manrope, system-ui, sans-serif' => 'Manrope',
-              'Work Sans, system-ui, sans-serif' => 'Work Sans',
-              'Quicksand, system-ui, sans-serif' => 'Quicksand',
-              'Anton, system-ui, sans-serif' => 'Anton',
-              'Lobster, cursive' => 'Lobster',
-              'Comfortaa, system-ui, sans-serif' => 'Comfortaa',
-              'Exo 2, system-ui, sans-serif' => 'Exo 2',
-              'Jura, system-ui, sans-serif' => 'Jura',
-              'Arimo, system-ui, sans-serif' => 'Arimo',
-              'Comic Sans MS, cursive, sans-serif' => 'Comic Sans',
-              'Tahoma, system-ui, sans-serif' => 'Tahoma',
-              'Georgia, serif' => 'Georgia',
-            ];
-          @endphp
-          @foreach($presetFonts as $val => $label)
-            <option value="{{ $val }}" @selected($font===$val)>{{ $label }}</option>
-          @endforeach
-        </select>
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+        <x-color name="tokens[colors][bg]"      label="Фон сайта"     :value="old('tokens.colors.bg',     data_get($t,'colors.bg','#ffffff'))" />
+        <x-color name="tokens[colors][text]"    label="Текст"         :value="old('tokens.colors.text',   data_get($t,'colors.text','#111827'))" />
+        <x-color name="tokens[colors][primary]" label="Основной"      :value="old('tokens.colors.primary',data_get($t,'colors.primary','#2563eb'))" />
+        <x-color name="tokens[colors][accent]"  label="Дополнительный" :value="old('tokens.colors.accent', data_get($t,'colors.accent','#10b981'))" />
+        <x-color name="tokens[colors][header]"  label="Фон шапки"     :value="old('tokens.colors.header', data_get($t,'colors.header','#ffffff'))" />
+        <x-color name="tokens[colors][footer]"  label="Фон подвала"   :value="old('tokens.colors.footer', data_get($t,'colors.footer','#ffffff'))" />
+      </div>
+    </section>
 
-        <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs mb-1">Загрузить .woff2 (локально)</label>
-            <input type="file" name="font_woff2" accept=".woff2" class="block w-full text-sm">
+    {{-- ── Шрифт и формы ────────────────────────────────────────── --}}
+    <section class="admin-card p-5">
+      <div class="thm-head">
+        <span class="thm-head__ico"><i class="fas fa-font"></i></span>
+        <div>
+          <h2 class="thm-head__title">Шрифт и формы</h2>
+          <p class="admin-hint">Все перечисленные шрифты лежат на вашем сервере — наружу не уходит ни один запрос.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <label class="thm-label">Основной шрифт</label>
+          <select name="tokens[font][base]" id="fontBase" class="admin-field">
+            <option value="{{ $systemStack }}" @selected($font === $systemStack)>Системный шрифт устройства</option>
+
+            @if ($customFont)
+              <option value="{{ $customFont }}" selected>Как задано в теме — {{ \Illuminate\Support\Str::limit($customFont, 34) }}</option>
+            @endif
+
+            @foreach ($fontGroups as $kind => $list)
+              <optgroup label="{{ $kinds[$kind] ?? $kind }}">
+                @foreach ($list as $stack => $label)
+                  <option value="{{ $stack }}" @selected($font === $stack)>{{ $label }}</option>
+                @endforeach
+              </optgroup>
+            @endforeach
+          </select>
+          <p class="admin-hint mt-1">Системный подстраивается под устройство читателя и не грузится вовсе.</p>
+
+          <label class="thm-label mt-4">Свой шрифт файлом</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <label class="thm-file">
+              <input type="file" name="font_woff2" accept=".woff2">
+              <span><i class="fas fa-arrow-up-from-bracket"></i> Файл .woff2</span>
+            </label>
+            <label class="thm-file">
+              <input type="file" name="font_ttf" accept=".ttf,.otf">
+              <span><i class="fas fa-arrow-up-from-bracket"></i> Файл .ttf или .otf</span>
+            </label>
           </div>
-          <div>
-            <label class="block text-xs mb-1">Загрузить .ttf</label>
-            <input type="file" name="font_ttf" accept=".ttf,.otf" class="block w-full text-sm">
-          </div>
+          <p class="admin-hint mt-1">Нужен, только если своего шрифта нет в списке выше.</p>
         </div>
 
-        <div class="mt-3">
-          <label class="block text-sm font-medium mb-1">Шрифт сайта (опционально)</label>
-          @php
-            $provider = old('config.font_provider', data_get($cfg,'font_provider'));
-            $fname    = old('config.font_name',     data_get($cfg,'font_name'));
-          @endphp
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <select name="config[font_provider]" class="border rounded px-3 py-2 w-full">
-              <option value="">— не использовать (системный шрифт) —</option>
-              <option value="local" @selected($provider==='local')>Локально — без внешних CDN (рекомендуется)</option>
-              <option value="google" @selected($provider==='google')>Google Fonts (внешний CDN)</option>
-              <option value="bunny"  @selected($provider==='bunny')>Bunny Fonts (внешний CDN)</option>
-            </select>
-            <input type="text" name="config[font_name]" class="border rounded px-3 py-2 w-full"
-                   list="local-fonts-list" placeholder="Напр. Inter, Roboto…" value="{{ $fname }}">
-            <datalist id="local-fonts-list">
-              @foreach (LOCAL_FONTS as $slug => $font)
-                <option value="{{ $font['label'] }}"></option>
-              @endforeach
-            </datalist>
+        <div>
+          <label class="thm-label">Скругление углов</label>
+          <div class="thm-radius">
+            <input type="range" min="0" max="24" step="1" value="{{ (int) $radius }}" id="radiusSlider">
+            <input type="text" name="tokens[radius][md]" id="radiusValue" class="admin-field thm-radius__value"
+                   value="{{ $radius }}" spellcheck="false">
           </div>
-          <p class="text-xs text-gray-500 mt-1">
-            «Локально» отдаёт шрифт с вашего сервера (сейчас доступны: {{ implode(', ', array_column(LOCAL_FONTS, 'label')) }}) —
-            ничего не запрашивается у Google/Bunny. Google Fonts и Bunny Fonts подключаются с внешнего CDN.
+          <p class="admin-hint mt-1">Ноль — прямые края, как в панели управления.</p>
+
+          <label class="thm-label mt-4">Откуда брать шрифт сайта</label>
+          <select name="config[font_provider]" class="admin-field">
+            <option value="">Не подключать — оставить системный</option>
+            <option value="local"  @selected($provider==='local')>С вашего сервера — рекомендуется</option>
+            <option value="google" @selected($provider==='google')>Google Fonts — запрос наружу</option>
+            <option value="bunny"  @selected($provider==='bunny')>Bunny Fonts — запрос наружу</option>
+          </select>
+
+          <input type="text" name="config[font_name]" class="admin-field mt-3"
+                 list="local-fonts-list" placeholder="Название шрифта, например Inter" value="{{ $fname }}">
+          <datalist id="local-fonts-list">
+            @foreach (LOCAL_FONTS as $item)
+              <option value="{{ $item['label'] }}"></option>
+            @endforeach
+          </datalist>
+          <p class="admin-hint mt-1">
+            Два последних варианта обращаются к чужому серверу: адреса читателей уйдут туда.
           </p>
         </div>
       </div>
+    </section>
 
-      <div>
-        <label class="block text-sm font-medium mb-1">Скругление (md)</label>
-        @php $radius = old('tokens.radius.md', data_get($t,'radius.md','12px')); @endphp
-        <input type="range" min="0" max="24" step="1" value="{{ (int) $radius }}" id="radiusSlider" class="w-full">
-        <input type="text" name="tokens[radius][md]" id="radiusValue" class="border rounded px-3 py-2 w-full mt-2"
-               value="{{ $radius }}" placeholder="напр. 12px">
+    {{-- ── Логотип ──────────────────────────────────────────────── --}}
+    <section class="admin-card p-5">
+      <div class="thm-head">
+        <span class="thm-head__ico"><i class="fas fa-image"></i></span>
+        <div>
+          <h2 class="thm-head__title">Логотип</h2>
+          <p class="admin-hint">PNG или SVG. Виден в примере справа.</p>
+        </div>
       </div>
-    </div>
 
-    {{-- ЛОГОТИП --}}
-    <div>
-      <label class="block text-sm font-medium mb-1">
-        Логотип
-        <span class="text-xs text-gray-500 ml-1">PNG/SVG. Показывается в превью шапки ниже.</span>
-      </label>
-      <input type="file" name="logo" accept="image/*" class="block w-full text-sm">
-      @php $logoUrl = data_get($cfg,'logo_url'); @endphp
       <input type="hidden" name="remove_logo" id="removeLogoFlag" value="0">
 
+      <label class="thm-file thm-file--wide">
+        <input type="file" name="logo" accept="image/*">
+        <span><i class="fas fa-arrow-up-from-bracket"></i> Выбрать картинку</span>
+      </label>
+
       @if($logoUrl)
-        <div id="logoPreview" class="mt-2 flex items-center gap-3">
-          <img src="{{ $logoUrl }}" alt="logo" class="h-12 object-contain border rounded p-1 bg-white">
-          <div class="flex items-center gap-2">
-            <button type="button"
-                    class="px-2 py-1 rounded border text-red-600 hover:bg-red-50"
+        <div id="logoPreview" class="thm-asset mt-3">
+          <img src="{{ $logoUrl }}" alt="Логотип">
+          <div class="thm-asset__actions">
+            <button type="button" class="thm-btn thm-btn--danger"
                     onclick="(function(){document.getElementById('removeLogoFlag').value=1; document.getElementById('logoPreview').style.display='none'; window.__themeLogoPrev=@js($logoUrl); window.__syncThemeVars();})();">
-              Удалить
+              <i class="fas fa-trash"></i> Убрать
             </button>
-            <button type="button"
-                    class="px-2 py-1 rounded border"
+            <button type="button" class="thm-btn"
                     onclick="(function(){document.getElementById('removeLogoFlag').value=0; document.getElementById('logoPreview').style.display=''; window.__syncThemeVars();})();">
-              Восстановить
+              <i class="fas fa-rotate-left"></i> Вернуть
             </button>
           </div>
         </div>
       @endif
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
         <div>
-          <label class="block text-sm mb-1">Позиция логотипа</label>
+          <label class="thm-label">Положение</label>
           @php $lp = old('config.logo_position', data_get($cfg,'logo_position','left')); @endphp
-          <select name="config[logo_position]" id="logoPos" class="border rounded px-3 py-2 w-full">
+          <select name="config[logo_position]" id="logoPos" class="admin-field">
             <option value="left"   @selected($lp==='left')>Слева</option>
             <option value="center" @selected($lp==='center')>По центру</option>
             <option value="right"  @selected($lp==='right')>Справа</option>
           </select>
-          <p class="text-xs text-gray-500 mt-1">Влияет на шапку превью и может использоваться темой на сайте.</p>
         </div>
         <div>
-          <label class="block text-sm mb-1">Ширина логотипа (px/%)</label>
-          @php $lw = old('config.logo_width', data_get($cfg,'logo_width')); @endphp
-          <input type="text" name="config[logo_width]" id="logoWidth"
-                 class="border rounded px-3 py-2 w-full" placeholder="напр. 120px или 32%"
-                 value="{{ $lw }}">
+          <label class="thm-label">Ширина</label>
+          <input type="text" name="config[logo_width]" id="logoWidth" class="admin-field"
+                 placeholder="120px или 32%" value="{{ old('config.logo_width', data_get($cfg,'logo_width')) }}">
         </div>
       </div>
-    </div>
+    </section>
 
-    {{-- ФОН --}}
-    <div>
-      <label class="block text-sm font-medium mb-1">
-        Фон (повторяющийся паттерн)
-        <span class="text-xs text-gray-500 ml-1">Опционально. Будет повторяться как pattern.</span>
-      </label>
-      <input type="file" name="bg_image" accept="image/*" class="block w-full text-sm">
-      <p class="admin-hint mt-1">{{ __('admin.themes.upload_limit', ['limit' => max_upload_label(10240)]) }}</p>
-      @php $bgUrl = data_get($cfg,'background_url'); @endphp
+    {{-- ── Фон и значки ─────────────────────────────────────────── --}}
+    <section class="admin-card p-5">
+      <div class="thm-head">
+        <span class="thm-head__ico"><i class="fas fa-layer-group"></i></span>
+        <div>
+          <h2 class="thm-head__title">Фон и значки</h2>
+          <p class="admin-hint">Все наборы значков лежат на вашем сервере.</p>
+        </div>
+      </div>
+
       <input type="hidden" name="remove_bg" id="removeBgFlag" value="0">
 
+      <label class="thm-label">Фоновый узор</label>
+      <label class="thm-file thm-file--wide">
+        <input type="file" name="bg_image" accept="image/*">
+        <span><i class="fas fa-arrow-up-from-bracket"></i> Выбрать картинку</span>
+      </label>
+      <p class="admin-hint mt-1">Повторяется плиткой. {{ __('admin.themes.upload_limit', ['limit' => max_upload_label(10240)]) }}</p>
+
       @if($bgUrl)
-        <div id="bgPreview" class="mt-2">
-          <div class="flex items-center gap-3">
-            <div class="text-xs text-gray-500 truncate max-w-[380px]">{{ $bgUrl }}</div>
-            <button type="button"
-                    class="px-2 py-1 rounded border text-red-600 hover:bg-red-50"
+        <div id="bgPreview" class="thm-asset mt-3">
+          <span class="thm-asset__path">{{ $bgUrl }}</span>
+          <div class="thm-asset__actions">
+            <button type="button" class="thm-btn thm-btn--danger"
                     onclick="(function(){document.getElementById('removeBgFlag').value=1; document.getElementById('bgPreview').style.display='none'; window.__themeBgPrev=@js($bgUrl); window.__syncThemeVars();})();">
-              Удалить
+              <i class="fas fa-trash"></i> Убрать
             </button>
-            <button type="button"
-                    class="px-2 py-1 rounded border"
+            <button type="button" class="thm-btn"
                     onclick="(function(){document.getElementById('removeBgFlag').value=0; document.getElementById('bgPreview').style.display=''; window.__syncThemeVars();})();">
-              Восстановить
+              <i class="fas fa-rotate-left"></i> Вернуть
             </button>
           </div>
         </div>
       @endif
-    </div>
 
-    <div>
-      <label class="block text-sm font-medium mb-1">Иконки (ZIP с SVG)</label>
-      <input type="file" name="icons_zip" accept=".zip" class="block w-full text-sm">
-      @if($p = data_get($cfg,'icons_path'))
-        <div class="mt-2 text-xs text-gray-500">Распакованы: {{ $p }}</div>
-      @endif
-    </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+        <div>
+          <label class="thm-label">Набор значков</label>
+          <select name="config[icon_mode]" class="admin-field">
+            <option value="lucide"    @selected($iconMode==='lucide')>Lucide — тонкие линии</option>
+            <option value="fa"        @selected($iconMode==='fa')>Font Awesome</option>
+            <option value="bootstrap" @selected($iconMode==='bootstrap')>Bootstrap Icons</option>
+            <option value="tabler"    @selected($iconMode==='tabler')>Tabler Icons</option>
+            <option value="remix"     @selected($iconMode==='remix')>Remix Icons</option>
+            <option value="svg"       @selected($iconMode==='svg')>Свои SVG из архива</option>
+          </select>
+        </div>
+        <div>
+          <label class="thm-label">Свои значки архивом</label>
+          <label class="thm-file thm-file--wide">
+            <input type="file" name="icons_zip" accept=".zip">
+            <span><i class="fas fa-file-zipper"></i> Архив ZIP с SVG</span>
+          </label>
+          @if($p = data_get($cfg,'icons_path'))
+            <p class="admin-hint mt-1">Распакованы: {{ $p }}</p>
+          @endif
+        </div>
+      </div>
+    </section>
 
-    <div>
-      <label class="block text-sm font-medium mb-1">Режим иконок</label>
-      @php $iconMode = old('config.icon_mode', data_get($cfg,'icon_mode','lucide')); @endphp
-      <select name="config[icon_mode]" class="border rounded px-3 py-2 w-full">
-        <option value="lucide"    @selected($iconMode==='lucide')>🍎 Lucide — тонкие линии в стиле macOS/SF Symbols (рекомендуется)</option>
-        <option value="fa"        @selected($iconMode==='fa')>Font Awesome</option>
-        <option value="bootstrap" @selected($iconMode==='bootstrap')>Bootstrap Icons</option>
-        <option value="tabler"    @selected($iconMode==='tabler')>Tabler Icons</option>
-        <option value="remix"     @selected($iconMode==='remix')>Remix Icons</option>
-        <option value="svg"       @selected($iconMode==='svg')>Локальные SVG из ZIP</option>
-      </select>
-      <p class="text-xs text-gray-500 mt-1">Все наборы захостены локально — ни один не обращается к внешним CDN.</p>
-    </div>
+    {{-- ── Свои правила оформления ──────────────────────────────── --}}
+    <section class="admin-card p-5">
+      <div class="thm-head">
+        <span class="thm-head__ico"><i class="fas fa-code"></i></span>
+        <div>
+          <h2 class="thm-head__title">Свои правила оформления</h2>
+          <p class="admin-hint">Необязательно. Добавляются к теме последними и перекрывают остальное.</p>
+        </div>
+      </div>
 
-    <div>
-      <label class="block text-sm font-medium mb-1">Дополнительный CSS</label>
-      <textarea name="config[css]" class="border rounded px-3 py-2 w-full font-mono h-28"
-        placeholder="Необязательно.">{!! old('config.css', data_get($cfg,'css','')) !!}</textarea>
-    </div>
-
-    <div class="flex gap-3">
-      <button type="submit" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition"><i class="fas fa-save"></i> Сохранить</button>
-
-      @if($theme->exists)
-        <button type="button" class="inline-flex items-center gap-2 border border-gray-300 text-gray-700 hover:border-indigo-400 hover:text-indigo-600 px-4 py-2 text-sm font-semibold transition"
-                onclick="document.getElementById('applyForm').submit()"><i class="fas fa-wand-magic-sparkles"></i> Применить</button>
-        <button type="button" class="inline-flex items-center gap-2 border border-gray-300 text-gray-700 hover:border-red-400 hover:text-red-600 px-4 py-2 text-sm font-semibold transition"
-                onclick="if(confirm('Удалить тему?')) document.getElementById('deleteForm').submit()"><i class="fas fa-trash"></i> Удалить</button>
-      @endif
-    </div>
+      <textarea name="config[css]" class="admin-field thm-css" spellcheck="false"
+                placeholder=":root{ --color-primary: #6366f1; }">{!! old('config.css', data_get($cfg,'css','')) !!}</textarea>
+    </section>
   </div>
 
-  {{-- Превью --}}
+  {{-- ── Пример и действия ──────────────────────────────────────── --}}
   <aside class="lg:col-span-1">
-    <div class="sticky top-4">
-      <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-2"><i class="fas fa-eye text-indigo-500"></i> Превью</h3>
-      <div id="preview" class="rounded-lg border p-4"
-           style="background: var(--color-bg,#fff); color: var(--color-text,#111827); font-family: var(--font-base,-apple-system,BlinkMacSystemFont,Inter,system-ui,sans-serif)">
-        <div id="pvHeaderWrap"
-             class="py-2 px-3 rounded mb-3"
-             style="background: var(--color-header,#fff); display:flex; gap:.75rem; align-items:center; justify-content:flex-start;">
-          <img id="pvLogo" src="{{ data_get($cfg,'logo_url') }}" alt="logo"
-               style="display: {{ data_get($cfg,'logo_url') ? 'block' : 'none' }}; height: 32px; object-fit: contain;">
-          <div class="w-8 h-8 rounded-md flex items-center justify-center text-white" style="background: var(--color-primary,#2563eb)">R</div>
-          <div class="font-bold">RU CMS</div>
-          <nav class="text-sm flex gap-3 ml-auto"><span>Главная</span><span>О нас</span><span>Контакты</span></nav>
+    <div class="sticky top-4 space-y-5">
+      <section class="admin-card p-5">
+        <div class="thm-head">
+          <span class="thm-head__ico"><i class="fas fa-eye"></i></span>
+          <h2 class="thm-head__title">Пример</h2>
         </div>
-        <h4 class="text-lg font-semibold mb-2">Заголовок</h4>
-        <p class="text-sm mb-3 opacity-80">Пример текста в текущей теме. Кнопка ниже использует primary.</p>
-        <button class="px-3 py-1 rounded text-white" style="background: var(--color-primary,#2563eb)">Кнопка</button>
-        <div class="mt-4 py-2 px-3 rounded" style="background: var(--color-footer,#fff)">Футер</div>
-      </div>
+
+        <div id="preview" class="thm-preview">
+          <div id="pvHeaderWrap" class="thm-preview__bar">
+            <img id="pvLogo" src="{{ $logoUrl }}" alt="Логотип"
+                 style="display: {{ $logoUrl ? 'block' : 'none' }};">
+            <div class="thm-preview__mark">R</div>
+            <div class="thm-preview__name">RU CMS</div>
+            <nav class="thm-preview__nav"><span>Главная</span><span>О нас</span><span>Контакты</span></nav>
+          </div>
+
+          <h4 class="thm-preview__h">Заголовок</h4>
+          <p class="thm-preview__p">Пример текста в текущей теме. Кнопки ниже показывают оба цвета.</p>
+
+          <div class="thm-preview__btns">
+            <button type="button" class="thm-preview__btn">Основной</button>
+            <button type="button" class="thm-preview__btn thm-preview__btn--accent">Дополнительный</button>
+          </div>
+
+          <div class="thm-preview__foot">Подвал</div>
+        </div>
+      </section>
+
+      <section class="admin-card p-5">
+        <div class="thm-actions">
+          <button type="submit" class="thm-btn thm-btn--main">
+            <i class="fas fa-floppy-disk"></i> Сохранить
+          </button>
+
+          @if($theme->exists)
+            <button type="button" class="thm-btn"
+                    onclick="document.getElementById('applyForm').submit()">
+              <i class="fas fa-wand-magic-sparkles"></i> Применить к сайту
+            </button>
+            <button type="button" class="thm-btn thm-btn--danger"
+                    onclick="if(confirm('Удалить тему «{{ $theme->title }}»? Действие необратимо.')) document.getElementById('deleteForm').submit()">
+              <i class="fas fa-trash"></i> Удалить тему
+            </button>
+          @endif
+        </div>
+      </section>
     </div>
   </aside>
 </form>
@@ -308,10 +395,135 @@
   <form id="deleteForm" method="POST" action="{{ route('admin.visual.themes.destroy',$theme) }}" class="hidden">@csrf @method('DELETE')</form>
 @endif
 
+@push('styles')
+<style>
+  /* Оформление формы темы. Литеральный CSS, а не утилиты: в собранном
+     Tailwind этого проекта нет ни прозрачности через дробь, ни произвольных
+     значений, ни тёмных вариантов — см. памятку проекта. */
+
+  .thm-head{ display:flex; align-items:flex-start; gap:12px; margin-bottom:18px; }
+  .thm-head__ico{
+      display:inline-flex; align-items:center; justify-content:center;
+      width:34px; height:34px; flex:0 0 auto;
+      color:#fff; background:var(--admin-primary,#6366f1);
+  }
+  .thm-head__title{ font-size:15px; font-weight:700; line-height:1.2; color:#111827; }
+  .dark .thm-head__title{ color:#f3f4f6; }
+
+  .thm-label{
+      display:block; margin-bottom:6px;
+      font-size:12px; font-weight:600; letter-spacing:.02em;
+      color:#4b5563;
+  }
+  .dark .thm-label{ color:#cbd5e1; }
+
+  /* Единый вид поля. Раньше на каждом поле висел свой набор утилит, и они
+     разъезжались: где-то рамка была, где-то нет, высоты не совпадали. */
+  .admin-field{
+      display:block; width:100%;
+      padding:9px 11px;
+      font:inherit; font-size:13.5px; line-height:1.4;
+      color:#111827; background:#fff;
+      border:1px solid #d9dce5;
+      transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  .admin-field:focus{
+      outline:none;
+      border-color:var(--admin-primary,#6366f1);
+      box-shadow:0 0 0 3px var(--admin-primary-glow,rgba(99,102,241,.25));
+  }
+  .dark .admin-field{ color:#e5e7eb; background:#111827; border-color:#374151; }
+
+  select.admin-field{ cursor:pointer; }
+  .thm-css{ min-height:120px; font-family:ui-monospace,SFMono-Regular,Consolas,monospace; font-size:12.5px; }
+
+  /* Цвет */
+  .thm-color__row{ display:flex; align-items:center; gap:8px; }
+  .thm-color__dot{
+      width:38px; height:38px; flex:0 0 auto; padding:2px;
+      background:#fff; border:1px solid #d9dce5; cursor:pointer;
+  }
+  .dark .thm-color__dot{ background:#111827; border-color:#374151; }
+  .thm-color__hex{ font-family:ui-monospace,SFMono-Regular,Consolas,monospace; text-transform:lowercase; }
+
+  /* Скругление */
+  .thm-radius{ display:flex; align-items:center; gap:12px; }
+  .thm-radius input[type=range]{ flex:1 1 auto; accent-color:var(--admin-primary,#6366f1); }
+  .thm-radius__value{ width:88px; flex:0 0 auto; text-align:center; font-family:ui-monospace,Consolas,monospace; }
+
+  /* Выбор файла. Родное поле выглядит в каждом браузере по-своему и не
+     вписывается ни в какое оформление — прячем его, оставляя подпись. */
+  .thm-file{ display:block; cursor:pointer; }
+  .thm-file input{ position:absolute; width:1px; height:1px; opacity:0; }
+  .thm-file span{
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      padding:9px 12px;
+      font-size:13px; font-weight:600; color:#4b5563;
+      background:#f7f8fa; border:1px dashed #cbd0dd;
+      transition:color .15s ease, border-color .15s ease, background .15s ease;
+  }
+  .thm-file:hover span{ color:var(--admin-primary,#6366f1); border-color:var(--admin-primary,#6366f1); background:#fff; }
+  .thm-file input:focus-visible + span{ outline:2px solid var(--admin-primary,#6366f1); outline-offset:2px; }
+  .dark .thm-file span{ color:#cbd5e1; background:#111827; border-color:#374151; }
+
+  /* Уже загруженное */
+  .thm-asset{ display:flex; align-items:center; gap:12px; padding:10px; border:1px solid #e5e7eb; background:#fafbfc; }
+  .dark .thm-asset{ background:#111827; border-color:#374151; }
+  .thm-asset img{ height:42px; object-fit:contain; background:#fff; padding:3px; border:1px solid #e5e7eb; }
+  .thm-asset__path{ flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; color:#6b7280; }
+  .thm-asset__actions{ display:flex; gap:6px; margin-left:auto; flex:0 0 auto; }
+
+  /* Кнопки */
+  .thm-btn{
+      display:inline-flex; align-items:center; justify-content:center; gap:8px;
+      padding:9px 14px;
+      font:inherit; font-size:13px; font-weight:600;
+      color:#374151; background:#fff; border:1px solid #d9dce5; cursor:pointer;
+      transition:color .15s ease, border-color .15s ease, background .15s ease;
+  }
+  .thm-btn:hover{ color:var(--admin-primary,#6366f1); border-color:var(--admin-primary,#6366f1); }
+  .thm-btn--main{ color:#fff; background:var(--admin-primary,#6366f1); border-color:var(--admin-primary,#6366f1); }
+  .thm-btn--main:hover{ color:#fff; filter:brightness(1.08); }
+  .thm-btn--danger:hover{ color:#b91c1c; border-color:#b91c1c; }
+  .dark .thm-btn{ color:#cbd5e1; background:#1f2937; border-color:#374151; }
+
+  .thm-actions{ display:flex; flex-direction:column; gap:8px; }
+
+  /* Пример */
+  .thm-preview{
+      padding:14px; border:1px solid #e5e7eb;
+      background:var(--color-bg,#fff);
+      color:var(--color-text,#111827);
+      font-family:var(--font-base,-apple-system,BlinkMacSystemFont,Inter,system-ui,sans-serif);
+  }
+  .dark .thm-preview{ border-color:#374151; }
+  .thm-preview__bar{ display:flex; gap:10px; align-items:center; padding:8px 10px; margin-bottom:12px; background:var(--color-header,#fff); }
+  .thm-preview__bar img{ height:28px; object-fit:contain; }
+  .thm-preview__mark{
+      display:flex; align-items:center; justify-content:center;
+      width:28px; height:28px; flex:0 0 auto;
+      font-size:13px; font-weight:700; color:#fff; background:var(--color-primary,#2563eb);
+  }
+  .thm-preview__name{ font-weight:700; font-size:14px; }
+  .thm-preview__nav{ display:flex; gap:10px; margin-left:auto; font-size:12px; opacity:.75; }
+  .thm-preview__h{ font-size:17px; font-weight:700; margin-bottom:6px; }
+  .thm-preview__p{ font-size:13px; opacity:.8; margin-bottom:12px; }
+  .thm-preview__btns{ display:flex; flex-wrap:wrap; gap:8px; }
+  .thm-preview__btn{
+      padding:7px 13px; font:inherit; font-size:13px; font-weight:600;
+      color:#fff; background:var(--color-primary,#2563eb); border:0; cursor:default;
+  }
+  .thm-preview__btn--accent{ background:var(--color-accent,#10b981); }
+  .thm-preview__foot{ margin-top:14px; padding:8px 10px; font-size:12px; background:var(--color-footer,#fff); }
+</style>
+@endpush
+
 @push('scripts')
 <script>
   window.__syncThemeVars = function(){
     const root = document.querySelector('#preview');
+    if (!root) return;
+
     const get  = (sel, def) => (document.querySelector(`[name="${sel}"]`)?.value || def);
     const setVar = (name, value) => root.style.setProperty(name, value);
 
@@ -324,32 +536,37 @@
 
     setVar('--font-base', document.getElementById('fontBase')?.value || '-apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif');
 
+    // Скругление показываем на тех частях примера, у которых оно бывает и на
+    // сайте: полосы, кнопки, значок. Панель управления живёт с прямыми
+    // краями, и общее правило обнулило бы радиус — поэтому задаём напрямую.
     const r = document.getElementById('radiusValue')?.value || '12px';
     setVar('--radius-md', r);
-    root.querySelectorAll('button, .rounded, .rounded-md, .rounded-lg')
+    root.querySelectorAll('.thm-preview__bar, .thm-preview__btn, .thm-preview__mark, .thm-preview__foot')
         .forEach(el => el.style.borderRadius = r);
 
-    // логотип
-    const logoUrlCfg = @json(data_get($cfg,'logo_url'));
+    const logoUrlCfg = @json($logoUrl);
     const removedLogo = document.getElementById('removeLogoFlag')?.value === '1';
     const logoUrl = removedLogo ? null : (logoUrlCfg || window.__themeLogoPrev || null);
     const logoImg = document.getElementById('pvLogo');
+
     if (logoImg) {
       if (logoUrl) { logoImg.src = logoUrl; logoImg.style.display = ''; }
       else { logoImg.style.display = 'none'; }
+
+      logoImg.style.width = document.getElementById('logoWidth')?.value || '';
+
       const lp = document.getElementById('logoPos')?.value || 'left';
-      const lw = document.getElementById('logoWidth')?.value || '';
-      logoImg.style.width = lw || '';
       const wrap = document.getElementById('pvHeaderWrap');
+
       if (wrap) {
-        wrap.style.justifyContent = (lp==='center') ? 'center' : (lp==='right' ? 'flex-end' : 'flex-start');
+        wrap.style.justifyContent = (lp === 'center') ? 'center' : (lp === 'right' ? 'flex-end' : 'flex-start');
       }
     }
 
-    // фон
-    const bgUrlCfg = @json(data_get($cfg,'background_url'));
+    const bgUrlCfg = @json($bgUrl);
     const removedBg = document.getElementById('removeBgFlag')?.value === '1';
     const bgUrl = removedBg ? null : (bgUrlCfg || window.__themeBgPrev || null);
+
     if (bgUrl) {
       root.style.backgroundImage = `url(${bgUrl})`;
       root.style.backgroundRepeat = 'repeat';
@@ -359,15 +576,32 @@
     }
   };
 
+  // Ползунок и поле показывают одно значение с двух сторон.
   const slider = document.getElementById('radiusSlider');
   const rVal   = document.getElementById('radiusValue');
+
   if (slider && rVal) {
     slider.addEventListener('input', () => { rVal.value = slider.value + 'px'; window.__syncThemeVars(); });
-    rVal.addEventListener('input', () => { const n = parseInt(rVal.value)||0; slider.value = n; window.__syncThemeVars(); });
+    rVal.addEventListener('input', () => { slider.value = parseInt(rVal.value) || 0; window.__syncThemeVars(); });
   }
-  document.addEventListener('input', e => {
-    if (e.target.matches('input[type="color"], input[type="text"], select')) window.__syncThemeVars();
+
+  // Подпись у выбора файла заменяется на имя выбранного: иначе после выбора
+  // не видно, что вообще выбрано — родное поле спрятано.
+  document.querySelectorAll('.thm-file input[type=file]').forEach(input => {
+    const caption = input.nextElementSibling;
+    const original = caption.innerHTML;
+
+    input.addEventListener('change', () => {
+      caption.innerHTML = input.files && input.files.length
+        ? '<i class="fas fa-check"></i> ' + input.files[0].name
+        : original;
+    });
   });
+
+  document.addEventListener('input', e => {
+    if (e.target.matches('input, select, textarea')) window.__syncThemeVars();
+  });
+
   window.__syncThemeVars();
 </script>
 @endpush

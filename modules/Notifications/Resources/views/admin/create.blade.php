@@ -8,7 +8,7 @@
     <div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
                 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div class="flex items-center gap-3 min-w-0">
-            <span class="admin-icon-badge"><i class="fas fa-bell-plus"></i></span>
+            <span class="admin-icon-badge"><i class="fas fa-bell"></i></span>
             <div class="min-w-0">
                 <h1 class="text-xl font-bold text-gray-900 dark:text-white">Новое уведомление</h1>
                 <p class="text-sm text-gray-500 dark:text-gray-400">

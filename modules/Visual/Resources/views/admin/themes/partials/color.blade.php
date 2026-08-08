@@ -1,14 +1,23 @@
-<div>
-    <label class="block text-sm font-medium mb-1">{{ $label ?? '' }}</label>
-    <div class="flex items-center gap-3">
+{{-- Поле цвета: образец и шестнадцатеричное значение рядом.
+
+     Образец — настоящий input[type=color], а не картинка: системная палитра
+     привычнее самодельной и умеет пипетку. Значение рядом набирается руками,
+     когда цвет нужно вписать точно — из фирменного стиля, например. --}}
+<div class="thm-color">
+    <label class="thm-label">{{ $label ?? '' }}</label>
+
+    <div class="thm-color__row">
         <input type="color"
+               class="thm-color__dot"
                value="{{ $value ?? '#ffffff' }}"
-               class="color-input border rounded"
+               aria-label="{{ $label ?? '' }}"
                oninput="this.nextElementSibling.value=this.value;window.__syncThemeVars()">
+
         <input type="text"
                name="{{ $name ?? '' }}"
                value="{{ $value ?? '#ffffff' }}"
-               class="border rounded px-3 py-2 w-full"
+               class="admin-field thm-color__hex"
+               spellcheck="false"
                oninput="this.previousElementSibling.value=this.value;window.__syncThemeVars()">
     </div>
 </div>

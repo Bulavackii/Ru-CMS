@@ -361,6 +361,26 @@ class ThemeServiceProvider extends ServiceProvider
                 'file-text' => 'file-text', 'puzzle' => 'puzzle', 'home' => 'home', 'user' => 'user',
                 'logout' => 'log-out', 'login' => 'log-in', 'mail' => 'mail', 'dashboard' => 'layout-dashboard',
                 'globe' => 'globe',
+
+                // Имена из Font Awesome, встречающиеся в шаблонах. В режиме
+                // Lucide они уходили в набор как есть, там таких нет — и на
+                // месте значка не рисовалось НИЧЕГО, молча: ни ошибки, ни
+                // пустого места в разметке. Сверено по самому набору.
+                'bars' => 'menu',
+                'times' => 'x',
+                'cogs' => 'settings',
+                'hashtag' => 'hash',
+                'trash-alt' => 'trash-2',
+                'sign-in-alt' => 'log-in',
+                'sign-out-alt' => 'log-out',
+                'exclamation-triangle' => 'alert-triangle',
+                'octagon-alert' => 'alert-octagon',
+
+                // Значка ВКонтакте в Lucide нет вовсе. Прежний перевод указывал
+                // на маскарадную маску — на сайте у ссылки на сообщество
+                // рисовалась именно она. Ближайшее по смыслу — пузырь
+                // сообщения; точный знак у подвала свой, инлайновым SVG.
+                'vk' => 'message-circle',
             ],
         ];
     }
