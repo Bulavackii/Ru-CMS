@@ -182,6 +182,7 @@ class FormController extends Controller
             'fields.*.type'      => 'required|string|in:' . implode(',', Form::FIELD_TYPES),
             'fields.*.label'     => 'nullable|string|max:255',
             'fields.*.name'      => 'nullable|string|max:64',
+            'fields.*.icon'      => 'nullable|string|max:40',
             'fields.*.placeholder' => 'nullable|string|max:255',
             'fields.*.hint'      => 'nullable|string|max:255',
             'fields.*.value'     => 'nullable|string|max:255',
@@ -196,6 +197,7 @@ class FormController extends Controller
             'settings.notify_email'    => 'nullable|string|max:255',
             'settings.redirect_url'    => 'nullable|string|max:255',
             'settings.captcha'         => 'nullable|string|max:64',
+            'settings.icon'            => 'nullable|string|max:40',
             'settings.columns'         => 'nullable|boolean',
             'settings.show_title'      => 'nullable|boolean',
         ]);
@@ -215,6 +217,7 @@ class FormController extends Controller
             $fields[] = [
                 'type'        => $field['type'],
                 'name'        => $name,
+                'icon'        => Form::safeIcon($field['icon'] ?? ''),
                 'label'       => (string) ($field['label'] ?? ''),
                 'placeholder' => (string) ($field['placeholder'] ?? ''),
                 'hint'        => (string) ($field['hint'] ?? ''),
@@ -229,6 +232,7 @@ class FormController extends Controller
         }
 
         $settings = (array) ($validated['settings'] ?? []);
+        $settings['icon'] = Form::safeIcon($settings['icon'] ?? '');
         // Признак вложений считаем сами: на нём стоит enctype формы, и
         // полагаться на галочку, которую можно забыть, нельзя — без
         // multipart файл просто не доедет.
@@ -337,6 +341,7 @@ class FormController extends Controller
                 'notify_email'    => '',
                 'redirect_url'    => '',
                 'captcha'         => '',
+                'icon'            => '',
                 'columns'         => true,
                 'show_title'      => true,
             ],

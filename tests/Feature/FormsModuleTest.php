@@ -237,6 +237,60 @@ class FormsModuleTest extends TestCase
         $this->assertDatabaseHas('form_submissions', ['id' => $submission->id]);
     }
 
+    public function test_label_formatting_allows_a_link_but_not_markup(): void
+    {
+        // Подпись — это часто не одно слово: «согласен с политикой», где
+        // последние два обязаны быть ссылкой. Вписать туда HTML владелец не
+        // может, поэтому есть свой маленький набор.
+        $html = FormService::format('Согласен с [политикой](/privacy) и **условиями**');
+
+        $this->assertStringContainsString('<a href="/privacy"', $html);
+        $this->assertStringContainsString('<strong>условиями</strong>', $html);
+
+        // Всё остальное — обычный текст, а не разметка.
+        $this->assertStringNotContainsString(
+            '<script>',
+            FormService::format('Текст <script>alert(1)</script> дальше')
+        );
+    }
+
+    public function test_dangerous_links_in_labels_are_dropped(): void
+    {
+        // Подпись пишет администратор, но нажимает ссылку ПОСЕТИТЕЛЬ: адрес со
+        // схемой javascript: или data: сюда попасть не должен ни при каких
+        // условиях. Текст при этом остаётся — молча съедать подпись хуже.
+        foreach (['javascript:alert(1)', 'data:text/html;base64,PHM+', '//evil.example'] as $bad) {
+            $html = FormService::format('Клик [сюда](' . $bad . ')');
+
+            $this->assertStringNotContainsString('<a ', $html, 'Пропущен адрес: ' . $bad);
+            $this->assertStringContainsString('сюда', $html);
+        }
+    }
+
+    public function test_external_links_open_safely(): void
+    {
+        $html = FormService::format('[Наружу](https://example.com)');
+
+        $this->assertStringContainsString('rel="noopener noreferrer"', $html);
+        $this->assertStringContainsString('target="_blank"', $html);
+    }
+
+    public function test_field_icon_is_limited_to_a_class_name(): void
+    {
+        // Значение уходит прямо в атрибут class: произвольная строка позволила
+        // бы закрыть кавычку и дописать свой атрибут.
+        $this->assertSame('fas fa-user', Form::safeIcon('fas fa-user'));
+        $this->assertSame('', Form::safeIcon('fa" onload="alert(1)'));
+        $this->assertSame('', Form::safeIcon('<script>'));
+
+        $form = $this->form([
+            ['type' => 'text', 'name' => 'name', 'label' => 'Имя', 'width' => 'full',
+             'options' => [], 'icon' => 'fa" onload="alert(1)'],
+        ]);
+
+        $this->assertSame('', $form->normalizedFields()[0]['icon'], 'Опасная иконка дошла до отрисовки');
+    }
+
     public function test_guests_cannot_reach_the_builder(): void
     {
         $this->get(route('admin.forms.index'))->assertRedirect();

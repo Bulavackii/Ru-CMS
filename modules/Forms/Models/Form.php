@@ -123,6 +123,26 @@ class Form extends Model
         return "{!! form_render('{$this->slug}') !!}";
     }
 
+    /**
+     * Имя класса иконки, пригодное для подстановки в атрибут class.
+     *
+     * Пропускаем только то, из чего состоят имена Font Awesome: латиница,
+     * цифры, дефис и пробел между двумя классами. Без этого в class можно было
+     * бы вписать что угодно — включая закрывающую кавычку и свой атрибут.
+     */
+    public static function safeIcon(mixed $icon): string
+    {
+        $icon = trim((string) $icon);
+
+        return preg_match('~^[a-z0-9 \-]{1,40}$~i', $icon) ? $icon : '';
+    }
+
+    /** Иконка самой формы. */
+    public function icon(): string
+    {
+        return self::safeIcon($this->setting('icon'));
+    }
+
     /** Настройка формы со значением по умолчанию. */
     public function setting(string $key, mixed $default = null): mixed
     {
@@ -152,6 +172,10 @@ class Form extends Model
             $fields[] = [
                 'type'        => $type,
                 'name'        => (string) ($field['name'] ?? 'field_' . ($index + 1)),
+                // Иконка поля — класс Font Awesome. Чистится ЗДЕСЬ, а не
+                // только на приёме из формы: запись могла попасть в базу от
+                // сидера или руками, а значение уходит прямо в атрибут class.
+                'icon'        => self::safeIcon($field['icon'] ?? ''),
                 'label'       => (string) ($field['label'] ?? ''),
                 'placeholder' => (string) ($field['placeholder'] ?? ''),
                 'hint'        => (string) ($field['hint'] ?? ''),

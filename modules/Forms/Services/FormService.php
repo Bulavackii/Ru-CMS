@@ -43,6 +43,91 @@ class FormService
      */
     public const HONEYPOT = 'website_url';
 
+    /**
+     * Простое оформление подписей: жирный, наклонный, цвет и ссылка.
+     *
+     * Зачем вообще. Подпись поля — это часто не одно слово: «согласен с
+     * политикой конфиденциальности», где последние два слова обязаны быть
+     * ссылкой. Вписать туда HTML владелец не может (и не должен: тогда в
+     * страницу уехал бы любой тег), а тип поля «Ссылка» — это поле ВВОДА
+     * адреса, а не кликабельное слово. Отсюда свой маленький набор:
+     *
+     *   **жирный**            → полужирный
+     *   //наклонный//         → курсив
+     *   [текст](адрес)        → ссылка
+     *   {#c62828|цветной}     → цвет
+     *
+     * Косые вместо звёздочек у курсива намеренно: одинарная звёздочка слишком
+     * часто встречается в обычном тексте (сноски, «*обязательно»), и половина
+     * подписей превращалась бы в курсив случайно.
+     *
+     * Про безопасность. Текст СНАЧАЛА экранируется целиком, и только потом в
+     * него вносится разметка — то есть ни один тег из подписи в страницу не
+     * попадёт. У ссылок разрешены только http, https, mailto, tel и адреса
+     * внутри сайта: без этой проверки в подпись можно было бы вписать
+     * javascript-ссылку, а её нажмёт посетитель.
+     */
+    public static function format(?string $text): string
+    {
+        $text = trim((string) $text);
+
+        if ($text === '') {
+            return '';
+        }
+
+        $html = e($text);
+
+        // Ссылка: [текст](адрес)
+        $html = preg_replace_callback(
+            '~\[([^\]]{1,120})\]\(([^)\s]{1,300})\)~u',
+            static function (array $m): string {
+                $href = html_entity_decode($m[2], ENT_QUOTES, 'UTF-8');
+
+                if (! self::safeHref($href)) {
+                    // Небезопасный адрес — оставляем только текст: молча
+                    // съедать подпись хуже, чем потерять ссылку.
+                    return $m[1];
+                }
+
+                $external = (bool) preg_match('~^https?://~i', $href)
+                    && ! str_starts_with($href, url('/'));
+
+                return '<a href="' . e($href) . '" class="rf-a"'
+                    . ($external ? ' target="_blank" rel="noopener noreferrer"' : '')
+                    . '>' . $m[1] . '</a>';
+            },
+            $html
+        ) ?? $html;
+
+        // Цвет: {#hex|текст}
+        $html = preg_replace(
+            '~\{(#[0-9a-fA-F]{3,8})\|([^}]{1,200})\}~u',
+            '<span style="color:$1">$2</span>',
+            $html
+        ) ?? $html;
+
+        // Жирный и наклонный
+        $html = preg_replace('~\*\*([^*]{1,200})\*\*~u', '<strong>$1</strong>', $html) ?? $html;
+        $html = preg_replace('~//([^/]{1,200})//~u', '<em>$1</em>', $html) ?? $html;
+
+        return $html;
+    }
+
+    /** Разрешённые схемы ссылок. Всё остальное — не ссылка. */
+    private static function safeHref(string $href): bool
+    {
+        if ($href === '') {
+            return false;
+        }
+
+        // Внутренние адреса и якоря.
+        if (str_starts_with($href, '/') || str_starts_with($href, '#')) {
+            return ! str_starts_with($href, '//');
+        }
+
+        return (bool) preg_match('~^(?:https?://|mailto:|tel:)~i', $href);
+    }
+
     /** Разметка формы для вставки в материал или шаблон. */
     public function render(Form $form, array $options = []): string
     {

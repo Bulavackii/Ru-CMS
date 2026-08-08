@@ -29,24 +29,27 @@
         'extra' => ['label' => __('admin.forms.g_extra'), 'types' => ['consent', 'file', 'heading', 'paragraph', 'hidden']],
     ];
 
+    // У каждого типа есть пояснение: без него «Ссылка» читается как
+    // «кликабельное слово», хотя это ПОЛЕ ВВОДА адреса. Владелец спросил
+    // ровно про это — значит, догадаться по названию нельзя.
     $meta = [
-        'text'       => ['title' => __('admin.forms.t_text'),       'icon' => 'fa-font'],
-        'textarea'   => ['title' => __('admin.forms.t_textarea'),   'icon' => 'fa-align-left'],
-        'email'      => ['title' => __('admin.forms.t_email'),      'icon' => 'fa-at'],
-        'tel'        => ['title' => __('admin.forms.t_tel'),        'icon' => 'fa-phone'],
-        'number'     => ['title' => __('admin.forms.t_number'),     'icon' => 'fa-hashtag'],
-        'url'        => ['title' => __('admin.forms.t_url'),        'icon' => 'fa-link'],
-        'date'       => ['title' => __('admin.forms.t_date'),       'icon' => 'fa-calendar-days'],
-        'time'       => ['title' => __('admin.forms.t_time'),       'icon' => 'fa-clock'],
-        'select'     => ['title' => __('admin.forms.t_select'),     'icon' => 'fa-caret-down'],
-        'radio'      => ['title' => __('admin.forms.t_radio'),      'icon' => 'fa-circle-dot'],
-        'checkbox'   => ['title' => __('admin.forms.t_checkbox'),   'icon' => 'fa-square-check'],
-        'checkboxes' => ['title' => __('admin.forms.t_checkboxes'), 'icon' => 'fa-list-check'],
-        'file'       => ['title' => __('admin.forms.t_file'),       'icon' => 'fa-paperclip'],
-        'hidden'     => ['title' => __('admin.forms.t_hidden'),     'icon' => 'fa-eye-slash'],
-        'heading'    => ['title' => __('admin.forms.t_heading'),    'icon' => 'fa-heading'],
-        'paragraph'  => ['title' => __('admin.forms.t_paragraph'),  'icon' => 'fa-paragraph'],
-        'consent'    => ['title' => __('admin.forms.t_consent'),    'icon' => 'fa-user-shield'],
+        'text'       => ['title' => __('admin.forms.t_text'),       'icon' => 'fa-font', 'desc' => __('admin.forms.d_text')],
+        'textarea'   => ['title' => __('admin.forms.t_textarea'),   'icon' => 'fa-align-left', 'desc' => __('admin.forms.d_textarea')],
+        'email'      => ['title' => __('admin.forms.t_email'),      'icon' => 'fa-at', 'desc' => __('admin.forms.d_email')],
+        'tel'        => ['title' => __('admin.forms.t_tel'),        'icon' => 'fa-phone', 'desc' => __('admin.forms.d_tel')],
+        'number'     => ['title' => __('admin.forms.t_number'),     'icon' => 'fa-hashtag', 'desc' => __('admin.forms.d_number')],
+        'url'        => ['title' => __('admin.forms.t_url'),        'icon' => 'fa-link', 'desc' => __('admin.forms.d_url')],
+        'date'       => ['title' => __('admin.forms.t_date'),       'icon' => 'fa-calendar-days', 'desc' => __('admin.forms.d_date')],
+        'time'       => ['title' => __('admin.forms.t_time'),       'icon' => 'fa-clock', 'desc' => __('admin.forms.d_time')],
+        'select'     => ['title' => __('admin.forms.t_select'),     'icon' => 'fa-caret-down', 'desc' => __('admin.forms.d_select')],
+        'radio'      => ['title' => __('admin.forms.t_radio'),      'icon' => 'fa-circle-dot', 'desc' => __('admin.forms.d_radio')],
+        'checkbox'   => ['title' => __('admin.forms.t_checkbox'),   'icon' => 'fa-square-check', 'desc' => __('admin.forms.d_checkbox')],
+        'checkboxes' => ['title' => __('admin.forms.t_checkboxes'), 'icon' => 'fa-list-check', 'desc' => __('admin.forms.d_checkboxes')],
+        'file'       => ['title' => __('admin.forms.t_file'),       'icon' => 'fa-paperclip', 'desc' => __('admin.forms.d_file')],
+        'hidden'     => ['title' => __('admin.forms.t_hidden'),     'icon' => 'fa-eye-slash', 'desc' => __('admin.forms.d_hidden')],
+        'heading'    => ['title' => __('admin.forms.t_heading'),    'icon' => 'fa-heading', 'desc' => __('admin.forms.d_heading')],
+        'paragraph'  => ['title' => __('admin.forms.t_paragraph'),  'icon' => 'fa-paragraph', 'desc' => __('admin.forms.d_paragraph')],
+        'consent'    => ['title' => __('admin.forms.t_consent'),    'icon' => 'fa-user-shield', 'desc' => __('admin.forms.d_consent')],
     ];
 
     $palette = [];
@@ -100,6 +103,24 @@
                 </label>
             </div>
 
+            {{-- Иконка формы: показывается рядом с её названием на сайте. --}}
+            <div class="fm-field" style="margin-bottom:12px">
+                <span class="fm-label">{{ __('admin.forms.f_form_icon') }}</span>
+                <input type="hidden" name="settings[icon]" :value="form.settings.icon">
+                <div class="fm-icons">
+                    <button type="button" class="fm-ico-btn" :class="{ 'is-on': !form.settings.icon }"
+                            @click="form.settings.icon = ''" :title="@js(__('admin.forms.icon_none'))">
+                        <i class="fas fa-ban"></i>
+                    </button>
+                    <template x-for="name in icons" :key="name">
+                        <button type="button" class="fm-ico-btn" :class="{ 'is-on': form.settings.icon === 'fas ' + name }"
+                                @click="form.settings.icon = 'fas ' + name">
+                            <i class="fas" :class="name"></i>
+                        </button>
+                    </template>
+                </div>
+            </div>
+
             {{-- Быстрый старт: пустая форма с нуля — самый долгий путь --}}
             <div class="fm-starters" x-show="!editing && !form.fields.length" x-cloak>
                 <span class="fm-starters-label">{{ __('admin.forms.start_from') }}</span>
@@ -119,7 +140,8 @@
                         <span class="fm-pal-label" x-text="group.label"></span>
                         <div class="fm-pal-items">
                             <template x-for="item in group.items" :key="item.type">
-                                <button type="button" class="fm-chip" @click="addField(item.type)" :title="item.title">
+                                <button type="button" class="fm-chip" @click="addField(item.type)"
+                                        :title="item.title + ' — ' + item.desc">
                                     <i class="fas" :class="item.icon"></i>
                                     <span x-text="item.title"></span>
                                 </button>
@@ -182,6 +204,11 @@
 
                         {{-- Раскрытые настройки поля --}}
                         <div class="fm-body" x-show="opened === field.uid" x-cloak @click.stop>
+                            {{-- Что этот тип вообще делает. Без пояснения «Ссылка»
+                                 читается как кликабельное слово, хотя это поле
+                                 ВВОДА адреса. --}}
+                            <p class="fm-type-desc"><i class="fas fa-circle-info"></i> <span x-text="descOf(field.type)"></span></p>
+
                             <div class="fm-grid">
                                 <label class="fm-field">
                                     <span class="fm-label">{{ __('admin.forms.f_type') }}</span>
@@ -221,6 +248,26 @@
                                     <input type="text" :name="'fields[' + index + '][value]'"
                                            x-model="field.value" maxlength="255" class="fm-input">
                                 </label>
+
+                                {{-- Иконка поля. Выбирается из готового набора, а
+                                     не вписывается руками: имя класса уходит в
+                                     атрибут, и произвольная строка там ни к чему. --}}
+                                <div class="fm-field">
+                                    <span class="fm-label">{{ __('admin.forms.f_icon') }}</span>
+                                    <input type="hidden" :name="'fields[' + index + '][icon]'" :value="field.icon">
+                                    <div class="fm-icons">
+                                        <button type="button" class="fm-ico-btn" :class="{ 'is-on': !field.icon }"
+                                                @click="field.icon = ''" :title="@js(__('admin.forms.icon_none'))">
+                                            <i class="fas fa-ban"></i>
+                                        </button>
+                                        <template x-for="name in icons" :key="name">
+                                            <button type="button" class="fm-ico-btn" :class="{ 'is-on': field.icon === 'fas ' + name }"
+                                                    @click="field.icon = 'fas ' + name">
+                                                <i class="fas" :class="name"></i>
+                                            </button>
+                                        </template>
+                                    </div>
+                                </div>
                             </div>
 
                             {{-- Варианты --}}
@@ -252,6 +299,14 @@
                                     </button>
                                 </div>
                             </div>
+
+                            <p class="fm-fmt">
+                                <b>{{ __('admin.forms.fmt_title') }}</b>
+                                <code>**{{ __('admin.forms.fmt_bold') }}**</code>
+                                <code>//{{ __('admin.forms.fmt_italic') }}//</code>
+                                <code>[{{ __('admin.forms.fmt_link_text') }}](/privacy)</code>
+                                <code>{#c62828|{{ __('admin.forms.fmt_color') }}}</code>
+                            </p>
 
                             <p class="fm-field-hint" x-show="field.name" x-cloak>
                                 {{ __('admin.forms.field_name_is') }} <code x-text="field.name"></code>
@@ -465,6 +520,15 @@
                 <h3 class="fm-h3">{{ __('admin.forms.h4') }}</h3>
                 <p class="fm-p">{{ __('admin.forms.h4_text') }}</p>
             </div>
+
+            <div class="md:col-span-2">
+                <h3 class="fm-h3">{{ __('admin.forms.h5') }}</h3>
+                <p class="fm-p">{{ __('admin.forms.h5_text') }}</p>
+                <pre class="fm-pre"><code>Согласен с [политикой конфиденциальности](/privacy)
+Пишите на [почту](mailto:mail@example.com) или [позвоните](tel:+79000000000)
+**Важно:** приложите //скан// договора
+Поле {#c62828|обязательно} к заполнению</code></pre>
+            </div>
         </div>
     </section>
 </div>
@@ -561,6 +625,24 @@
 
     .fm-body { padding:10px; border-top:1px solid #eceef3; background:#fafbfc }
     .fm-field-hint { margin-top:8px; font-size:.7rem; color:#9ca3af }
+
+    /* Пояснение к типу поля. */
+    .fm-type-desc { display:flex; align-items:flex-start; gap:6px; margin:0 0 10px; padding:7px 9px;
+                    font-size:.75rem; line-height:1.45; color:#3730a3; background:#eef2ff }
+
+    /* Набор иконок. Сетка, а не список: тридцать кнопок в строку не влезут. */
+    .fm-icons { display:grid; grid-template-columns:repeat(auto-fill, minmax(30px, 1fr)); gap:4px;
+                max-height:9rem; overflow-y:auto; padding:5px; border:1px solid #e5e7eb; background:#fff }
+    .fm-ico-btn { display:inline-flex; align-items:center; justify-content:center; height:28px;
+                  font-size:12px; color:#6b7280; background:#fff; border:1px solid #eceef3; cursor:pointer;
+                  transition:border-color .15s ease, color .15s ease }
+    .fm-ico-btn:hover { color:#4338ca; border-color:#c7cbf5 }
+    .fm-ico-btn.is-on { color:#fff; background:#4f46e5; border-color:#4f46e5 }
+
+    /* Памятка по оформлению подписи. */
+    .fm-fmt { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:10px 0 0;
+              font-size:.72rem; color:#6b7280 }
+    .fm-fmt code { padding:2px 6px; color:#4b5563; background:#f3f4f6 }
     .fm-field-hint code { padding:1px 5px; color:#4b5563; background:#eceef3 }
 
     .fm-options { display:flex; flex-direction:column; gap:5px; margin-top:5px }
@@ -700,12 +782,12 @@
                 var form = JSON.parse(JSON.stringify(source));
 
                 form.fields = (form.fields || []).map((field) => Object.assign({
-                    placeholder: '', hint: '', value: '', required: false, width: 'full', options: []
+                    icon: '', placeholder: '', hint: '', value: '', required: false, width: 'full', options: []
                 }, field, { uid: this.uid() }));
 
                 form.settings = Object.assign({
                     submit_label: '', success_message: '', note: '',
-                    notify_email: '', redirect_url: '', captcha: '',
+                    notify_email: '', redirect_url: '', captcha: '', icon: '',
                     columns: true, show_title: true
                 }, form.settings || {});
 
@@ -716,8 +798,27 @@
                 return 'f' + Math.random().toString(36).slice(2, 9);
             },
 
+            /**
+             * Набор иконок. Ограниченный список, а не поле ввода: имя класса
+             * уходит прямо в атрибут, и произвольная строка там ни к чему.
+             * Взяты те, что реально нужны формам, — контакты, документы,
+             * заказы, время.
+             */
+            icons: [
+                'fa-user', 'fa-at', 'fa-phone', 'fa-mobile-screen', 'fa-comment', 'fa-comments',
+                'fa-envelope', 'fa-building', 'fa-briefcase', 'fa-id-card', 'fa-file-lines',
+                'fa-paperclip', 'fa-calendar-days', 'fa-clock', 'fa-location-dot', 'fa-map',
+                'fa-cart-shopping', 'fa-tag', 'fa-ruble-sign', 'fa-truck', 'fa-star',
+                'fa-circle-question', 'fa-circle-info', 'fa-shield-halved', 'fa-lock',
+                'fa-heart', 'fa-wrench', 'fa-stethoscope', 'fa-graduation-cap', 'fa-gift'
+            ],
+
             titleOf(type) {
                 return this.meta[type] ? this.meta[type].title : type;
+            },
+
+            descOf(type) {
+                return this.meta[type] ? this.meta[type].desc : '';
             },
 
             iconOf(type) {
@@ -738,7 +839,7 @@
              */
             addField(type) {
                 var field = {
-                    uid: this.uid(), type: type, name: '', label: '',
+                    uid: this.uid(), type: type, name: '', label: '', icon: '',
                     placeholder: '', hint: '', value: '', required: false, width: 'full',
                     options: this.hasOptions(type) ? [@js(__('admin.forms.option_example')) + ' 1', @js(__('admin.forms.option_example')) + ' 2'] : []
                 };
@@ -820,7 +921,7 @@
             applyStarter(starter) {
                 this.form.title = this.form.title || starter.title;
                 this.form.fields = starter.fields.map((field) => Object.assign({
-                    placeholder: '', hint: '', value: '', required: false, width: 'full', options: []
+                    icon: '', placeholder: '', hint: '', value: '', required: false, width: 'full', options: []
                 }, field, { uid: this.uid() }));
             },
 

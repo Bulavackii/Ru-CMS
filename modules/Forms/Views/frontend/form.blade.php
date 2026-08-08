@@ -21,11 +21,17 @@
 
 <div class="rf" id="{{ $anchor }}">
     @if($form->title && $form->setting('show_title', true))
-        <h3 class="rf-title">{{ $form->title }}</h3>
+        <h3 class="rf-title">
+            @if($form->icon())<i class="{{ $form->icon() }} rf-title-ico" aria-hidden="true"></i>@endif
+            {{ $form->title }}
+        </h3>
     @endif
 
     @if($form->description)
-        <p class="rf-desc">{{ $form->description }}</p>
+        {{-- Описание и подписи полей поддерживают простое оформление: жирный,
+             курсив, цвет и ссылку. Текст сначала экранируется целиком, и
+             только потом в него вносится разметка — см. FormService::format. --}}
+        <p class="rf-desc">{!! \Modules\Forms\Services\FormService::format($form->description) !!}</p>
     @endif
 
     @if($sent)
@@ -66,6 +72,9 @@
         @foreach($fields as $field)
             @php
                 $id    = $anchor . '-' . $field['name'];
+                // Подпись с оформлением и иконкой — собирается один раз на поле.
+                $label = \Modules\Forms\Services\FormService::format($field['label']);
+                $ico   = $field['icon'] ? '<i class="' . $field['icon'] . ' rf-ico" aria-hidden="true"></i> ' : '';
                 $value = data_get($old, $field['name'], $field['value']);
                 $wide  = $field['width'] === 'full' || ! $columns;
             @endphp
@@ -73,11 +82,11 @@
             <div class="rf-row {{ $wide ? 'is-wide' : '' }}">
                 @switch($field['type'])
                     @case('heading')
-                        <h4 class="rf-h">{{ $field['label'] }}</h4>
+                        <h4 class="rf-h">{!! $ico !!}{!! $label !!}</h4>
                         @break
 
                     @case('paragraph')
-                        <p class="rf-p">{{ $field['label'] }}</p>
+                        <p class="rf-p">{!! $ico !!}{!! $label !!}</p>
                         @break
 
                     @case('hidden')
@@ -86,7 +95,7 @@
 
                     @case('textarea')
                         <label class="rf-label" for="{{ $id }}">
-                            {{ $field['label'] }}@if($field['required'])<span class="rf-req">*</span>@endif
+{!! $ico !!}{!! $label !!}@if($field['required'])<span class="rf-req">*</span>@endif
                         </label>
                         <textarea id="{{ $id }}" name="fields[{{ $field['name'] }}]" rows="5"
                                   class="rf-input" placeholder="{{ $field['placeholder'] }}"
@@ -95,7 +104,7 @@
 
                     @case('select')
                         <label class="rf-label" for="{{ $id }}">
-                            {{ $field['label'] }}@if($field['required'])<span class="rf-req">*</span>@endif
+{!! $ico !!}{!! $label !!}@if($field['required'])<span class="rf-req">*</span>@endif
                         </label>
                         <select id="{{ $id }}" name="fields[{{ $field['name'] }}]" class="rf-input"
                                 @if($field['required']) required @endif>
@@ -108,7 +117,7 @@
 
                     @case('radio')
                         <span class="rf-label">
-                            {{ $field['label'] }}@if($field['required'])<span class="rf-req">*</span>@endif
+{!! $ico !!}{!! $label !!}@if($field['required'])<span class="rf-req">*</span>@endif
                         </span>
                         <div class="rf-choices">
                             @foreach($field['options'] as $index => $option)
@@ -124,7 +133,7 @@
 
                     @case('checkboxes')
                         <span class="rf-label">
-                            {{ $field['label'] }}@if($field['required'])<span class="rf-req">*</span>@endif
+{!! $ico !!}{!! $label !!}@if($field['required'])<span class="rf-req">*</span>@endif
                         </span>
                         <div class="rf-choices">
                             @foreach($field['options'] as $index => $option)
@@ -143,17 +152,17 @@
                         <label class="rf-choice rf-consent" for="{{ $id }}">
                             <input type="checkbox" id="{{ $id }}" name="fields[{{ $field['name'] }}]" value="1"
                                    @checked((bool) $value) @if($field['required']) required @endif>
-                            {{-- Текст согласия задаётся владельцем и может
-                                 содержать ссылку на политику — выводим разметку.
-                                 Источник доверенный: поле правит администратор
-                                 в панели, посетитель сюда ничего не пишет. --}}
-                            <span>{!! $field['label'] !!}@if($field['required'])<span class="rf-req">*</span>@endif</span>
+                            {{-- Текст согласия почти всегда содержит ссылку на
+                                 политику — она пишется как [текст](/privacy) и
+                                 разворачивается форматтером. Сырой HTML сюда
+                                 больше не попадает: он экранируется. --}}
+                            <span>{!! $ico !!}{!! $label !!}@if($field['required'])<span class="rf-req">*</span>@endif</span>
                         </label>
                         @break
 
                     @case('file')
                         <label class="rf-label" for="{{ $id }}">
-                            {{ $field['label'] }}@if($field['required'])<span class="rf-req">*</span>@endif
+{!! $ico !!}{!! $label !!}@if($field['required'])<span class="rf-req">*</span>@endif
                         </label>
                         <input type="file" id="{{ $id }}" name="fields[{{ $field['name'] }}]" class="rf-input rf-file"
                                @if($field['required']) required @endif>
@@ -161,7 +170,7 @@
 
                     @default
                         <label class="rf-label" for="{{ $id }}">
-                            {{ $field['label'] }}@if($field['required'])<span class="rf-req">*</span>@endif
+{!! $ico !!}{!! $label !!}@if($field['required'])<span class="rf-req">*</span>@endif
                         </label>
                         <input type="{{ $field['type'] }}" id="{{ $id }}" name="fields[{{ $field['name'] }}]"
                                class="rf-input" value="{{ $value }}" placeholder="{{ $field['placeholder'] }}"
@@ -169,7 +178,7 @@
                 @endswitch
 
                 @if($field['hint'] && ! in_array($field['type'], ['heading', 'paragraph', 'hidden'], true))
-                    <small class="rf-hint">{{ $field['hint'] }}</small>
+                    <small class="rf-hint">{!! \Modules\Forms\Services\FormService::format($field['hint']) !!}</small>
                 @endif
             </div>
         @endforeach

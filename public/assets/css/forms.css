@@ -74,6 +74,29 @@
     color: #dc2626;
 }
 
+/* Иконка перед подписью поля и перед названием формы. */
+.rf-ico {
+    margin-right: 5px;
+    color: var(--rf-accent);
+    font-size: .92em;
+}
+
+.rf-title-ico {
+    margin-right: 8px;
+    color: var(--rf-accent);
+}
+
+/* Ссылка внутри подписи: «согласен с [политикой](/privacy)». */
+.rf-a {
+    color: var(--rf-accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.rf-a:hover {
+    text-decoration-thickness: 2px;
+}
+
 .rf-hint {
     color: var(--rf-muted);
     font-size: .78rem;

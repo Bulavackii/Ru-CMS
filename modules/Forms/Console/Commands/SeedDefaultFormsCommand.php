@@ -32,13 +32,14 @@ class SeedDefaultFormsCommand extends Command
                 'description' => 'Напишите нам — ответим на почту, которую вы укажете.',
                 'fields'      => [
                     ['type' => 'text',     'name' => 'name',    'label' => 'Как к вам обращаться', 'required' => true,  'width' => 'half'],
-                    ['type' => 'email',    'name' => 'email',   'label' => 'Электронная почта',    'required' => true,  'width' => 'half',
+                    ['type' => 'email',    'name' => 'email',   'label' => 'Электронная почта',    'required' => true,  'width' => 'half', 'icon' => 'fas fa-at',
                      'hint' => 'На неё придёт ответ'],
                     ['type' => 'text',     'name' => 'subject', 'label' => 'Тема',                 'required' => false, 'width' => 'full'],
                     ['type' => 'textarea', 'name' => 'message', 'label' => 'Сообщение',            'required' => true,  'width' => 'full'],
-                    ['type' => 'consent',  'name' => 'consent', 'label' => 'Согласен на обработку персональных данных', 'required' => true, 'width' => 'full'],
+                    ['type' => 'consent',  'name' => 'consent', 'label' => 'Согласен на обработку персональных данных и с [политикой конфиденциальности](/privacy)', 'required' => true, 'width' => 'full', 'icon' => 'fas fa-shield-halved'],
                 ],
                 'settings'    => [
+                    'icon'            => 'fas fa-envelope',
                     'submit_label'    => 'Отправить',
                     'success_message' => 'Спасибо! Сообщение получено, мы ответим на указанную почту.',
                     'columns'         => true,
@@ -50,17 +51,18 @@ class SeedDefaultFormsCommand extends Command
                 'slug'        => 'zayavka',
                 'description' => 'Оставьте контакты — перезвоним и уточним детали.',
                 'fields'      => [
-                    ['type' => 'text',   'name' => 'name',    'label' => 'Имя',     'required' => true, 'width' => 'half'],
-                    ['type' => 'tel',    'name' => 'phone',   'label' => 'Телефон', 'required' => true, 'width' => 'half',
+                    ['type' => 'text',   'name' => 'name',    'label' => 'Имя',     'required' => true, 'width' => 'half', 'icon' => 'fas fa-user'],
+                    ['type' => 'tel',    'name' => 'phone',   'label' => 'Телефон', 'required' => true, 'width' => 'half', 'icon' => 'fas fa-phone',
                      'placeholder' => '+7 900 000-00-00'],
                     ['type' => 'select', 'name' => 'service', 'label' => 'Услуга',  'required' => true, 'width' => 'half',
                      'options' => ['Консультация', 'Расчёт стоимости', 'Выезд специалиста', 'Другое']],
                     ['type' => 'select', 'name' => 'contact_time', 'label' => 'Когда удобно позвонить', 'required' => false, 'width' => 'half',
                      'options' => ['В любое время', 'Утром', 'Днём', 'Вечером']],
                     ['type' => 'textarea', 'name' => 'comment', 'label' => 'Комментарий', 'required' => false, 'width' => 'full'],
-                    ['type' => 'consent',  'name' => 'consent', 'label' => 'Согласен на обработку персональных данных', 'required' => true, 'width' => 'full'],
+                    ['type' => 'consent',  'name' => 'consent', 'label' => 'Согласен на обработку персональных данных и с [политикой конфиденциальности](/privacy)', 'required' => true, 'width' => 'full', 'icon' => 'fas fa-shield-halved'],
                 ],
                 'settings'    => [
+                    'icon'            => 'fas fa-file-lines',
                     'submit_label'    => 'Оставить заявку',
                     'success_message' => 'Заявка принята. Мы свяжемся с вами в ближайшее время.',
                     'note'            => 'Нажимая кнопку, вы соглашаетесь с политикой конфиденциальности.',
@@ -80,9 +82,10 @@ class SeedDefaultFormsCommand extends Command
                     ['type' => 'date',  'name' => 'day',   'label' => 'Дата',    'required' => true, 'width' => 'half'],
                     ['type' => 'time',  'name' => 'time',  'label' => 'Время',   'required' => false, 'width' => 'half'],
                     ['type' => 'textarea', 'name' => 'complaint', 'label' => 'Что беспокоит', 'required' => false, 'width' => 'full'],
-                    ['type' => 'consent',  'name' => 'consent', 'label' => 'Согласен на обработку персональных данных', 'required' => true, 'width' => 'full'],
+                    ['type' => 'consent',  'name' => 'consent', 'label' => 'Согласен на обработку персональных данных и с [политикой конфиденциальности](/privacy)', 'required' => true, 'width' => 'full', 'icon' => 'fas fa-shield-halved'],
                 ],
                 'settings'    => [
+                    'icon'            => 'fas fa-calendar-days',
                     'submit_label'    => 'Записаться',
                     'success_message' => 'Запись принята. Администратор перезвонит для подтверждения.',
                     'columns'         => true,
@@ -142,6 +145,7 @@ class SeedDefaultFormsCommand extends Command
     private static function normalize(array $fields): array
     {
         return array_map(fn (array $field) => $field + [
+            'icon'        => '',
             'placeholder' => '',
             'hint'        => '',
             'value'       => '',
