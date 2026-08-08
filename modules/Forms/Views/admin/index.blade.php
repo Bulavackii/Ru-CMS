@@ -185,7 +185,8 @@
                             <input type="text" class="fm-inline"
                                    :name="'fields[' + index + '][label]'"
                                    x-model="field.label" maxlength="255"
-                                   :placeholder="titleOf(field.type)">
+                                   :placeholder="titleOf(field.type)"
+                                   @focus="picked = field.uid">
 
                             <input type="hidden" :name="'fields[' + index + '][type]'" :value="field.type">
                             <input type="hidden" :name="'fields[' + index + '][name]'" :value="field.name">
@@ -217,6 +218,27 @@
 
                         {{-- Раскрытые настройки поля --}}
                         <div class="fm-body" x-show="opened === field.uid" x-cloak @click.stop>
+                            {{-- Кнопки вставляют разметку в подпись или в пояснение —
+                                 в то поле, где последний раз стоял курсор. Раньше
+                                 здесь был список примеров текстом, и он повторял то,
+                                 что и так написано в пояснении к типу. Показывать
+                                 приём и объяснять его словами дважды — лишнее. --}}
+                            <div class="fm-fmt-bar">
+                                <span class="fm-fmt-label">{{ __('admin.forms.fmt_title') }}</span>
+                                <button type="button" class="fm-fmt-btn" @mousedown.prevent
+                                        @click="wrap($el, '**', '**', @js(__('admin.forms.fmt_bold')))"
+                                        :title="@js(__('admin.forms.fmt_bold'))"><b>Ж</b></button>
+                                <button type="button" class="fm-fmt-btn" @mousedown.prevent
+                                        @click="wrap($el, '//', '//', @js(__('admin.forms.fmt_italic')))"
+                                        :title="@js(__('admin.forms.fmt_italic'))"><i>К</i></button>
+                                <button type="button" class="fm-fmt-btn" @mousedown.prevent
+                                        @click="insertLink($el)"
+                                        :title="@js(__('admin.forms.fmt_link_title'))"><i class="fas fa-link"></i></button>
+                                <button type="button" class="fm-fmt-btn" @mousedown.prevent
+                                        @click="wrap($el, '{#c62828|', '}', @js(__('admin.forms.fmt_color')))"
+                                        :title="@js(__('admin.forms.fmt_color'))"><i class="fas fa-palette"></i></button>
+                            </div>
+
                             {{-- Что этот тип вообще делает. Без пояснения «Ссылка»
                                  читается как кликабельное слово, хотя это поле
                                  ВВОДА адреса. --}}
@@ -247,13 +269,17 @@
                                 <label class="fm-field" x-show="!isDecorative(field.type) && field.type !== 'hidden'">
                                     <span class="fm-label">{{ __('admin.forms.f_placeholder') }}</span>
                                     <input type="text" :name="'fields[' + index + '][placeholder]'"
-                                           x-model="field.placeholder" maxlength="255" class="fm-input">
+                                           x-model="field.placeholder" maxlength="255" class="fm-input"
+                                           placeholder="{{ __('admin.forms.f_placeholder_ph') }}">
+                                    <small class="fm-hint">{{ __('admin.forms.f_placeholder_hint') }}</small>
                                 </label>
 
                                 <label class="fm-field" x-show="!isDecorative(field.type)">
                                     <span class="fm-label">{{ __('admin.forms.f_hint') }}</span>
                                     <input type="text" :name="'fields[' + index + '][hint]'"
-                                           x-model="field.hint" maxlength="255" class="fm-input">
+                                           x-model="field.hint" maxlength="255" class="fm-input"
+                                           placeholder="{{ __('admin.forms.f_hint_ph') }}">
+                                    <small class="fm-hint">{{ __('admin.forms.f_hint_hint') }}</small>
                                 </label>
 
                                 <label class="fm-field" x-show="field.type === 'hidden'" x-cloak>
@@ -334,14 +360,6 @@
                                 </span>
                                 <span>{{ __('admin.forms.f_required') }}</span>
                             </label>
-
-                            <p class="fm-fmt">
-                                <b>{{ __('admin.forms.fmt_title') }}</b>
-                                <code>**{{ __('admin.forms.fmt_bold') }}**</code>
-                                <code>//{{ __('admin.forms.fmt_italic') }}//</code>
-                                <code>[{{ __('admin.forms.fmt_link_text') }}](/privacy)</code>
-                                <code>{#c62828|{{ __('admin.forms.fmt_color') }}}</code>
-                            </p>
 
                             <p class="fm-field-hint" x-show="field.name" x-cloak>
                                 {{ __('admin.forms.field_name_is') }} <code x-text="field.name"></code>
@@ -720,10 +738,17 @@
     .fm-switches { display:grid; gap:6px; margin-top:10px }
     @media (min-width:640px) { .fm-switches { grid-template-columns:repeat(3, minmax(0,1fr)) } }
 
-    /* Памятка по оформлению подписи. */
-    .fm-fmt { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:10px 0 0;
-              font-size:.72rem; color:#6b7280 }
-    .fm-fmt code { padding:2px 6px; color:#4b5563; background:#f3f4f6 }
+    /* Панель оформления подписи: кнопки, а не список примеров текстом.
+       Текстовая памятка объясняла ровно то же, что пояснение к типу поля, —
+       одно и то же двумя способами. Кнопка показывает приём делом. */
+    .fm-fmt-bar { display:flex; flex-wrap:wrap; align-items:center; gap:5px; margin-bottom:10px;
+                  padding:6px 8px; background:#fff; border:1px solid #eceef3 }
+    .fm-fmt-label { margin-right:2px; font-size:.7rem; font-weight:700; text-transform:uppercase;
+                    letter-spacing:.04em; color:#9ca3af }
+    .fm-fmt-btn { display:inline-flex; align-items:center; justify-content:center; width:28px; height:26px;
+                  font-size:12px; color:#4b5563; background:#fff; border:1px solid #e5e7eb; cursor:pointer;
+                  transition:border-color .15s ease, color .15s ease }
+    .fm-fmt-btn:hover { color:#4338ca; border-color:#c7cbf5 }
     .fm-field-hint code { padding:1px 5px; color:#4b5563; background:#eceef3 }
 
     .fm-options { display:flex; flex-direction:column; gap:5px; margin-top:5px }
@@ -898,6 +923,68 @@
                 'fa-circle-question', 'fa-circle-info', 'fa-shield-halved', 'fa-lock',
                 'fa-heart', 'fa-wrench', 'fa-stethoscope', 'fa-graduation-cap', 'fa-gift'
             ],
+
+            /**
+             * Поле, куда вставлять разметку.
+             *
+             * Ищем в DOM, а не храним ссылку в состоянии: Alpine оборачивает
+             * реактивные значения в Proxy, и DOM-узел, положенный туда,
+             * перестаёт быть самим собой — сравнение с живым элементом даёт
+             * false, а обращение к selectionStart работает не так, как ждёшь.
+             *
+             * Кнопки гасят mousedown, поэтому фокус остаётся на поле и его
+             * видно через activeElement. Если фокуса нет — берём подпись
+             * карточки: чаще всего оформляют именно её.
+             */
+            fmtInput(button) {
+                var card = button.closest('.fm-item');
+
+                if (!card) {
+                    return null;
+                }
+
+                var active = document.activeElement;
+
+                if (active && card.contains(active) && typeof active.selectionStart === 'number') {
+                    return active;
+                }
+
+                return card.querySelector('.fm-inline');
+            },
+
+            /** Обернуть выделенное (или подставить пример, если ничего не выделено). */
+            wrap(button, before, after, sample) {
+                var input = this.fmtInput(button);
+
+                if (!input) {
+                    return;
+                }
+
+                var start = input.selectionStart;
+                var end = input.selectionEnd;
+                var value = input.value;
+                var chosen = value.slice(start, end) || sample;
+
+                input.value = value.slice(0, start) + before + chosen + after + value.slice(end);
+
+                // Alpine следит за x-model, а программная правка value события
+                // не порождает — отправляем его сами, иначе изменение не
+                // доедет ни до сборки, ни до превью.
+                input.dispatchEvent(new Event('input'));
+                input.focus();
+                input.setSelectionRange(start + before.length, start + before.length + chosen.length);
+            },
+
+            /** Ссылка: адрес спрашиваем, текст берём из выделения. */
+            insertLink(button) {
+                var href = window.prompt(@js(__('admin.forms.fmt_link_prompt')), '/privacy');
+
+                if (!href) {
+                    return;
+                }
+
+                this.wrap(button, '[', '](' + href.trim() + ')', @js(__('admin.forms.fmt_link_text')));
+            },
 
             titleOf(type) {
                 return this.meta[type] ? this.meta[type].title : type;
