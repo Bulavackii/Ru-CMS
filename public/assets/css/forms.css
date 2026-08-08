@@ -1,0 +1,285 @@
+/*
+ * Оформление форм на сайте.
+ *
+ * Литеральный CSS, а не Tailwind-утилиты: сборка tailwind.min.css в проекте
+ * неполная (нет opacity-модификаторов, произвольных значений и половины
+ * цветов v3), а форма вставляется в произвольный материал, где на классы
+ * рассчитывать нельзя. Акцент берётся из переменной --accent, если тема её
+ * задала, иначе — фирменный индиго.
+ */
+
+.rf {
+    --rf-accent: var(--accent, #6366f1);
+    --rf-border: #d8dbe4;
+    --rf-text: #1f2430;
+    --rf-muted: #6b7280;
+    --rf-bg: #ffffff;
+
+    margin: 28px 0;
+    color: var(--rf-text);
+}
+
+.rf-title {
+    margin: 0 0 6px;
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.rf-desc {
+    margin: 0 0 18px;
+    color: var(--rf-muted);
+    font-size: .95rem;
+    line-height: 1.55;
+}
+
+/* ── Сетка полей ─────────────────────────────────────────────────── */
+
+.rf-form {
+    display: grid;
+    gap: 14px 16px;
+}
+
+/* Две колонки только там, где для них есть место. Полполя шириной 160px
+   читаются хуже, чем поле на всю строку. */
+.rf-form.is-grid {
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+    .rf-form.is-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.rf-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.rf-form.is-grid .rf-row.is-wide {
+    grid-column: 1 / -1;
+}
+
+.rf-label {
+    font-size: .86rem;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.rf-req {
+    margin-left: 3px;
+    color: #dc2626;
+}
+
+.rf-hint {
+    color: var(--rf-muted);
+    font-size: .78rem;
+    line-height: 1.45;
+}
+
+.rf-h {
+    margin: 10px 0 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.rf-p {
+    margin: 0;
+    color: var(--rf-muted);
+    font-size: .9rem;
+    line-height: 1.55;
+}
+
+/* ── Поля ────────────────────────────────────────────────────────── */
+
+.rf-input {
+    width: 100%;
+    padding: 10px 12px;
+    font: inherit;
+    font-size: .92rem;
+    color: var(--rf-text);
+    background: var(--rf-bg);
+    border: 1px solid var(--rf-border);
+    border-radius: 8px;
+    outline: none;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.rf-input:focus {
+    border-color: var(--rf-accent);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, .18);
+}
+
+.rf-input::placeholder {
+    color: #9aa1ae;
+}
+
+textarea.rf-input {
+    resize: vertical;
+    min-height: 110px;
+    line-height: 1.55;
+}
+
+.rf-file {
+    padding: 8px 10px;
+    font-size: .85rem;
+}
+
+/* ── Флажки и переключатели ──────────────────────────────────────── */
+
+.rf-choices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+}
+
+.rf-choice {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: .9rem;
+    line-height: 1.45;
+    cursor: pointer;
+}
+
+.rf-choice input {
+    margin-top: 2px;
+    width: 16px;
+    height: 16px;
+    accent-color: var(--rf-accent);
+    flex: 0 0 auto;
+}
+
+.rf-consent {
+    font-size: .84rem;
+    color: var(--rf-muted);
+}
+
+.rf-consent a {
+    color: var(--rf-accent);
+    text-decoration: underline;
+}
+
+/* ── Кнопка ──────────────────────────────────────────────────────── */
+
+.rf-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-top: 4px;
+}
+
+.rf-btn {
+    padding: 11px 26px;
+    font: inherit;
+    font-size: .92rem;
+    font-weight: 600;
+    color: #fff;
+    background: var(--rf-accent);
+    border: 0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: filter .15s ease, transform .05s ease;
+}
+
+.rf-btn:hover {
+    filter: brightness(1.08);
+}
+
+.rf-btn:active {
+    transform: translateY(1px);
+}
+
+.rf-btn[disabled] {
+    opacity: .6;
+    cursor: progress;
+}
+
+.rf-note {
+    color: var(--rf-muted);
+    font-size: .78rem;
+    line-height: 1.45;
+}
+
+/* ── Сообщения ───────────────────────────────────────────────────── */
+
+.rf-done,
+.rf-fail {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: .9rem;
+    line-height: 1.5;
+}
+
+.rf-done {
+    color: #14532d;
+    background: #dcfce7;
+    border: 1px solid #86efac;
+    align-items: center;
+}
+
+.rf-done-ico {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #16a34a;
+    color: #fff;
+    font-size: .8rem;
+    flex: 0 0 auto;
+}
+
+.rf-fail {
+    flex-direction: column;
+    color: #7f1d1d;
+    background: #fee2e2;
+    border: 1px solid #fca5a5;
+}
+
+.rf-fail ul {
+    margin: 6px 0 0;
+    padding-left: 18px;
+}
+
+/* Ловушка для ботов. Не display:none: часть простых скриптов пропускает
+   скрытые поля, а так поле остаётся в разметке и доступно им, но человек
+   его не видит и не попадает в него табуляцией. */
+.rf-trap {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+/* ── Тёмное оформление ───────────────────────────────────────────── */
+
+@media (prefers-color-scheme: dark) {
+    .rf {
+        --rf-border: #3a4152;
+        --rf-text: #e6e8ee;
+        --rf-muted: #9aa3b2;
+        --rf-bg: #171b24;
+    }
+
+    .rf-done {
+        color: #bbf7d0;
+        background: #14321f;
+        border-color: #166534;
+    }
+
+    .rf-fail {
+        color: #fecaca;
+        background: #3a1717;
+        border-color: #7f1d1d;
+    }
+}

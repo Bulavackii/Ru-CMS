@@ -542,6 +542,60 @@
         }
     });
 
+    /* ── Формы: вставка готовой формы ────────────────────────────────── */
+
+    /**
+     * Устроена так же, как выбор сборки каптчи: обычная кнопка панели, а не
+     * отдельный список под полем содержимого. Кнопка знает, где стоит курсор,
+     * и вставляет шорткод именно туда.
+     *
+     * Пустой список ничего не объясняет — вместо него пункт со ссылкой в
+     * конструктор.
+     */
+    RuEditor.registerButton('forms', {
+        type: 'menu',
+        icon: 'fas fa-list-check',
+        title: 'Формы',
+        items: function (editor) {
+            var forms = editor.options.forms || [];
+
+            if (!forms.length) {
+                return [{
+                    label: t('forms.none', 'Форм пока нет'),
+                    hint: t('forms.build', 'собрать'),
+                    action: function () {
+                        if (editor.options.formsUrl) {
+                            window.open(editor.options.formsUrl, '_blank');
+                        }
+                    }
+                }];
+            }
+
+            var items = [{ head: t('forms.pick', 'Вставить форму') }];
+
+            forms.forEach(function (form) {
+                items.push({
+                    label: form.title,
+                    action: function (ed) {
+                        ed.exec('insertShortcode', 'form slug="' + form.slug + '"');
+                    }
+                });
+            });
+
+            if (editor.options.formsUrl) {
+                items.push({
+                    label: t('forms.manage', 'Конструктор форм'),
+                    icon: 'fas fa-arrow-up-right-from-square',
+                    action: function () {
+                        window.open(editor.options.formsUrl, '_blank');
+                    }
+                });
+            }
+
+            return items;
+        }
+    });
+
     /**
      * Шорткод показывается плашкой, а хранится текстом. Плашка нужна, чтобы
      * автор видел вставку и мог её удалить одним нажатием: обычный текст

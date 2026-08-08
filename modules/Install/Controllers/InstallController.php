@@ -622,6 +622,7 @@ class InstallController extends Controller
             $this->seedDefaultFiles();
             $this->seedDefaultNotification();
             $this->seedDefaultThemes();
+            $this->seedDefaultForms();
             $this->seedDefaultFragments();
             // Категории — последними из содержимого: команда не только заводит
             // набор, но и раскладывает по нему уже созданные новости, страницы
@@ -1444,6 +1445,16 @@ class InstallController extends Controller
      * (в панели они прямо на это указывают). Любой выключается переключателем
      * в разделе. Единый источник — команда модуля (`fragments:seed-default`).
      */
+    /**
+     * Формы по умолчанию.
+     *
+     * Единый источник — команда модуля (`php artisan forms:seed-default`).
+     */
+    private function seedDefaultForms(): void
+    {
+        \Modules\Forms\Console\Commands\SeedDefaultFormsCommand::seed(false);
+    }
+
     /**
      * Категории по умолчанию и раскладка по ним материалов.
      *

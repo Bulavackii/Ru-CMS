@@ -1,0 +1,11 @@
+{
+  "name": "Forms",
+  "title": "📝 Формы",
+  "version": "1.0.0",
+  "active": true,
+  "priority": 75,
+  "description": "Визуальный конструктор форм: сборка мышью, вставка шорткодом, приём и хранение заявок",
+  "providers": [
+    "Modules\\Forms\\Providers\\FormsServiceProvider"
+  ]
+}

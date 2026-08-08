@@ -201,6 +201,10 @@ class ModuleServiceProvider extends ServiceProvider
             // и вели в неиспользуемый контроллер ядра — отвечал тот, кто
             // зарегистрировался последним. Дубли убраны, модуль в списке.
             'Files' => ['routes' => true, 'views' => true],
+            // Формы нужны и на сайте (шорткод в материале раскрывается
+            // при выводе, а приём заявок — публичный маршрут), и в
+            // редакторе материалов, где предлагается список готовых форм.
+            'Forms' => ['routes' => true, 'views' => true],
             'Search' => ['routes' => true, 'views' => true],
             'Categories' => ['views' => true],
             'News' => ['views' => true],

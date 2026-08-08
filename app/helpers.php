@@ -480,6 +480,23 @@ if (!function_exists('render_shortcodes')) {
             ) ?? $html;
         }
 
+        // Формы: [form slug="obratnaya-svyaz"]. Несуществующая или выключенная
+        // форма ничего не рисует и не роняет страницу — материал с забытым
+        // шорткодом должен открываться как обычно.
+        if (str_contains($html, '[form')) {
+            $html = preg_replace_callback(
+                '~\[form\s+slug=(["\'])(?<slug>[a-z0-9\-_]+)\1\s*\]~i',
+                function (array $match): string {
+                    if (!function_exists('form_render')) {
+                        return '';
+                    }
+
+                    return (string) form_render($match['slug']);
+                },
+                $html
+            ) ?? $html;
+        }
+
         return $html;
     }
 }

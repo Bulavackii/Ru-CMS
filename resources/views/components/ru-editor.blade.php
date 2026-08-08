@@ -45,18 +45,32 @@
             ])->values()->all()
         : [];
 
+    // Сохранённые формы — тем же приёмом, что и сборки каптчи: один запрос на
+    // страницу, сколько бы редакторов на ней ни было.
+    $formList = \Illuminate\Support\Facades\Route::has('admin.forms.index')
+        && class_exists(\Modules\Forms\Models\Form::class)
+        ? \Modules\Forms\Models\Form::activeList()
+            ->map(fn ($form) => ['slug' => $form->slug, 'title' => $form->title])
+            ->values()->all()
+        : [];
+
     // Наборы кнопок. Полный — для новостей и страниц, где верстают материал
     // целиком; простой — для писем и уведомлений, где сложная разметка только
     // мешает почтовым клиентам.
     $presets = [
-        'full'   => 'undo redo | blocks | fontfamily fontsize | bold italic underline strikethrough | '
+        // Готовые блоки (формы, каптча, блоки оформления) стоят в НАЧАЛЕ, сразу
+        // после отмены: это то, ради чего в редактор заходят чаще всего, а
+        // раньше они были в середине длинной ленты кнопок и терялись между
+        // выравниванием и списками.
+        'full'   => 'undo redo | forms captcha ruBlocks | blocks | fontfamily fontsize | '
+                  . 'bold italic underline strikethrough | '
                   . 'forecolor backcolor | alignleft aligncenter alignright alignjustify | '
                   . 'bullist numlist outdent indent | link unlink | image media audio file table | '
-                  . 'ruBlocks charmap captcha | removeformat | '
+                  . 'charmap | removeformat | '
                   . 'searchreplace visualblocks code preview fullscreen help',
-        'page'   => 'undo redo | blocks | bold italic underline | '
+        'page'   => 'undo redo | forms captcha ruBlocks | blocks | bold italic underline | '
                   . 'alignleft aligncenter alignright | bullist numlist | link unlink | image media audio file table | '
-                  . 'ruBlocks captcha | removeformat | code preview fullscreen',
+                  . 'removeformat | code preview fullscreen',
         'simple' => 'undo redo | bold italic underline | bullist numlist | link unlink | removeformat | code fullscreen',
         'mail'   => 'undo redo | bold italic underline | bullist numlist | link unlink | removeformat | code',
     ];
@@ -90,6 +104,9 @@
         // где стоит курсор, и вставлял шорткод «куда получится».
         'captchaPresets' => $captchaPresets,
         'captchaUrl'     => Route::has('admin.captcha.index') ? route('admin.captcha.index') : null,
+        // Готовые формы: вставляются шорткодом в позицию курсора.
+        'forms'          => $formList,
+        'formsUrl'       => Route::has('admin.forms.index') ? route('admin.forms.index') : null,
     ];
 @endphp
 

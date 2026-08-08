@@ -1299,7 +1299,7 @@
          * перечислен явно, чтобы обычный текст в квадратных скобках («[см.
          * приложение 2]») случайно не превратился в плашку.
          */
-        shortcodes: ['captcha', 'map', 'sitemap'],
+        shortcodes: ['captcha', 'form', 'map', 'sitemap'],
 
         /** Завести редактор на textarea. */
         create: function (target, options) {

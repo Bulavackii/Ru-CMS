@@ -35,6 +35,7 @@ class AdminSections
                 self::link('categories', 'admin.categories.index', 'folder', 'admin.categories.*', module: 'Categories'),
                 self::link('slideshow', 'admin.slideshow.index', 'image', 'admin.slideshow.*', module: 'Slideshow'),
                 self::link('files', 'admin.files.index', 'folder', 'admin.files.*', module: 'Files'),
+                self::link('forms', 'admin.forms.index', 'clipboard', 'admin.forms.*', module: 'Forms'),
                 self::link('newsio', 'admin.newsio.index', 'arrow-up', 'admin.newsio.*', module: 'NewsIO'),
             ],
 
