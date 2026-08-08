@@ -384,6 +384,10 @@
                 return;
             }
 
+            if (alignEmptyBlock(editor, item[4])) {
+                return;
+            }
+
             editor.native(item[1]);
         });
     });
@@ -418,6 +422,107 @@
             box.style.float = 'right';
             box.style.marginLeft = '1rem';
         }
+
+        editor._snapshot();
+        editor.save();
+
+        return true;
+    }
+
+    /**
+     * Новый абзац наследует выравнивание предыдущего.
+     *
+     * Enter в обычном абзаце обрабатывает сам браузер, и выравнивание он
+     * переносит не всегда: у пустого абзаца — почти никогда. Получалось так,
+     * что выравнивание в панели показано справа, а курсор после Enter мигает
+     * слева, и текст снова приходится двигать.
+     *
+     * Свой обработчик Enter писать нельзя — на нём держатся списки, таблицы и
+     * деление текста посередине. Поэтому запоминаем выравнивание ДО нажатия и
+     * дописываем его новому блоку после, если браузер этого не сделал.
+     */
+    RuEditor.registerPlugin('align-inherit', {
+        init: function (editor) {
+            var carried = null;
+
+            var blockOf = function () {
+                return editor.closest('p,h1,h2,h3,h4,h5,h6,blockquote,li,div');
+            };
+
+            editor.doc.addEventListener('keydown', function (event) {
+                if (event.key !== 'Enter' || event.shiftKey) {
+                    carried = null;
+                    return;
+                }
+
+                var block = blockOf();
+
+                carried = block && block !== editor.body
+                    ? (block.style.textAlign || '')
+                    : '';
+            });
+
+            editor.doc.addEventListener('keyup', function (event) {
+                if (event.key !== 'Enter' || !carried) {
+                    return;
+                }
+
+                var block = blockOf();
+
+                // Дописываем, только если браузер НЕ перенёс стиль сам:
+                // перетирать уже выставленное значение незачем.
+                if (block && block !== editor.body && !block.style.textAlign) {
+                    block.style.textAlign = carried;
+                }
+
+                carried = null;
+            });
+        }
+    });
+
+    /**
+     * Выравнивание ПУСТОГО абзаца.
+     *
+     * Браузерная команда на пустом блоке молча ничего не делает: ей нечего
+     * выравнивать, и стиль не появляется вовсе. Для человека это выглядит так,
+     * будто кнопка сломана, и вынуждает сначала набрать текст у левого края, а
+     * потом двигать — хотя во всех редакторах принято наоборот: поставил
+     * выравнивание и печатаешь уже там, где нужно.
+     *
+     * Ставим стиль сами. Пустому блоку вдобавок нужен перенос строки внутри:
+     * без него у него нулевая высота, курсор ставить некуда и он остаётся в
+     * начале строки независимо от выравнивания.
+     */
+    function alignEmptyBlock(editor, mode) {
+        var range = editor.getRange();
+
+        if (!range || !range.collapsed) {
+            return false;
+        }
+
+        var block = editor.closest('p,div,h1,h2,h3,h4,h5,h6,li,blockquote,td,th');
+
+        if (!block || block === editor.body || block.textContent.trim() !== '') {
+            return false;
+        }
+
+        // Картинка или проигрыватель — не пустой блок, хоть текста в нём и нет.
+        if (block.querySelector('img,video,audio,iframe,table,[data-ru-shortcode]')) {
+            return false;
+        }
+
+        if (!block.querySelector('br')) {
+            block.appendChild(editor.doc.createElement('br'));
+        }
+
+        block.style.textAlign = mode || 'justify';
+
+        // Возвращаем курсор в этот же блок: после правки разметки выделение
+        // могло съехать, а человек ждёт, что сразу начнёт печатать.
+        var caret = editor.doc.createRange();
+        caret.setStart(block, 0);
+        caret.collapse(true);
+        editor.setRange(caret);
 
         editor._snapshot();
         editor.save();
