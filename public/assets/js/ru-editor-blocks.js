@@ -456,7 +456,13 @@
 
     RuEditor.registerButton('charmap', {
         type: 'menu',
-        icon: 'fas fa-omega',
+
+        // Знак охраны авторского права, а не «омега». Омега напрашивается по
+        // смыслу, но её нет в бесплатной сборке значков — кнопка оставалась
+        // ПУСТОЙ, и понять, что это спецсимволы, можно было только наведя
+        // указатель. Проверять наличие значка до использования:
+        //   grep -ac "fa-имя:before" public/assets/css/font-awesome/all.min.css
+        icon: 'fas fa-copyright',
         title: 'Спецсимволы',
         render: function (editor, menu) {
             var grid = el('div', {
