@@ -118,6 +118,12 @@ class EditorObjectsTest extends TestCase
         $this->assertStringContainsString('var chosen = editor.selectedMedia;', $js);
         $this->assertStringContainsString("addEventListener('selectionchange'", $js);
         $this->assertStringContainsString('editor.selectedMedia = null;', $js);
+
+        // Щелчок ловится и по обёртке. Проигрыватели мышь не перехватывают, и
+        // щелчок по звуку достаётся коробке, а не тегу: ищи мы только теги —
+        // выбор не ставился бы, а снятие выбора по переезду курсора (строкой
+        // выше) успевало бы сбросить тот, что поставило растягивание.
+        $this->assertStringContainsString("closest(OBJECTS + ',' + BOXES)", $js);
     }
 
     public function test_player_preview_never_reaches_the_database(): void

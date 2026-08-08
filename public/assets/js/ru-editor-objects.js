@@ -495,15 +495,30 @@
     RuEditor.registerPlugin('objects', {
         init: function (editor) {
             editor.doc.addEventListener('click', function (event) {
-                var node = event.target.closest && event.target.closest(OBJECTS);
+                // Щелчок ловим и по самой вставке, и по её обёртке.
+                //
+                // Проигрыватели мышь не перехватывают (в рамке им отключён
+                // приём событий), поэтому щелчок по звуку достаётся коробке, а
+                // не тегу. Ищи мы только теги — выбор бы не ставился, а
+                // выравнивание уходило в соседний абзац: кнопка загоралась, а
+                // полоса стояла на месте.
+                var hit = event.target.closest && event.target.closest(OBJECTS + ',' + BOXES);
 
-                if (!node || !editor.body.contains(node)) {
+                if (!hit || !editor.body.contains(hit)) {
                     return;
                 }
 
-                // Плашка шорткода помечена contenteditable="false", и щелчок
-                // по ней НЕ ставит курсор: выделение остаётся где было. Без
-                // явного выделения кнопкам панели нечего выравнивать.
+                var node = hit.matches(OBJECTS) ? hit : hit.querySelector(OBJECTS);
+
+                if (!node) {
+                    return;
+                }
+
+                // Выделяем сами. Плашка шорткода помечена
+                // contenteditable="false", и щелчок по ней курсор не ставит;
+                // у звука браузер уводит курсор в ближайший текст, и снятие
+                // выбора по переезду курсора (ниже) тут же его сбрасывало бы.
+                // Щелчок случается ПОСЛЕ переезда курсора, поэтому побеждает.
                 editor.selectNode(node);
                 editor.selectedMedia = node;
                 editor._updateState();
