@@ -444,7 +444,10 @@
             ['Ctrl + Z', t('help.undo', 'Отменить')],
             ['Ctrl + Y', t('help.redo', 'Повторить')],
             ['Ctrl + Shift + V', t('help.paste', 'Вставить без оформления')],
-            ['Tab', t('help.tab', 'Следующая ячейка таблицы')],
+            ['Ctrl + S', t('help.save', 'Сохранить материал')],
+            ['Ctrl + Shift + E', t('help.code', 'Правка кода: войти и выйти')],
+            ['F11', t('help.fullscreen', 'Развернуть на высоту экрана')],
+            ['Tab', t('help.tab', 'Следующая ячейка таблицы, отступ в коде')],
             ['Esc', t('help.esc', 'Закрыть список или выйти из полного экрана')]
         ];
 
@@ -623,17 +626,47 @@
                     editor._plainPasteOnce = true;
                 }
 
+                handleGlobal(event);
+            });
+
+            // Те же сочетания — вне рамки редактирования: на панели и в поле
+            // правки кода. Они живут в документе СТРАНИЦЫ, а обработчик выше
+            // висит на документе рамки и туда не достаёт: в режиме кода
+            // сохранение по Ctrl+S уходило браузеру, то есть предлагало
+            // сохранить страницу файлом.
+            editor.root.addEventListener('keydown', handleGlobal);
+
+            function handleGlobal(event) {
+                var mod = event.ctrlKey || event.metaKey;
+
+                if (!mod) {
+                    return;
+                }
+
+                var key = event.key.toLowerCase();
+
                 // Ctrl+S сохраняет материал, а не страницу браузером: рефлекс
                 // у всех один, и терять текст из-за него обидно.
-                if (mod && event.key.toLowerCase() === 's') {
+                if (key === 's' && !event.shiftKey) {
                     event.preventDefault();
                     editor.save();
 
                     if (editor.form) {
                         editor.form.requestSubmit();
                     }
+
+                    return;
                 }
-            });
+
+                // Ctrl+Shift+E — вход в правку кода и выход из неё тем же
+                // сочетанием. Выбрано намеренно: одиночные Ctrl-сочетания
+                // почти все заняты браузером, а это свободно и не отбирает у
+                // него ничего нужного.
+                if (event.shiftKey && key === 'e') {
+                    event.preventDefault();
+                    editor.exec('code');
+                }
+            }
 
             // Панель — одна остановка табуляции, внутри ходим стрелками.
             // Иначе двадцать кнопок пришлось бы перебирать по одной, чтобы
