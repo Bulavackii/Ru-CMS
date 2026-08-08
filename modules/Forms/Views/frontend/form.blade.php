@@ -69,7 +69,7 @@
             </label>
         </div>
 
-        @foreach($fields as $field)
+        @foreach($fields as $index => $field)
             @php
                 $id    = $anchor . '-' . $field['name'];
                 // Подпись с оформлением и иконкой — собирается один раз на поле.
@@ -79,7 +79,11 @@
                 $wide  = $field['width'] === 'full' || ! $columns;
             @endphp
 
-            <div class="rf-row {{ $wide ? 'is-wide' : '' }}">
+            {{-- Номер поля выводится ТОЛЬКО в превью конструктора: по нему
+                 клик открывает карточку этого поля слева. На сайте разметка
+                 остаётся чистой — служебным атрибутам там делать нечего. --}}
+            <div class="rf-row {{ $wide ? 'is-wide' : '' }}"
+                 @if(! empty($options['preview'])) data-fi="{{ $index }}" @endif>
                 @switch($field['type'])
                     @case('heading')
                         <h4 class="rf-h">{!! $ico !!}{!! $label !!}</h4>

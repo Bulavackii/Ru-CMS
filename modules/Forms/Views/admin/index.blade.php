@@ -21,48 +21,66 @@
 
 @section('content')
 @php
-    // Палитра разложена по смыслу: семнадцать одинаковых кнопок подряд —
-    // стена, в которой ничего не найти.
-    $groups = [
-        'basic' => ['label' => __('admin.forms.g_basic'), 'types' => ['text', 'textarea', 'email', 'tel', 'number', 'url']],
-        'pick'  => ['label' => __('admin.forms.g_pick'),  'types' => ['select', 'radio', 'checkboxes', 'checkbox', 'date', 'time']],
-        'extra' => ['label' => __('admin.forms.g_extra'), 'types' => ['consent', 'file', 'heading', 'paragraph', 'hidden']],
+    // Палитра — ВОСЕМЬ видов, а не семнадцать типов. Почта, телефон, число,
+    // ссылка, дата и время — это одна и та же строка с разной проверкой, и
+    // выкладывать их отдельными кнопками значило строить стену, в которой
+    // ничего не найти. Вид выбирается кнопкой, уточнение — списком в карточке.
+    $kinds = [
+        'text'    => ['title' => __('admin.forms.k_text'),    'icon' => 'fa-font',        'desc' => __('admin.forms.k_text_d'),
+                      'variants' => ['text', 'email', 'tel', 'number', 'url', 'date', 'time']],
+        'textarea'=> ['title' => __('admin.forms.k_textarea'),'icon' => 'fa-align-left',  'desc' => __('admin.forms.k_textarea_d'),
+                      'variants' => ['textarea']],
+        'choice'  => ['title' => __('admin.forms.k_choice'),  'icon' => 'fa-list-ul',     'desc' => __('admin.forms.k_choice_d'),
+                      'variants' => ['select', 'radio', 'checkboxes']],
+        'checkbox'=> ['title' => __('admin.forms.k_checkbox'),'icon' => 'fa-square-check','desc' => __('admin.forms.k_checkbox_d'),
+                      'variants' => ['checkbox']],
+        'file'    => ['title' => __('admin.forms.k_file'),    'icon' => 'fa-paperclip',   'desc' => __('admin.forms.k_file_d'),
+                      'variants' => ['file']],
+        'consent' => ['title' => __('admin.forms.k_consent'), 'icon' => 'fa-user-shield', 'desc' => __('admin.forms.k_consent_d'),
+                      'variants' => ['consent']],
+        'heading' => ['title' => __('admin.forms.k_heading'), 'icon' => 'fa-heading',     'desc' => __('admin.forms.k_heading_d'),
+                      'variants' => ['heading', 'paragraph']],
+        'hidden'  => ['title' => __('admin.forms.k_hidden'),  'icon' => 'fa-eye-slash',   'desc' => __('admin.forms.k_hidden_d'),
+                      'variants' => ['hidden']],
     ];
 
-    // У каждого типа есть пояснение: без него «Ссылка» читается как
-    // «кликабельное слово», хотя это ПОЛЕ ВВОДА адреса. Владелец спросил
-    // ровно про это — значит, догадаться по названию нельзя.
-    $meta = [
-        'text'       => ['title' => __('admin.forms.t_text'),       'icon' => 'fa-font', 'desc' => __('admin.forms.d_text')],
-        'textarea'   => ['title' => __('admin.forms.t_textarea'),   'icon' => 'fa-align-left', 'desc' => __('admin.forms.d_textarea')],
-        'email'      => ['title' => __('admin.forms.t_email'),      'icon' => 'fa-at', 'desc' => __('admin.forms.d_email')],
-        'tel'        => ['title' => __('admin.forms.t_tel'),        'icon' => 'fa-phone', 'desc' => __('admin.forms.d_tel')],
-        'number'     => ['title' => __('admin.forms.t_number'),     'icon' => 'fa-hashtag', 'desc' => __('admin.forms.d_number')],
-        'url'        => ['title' => __('admin.forms.t_url'),        'icon' => 'fa-link', 'desc' => __('admin.forms.d_url')],
-        'date'       => ['title' => __('admin.forms.t_date'),       'icon' => 'fa-calendar-days', 'desc' => __('admin.forms.d_date')],
-        'time'       => ['title' => __('admin.forms.t_time'),       'icon' => 'fa-clock', 'desc' => __('admin.forms.d_time')],
-        'select'     => ['title' => __('admin.forms.t_select'),     'icon' => 'fa-caret-down', 'desc' => __('admin.forms.d_select')],
-        'radio'      => ['title' => __('admin.forms.t_radio'),      'icon' => 'fa-circle-dot', 'desc' => __('admin.forms.d_radio')],
-        'checkbox'   => ['title' => __('admin.forms.t_checkbox'),   'icon' => 'fa-square-check', 'desc' => __('admin.forms.d_checkbox')],
-        'checkboxes' => ['title' => __('admin.forms.t_checkboxes'), 'icon' => 'fa-list-check', 'desc' => __('admin.forms.d_checkboxes')],
-        'file'       => ['title' => __('admin.forms.t_file'),       'icon' => 'fa-paperclip', 'desc' => __('admin.forms.d_file')],
-        'hidden'     => ['title' => __('admin.forms.t_hidden'),     'icon' => 'fa-eye-slash', 'desc' => __('admin.forms.d_hidden')],
-        'heading'    => ['title' => __('admin.forms.t_heading'),    'icon' => 'fa-heading', 'desc' => __('admin.forms.d_heading')],
-        'paragraph'  => ['title' => __('admin.forms.t_paragraph'),  'icon' => 'fa-paragraph', 'desc' => __('admin.forms.d_paragraph')],
-        'consent'    => ['title' => __('admin.forms.t_consent'),    'icon' => 'fa-user-shield', 'desc' => __('admin.forms.d_consent')],
+    // Названия уточнений: они же подписи выпадающего списка в карточке.
+    $variants = [
+        'text'       => __('admin.forms.t_text'),
+        'email'      => __('admin.forms.t_email'),
+        'tel'        => __('admin.forms.t_tel'),
+        'number'     => __('admin.forms.t_number'),
+        'url'        => __('admin.forms.t_url'),
+        'date'       => __('admin.forms.t_date'),
+        'time'       => __('admin.forms.t_time'),
+        'textarea'   => __('admin.forms.t_textarea'),
+        'select'     => __('admin.forms.t_select'),
+        'radio'      => __('admin.forms.t_radio'),
+        'checkboxes' => __('admin.forms.t_checkboxes'),
+        'checkbox'   => __('admin.forms.t_checkbox'),
+        'file'       => __('admin.forms.t_file'),
+        'consent'    => __('admin.forms.t_consent'),
+        'heading'    => __('admin.forms.t_heading'),
+        'paragraph'  => __('admin.forms.t_paragraph'),
+        'hidden'     => __('admin.forms.t_hidden'),
     ];
 
-    $palette = [];
-    foreach ($groups as $key => $group) {
-        $palette[] = [
-            'label' => $group['label'],
-            'items' => array_map(fn ($type) => ['type' => $type] + $meta[$type], $group['types']),
-        ];
+    // Пояснение к каждому конкретному типу — оно и раньше было, просто теперь
+    // показывается для выбранного уточнения.
+    $meta = [];
+    foreach ($variants as $type => $title) {
+        $meta[$type] = ['title' => $title, 'desc' => __('admin.forms.d_' . $type)];
     }
+
+    // Ширина больше не спрашивается: короткие ответы встают в половину строки,
+    // длинные — во всю. Это вёрстка, а не смысл поля, и держать ради неё
+    // настройку у каждого из семнадцати типов незачем.
+    $halfWidth = ['text', 'email', 'tel', 'number', 'url', 'date', 'time', 'select'];
+
 @endphp
 
 <div class="max-w-screen-2xl mx-auto"
-     x-data="formBuilder(@js($blank), @js($meta), @js($palette), @js($captchas), @js($starters))">
+     x-data="formBuilder(@js($blank), @js($meta), @js($kinds), @js($halfWidth), @js($captchas), @js($starters))">
 
     {{-- Шапка раздела --}}
     <div class="admin-card mb-4">
@@ -148,20 +166,16 @@
 
             {{-- ── Палитра: клик добавляет поле ПОСЛЕ выбранного ── --}}
             <div class="fm-palette">
-                <template x-for="group in palette" :key="group.label">
-                    <div class="fm-pal-group">
-                        <span class="fm-pal-label" x-text="group.label"></span>
-                        <div class="fm-pal-items">
-                            <template x-for="item in group.items" :key="item.type">
-                                <button type="button" class="fm-chip" @click="addField(item.type)"
-                                        :title="item.title + ' — ' + item.desc">
-                                    <i class="fas" :class="item.icon"></i>
-                                    <span x-text="item.title"></span>
-                                </button>
-                            </template>
-                        </div>
-                    </div>
-                </template>
+                <span class="fm-pal-label">{{ __('admin.forms.add_field') }}</span>
+                <div class="fm-pal-items">
+                    <template x-for="(kind, key) in kinds" :key="key">
+                        <button type="button" class="fm-chip" @click="addField(kind.variants[0])"
+                                :title="kind.title + ' — ' + kind.desc">
+                            <i class="fas" :class="kind.icon"></i>
+                            <span x-text="kind.title"></span>
+                        </button>
+                    </template>
+                </div>
             </div>
 
             {{-- ── Список полей ── --}}
@@ -190,7 +204,10 @@
 
                             <input type="hidden" :name="'fields[' + index + '][type]'" :value="field.type">
                             <input type="hidden" :name="'fields[' + index + '][name]'" :value="field.name">
-                            <input type="hidden" :name="'fields[' + index + '][width]'" :value="field.width">
+                            {{-- Ширину не спрашиваем, а вычисляем по виду поля:
+                                 короткий ответ встаёт в половину строки, длинный
+                                 во всю. На сервер она всё равно уходит. --}}
+                            <input type="hidden" :name="'fields[' + index + '][width]'" :value="widthOf(field.type)">
 
                             {{-- Обязательность — самая частая настройка, поэтому
                                  она кнопкой в строке, а не внутри карточки. --}}
@@ -245,24 +262,15 @@
                             <p class="fm-type-desc"><i class="fas fa-circle-info"></i> <span x-text="descOf(field.type)"></span></p>
 
                             <div class="fm-grid">
-                                <label class="fm-field">
-                                    <span class="fm-label">{{ __('admin.forms.f_type') }}</span>
+                                {{-- Уточнение вида. Показывается только там, где
+                                     есть из чего выбирать: у файла или согласия
+                                     список из одного пункта — это шум. --}}
+                                <label class="fm-field" x-show="variantsOf(field.type).length > 1">
+                                    <span class="fm-label">{{ __('admin.forms.f_variant') }}</span>
                                     <select x-model="field.type" @change="onTypeChange(field)" class="fm-input">
-                                        <template x-for="group in palette" :key="group.label">
-                                            <optgroup :label="group.label">
-                                                <template x-for="item in group.items" :key="item.type">
-                                                    <option :value="item.type" x-text="item.title"></option>
-                                                </template>
-                                            </optgroup>
+                                        <template x-for="v in variantsOf(field.type)" :key="v">
+                                            <option :value="v" x-text="titleOf(v)"></option>
                                         </template>
-                                    </select>
-                                </label>
-
-                                <label class="fm-field" x-show="!isDecorative(field.type)">
-                                    <span class="fm-label">{{ __('admin.forms.f_width') }}</span>
-                                    <select x-model="field.width" class="fm-input">
-                                        <option value="full">{{ __('admin.forms.w_full') }}</option>
-                                        <option value="half">{{ __('admin.forms.w_half') }}</option>
                                     </select>
                                 </label>
 
@@ -285,7 +293,8 @@
                                 <label class="fm-field" x-show="field.type === 'hidden'" x-cloak>
                                     <span class="fm-label">{{ __('admin.forms.f_value') }}</span>
                                     <input type="text" :name="'fields[' + index + '][value]'"
-                                           x-model="field.value" maxlength="255" class="fm-input">
+                                           x-model="field.value" maxlength="255" class="fm-input"
+                                           placeholder="{{ __('admin.forms.f_value_ph') }}">
                                 </label>
 
                                 {{-- Иконка поля. Выбирается из готового набора, а
@@ -474,7 +483,10 @@
             <div class="admin-card p-4">
                 <h2 class="fm-section fm-section--first">{{ __('admin.forms.preview') }}</h2>
 
-                <div class="fm-preview">
+                {{-- Клик по полю в превью раскрывает его карточку слева: на
+                     длинной форме искать нужное поле глазами по двум колонкам
+                     утомительно. Номер поля приходит атрибутом data-fi. --}}
+                <div class="fm-preview" @click="pickFromPreview($event)">
                     <div x-show="loading" class="fm-hint">{{ __('admin.forms.building_preview') }}</div>
                     <div x-show="!loading" x-html="preview"></div>
                 </div>
@@ -513,16 +525,18 @@
                     </div>
 
                     <div class="flex flex-wrap items-center gap-1.5 mt-2">
-                        {{-- Копирование через @js(): @json внутри onclick рвёт
-                             атрибут на первой же двойной кавычке --}}
+                        {{-- Подтверждение показывает сама кнопка: обработчик
+                             живёт в лейауте панели, один на все разделы. --}}
                         <button type="button" class="fm-copy"
-                                onclick="navigator.clipboard.writeText(@js($item->shortcode())).then(() => window.toast && toast(@js(__('admin.forms.copied_shortcode'))))">
+                                data-copy="{{ $item->shortcode() }}"
+                                data-copied="{{ __('admin.forms.copied') }}">
                             <i class="fa-regular fa-copy"></i>
                             <code>{{ $item->shortcode() }}</code>
                         </button>
 
                         <button type="button" class="fm-copy"
-                                onclick="navigator.clipboard.writeText(@js($item->bladeSnippet())).then(() => window.toast && toast(@js(__('admin.forms.copied_blade'))))">
+                                data-copy="{{ $item->bladeSnippet() }}"
+                                data-copied="{{ __('admin.forms.copied') }}">
                             <i class="fa-regular fa-copy"></i> {{ __('admin.forms.for_template') }}
                         </button>
                     </div>
@@ -821,11 +835,12 @@
      * рисовать её второй раз на клиенте значило бы завести вторую разметку,
      * которая неизбежно разойдётся с настоящей.
      */
-    function formBuilder(blank, meta, palette, captchas, starters) {
+    function formBuilder(blank, meta, kinds, halfWidth, captchas, starters) {
         return {
             blank: blank,
             meta: meta,
-            palette: palette,
+            kinds: kinds,
+            halfWidth: halfWidth,
             captchas: captchas,
             starters: starters,
             form: null,
@@ -986,6 +1001,61 @@
                 this.wrap(button, '[', '](' + href.trim() + ')', @js(__('admin.forms.fmt_link_text')));
             },
 
+            /** Уточнения того вида, к которому относится тип. */
+            variantsOf(type) {
+                for (var key in this.kinds) {
+                    if (this.kinds[key].variants.indexOf(type) !== -1) {
+                        return this.kinds[key].variants;
+                    }
+                }
+
+                return [type];
+            },
+
+            /**
+             * Ширина по виду поля: телефон, дата и число рядом читаются лучше,
+             * чем растянутые на всю строку, а сообщение или список вариантов —
+             * наоборот. Отдельной настройки для этого больше нет.
+             */
+            widthOf(type) {
+                return this.halfWidth.indexOf(type) !== -1 ? 'half' : 'full';
+            },
+
+            /**
+             * Открыть карточку поля, по которому щёлкнули в превью.
+             *
+             * Внутри превью живёт настоящая форма — щелчок по её кнопке или
+             * ссылке не должен ничего отправлять и никуда уводить.
+             */
+            pickFromPreview(event) {
+                if (event.target.closest('a, button')) {
+                    event.preventDefault();
+                }
+
+                var row = event.target.closest('[data-fi]');
+
+                if (!row) {
+                    return;
+                }
+
+                var field = this.form.fields[Number(row.dataset.fi)];
+
+                if (!field) {
+                    return;
+                }
+
+                this.picked = field.uid;
+                this.opened = field.uid;
+
+                this.$nextTick(() => {
+                    var card = this.$refs.list.querySelector('[data-uid="' + field.uid + '"]');
+
+                    if (card) {
+                        card.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                    }
+                });
+            },
+
             titleOf(type) {
                 return this.meta[type] ? this.meta[type].title : type;
             },
@@ -1013,7 +1083,8 @@
             addField(type) {
                 var field = {
                     uid: this.uid(), type: type, name: '', label: '', icon: '',
-                    placeholder: '', hint: '', value: '', required: false, width: 'full',
+                    placeholder: '', hint: '', value: '', required: false,
+                    width: this.widthOf(type),
                     options: this.hasOptions(type) ? [@js(__('admin.forms.option_example')) + ' 1', @js(__('admin.forms.option_example')) + ' 2'] : []
                 };
 
@@ -1081,6 +1152,8 @@
 
             /** Смена типа: варианты нужны не всем, разметке — не нужны вовсе. */
             onTypeChange(field) {
+                field.width = this.widthOf(field.type);
+
                 if (this.hasOptions(field.type) && !field.options.length) {
                     field.options = [@js(__('admin.forms.option_example')) + ' 1', @js(__('admin.forms.option_example')) + ' 2'];
                 }

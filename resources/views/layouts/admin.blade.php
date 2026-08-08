@@ -169,6 +169,63 @@
        В layouts/frontend-install.blade.php отдельный alpine.min.js оставлен
        намеренно: там @vite нет, мастеру установки Alpine взять больше неоткуда. --}}
   <script src="{{ asset('js/admin/notifications.js') }}"></script>
+  {{-- Копирование в буфер.
+       Кнопки в Формах и Каптче звали window.toast, которого в проекте нет
+       вовсе: текст копировался, но человек не видел НИЧЕГО и справедливо
+       считал, что кнопка не работает. Подтверждение показывает сама кнопка —
+       для этого не нужен ни общий всплывающий уведомитель, ни его настройка.
+
+       Запасной путь через временное поле нужен для страниц, открытых не по
+       localhost и не по https: там Clipboard API недоступен. --}}
+  <script>
+    document.addEventListener('click', function (event) {
+      var button = event.target.closest('[data-copy]');
+
+      if (!button) {
+        return;
+      }
+
+      var text = button.getAttribute('data-copy');
+
+      var done = function () {
+        if (button.dataset.copyBusy) {
+          return;
+        }
+
+        button.dataset.copyBusy = '1';
+        var before = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check"></i> ' + (button.getAttribute('data-copied') || 'OK');
+
+        window.setTimeout(function () {
+          button.innerHTML = before;
+          delete button.dataset.copyBusy;
+        }, 1400);
+      };
+
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(done).catch(function () {});
+        return;
+      }
+
+      var area = document.createElement('textarea');
+      area.value = text;
+      area.setAttribute('readonly', '');
+      area.style.position = 'fixed';
+      area.style.left = '-9999px';
+      document.body.appendChild(area);
+      area.select();
+
+      try {
+        document.execCommand('copy');
+        done();
+      } catch (error) {
+        /* Копирование запрещено настройками браузера — молчим. */
+      }
+
+      area.remove();
+    });
+  </script>
+
   @stack('scripts')
 
   {{-- Обработка ошибок загрузки ресурсов --}}

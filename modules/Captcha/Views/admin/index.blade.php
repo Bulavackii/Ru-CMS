@@ -264,21 +264,26 @@
                     </div>
 
                     <div class="flex flex-wrap items-center gap-1.5 mt-2">
-                        {{-- Копирование через @js(): @json внутри onclick рвёт
-                             атрибут на первой же двойной кавычке --}}
+                        {{-- Кнопки звали window.toast, которого в проекте нет:
+                             текст копировался, но подтверждения не было никакого.
+                             Подтверждение показывает сама кнопка, обработчик — в
+                             лейауте панели. --}}
                         <button type="button" class="cap-copy"
-                                onclick="navigator.clipboard.writeText(@js($preset->shortcode())).then(() => window.toast && toast(@js(__('admin.captcha.copy_shortcode'))))">
+                                data-copy="{{ $preset->shortcode() }}"
+                                data-copied="{{ __('admin.forms.copied') }}">
                             <i class="fa-regular fa-copy"></i>
                             <code>{{ $preset->shortcode() }}</code>
                         </button>
 
                         <button type="button" class="cap-copy"
-                                onclick="navigator.clipboard.writeText(@js($preset->bladeSnippet())).then(() => window.toast && toast(@js(__('admin.captcha.copy_blade'))))">
+                                data-copy="{{ $preset->bladeSnippet() }}"
+                                data-copied="{{ __('admin.forms.copied') }}">
                             <i class="fa-regular fa-copy"></i> {{ __('admin.captcha.for_template') }}
                         </button>
 
                         <button type="button" class="cap-copy"
-                                onclick="navigator.clipboard.writeText(@js($preset->verifySnippet())).then(() => window.toast && toast(@js(__('admin.captcha.copy_verify'))))">
+                                data-copy="{{ $preset->verifySnippet() }}"
+                                data-copied="{{ __('admin.forms.copied') }}">
                             <i class="fa-regular fa-copy"></i> {{ __('admin.captcha.verify_in_controller') }}
                         </button>
                     </div>
