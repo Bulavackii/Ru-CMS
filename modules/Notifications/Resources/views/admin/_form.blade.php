@@ -110,7 +110,8 @@
                             Закрывается крестиком и больше не показывается в этом браузере.
                         </p>
                         <p class="admin-hint mt-1" x-show="type === 'cookie'" x-cloak>
-                            Кнопки добавляются сами, крестика нет — ответ должен быть осознанным.
+                            Кнопки добавляются сами. Закрытие крестиком считается ответом
+                            «только необходимые» — молчание согласием не бывает.
                             Выбор держится <b>до закрытия браузера</b>, потом спросим снова.
                             Пока не нажали «Принять», Яндекс.Метрика не запускается.
                         </p>
@@ -193,9 +194,23 @@
                 </h2>
 
                 <div class="p-6" style="background:repeating-linear-gradient(45deg,#f8fafc,#f8fafc 10px,#f1f5f9 10px,#f1f5f9 20px)">
-                    <div class="mx-auto" style="max-width:560px; padding:18px 20px; border:1px solid rgba(17,24,39,.1);
+                    <div class="mx-auto" style="position:relative; max-width:560px; padding:18px 44px 18px 20px;
+                                                border:1px solid rgba(17,24,39,.1);
                                                 box-shadow:0 18px 40px -18px rgba(17,24,39,.45);"
                          :style="`background:${bg}; color:${fg}`">
+
+                        {{-- Крестик рисуем и здесь: превью обещает показать то,
+                             что увидит посетитель, а на сайте он есть у всех
+                             уведомлений, включая согласие. --}}
+                        <span style="position:absolute; top:10px; right:10px; display:inline-flex;
+                                     align-items:center; justify-content:center; width:26px; height:26px;
+                                     color:inherit; opacity:.45">
+                            <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
+                                <path d="M2 2 L14 14 M14 2 L2 14" stroke="currentColor" stroke-width="2"
+                                      stroke-linecap="round" fill="none"/>
+                            </svg>
+                        </span>
+
                         <div class="flex items-center gap-2 mb-1.5" x-show="icon || title">
                             <span x-show="icon" x-text="icon" style="font-size:1.15rem; line-height:1"></span>
                             <strong x-show="title" x-text="title" style="font-size:.95rem"></strong>
@@ -214,6 +229,7 @@
 
                 <p class="admin-hint mt-3" x-show="type === 'cookie'" x-cloak>
                     Кнопки показаны как есть — их рисует сам сайт, из панели они не правятся.
+                    Крестик закрывает уведомление как «только необходимые».
                 </p>
             </div>
         </div>

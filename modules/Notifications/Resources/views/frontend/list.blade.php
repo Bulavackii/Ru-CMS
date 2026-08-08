@@ -35,14 +35,19 @@
                             border:1px solid rgba(17,24,39,.1);
                             box-shadow:0 18px 40px -18px rgba(17,24,39,.45);">
 
-                    {{-- У согласия крестика нет: закрыть его молча — значит не
-                         ответить ни да, ни нет, а решение нужно однозначное.
-                         Вместо него две кнопки внизу. --}}
-                    @if ($n->type !== 'cookie')
-                        <button class="notif-close" aria-label="{{ __('frontend.consent.close') }}"
-                                style="position:absolute; top:10px; right:12px; font-size:20px; line-height:1;
-                                       background:transparent; border:0; color:inherit; cursor:pointer; opacity:.6;">&times;</button>
-                    @endif
+                    {{-- Крестик есть у всех уведомлений, включая согласие.
+                         У согласия он не «промолчать»: закрытие засчитывается
+                         как «только необходимые» — то есть отказ от лишнего.
+                         Так решение остаётся однозначным, счётчики не
+                         запускаются, а баннер не пристаёт снова и снова. --}}
+                    <button type="button" class="notif-close"
+                            aria-label="{{ __('frontend.consent.close') }}"
+                            title="{{ __('frontend.consent.close') }}">
+                        <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" focusable="false">
+                            <path d="M2 2 L14 14 M14 2 L2 14" stroke="currentColor" stroke-width="2"
+                                  stroke-linecap="round" fill="none"/>
+                        </svg>
+                    </button>
 
                     @if ($n->icon || $n->title)
                         <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
@@ -102,11 +107,23 @@
         .notif-consent__yes:hover{ filter:brightness(1.1); }
         .notif-consent__no{ color:#374151; background:#fff; border-color:#d1d5db; }
         .notif-consent__no:hover{ background:#f3f4f6; }
-        /* Уведомление о согласии заметнее прочих: его нужно прочитать. */
-        .notif-item.is-consent{ padding-right:20px; }
+
 
         .notif-item a:hover{ color:#4338ca; }
-        .notif-close:hover{ opacity:1; }
+
+        /* Крестик. Не голый символ, а кнопка с полем нажатия: у знака «×»
+           шрифтом попасть в него трудно, особенно пальцем. Цвет наследуется
+           от уведомления — крестик остаётся читаемым на любом фоне, который
+           владелец выберет в панели. */
+        .notif-close{
+            position:absolute; top:10px; right:10px;
+            display:inline-flex; align-items:center; justify-content:center;
+            width:26px; height:26px; padding:0;
+            color:inherit; background:transparent; border:0; cursor:pointer;
+            opacity:.45; transition:opacity .15s ease, background .15s ease;
+        }
+        .notif-close:hover{ opacity:1; background:rgba(127,127,127,.14); }
+        .notif-close:focus-visible{ outline:2px solid currentColor; outline-offset:2px; opacity:1; }
         /* Появление — чистой CSS-анимацией. Раньше видимость включал JS (класс
            is-visible поверх opacity:0), и если скрипт не успевал отработать,
            баннер молча оставался прозрачным — то есть невидимым. */
@@ -147,7 +164,16 @@
                     setTimeout(() => box.remove(), 320);
                 };
 
-                box.querySelector('.notif-close')?.addEventListener('click', () => hide());
+                // У согласия закрытие крестиком — это отказ от лишнего, а не
+                // «спросим потом»: молчание согласием не считается, а
+                // переспрашивать на каждой странице — изводить посетителя.
+                box.querySelector('.notif-close')?.addEventListener('click', () => {
+                    hide(consent ? 0 : 1);
+
+                    if (consent) {
+                        document.dispatchEvent(new CustomEvent('ru:consent', { detail: { accepted: false } }));
+                    }
+                });
 
                 if (consent) {
                     box.classList.add('is-consent');
