@@ -908,9 +908,7 @@
 
                 button.addEventListener('mousedown', function (event) { event.preventDefault(); });
                 button.addEventListener('click', function () {
-                    align(target, item[0]);
-                    editor._snapshot();
-                    editor.save();
+                    RuEditor.alignMedia(editor, item[0] === 'none' ? '' : item[0], target);
                     place();
                 });
 
@@ -930,7 +928,7 @@
 
                 button.addEventListener('mousedown', function (event) { event.preventDefault(); });
                 button.addEventListener('click', function () {
-                    var wrap = target.closest('figure');
+                    var wrap = target.closest('figure, .pc-player');
                     var value = percent === 100 ? '' : percent + '%';
 
                     if (wrap) {
@@ -971,7 +969,7 @@
                     editor.exec('image');
                 }],
                 ['remove', 'fas fa-trash', t('image.remove', 'Удалить'), function () {
-                    var figure = target.closest('figure');
+                    var figure = target.closest('figure, .pc-player');
 
                     (figure || target).remove();
                     hide();
@@ -989,9 +987,15 @@
             editor.shell.appendChild(bubble);
 
             editor.doc.addEventListener('click', function (event) {
-                var img = event.target.tagName === 'IMG' ? event.target : null;
+                // Раньше панель показывалась ТОЛЬКО у картинки, и у ролика со
+                // звуком не было ни выравнивания, ни ширины, ни удаления:
+                // вставленное видео нельзя было убрать вообще ничем, кроме
+                // правки исходного кода.
+                var node = event.target.closest
+                    ? event.target.closest('img, video, audio, iframe')
+                    : null;
 
-                if (!img) {
+                if (!node || !editor.body.contains(node)) {
                     hide();
                     return;
                 }
@@ -1000,8 +1004,12 @@
                     target.classList.remove('ru-ed-selected');
                 }
 
-                target = img;
-                img.classList.add('ru-ed-selected');
+                target = node;
+                node.classList.add('ru-ed-selected');
+
+                // Проигрыватель — не текст: пока он выбран, клавиша удаления
+                // должна убирать его целиком, а курсора внутри него нет.
+                editor.selectedMedia = node;
                 place();
             });
 
@@ -1029,34 +1037,17 @@
             function hide() {
                 if (target) {
                     target.classList.remove('ru-ed-selected');
+
+                    if (editor.selectedMedia === target) {
+                        editor.selectedMedia = null;
+                    }
+
                     target = null;
                 }
 
                 bubble.setAttribute('hidden', '');
             }
 
-            function align(img, mode) {
-                if (!img) {
-                    return;
-                }
-
-                var node = img.closest('figure') || img;
-
-                node.style.float = '';
-                node.style.margin = '';
-                node.style.display = '';
-
-                if (mode === 'left') {
-                    node.style.float = 'left';
-                    node.style.margin = '0 1rem 1rem 0';
-                } else if (mode === 'right') {
-                    node.style.float = 'right';
-                    node.style.margin = '0 0 1rem 1rem';
-                } else if (mode === 'center') {
-                    node.style.display = 'block';
-                    node.style.margin = '1rem auto';
-                }
-            }
         }
     });
 

@@ -56,14 +56,49 @@ class EditorAlignmentTest extends TestCase
     {
         // Выравнивание сбрасывало ширину, заданную растягиванием за уголок:
         // видео на 320px после нажатия кнопки снова становилось во всю строку.
+        // Подгонка ставится только когда своей ширины нет, а снимается только
+        // если её ставили мы (значение fit-content).
         $js = $this->editorFormat();
 
-        $this->assertStringNotContainsString(
-            "box.style.width = '';",
+        $this->assertStringContainsString(
+            "if (mode && !box.style.width && !box.classList.contains('pc-audio'))",
             $js,
-            'Выравнивание снова затирает ширину, выбранную автором'
+            'Выравнивание снова трогает ширину, выбранную автором'
         );
-        $this->assertStringContainsString("if (!box.style.width && !box.classList.contains('pc-player'))", $js);
+        $this->assertStringContainsString("if (!mode && box.style.width === 'fit-content')", $js);
+    }
+
+    public function test_players_are_reachable_from_the_bubble(): void
+    {
+        // Всплывающая панель показывалась только у картинки: у вставленного
+        // ролика не было ни выравнивания, ни ширины, ни удаления — убрать его
+        // из материала было нечем.
+        $js = file_get_contents(public_path('assets/js/ru-editor-media.js'));
+
+        $this->assertStringContainsString("closest('img, video, audio, iframe')", $js);
+        $this->assertStringContainsString("target.closest('figure, .pc-player')", $js);
+    }
+
+    public function test_media_alignment_has_a_single_definition(): void
+    {
+        // У панели была СВОЯ копия выравнивания — с тем же багом полной
+        // ширины, который в общей функции уже починен. Две копии одного
+        // поведения в этом проекте уже расходились не раз.
+        $js = file_get_contents(public_path('assets/js/ru-editor-media.js'));
+
+        $this->assertStringNotContainsString('function align(img, mode)', $js);
+        $this->assertStringContainsString('RuEditor.alignMedia(editor,', $js);
+        $this->assertStringContainsString('RuEditor.alignMedia = alignMedia;', $this->editorFormat());
+    }
+
+    public function test_audio_player_never_floats(): void
+    {
+        // Обтекание сжимает полосу проигрывателя по содержимому: в замере
+        // флекс схлопывался до 30 пикселей вместо полной строки.
+        $this->assertStringContainsString(
+            "if (box.classList.contains('pc-audio'))",
+            $this->editorFormat()
+        );
     }
 
     public function test_paragraph_split_carries_alignment(): void
