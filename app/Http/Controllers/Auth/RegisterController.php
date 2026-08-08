@@ -63,16 +63,18 @@ class RegisterController extends Controller
             'password' => Hash::make($request->validated()['password']),
         ];
 
-        // Если регистрация как юридическое лицо
-        if ($request->boolean('is_legal')) {
-            // Сохраняем данные организации в settings (можно расширить модель User)
-            $userData['settings'] = [
-                'is_legal' => true,
-                'org_name' => $request->validated()['org_name'] ?? null,
-                'ogrn' => $request->validated()['ogrn'] ?? null,
-                'inn' => $request->validated()['inn'] ?? null,
-                'kpp' => $request->validated()['kpp'] ?? null,
-            ];
+        $userData['phone'] = $request->validated()['phone'] ?? null;
+
+        // Реквизиты организации кладём в те же колонки, что читает и пишет
+        // профиль в кабинете. Раньше они уходили в settings — то есть
+        // регистрация и профиль хранили одно и то же в разных местах, и
+        // зарегистрировавшийся организацией видел в профиле пустые поля.
+        $userData['is_company'] = $request->boolean('is_company');
+
+        if ($userData['is_company']) {
+            $userData['company_name'] = $request->validated()['company_name'] ?? null;
+            $userData['inn'] = $request->validated()['inn'] ?? null;
+            $userData['ogrn'] = $request->validated()['ogrn'] ?? null;
         }
 
         $user = User::create($userData);
@@ -88,7 +90,7 @@ class RegisterController extends Controller
         Log::info('User registered', [
             'user_id' => $user->id,
             'email' => $user->email,
-            'is_legal' => $request->boolean('is_legal'),
+            'is_company' => $request->boolean('is_company'),
             'ip' => $request->ip(),
             'user_agent' => $request->userAgent(),
         ]);

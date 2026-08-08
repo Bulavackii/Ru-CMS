@@ -62,13 +62,21 @@ class RegisterRequest extends FormRequest
             ],
             'password_confirmation' => ['required', 'string'],
             'terms_agree' => ['required', 'accepted'],
-            
-            // Поля для юридических лиц (опционально)
-            'is_legal' => ['sometimes', 'boolean'],
-            'org_name' => ['required_if:is_legal,1', 'nullable', 'string', 'max:255'],
-            'ogrn' => ['required_if:is_legal,1', 'nullable', 'string', 'regex:/^\d{13}$/'],
-            'inn' => ['required_if:is_legal,1', 'nullable', 'string', 'regex:/^\d{10,12}$/'],
-            'kpp' => ['required_if:is_legal,1', 'nullable', 'string', 'regex:/^\d{9}$/'],
+            'phone' => ['nullable', 'string', 'max:32', 'regex:/^[0-9\s()+\-]+$/'],
+
+            // Реквизиты организации.
+            //
+            // Имена полей — как колонки в users (is_company, company_name, inn,
+            // ogrn). Раньше здесь были is_legal/org_name/kpp, и контроллер
+            // складывал их в settings, тогда как профиль в кабинете читает и
+            // пишет колонки: зарегистрировавшись организацией, человек открывал
+            // свой профиль и видел пустые реквизиты. Одна сущность — одно место
+            // хранения. Поля kpp в таблице нет вовсе, и в профиле его тоже не
+            // спрашивают, поэтому оно убрано.
+            'is_company' => ['sometimes', 'boolean'],
+            'company_name' => ['required_if:is_company,1', 'nullable', 'string', 'max:255'],
+            'ogrn' => ['nullable', 'string', 'regex:/^\d{13,15}$/'],
+            'inn' => ['required_if:is_company,1', 'nullable', 'string', 'regex:/^\d{10,12}$/'],
         ];
 
         // Добавляем капчу, если она включена

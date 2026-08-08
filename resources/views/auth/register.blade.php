@@ -1,314 +1,242 @@
+{{--
+    Регистрация.
+
+    Прежняя форма спрашивала реквизиты организации полями is_legal, org_name и
+    kpp — таких колонок в users нет вовсе (там is_company, company_name, inn,
+    ogrn, ceo), а контроллер сохранял только имя, почту и пароль. То есть всё,
+    что человек вводил про компанию, молча выбрасывалось. Здесь имена полей
+    приведены к схеме, а контроллер их принимает и сохраняет.
+--}}
 @extends('layouts.guest')
 
-@section('title', 'Регистрация')
+@section('title', __('frontend.auth.register_title'))
+@section('heading', __('frontend.auth.register_title'))
+@section('lead', __('frontend.auth.register_lead'))
+
+@section('aside_title', __('frontend.auth.aside_reg_title'))
+@section('aside_text', __('frontend.auth.aside_reg_text'))
 
 @section('content')
-    <div class="bg-white border border-black rounded-lg shadow-md p-8 max-w-xl mx-auto animate-fade-in">
-        <h2 class="text-3xl font-bold text-center text-blue-800 mb-6">
-            📝 Регистрация пользователя
-        </h2>
-
-        {{-- ✅ Сообщение об успехе --}}
-        @if (session('success'))
-            <div class="mb-6 bg-green-100 border border-green-400 text-green-800 px-4 py-3 rounded-lg flex items-center gap-2">
-                <i class="fas fa-check-circle"></i>
-                <span>{{ session('success') }}</span>
-            </div>
-        @endif
-
-        {{-- ⚠️ Ошибки валидации --}}
-        @if ($errors->any())
-            <div class="mb-6 bg-red-100 border border-red-400 text-red-800 px-4 py-3 rounded-lg">
-                <div class="flex items-center gap-2 mb-2">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <strong>Обнаружены ошибки:</strong>
-                </div>
-                <ul class="list-disc list-inside space-y-1 text-sm">
+    @if ($errors->any())
+        <div class="au-note au-note--bad">
+            <i class="fas fa-circle-exclamation"></i>
+            <div>
+                <strong>{{ __('admin.common.check_form') }}</strong>
+                <ul>
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
                 </ul>
             </div>
-        @endif
+        </div>
+    @endif
 
-        <form method="POST" action="{{ route('register') }}" class="space-y-6" id="registration-form">
-            @csrf
+    <form method="POST" action="{{ route('register') }}"
+          x-data="registerForm({{ old('is_company') ? 'true' : 'false' }})">
+        @csrf
 
-            {{-- 👤 Имя --}}
-            <div>
-                <label for="name" class="block text-sm font-semibold text-gray-700 mb-1">
-                    <i class="fas fa-user mr-1"></i> Имя
+        {{-- Кто регистрируется. Переключатель наверху: от него зависит, что
+             спрашивать дальше, и узнать это надо до заполнения. --}}
+        <div class="au-field">
+            <span class="au-label">{{ __('frontend.account.user_type') }}</span>
+            <div class="au-switch">
+                <label class="au-switch-item" :class="{ 'is-on': !company }">
+                    <input type="radio" name="is_company" value="0" x-model="companyRaw">
+                    <i class="fas fa-user"></i> {{ __('frontend.account.individual') }}
                 </label>
-                <input id="name" type="text" name="name" value="{{ old('name') }}" required
-                       class="w-full border border-black rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-200"
-                       placeholder="Иван Иванов">
-                <p class="text-xs text-gray-500 mt-1">Введите ваше полное имя</p>
-            </div>
-
-            {{-- 📧 Email --}}
-            <div>
-                <label for="email" class="block text-sm font-semibold text-gray-700 mb-1">
-                    <i class="fas fa-envelope mr-1"></i> E-mail
-                </label>
-                <input id="email" type="email" name="email" value="{{ old('email') }}" required
-                       class="w-full border border-black rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-200"
-                       placeholder="you@example.com">
-                <p class="text-xs text-gray-500 mt-1">На этот адрес придёт письмо с подтверждением</p>
-            </div>
-
-            {{-- 🔒 Пароль --}}
-            <div>
-                <label for="password" class="block text-sm font-semibold text-gray-700 mb-1">
-                    <i class="fas fa-lock mr-1"></i> Пароль
-                </label>
-                <div class="relative">
-                    <input id="password"
-                           type="password"
-                           name="password"
-                           required
-                           autocomplete="new-password"
-                           oninput="updatePasswordStrength(this.value)"
-                           class="w-full border border-black rounded px-4 py-2 pr-10 focus:outline-none focus:ring focus:ring-blue-200 @error('password') border-red-500 @enderror"
-                           placeholder="Минимум 8 символов">
-                    <button type="button"
-                            onclick="togglePassword('password')"
-                            class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700">
-                        <i id="password-toggle-icon" class="fas fa-eye"></i>
-                    </button>
-                </div>
-
-                {{-- Индикатор сложности пароля --}}
-                <div id="password-strength-indicator" class="mt-2 hidden">
-                    <div class="flex gap-1 mb-1">
-                        <div id="strength-bar-1" class="h-1 flex-1 rounded bg-gray-200"></div>
-                        <div id="strength-bar-2" class="h-1 flex-1 rounded bg-gray-200"></div>
-                        <div id="strength-bar-3" class="h-1 flex-1 rounded bg-gray-200"></div>
-                        <div id="strength-bar-4" class="h-1 flex-1 rounded bg-gray-200"></div>
-                    </div>
-                    <p id="strength-text" class="text-xs"></p>
-                </div>
-
-                <p class="text-xs text-gray-500 mt-1">
-                    Пароль должен содержать: минимум 8 символов, буквы в верхнем и нижнем регистре, цифры и специальные символы
-                </p>
-                @error('password')
-                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
-                @enderror
-            </div>
-
-            {{-- 🔁 Подтверждение пароля --}}
-            <div>
-                <label for="password_confirmation" class="block text-sm font-semibold text-gray-700 mb-1">
-                    <i class="fas fa-check-circle mr-1"></i> Повторите пароль
-                </label>
-                <div class="relative">
-                    <input id="password_confirmation"
-                           type="password"
-                           name="password_confirmation"
-                           required
-                           autocomplete="new-password"
-                           oninput="checkPasswordMatch()"
-                           class="w-full border border-black rounded px-4 py-2 pr-10 focus:outline-none focus:ring focus:ring-blue-200 @error('password_confirmation') border-red-500 @enderror"
-                           placeholder="Повторите ввод пароля">
-                    <button type="button"
-                            onclick="togglePassword('password_confirmation')"
-                            class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700">
-                        <i id="password_confirmation-toggle-icon" class="fas fa-eye"></i>
-                    </button>
-                </div>
-                <p id="password-match-message" class="text-xs mt-1"></p>
-                @error('password_confirmation')
-                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
-                @enderror
-            </div>
-
-            {{-- 🧾 Чекбокс Юр. лицо --}}
-            <div class="flex items-center">
-                <input type="checkbox" id="is_legal" name="is_legal" class="mr-2 border-black focus:ring-blue-300">
-                <label for="is_legal" class="text-sm font-medium text-gray-700">
-                    Зарегистрироваться как юридическое лицо
+                <label class="au-switch-item" :class="{ 'is-on': company }">
+                    <input type="radio" name="is_company" value="1" x-model="companyRaw">
+                    <i class="fas fa-building"></i> {{ __('frontend.account.legal_entity_type') }}
                 </label>
             </div>
+        </div>
 
-            {{-- 🏢 Форма Юр. лица --}}
-            <div id="legal-fields" class="hidden space-y-4 mt-4">
-                <div>
-                    <label for="org_name" class="block text-sm font-medium text-gray-700">🏢 Наименование организации</label>
-                    <input id="org_name" type="text" name="org_name"
-                           class="w-full border border-black rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-200"
-                           placeholder="ООО «Ромашка»">
-                </div>
-                <div>
-                    <label for="ogrn" class="block text-sm font-medium text-gray-700">🧾 ОГРН</label>
-                    <input id="ogrn" type="text" name="ogrn"
-                           class="w-full border border-black rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-200"
-                           placeholder="1234567890123">
-                </div>
-                <div>
-                    <label for="inn" class="block text-sm font-medium text-gray-700">🔢 ИНН</label>
-                    <input id="inn" type="text" name="inn"
-                           class="w-full border border-black rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-200"
-                           placeholder="1234567890">
-                </div>
-                <div>
-                    <label for="kpp" class="block text-sm font-medium text-gray-700">🧮 КПП</label>
-                    <input id="kpp" type="text" name="kpp"
-                           class="w-full border border-black rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-200"
-                           placeholder="123456789">
-                </div>
+        <div class="au-field">
+            <label class="au-label" for="name">{{ __('frontend.account.name') }}<span class="au-req">*</span></label>
+            <input id="name" type="text" name="name" value="{{ old('name') }}"
+                   required autofocus autocomplete="name"
+                   placeholder="{{ __('frontend.auth.name_ph') }}"
+                   class="au-input @error('name') is-bad @enderror">
+            @error('name')<span class="au-err">{{ $message }}</span>@enderror
+        </div>
+
+        <div class="au-grid au-grid--2">
+            <div class="au-field">
+                <label class="au-label" for="email">{{ __('frontend.auth.email') }}<span class="au-req">*</span></label>
+                <input id="email" type="email" name="email" value="{{ old('email') }}"
+                       required autocomplete="email"
+                       placeholder="{{ __('frontend.auth.email_ph') }}"
+                       class="au-input @error('email') is-bad @enderror">
+                @error('email')<span class="au-err">{{ $message }}</span>@enderror
             </div>
 
-            {{-- 🔒 Каптча --}}
-            @if(config('captcha.enabled', true) && class_exists(\Modules\Captcha\Services\CaptchaService::class))
-                <div class="captcha-wrapper">
-                    @php
-                        $captchaService = app('captcha');
-                        $captchaType = config('captcha.default_type', 'image');
-                        $captchaHtml = $captchaService->render($captchaType);
-                    @endphp
-                    {!! $captchaHtml !!}
-                    @error('captcha')
-                        <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
-                    @enderror
-                    <p class="text-xs text-gray-500 mt-1">Введите код с изображения для защиты от автоматических регистраций.</p>
-                </div>
-            @endif
+            <div class="au-field">
+                <label class="au-label" for="phone">{{ __('frontend.account.f_phone') }}</label>
+                <input id="phone" type="tel" name="phone" value="{{ old('phone') }}"
+                       autocomplete="tel" placeholder="+7 900 000-00-00"
+                       class="au-input @error('phone') is-bad @enderror">
+                @error('phone')<span class="au-err">{{ $message }}</span>@enderror
+            </div>
+        </div>
 
-            {{-- 📜 Согласие с условиями --}}
-            <div class="flex items-start">
-                <input type="checkbox" id="terms_agree" name="terms_agree" required
-                       class="mt-1 mr-2 border-black focus:ring-blue-300">
-                <label for="terms_agree" class="text-sm text-gray-700">
-                    Я соглашаюсь с <a href="{{ url('/terms') }}" class="text-blue-600 hover:underline font-medium" target="_blank">
-                        пользовательским соглашением
-                    </a>
-                    и принимаю условия использования сайта.
-                </label>
+        {{-- Реквизиты. Показываются только юрлицу: физлицу они не нужны, а
+             форма без них короче вдвое. --}}
+        <div x-show="company" x-cloak>
+            <div class="au-split">{{ __('frontend.account.g_company') }}</div>
+
+            <div class="au-field">
+                <label class="au-label" for="company_name">{{ __('frontend.account.org_name') }}<span class="au-req">*</span></label>
+                <input id="company_name" type="text" name="company_name" value="{{ old('company_name') }}"
+                       :required="company" placeholder="{{ __('frontend.auth.company_ph') }}"
+                       class="au-input @error('company_name') is-bad @enderror">
+                @error('company_name')<span class="au-err">{{ $message }}</span>@enderror
             </div>
 
-            {{-- ✅ Кнопка --}}
-            <div>
-                <button type="submit"
-                        class="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2 rounded shadow-md hover:shadow-lg transition-transform transform hover:scale-105">
-                    <i class="fas fa-user-plus mr-1"></i> Зарегистрироваться
+            <div class="au-grid au-grid--2">
+                <div class="au-field">
+                    <label class="au-label" for="inn">{{ __('frontend.account.inn') }}<span class="au-req">*</span></label>
+                    <input id="inn" type="text" name="inn" value="{{ old('inn') }}"
+                           :required="company" inputmode="numeric" maxlength="12"
+                           class="au-input @error('inn') is-bad @enderror">
+                    @error('inn')<span class="au-err">{{ $message }}</span>@enderror
+                </div>
+
+                <div class="au-field">
+                    <label class="au-label" for="ogrn">{{ __('frontend.account.ogrn') }}</label>
+                    <input id="ogrn" type="text" name="ogrn" value="{{ old('ogrn') }}"
+                           inputmode="numeric" maxlength="15"
+                           class="au-input @error('ogrn') is-bad @enderror">
+                    @error('ogrn')<span class="au-err">{{ $message }}</span>@enderror
+                </div>
+            </div>
+        </div>
+
+        <div class="au-split">{{ __('frontend.auth.g_access') }}</div>
+
+        <div class="au-field">
+            <label class="au-label" for="password">{{ __('frontend.auth.password') }}<span class="au-req">*</span></label>
+            <div class="au-with-btn">
+                <input id="password" type="password" name="password" required autocomplete="new-password"
+                       x-model="password"
+                       class="au-input @error('password') is-bad @enderror">
+                <button type="button" class="au-eye" aria-label="{{ __('frontend.account.pw_show') }}">
+                    <i class="fas fa-eye"></i>
                 </button>
             </div>
-        </form>
 
-        {{-- 🔗 Ссылка на вход --}}
-        <div class="mt-6 text-sm text-center text-gray-600">
-            Уже есть аккаунт?
-            <a href="{{ route('login') }}" class="text-blue-600 hover:underline font-semibold">Войти</a>
+            <div class="au-strength" :class="'lv' + level"><span></span><span></span><span></span><span></span></div>
+            <span class="au-hint" x-text="levelText"></span>
+            @error('password')<span class="au-err">{{ $message }}</span>@enderror
         </div>
-    </div>
 
-    {{-- 🔽 JS: показ/скрытие полей юр.лица, проверка пароля --}}
-    <script>
-        // Показ/скрытие полей юридического лица
-        document.getElementById('is_legal')?.addEventListener('change', function () {
-            const legalFields = document.getElementById('legal-fields');
-            if (legalFields) {
-                legalFields.classList.toggle('hidden', !this.checked);
-                // Делаем поля обязательными/необязательными
-                const requiredFields = legalFields.querySelectorAll('input[type="text"]');
-                requiredFields.forEach(field => {
-                    field.required = this.checked;
-                });
-            }
-        });
+        <div class="au-field">
+            <label class="au-label" for="password_confirmation">{{ __('frontend.account.confirm_pass') }}<span class="au-req">*</span></label>
+            <div class="au-with-btn">
+                <input id="password_confirmation" type="password" name="password_confirmation"
+                       required autocomplete="new-password" x-model="confirmation" class="au-input">
+                <button type="button" class="au-eye" aria-label="{{ __('frontend.account.pw_show') }}">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
+            <span class="au-hint" x-show="confirmation.length > 0" x-cloak
+                  :style="matches ? 'color:#16a34a' : 'color:#dc2626'"
+                  x-text="matches ? @js(__('frontend.account.pw_match')) : @js(__('frontend.account.pw_mismatch'))"></span>
+        </div>
 
-        // Показ/скрытие пароля
-        function togglePassword(fieldId) {
-            const field = document.getElementById(fieldId);
-            const icon = document.getElementById(fieldId + '-toggle-icon');
-            if (field && icon) {
-                if (field.type === 'password') {
-                    field.type = 'text';
-                    icon.classList.remove('fa-eye');
-                    icon.classList.add('fa-eye-slash');
-                } else {
-                    field.type = 'password';
-                    icon.classList.remove('fa-eye-slash');
-                    icon.classList.add('fa-eye');
-                }
-            }
-        }
+        @if(config('captcha.enabled', true) && function_exists('captcha_field'))
+            <div class="au-field">
+                {!! captcha_field(config('captcha.default_type', 'image')) !!}
+                @error('captcha')<span class="au-err">{{ $message }}</span>@enderror
+            </div>
+        @endif
 
-        // Проверка сложности пароля
-        function updatePasswordStrength(password) {
-            const indicator = document.getElementById('password-strength-indicator');
-            const strengthText = document.getElementById('strength-text');
+        <label class="au-check" style="margin-bottom:16px">
+            <input type="checkbox" name="terms_agree" value="1" required {{ old('terms_agree') ? 'checked' : '' }}>
+            <span>
+                {!! __('frontend.auth.terms', [
+                    'terms'   => '<a class="au-link" href="' . url('/terms') . '" target="_blank" rel="noopener">' . __('frontend.auth.terms_link') . '</a>',
+                    'privacy' => '<a class="au-link" href="' . url('/privacy') . '" target="_blank" rel="noopener">' . __('frontend.auth.privacy_link') . '</a>',
+                ]) !!}
+            </span>
+        </label>
 
-            if (!password) {
-                indicator.classList.add('hidden');
-                return;
-            }
-
-            indicator.classList.remove('hidden');
-
-            let strength = 0;
-            if (password.length >= 8) strength++;
-            if (password.length >= 12) strength++;
-            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
-            if (/\d/.test(password)) strength++;
-            if (/[^A-Za-z0-9]/.test(password)) strength++;
-
-            strength = Math.min(strength, 4);
-
-            // Обновляем индикаторы
-            for (let i = 1; i <= 4; i++) {
-                const bar = document.getElementById('strength-bar-' + i);
-                if (bar) {
-                    if (i <= strength) {
-                        if (strength <= 1) bar.className = 'h-1 flex-1 rounded bg-red-500';
-                        else if (strength === 2) bar.className = 'h-1 flex-1 rounded bg-orange-500';
-                        else if (strength === 3) bar.className = 'h-1 flex-1 rounded bg-yellow-500';
-                        else bar.className = 'h-1 flex-1 rounded bg-green-500';
-                    } else {
-                        bar.className = 'h-1 flex-1 rounded bg-gray-200';
-                    }
-                }
-            }
-
-            // Обновляем текст
-            const texts = {
-                0: '',
-                1: 'Слабый пароль',
-                2: 'Средний пароль',
-                3: 'Хороший пароль',
-                4: 'Надёжный пароль'
-            };
-
-            if (strengthText) {
-                strengthText.textContent = texts[strength] || '';
-                strengthText.className = 'text-xs ' + (
-                    strength <= 1 ? 'text-red-600' :
-                    strength === 2 ? 'text-orange-600' :
-                    strength === 3 ? 'text-yellow-600' :
-                    'text-green-600'
-                );
-            }
-        }
-
-        // Проверка совпадения паролей
-        function checkPasswordMatch() {
-            const password = document.getElementById('password').value;
-            const passwordConfirmation = document.getElementById('password_confirmation').value;
-            const messageEl = document.getElementById('password-match-message');
-
-            if (!passwordConfirmation) {
-                messageEl.textContent = '';
-                return;
-            }
-
-            if (password === passwordConfirmation) {
-                messageEl.textContent = '✓ Пароли совпадают';
-                messageEl.className = 'text-xs text-green-600 mt-1';
-            } else {
-                messageEl.textContent = '✗ Пароли не совпадают';
-                messageEl.className = 'text-xs text-red-600 mt-1';
-            }
-        }
-
-    </script>
+        <button type="submit" class="au-btn">
+            <i class="fas fa-user-plus"></i> {{ __('frontend.auth.register_do') }}
+        </button>
+    </form>
 @endsection
+
+@section('under')
+    {{ __('frontend.auth.have_account') }}
+    <a href="{{ route('login') }}">{{ __('frontend.auth.login_do') }}</a>
+@endsection
+
+@push('styles')
+<style>
+    /* Переключатель «частное лицо / организация». Своим CSS, а не
+       peer-checked: этого варианта в сборке Tailwind нет (см. CLAUDE.md). */
+    .au-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 8px }
+    .au-switch-item {
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        padding: 10px 12px; font-size: .85rem; font-weight: 600;
+        border: 1px solid var(--au-line); border-radius: calc(var(--au-radius) - 4px);
+        cursor: pointer; transition: border-color .15s ease, color .15s ease;
+    }
+    .au-switch-item input { position: absolute; opacity: 0; width: 0; height: 0 }
+    .au-switch-item.is-on { color: var(--au-primary); border-color: var(--au-primary) }
+</style>
+@endpush
+
+@push('scripts')
+<script>
+    function registerForm(company) {
+        return {
+            // Значение радиокнопки приезжает строкой, а показывать блок надо
+            // по логическому признаку — держим оба и не путаем.
+            companyRaw: company ? '1' : '0',
+            password: '',
+            confirmation: '',
+
+            get company() {
+                return this.companyRaw === '1';
+            },
+
+            get matches() {
+                return this.confirmation.length > 0 && this.password === this.confirmation;
+            },
+
+            /**
+             * Оценка пароля — та же, что в личном кабинете: длина плюс
+             * разнообразие символов. Это подсказка человеку, а не проверка:
+             * настоящую делает сервер правилом Password::defaults().
+             */
+            get level() {
+                var value = this.password;
+
+                if (!value) {
+                    return 0;
+                }
+
+                var score = 0;
+
+                if (value.length >= 8) score++;
+                if (value.length >= 12) score++;
+                if (/[a-z]/.test(value) && /[A-Z]/.test(value)) score++;
+                if (/[0-9]/.test(value) && /[^A-Za-z0-9]/.test(value)) score++;
+
+                return Math.min(score, 4);
+            },
+
+            get levelText() {
+                return [
+                    '',
+                    @js(__('frontend.account.pw_weak')),
+                    @js(__('frontend.account.pw_fair')),
+                    @js(__('frontend.account.pw_good')),
+                    @js(__('frontend.account.pw_strong'))
+                ][this.level];
+            }
+        };
+    }
+</script>
+@endpush

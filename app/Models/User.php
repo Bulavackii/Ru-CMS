@@ -32,6 +32,19 @@ class User extends Authenticatable implements JWTSubject
         'vk',
         'max',
         'zip', // для совместимости
+        // Реквизиты организации. Их принимали и «сохраняли» в двух местах —
+        // при регистрации и в кабинете, — но в этом списке их не было, и
+        // Eloquent молча отбрасывал значения при каждом сохранении. Ровно то
+        // же самое было выше с полем vk. Форма при этом показывала «Профиль
+        // обновлён», а реквизиты в базу не попадали никогда.
+        'is_company',
+        'company_name',
+        'inn',
+        'ogrn',
+        'ceo',
+        'address_legal',
+        'address_actual',
+        'okato',
         'two_factor_secret',
         'two_factor_recovery_codes',
         'two_factor_enabled',
