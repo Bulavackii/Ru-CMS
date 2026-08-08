@@ -874,3 +874,141 @@ label.ru-ed-menu-item { position: relative }
     height: 3px;
     background: var(--ru-ink, transparent);
 }
+
+/* ============================================================================
+   Правка исходного кода.
+   ----------------------------------------------------------------------------
+   Слой с подсветкой лежит ПОД полем ввода, текст в поле прозрачный. Поэтому
+   всё, что влияет на раскладку текста, задано ОДНИМ классом на оба узла:
+   разойдись они хоть в межстрочном расстоянии — подсветка поедет относительно
+   букв, и заметно это будет только на длинном файле.
+   ========================================================================= */
+
+.ru-ed-src { display: flex; flex-direction: column; }
+.ru-ed-src[hidden] { display: none; }
+
+.ru-ed-src-box {
+    position: relative;
+    display: flex;
+    overflow: hidden;
+    background: #fbfbfd;
+}
+
+/* Общая раскладка текста для поля, подсветки и нумерации. */
+.ru-ed-src-text {
+    margin: 0;
+    padding: 10px 12px;
+    font-family: "JetBrains Mono", "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.55;
+    letter-spacing: 0;
+    tab-size: 2;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.ru-ed-src.is-nowrap .ru-ed-src-text {
+    white-space: pre;
+    word-break: normal;
+    overflow-wrap: normal;
+}
+
+/* Нумерация. Своя прокрутка синхронизируется со скриптом. */
+.ru-ed-src-gutter {
+    flex: 0 0 auto;
+    min-width: 46px;
+    padding-right: 10px;
+    color: #9aa3b2;
+    text-align: right;
+    background: #f2f3f7;
+    border-right: 1px solid #e4e6ee;
+    overflow: hidden;
+    user-select: none;
+}
+
+.ru-ed-src-paint,
+.ru-ed-src textarea.ru-ed-code {
+    flex: 1 1 auto;
+    min-width: 0;
+    border: 0;
+    outline: none;
+    resize: none;
+}
+
+.ru-ed-src-paint {
+    position: absolute;
+    inset: 0 0 0 46px;
+    overflow: hidden;
+    color: #1f2430;
+    pointer-events: none;
+}
+
+/* Текст поля прозрачный: видно раскрашенный слой под ним. Курсор и
+   выделение при этом остаются родными — их рисует браузер. */
+.ru-ed-src textarea.ru-ed-code {
+    position: relative;
+    z-index: 1;
+    color: transparent;
+    caret-color: #4f46e5;
+    background: transparent;
+    overflow: auto;
+}
+
+.ru-ed-src textarea.ru-ed-code::selection { background: rgba(99, 102, 241, .22) }
+
+/* ── Цвета разметки ── */
+
+.rs-tag  { color: #2563eb }
+.rs-attr { color: #7c3aed }
+.rs-val  { color: #15803d }
+.rs-punc { color: #6b7280 }
+.rs-cmt  { color: #9aa3b2; font-style: italic }
+.rs-doc  { color: #6b7280 }
+.rs-ent  { color: #b45309 }
+.rs-sc   { color: #be185d; font-weight: 600 }
+
+/* ── Строка состояния ── */
+
+.ru-ed-src-status {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 5px 10px;
+    font-size: 11.5px;
+    color: #6b7280;
+    background: #f7f8fa;
+    border-top: 1px solid #e4e6ee;
+}
+
+.ru-ed-src-problem { flex: 1 1 auto; min-width: 0; }
+.ru-ed-src-problem.is-bad { color: #b91c1c; font-weight: 600 }
+.ru-ed-src-tools { display: flex; gap: 6px; margin-left: auto }
+
+.ru-ed-src-btn {
+    padding: 3px 9px;
+    font: inherit;
+    font-size: 11.5px;
+    color: #374151;
+    background: #fff;
+    border: 1px solid #d9dce5;
+    cursor: pointer;
+}
+
+.ru-ed-src-btn:hover { color: #4f46e5; border-color: #4f46e5 }
+.ru-ed-src-btn.is-off { color: #9aa3b2 }
+
+@media (prefers-color-scheme: dark) {
+    .ru-ed-src-box { background: #12161f }
+    .ru-ed-src-gutter { color: #6b7382; background: #171c26; border-right-color: #2a3040 }
+    .ru-ed-src-paint { color: #d7dbe4 }
+    .ru-ed-src-status { color: #94a1b5; background: #171c26; border-top-color: #2a3040 }
+    .ru-ed-src-btn { color: #cbd5e1; background: #1d232f; border-color: #2a3040 }
+
+    .rs-tag  { color: #7dabf8 }
+    .rs-attr { color: #c4a7fb }
+    .rs-val  { color: #86d99c }
+    .rs-cmt  { color: #6b7382 }
+    .rs-ent  { color: #e3b341 }
+    .rs-sc   { color: #f472b6 }
+}

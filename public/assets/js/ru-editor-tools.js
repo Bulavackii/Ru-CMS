@@ -186,22 +186,30 @@
             // кода отдаёт значение самого поля с кодом, и при обратном порядке
             // исходник заполнялся бы сам собой — то есть тем, что в нём уже
             // лежало с прошлого раза, а не текущим документом.
-            editor.code.value = formatHtml(editor.getContent());
+            editor.code.value = RuEditor.source.format(editor.getContent());
             editor.sourceMode = true;
             editor.code.style.height = editor.frame.offsetHeight + 'px';
             editor.code.removeAttribute('hidden');
+            (editor.sourceBox || editor.code).removeAttribute('hidden');
             editor.frame.style.display = 'none';
+            editor.emit('source-open');
             editor.code.focus();
         } else {
             var html = editor.code.value;
 
             editor.sourceMode = false;
             editor.code.setAttribute('hidden', '');
+            (editor.sourceBox || editor.code).setAttribute('hidden', '');
             editor.frame.style.display = '';
             // Возврат из кода прогоняет разметку через ту же чистку, что и
-            // обычное сохранение: руками в исходник можно вписать что угодно,
-            // включая обработчики событий.
-            editor.setContent(html);
+            // сохранение: руками в исходник можно вписать что угодно, включая
+            // обработчики событий.
+            //
+            // Раньше это было только обещанием в комментарии — setContent
+            // клал разметку как есть. В базу обработчик всё равно не уходил
+            // (чистка стоит и на сохранении), но до сохранения он оставался
+            // ЖИВЫМ в документе редактора и мог сработать по щелчку автора.
+            editor.setContent(RuEditor.cleanOutput(html));
             editor.focus();
         }
 
@@ -213,20 +221,6 @@
         });
     });
 
-    /**
-     * Раскладка разметки по строкам. Не форматтер общего назначения: задача
-     * скромная — чтобы в исходнике можно было что-то найти глазами, а не
-     * читать полотно в одну строку.
-     */
-    function formatHtml(html) {
-        var blocks = 'p|div|h[1-6]|ul|ol|li|table|thead|tbody|tr|td|th|blockquote|pre|figure|figcaption|section|details|summary|hr';
-
-        return String(html)
-            .replace(new RegExp('<(' + blocks + ')(\\s|>)', 'gi'), '\n<$1$2')
-            .replace(new RegExp('</(' + blocks + ')>', 'gi'), '</$1>\n')
-            .replace(/\n{2,}/g, '\n')
-            .trim();
-    }
 
     /* ── Предпросмотр ────────────────────────────────────────────────── */
 

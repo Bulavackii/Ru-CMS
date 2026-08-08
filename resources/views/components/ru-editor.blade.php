@@ -156,6 +156,7 @@
         <script src="{{ asset_v('assets/js/ru-editor-media.js') }}"></script>
         <script src="{{ asset_v('assets/js/ru-editor-blocks.js') }}"></script>
         <script src="{{ asset_v('assets/js/ru-editor-resize.js') }}"></script>
+        <script src="{{ asset_v('assets/js/ru-editor-source.js') }}"></script>
         <script src="{{ asset_v('assets/js/ru-editor-tools.js') }}"></script>
 
         <script>

@@ -164,6 +164,50 @@ class EditorObjectsTest extends TestCase
         $this->assertStringContainsString("target.style.aspectRatio = locked || !vertical", $js);
     }
 
+    public function test_source_view_is_wired(): void
+    {
+        // Подсветка своя, без сторонней библиотеки: чужой редактор кода — это
+        // либо сборщик, либо загрузка со стороны, а здесь нет ни того, ни
+        // другого. Проверяем, что файл подключён и раньше остальных зовущих.
+        $view = file_get_contents(resource_path('views/components/ru-editor.blade.php'));
+
+        $this->assertStringContainsString('ru-editor-source.js', $view);
+        $this->assertLessThan(
+            strpos($view, 'ru-editor-tools.js'),
+            strpos($view, 'ru-editor-source.js'),
+            'Правка кода должна подключаться раньше инструментов, которые её зовут'
+        );
+
+        $js = $this->js('ru-editor-source.js');
+
+        $this->assertStringContainsString('RuEditor.source = {', $js);
+        $this->assertStringContainsString("registerPlugin('source-view'", $js);
+    }
+
+    public function test_formatter_never_breaks_a_line_inside_a_paragraph(): void
+    {
+        // Перенос строки между строчными элементами страница читает как
+        // пробел: «красивое» форматирование меняло бы вид материала, добавляя
+        // пробел между словом и ссылкой. Блок без блоков внутри остаётся в
+        // одной строке, какой бы длинной она ни вышла.
+        $js = $this->js('ru-editor-source.js');
+
+        $this->assertStringContainsString('function hasBlockInside(list, from, to)', $js);
+        $this->assertStringContainsString('!hasBlockInside(list, i + 1, closeAt)', $js);
+        $this->assertStringContainsString("var VERBATIM = ['pre', 'textarea'];", $js);
+    }
+
+    public function test_source_view_sanitizes_on_return(): void
+    {
+        // Руками в исходник можно вписать что угодно, включая обработчики
+        // событий. В базу они и раньше не уходили — чистка стоит на
+        // сохранении, — но до сохранения оставались ЖИВЫМИ в документе.
+        $this->assertStringContainsString(
+            'editor.setContent(RuEditor.cleanOutput(html));',
+            $this->js('ru-editor-tools.js')
+        );
+    }
+
     public function test_form_is_inline_so_alignment_moves_it(): void
     {
         // Тем же способом, что и всё остальное содержимое: строчный блок
