@@ -29,6 +29,14 @@
 
     <link href="{{ local_css('tailwind.min.css') }}" rel="stylesheet">
     @include('layouts.partials.tw-compat')
+
+    {{-- Font Awesome нужен явно, а не «из темы»: партиал темы подключает НАБОР
+         ИЗ ЕЁ НАСТРОЙКИ, а по умолчанию это lucide. Разметка этих экранов
+         написана на fas-иконках, и без этой строки глазок в поле пароля,
+         стрелка «на сайт» и значки в левой колонке не рисовались вовсе —
+         на их месте была пустота. Сайт подключает файл ровно так же. --}}
+    <link rel="stylesheet" href="{{ local_css('font-awesome/all.min.css') }}">
+
     @include('layouts.partials.theme-head', ['pageTheme' => $pageTheme])
 
     <style>
@@ -39,6 +47,13 @@
          *
          * Всё цветное завязано на переменные темы — меняется оформление
          * проекта, меняются и эти страницы.
+         *
+         * Про высоту. Первая версия была в одну колонку с крупным ритмом, и
+         * регистрация организации не помещалась в окно 1280×720: страница
+         * уезжала на пятьсот пикселей. Здесь ритм плотнее, поля на широком
+         * экране идут в две колонки, а прокручивается при нужде ТОЛЬКО правая
+         * колонка — левая с представлением проекта остаётся на месте, и общей
+         * прокрутки страницы не возникает никогда.
          */
         .au {
             --au-primary: var(--color-primary, #6366f1);
@@ -47,18 +62,19 @@
             --au-text: var(--color-text, #111827);
             --au-card: #ffffff;
             --au-line: #e3e6ee;
+            --au-soft: #f7f8fc;
             --au-muted: #6b7280;
             --au-radius: var(--radius-md, 12px);
 
-            min-height: 100vh;
             margin: 0;
             font-family: var(--font-base, -apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif);
             color: var(--au-text);
             background: var(--au-bg);
         }
 
-        .au-wrap { display: grid; min-height: 100vh }
-        @media (min-width: 1024px) { .au-wrap { grid-template-columns: 1.05fr 1fr } }
+        /* Высота фиксирована по окну, поэтому страница целиком не прокручивается. */
+        .au-wrap { display: grid; height: 100vh; height: 100dvh; overflow: hidden }
+        @media (min-width: 1024px) { .au-wrap { grid-template-columns: 1.02fr 1fr } }
 
         /* ── Левая колонка: представление проекта ── */
         .au-aside {
@@ -66,147 +82,173 @@
             position: relative;
             flex-direction: column;
             justify-content: space-between;
-            padding: 42px 46px;
+            padding: 34px 40px;
             color: #fff;
             background: linear-gradient(140deg, var(--au-primary), var(--au-accent));
             overflow: hidden;
         }
         @media (min-width: 1024px) { .au-aside { display: flex } }
 
-        /* Мягкое свечение поверх градиента — иначе заливка выглядит плоской.
-           Пара кругов вместо картинки: ничего не грузится и не зависит от темы. */
-        .au-aside::before,
-        .au-aside::after {
+        /* Свечение и сетка поверх градиента — иначе заливка выглядит плоской.
+           Всё рисуется CSS: ничего не грузится и не зависит от темы. */
+        .au-aside::before {
             content: '';
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, .13);
+            position: absolute; inset: 0;
+            background-image:
+                radial-gradient(560px 420px at 88% -8%, rgba(255,255,255,.20), transparent 62%),
+                radial-gradient(420px 380px at -6% 108%, rgba(255,255,255,.16), transparent 60%),
+                linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px);
+            background-size: auto, auto, 42px 42px, 42px 42px;
             pointer-events: none;
         }
-        .au-aside::before { width: 460px; height: 460px; top: -160px; right: -140px }
-        .au-aside::after  { width: 320px; height: 320px; bottom: -120px; left: -90px }
 
-        .au-brand { position: relative; display: flex; align-items: center; gap: 12px; font-size: 1.05rem; font-weight: 700 }
+        .au-brand { position: relative; display: inline-flex; align-items: center; gap: 11px;
+                    font-size: 1rem; font-weight: 700; color: #fff; text-decoration: none }
         .au-brand-mark {
             display: inline-flex; align-items: center; justify-content: center;
-            width: 42px; height: 42px; font-size: 18px;
+            width: 38px; height: 38px; font-size: 16px;
             background: rgba(255, 255, 255, .18); border-radius: var(--au-radius);
         }
-        .au-brand img { max-height: 42px; width: auto }
+        .au-brand img { max-height: 38px; width: auto }
 
-        .au-lead { position: relative; max-width: 30rem }
-        .au-lead h2 { margin: 0 0 12px; font-size: 2rem; font-weight: 800; line-height: 1.2 }
-        .au-lead p { margin: 0; font-size: .98rem; line-height: 1.65; color: rgba(255, 255, 255, .88) }
+        .au-lead { position: relative; max-width: 27rem }
+        .au-lead h2 { margin: 0 0 10px; font-size: 1.85rem; font-weight: 800; line-height: 1.18; letter-spacing: -.01em }
+        .au-lead p { margin: 0; font-size: .93rem; line-height: 1.6; color: rgba(255, 255, 255, .9) }
 
-        .au-points { position: relative; display: grid; gap: 12px; margin: 26px 0 0; padding: 0; list-style: none }
-        .au-points li { display: flex; align-items: flex-start; gap: 11px; font-size: .9rem; line-height: 1.5 }
+        .au-points { position: relative; display: grid; gap: 9px; margin: 20px 0 0; padding: 0; list-style: none }
+        .au-points li { display: flex; align-items: center; gap: 10px; font-size: .86rem; line-height: 1.45 }
         .au-points i {
             display: inline-flex; align-items: center; justify-content: center;
-            width: 24px; height: 24px; font-size: 11px; flex: 0 0 auto;
-            background: rgba(255, 255, 255, .18); border-radius: 50%;
+            width: 22px; height: 22px; font-size: 10px; flex: 0 0 auto;
+            background: rgba(255, 255, 255, .2); border-radius: 50%;
         }
 
-        .au-aside-foot { position: relative; font-size: .78rem; color: rgba(255, 255, 255, .72) }
+        .au-aside-foot { position: relative; font-size: .76rem; color: rgba(255, 255, 255, .74) }
         .au-aside-foot a { color: #fff; text-decoration: underline }
 
         /* ── Правая колонка: форма ── */
         .au-main {
             display: flex; align-items: center; justify-content: center;
-            padding: 32px 20px;
+            padding: 24px 20px;
+            /* Прокручивается только эта колонка, и только если содержимое всё
+               же не поместилось (низкое окно, включённая каптча). */
+            overflow-y: auto;
         }
-        .au-card { width: 100%; max-width: 27rem }
+        .au-card { width: 100%; max-width: 26rem; margin: auto }
+        /* Регистрация шире: её поля идут в две колонки. */
+        .au-card--wide { max-width: 34rem }
 
-        .au-top { margin-bottom: 22px }
+        .au-top { margin-bottom: 16px }
         .au-back {
-            display: inline-flex; align-items: center; gap: 7px; margin-bottom: 16px;
-            font-size: .82rem; color: var(--au-muted); text-decoration: none;
+            display: inline-flex; align-items: center; gap: 6px; margin-bottom: 12px;
+            font-size: .78rem; color: var(--au-muted); text-decoration: none;
         }
         .au-back:hover { color: var(--au-primary) }
 
-        .au-title { margin: 0 0 6px; font-size: 1.6rem; font-weight: 800; line-height: 1.2 }
-        .au-sub { margin: 0; font-size: .88rem; line-height: 1.6; color: var(--au-muted) }
+        .au-head { display: flex; align-items: center; gap: 12px }
+        .au-badge {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 42px; height: 42px; font-size: 16px; color: #fff; flex: 0 0 auto;
+            background: linear-gradient(135deg, var(--au-primary), var(--au-accent));
+            border-radius: var(--au-radius);
+        }
+        .au-title { margin: 0; font-size: 1.4rem; font-weight: 800; line-height: 1.2; letter-spacing: -.01em }
+        .au-sub { margin: 4px 0 0; font-size: .83rem; line-height: 1.5; color: var(--au-muted) }
 
         .au-box {
-            padding: 24px;
+            position: relative;
+            padding: 20px;
             background: var(--au-card);
             border: 1px solid var(--au-line);
             border-radius: var(--au-radius);
-            box-shadow: 0 12px 34px rgba(17, 24, 39, .07);
+            box-shadow: 0 1px 2px rgba(17,24,39,.04), 0 14px 34px rgba(17,24,39,.08);
+            overflow: hidden;
+        }
+        /* Тонкая акцентная полоса сверху — тот же приём, что у карточек панели. */
+        .au-box::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, var(--au-primary), var(--au-accent), var(--au-primary));
         }
 
         /* ── Поля ── */
-        .au-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 15px }
-        .au-label { font-size: .82rem; font-weight: 600 }
+        .au-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 11px; min-width: 0 }
+        .au-label { font-size: .78rem; font-weight: 600 }
         .au-req { margin-left: 3px; color: #dc2626 }
 
         .au-input {
-            width: 100%; padding: 11px 13px;
-            font: inherit; font-size: .9rem; color: var(--au-text);
-            background: #fff; border: 1px solid var(--au-line);
-            border-radius: calc(var(--au-radius) - 4px);
-            outline: none; transition: border-color .15s ease, box-shadow .15s ease;
+            width: 100%; padding: 9px 12px;
+            font: inherit; font-size: .87rem; color: var(--au-text);
+            background: var(--au-soft); border: 1px solid var(--au-line);
+            border-radius: calc(var(--au-radius) - 5px);
+            outline: none; transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
         }
-        .au-input:focus { border-color: var(--au-primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, .16) }
+        .au-input:focus { background: #fff; border-color: var(--au-primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, .15) }
         .au-input::placeholder { color: #a8aebb }
         .au-input.is-bad { border-color: #dc2626 }
+        textarea.au-input { resize: vertical }
 
         .au-with-btn { position: relative }
-        .au-with-btn .au-input { padding-right: 42px }
+        .au-with-btn .au-input { padding-right: 38px }
         .au-eye {
-            position: absolute; right: 4px; top: 0; bottom: 0;
+            position: absolute; right: 2px; top: 0; bottom: 0;
             display: inline-flex; align-items: center; justify-content: center;
-            width: 36px; color: var(--au-muted); background: none; border: 0; cursor: pointer;
+            width: 34px; color: var(--au-muted); background: none; border: 0; cursor: pointer;
         }
         .au-eye:hover { color: var(--au-text) }
 
-        .au-hint { font-size: .76rem; line-height: 1.5; color: var(--au-muted) }
-        .au-err { font-size: .78rem; color: #dc2626 }
+        .au-hint { font-size: .72rem; line-height: 1.4; color: var(--au-muted) }
+        .au-err { font-size: .74rem; line-height: 1.4; color: #dc2626 }
 
-        .au-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 18px }
-        .au-check { display: inline-flex; align-items: flex-start; gap: 8px; font-size: .84rem; cursor: pointer }
-        .au-check input { margin-top: 2px; width: 15px; height: 15px; accent-color: var(--au-primary); flex: 0 0 auto }
-        .au-link { color: var(--au-primary); font-size: .84rem; text-decoration: none }
+        .au-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+                  gap: 8px; margin-bottom: 13px }
+        .au-check { display: inline-flex; align-items: flex-start; gap: 8px; font-size: .8rem; line-height: 1.45; cursor: pointer }
+        .au-check input { margin-top: 2px; width: 14px; height: 14px; accent-color: var(--au-primary); flex: 0 0 auto }
+        .au-link { color: var(--au-primary); font-size: .8rem; text-decoration: none }
         .au-link:hover { text-decoration: underline }
 
         .au-btn {
             display: inline-flex; align-items: center; justify-content: center; gap: 9px;
-            width: 100%; padding: 12px 20px;
-            font: inherit; font-size: .92rem; font-weight: 700; color: #fff;
+            width: 100%; padding: 11px 20px;
+            font: inherit; font-size: .89rem; font-weight: 700; color: #fff;
             background: linear-gradient(135deg, var(--au-primary), var(--au-accent));
-            border: 0; border-radius: calc(var(--au-radius) - 4px);
-            cursor: pointer; transition: filter .15s ease, transform .05s ease;
+            border: 0; border-radius: calc(var(--au-radius) - 5px);
+            cursor: pointer; transition: filter .15s ease, transform .05s ease, box-shadow .15s ease;
+            box-shadow: 0 6px 16px rgba(99, 102, 241, .28);
         }
         .au-btn:hover { filter: brightness(1.07) }
         .au-btn:active { transform: translateY(1px) }
         .au-btn[disabled] { opacity: .6; cursor: progress }
 
         .au-btn--ghost {
-            color: var(--au-text); background: #fff; border: 1px solid var(--au-line);
+            color: var(--au-text); background: #fff; border: 1px solid var(--au-line); box-shadow: none;
         }
-        .au-btn--ghost:hover { background: #f7f8fb; filter: none }
+        .au-btn--ghost:hover { background: var(--au-soft); filter: none }
 
-        .au-foot { margin-top: 18px; font-size: .86rem; text-align: center; color: var(--au-muted) }
+        .au-foot { margin-top: 13px; font-size: .82rem; text-align: center; color: var(--au-muted) }
         .au-foot a { color: var(--au-primary); font-weight: 600; text-decoration: none }
         .au-foot a:hover { text-decoration: underline }
 
         /* ── Сообщения ── */
-        .au-note { display: flex; gap: 10px; margin-bottom: 16px; padding: 11px 13px;
-                   font-size: .85rem; line-height: 1.5; border-radius: calc(var(--au-radius) - 4px) }
+        .au-note { display: flex; gap: 9px; margin-bottom: 12px; padding: 9px 11px;
+                   font-size: .81rem; line-height: 1.45; border-radius: calc(var(--au-radius) - 5px) }
         .au-note--ok  { color: #14532d; background: #dcfce7; border: 1px solid #86efac }
         .au-note--bad { color: #7f1d1d; background: #fee2e2; border: 1px solid #fca5a5 }
         .au-note--info { color: #1e3a8a; background: #dbeafe; border: 1px solid #93c5fd }
-        .au-note ul { margin: 5px 0 0; padding-left: 18px }
+        .au-note ul { margin: 4px 0 0; padding-left: 17px }
 
-        /* ── Разделитель и группы ── */
-        .au-split { display: flex; align-items: center; gap: 12px; margin: 18px 0; color: var(--au-muted); font-size: .76rem }
+        /* ── Разделитель и сетка полей ── */
+        .au-split { display: flex; align-items: center; gap: 10px; margin: 12px 0 10px;
+                    color: var(--au-muted); font-size: .72rem; text-transform: uppercase; letter-spacing: .05em }
         .au-split::before, .au-split::after { content: ''; height: 1px; flex: 1 1 auto; background: var(--au-line) }
 
         .au-grid { display: grid; gap: 0 12px }
-        @media (min-width: 520px) { .au-grid--2 { grid-template-columns: 1fr 1fr } }
+        @media (min-width: 560px) { .au-grid--2 { grid-template-columns: 1fr 1fr } }
 
         /* ── Сила пароля ── */
-        .au-strength { display: flex; gap: 4px; margin-top: 7px }
-        .au-strength span { height: 3px; flex: 1 1 auto; background: #e5e7eb; transition: background .2s ease }
+        .au-strength { display: flex; gap: 3px; margin-top: 5px }
+        .au-strength span { height: 3px; flex: 1 1 auto; background: #e5e7eb; border-radius: 2px; transition: background .2s ease }
         .au-strength.lv1 span:nth-child(1) { background: #dc2626 }
         .au-strength.lv2 span:nth-child(-n+2) { background: #f59e0b }
         .au-strength.lv3 span:nth-child(-n+3) { background: #eab308 }
@@ -214,11 +256,32 @@
 
         /* ── Тёмное оформление ── */
         @media (prefers-color-scheme: dark) {
-            .au { --au-card: #171b24; --au-line: #333a49; --au-text: #e6e8ee; --au-muted: #9aa3b2 }
-            .au-input { color: #e6e8ee; background: #10141c; border-color: #333a49 }
+            .au { --au-card: #171b24; --au-line: #333a49; --au-soft: #10141c; --au-text: #e6e8ee; --au-muted: #9aa3b2 }
+            .au-input { color: #e6e8ee }
+            .au-input:focus { background: #10141c }
             .au-btn--ghost { color: #e6e8ee; background: #171b24 }
             .au-btn--ghost:hover { background: #1d222d }
             .au-strength span { background: #333a49 }
+        }
+
+        /* Низкое окно: ритм ещё плотнее, чтобы форма помещалась без прокрутки.
+           Ужимаем отступы и вспомогательные строки, но не сами поля — по ним
+           попадают пальцем и курсором. */
+        @media (min-width: 1024px) and (max-height: 800px) {
+            .au-main { padding: 14px 20px }
+            .au-aside { padding: 24px 32px }
+            .au-lead h2 { font-size: 1.55rem; margin-bottom: 8px }
+            .au-lead p { font-size: .88rem }
+            .au-points { gap: 7px; margin-top: 16px }
+            .au-box { padding: 15px }
+            .au-field { margin-bottom: 8px }
+            .au-top { margin-bottom: 10px }
+            .au-back { margin-bottom: 8px }
+            .au-badge { width: 36px; height: 36px; font-size: 14px }
+            .au-title { font-size: 1.25rem }
+            .au-split { margin: 9px 0 8px }
+            .au-note { margin-bottom: 9px; padding: 8px 10px }
+            .au-foot { margin-top: 10px }
         }
     </style>
 
@@ -260,17 +323,26 @@
             </div>
         </aside>
 
-        {{-- ── Форма ── --}}
+        {{-- ── Форма ──
+             Ширину задаёт сама страница секцией card_class: регистрации нужны
+             две колонки полей, остальным экранам узкая карточка читается
+             лучше. --}}
         <main class="au-main">
-            <div class="au-card">
+            <div class="au-card @yield('card_class')">
                 <div class="au-top">
                     <a href="{{ url('/') }}" class="au-back">
                         <i class="fas fa-arrow-left"></i> {{ __('frontend.auth.to_site') }}
                     </a>
-                    <h1 class="au-title">@yield('heading')</h1>
-                    @hasSection('lead')
-                        <p class="au-sub">@yield('lead')</p>
-                    @endif
+
+                    <div class="au-head">
+                        <span class="au-badge" aria-hidden="true"><i class="fas @yield('icon', 'fa-right-to-bracket')"></i></span>
+                        <div class="min-w-0">
+                            <h1 class="au-title">@yield('heading')</h1>
+                            @hasSection('lead')
+                                <p class="au-sub">@yield('lead')</p>
+                            @endif
+                        </div>
+                    </div>
                 </div>
 
                 <div class="au-box">
