@@ -449,3 +449,204 @@
 .page-content audio {
     width: 100%;
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   Проигрыватели
+
+   Браузерный проигрыватель выглядит по-своему в каждом браузере и никак не
+   связан с оформлением сайта: в Chrome одна панель, в Safari другая, в
+   Firefox третья. Для звука это особенно заметно — там серая полоса во всю
+   ширину, которая спорит с текстом вокруг.
+
+   Поэтому звук получает свой проигрыватель (собирает content-players.js), а
+   видео остаётся на родных кнопках: они умеют полный экран, картинку в
+   картинке и субтитры, и переписывать это ради вида не стоит. Видео получает
+   только рамку в стиле сайта.
+
+   Если скрипт не отработал, у обоих остаются родные кнопки — разметка
+   рабочая сама по себе.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* Скруглений здесь нет намеренно: на сайте действует общее правило прямых
+   краёв (body.fx-sharp), и любой border-radius всё равно обнуляется. Писать
+   его — обещать вид, которого не будет. Круглыми остаются только кнопка
+   воспроизведения и ползунок: у них радиус задан половиной размера, и правило
+   прямых краёв до них не относится. */
+.page-content .pc-player {
+    margin: 1.4rem 0;
+}
+
+/* ── Видео: рамка вокруг родного проигрывателя ── */
+
+.page-content .pc-player--video video {
+    display: block;
+    width: 100%;
+    background: #0b1020;
+}
+
+/* ── Звук: свой проигрыватель ── */
+
+.page-content .pc-audio {
+    --pc-audio-accent: var(--color-primary, #6366f1);
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: #fff;
+    border: 1px solid #e3e6ee;
+}
+
+/* Пока скрипт не отработал, показываем родной проигрыватель, а свой прячем:
+   иначе на долю секунды видны обе панели сразу. */
+.page-content .pc-audio__ui {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.page-content .pc-audio.is-ready audio {
+    display: none;
+}
+
+.page-content .pc-audio.is-ready .pc-audio__ui {
+    display: flex;
+}
+
+.page-content .pc-audio__play {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    color: #fff;
+    background: var(--pc-audio-accent);
+    border: 0;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: filter .15s ease, transform .05s ease;
+}
+
+.page-content .pc-audio__play:hover { filter: brightness(1.1) }
+.page-content .pc-audio__play:active { transform: scale(.94) }
+.page-content .pc-audio__play svg { width: 15px; height: 15px; fill: currentColor }
+
+.page-content .pc-audio__body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+/* Дорожка. Высота у полосы небольшая, а у самой кнопки — во всю строку:
+   попасть пальцем в полоску в три пикселя невозможно. */
+.page-content .pc-audio__track {
+    position: relative;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    touch-action: none;
+}
+
+.page-content .pc-audio__rail {
+    position: relative;
+    width: 100%;
+    height: 4px;
+    background: #e3e6ee;
+    overflow: hidden;
+}
+
+.page-content .pc-audio__fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 0;
+    background: var(--pc-audio-accent);
+}
+
+.page-content .pc-audio__knob {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 12px;
+    height: 12px;
+    margin: -6px 0 0 -6px;
+    background: #fff;
+    border: 2px solid var(--pc-audio-accent);
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .15s ease;
+}
+
+.page-content .pc-audio__track:hover .pc-audio__knob,
+.page-content .pc-audio__track:focus-visible .pc-audio__knob { opacity: 1 }
+
+.page-content .pc-audio__meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: .76rem;
+    color: #6b7280;
+    font-variant-numeric: tabular-nums;
+}
+
+.page-content .pc-audio__time { flex: 0 0 auto }
+.page-content .pc-audio__name {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.page-content .pc-audio__rate {
+    flex: 0 0 auto;
+    padding: 2px 7px;
+    font: inherit;
+    font-size: .72rem;
+    color: #4b5563;
+    background: #f3f4f6;
+    border: 0;
+    cursor: pointer;
+}
+
+.page-content .pc-audio__rate:hover { color: #111827; background: #e9ebf0 }
+
+.page-content .pc-audio__mute {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    color: #6b7280;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+}
+
+.page-content .pc-audio__mute:hover { color: #111827 }
+.page-content .pc-audio__mute svg { width: 16px; height: 16px; fill: currentColor }
+
+/* Узкий экран: скорость и название убираем — важнее время и дорожка. */
+@media (max-width: 520px) {
+    .page-content .pc-audio__name,
+    .page-content .pc-audio__rate { display: none }
+}
+
+@media (prefers-color-scheme: dark) {
+    .page-content .pc-audio {
+        background: #171b24;
+        border-color: #333a49;
+    }
+    .page-content .pc-audio__rail { background: #333a49 }
+    .page-content .pc-audio__knob { background: #171b24 }
+    .page-content .pc-audio__rate { color: #cbd5e1; background: #232936 }
+    .page-content .pc-audio__mute { color: #9aa3b2 }
+}
