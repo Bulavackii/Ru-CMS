@@ -2357,7 +2357,6 @@ return [
             'btn.fontfamily'    => 'Font family',
             'btn.fontsize'      => 'Font size',
             'size.title'        => 'Font size',
-            'size.inherit'      => 'Default',
             'color.auto'        => 'Automatic',
             'color.none'        => 'No colour',
             'color.theme'       => 'Theme colours',

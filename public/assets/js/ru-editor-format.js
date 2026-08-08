@@ -149,14 +149,13 @@
     function fontItems(editor) {
         var own = editor.options.fonts || [];
 
-        var items = [{
-            label: t('font.site', 'Шрифт сайта'),
-            action: function (ed) { ed.exec('clearStyle', { prop: 'font-family' }); }
-        }];
+        // Список начинается сразу со шрифтов. Строки «Шрифт сайта» и
+        // заголовка над своими шрифтами убраны: первая дублировала кнопку
+        // «Убрать оформление», второй нечего было отделять — до него в списке
+        // ничего не было, и заголовок висел первой строкой.
+        var items = [];
 
         if (own.length) {
-            items.push({ head: t('font.own_head', 'Шрифты проекта') });
-
             own.forEach(function (font) {
                 var stack = '"' + font.family + '", ' + (FALLBACK[font.kind] || FALLBACK.sans);
 
@@ -211,11 +210,15 @@
             node = node.parentElement;
         }
 
+        // Пока курсор никуда не поставлен, «под курсором» ничего нет — но
+        // пустая кнопка на панели выглядит сломанной. Берём размер самого
+        // текста: именно им и будет набрано то, что начнут печатать.
         if (!node || !node.isConnected) {
-            return '';
+            node = editor.body;
         }
 
-        var px = parseFloat(editor.doc.defaultView.getComputedStyle(node).fontSize);
+        var view = editor.doc.defaultView;
+        var px = parseFloat(view.getComputedStyle(node).fontSize);
 
         return px ? String(Math.round(px)) : '';
     }
@@ -235,22 +238,9 @@
             return size ? size + 'px' : '';
         },
 
+
         render: function (editor, menu) {
             menu.classList.add('ru-ed-menu--sizes');
-
-            var reset = el('button', {
-                type: 'button',
-                class: 'ru-ed-menu-item',
-                text: t('size.inherit', 'Как в тексте')
-            });
-
-            reset.addEventListener('mousedown', function (event) { event.preventDefault(); });
-            reset.addEventListener('click', function () {
-                editor.closeMenus();
-                editor.exec('clearStyle', { prop: 'font-size' });
-            });
-
-            menu.appendChild(reset);
 
             var now = currentSize(editor);
 

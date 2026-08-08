@@ -2361,7 +2361,6 @@ return [
             'btn.fontfamily'    => 'Гарнитура',
             'btn.fontsize'      => 'Размер шрифта',
             'size.title'        => 'Размер шрифта',
-            'size.inherit'      => 'Как в тексте',
             'color.auto'        => 'Цвет по умолчанию',
             'color.none'        => 'Нет цвета',
             'color.theme'       => 'Цвета оформления',
