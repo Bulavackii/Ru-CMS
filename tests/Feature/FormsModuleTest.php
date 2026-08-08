@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Modules\Forms\Console\Commands\SeedDefaultFormsCommand as Seeder;
 use Modules\Forms\Models\Form;
 use Modules\Forms\Models\FormSubmission;
 use Modules\Forms\Services\FormService;
@@ -289,6 +290,66 @@ class FormsModuleTest extends TestCase
         ]);
 
         $this->assertSame('', $form->normalizedFields()[0]['icon'], 'Опасная иконка дошла до отрисовки');
+    }
+
+    public function test_default_forms_cover_every_field_type(): void
+    {
+        // Набор форм по умолчанию — это ещё и обучение примером: открыв их,
+        // владелец видит, как собирается форма нужного вида. Если очередной
+        // тип поля нигде не показан, показывать его негде вовсе.
+        $used = [];
+
+        foreach (Seeder::definitions() as $definition) {
+            foreach ($definition['fields'] as $field) {
+                $used[$field['type']] = true;
+            }
+        }
+
+        $this->assertSame(
+            [],
+            array_values(array_diff(Form::FIELD_TYPES, array_keys($used))),
+            'Эти типы полей не показаны ни в одной форме по умолчанию'
+        );
+    }
+
+    public function test_default_forms_are_seeded_and_render(): void
+    {
+        Seeder::seed();
+
+        $forms = Form::all();
+
+        $this->assertGreaterThanOrEqual(10, $forms->count(), 'Набор образцов подозрительно мал');
+        $this->assertSame(
+            $forms->count(),
+            $forms->pluck('slug')->unique()->count(),
+            'Слаги форм по умолчанию повторяются — шорткоды будут вести не туда'
+        );
+
+        $service = app(FormService::class);
+
+        foreach ($forms as $form) {
+            $html = $service->render($form);
+
+            $this->assertStringContainsString('rf-form', $html, 'Форма «' . $form->title . '» не отрисовалась');
+            $this->assertNotEmpty($service->rules($form)['rules'], 'У формы «' . $form->title . '» нет ни одного правила');
+        }
+    }
+
+    public function test_field_width_is_computed_from_the_type(): void
+    {
+        // Ширину у владельца не спрашивают: короткий ответ встаёт в половину
+        // строки, длинный — во всю. Правило одно на конструктор и на сидер.
+        Seeder::seed();
+
+        foreach (Form::all() as $form) {
+            foreach ($form->normalizedFields() as $field) {
+                $this->assertSame(
+                    Form::widthFor($field['type']),
+                    $field['width'],
+                    'Ширина поля «' . $field['name'] . '» не совпадает с правилом'
+                );
+            }
+        }
     }
 
     public function test_guests_cannot_reach_the_builder(): void

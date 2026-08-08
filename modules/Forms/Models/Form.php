@@ -49,6 +49,23 @@ class Form extends Model
     /** Поля, которые ничего не спрашивают — это разметка, а не ввод. */
     public const DECORATIVE_TYPES = ['heading', 'paragraph'];
 
+    /**
+     * Типы, которые встают в половину строки.
+     *
+     * Ширина не спрашивается у владельца, а считается: телефон, дата и число
+     * рядом читаются лучше, чем растянутые во всю строку, а сообщение или
+     * список вариантов — наоборот. Список живёт здесь, потому что нужен и
+     * конструктору, и сидеру: две копии разошлись бы, и формы по умолчанию
+     * выглядели бы иначе, чем собранные руками.
+     */
+    public const HALF_WIDTH_TYPES = ['text', 'email', 'tel', 'number', 'url', 'date', 'time', 'select'];
+
+    /** Ширина поля по его типу. */
+    public static function widthFor(string $type): string
+    {
+        return in_array($type, self::HALF_WIDTH_TYPES, true) ? 'half' : 'full';
+    }
+
     private const CACHE_KEY = 'forms_active_list';
 
     protected static function booted(): void
