@@ -122,7 +122,11 @@ class FormService
 
         // Внутренние адреса и якоря.
         if (str_starts_with($href, '/') || str_starts_with($href, '#')) {
-            return ! str_starts_with($href, '//');
+            // «//чужой.сайт» — это протокол-относительный адрес, а не свой.
+            // «/http://чужой.сайт» — либо опечатка, либо попытка выдать чужой
+            // адрес за внутренний: и то и другое отбрасываем.
+            return ! str_starts_with($href, '//')
+                && ! preg_match('~^/[a-z][a-z0-9+.\-]*:~i', $href);
         }
 
         return (bool) preg_match('~^(?:https?://|mailto:|tel:)~i', $href);

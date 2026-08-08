@@ -79,10 +79,12 @@
         </div>
     </div>
 
+    <div class="fm-layout">
+
     <form method="POST"
           :action="editing ? formUrl(editing) : @js(route('admin.forms.store'))"
           @submit="submitting = true"
-          class="fm-layout">
+          class="min-w-0">
         @csrf
         <template x-if="editing"><input type="hidden" name="_method" value="PUT"></template>
 
@@ -103,21 +105,32 @@
                 </label>
             </div>
 
-            {{-- Иконка формы: показывается рядом с её названием на сайте. --}}
-            <div class="fm-field" style="margin-bottom:12px">
+            {{-- Иконка формы. Компактной кнопкой с выпадающим набором: лента из
+                 тридцати кнопок занимала пол-экрана и перетягивала внимание с
+                 названия формы, ради которого этот блок и существует. --}}
+            <div class="fm-field" style="margin-bottom:12px" x-data="{ open: false }" @click.outside="open = false">
                 <span class="fm-label">{{ __('admin.forms.f_form_icon') }}</span>
                 <input type="hidden" name="settings[icon]" :value="form.settings.icon">
-                <div class="fm-icons">
-                    <button type="button" class="fm-ico-btn" :class="{ 'is-on': !form.settings.icon }"
-                            @click="form.settings.icon = ''" :title="@js(__('admin.forms.icon_none'))">
-                        <i class="fas fa-ban"></i>
+
+                <div class="fm-picker">
+                    <button type="button" class="fm-picker-btn" @click="open = !open">
+                        <i class="fas" :class="form.settings.icon ? form.settings.icon.replace('fas ', '') : 'fa-ban'"></i>
+                        <span x-text="form.settings.icon ? form.settings.icon.replace('fas fa-', '') : @js(__('admin.forms.icon_none'))"></span>
+                        <i class="fas fa-chevron-down fm-picker-arrow"></i>
                     </button>
-                    <template x-for="name in icons" :key="name">
-                        <button type="button" class="fm-ico-btn" :class="{ 'is-on': form.settings.icon === 'fas ' + name }"
-                                @click="form.settings.icon = 'fas ' + name">
-                            <i class="fas" :class="name"></i>
+
+                    <div class="fm-picker-drop" x-show="open" x-cloak>
+                        <button type="button" class="fm-ico-btn" :class="{ 'is-on': !form.settings.icon }"
+                                @click="form.settings.icon = ''; open = false" :title="@js(__('admin.forms.icon_none'))">
+                            <i class="fas fa-ban"></i>
                         </button>
-                    </template>
+                        <template x-for="name in icons" :key="name">
+                            <button type="button" class="fm-ico-btn" :class="{ 'is-on': form.settings.icon === 'fas ' + name }"
+                                    @click="form.settings.icon = 'fas ' + name; open = false">
+                                <i class="fas" :class="name"></i>
+                            </button>
+                        </template>
+                    </div>
                 </div>
             </div>
 
@@ -252,20 +265,29 @@
                                 {{-- Иконка поля. Выбирается из готового набора, а
                                      не вписывается руками: имя класса уходит в
                                      атрибут, и произвольная строка там ни к чему. --}}
-                                <div class="fm-field">
+                                <div class="fm-field" x-data="{ open: false }" @click.outside="open = false">
                                     <span class="fm-label">{{ __('admin.forms.f_icon') }}</span>
                                     <input type="hidden" :name="'fields[' + index + '][icon]'" :value="field.icon">
-                                    <div class="fm-icons">
-                                        <button type="button" class="fm-ico-btn" :class="{ 'is-on': !field.icon }"
-                                                @click="field.icon = ''" :title="@js(__('admin.forms.icon_none'))">
-                                            <i class="fas fa-ban"></i>
+
+                                    <div class="fm-picker">
+                                        <button type="button" class="fm-picker-btn" @click="open = !open">
+                                            <i class="fas" :class="field.icon ? field.icon.replace('fas ', '') : 'fa-ban'"></i>
+                                            <span x-text="field.icon ? field.icon.replace('fas fa-', '') : @js(__('admin.forms.icon_none'))"></span>
+                                            <i class="fas fa-chevron-down fm-picker-arrow"></i>
                                         </button>
-                                        <template x-for="name in icons" :key="name">
-                                            <button type="button" class="fm-ico-btn" :class="{ 'is-on': field.icon === 'fas ' + name }"
-                                                    @click="field.icon = 'fas ' + name">
-                                                <i class="fas" :class="name"></i>
+
+                                        <div class="fm-picker-drop" x-show="open" x-cloak>
+                                            <button type="button" class="fm-ico-btn" :class="{ 'is-on': !field.icon }"
+                                                    @click="field.icon = ''; open = false" :title="@js(__('admin.forms.icon_none'))">
+                                                <i class="fas fa-ban"></i>
                                             </button>
-                                        </template>
+                                            <template x-for="name in icons" :key="name">
+                                                <button type="button" class="fm-ico-btn" :class="{ 'is-on': field.icon === 'fas ' + name }"
+                                                        @click="field.icon = 'fas ' + name; open = false">
+                                                    <i class="fas" :class="name"></i>
+                                                </button>
+                                            </template>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -299,6 +321,19 @@
                                     </button>
                                 </div>
                             </div>
+
+                            {{-- Обязательность повторена галочкой. Звёздочка в
+                                 строке — быстрый способ для тех, кто её уже
+                                 нашёл, но опираться только на неё нельзя:
+                                 настройка называется словами, и искать её будут
+                                 здесь, среди остальных. --}}
+                            <label class="fm-switch" style="margin-top:10px" x-show="!isDecorative(field.type)">
+                                <span class="admin-toggle">
+                                    <input type="checkbox" x-model="field.required">
+                                    <span class="track"></span><span class="knob"></span>
+                                </span>
+                                <span>{{ __('admin.forms.f_required') }}</span>
+                            </label>
 
                             <p class="fm-fmt">
                                 <b>{{ __('admin.forms.fmt_title') }}</b>
@@ -341,17 +376,26 @@
                 </label>
             </div>
 
-            <div class="flex flex-wrap gap-4 mt-3">
-                <label class="fm-check">
-                    <input type="checkbox" name="settings[columns]" value="1" x-model="form.settings.columns">
+            <div class="fm-switches">
+                <label class="fm-switch">
+                    <span class="admin-toggle">
+                        <input type="checkbox" name="settings[columns]" value="1" x-model="form.settings.columns">
+                        <span class="track"></span><span class="knob"></span>
+                    </span>
                     <span>{{ __('admin.forms.s_columns') }}</span>
                 </label>
-                <label class="fm-check">
-                    <input type="checkbox" name="settings[show_title]" value="1" x-model="form.settings.show_title">
+                <label class="fm-switch">
+                    <span class="admin-toggle">
+                        <input type="checkbox" name="settings[show_title]" value="1" x-model="form.settings.show_title">
+                        <span class="track"></span><span class="knob"></span>
+                    </span>
                     <span>{{ __('admin.forms.s_show_title') }}</span>
                 </label>
-                <label class="fm-check">
-                    <input type="checkbox" name="is_active" value="1" x-model="form.is_active">
+                <label class="fm-switch">
+                    <span class="admin-toggle">
+                        <input type="checkbox" name="is_active" value="1" x-model="form.is_active">
+                        <span class="track"></span><span class="knob"></span>
+                    </span>
                     <span>{{ __('admin.forms.s_active') }}</span>
                 </label>
             </div>
@@ -400,7 +444,14 @@
             </div>
         </section>
 
-        {{-- ══════════ Превью ══════════ --}}
+    </form>
+
+        {{-- Превью стоит СНАРУЖИ формы конструктора, хотя визуально это её
+             вторая колонка. Причина: вложенные формы запрещены разметкой, и
+             браузер молча выбрасывает внутренний тег form — вместе с ним
+             терялась сетка .rf-form, и превью показывало поля в одну колонку
+             там, где на сайте их две. Раскладку держит .fm-layout на общей
+             обёртке. --}}
         <aside class="fm-side">
             <div class="admin-card p-4">
                 <h2 class="fm-section fm-section--first">{{ __('admin.forms.preview') }}</h2>
@@ -414,7 +465,8 @@
                 <div x-cloak x-show="error" class="admin-note p-3 mt-3 text-xs" x-text="error"></div>
             </div>
         </aside>
-    </form>
+
+    </div>
 
     {{-- ══════════ Сохранённые формы ══════════ --}}
     <section class="admin-card p-4 mt-4">
@@ -535,6 +587,13 @@
 @endsection
 
 @push('styles')
+{{-- Оформление форм САЙТА нужно и здесь: превью приезжает по AJAX и
+     вставляется в готовую страницу, поэтому @push('styles') из самой вьюхи
+     формы сюда не доходит — стека уже нет. Без этой строки превью
+     показывалось голой лентой текста, включая скрытое поле-ловушку, которое
+     прячется как раз стилем. Классы там все с приставкой rf-, в панель
+     ничего не протекает. --}}
+<link rel="stylesheet" href="{{ asset_v('assets/css/forms.css') }}">
 <style>
     /* Литеральный CSS: в сборке проекта нет opacity-модификаторов,
        произвольных значений и половины цветов v3 (см. CLAUDE.md). */
@@ -630,14 +689,36 @@
     .fm-type-desc { display:flex; align-items:flex-start; gap:6px; margin:0 0 10px; padding:7px 9px;
                     font-size:.75rem; line-height:1.45; color:#3730a3; background:#eef2ff }
 
-    /* Набор иконок. Сетка, а не список: тридцать кнопок в строку не влезут. */
-    .fm-icons { display:grid; grid-template-columns:repeat(auto-fill, minmax(30px, 1fr)); gap:4px;
-                max-height:9rem; overflow-y:auto; padding:5px; border:1px solid #e5e7eb; background:#fff }
-    .fm-ico-btn { display:inline-flex; align-items:center; justify-content:center; height:28px;
+    /* Выбор иконки: кнопка как обычное поле, набор — выпадающим окном.
+       Лента из тридцати кнопок занимала пол-экрана и спорила по весу с самими
+       полями формы. */
+    .fm-picker { position:relative }
+    .fm-picker-btn { display:flex; align-items:center; gap:8px; width:100%; padding:7px 10px;
+                     font-size:.85rem; color:#111827; background:#fff; border:1px solid #d1d5db;
+                     cursor:pointer; text-align:left }
+    .fm-picker-btn:hover { border-color:#6366f1 }
+    .fm-picker-btn > .fas:first-child { width:16px; color:#4f46e5; text-align:center }
+    .fm-picker-btn span { flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+    .fm-picker-arrow { font-size:9px; color:#9ca3af }
+
+    .fm-picker-drop { position:absolute; z-index:30; top:calc(100% + 3px); left:0; right:0;
+                      display:grid; grid-template-columns:repeat(auto-fill, minmax(32px, 1fr)); gap:4px;
+                      max-height:11rem; overflow-y:auto; padding:6px;
+                      background:#fff; border:1px solid #d1d5db; box-shadow:0 10px 26px rgba(17,24,39,.12) }
+    .fm-ico-btn { display:inline-flex; align-items:center; justify-content:center; height:30px;
                   font-size:12px; color:#6b7280; background:#fff; border:1px solid #eceef3; cursor:pointer;
                   transition:border-color .15s ease, color .15s ease }
     .fm-ico-btn:hover { color:#4338ca; border-color:#c7cbf5 }
     .fm-ico-btn.is-on { color:#fff; background:#4f46e5; border-color:#4f46e5 }
+
+    /* Тумблеры — те же, что в Каптче (.admin-toggle из лейаута панели):
+       разделы не должны отличаться друг от друга оформлением одной и той же
+       настройки. */
+    .fm-switch { display:flex; align-items:center; gap:10px; padding:8px 10px;
+                 font-size:.83rem; color:#374151; background:#fff; border:1px solid #eceef3; cursor:pointer }
+    .fm-switch:hover { border-color:#c7cbf5 }
+    .fm-switches { display:grid; gap:6px; margin-top:10px }
+    @media (min-width:640px) { .fm-switches { grid-template-columns:repeat(3, minmax(0,1fr)) } }
 
     /* Памятка по оформлению подписи. */
     .fm-fmt { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:10px 0 0;
@@ -679,7 +760,12 @@
     .fm-btn--ghost { color:#4b5563; background:#fff; border:1px solid #d1d5db }
     .fm-btn--ghost:hover { background:#f3f4f6 }
 
-    .fm-preview { padding:12px; border:1px dashed #d1d5db; background:#fff; min-height:110px }
+    /* Превью показывает форму ровно в том оформлении, что и сайт (forms.css
+       подключён выше). Светлая подложка отделяет «страницу сайта» от панели,
+       иначе поля формы сливаются с полями конструктора. */
+    .fm-preview { padding:16px; border:1px solid #e5e7eb; background:#fbfbfd; min-height:110px;
+                  box-shadow:inset 0 1px 3px rgba(17,24,39,.05) }
+    .fm-preview .rf { margin:0 }
     .fm-note { margin-top:8px; font-size:.72rem; color:#9ca3af; line-height:1.5 }
 
     .fm-saved { display:flex; align-items:flex-start; gap:12px; padding:11px 0; border-top:1px solid #f3f4f6 }
