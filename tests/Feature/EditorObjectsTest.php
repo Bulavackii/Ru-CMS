@@ -94,6 +94,18 @@ class EditorObjectsTest extends TestCase
         $this->assertStringStartsWith('<p ', render_shortcodes('<p style="text-align: center;">Просто текст</p>'));
     }
 
+    public function test_audio_player_gets_a_width_it_can_be_moved_within(): void
+    {
+        // Полосу шириной с колонку двигать некуда: выравнивание по центру у
+        // элемента во всю строку не делает ничего видимого. Ширина по
+        // умолчанию ставится только при её отсутствии — растянутую автором
+        // за ручки полосу трогать нельзя.
+        $js = $this->js('ru-editor-objects.js');
+
+        $this->assertStringContainsString("box.style.width = 'min(560px, 100%)';", $js);
+        $this->assertStringContainsString('if (!box.style.width) {', $js);
+    }
+
     public function test_form_is_inline_so_alignment_moves_it(): void
     {
         // Тем же способом, что и всё остальное содержимое: строчный блок
