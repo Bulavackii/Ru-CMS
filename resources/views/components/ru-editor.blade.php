@@ -147,6 +147,10 @@
     @push('scripts')
         <script src="{{ asset_v('assets/js/ru-editor.js') }}"></script>
         <script src="{{ asset_v('assets/js/ru-editor-ui.js') }}"></script>
+        {{-- Тот же скрипт, что рисует проигрыватели на сайте: в редакторе он
+             строит их внутри рамки, чтобы вид совпадал. Разметку он туда не
+             сохраняет — панель помечена служебной и снимается при чистке. --}}
+        <script src="{{ asset_v('assets/js/content-players.js') }}"></script>
         <script src="{{ asset_v('assets/js/ru-editor-objects.js') }}"></script>
         <script src="{{ asset_v('assets/js/ru-editor-format.js') }}"></script>
         <script src="{{ asset_v('assets/js/ru-editor-media.js') }}"></script>

@@ -127,7 +127,15 @@
         body.appendChild(track);
         body.appendChild(meta);
 
-        var ui = el('div', { class: 'pc-audio__ui' });
+        // Пометка «служебное»: эта панель рисуется скриптом и в материале
+        // храниться не должна. В редакторе тот же скрипт строит её прямо
+        // внутри редактируемой области, и без пометки она уехала бы в базу —
+        // а на сайте поверх неё построилась бы вторая такая же.
+        var ui = el('div', {
+            class: 'pc-audio__ui',
+            'data-ru-transient': '1',
+            contenteditable: 'false'
+        });
         ui.appendChild(play);
         ui.appendChild(body);
         ui.appendChild(mute);

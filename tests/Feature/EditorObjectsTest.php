@@ -120,6 +120,32 @@ class EditorObjectsTest extends TestCase
         $this->assertStringContainsString('editor.selectedMedia = null;', $js);
     }
 
+    public function test_player_preview_never_reaches_the_database(): void
+    {
+        // В рамке редактора проигрыватель звука рисует тот же скрипт, что и на
+        // сайте, — иначе вид в панели и на странице разошёлся бы. Но его
+        // разметка нарисована для показа: сохранись она, на сайте поверх неё
+        // построилась бы вторая такая же панель. Класс готовности снимается по
+        // той же причине: с ним родной проигрыватель спрятан, и не отработай
+        // скрипт на странице, от звука не осталось бы ничего.
+        $this->assertStringContainsString("'data-ru-transient': '1'", $this->js('content-players.js'));
+
+        $core = $this->js('ru-editor.js');
+
+        $this->assertStringContainsString("querySelectorAll('[data-ru-transient]')", $core);
+        $this->assertStringContainsString("querySelectorAll('.is-ready')", $core);
+    }
+
+    public function test_editor_loads_the_site_player_script(): void
+    {
+        // Одна сборка оформления на оба места. Вторая копия неизбежно
+        // разошлась бы с первой — так в этом проекте уже случалось не раз.
+        $view = file_get_contents(resource_path('views/components/ru-editor.blade.php'));
+
+        $this->assertStringContainsString('content-players.js', $view);
+        $this->assertStringContainsString("registerPlugin('player-preview'", $this->js('ru-editor-media.js'));
+    }
+
     public function test_form_is_inline_so_alignment_moves_it(): void
     {
         // Тем же способом, что и всё остальное содержимое: строчный блок
