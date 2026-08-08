@@ -38,6 +38,7 @@ class FormController extends Controller
             'fieldTypes' => Form::FIELD_TYPES,
             'captchas'   => $this->captchaPresets(),
             'blank'      => $this->blank(),
+            'starters'   => $this->starters(),
         ]);
     }
 
@@ -297,6 +298,28 @@ class FormController extends Controller
             ->values()->all();
     }
 
+    /**
+     * Готовые наборы полей для быстрого старта.
+     *
+     * Берутся из ОПРЕДЕЛЕНИЙ форм по умолчанию — тех же, что заводит сидер при
+     * установке. Второй список «примерных» форм здесь неизбежно разошёлся бы с
+     * первым, а собирать анкету с нуля — самый долгий путь.
+     */
+    private function starters(): array
+    {
+        $icons = ['obratnaya-svyaz' => 'fa-envelope', 'zayavka' => 'fa-file-signature', 'zapis-na-priem' => 'fa-calendar-check'];
+
+        return array_map(fn (array $definition) => [
+            'key'    => $definition['slug'],
+            'title'  => $definition['title'],
+            'icon'   => $icons[$definition['slug']] ?? 'fa-list-check',
+            'fields' => array_map(fn (array $field) => $field + [
+                'placeholder' => '', 'hint' => '', 'value' => '',
+                'required' => false, 'width' => 'full', 'options' => [],
+            ], $definition['fields']),
+        ], \Modules\Forms\Console\Commands\SeedDefaultFormsCommand::definitions());
+    }
+
     /** Заготовка новой формы для конструктора. */
     private function blank(): array
     {
@@ -304,11 +327,9 @@ class FormController extends Controller
             'title'       => '',
             'description' => '',
             'is_active'   => true,
-            'fields'      => [
-                ['type' => 'text',     'label' => __('admin.forms.f_name'),  'name' => 'name',  'required' => true,  'width' => 'half', 'placeholder' => '', 'hint' => '', 'value' => '', 'options' => []],
-                ['type' => 'tel',      'label' => __('admin.forms.f_phone'), 'name' => 'phone', 'required' => true,  'width' => 'half', 'placeholder' => '', 'hint' => '', 'value' => '', 'options' => []],
-                ['type' => 'textarea', 'label' => __('admin.forms.f_text'),  'name' => 'message', 'required' => false, 'width' => 'full', 'placeholder' => '', 'hint' => '', 'value' => '', 'options' => []],
-            ],
+            // Пусто намеренно: рядом стоит быстрый старт готовыми наборами,
+            // а три поля «на всякий случай» пришлось бы сначала удалять.
+            'fields'      => [],
             'settings'    => [
                 'submit_label'    => '',
                 'success_message' => '',

@@ -1,10 +1,14 @@
 {{--
     Конструктор форм.
 
-    Устроен как конструктор каптчи: сборка мышью слева, живое превью справа
-    (строится тем же сервисом, что выводит форму на сайте, — поэтому в превью
-    видно ровно то, что получит посетитель), ниже список сохранённых форм с
-    готовыми сниппетами для вставки.
+    Первая версия собиралась как конструктор каптчи — и оказалась неудобной:
+    поля добавлялись из палитры ПОД списком (не видно, куда встанет), порядок
+    менялся кнопками по одному шагу, а чтобы переименовать поле, его надо было
+    развернуть. Самое частое действие стоило двух нажатий.
+
+    Здесь: подпись правится прямо в строке, порядок — перетаскиванием, палитра
+    разложена по смыслу и стоит НАД списком, новое поле встаёт после выбранного,
+    а редко используемые настройки убраны под «Дополнительно».
 
     Примеры кода обёрнуты в директиву, отключающую компиляцию блока: без неё
     Blade ВЫПОЛНЯЕТ примеры, а не показывает их. Её имя, как и имена директив
@@ -17,7 +21,15 @@
 
 @section('content')
 @php
-    $typeMeta = [
+    // Палитра разложена по смыслу: семнадцать одинаковых кнопок подряд —
+    // стена, в которой ничего не найти.
+    $groups = [
+        'basic' => ['label' => __('admin.forms.g_basic'), 'types' => ['text', 'textarea', 'email', 'tel', 'number', 'url']],
+        'pick'  => ['label' => __('admin.forms.g_pick'),  'types' => ['select', 'radio', 'checkboxes', 'checkbox', 'date', 'time']],
+        'extra' => ['label' => __('admin.forms.g_extra'), 'types' => ['consent', 'file', 'heading', 'paragraph', 'hidden']],
+    ];
+
+    $meta = [
         'text'       => ['title' => __('admin.forms.t_text'),       'icon' => 'fa-font'],
         'textarea'   => ['title' => __('admin.forms.t_textarea'),   'icon' => 'fa-align-left'],
         'email'      => ['title' => __('admin.forms.t_email'),      'icon' => 'fa-at'],
@@ -36,212 +48,241 @@
         'paragraph'  => ['title' => __('admin.forms.t_paragraph'),  'icon' => 'fa-paragraph'],
         'consent'    => ['title' => __('admin.forms.t_consent'),    'icon' => 'fa-user-shield'],
     ];
+
+    $palette = [];
+    foreach ($groups as $key => $group) {
+        $palette[] = [
+            'label' => $group['label'],
+            'items' => array_map(fn ($type) => ['type' => $type] + $meta[$type], $group['types']),
+        ];
+    }
 @endphp
 
 <div class="max-w-screen-2xl mx-auto"
-     x-data="formBuilder(@js($blank), @js(array_values($typeMeta ? array_map(fn($k, $m) => ['type' => $k] + $m, array_keys($typeMeta), $typeMeta) : [])), @js($captchas))">
+     x-data="formBuilder(@js($blank), @js($meta), @js($palette), @js($captchas), @js($starters))">
 
     {{-- Шапка раздела --}}
-    <div class="admin-card mb-5">
+    <div class="admin-card mb-4">
         <div class="admin-accent-bar" aria-hidden="true"></div>
-        <div class="p-5 flex flex-wrap items-center gap-4">
+        <div class="p-4 flex flex-wrap items-center gap-4">
             <span class="admin-icon-badge" aria-hidden="true"><i class="fas fa-list-check"></i></span>
             <div class="min-w-0 flex-1">
                 <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('admin.forms.title') }}</h1>
                 <p class="text-sm text-gray-500">{{ __('admin.forms.subtitle') }}</p>
             </div>
-            <button type="button" class="fm-btn" @click="reset()" x-show="editing" x-cloak>
+            <button type="button" class="fm-btn fm-btn--ghost" @click="reset()" x-show="editing" x-cloak>
                 <i class="fas fa-plus"></i> {{ __('admin.forms.new') }}
             </button>
         </div>
     </div>
 
-    {{-- ═══ Конструктор ═══ --}}
     <form method="POST"
           :action="editing ? formUrl(editing) : @js(route('admin.forms.store'))"
           @submit="submitting = true"
-          class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
+          class="fm-layout">
         @csrf
         <template x-if="editing"><input type="hidden" name="_method" value="PUT"></template>
 
-        {{-- ── Левая колонка: сборка ── --}}
-        <section class="admin-card p-5 min-w-0">
-            <h2 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-3">
-                <span x-text="editing ? @js(__('admin.forms.editing')) : @js(__('admin.forms.building'))"></span>
-            </h2>
+        {{-- ══════════ Сборка ══════════ --}}
+        <section class="admin-card p-4 min-w-0">
 
-            <div class="grid gap-3 sm:grid-cols-2 mb-4">
-                <label class="fm-field">
+            {{-- Название и описание — в одну строку, это не главное на экране --}}
+            <div class="fm-top">
+                <label class="fm-field fm-field--grow">
                     <span class="fm-label">{{ __('admin.forms.f_title') }}</span>
-                    <input type="text" name="title" x-model="form.title" required maxlength="255" class="fm-input">
+                    <input type="text" name="title" x-model="form.title" required maxlength="255"
+                           class="fm-input fm-input--big" placeholder="{{ __('admin.forms.f_title_ph') }}">
                 </label>
-                <label class="fm-field">
+                <label class="fm-field fm-field--grow">
                     <span class="fm-label">{{ __('admin.forms.f_desc') }}</span>
-                    <input type="text" name="description" x-model="form.description" maxlength="500" class="fm-input">
+                    <input type="text" name="description" x-model="form.description" maxlength="500"
+                           class="fm-input" placeholder="{{ __('admin.forms.f_desc_ph') }}">
                 </label>
             </div>
 
-            {{-- Поля --}}
-            <div class="flex items-center justify-between gap-3 mb-2">
-                <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400">{{ __('admin.forms.fields') }}</h3>
-                <span class="text-xs text-gray-400" x-text="form.fields.length + ' ' + @js(__('admin.forms.fields_short'))"></span>
+            {{-- Быстрый старт: пустая форма с нуля — самый долгий путь --}}
+            <div class="fm-starters" x-show="!editing && !form.fields.length" x-cloak>
+                <span class="fm-starters-label">{{ __('admin.forms.start_from') }}</span>
+                <template x-for="starter in starters" :key="starter.key">
+                    <button type="button" class="fm-starter" @click="applyStarter(starter)">
+                        <i class="fas" :class="starter.icon"></i>
+                        <span x-text="starter.title"></span>
+                        <small x-text="starter.fields.length + ' ' + @js(__('admin.forms.fields_short'))"></small>
+                    </button>
+                </template>
             </div>
 
-            <div class="fm-list">
-                <template x-for="(field, index) in form.fields" :key="field.uid">
-                    <div class="fm-item" :class="{ 'is-open': opened === field.uid }">
-                        {{-- Свёрнутая строка --}}
-                        <div class="fm-head">
-                            <span class="fm-grip" :title="@js(__('admin.forms.move'))">
-                                <button type="button" class="fm-move" @click="move(index, -1)" :disabled="index === 0">
-                                    <i class="fas fa-chevron-up"></i>
+            {{-- ── Палитра: клик добавляет поле ПОСЛЕ выбранного ── --}}
+            <div class="fm-palette">
+                <template x-for="group in palette" :key="group.label">
+                    <div class="fm-pal-group">
+                        <span class="fm-pal-label" x-text="group.label"></span>
+                        <div class="fm-pal-items">
+                            <template x-for="item in group.items" :key="item.type">
+                                <button type="button" class="fm-chip" @click="addField(item.type)" :title="item.title">
+                                    <i class="fas" :class="item.icon"></i>
+                                    <span x-text="item.title"></span>
                                 </button>
-                                <button type="button" class="fm-move" @click="move(index, 1)" :disabled="index === form.fields.length - 1">
-                                    <i class="fas fa-chevron-down"></i>
-                                </button>
-                            </span>
-
-                            <span class="fm-type-ico"><i class="fas" :class="iconOf(field.type)"></i></span>
-
-                            <button type="button" class="fm-title" @click="opened = opened === field.uid ? null : field.uid">
-                                <span x-text="field.label || titleOf(field.type)"></span>
-                                <code class="fm-code" x-text="titleOf(field.type)"></code>
-                                <span class="fm-req-mark" x-show="field.required" x-cloak>*</span>
-                            </button>
-
-                            <button type="button" class="fm-icon-btn" @click="duplicateField(index)" :title="@js(__('admin.forms.act_duplicate'))">
-                                <i class="fa-regular fa-clone"></i>
-                            </button>
-                            <button type="button" class="fm-icon-btn fm-icon-btn--danger" @click="removeField(index)" :title="@js(__('admin.forms.act_delete'))">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-
-                        {{-- Раскрытые настройки поля --}}
-                        <div class="fm-body" x-show="opened === field.uid" x-cloak>
-                            <input type="hidden" :name="'fields[' + index + '][type]'" :value="field.type">
-                            <input type="hidden" :name="'fields[' + index + '][name]'" :value="field.name">
-
-                            <div class="grid gap-3 sm:grid-cols-2">
-                                <label class="fm-field">
-                                    <span class="fm-label">{{ __('admin.forms.f_label') }}</span>
-                                    <input type="text" :name="'fields[' + index + '][label]'" x-model="field.label" maxlength="255" class="fm-input">
-                                </label>
-
-                                <label class="fm-field">
-                                    <span class="fm-label">{{ __('admin.forms.f_type') }}</span>
-                                    <select x-model="field.type" @change="onTypeChange(field)" class="fm-input">
-                                        <template x-for="meta in types" :key="meta.type">
-                                            <option :value="meta.type" x-text="meta.title"></option>
-                                        </template>
-                                    </select>
-                                </label>
-
-                                <label class="fm-field" x-show="!isDecorative(field.type)">
-                                    <span class="fm-label">{{ __('admin.forms.f_placeholder') }}</span>
-                                    <input type="text" :name="'fields[' + index + '][placeholder]'" x-model="field.placeholder" maxlength="255" class="fm-input">
-                                </label>
-
-                                <label class="fm-field" x-show="!isDecorative(field.type)">
-                                    <span class="fm-label">{{ __('admin.forms.f_hint') }}</span>
-                                    <input type="text" :name="'fields[' + index + '][hint]'" x-model="field.hint" maxlength="255" class="fm-input">
-                                </label>
-
-                                <label class="fm-field" x-show="field.type === 'hidden'" x-cloak>
-                                    <span class="fm-label">{{ __('admin.forms.f_value') }}</span>
-                                    <input type="text" :name="'fields[' + index + '][value]'" x-model="field.value" maxlength="255" class="fm-input">
-                                </label>
-
-                                <label class="fm-field" x-show="!isDecorative(field.type)">
-                                    <span class="fm-label">{{ __('admin.forms.f_width') }}</span>
-                                    <select :name="'fields[' + index + '][width]'" x-model="field.width" class="fm-input">
-                                        <option value="full">{{ __('admin.forms.w_full') }}</option>
-                                        <option value="half">{{ __('admin.forms.w_half') }}</option>
-                                    </select>
-                                </label>
-                            </div>
-
-                            {{-- Варианты для списков --}}
-                            <div class="mt-3" x-show="hasOptions(field.type)" x-cloak>
-                                <span class="fm-label">{{ __('admin.forms.f_options') }}</span>
-                                <template x-for="(option, oi) in field.options" :key="oi">
-                                    <div class="flex items-center gap-2 mt-1.5">
-                                        <input type="text" :name="'fields[' + index + '][options][]'"
-                                               x-model="field.options[oi]" maxlength="255" class="fm-input">
-                                        <button type="button" class="fm-icon-btn fm-icon-btn--danger" @click="field.options.splice(oi, 1)">
-                                            <i class="fas fa-xmark"></i>
-                                        </button>
-                                    </div>
-                                </template>
-                                <button type="button" class="fm-add-opt" @click="field.options.push('')">
-                                    <i class="fas fa-plus"></i> {{ __('admin.forms.add_option') }}
-                                </button>
-                            </div>
-
-                            <label class="fm-check mt-3" x-show="!isDecorative(field.type)">
-                                <input type="checkbox" :name="'fields[' + index + '][required]'" value="1" x-model="field.required">
-                                <span>{{ __('admin.forms.f_required') }}</span>
-                            </label>
+                            </template>
                         </div>
                     </div>
                 </template>
             </div>
 
-            {{-- Палитра типов: клик добавляет поле в конец --}}
-            <div class="fm-palette">
-                <span class="fm-palette-label">{{ __('admin.forms.add_field') }}</span>
-                <template x-for="meta in types" :key="meta.type">
-                    <button type="button" class="fm-chip" @click="addField(meta.type)" :title="meta.title">
-                        <i class="fas" :class="meta.icon"></i>
-                        <span x-text="meta.title"></span>
-                    </button>
+            {{-- ── Список полей ── --}}
+            <div class="fm-list-head">
+                <span x-text="form.fields.length + ' ' + @js(__('admin.forms.fields_short'))"></span>
+                <span class="fm-drag-hint" x-show="form.fields.length > 1"><i class="fas fa-up-down-left-right"></i> {{ __('admin.forms.drag_hint') }}</span>
+            </div>
+
+            <div class="fm-list" x-ref="list">
+                <template x-for="(field, index) in form.fields" :key="field.uid">
+                    <div class="fm-item" :class="{ 'is-open': opened === field.uid, 'is-picked': picked === field.uid }"
+                         :data-uid="field.uid" @click="picked = field.uid">
+
+                        <div class="fm-head">
+                            <span class="fm-grip" :title="@js(__('admin.forms.move'))"><i class="fas fa-grip-vertical"></i></span>
+
+                            <span class="fm-type-ico" :title="titleOf(field.type)"><i class="fas" :class="iconOf(field.type)"></i></span>
+
+                            {{-- Подпись правится прямо здесь: разворачивать
+                                 карточку ради переименования — лишний шаг. --}}
+                            <input type="text" class="fm-inline"
+                                   :name="'fields[' + index + '][label]'"
+                                   x-model="field.label" maxlength="255"
+                                   :placeholder="titleOf(field.type)">
+
+                            <input type="hidden" :name="'fields[' + index + '][type]'" :value="field.type">
+                            <input type="hidden" :name="'fields[' + index + '][name]'" :value="field.name">
+                            <input type="hidden" :name="'fields[' + index + '][width]'" :value="field.width">
+
+                            {{-- Обязательность — самая частая настройка, поэтому
+                                 она кнопкой в строке, а не внутри карточки. --}}
+                            <label class="fm-star" :class="{ 'is-on': field.required }"
+                                   :title="@js(__('admin.forms.f_required'))"
+                                   x-show="!isDecorative(field.type)">
+                                <input type="checkbox" :name="'fields[' + index + '][required]'" value="1" x-model="field.required">
+                                <i class="fas fa-asterisk"></i>
+                            </label>
+
+                            <button type="button" class="fm-icon-btn" :class="{ 'is-on': opened === field.uid }"
+                                    @click.stop="opened = opened === field.uid ? null : field.uid"
+                                    :title="@js(__('admin.forms.tune'))">
+                                <i class="fas fa-sliders"></i>
+                            </button>
+                            <button type="button" class="fm-icon-btn" @click.stop="duplicateField(index)"
+                                    :title="@js(__('admin.forms.act_duplicate'))">
+                                <i class="fa-regular fa-clone"></i>
+                            </button>
+                            <button type="button" class="fm-icon-btn fm-icon-btn--danger" @click.stop="removeField(index)"
+                                    :title="@js(__('admin.forms.act_delete'))">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+
+                        {{-- Раскрытые настройки поля --}}
+                        <div class="fm-body" x-show="opened === field.uid" x-cloak @click.stop>
+                            <div class="fm-grid">
+                                <label class="fm-field">
+                                    <span class="fm-label">{{ __('admin.forms.f_type') }}</span>
+                                    <select x-model="field.type" @change="onTypeChange(field)" class="fm-input">
+                                        <template x-for="group in palette" :key="group.label">
+                                            <optgroup :label="group.label">
+                                                <template x-for="item in group.items" :key="item.type">
+                                                    <option :value="item.type" x-text="item.title"></option>
+                                                </template>
+                                            </optgroup>
+                                        </template>
+                                    </select>
+                                </label>
+
+                                <label class="fm-field" x-show="!isDecorative(field.type)">
+                                    <span class="fm-label">{{ __('admin.forms.f_width') }}</span>
+                                    <select x-model="field.width" class="fm-input">
+                                        <option value="full">{{ __('admin.forms.w_full') }}</option>
+                                        <option value="half">{{ __('admin.forms.w_half') }}</option>
+                                    </select>
+                                </label>
+
+                                <label class="fm-field" x-show="!isDecorative(field.type) && field.type !== 'hidden'">
+                                    <span class="fm-label">{{ __('admin.forms.f_placeholder') }}</span>
+                                    <input type="text" :name="'fields[' + index + '][placeholder]'"
+                                           x-model="field.placeholder" maxlength="255" class="fm-input">
+                                </label>
+
+                                <label class="fm-field" x-show="!isDecorative(field.type)">
+                                    <span class="fm-label">{{ __('admin.forms.f_hint') }}</span>
+                                    <input type="text" :name="'fields[' + index + '][hint]'"
+                                           x-model="field.hint" maxlength="255" class="fm-input">
+                                </label>
+
+                                <label class="fm-field" x-show="field.type === 'hidden'" x-cloak>
+                                    <span class="fm-label">{{ __('admin.forms.f_value') }}</span>
+                                    <input type="text" :name="'fields[' + index + '][value]'"
+                                           x-model="field.value" maxlength="255" class="fm-input">
+                                </label>
+                            </div>
+
+                            {{-- Варианты --}}
+                            <div class="mt-3" x-show="hasOptions(field.type)" x-cloak>
+                                <span class="fm-label">{{ __('admin.forms.f_options') }}</span>
+
+                                <div class="fm-options">
+                                    <template x-for="(option, oi) in field.options" :key="oi">
+                                        <div class="fm-option">
+                                            <input type="text" :name="'fields[' + index + '][options][]'"
+                                                   x-model="field.options[oi]" maxlength="255" class="fm-input"
+                                                   @keydown.enter.prevent="addOption(field, oi)">
+                                            <button type="button" class="fm-icon-btn fm-icon-btn--danger"
+                                                    @click="field.options.splice(oi, 1)">
+                                                <i class="fas fa-xmark"></i>
+                                            </button>
+                                        </div>
+                                    </template>
+                                </div>
+
+                                <div class="flex items-center gap-2 mt-2">
+                                    <button type="button" class="fm-add-opt" @click="addOption(field)">
+                                        <i class="fas fa-plus"></i> {{ __('admin.forms.add_option') }}
+                                    </button>
+                                    {{-- Вставка списком: набивать варианты по одному
+                                         долго, а они почти всегда уже есть текстом. --}}
+                                    <button type="button" class="fm-add-opt" @click="pasteOptions(field)">
+                                        <i class="fa-regular fa-paste"></i> {{ __('admin.forms.paste_options') }}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <p class="fm-field-hint" x-show="field.name" x-cloak>
+                                {{ __('admin.forms.field_name_is') }} <code x-text="field.name"></code>
+                            </p>
+                        </div>
+                    </div>
                 </template>
             </div>
 
-            {{-- Настройки формы --}}
-            <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 mt-5 mb-2">{{ __('admin.forms.settings') }}</h3>
+            <p class="fm-empty" x-show="!form.fields.length" x-cloak>{{ __('admin.forms.no_fields') }}</p>
 
-            <div class="grid gap-3 sm:grid-cols-2">
+            {{-- ── Настройки ── --}}
+            <h3 class="fm-section">{{ __('admin.forms.settings') }}</h3>
+
+            <div class="fm-grid">
                 <label class="fm-field">
                     <span class="fm-label">{{ __('admin.forms.s_submit') }}</span>
-                    <input type="text" name="settings[submit_label]" x-model="form.settings.submit_label" maxlength="64" class="fm-input"
-                           placeholder="{{ __('forms.submit') }}">
+                    <input type="text" name="settings[submit_label]" x-model="form.settings.submit_label"
+                           maxlength="64" class="fm-input" placeholder="{{ __('forms.submit') }}">
                 </label>
 
                 <label class="fm-field">
                     <span class="fm-label">{{ __('admin.forms.s_notify') }}</span>
-                    <input type="text" name="settings[notify_email]" x-model="form.settings.notify_email" maxlength="255" class="fm-input"
-                           placeholder="mail@example.com">
-                    <small class="fm-hint">{{ __('admin.forms.s_notify_hint') }}</small>
+                    <input type="text" name="settings[notify_email]" x-model="form.settings.notify_email"
+                           maxlength="255" class="fm-input" placeholder="mail@example.com">
                 </label>
 
-                <label class="fm-field sm:col-span-2">
+                <label class="fm-field fm-field--wide">
                     <span class="fm-label">{{ __('admin.forms.s_success') }}</span>
-                    <input type="text" name="settings[success_message]" x-model="form.settings.success_message" maxlength="500" class="fm-input"
-                           placeholder="{{ __('forms.sent') }}">
-                </label>
-
-                <label class="fm-field">
-                    <span class="fm-label">{{ __('admin.forms.s_redirect') }}</span>
-                    <input type="text" name="settings[redirect_url]" x-model="form.settings.redirect_url" maxlength="255" class="fm-input"
-                           placeholder="/spasibo">
-                    <small class="fm-hint">{{ __('admin.forms.s_redirect_hint') }}</small>
-                </label>
-
-                <label class="fm-field">
-                    <span class="fm-label">{{ __('admin.forms.s_captcha') }}</span>
-                    <select name="settings[captcha]" x-model="form.settings.captcha" class="fm-input">
-                        <option value="">{{ __('admin.forms.s_captcha_off') }}</option>
-                        <template x-for="preset in captchas" :key="preset.slug">
-                            <option :value="preset.slug" x-text="preset.name"></option>
-                        </template>
-                    </select>
-                    <small class="fm-hint" x-show="!captchas.length" x-cloak>{{ __('admin.forms.s_captcha_none') }}</small>
-                </label>
-
-                <label class="fm-field sm:col-span-2">
-                    <span class="fm-label">{{ __('admin.forms.s_note') }}</span>
-                    <input type="text" name="settings[note]" x-model="form.settings.note" maxlength="255" class="fm-input">
+                    <input type="text" name="settings[success_message]" x-model="form.settings.success_message"
+                           maxlength="500" class="fm-input" placeholder="{{ __('forms.sent') }}">
                 </label>
             </div>
 
@@ -260,7 +301,39 @@
                 </label>
             </div>
 
-            <div class="flex flex-wrap items-center gap-2 mt-5">
+            {{-- Редкое — под кнопкой: иначе семь одинаково заметных полей,
+                 из которых пять не трогают никогда. --}}
+            <button type="button" class="fm-more" @click="advanced = !advanced">
+                <i class="fas" :class="advanced ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                {{ __('admin.forms.advanced') }}
+            </button>
+
+            <div class="fm-grid mt-2" x-show="advanced" x-cloak>
+                <label class="fm-field">
+                    <span class="fm-label">{{ __('admin.forms.s_redirect') }}</span>
+                    <input type="text" name="settings[redirect_url]" x-model="form.settings.redirect_url"
+                           maxlength="255" class="fm-input" placeholder="/spasibo">
+                    <small class="fm-hint">{{ __('admin.forms.s_redirect_hint') }}</small>
+                </label>
+
+                <label class="fm-field">
+                    <span class="fm-label">{{ __('admin.forms.s_captcha') }}</span>
+                    <select name="settings[captcha]" x-model="form.settings.captcha" class="fm-input">
+                        <option value="">{{ __('admin.forms.s_captcha_off') }}</option>
+                        <template x-for="preset in captchas" :key="preset.slug">
+                            <option :value="preset.slug" x-text="preset.name"></option>
+                        </template>
+                    </select>
+                    <small class="fm-hint" x-show="!captchas.length" x-cloak>{{ __('admin.forms.s_captcha_none') }}</small>
+                </label>
+
+                <label class="fm-field fm-field--wide">
+                    <span class="fm-label">{{ __('admin.forms.s_note') }}</span>
+                    <input type="text" name="settings[note]" x-model="form.settings.note" maxlength="255" class="fm-input">
+                </label>
+            </div>
+
+            <div class="fm-actions">
                 <button type="submit" class="fm-btn" :disabled="submitting || !form.fields.length">
                     <i class="fas fa-floppy-disk"></i>
                     <span x-text="editing ? @js(__('admin.forms.save')) : @js(__('admin.forms.create'))"></span>
@@ -268,27 +341,29 @@
                 <button type="button" class="fm-btn fm-btn--ghost" @click="reset()" x-show="editing" x-cloak>
                     {{ __('admin.cancel') }}
                 </button>
+                <span class="fm-hint" x-show="!form.fields.length" x-cloak>{{ __('admin.forms.need_field') }}</span>
             </div>
         </section>
 
-        {{-- ── Правая колонка: превью ── --}}
-        <section class="admin-card p-5 min-w-0">
-            <h2 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-3">{{ __('admin.forms.preview') }}</h2>
+        {{-- ══════════ Превью ══════════ --}}
+        <aside class="fm-side">
+            <div class="admin-card p-4">
+                <h2 class="fm-section fm-section--first">{{ __('admin.forms.preview') }}</h2>
 
-            <div class="fm-preview">
-                <div x-show="loading" class="text-xs text-gray-400">{{ __('admin.forms.building_preview') }}</div>
-                <div x-show="!loading" x-html="preview"></div>
+                <div class="fm-preview">
+                    <div x-show="loading" class="fm-hint">{{ __('admin.forms.building_preview') }}</div>
+                    <div x-show="!loading" x-html="preview"></div>
+                </div>
+
+                <p class="fm-note">{{ __('admin.forms.preview_note') }}</p>
+                <div x-cloak x-show="error" class="admin-note p-3 mt-3 text-xs" x-text="error"></div>
             </div>
-
-            <p class="fm-note mt-3">{{ __('admin.forms.preview_note') }}</p>
-
-            <div x-cloak x-show="error" class="admin-note p-3 mt-3 text-xs" x-text="error"></div>
-        </section>
+        </aside>
     </form>
 
-    {{-- ═══ Сохранённые формы ═══ --}}
-    <section class="admin-card p-5 mt-5">
-        <h2 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-3">{{ __('admin.forms.saved') }}</h2>
+    {{-- ══════════ Сохранённые формы ══════════ --}}
+    <section class="admin-card p-4 mt-4">
+        <h2 class="fm-section fm-section--first">{{ __('admin.forms.saved') }}</h2>
 
         @forelse($forms as $item)
             <div class="fm-saved">
@@ -362,9 +437,9 @@
         @endforelse
     </section>
 
-    {{-- ═══ Памятка ═══ --}}
-    <section class="admin-card p-5 mt-5">
-        <h2 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-3">{{ __('admin.forms.howto') }}</h2>
+    {{-- ══════════ Памятка ══════════ --}}
+    <section class="admin-card p-4 mt-4">
+        <h2 class="fm-section fm-section--first">{{ __('admin.forms.howto') }}</h2>
 
         <div class="grid gap-5 md:grid-cols-2">
             <div>
@@ -399,62 +474,135 @@
 <style>
     /* Литеральный CSS: в сборке проекта нет opacity-модификаторов,
        произвольных значений и половины цветов v3 (см. CLAUDE.md). */
+
+    .fm-layout { display:grid; gap:16px; align-items:start }
+    @media (min-width:1280px) { .fm-layout { grid-template-columns:minmax(0,1fr) 24rem } }
+
+    /* Превью не должно уезжать вверх, когда список полей длинный. */
+    .fm-side { min-width:0 }
+    @media (min-width:1280px) { .fm-side { position:sticky; top:84px } }
+
+    .fm-top { display:grid; gap:12px; margin-bottom:14px }
+    @media (min-width:640px) { .fm-top { grid-template-columns:1fr 1fr } }
+
+    .fm-grid { display:grid; gap:12px }
+    @media (min-width:640px) { .fm-grid { grid-template-columns:1fr 1fr } }
+    .fm-field--wide { grid-column:1 / -1 }
+
     .fm-field { display:flex; flex-direction:column; gap:4px; min-width:0 }
-    .fm-label { font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:#6b7280 }
+    .fm-label { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:#6b7280 }
     .fm-hint  { font-size:.72rem; color:#9ca3af; line-height:1.45 }
     .fm-input { width:100%; padding:7px 10px; font-size:.85rem; color:#111827; background:#fff;
                 border:1px solid #d1d5db; outline:none; transition:border-color .15s ease }
     .fm-input:focus { border-color:#6366f1 }
+    .fm-input--big { font-size:.95rem; font-weight:600; padding:9px 11px }
 
-    .fm-list { display:flex; flex-direction:column; gap:6px }
-    .fm-item { border:1px solid #e5e7eb; background:#fff }
-    .fm-item.is-open { border-color:#c7cbf5 }
-    .fm-head { display:flex; align-items:center; gap:8px; padding:7px 10px }
-    .fm-grip { display:flex; flex-direction:column; gap:1px }
-    .fm-move { width:18px; height:13px; display:inline-flex; align-items:center; justify-content:center;
-               font-size:9px; color:#9ca3af; border:1px solid #e5e7eb; background:#fff; cursor:pointer }
-    .fm-move:disabled { opacity:.4; cursor:default }
-    .fm-type-ico { display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px;
-                   font-size:12px; color:#4f46e5; background:#eef2ff; flex:0 0 auto }
-    .fm-title { display:flex; align-items:center; gap:8px; flex:1 1 auto; min-width:0;
-                font-size:.85rem; text-align:left; background:none; border:0; cursor:pointer; color:#111827 }
-    .fm-req-mark { color:#dc2626; font-weight:700 }
-    .fm-code { padding:1px 6px; font-size:.68rem; color:#4b5563; background:#f3f4f6 }
-    .fm-body { padding:10px; border-top:1px solid #e5e7eb; background:#fafafa }
+    /* ── Быстрый старт ── */
+    .fm-starters { display:flex; flex-wrap:wrap; align-items:stretch; gap:8px; margin-bottom:14px;
+                   padding:12px; background:#f8f9ff; border:1px dashed #c7cbf5 }
+    .fm-starters-label { width:100%; font-size:.72rem; font-weight:700; text-transform:uppercase;
+                         letter-spacing:.04em; color:#6366f1 }
+    .fm-starter { display:flex; flex-direction:column; align-items:flex-start; gap:2px; padding:8px 12px;
+                  font-size:.82rem; font-weight:600; color:#312e81; background:#fff;
+                  border:1px solid #c7cbf5; cursor:pointer; transition:border-color .15s ease }
+    .fm-starter:hover { border-color:#6366f1 }
+    .fm-starter small { font-size:.68rem; font-weight:400; color:#8b90a8 }
 
-    .fm-icon-btn { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px;
-                   font-size:12px; color:#4b5563; background:#fff; border:1px solid #e5e7eb; cursor:pointer;
-                   transition:background .15s ease, color .15s ease }
-    .fm-icon-btn:hover { background:#f3f4f6; color:#111827 }
-    .fm-icon-btn--danger:hover { background:#dc2626; border-color:#dc2626; color:#fff }
-
-    .fm-palette { display:flex; flex-wrap:wrap; align-items:center; gap:5px; margin-top:12px;
-                  padding-top:12px; border-top:1px dashed #e5e7eb }
-    .fm-palette-label { width:100%; margin-bottom:2px; font-size:.72rem; font-weight:700;
-                        text-transform:uppercase; letter-spacing:.04em; color:#9ca3af }
-    .fm-chip { display:inline-flex; align-items:center; gap:5px; padding:5px 9px; font-size:.76rem;
-               color:#374151; background:#fff; border:1px solid #e5e7eb; cursor:pointer;
+    /* ── Палитра ── */
+    .fm-palette { display:grid; gap:8px; padding:10px; margin-bottom:12px; background:#fafafa;
+                  border:1px solid #eceef3 }
+    .fm-pal-group { display:flex; flex-wrap:wrap; align-items:center; gap:6px }
+    .fm-pal-label { width:5.6rem; flex:0 0 auto; font-size:.68rem; font-weight:700; text-transform:uppercase;
+                    letter-spacing:.04em; color:#9ca3af }
+    .fm-pal-items { display:flex; flex-wrap:wrap; gap:5px; flex:1 1 auto; min-width:0 }
+    .fm-chip { display:inline-flex; align-items:center; gap:5px; padding:4px 9px; font-size:.75rem;
+               color:#374151; background:#fff; border:1px solid #e1e4ea; cursor:pointer;
                transition:border-color .15s ease, color .15s ease }
     .fm-chip:hover { border-color:#6366f1; color:#4338ca }
-    .fm-add-opt { margin-top:6px; padding:5px 9px; font-size:.76rem; color:#4338ca;
-                  background:#eef2ff; border:0; cursor:pointer }
+
+    /* ── Список полей ── */
+    .fm-list-head { display:flex; align-items:center; justify-content:space-between; gap:10px;
+                    margin-bottom:6px; font-size:.72rem; font-weight:700; text-transform:uppercase;
+                    letter-spacing:.04em; color:#9ca3af }
+    .fm-drag-hint { display:inline-flex; align-items:center; gap:5px; font-weight:400; text-transform:none;
+                    letter-spacing:0; font-size:.72rem }
+
+    .fm-list { display:flex; flex-direction:column; gap:5px }
+    .fm-item { border:1px solid #e5e7eb; background:#fff }
+    .fm-item.is-picked { border-color:#c7cbf5 }
+    .fm-item.is-open { border-color:#6366f1 }
+
+    .fm-head { display:flex; align-items:center; gap:7px; padding:6px 8px }
+    .fm-grip { display:inline-flex; align-items:center; justify-content:center; width:18px; height:26px;
+               color:#c3c7d1; cursor:grab; flex:0 0 auto }
+    .fm-grip:active { cursor:grabbing }
+    .fm-type-ico { display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px;
+                   font-size:12px; color:#4f46e5; background:#eef2ff; flex:0 0 auto }
+
+    /* Подпись правится прямо в строке: поле без рамки, пока в него не зашли. */
+    .fm-inline { flex:1 1 auto; min-width:0; padding:5px 7px; font-size:.86rem; font-weight:600;
+                 color:#111827; background:transparent; border:1px solid transparent; outline:none;
+                 transition:border-color .15s ease, background .15s ease }
+    .fm-inline:hover { border-color:#e5e7eb }
+    .fm-inline:focus { border-color:#6366f1; background:#fff }
+    .fm-inline::placeholder { font-weight:400; color:#b6bac4 }
+
+    .fm-star { display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px;
+               font-size:9px; color:#c3c7d1; border:1px solid #eceef3; cursor:pointer; flex:0 0 auto }
+    .fm-star input { position:absolute; opacity:0; width:0; height:0 }
+    .fm-star.is-on { color:#dc2626; border-color:#fecaca; background:#fef2f2 }
+
+    .fm-icon-btn { display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px;
+                   font-size:11px; color:#6b7280; background:#fff; border:1px solid #eceef3; cursor:pointer;
+                   flex:0 0 auto; transition:background .15s ease, color .15s ease }
+    .fm-icon-btn:hover { background:#f3f4f6; color:#111827 }
+    .fm-icon-btn.is-on { color:#4338ca; border-color:#c7cbf5; background:#eef2ff }
+    .fm-icon-btn--danger:hover { background:#dc2626; border-color:#dc2626; color:#fff }
+
+    .fm-body { padding:10px; border-top:1px solid #eceef3; background:#fafbfc }
+    .fm-field-hint { margin-top:8px; font-size:.7rem; color:#9ca3af }
+    .fm-field-hint code { padding:1px 5px; color:#4b5563; background:#eceef3 }
+
+    .fm-options { display:flex; flex-direction:column; gap:5px; margin-top:5px }
+    .fm-option { display:flex; align-items:center; gap:6px }
+    .fm-add-opt { display:inline-flex; align-items:center; gap:5px; padding:4px 9px; font-size:.74rem;
+                  color:#4338ca; background:#eef2ff; border:0; cursor:pointer }
+
+    .fm-empty { padding:16px; font-size:.82rem; color:#9ca3af; text-align:center;
+                border:1px dashed #e1e4ea }
+
+    /* Односложные классы: SortableJS применяет их через classList.add(), а тот
+       по спецификации падает с InvalidCharacterError на пробеле в токене. */
+    .fm-ghost { opacity:.35 }
+    .fm-chosen { border-color:#6366f1 }
+    .fm-drag { box-shadow:0 8px 20px rgba(17,24,39,.14) }
+
+    .fm-section { margin:18px 0 8px; font-size:.72rem; font-weight:700; text-transform:uppercase;
+                  letter-spacing:.06em; color:#9ca3af }
+    .fm-section--first { margin-top:0 }
 
     .fm-check { display:inline-flex; align-items:center; gap:7px; font-size:.82rem; color:#374151; cursor:pointer }
     .fm-check input { width:15px; height:15px; accent-color:#6366f1 }
 
+    .fm-more { display:inline-flex; align-items:center; gap:7px; margin-top:12px; padding:5px 0;
+               font-size:.78rem; color:#4338ca; background:none; border:0; cursor:pointer }
+
+    .fm-actions { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:16px;
+                  padding-top:14px; border-top:1px solid #eceef3 }
     .fm-btn { display:inline-flex; align-items:center; gap:8px; padding:9px 18px; font-size:.85rem;
               font-weight:600; color:#fff; background:#4f46e5; border:0; cursor:pointer;
               transition:background .15s ease }
     .fm-btn:hover { background:#4338ca }
-    .fm-btn[disabled] { opacity:.55; cursor:default }
+    .fm-btn[disabled] { opacity:.5; cursor:default }
     .fm-btn--ghost { color:#4b5563; background:#fff; border:1px solid #d1d5db }
     .fm-btn--ghost:hover { background:#f3f4f6 }
 
-    .fm-preview { padding:14px; border:1px dashed #d1d5db; background:#fff; min-height:120px }
-    .fm-note { font-size:.75rem; color:#9ca3af; line-height:1.5 }
+    .fm-preview { padding:12px; border:1px dashed #d1d5db; background:#fff; min-height:110px }
+    .fm-note { margin-top:8px; font-size:.72rem; color:#9ca3af; line-height:1.5 }
 
     .fm-saved { display:flex; align-items:flex-start; gap:12px; padding:11px 0; border-top:1px solid #f3f4f6 }
     .fm-saved:first-of-type { border-top:0 }
+    .fm-code { padding:1px 6px; font-size:.68rem; color:#4b5563; background:#f3f4f6 }
     .fm-off { padding:1px 7px; font-size:.68rem; color:#92400e; background:#fef3c7 }
     .fm-stats { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:3px;
                 font-size:.76rem; color:#6b7280 }
@@ -471,6 +619,7 @@
 @endpush
 
 @push('scripts')
+<script src="{{ local_js('sortable.min.js') }}"></script>
 <script>
     /**
      * Конструктор форм.
@@ -479,14 +628,18 @@
      * рисовать её второй раз на клиенте значило бы завести вторую разметку,
      * которая неизбежно разойдётся с настоящей.
      */
-    function formBuilder(blank, types, captchas) {
+    function formBuilder(blank, meta, palette, captchas, starters) {
         return {
             blank: blank,
-            types: types,
+            meta: meta,
+            palette: palette,
             captchas: captchas,
+            starters: starters,
             form: null,
             editing: null,
             opened: null,
+            picked: null,
+            advanced: false,
             preview: '',
             loading: false,
             error: '',
@@ -497,10 +650,49 @@
             init() {
                 this.form = this.prepare(this.blank);
                 this.refresh();
-
-                // Следим за всей сборкой: меняется что угодно — превью
-                // пересобирается. Задержка гасит запрос на каждую букву.
                 this.$watch('form', () => this.schedule(), { deep: true });
+                this.$nextTick(() => this.initSortable());
+            },
+
+            /**
+             * Перетаскивание списка полей.
+             *
+             * Порядок хранит Alpine, а DOM двигает Sortable — поэтому его
+             * перестановку сразу отменяем и меняем массив: иначе два хозяина
+             * одного списка расходятся, и следующая перерисовка возвращает
+             * поле на место.
+             */
+            initSortable() {
+                if (!window.Sortable || !this.$refs.list) {
+                    return;
+                }
+
+                var self = this;
+
+                window.Sortable.create(this.$refs.list, {
+                    handle: '.fm-grip',
+                    animation: 150,
+                    // Ровно ОДИН токен на класс: Sortable применяет их через
+                    // classList.add(), а тот падает с InvalidCharacterError на
+                    // пробеле (см. CLAUDE.md про модуль Меню).
+                    ghostClass: 'fm-ghost',
+                    chosenClass: 'fm-chosen',
+                    dragClass: 'fm-drag',
+                    onEnd: function (event) {
+                        var from = event.oldIndex;
+                        var to = event.newIndex;
+
+                        if (from === to) {
+                            return;
+                        }
+
+                        event.item.remove();
+                        event.from.insertBefore(event.item, event.from.children[from] || null);
+
+                        var moved = self.form.fields.splice(from, 1)[0];
+                        self.form.fields.splice(to, 0, moved);
+                    }
+                });
             },
 
             /** Каждому полю нужен устойчивый ключ для x-for. */
@@ -525,13 +717,11 @@
             },
 
             titleOf(type) {
-                var meta = this.types.find((item) => item.type === type);
-                return meta ? meta.title : type;
+                return this.meta[type] ? this.meta[type].title : type;
             },
 
             iconOf(type) {
-                var meta = this.types.find((item) => item.type === type);
-                return meta ? meta.icon : 'fa-font';
+                return this.meta[type] ? this.meta[type].icon : 'fa-font';
             },
 
             hasOptions(type) {
@@ -542,15 +732,35 @@
                 return ['heading', 'paragraph'].indexOf(type) !== -1;
             },
 
+            /**
+             * Новое поле встаёт ПОСЛЕ выбранного, а не в конец списка: собирая
+             * форму, чаще дописывают рядом с тем, на что смотрят.
+             */
             addField(type) {
                 var field = {
-                    uid: this.uid(), type: type, name: '', label: this.titleOf(type),
+                    uid: this.uid(), type: type, name: '', label: '',
                     placeholder: '', hint: '', value: '', required: false, width: 'full',
-                    options: this.hasOptions(type) ? [@js(__('admin.forms.option_example'))] : []
+                    options: this.hasOptions(type) ? [@js(__('admin.forms.option_example')) + ' 1', @js(__('admin.forms.option_example')) + ' 2'] : []
                 };
 
-                this.form.fields.push(field);
-                this.opened = field.uid;
+                var at = this.indexOf(this.picked);
+                var position = at === -1 ? this.form.fields.length : at + 1;
+
+                this.form.fields.splice(position, 0, field);
+                this.picked = field.uid;
+
+                // Разметке настраивать нечего, у остальных сразу открываем
+                // подпись — это первое, что заполняют.
+                this.$nextTick(() => {
+                    var node = this.$refs.list.querySelector('[data-uid="' + field.uid + '"] .fm-inline');
+                    if (node) {
+                        node.focus();
+                    }
+                });
+            },
+
+            indexOf(uid) {
+                return this.form.fields.findIndex((field) => field.uid === uid);
             },
 
             duplicateField(index) {
@@ -560,27 +770,45 @@
                 // в заявке, и второй ответ просто не сохранился бы.
                 copy.name = '';
                 this.form.fields.splice(index + 1, 0, copy);
+                this.picked = copy.uid;
             },
 
             removeField(index) {
-                this.form.fields.splice(index, 1);
+                var removed = this.form.fields.splice(index, 1)[0];
+
+                if (this.opened === removed.uid) {
+                    this.opened = null;
+                }
+
+                if (this.picked === removed.uid) {
+                    this.picked = null;
+                }
             },
 
-            move(index, delta) {
-                var target = index + delta;
+            addOption(field, after) {
+                var position = typeof after === 'number' ? after + 1 : field.options.length;
+                field.options.splice(position, 0, '');
+            },
 
-                if (target < 0 || target >= this.form.fields.length) {
+            /** Варианты почти всегда уже есть готовым списком — по строке на пункт. */
+            pasteOptions(field) {
+                var text = window.prompt(@js(__('admin.forms.paste_prompt')), '');
+
+                if (!text) {
                     return;
                 }
 
-                var moved = this.form.fields.splice(index, 1)[0];
-                this.form.fields.splice(target, 0, moved);
+                var lines = text.split(/[\n;]+/).map((line) => line.trim()).filter(Boolean);
+
+                if (lines.length) {
+                    field.options = lines;
+                }
             },
 
             /** Смена типа: варианты нужны не всем, разметке — не нужны вовсе. */
             onTypeChange(field) {
                 if (this.hasOptions(field.type) && !field.options.length) {
-                    field.options = [@js(__('admin.forms.option_example'))];
+                    field.options = [@js(__('admin.forms.option_example')) + ' 1', @js(__('admin.forms.option_example')) + ' 2'];
                 }
 
                 if (!this.hasOptions(field.type)) {
@@ -588,11 +816,21 @@
                 }
             },
 
+            /** Заготовка: пустая форма с нуля — самый долгий путь. */
+            applyStarter(starter) {
+                this.form.title = this.form.title || starter.title;
+                this.form.fields = starter.fields.map((field) => Object.assign({
+                    placeholder: '', hint: '', value: '', required: false, width: 'full', options: []
+                }, field, { uid: this.uid() }));
+            },
+
             edit(item) {
                 this.editing = item.id;
                 this.form = this.prepare(item);
                 this.opened = null;
+                this.picked = null;
                 this.refresh();
+                this.$nextTick(() => this.initSortable());
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             },
 
@@ -600,7 +838,9 @@
                 this.editing = null;
                 this.form = this.prepare(this.blank);
                 this.opened = null;
+                this.picked = null;
                 this.refresh();
+                this.$nextTick(() => this.initSortable());
             },
 
             formUrl(id) {
