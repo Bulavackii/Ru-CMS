@@ -467,16 +467,50 @@
    рабочая сама по себе.
    ══════════════════════════════════════════════════════════════════════ */
 
-/* Скруглений здесь нет намеренно: на сайте действует общее правило прямых
-   краёв (body.fx-sharp), и любой border-radius всё равно обнуляется. Писать
-   его — обещать вид, которого не будет. Круглыми остаются только кнопка
-   воспроизведения и ползунок: у них радиус задан половиной размера, и правило
-   прямых краёв до них не относится. */
+/* ============================================================================
+   Проигрыватели в материалах: звук и видео.
+   ----------------------------------------------------------------------------
+   Скруглений здесь нет, и это не каприз оформителя: на сайте действует общее
+   правило прямых краёв (body.fx-sharp обнуляет border-radius у ВСЕГО, включая
+   50%). Проверено замером — кнопка воспроизведения и ползунок на странице
+   имели радиус 0, хотя в стилях стояло 50%, и прежний комментарий здесь
+   утверждал обратное. Писать радиус значит обещать вид, которого не будет,
+   поэтому весь рисунок построен на прямых формах: квадратная кнопка, прямая
+   дорожка, отвес вместо кружка.
+
+   Второе следствие того же: внутри редактора правила прямых краёв НЕТ (это
+   отдельный документ), и любой радиус сделал бы вид в редакторе не таким, как
+   на сайте. Ещё одна причина не пользоваться им вовсе.
+   ========================================================================= */
+
 .page-content .pc-player {
-    margin: 1.4rem 0;
+    /* Общие приметы обоих проигрывателей — чтобы звук и видео читались как
+       одна пара, а не два случайных блока. */
+    --pc-accent: var(--color-primary, #6366f1);
+    --pc-surface: #ffffff;
+    --pc-border: #e2e5ee;
+    --pc-ink: #111827;
+    --pc-muted: #6b7280;
+    --pc-rail: #e8eaf1;
+
+    margin: 1.6rem 0;
 }
 
-/* ── Видео: рамка вокруг родного проигрывателя ── */
+/* ── Видео: рамка вокруг родного проигрывателя ──────────────────────────
+   Кнопки остаются родными намеренно: они умеют полный экран, картинку в
+   картинке и субтитры и привычно ведут себя на телефоне. Оформляем рамку. */
+
+.page-content .pc-player--video {
+    background: #0b1020;
+    border: 1px solid var(--pc-border);
+    box-shadow: 0 1px 2px rgba(17, 24, 39, .06), 0 8px 24px -14px rgba(17, 24, 39, .35);
+    transition: border-color .18s ease, box-shadow .18s ease;
+}
+
+.page-content .pc-player--video:hover {
+    border-color: var(--pc-accent);
+    box-shadow: 0 1px 2px rgba(17, 24, 39, .08), 0 14px 32px -14px rgba(99, 102, 241, .45);
+}
 
 .page-content .pc-player--video video {
     display: block;
@@ -484,17 +518,44 @@
     background: #0b1020;
 }
 
-/* ── Звук: свой проигрыватель ── */
+/* ── Звук: свой проигрыватель ──────────────────────────────────────────
+   Родная панель выглядит в каждом браузере по-своему и никак не связана с
+   оформлением сайта. Своя — одинаковая везде. */
 
 .page-content .pc-audio {
-    --pc-audio-accent: var(--color-primary, #6366f1);
+    --pc-audio-accent: var(--pc-accent);
 
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px 14px;
-    background: #fff;
-    border: 1px solid #e3e6ee;
+    padding: 13px 16px;
+
+    /* Ширина считается вместе с полями и рамкой. Иначе ограничение ниже даёт
+       596 пикселей вместо 560, и после выравнивания коробка скачком менялась
+       бы в размере: выравнивание задаёт ширину уже по этой модели. */
+    box-sizing: border-box;
+    background: var(--pc-surface);
+    border: 1px solid var(--pc-border);
+
+    /* Акцентная грань слева — короткая примета, по которой блок узнаётся с
+       одного взгляда, как полоса над подвалом сайта. */
+    border-left: 3px solid var(--pc-accent);
+    box-shadow: 0 1px 2px rgba(17, 24, 39, .05);
+    transition: border-color .18s ease, box-shadow .18s ease;
+}
+
+/* Ширина по умолчанию. Полоса во всю строку выглядит растянутой: время и
+   название прижаты к разным краям, а между ними пусто на пол-экрана.
+   Ограничение снимается, как только автор задал размер сам — потянул за
+   ручки или выровнял; тогда в разметке появляется собственная ширина, и это
+   правило перестаёт совпадать. Так вид по умолчанию опрятен, а управление
+   размером остаётся за автором. */
+.page-content .pc-audio:not([style*="width"]) {
+    max-width: 560px;
+}
+
+.page-content .pc-audio:hover {
+    box-shadow: 0 1px 2px rgba(17, 24, 39, .07), 0 10px 26px -16px rgba(99, 102, 241, .5);
 }
 
 /* Пока скрипт не отработал, показываем родной проигрыватель, а свой прячем:
@@ -502,7 +563,7 @@
 .page-content .pc-audio__ui {
     display: none;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
     width: 100%;
 }
 
@@ -514,39 +575,61 @@
     display: flex;
 }
 
+/* ── Кнопка воспроизведения ── */
+
 .page-content .pc-audio__play {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     flex: 0 0 auto;
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
     padding: 0;
     color: #fff;
-    background: var(--pc-audio-accent);
+    background: var(--pc-accent);
     border: 0;
-    border-radius: 50%;
     cursor: pointer;
-    transition: filter .15s ease, transform .05s ease;
+    transition: background .15s ease, box-shadow .15s ease, transform .06s ease;
 }
 
-.page-content .pc-audio__play:hover { filter: brightness(1.1) }
-.page-content .pc-audio__play:active { transform: scale(.94) }
-.page-content .pc-audio__play svg { width: 15px; height: 15px; fill: currentColor }
+.page-content .pc-audio__play:hover {
+    background: color-mix(in srgb, var(--pc-accent) 86%, #000);
+    box-shadow: 0 6px 16px -6px rgba(99, 102, 241, .7);
+}
+
+.page-content .pc-audio__play:active { transform: translateY(1px) }
+
+.page-content .pc-audio__play:focus-visible {
+    outline: 2px solid var(--pc-accent);
+    outline-offset: 2px;
+}
+
+/* Треугольник воспроизведения тяжелее слева, и в геометрическом центре
+   кнопки он смотрится смещённым вправо. Сдвигаем на пиксель — оптическая
+   поправка, а не выравнивание по числам. */
+.page-content .pc-audio__play svg {
+    width: 14px;
+    height: 14px;
+    margin-left: 1px;
+    fill: currentColor;
+}
 
 .page-content .pc-audio__body {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 7px;
     flex: 1 1 auto;
     min-width: 0;
 }
 
-/* Дорожка. Высота у полосы небольшая, а у самой кнопки — во всю строку:
-   попасть пальцем в полоску в три пикселя невозможно. */
+/* ── Дорожка ──
+   Полоса тонкая, а область нажатия во всю строку: попасть пальцем в полоску
+   толщиной в несколько пикселей невозможно. При наведении полоса заметно
+   толстеет — видно, что за неё можно тянуть. */
+
 .page-content .pc-audio__track {
     position: relative;
-    height: 16px;
+    height: 18px;
     display: flex;
     align-items: center;
     cursor: pointer;
@@ -556,97 +639,134 @@
 .page-content .pc-audio__rail {
     position: relative;
     width: 100%;
-    height: 4px;
-    background: #e3e6ee;
-    overflow: hidden;
+    height: 5px;
+    background: var(--pc-rail);
+    transition: height .14s ease;
 }
+
+.page-content .pc-audio__track:hover .pc-audio__rail,
+.page-content .pc-audio__track:focus-visible .pc-audio__rail { height: 7px }
 
 .page-content .pc-audio__fill {
     position: absolute;
     inset: 0 auto 0 0;
     width: 0;
-    background: var(--pc-audio-accent);
+    background: linear-gradient(90deg,
+                color-mix(in srgb, var(--pc-accent) 60%, #fff),
+                var(--pc-accent));
 }
 
+/* Отвес вместо кружка: прямая форма честнее на прямых краях, а тонкая
+   вертикаль точнее показывает позицию, чем кружок. */
 .page-content .pc-audio__knob {
     position: absolute;
     top: 50%;
     left: 0;
-    width: 12px;
-    height: 12px;
-    margin: -6px 0 0 -6px;
-    background: #fff;
-    border: 2px solid var(--pc-audio-accent);
-    border-radius: 50%;
+    width: 3px;
+    height: 16px;
+    margin: -8px 0 0 -1px;
+    background: var(--pc-accent);
+    box-shadow: 0 0 0 2px var(--pc-surface);
     pointer-events: none;
-    opacity: 0;
-    transition: opacity .15s ease;
+    transition: height .14s ease, margin-top .14s ease;
 }
 
 .page-content .pc-audio__track:hover .pc-audio__knob,
-.page-content .pc-audio__track:focus-visible .pc-audio__knob { opacity: 1 }
+.page-content .pc-audio__track:focus-visible .pc-audio__knob {
+    height: 20px;
+    margin-top: -10px;
+}
+
+.page-content .pc-audio__track:focus-visible {
+    outline: 2px solid var(--pc-accent);
+    outline-offset: 3px;
+}
+
+/* ── Подписи под дорожкой ── */
 
 .page-content .pc-audio__meta {
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: .76rem;
-    color: #6b7280;
+    font-size: .78rem;
+    line-height: 1;
+    color: var(--pc-muted);
     font-variant-numeric: tabular-nums;
 }
 
-.page-content .pc-audio__time { flex: 0 0 auto }
+.page-content .pc-audio__time {
+    flex: 0 0 auto;
+    color: var(--pc-ink);
+    font-weight: 600;
+    letter-spacing: .01em;
+}
+
 .page-content .pc-audio__name {
     flex: 1 1 auto;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    opacity: .85;
 }
 
 .page-content .pc-audio__rate {
     flex: 0 0 auto;
-    padding: 2px 7px;
+    padding: 3px 8px;
     font: inherit;
     font-size: .72rem;
-    color: #4b5563;
-    background: #f3f4f6;
-    border: 0;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--pc-muted);
+    background: transparent;
+    border: 1px solid var(--pc-border);
     cursor: pointer;
+    transition: color .15s ease, border-color .15s ease, background .15s ease;
 }
 
-.page-content .pc-audio__rate:hover { color: #111827; background: #e9ebf0 }
+.page-content .pc-audio__rate:hover {
+    color: var(--pc-accent);
+    background: color-mix(in srgb, var(--pc-accent) 8%, transparent);
+    border-color: var(--pc-accent);
+}
 
 .page-content .pc-audio__mute {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     flex: 0 0 auto;
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
     padding: 0;
-    color: #6b7280;
+    color: var(--pc-muted);
     background: transparent;
     border: 0;
     cursor: pointer;
+    transition: color .15s ease, background .15s ease;
 }
 
-.page-content .pc-audio__mute:hover { color: #111827 }
+.page-content .pc-audio__mute:hover {
+    color: var(--pc-accent);
+    background: color-mix(in srgb, var(--pc-accent) 8%, transparent);
+}
+
 .page-content .pc-audio__mute svg { width: 16px; height: 16px; fill: currentColor }
 
 /* Узкий экран: скорость и название убираем — важнее время и дорожка. */
 @media (max-width: 520px) {
     .page-content .pc-audio__name,
     .page-content .pc-audio__rate { display: none }
+
+    .page-content .pc-audio { padding: 11px 13px; gap: 10px }
+    .page-content .pc-audio__play { width: 36px; height: 36px }
 }
 
 @media (prefers-color-scheme: dark) {
-    .page-content .pc-audio {
-        background: #171b24;
-        border-color: #333a49;
+    .page-content .pc-player {
+        --pc-surface: #151922;
+        --pc-border: #2c3342;
+        --pc-ink: #e8ecf3;
+        --pc-muted: #94a1b5;
+        --pc-rail: #2a303d;
     }
-    .page-content .pc-audio__rail { background: #333a49 }
-    .page-content .pc-audio__knob { background: #171b24 }
-    .page-content .pc-audio__rate { color: #cbd5e1; background: #232936 }
-    .page-content .pc-audio__mute { color: #9aa3b2 }
 }
