@@ -898,6 +898,13 @@ label.ru-ed-menu-item { position: relative }
 .ru-ed-src-text {
     margin: 0;
     padding: 10px 12px;
+
+    /* Место под полосу прокрутки резервируется ВСЕГДА и у поля, и у слоя.
+       Иначе полоса появляется только у поля, сужает его на свою толщину, и
+       длинные строки переносятся в поле раньше, чем в слое: замер показывал
+       расхождение высоты ровно на одну строку, а на экране подсветка
+       расползалась с текстом тем сильнее, чем ниже строка. */
+    scrollbar-gutter: stable;
     font-family: "JetBrains Mono", "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     font-size: 13px;
     line-height: 1.55;
@@ -914,9 +921,18 @@ label.ru-ed-menu-item { position: relative }
     overflow-wrap: normal;
 }
 
+/* Слою добавляем снизу ровно столько, сколько у поля отнимает горизонтальная
+   полоса прокрутки: иначе у самого низа длинного документа подсветка
+   отстаёт от текста на её толщину. Толщину измеряет скрипт — у каждой
+   системы она своя. */
+.ru-ed-src.is-nowrap .ru-ed-src-paint {
+    padding-bottom: calc(10px + var(--ru-sbar, 15px));
+}
+
 /* Нумерация. Своя прокрутка синхронизируется со скриптом. */
 .ru-ed-src-gutter {
     flex: 0 0 auto;
+    height: 100%;
     min-width: 46px;
     padding-right: 10px;
     color: #9aa3b2;
@@ -927,10 +943,19 @@ label.ru-ed-menu-item { position: relative }
     user-select: none;
 }
 
+/* Ячейка, в которой лежат слой и поле — одна на двоих. Ширину задаёт она,
+   поэтому слой и поле не могут разойтись по ширине в принципе. */
+.ru-ed-src-area {
+    position: relative;
+    flex: 1 1 auto;
+    height: 100%;
+    min-width: 0;
+}
+
 .ru-ed-src-paint,
 .ru-ed-src textarea.ru-ed-code {
-    flex: 1 1 auto;
-    min-width: 0;
+    width: 100%;
+    height: 100%;
     border: 0;
     outline: none;
     resize: none;
@@ -938,7 +963,7 @@ label.ru-ed-menu-item { position: relative }
 
 .ru-ed-src-paint {
     position: absolute;
-    inset: 0 0 0 46px;
+    inset: 0;
     overflow: hidden;
     color: #1f2430;
     pointer-events: none;
@@ -949,10 +974,12 @@ label.ru-ed-menu-item { position: relative }
 .ru-ed-src textarea.ru-ed-code {
     position: relative;
     z-index: 1;
+    display: block;
     color: transparent;
     caret-color: #4f46e5;
     background: transparent;
-    overflow: auto;
+    overflow-y: scroll;
+    overflow-x: auto;
 }
 
 .ru-ed-src textarea.ru-ed-code::selection { background: rgba(99, 102, 241, .22) }

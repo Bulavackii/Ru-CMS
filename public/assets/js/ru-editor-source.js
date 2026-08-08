@@ -466,9 +466,15 @@
             code.classList.add('ru-ed-src-text');
             code.parentNode.insertBefore(wrapper, code);
 
+            // Слой и поле кладём в ОДНУ ячейку. Раньше слой отступал от края
+            // на жёстко заданную ширину колонки с номерами — на трёхзначных
+            // номерах колонка становится шире, и подсветка уезжала бы вбок.
+            var area = el('div', { class: 'ru-ed-src-area' });
+
+            area.appendChild(paint);
+            area.appendChild(code);
             box.appendChild(gutter);
-            box.appendChild(paint);
-            box.appendChild(code);
+            box.appendChild(area);
             wrapper.appendChild(box);
             wrapper.appendChild(status);
 
@@ -497,6 +503,16 @@
                 render();
                 code.focus();
             });
+
+            // Толщина полосы прокрутки у каждой системы своя, а знать её надо:
+            // без переноса строк поле получает горизонтальную полосу и
+            // становится ниже слоя на её толщину. У самого низа длинного
+            // документа подсветка из-за этого отставала бы от текста.
+            var probe = el('div', { style: 'position:absolute;visibility:hidden;overflow:scroll;width:60px;height:60px' });
+
+            document.body.appendChild(probe);
+            wrapper.style.setProperty('--ru-sbar', (probe.offsetHeight - probe.clientHeight) + 'px');
+            probe.remove();
 
             var wrapButton = button(t('src.wrap', 'Перенос строк'), t('src.wrap_hint', 'Переносить длинные строки'), function () {
                 wrapper.classList.toggle('is-nowrap');
@@ -577,7 +593,15 @@
                 render();
             });
 
-            editor.on('source-open', render);
+            editor.on('source-open', function () {
+                // Высоту задаёт КОРОБКА, а не поле. Колонка с номерами —
+                // такой же элемент строки, и ничем не ограниченная она
+                // растягивала коробку до полной высоты содержимого: у слоя
+                // подсветки не оставалось чего прокручивать, и он замирал на
+                // первой строке, пока поле уезжало вниз.
+                box.style.height = code.style.height || '';
+                render();
+            });
         }
     });
 }(window, document));
