@@ -259,6 +259,39 @@
         opacity:.85; pointer-events:none;
     }
 
+    /* ── Тёмная тема ──────────────────────────────────────────────
+       Тёмный режим здесь был написан только под класс .dark — это
+       системная тема браузера. Тему сайта задаёт ДРУГОЙ класс,
+       fx-theme-dark, и правила ниже про него не знали: на тёмной теме
+       подвал оставался светлым, потому что тот же узор рисовался поверх
+       заливки с непрозрачностью .85. На странице узор приглушается до
+       .18, а здесь — нет: один узор, два места, знало про тему только
+       одно. */
+    body.fx-theme-dark .f-body::after{ opacity:.14; }
+
+    body.fx-theme-dark .f-body{
+        border-top-color:rgba(255,255,255,.10);
+    }
+
+    body.fx-theme-dark .f-brand-card{
+        border-color:rgba(255,255,255,.10);
+        background:color-mix(in srgb, var(--color-text) 6%, transparent);
+    }
+
+    /* Подписи набраны классами со светлой темой в основе. Возвращаем им
+       цвет темы, иначе на тёмном фоне остаётся тёмный текст. */
+    body.fx-theme-dark footer h2,
+    body.fx-theme-dark footer h3,
+    body.fx-theme-dark footer .footer-col-title,
+    body.fx-theme-dark footer a,
+    body.fx-theme-dark footer p,
+    body.fx-theme-dark footer span,
+    body.fx-theme-dark footer li{
+        color:var(--color-text);
+    }
+
+    body.fx-theme-dark footer a:hover{ color:var(--color-primary); }
+
     /* Содержимое подвала — над подложкой. */
     .f-body > *{ position:relative; z-index:1; }
     /* Запасной вариант для браузеров без color-mix: переход всё равно

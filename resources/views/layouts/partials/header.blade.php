@@ -215,6 +215,18 @@
     .hdr-glass > *{ position:relative; z-index:1; }
     :root.dark .hdr-glass{ background:rgba(15,23,42,.62); border-bottom-color:rgba(255,255,255,.08); }
 
+    /* Тёмная ТЕМА — отдельный класс от системного тёмного режима, и
+       правило выше про него не знает. Без этих строк на тёмной теме
+       шапка светилась узором так же, как светился подвал. */
+    body.fx-theme-dark .hdr-glass::after{ opacity:.14; }
+    body.fx-theme-dark .hdr-glass{
+        background:color-mix(in srgb, var(--color-header) 72%, transparent);
+        border-bottom-color:rgba(255,255,255,.10);
+    }
+    body.fx-theme-dark .hdr-glass a,
+    body.fx-theme-dark .hdr-glass span,
+    body.fx-theme-dark .hdr-glass button{ color:var(--color-text); }
+
     /* Логотип.
        Скругления тут не задаются: на сайте прямые углы включены глобально
        (body.fx-sharp с important), и прежний border-radius у знака был

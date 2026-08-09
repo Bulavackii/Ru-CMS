@@ -288,6 +288,39 @@
             color: var(--color-bg);
         }
 
+        /* Заголовки и приглушённый текст набраны классами, у которых в
+           основе светлая тема: тёмный текст на светлом фоне. Тёмный режим у
+           этих классов свой и отзывается на .dark — системную тему браузера,
+           а не на тему сайта. Из-за этого на тёмной теме заголовки разделов
+           оставались чёрными на чёрном.
+
+           Внутри карточек и кнопок цвет уже задан выше, поэтому здесь
+           перечислены только заголовки и общие классы текста. */
+        body.fx-theme-dark h1,
+        body.fx-theme-dark h2,
+        body.fx-theme-dark h3,
+        body.fx-theme-dark h4,
+        body.fx-theme-dark h5,
+        body.fx-theme-dark h6,
+        body.fx-theme-dark .text-gray-900,
+        body.fx-theme-dark .text-gray-800,
+        body.fx-theme-dark .text-gray-700 {
+            color: var(--color-text);
+        }
+
+        body.fx-theme-dark .text-gray-600,
+        body.fx-theme-dark .text-gray-500,
+        body.fx-theme-dark .text-gray-400 {
+            color: color-mix(in srgb, var(--color-text) 68%, transparent);
+        }
+
+        /* Разделители рисуются светло-серым — на тёмном фоне их не видно
+           вовсе, и блоки слипаются в одно полотно. */
+        body.fx-theme-dark .border-gray-200,
+        body.fx-theme-dark .border-gray-100 {
+            border-color: color-mix(in srgb, var(--color-text) 14%, transparent);
+        }
+
         .bg-header-theme {
             background: var(--color-header)
         }
