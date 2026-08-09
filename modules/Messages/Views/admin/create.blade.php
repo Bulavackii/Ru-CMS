@@ -34,16 +34,23 @@
     </a>
 </div>
 
+{{-- Форма была одной узкой колонкой по центру (52rem) — на широком экране
+     по бокам оставалась пустота, а поле текста при этом жалось в ширину.
+
+     Теперь: получатель и тема делят верхний ряд, ниже слева — само письмо,
+     справа — вложения и пометка. То же устройство, что у редактора
+     фрагментов: содержимое слева, свойства справа. --}}
 <form method="POST" action="{{ route('admin.messages.store') }}" enctype="multipart/form-data"
-      class="admin-card p-5 msg-form" x-data="messageForm()" @submit="sending = true">
+      class="msg-form" x-data="messageForm()" @submit="sending = true">
     @csrf
 
     @if($isReply)
         <input type="hidden" name="parent_id" value="{{ $replyTo->id }}">
     @endif
 
+    <div class="admin-card p-5 msg-head">
     {{-- ── Получатель ── --}}
-    <div class="mb-4">
+    <div class="msg-field">
         <label for="to_user_id" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
             {{ __('admin.messages.to_user') }} <span class="text-red-500">*</span>
         </label>
@@ -64,7 +71,7 @@
     </div>
 
     {{-- ── Тема ── --}}
-    <div class="mb-4">
+    <div class="msg-field">
         <label for="subject" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
             {{ __('admin.messages.subject') }} <span class="text-red-500">*</span>
         </label>
@@ -78,8 +85,12 @@
         @error('subject')<p class="text-sm text-red-600 mt-1">{{ $message }}</p>@enderror
     </div>
 
+    </div>{{-- /msg-head --}}
+
+    <div class="msg-grid">
+    <section class="admin-card p-5 msg-main">
     {{-- ── Текст ── --}}
-    <div class="mb-4">
+    <div>
         <label for="body" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
             {{ __('admin.messages.body') }} <span class="text-red-500">*</span>
         </label>
@@ -105,8 +116,11 @@
         @error('body')<p class="text-sm text-red-600 mt-1">{{ $message }}</p>@enderror
     </div>
 
+    </section>
+
+    <aside class="admin-card p-5 msg-side">
     {{-- ── Вложения ── --}}
-    <div class="mb-4">
+    <div class="mb-5">
         <span class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
             {{ __('admin.messages.files') }}
         </span>
@@ -134,7 +148,7 @@
     </div>
 
     {{-- ── Важное ── --}}
-    <div class="mb-5">
+    <div>
         {{-- Тумблер был на peer-checked, которого в этой сборке Tailwind нет:
              кнопка не ехала и цвет не менялся. Общий класс admin-toggle
              сделан настоящим CSS-селектором. --}}
@@ -153,7 +167,10 @@
         <p class="admin-hint mt-1">{{ __('admin.messages.important_hint') }}</p>
     </div>
 
-    <div class="flex flex-wrap justify-end gap-2">
+    </aside>
+    </div>{{-- /msg-grid --}}
+
+    <div class="admin-card p-4 msg-actions">
         <a href="{{ route('admin.messages.index') }}"
            class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
                   hover:bg-gray-100 dark:hover:bg-gray-800 px-4 py-2.5 text-sm font-semibold transition">
@@ -215,6 +232,27 @@
     /* Литеральный CSS: в статической сборке Tailwind нет ни произвольных
        значений, ни прозрачности через /NN. */
     .msg-form{ max-width:52rem; margin-inline:auto }
+    .msg-grid{ display:grid; gap:1rem; margin-top:1rem }
+    .msg-head{ display:grid; gap:1rem }
+    .msg-actions{ display:flex; flex-wrap:wrap; justify-content:flex-end; gap:.5rem; margin-top:1rem }
+
+    /* Поле текста тянется на всю высоту своей колонки: справа стоят
+       вложения и пометка, они короче, и без этого под ними зияла бы
+       пустота. */
+    .msg-main{ display:flex; flex-direction:column }
+    .msg-main > div{ display:flex; flex-direction:column; flex:1 }
+    .msg-main textarea{ flex:1; min-height:18rem }
+
+    /* На широком экране — две колонки.
+       Форма была прибита к 52rem и центрировалась: на мониторе шире полутора
+       тысяч пикселей по бокам оставалось пусто, а поле письма при этом жалось
+       в ширину. Верхний ряд делят получатель и тема — два коротких поля, им
+       целая строка каждому не нужна. */
+    @media (min-width:1280px){
+        .msg-form{ max-width:82rem }
+        .msg-head{ grid-template-columns:1fr 1fr }
+        .msg-grid{ grid-template-columns:minmax(0,1fr) 22rem; align-items:start }
+    }
 
     .msg-drop{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.5rem;
                border:2px dashed #cbd5e1; padding:1.25rem 1rem; cursor:pointer; text-align:center;
