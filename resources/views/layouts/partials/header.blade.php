@@ -218,8 +218,6 @@
     /* Тёмная ТЕМА — отдельный класс от системного тёмного режима, и
        правило выше про него не знает. Без этих строк на тёмной теме
        шапка светилась узором так же, как светился подвал. */
-    body.fx-theme-dark .hdr-glass::after{ opacity:.14; }
-
     /* Шапка на тёмной теме — ОТДЕЛЬНАЯ поверхность, а не тот же тон поверх
        такого же фона. Раньше она была цветом страницы при семидесяти двух
        процентах непрозрачности: формально тёмная, а на экране сливалась —
@@ -229,10 +227,26 @@
        фона), плюс заметную нижнюю грань и тень под ней. Разница небольшая,
        но глазу хватает, чтобы прочесть край. */
     body.fx-theme-dark .hdr-glass{
-        background:color-mix(in srgb, var(--surface) 92%, transparent);
+        /* На тёмной теме шапка СПЛОШНАЯ, без стекла.
+           Полупрозрачная заливка пропускает сквозь себя светлый узор
+           подложки, и полоса выцветает до светло-серой — надписи на ней
+           тонут. Ради стеклянного эффекта терять читаемость шапки не стоит:
+           это первое, что видит посетитель.
+
+           Узор под шапкой гасим совсем (::after ниже), размытие снимаем —
+           размывать нечего, фон непрозрачный. */
+        background:var(--color-header);
         border-bottom:1px solid var(--surface-bd);
-        box-shadow:0 6px 20px -12px rgba(0,0,0,.75);
+        box-shadow:0 8px 24px -14px rgba(0,0,0,.85);
+        -webkit-backdrop-filter:none;
+        backdrop-filter:none;
     }
+
+    /* Узор в шапке рисует ::before, а НЕ ::after — он лежит НАД заливкой
+       стекла и на тёмной теме высветлял всю полосу до светло-серой, отчего
+       надписи меню тонули. Гасим именно его: заливка под ним сплошная и
+       тёмная, поверх неё узор не нужен. */
+    body.fx-theme-dark .hdr-glass::before{ display:none; }
     body.fx-theme-dark .hdr-glass a,
     body.fx-theme-dark .hdr-glass span,
     body.fx-theme-dark .hdr-glass button{ color:var(--color-text); }
@@ -240,8 +254,12 @@
     /* Поле поиска было белым — на тёмной шапке светилось ярким пятном. */
     body.fx-theme-dark .hdr-search-input{
         color:var(--color-text);
-        background:color-mix(in srgb, var(--color-text) 8%, transparent);
-        border-color:var(--surface-bd);
+        background:var(--surface);
+        border:1px solid var(--surface-bd);
+    }
+    body.fx-theme-dark .hdr-search-input:focus{
+        border-color:var(--color-primary);
+        box-shadow:0 0 0 3px color-mix(in srgb, var(--color-primary) 22%, transparent);
     }
     body.fx-theme-dark .hdr-search-input::placeholder{ color:var(--surface-dim); }
 
@@ -352,6 +370,24 @@
     .hdr-lang-item:hover{ background:rgba(99,102,241,.1); color:#4f46e5; }
     :root.dark .hdr-lang-item:hover{ background:rgba(99,102,241,.2); color:#c7d2fe; }
     .hdr-lang-item.is-active{ color:#4f46e5; font-weight:500; }
+
+    /* Выпадающий список языков на тёмной теме. Тёмный вид у него был описан
+       только под системный тёмный режим (:root.dark), поэтому на тёмной ТЕМЕ
+       панель оставалась белой, а подписи на ней — светлыми: список
+       открывался пустым белым прямоугольником.
+
+       Цвет выбранного языка берётся из темы: прибитый фиолетовый смотрелся
+       чужим на мятной или янтарной теме. */
+    body.fx-theme-dark .hdr-lang-menu{
+        background:var(--surface);
+        border-color:var(--surface-bd);
+    }
+    body.fx-theme-dark .hdr-lang-item{ color:var(--color-text); }
+    body.fx-theme-dark .hdr-lang-item:hover{
+        color:var(--color-bg);
+        background:var(--color-primary);
+    }
+    body.fx-theme-dark .hdr-lang-item.is-active{ color:var(--color-primary); }
     :root.dark .hdr-lang-item.is-active{ color:#c7d2fe; }
     /* Переключатель темы: кружок-превью в цвете акцента темы */
     .hdr-theme-dot{ width:.85rem; height:.85rem; border-radius:999px; flex:0 0 auto;

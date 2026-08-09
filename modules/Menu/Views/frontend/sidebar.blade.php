@@ -88,6 +88,19 @@
         box-shadow:0 0 50px -10px rgba(17,24,39,.4);
     }
     :root.dark .fs-panel{ background:rgba(15,23,42,.82); border-color:rgba(255,255,255,.08); }
+
+    /* Тёмная ТЕМА — отдельный класс от системного тёмного режима выше.
+       Без этих строк выдвижная панель оставалась белой, а подписи на ней
+       светлыми: меню открывалось пустым белым полотном. */
+    body.fx-theme-dark .fs-panel{
+        background:var(--surface);
+        border-color:var(--surface-bd);
+        color:var(--color-text);
+    }
+    body.fx-theme-dark .fs-panel a,
+    body.fx-theme-dark .fs-panel span,
+    body.fx-theme-dark .fs-panel button{ color:var(--color-text); }
+    body.fx-theme-dark .fs-panel a:hover{ color:var(--color-primary); }
     .fs-enter{ transition:transform .22s ease, opacity .22s ease; }
     .fs-enter-start{ transform:translateX(-100%); opacity:.4; }
     .fs-enter-end{ transform:translateX(0); opacity:1; }
