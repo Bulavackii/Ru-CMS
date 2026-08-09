@@ -165,6 +165,167 @@ class SeedDefaultThemesCommand extends Command
                     'font_name'     => 'Inter',
                 ],
             ],
+
+            /*
+             * Неон — единственная ТЁМНАЯ тема набора: почти чёрный фон с
+             * фиолетовым отливом, сиреневый акцент и бирюзовая искра.
+             *
+             * Пришёл на место «Изумруда» по просьбе владельца. Тот завёлся
+             * вручную и жил только в его базе, а пояснение у него оставалось
+             * от совсем другой темы («песочный фон, терракотовая кнопка») —
+             * с цветами не сходилось вовсе.
+             *
+             * Контраст: текст к фону 16.0, акцент к фону 7.2, бирюза к фону
+             * 10.9 — с большим запасом к порогу AA.
+             */
+            [
+                'slug'  => 'neon',
+                'title' => 'Неон',
+                'note'  => 'Тёмная тема: почти чёрный фон с фиолетовым отливом и бирюзовой искрой.',
+                'tokens' => [
+                    'colors' => [
+                        'bg'      => '#0b0a14',
+                        'text'    => '#e9e6f5',
+                        'primary' => '#a78bfa',
+                        'accent'  => '#22d3ee',
+                        'header'  => '#110f1c',
+                        'footer'  => '#110f1c',
+                    ],
+                    'radius' => ['md' => '14px'],
+                    'font'   => ['base' => "Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"],
+                ],
+                'config' => [
+                    'icon_mode'     => 'lucide',
+                    'font_provider' => 'local',
+                    'font_name'     => 'Inter',
+                ],
+            ],
+
+            /*
+             * Пять тем ниже добавлены отдельным заходом. У каждой свой фон и
+             * свой знак с собственной надписью — прежние пять отличались
+             * только цветом. Оттенки специально не пересекаются с уже
+             * существующими: бирюза «Океана» не повторяет синий «Лазури»,
+             * слива не повторяет малину «Пурпура».
+             *
+             * Контраст проверен по WCAG до отрисовки: текст к фону не ниже
+             * 16:1, белая надпись на кнопке не ниже 5:1 при пороге AA 4.5:1.
+             */
+
+            [
+                'slug'  => 'mono',
+                'title' => 'Монохром',
+                'note'  => 'Чёрно-белая: только графика и типографика, ни одного цветного пятна.',
+                'tokens' => [
+                    'colors' => [
+                        'bg'      => '#ffffff',
+                        'text'    => '#0a0a0a',
+                        'primary' => '#171717',
+                        'accent'  => '#525252',
+                        'header'  => '#ffffff',
+                        'footer'  => '#fafafa',
+                    ],
+                    'radius' => ['md' => '4px'],
+                    'font'   => ['base' => "Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"],
+                ],
+                'config' => [
+                    'icon_mode'     => 'lucide',
+                    'font_provider' => 'local',
+                    'font_name'     => 'Inter',
+                ],
+            ],
+
+            [
+                'slug'  => 'amber',
+                'title' => 'Янтарь',
+                'note'  => 'Тёплая песочная тема с золотым акцентом — мягкая и «бумажная».',
+                'tokens' => [
+                    'colors' => [
+                        'bg'      => '#fffdf7',
+                        'text'    => '#1c1917',
+                        'primary' => '#b45309',
+                        'accent'  => '#d97706',
+                        'header'  => '#ffffff',
+                        'footer'  => '#fffbeb',
+                    ],
+                    'radius' => ['md' => '14px'],
+                    'font'   => ['base' => "Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"],
+                ],
+                'config' => [
+                    'icon_mode'     => 'lucide',
+                    'font_provider' => 'local',
+                    'font_name'     => 'Inter',
+                ],
+            ],
+
+            [
+                'slug'  => 'pine',
+                'title' => 'Хвоя',
+                'note'  => 'Глубокий хвойный зелёный: спокойная тема для текста и каталогов.',
+                'tokens' => [
+                    'colors' => [
+                        'bg'      => '#f6faf7',
+                        'text'    => '#0f1f14',
+                        'primary' => '#166534',
+                        'accent'  => '#15803d',
+                        'header'  => '#ffffff',
+                        'footer'  => '#f0fdf4',
+                    ],
+                    'radius' => ['md' => '10px'],
+                    'font'   => ['base' => "Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"],
+                ],
+                'config' => [
+                    'icon_mode'     => 'lucide',
+                    'font_provider' => 'local',
+                    'font_name'     => 'Inter',
+                ],
+            ],
+
+            [
+                'slug'  => 'ocean',
+                'title' => 'Океан',
+                'note'  => 'Морская бирюза — прохладная и чистая, без синевы «Лазури».',
+                'tokens' => [
+                    'colors' => [
+                        'bg'      => '#f4fafb',
+                        'text'    => '#0c1c1f',
+                        'primary' => '#0e7490',
+                        'accent'  => '#0891b2',
+                        'header'  => '#ffffff',
+                        'footer'  => '#ecfeff',
+                    ],
+                    'radius' => ['md' => '12px'],
+                    'font'   => ['base' => "Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"],
+                ],
+                'config' => [
+                    'icon_mode'     => 'lucide',
+                    'font_provider' => 'local',
+                    'font_name'     => 'Inter',
+                ],
+            ],
+
+            [
+                'slug'  => 'plum',
+                'title' => 'Слива',
+                'note'  => 'Насыщенный сливовый — глубже и спокойнее «Пурпура».',
+                'tokens' => [
+                    'colors' => [
+                        'bg'      => '#faf7fc',
+                        'text'    => '#1a1020',
+                        'primary' => '#6b21a8',
+                        'accent'  => '#7e22ce',
+                        'header'  => '#ffffff',
+                        'footer'  => '#f5f3ff',
+                    ],
+                    'radius' => ['md' => '12px'],
+                    'font'   => ['base' => "Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"],
+                ],
+                'config' => [
+                    'icon_mode'     => 'lucide',
+                    'font_provider' => 'local',
+                    'font_name'     => 'Inter',
+                ],
+            ],
         ];
     }
 
@@ -185,17 +346,29 @@ class SeedDefaultThemesCommand extends Command
      * Ключ отсутствует — тема получает только то, что задано; ничего не
      * подставляется молча.
      */
+    /**
+     * Ширина знака в шапке.
+     *
+     * Знаки-надписи вытянутые, и предел по умолчанию — 120px — зажимал их до
+     * 25px в высоту: мельче прежней текстовой марки, и шапка съезжала со
+     * 124px до 116.
+     *
+     * Значение с запасом, чтобы размер держал ограничитель ВЫСОТЫ (2.4rem в
+     * layouts/partials/header), а не ширины. Иначе высота зависела бы от
+     * пропорций знака: у Индиго надпись длиннее («RU CMS» с расшифровкой),
+     * его знак шире, и при пределе 200px он не дотягивал до общей высоты —
+     * шапка выходила на 4px ниже, чем у остальных тем.
+     */
+    private const LOGO_WIDTH = '240px';
+
     private const ASSETS = [
-        // У Индиго картинки-знака НЕТ намеренно: это тема по умолчанию после
-        // установки, и в шапке у неё остаётся текстовая марка «RU CMS» —
-        // ровно то, что видно на чистой CMS. Стоит задать logo_url, и шапка
-        // подменит марку картинкой.
-        //
-        // null, а не отсутствие ключа: при --reset конфиг сливается ПОВЕРХ
-        // прежнего, и просто «не задать» мало — осталось бы старое значение.
+        // Индиго: знак в том же строении, что у остальных тем, но надпись
+        // прежняя — «RU CMS» с расшифровкой. Это тема по умолчанию, её марка
+        // должна остаться узнаваемой: менялось исполнение, не смысл.
+        // Фон намеренно оставлен прежним PNG.
         'indigo' => [
             'background_url' => self::DEFAULT_BACKGROUND,
-            'logo_url'       => null,
+            'logo_url'       => '/images/themes/logos/indigo.svg',
         ],
         'scarlet' => [
             'background_url' => '/images/themes/backgrounds/scarlet.svg',
@@ -213,6 +386,32 @@ class SeedDefaultThemesCommand extends Command
             'background_url' => '/images/themes/backgrounds/magenta.svg',
             'logo_url'       => '/images/themes/logos/magenta.svg',
         ],
+        'mono' => [
+            'background_url' => '/images/themes/backgrounds/mono.svg',
+            'logo_url'       => '/images/themes/logos/mono.svg',
+        ],
+        'amber' => [
+            'background_url' => '/images/themes/backgrounds/amber.svg',
+            'logo_url'       => '/images/themes/logos/amber.svg',
+        ],
+        'pine' => [
+            'background_url' => '/images/themes/backgrounds/pine.svg',
+            'logo_url'       => '/images/themes/logos/pine.svg',
+        ],
+        'ocean' => [
+            'background_url' => '/images/themes/backgrounds/ocean.svg',
+            'logo_url'       => '/images/themes/logos/ocean.svg',
+        ],
+        'plum' => [
+            'background_url' => '/images/themes/backgrounds/plum.svg',
+            'logo_url'       => '/images/themes/logos/plum.svg',
+        ],
+        // Неон единственный ТЁМНЫЙ, поэтому и узор у него тёмный: светлая
+        // плитка остальных на его фоне была бы белым пятном.
+        'neon' => [
+            'background_url' => '/images/themes/backgrounds/neon.svg',
+            'logo_url'       => '/images/themes/logos/neon.svg',
+        ],
     ];
 
     public static function seed(bool $reset = false): void
@@ -229,7 +428,11 @@ class SeedDefaultThemesCommand extends Command
                         // CSS-переменные пересобираем из токенов — тем же способом,
                         // что и контроллер при сохранении темы
                         'css'  => self::buildCss($definition['tokens']),
-                    ], self::ASSETS[$definition['slug']] ?? []),
+                    ], self::ASSETS[$definition['slug']] ?? [], array_filter([
+                        'logo_width' => isset(self::ASSETS[$definition['slug']]['logo_url'])
+                            ? self::LOGO_WIDTH
+                            : null,
+                    ])),
                 ];
 
                 if (! $theme) {

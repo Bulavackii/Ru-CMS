@@ -46,11 +46,16 @@ class ThemesModuleTest extends TestCase
 
     // ── Сидер ─────────────────────────────────────────────────────────────
 
-    public function test_seeder_creates_five_themes_with_one_active(): void
+    public function test_seeder_creates_all_themes_with_one_active(): void
     {
         SeedDefaultThemesCommand::seed(false);
 
-        $this->assertSame(5, Theme::count());
+        // Число берём из самого описания набора, а не прибиваем: тем стало
+        // одиннадцать, и с каждой новой пришлось бы править цифру в тесте.
+        $expected = count(SeedDefaultThemesCommand::definitions());
+
+        $this->assertGreaterThanOrEqual(5, $expected, 'Набор тем не должен усыхать.');
+        $this->assertSame($expected, Theme::count());
         $this->assertSame(1, Theme::where('is_default', true)->count());
         $this->assertSame(
             SeedDefaultThemesCommand::DEFAULT_SLUG,
@@ -63,7 +68,7 @@ class ThemesModuleTest extends TestCase
         SeedDefaultThemesCommand::seed(false);
         SeedDefaultThemesCommand::seed(false);
 
-        $this->assertSame(5, Theme::count());
+        $this->assertSame(count(SeedDefaultThemesCommand::definitions()), Theme::count());
     }
 
     public function test_seeder_does_not_override_user_choice(): void
