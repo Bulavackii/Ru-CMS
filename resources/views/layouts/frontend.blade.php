@@ -305,6 +305,27 @@
             --surface-mute: #94a3b8;
         }
 
+        /* Типографика содержимого. Плагин prose красит текст, заголовки,
+           полужирное и ссылки СВОИМИ переменными — для того они и заведены.
+           По умолчанию там тёмные значения: на тёмной теме полужирные слова
+           в абзаце пропадали, оставаясь чёрными на чёрном. */
+        body.fx-theme-dark .prose{
+            --tw-prose-body:        var(--color-text);
+            --tw-prose-headings:    var(--color-text);
+            --tw-prose-lead:        var(--surface-mute);
+            --tw-prose-bold:        var(--color-text);
+            --tw-prose-links:       var(--color-primary);
+            --tw-prose-counters:    var(--surface-mute);
+            --tw-prose-bullets:     var(--surface-mute);
+            --tw-prose-quotes:      var(--color-text);
+            --tw-prose-quote-borders: var(--surface-bd);
+            --tw-prose-captions:    var(--surface-mute);
+            --tw-prose-code:        var(--color-text);
+            --tw-prose-hr:          var(--surface-bd);
+            --tw-prose-th-borders:  var(--surface-bd);
+            --tw-prose-td-borders:  var(--surface-bd);
+        }
+
         body.fx-theme-dark{
             --surface:      color-mix(in srgb, var(--color-text) 7%,  var(--color-bg));
             --surface-2:    color-mix(in srgb, var(--color-text) 13%, var(--color-bg));

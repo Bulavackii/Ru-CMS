@@ -1,3 +1,19 @@
+/* ============================================================================
+   Цвета блоков берутся из переменных, а не вписаны в каждое правило.
+   ----------------------------------------------------------------------------
+   Раньше здесь стояли белые заливки и тёмный текст напрямую. На тёмной теме
+   сайта это давало белые прямоугольники с почти невидимыми подписями —
+   светлый текст на белом.
+
+   Переменные объявляет макет сайта (layouts/frontend), один набор на все
+   блоки: там же они переопределяются для тёмной темы, причём выводятся ИЗ
+   САМОЙ ТЕМЫ — цвет текста подмешивается к цвету фона. Поэтому любая новая
+   тёмная тема получает согласованные блоки сама.
+
+   Запасные значения после запятой нужны для редактора: он показывает эти же
+   блоки в своей рамке, где переменных темы нет.
+   ========================================================================= */
+
 /*
     БЛОКИ СОДЕРЖИМОГО СТРАНИЦ И НОВОСТЕЙ
 
@@ -30,21 +46,21 @@
    через дробь, ни произвольных значений. Цвета — из активной темы.
    ══════════════════════════════════════════════════════════════════ */
 
-.page-content .pc-lead{ font-size:1.05rem; line-height:1.65; color:#334155 }
+.page-content .pc-lead{ font-size:1.05rem; line-height:1.65; color:var(--surface-ink,#334155) }
 :root.dark .page-content .pc-lead{ color:#cbd5e1 }
 
 .page-content .pc-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(17rem,1fr));
     gap:1rem; margin:1.5rem 0; padding:0; list-style:none }
 
-.page-content .pc-card{ margin:0; padding:1.1rem 1.25rem; background:#fff;
-    border:1px solid #eef2f7; transition:border-color .15s, transform .15s }
+.page-content .pc-card{ margin:0; padding:1.1rem 1.25rem; background:var(--surface,#fff);
+    border:1px solid var(--surface-bd,#eef2f7); transition:border-color .15s, transform .15s }
 .page-content .pc-card:hover{ border-color:var(--color-primary,#6366f1); transform:translateY(-2px) }
 .page-content .pc-card > :first-child{ margin-top:0 }
 .page-content .pc-card > :last-child{ margin-bottom:0 }
 .page-content .pc-card strong,
 .page-content .pc-card h3{ display:block; margin-bottom:.35rem; font-size:1rem;
-    font-weight:700; color:#111827 }
-:root.dark .page-content .pc-card{ background:#111827; border-color:#1f2937 }
+    font-weight:700; color:var(--surface-ink,#111827) }
+:root.dark .page-content .pc-card{ background:#111827; border-color:var(--surface-ink,#1f2937) }
 :root.dark .page-content .pc-card strong,
 :root.dark .page-content .pc-card h3{ color:#f3f4f6 }
 
@@ -55,7 +71,7 @@
     font-weight:700; color:var(--color-primary,#6366f1) }
 
 /* Врезка: слева акцентная полоса, чтобы её нельзя было спутать с текстом. */
-.page-content .pc-note{ margin:1.5rem 0; padding:1rem 1.25rem; background:#f8fafc;
+.page-content .pc-note{ margin:1.5rem 0; padding:1rem 1.25rem; background:var(--surface-2,#f8fafc);
     border-left:3px solid var(--color-primary,#6366f1) }
 .page-content .pc-note > :first-child{ margin-top:0 }
 .page-content .pc-note > :last-child{ margin-bottom:0 }
@@ -66,7 +82,7 @@
     background:linear-gradient(135deg,var(--color-primary,#6366f1),var(--color-accent,#8b5cf6)) }
 .page-content .pc-cta > :first-child{ margin:0 }
 .page-content .pc-cta a{ flex:none; padding:.6rem 1.35rem; font-weight:700;
-    color:#111827; background:#fff; text-decoration:none }
+    color:var(--surface-ink,#111827); background:var(--surface,#fff); text-decoration:none }
 .page-content .pc-cta a:hover{ color:var(--color-primary,#6366f1) }
 
 
@@ -81,8 +97,8 @@
 /* ── Цифры ──────────────────────────────────────────────────────── */
 .page-content .pc-stats{ display:grid; grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));
     gap:1px; margin:1.75rem 0; padding:0; list-style:none; background:#e2e8f0;
-    border:1px solid #e2e8f0 }
-.page-content .pc-stats li{ margin:0; padding:1.1rem .9rem; text-align:center; background:#fff }
+    border:1px solid var(--surface-bd,#e2e8f0) }
+.page-content .pc-stats li{ margin:0; padding:1.1rem .9rem; text-align:center; background:var(--surface,#fff) }
 /* Число задаётся полужирным тегом, подпись — обычным span. Так они не
    спутаются: визуальный редактор нормализует b в strong, и правило на
    одном лишь b после первого сохранения переставало работать (проверено
@@ -91,10 +107,10 @@
 .page-content .pc-stats li > strong{ display:block; font-size:1.75rem; line-height:1.1;
     font-weight:800; color:var(--color-primary,#6366f1); font-variant-numeric:tabular-nums }
 .page-content .pc-stats li > span{ display:block; margin-top:.3rem; font-size:.8rem;
-    color:#64748b }
-:root.dark .page-content .pc-stats{ background:#1f2937; border-color:#1f2937 }
+    color:var(--surface-mute,#64748b) }
+:root.dark .page-content .pc-stats{ background:#1f2937; border-color:var(--surface-ink,#1f2937) }
 :root.dark .page-content .pc-stats li{ background:#111827 }
-:root.dark .page-content .pc-stats li > span{ color:#94a3b8 }
+:root.dark .page-content .pc-stats li > span{ color:var(--surface-mute,#94a3b8) }
 
 /* ── Шаги ───────────────────────────────────────────────────────── */
 /* Номер рисуется счётчиком: редактор просто добавляет пункт списка,
@@ -102,13 +118,13 @@
 .page-content .pc-steps{ counter-reset:pc-step; list-style:none; padding:0; margin:1.5rem 0;
     display:grid; grid-template-columns:repeat(auto-fit,minmax(15rem,1fr)); gap:1rem }
 .page-content .pc-steps li{ counter-increment:pc-step; position:relative; margin:0;
-    padding:1.1rem 1.25rem 1.1rem 3.4rem; background:#fff; border:1px solid #eef2f7 }
+    padding:1.1rem 1.25rem 1.1rem 3.4rem; background:var(--surface,#fff); border:1px solid var(--surface-bd,#eef2f7) }
 .page-content .pc-steps li::before{ content:counter(pc-step); position:absolute;
     left:1.1rem; top:1.05rem; display:flex; align-items:center; justify-content:center;
     width:1.7rem; height:1.7rem; font-size:.8rem; font-weight:800; color:#fff;
     background:var(--color-primary,#6366f1) }
-.page-content .pc-steps strong{ display:block; margin-bottom:.2rem; color:#111827 }
-:root.dark .page-content .pc-steps li{ background:#111827; border-color:#1f2937 }
+.page-content .pc-steps strong{ display:block; margin-bottom:.2rem; color:var(--surface-ink,#111827) }
+:root.dark .page-content .pc-steps li{ background:#111827; border-color:var(--surface-ink,#1f2937) }
 :root.dark .page-content .pc-steps strong{ color:#f3f4f6 }
 
 /* ── Текст и картинка рядом ─────────────────────────────────────── */
@@ -116,11 +132,11 @@
     gap:1.75rem; margin:1.75rem 0 }
 .page-content .pc-split > div > :first-child{ margin-top:0 }
 .page-content .pc-split img{ width:100%; height:auto; display:block; margin:0;
-    border:1px solid #eef2f7 }
+    border:1px solid var(--surface-bd,#eef2f7) }
 @media (max-width:768px){
     .page-content .pc-split{ grid-template-columns:1fr; gap:1.1rem }
 }
-:root.dark .page-content .pc-split img{ border-color:#1f2937 }
+:root.dark .page-content .pc-split img{ border-color:var(--surface-ink,#1f2937) }
 
 /* ── Технологии ─────────────────────────────────────────────────── */
 .page-content .pc-tech{ display:flex; flex-wrap:wrap; gap:.45rem; margin:1.25rem 0;
@@ -153,20 +169,20 @@
 
 .page-content .pc-faq{ display:grid; gap:.6rem; margin:1.5rem 0 }
 
-.page-content .pc-faq__item{ background:#fff; border:1px solid #eef2f7;
+.page-content .pc-faq__item{ background:var(--surface,#fff); border:1px solid var(--surface-bd,#eef2f7);
     transition:border-color .15s }
 .page-content .pc-faq__item:hover{ border-color:#c7d2fe }
 .page-content .pc-faq__item[open]{ border-color:var(--color-primary,#6366f1) }
 
 .page-content .pc-faq__item > summary{ display:flex; align-items:flex-start; gap:.75rem;
-    padding:.95rem 1.15rem; font-weight:600; color:#111827; cursor:pointer;
+    padding:.95rem 1.15rem; font-weight:600; color:var(--surface-ink,#111827); cursor:pointer;
     list-style:none; user-select:none }
 /* Родной треугольник убираем в обоих движках — рисуем свою стрелку. */
 .page-content .pc-faq__item > summary::-webkit-details-marker{ display:none }
 .page-content .pc-faq__item > summary::marker{ content:'' }
 
 .page-content .pc-faq__item > summary::after{ content:'⌄'; margin-left:auto; flex:none;
-    font-size:1.15rem; line-height:1; color:#94a3b8; transform:translateY(-2px);
+    font-size:1.15rem; line-height:1; color:var(--surface-mute,#94a3b8); transform:translateY(-2px);
     transition:transform .2s, color .15s }
 .page-content .pc-faq__item[open] > summary::after{ transform:translateY(2px) rotate(180deg);
     color:var(--color-primary,#6366f1) }
@@ -188,7 +204,7 @@
     padding-left:2.25rem; color:#475569; line-height:1.6 }
 .page-content .pc-faq__item > summary + *{ margin-top:.15rem }
 
-:root.dark .page-content .pc-faq__item{ background:#111827; border-color:#1f2937 }
+:root.dark .page-content .pc-faq__item{ background:#111827; border-color:var(--surface-ink,#1f2937) }
 :root.dark .page-content .pc-faq__item > summary{ color:#f3f4f6 }
 :root.dark .page-content .pc-faq__item > :not(summary){ color:#cbd5e1 }
 :root.dark .page-content .pc-faq__item > summary::before{ background:#1e1b4b }
@@ -204,14 +220,14 @@
     margin:1.5rem 0 .75rem }
 .page-content .pc-faq-bar__input{ flex:1 1 14rem; min-width:0; height:42px;
     padding:0 .9rem; font-size:.9rem; color:#0f172a;
-    background:#fff; border:1px solid #e2e8f0 }
+    background:var(--surface,#fff); border:1px solid var(--surface-bd,#e2e8f0) }
 .page-content .pc-faq-bar__input:focus{ outline:none; border-color:var(--color-primary,#6366f1);
     box-shadow:0 0 0 3px rgba(99,102,241,.15) }
-.page-content .pc-faq-bar__count{ flex:none; font-size:.8rem; color:#64748b;
+.page-content .pc-faq-bar__count{ flex:none; font-size:.8rem; color:var(--surface-mute,#64748b);
     font-variant-numeric:tabular-nums }
 .page-content .pc-faq-bar__btn{ flex:none; height:42px; padding:0 .85rem;
-    font-size:.82rem; font-weight:600; color:#334155;
-    background:#fff; border:1px solid #e2e8f0; cursor:pointer;
+    font-size:.82rem; font-weight:600; color:var(--surface-ink,#334155);
+    background:var(--surface,#fff); border:1px solid var(--surface-bd,#e2e8f0); cursor:pointer;
     transition:border-color .15s, color .15s }
 .page-content .pc-faq-bar__btn:hover{ border-color:var(--color-primary,#6366f1);
     color:var(--color-primary,#6366f1) }
@@ -219,11 +235,11 @@
     outline-offset:2px }
 
 .page-content .pc-faq-empty{ margin:1.5rem 0; padding:1.5rem; text-align:center;
-    color:#64748b; background:#f8fafc; border:1px dashed #cbd5e1 }
+    color:var(--surface-mute,#64748b); background:var(--surface-2,#f8fafc); border:1px dashed #cbd5e1 }
 
 :root.dark .page-content .pc-faq-bar__input,
-:root.dark .page-content .pc-faq-bar__btn{ color:#e2e8f0; background:#111827; border-color:#1f2937 }
-:root.dark .page-content .pc-faq-empty{ color:#94a3b8; background:#0b1220; border-color:#334155 }
+:root.dark .page-content .pc-faq-bar__btn{ color:#e2e8f0; background:#111827; border-color:var(--surface-ink,#1f2937) }
+:root.dark .page-content .pc-faq-empty{ color:var(--surface-mute,#94a3b8); background:#0b1220; border-color:var(--surface-ink,#334155) }
 
 @media (max-width:640px){
     /* Счётчик уезжает под поле, кнопки делят строку пополам. */
@@ -270,7 +286,7 @@
     /* Справа место под кнопку копирования: она стоит поверх карточки, и без
        запаса длинный адрес уезжал под неё (проверено на 375px). */
     padding:1.1rem 3.4rem 1.1rem 1.25rem;
-    background:#fff; border:1px solid #eef2f7; transition:border-color .15s }
+    background:var(--surface,#fff); border:1px solid var(--surface-bd,#eef2f7); transition:border-color .15s }
 .page-content .pc-contacts li:hover{ border-color:var(--color-primary,#6366f1) }
 
 /* Подпись поля — обычный span, значение — полужирный тег. Считать по
@@ -278,19 +294,19 @@
    Различать по тегу надёжно ровно потому, что span редактор не трогает. */
 .page-content .pc-contacts li > span:not(.pc-ico){ display:block; margin-bottom:.3rem;
     font-size:.7rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
-    color:#94a3b8 }
+    color:var(--surface-mute,#94a3b8) }
 .page-content .pc-contacts li > b,
 .page-content .pc-contacts li > strong{ display:block; font-size:1.05rem;
-    font-weight:700; color:#111827; line-height:1.35 }
+    font-weight:700; color:var(--surface-ink,#111827); line-height:1.35 }
 .page-content .pc-contacts a{ color:inherit; text-decoration:none }
 .page-content .pc-contacts a:hover{ color:var(--color-primary,#6366f1) }
 .page-content .pc-contacts small{ display:block; margin-top:.3rem; font-size:.82rem;
-    color:#64748b }
+    color:var(--surface-mute,#64748b) }
 
 /* Кнопку копирования добавляет скрипт страницы — в содержимом её нет. */
 .page-content .pc-copy{ position:absolute; top:.9rem; right:.9rem; display:inline-flex;
     align-items:center; justify-content:center; width:32px; height:32px;
-    font-size:.75rem; color:#64748b; background:#f8fafc; border:1px solid #e2e8f0;
+    font-size:.75rem; color:var(--surface-mute,#64748b); background:var(--surface-2,#f8fafc); border:1px solid var(--surface-bd,#e2e8f0);
     cursor:pointer; transition:color .15s, border-color .15s }
 .page-content .pc-copy:hover{ color:var(--color-primary,#6366f1);
     border-color:var(--color-primary,#6366f1) }
@@ -299,10 +315,10 @@
 .page-content .pc-copy.is-done{ color:#fff; background:var(--color-primary,#6366f1);
     border-color:var(--color-primary,#6366f1) }
 
-:root.dark .page-content .pc-contacts li{ background:#111827; border-color:#1f2937 }
+:root.dark .page-content .pc-contacts li{ background:#111827; border-color:var(--surface-ink,#1f2937) }
 :root.dark .page-content .pc-contacts li > b,
 :root.dark .page-content .pc-contacts li > strong{ color:#f3f4f6 }
-:root.dark .page-content .pc-copy{ color:#94a3b8; background:#0b1220; border-color:#1f2937 }
+:root.dark .page-content .pc-copy{ color:var(--surface-mute,#94a3b8); background:#0b1220; border-color:var(--surface-ink,#1f2937) }
 
 /* ── Карта ──────────────────────────────────────────────────────── */
 /* Пока посетитель не нажал, никаких запросов к картографу не уходит:
@@ -312,7 +328,7 @@
 .page-content .pc-map__stub{ display:flex; flex-direction:column; align-items:center;
     justify-content:center; gap:.75rem; min-height:18rem; padding:2rem 1rem;
     text-align:center; color:#4338ca }
-.page-content .pc-map__note{ max-width:32rem; font-size:.85rem; color:#64748b }
+.page-content .pc-map__note{ max-width:32rem; font-size:.85rem; color:var(--surface-mute,#64748b) }
 .page-content .pc-map__btn{ padding:.65rem 1.4rem; font-size:.9rem; font-weight:700;
     color:#fff; background:var(--color-primary,#6366f1); border:0; cursor:pointer }
 .page-content .pc-map__btn:hover{ filter:brightness(1.07) }
@@ -323,7 +339,7 @@
 .page-content .pc-map iframe{ display:block; width:100%; margin:0; border:0;
     height:clamp(20rem, 58vh, 34rem) }
 
-:root.dark .page-content .pc-map{ background:#0b1220; border-color:#1f2937 }
+:root.dark .page-content .pc-map{ background:#0b1220; border-color:var(--surface-ink,#1f2937) }
 :root.dark .page-content .pc-map__stub{ color:#c7d2fe }
 
 /* ── Быстрые действия ───────────────────────────────────────────── */
@@ -343,12 +359,12 @@
     outline-offset:2px }
 
 /* Второстепенное действие — та же форма, но без заливки. */
-.page-content .pc-actions li.is-plain a{ color:#334155; background:#fff;
-    border:1px solid #e2e8f0 }
+.page-content .pc-actions li.is-plain a{ color:var(--surface-ink,#334155); background:var(--surface,#fff);
+    border:1px solid var(--surface-bd,#e2e8f0) }
 .page-content .pc-actions li.is-plain a:hover{ color:var(--color-primary,#6366f1);
     border-color:var(--color-primary,#6366f1); filter:none }
 :root.dark .page-content .pc-actions li.is-plain a{ color:#cbd5e1; background:#111827;
-    border-color:#1f2937 }
+    border-color:var(--surface-ink,#1f2937) }
 
 /* ── Значок «сейчас открыто» ────────────────────────────────────── */
 /* Подпись ставит скрипт, разбирая расписание из атрибута карточки. */
@@ -370,20 +386,20 @@
 /* Список подставляется шорткодом [sitemap] и собирается из базы. */
 .page-content .pc-sitemap{ display:grid;
     grid-template-columns:repeat(auto-fit,minmax(15rem,1fr)); gap:1.25rem; margin:1.5rem 0 }
-.page-content .pc-sitemap__group{ padding:1.1rem 1.25rem; background:#fff;
-    border:1px solid #eef2f7 }
+.page-content .pc-sitemap__group{ padding:1.1rem 1.25rem; background:var(--surface,#fff);
+    border:1px solid var(--surface-bd,#eef2f7) }
 .page-content .pc-sitemap__group h3{ margin:0 0 .6rem; font-size:.72rem; font-weight:700;
-    letter-spacing:.08em; text-transform:uppercase; color:#94a3b8 }
+    letter-spacing:.08em; text-transform:uppercase; color:var(--surface-mute,#94a3b8) }
 .page-content .pc-sitemap__group ul{ margin:0; padding:0; list-style:none;
     display:grid; gap:.35rem }
 .page-content .pc-sitemap__group li{ margin:0 }
 .page-content .pc-sitemap__group a{ display:inline-flex; align-items:center; gap:.45rem;
-    font-size:.92rem; color:#334155; text-decoration:none; line-height:1.4 }
+    font-size:.92rem; color:var(--surface-ink,#334155); text-decoration:none; line-height:1.4 }
 .page-content .pc-sitemap__group a::before{ content:''; width:.3rem; height:.3rem; flex:none;
     background:var(--color-primary,#6366f1) }
 .page-content .pc-sitemap__group a:hover{ color:var(--color-primary,#6366f1) }
 
-:root.dark .page-content .pc-sitemap__group{ background:#111827; border-color:#1f2937 }
+:root.dark .page-content .pc-sitemap__group{ background:#111827; border-color:var(--surface-ink,#1f2937) }
 :root.dark .page-content .pc-sitemap__group a{ color:#cbd5e1 }
 
 /* ── Карточка файла для скачивания ───────────────────────────────────────
@@ -403,7 +419,7 @@
     padding: .8rem 1rem;
     text-decoration: none;
     color: #1f2937;
-    background: #f8fafc;
+    background: var(--surface-2, #f8fafc);
     border: 1px solid #e5e7eb;
     transition: border-color .15s ease, background .15s ease;
 }
