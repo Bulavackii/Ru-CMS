@@ -177,7 +177,9 @@ class AdminFooterTest extends TestCase
         $footer = $this->between($html, '<footer', '</footer>');
 
         // 3 созданных + сам администратор
-        $this->assertMatchesRegularExpression('~Пользователей</span>\s*4~u', $footer);
+        // Значение обёрнуто в <b>: моноширинный набор применяется только к
+        // нему, а подпись рядом идёт обычным шрифтом.
+        $this->assertMatchesRegularExpression('~Пользователей</span>\s*<b>\s*4\s*</b>~u', $footer);
     }
 
     public function test_fragment_zone_above_the_footer_still_works(): void

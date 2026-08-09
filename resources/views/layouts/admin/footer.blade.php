@@ -162,26 +162,25 @@
         <div class="adm-f-set" role="group" aria-label="{{ __('admin.footer.tech') }}">
             @foreach($tech as $item)
                 <span class="adm-f-chip">
-                    <span class="adm-f-key">{{ $item['label'] }}</span>{{ $item['value'] }}
+                    <span class="adm-f-key">{{ $item['label'] }}</span><b>{{ $item['value'] }}</b>
                 </span>
             @endforeach
             {{-- Отладку выделяем: включённой на боевом сервере быть не должно --}}
             <span class="adm-f-chip {{ $debugOn ? 'is-warn' : '' }}">
-                <span class="adm-f-key">{{ __('admin.footer.debug') }}</span>
-                {{ $debugOn ? __('admin.footer.debug_on') : __('admin.footer.debug_off') }}
+                <span class="adm-f-key">{{ __('admin.footer.debug') }}</span><b>{{ $debugOn ? __('admin.footer.debug_on') : __('admin.footer.debug_off') }}</b>
             </span>
         </div>
 
         {{-- Содержимое --}}
         <div class="adm-f-set" role="group" aria-label="{{ __('admin.footer.content') }}">
             <span class="adm-f-chip"><i class="fas fa-cubes adm-f-ico"></i>
-                <span class="adm-f-key">{{ __('admin.footer.modules') }}</span>{{ $stats['modules'] ?? '—' }}</span>
+                <span class="adm-f-key">{{ __('admin.footer.modules') }}</span><b>{{ $stats['modules'] ?? '—' }}</b></span>
             <span class="adm-f-chip"><i class="fas fa-users adm-f-ico"></i>
-                <span class="adm-f-key">{{ __('admin.footer.users') }}</span>{{ $stats['users'] ?? '—' }}</span>
+                <span class="adm-f-key">{{ __('admin.footer.users') }}</span><b>{{ $stats['users'] ?? '—' }}</b></span>
             <span class="adm-f-chip"><i class="fas fa-newspaper adm-f-ico"></i>
-                <span class="adm-f-key">{{ __('admin.footer.news') }}</span>{{ $stats['news'] ?? '—' }}</span>
+                <span class="adm-f-key">{{ __('admin.footer.news') }}</span><b>{{ $stats['news'] ?? '—' }}</b></span>
             <span class="adm-f-chip" title="{{ __('admin.footer.media_hint') }}"><i class="fas fa-photo-film adm-f-ico"></i>
-                <span class="adm-f-key">{{ __('admin.footer.media') }}</span>{{ $formatSize($mediaSize) }}</span>
+                <span class="adm-f-key">{{ __('admin.footer.media') }}</span><b>{{ $formatSize($mediaSize) }}</b></span>
         </div>
 
     </div>
@@ -308,12 +307,37 @@
            внутри себя, но не растягиваются: с flex-grow они забирали всю
            строку и выталкивали соцсети на вторую */
         .adm-f-set{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem;flex:0 1 auto;min-width:0}
-        .adm-f-chip{display:inline-flex;align-items:center;gap:.3rem;padding:.15rem .45rem;
-            font-size:.68rem;line-height:1.3;white-space:nowrap;color:var(--surface-ink,#4b5563);
-            background:rgba(17,24,39,.04);border:1px solid rgba(17,24,39,.07);
-            font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-        .dark .adm-f-chip{color:#9ca3af;background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.08)}
-        .adm-f-key{color:var(--surface-dim,#9ca3af);font-weight:600}
+        /* Чипы читаемы и следуют теме.
+
+           Было: кегль .68rem (около одиннадцати пикселей), моноширинный шрифт
+           на ВСЁ содержимое и серая надпись на почти белой подложке —
+           контраст 4.0 при норме 4.5. Плюс подложка была нейтральной и с
+           оформлением не менялась вовсе, хотя значок внутри уже брал акцент.
+
+           Стало: кегль крупнее, начертание плотнее, надпись темнее, а подложка
+           и рамка подмешивают акцент темы — чипы меняются вместе с ней.
+           Моноширинный шрифт оставлен ТОЛЬКО значению: версии и имена
+           драйверов так читаются лучше, а подпись рядом набрана обычным. */
+        .adm-f-chip{display:inline-flex;align-items:center;gap:.35rem;padding:.2rem .5rem;
+            font-size:.74rem;font-weight:600;line-height:1.35;white-space:nowrap;
+            color:var(--surface-ink,#374151);
+            background:color-mix(in srgb, var(--admin-primary) 8%, transparent);
+            border:1px solid color-mix(in srgb, var(--admin-primary) 22%, transparent)}
+        .dark .adm-f-chip{color:#e5e7eb;
+            background:color-mix(in srgb, var(--admin-primary) 18%, transparent);
+            border-color:color-mix(in srgb, var(--admin-primary) 34%, transparent)}
+
+        /* Значение — моноширинным: цифры версий и слова вроде pgsql так
+           различимее, чем в пропорциональном наборе. */
+        .adm-f-chip > b{
+            font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:700}
+
+        /* Подпись берёт оттенок акцента, но с подмешанным цветом текста:
+           чистый акцент на подложке из него же давал контраст 3.98 при
+           норме 4.5 — то есть подпись читалась хуже значения рядом. */
+        .adm-f-key{color:color-mix(in srgb, var(--admin-primary) 55%, var(--surface-ink,#111827));
+            font-weight:700;letter-spacing:.01em}
+        .dark .adm-f-key{color:color-mix(in srgb, var(--admin-primary) 45%, #ffffff)}
         .adm-f-ico{font-size:.7rem;color:var(--admin-primary,#6366f1)}
         /* Включённая отладка — не украшение, а предупреждение */
         .adm-f-chip.is-warn{color:#92400e;background:#fef3c7;border-color:#fcd34d}
