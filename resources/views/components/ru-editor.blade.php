@@ -68,7 +68,13 @@
                   . 'bullist numlist outdent indent | link unlink | image media audio file table | '
                   . 'charmap | removeformat | '
                   . 'searchreplace visualblocks code preview fullscreen help',
-        'page'   => 'undo redo | forms captcha ruBlocks | blocks | fontfamily | bold italic underline | '
+        // NB: набор называется page, но страницы им НЕ пользуются — они, как и
+        // новости, идут на полном. Сейчас его берёт только редактор фрагментов.
+        //
+        // Размер шрифта здесь отсутствовал, хотя гарнитура была: странно иметь
+        // одно без другого, и владелец на это указал. Теперь пара полная, как
+        // в новостях и страницах.
+        'page'   => 'undo redo | forms captcha ruBlocks | blocks | fontfamily fontsize | bold italic underline | '
                   . 'alignleft aligncenter alignright | bullist numlist | link unlink | image media audio file table | '
                   . 'removeformat | visualblocks code preview fullscreen',
         'simple' => 'undo redo | bold italic underline | bullist numlist | link unlink | removeformat | code fullscreen',
