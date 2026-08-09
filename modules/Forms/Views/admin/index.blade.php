@@ -631,7 +631,14 @@
        произвольных значений и половины цветов v3 (см. CLAUDE.md). */
 
     .fm-layout { display:grid; gap:16px; align-items:start }
-    @media (min-width:1280px) { .fm-layout { grid-template-columns:minmax(0,1fr) 24rem } }
+    /* Превью занимало 24rem — четверть полосы, и форма в нём выходила вдвое
+       у́же, чем будет на сайте: поля вставали в одну колонку там, где на
+       странице их две. Понять, как форма выглядит на самом деле, было нельзя.
+
+       Колонка растёт вместе с экраном: конструктору хватает и меньшего, а
+       превью тем полезнее, чем ближе оно к настоящей ширине формы. */
+    @media (min-width:1280px) { .fm-layout { grid-template-columns:minmax(0,1fr) 30rem } }
+    @media (min-width:1600px) { .fm-layout { grid-template-columns:minmax(0,1fr) 38rem } }
 
     /* Превью не должно уезжать вверх, когда список полей длинный. */
     .fm-side { min-width:0 }
