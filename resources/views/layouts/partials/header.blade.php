@@ -318,12 +318,12 @@
 
     /* Пилюли-действия */
     .hdr-actions .hdr-pill, .hdr-actions .hdr-icon-btn{
-        display:inline-flex; align-items:center; gap:.4rem; padding:.42rem .72rem; border-radius:9px;
+        display:inline-flex; align-items:center; gap:.35rem; padding:.42rem .5rem; border-radius:9px;
         font-size:.82rem; font-weight:500; line-height:1; color:var(--surface-ink,#374151); background:transparent; border:0;
         cursor:pointer; text-decoration:none; white-space:nowrap; position:relative;
         transition:background .14s ease, color .14s ease, filter .14s ease; }
     :root.dark .hdr-actions .hdr-pill, :root.dark .hdr-actions .hdr-icon-btn{ color:#d1d5db; }
-    .hdr-actions .hdr-icon-btn{ padding:.42rem .58rem; }
+    .hdr-actions .hdr-icon-btn{ padding:.42rem .42rem; }
     .hdr-actions .hdr-pill i, .hdr-actions .hdr-icon-btn i{ font-size:1rem; line-height:1; }
     /* Ховер — полоса снизу, как у пунктов меню слева, а не заливка
        подложкой: раньше действия справа подсвечивались прямоугольником и

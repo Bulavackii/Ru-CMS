@@ -31,9 +31,15 @@
 <style>
     /* ===== Мега-меню шапки: акцент + базовые стили ===== */
     .header-nav{ --nav-accent:var(--color-primary, #6366f1); --nav-soft:color-mix(in srgb, var(--color-primary, #6366f1) 9%, transparent);
-        display:flex; align-items:center; gap:.15rem; }
+        display:flex; align-items:center; gap:.05rem; }
     .header-nav ul{ margin:0; padding:0; list-style:none; }
-    .header-nav .menu-link{ display:flex; align-items:center; gap:.55rem; text-decoration:none;
+    /* Зазоры уплотнены по просьбе владельца: полоса из пяти пунктов занимала
+       561px и выглядела разреженной. Тронуты ТОЛЬКО отступы — разметка,
+       вложенность и обработчики модуля Меню те же.
+
+       Правило для узкого экрана ниже намеренно не трогали: там пункты
+       нажимают пальцем, и ужимать зону касания нельзя. */
+    .header-nav .menu-link{ display:flex; align-items:center; gap:.4rem; text-decoration:none;
         color:var(--color-text,#374151); line-height:1.25; }
     .header-nav .menu-ico{ display:inline-flex; flex:0 0 auto; color:var(--nav-accent); opacity:.7; }
     .header-nav .menu-ico svg,
@@ -42,7 +48,7 @@
     .header-nav .menu-caret{ flex:0 0 auto; opacity:.5; }
 
     /* ── Полоса верхнего уровня ── */
-    .header-nav .menu-link--root{ padding:.55rem .75rem; border-radius:6px; font-weight:600;
+    .header-nav .menu-link--root{ padding:.5rem .5rem; border-radius:6px; font-weight:600;
         text-transform:uppercase; letter-spacing:.02em; font-size:.78rem; transition:color .15s; }
     .header-nav .menu-link--root:hover,
     .header-nav .menu-item--root:hover > .menu-link--root{ color:var(--nav-accent); }
