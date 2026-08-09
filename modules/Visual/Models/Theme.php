@@ -5,6 +5,7 @@ namespace Modules\Visual\Models;
 use App\Support\HasContentTranslations;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class Theme extends Model
 {
@@ -26,27 +27,105 @@ class Theme extends Model
     }
 
     /**
-     * 🔄 Инвалидация кэша при изменениях
+     * 🔄 Инвалидация кэша при изменениях.
+     *
+     * Раньше здесь же писался ключ `active_theme_id` — ВТОРОЙ источник правды
+     * рядом с колонкой `is_default`. Он записывался через forever, то есть сам
+     * не протухал никогда, а getActive() читал его ПЕРВЫМ. Стоило двум
+     * значениям разойтись — и сайт показывал тему, которой в базе не
+     * применяли: база говорила одно, кеш другое, побеждал кеш. Ключ убран,
+     * активная тема определяется только колонкой.
      */
     protected static function booted()
     {
-        static::saved(function ($theme) {
-            Cache::forget('active_theme');
-            Cache::forget('active_theme_css');
-            foreach (available_locales() as $loc) { Cache::forget(self::LIST_CACHE_KEY . '_' . $loc); }
-            if ($theme->is_default) {
-                Cache::forever('active_theme_id', $theme->id);
-            }
+        static::saved(fn ($theme) => static::flushActiveCache());
+        static::deleted(fn ($theme) => static::flushActiveCache());
+    }
+
+    /** Ключ кеша активной темы. */
+    private const ACTIVE_CACHE_KEY = 'active_theme';
+
+    /**
+     * 🧹 Сбросить всё, что закешировано об оформлении.
+     *
+     * Один метод на все места записи: раньше при сохранении темы забывался
+     * только `active_theme_id`, а объект `active_theme` оставался — правка
+     * темы доезжала до сайта лишь через час.
+     */
+    public static function flushActiveCache(): void
+    {
+        Cache::forget(self::ACTIVE_CACHE_KEY);
+        Cache::forget('active_theme_css');
+
+        // Ключ прежней схемы: на работающих установках он уже лежит в кеше и
+        // без этой строки продолжал бы перебивать базу до ручной чистки.
+        Cache::forget('active_theme_id');
+
+        foreach (available_locales() as $loc) {
+            Cache::forget(self::LIST_CACHE_KEY . '_' . $loc);
+        }
+    }
+
+    /**
+     * ✅ Применить тему — сделать её активной для ВСЕГО сайта.
+     *
+     * Единственная точка применения: и кнопка «Применить» в разделе Темы, и
+     * переключатель в шапке панели зовут этот метод. Раньше у них были две
+     * независимые реализации, и они успели разойтись — переключатель в шапке
+     * не пересобирал CSS темы, поэтому тема, применённая оттуда, выглядела
+     * иначе, чем та же самая, применённая со страницы раздела.
+     *
+     * Признак активности — колонка `is_default`, она переживает и перезаход, и
+     * очистку кеша, и перезапуск. Именно поэтому применённая тема остаётся у
+     * всех: и у администраторов, и у обычных посетителей.
+     */
+    public static function apply(self $theme): void
+    {
+        DB::transaction(function () use ($theme) {
+            static::where('id', '!=', $theme->id)
+                ->where('is_default', true)
+                ->update(['is_default' => false]);
+
+            $theme->is_default = true;
+            $theme->regenerateCss();
+            $theme->save();
         });
 
-        static::deleted(function ($theme) {
-            Cache::forget('active_theme');
-            Cache::forget('active_theme_css');
-            foreach (available_locales() as $loc) { Cache::forget(self::LIST_CACHE_KEY . '_' . $loc); }
-            if (Cache::get('active_theme_id') == $theme->id) {
-                Cache::forget('active_theme_id');
+        static::flushActiveCache();
+    }
+
+    /**
+     * 🎨 Пересобрать CSS-переменные темы из её токенов.
+     *
+     * Жил приватным методом контроллера, отчего был недоступен переключателю в
+     * шапке — см. пояснение к apply(). Место ему у самой темы: он описывает
+     * её собственные данные.
+     */
+    public function regenerateCss(): void
+    {
+        $tokens = $this->tokens ?? [];
+        $css = ':root{';
+
+        foreach ((array) data_get($tokens, 'colors', []) as $name => $value) {
+            if ($value !== null && $value !== '') {
+                $css .= "--color-{$name}: {$value};";
             }
-        });
+        }
+
+        $css .= '--radius-md: ' . (string) data_get($tokens, 'radius.md', '12px') . ';';
+        $css .= '--font-base: ' . (string) data_get(
+            $tokens,
+            'font.base',
+            '-apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif'
+        ) . ';';
+        $css .= '}';
+
+        // Прежний :root вырезаем, иначе они копятся дублями.
+        $config = $this->config ?? [];
+        $previous = preg_replace('/\:root\s*\{[^}]*\}\s*/m', '', (string) ($config['css'] ?? ''));
+        $config['css'] = trim($previous . "\n" . $css);
+
+        $this->config = $config;
     }
 
     /** Ключ кеша со списком тем для переключателя в шапке сайта */
@@ -102,16 +181,20 @@ class Theme extends Model
     }
 
     /**
-     * 📦 Получить активную тему (с кэшированием)
+     * 📦 Активная тема сайта.
+     *
+     * Источник ровно один — колонка `is_default`. Кеш здесь только копия
+     * ответа базы, а не отдельное мнение: прежняя версия читала ключ
+     * `active_theme_id` ПЕРЕД базой, и при расхождении сайт показывал тему,
+     * которой не применяли. Проверено опытом: база `azure`, кеш `indigo` —
+     * на экране был indigo.
      */
-    public static function getActive()
+    public static function getActive(): ?self
     {
-        return Cache::remember('active_theme', 3600, function () {
-            $themeId = Cache::get('active_theme_id');
-            if ($themeId) {
-                return static::find($themeId);
-            }
-            return static::where('is_default', true)->first();
-        });
+        return Cache::remember(
+            self::ACTIVE_CACHE_KEY,
+            3600,
+            fn () => static::where('is_default', true)->first()
+        );
     }
 }

@@ -57,10 +57,9 @@ class ThemeServiceProvider extends ServiceProvider
             }
         });
 
-        // 🎛️ То же самое для ПАНЕЛИ: свой личный выбор оформления
-        // (session('admin_theme')) и список тем для переключателя в шапке.
-        // Отдельный ключ сессии специально: администратор может смотреть сайт
-        // в одном оформлении, а панель держать в другом.
+        // 🎛️ То же самое для ПАНЕЛИ. Личного выбора в сессии больше нет:
+        // оформление одно на сайт и на панель, хранится в базе и потому
+        // переживает перезаход, оставаясь общим для всех посетителей.
         View::composer(['layouts.admin', 'layouts.admin.header'], function ($view) {
             $slug = null; // панель показывает ту же тему, что и сайт
 
@@ -89,32 +88,22 @@ class ThemeServiceProvider extends ServiceProvider
             return null;
         }
 
-        return Cache::remember('active_theme', 3600, function () {
-            try {
-                if (!class_exists(Theme::class) || !Schema::hasTable('visual_themes')) {
-                    return null;
-                }
-
-                $themeId = Cache::get('active_theme_id');
-                if ($themeId) {
-                    $theme = Theme::find($themeId);
-                    if ($theme) {
-                        return $theme;
-                    }
-                    Cache::forget('active_theme_id');
-                }
-
-                $theme = Theme::where('is_default', true)->first();
-                if ($theme) {
-                    Cache::forever('active_theme_id', $theme->id);
-                }
-
-                return $theme;
-            } catch (\Throwable $e) {
-                \Log::error("Theme loading failed", ['error' => $e->getMessage()]);
+        // Разрешение активной темы живёт в модели — здесь была вторая копия
+        // той же логики со своим кешем и своим ключом active_theme_id.
+        // Две копии успели разойтись: эта записывала ключ через forever, а
+        // getActive() читала его ПЕРЕД базой, и применённая тема переставала
+        // доходить до экрана.
+        try {
+            if (!class_exists(Theme::class) || !Schema::hasTable('visual_themes')) {
                 return null;
             }
-        });
+
+            return Theme::getActive();
+        } catch (\Throwable $e) {
+            Log::error('Theme loading failed', ['error' => $e->getMessage()]);
+
+            return null;
+        }
     }
 
     private function registerIconDirective(): void
@@ -207,14 +196,10 @@ class ThemeServiceProvider extends ServiceProvider
         }
 
         try {
-            $id = \Illuminate\Support\Facades\Cache::get('active_theme_id');
-            if ($id) {
-                $theme = Theme::find($id);
-            }
-
-            if (!$theme) {
-                $theme = Theme::where('is_default', true)->first();
-            }
+            // Третья копия того же разрешения жила здесь. Источник один —
+            // модель, иначе значки могли рисоваться набором ОДНОЙ темы, а
+            // цвета браться из ДРУГОЙ.
+            $theme = Theme::getActive();
         } catch (\Throwable $e) {
             $theme = null;
         }

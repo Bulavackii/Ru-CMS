@@ -209,13 +209,12 @@
         $langNames = ['ru'=>'Русский','en'=>'English'];
         $curLocale = app()->getLocale();
 
-        // Оформление панели (личный выбор администратора) — из ThemeServiceProvider
+        // Оформление — из ThemeServiceProvider. Личного выбора нет: тема одна
+        // на сайт и на панель, хранится в базе и потому одинакова у всех.
         $panelThemes = $panelThemes ?? collect();
-        $panelSlug = $panelThemeSlug ?? null;
-        $panelPrimary = $panelThemes->firstWhere('slug', $panelSlug)->primary
-            ?? ($panelThemes->firstWhere('is_default', true)->primary ?? '#6366f1');
-        $panelTitle = $panelThemes->firstWhere('slug', $panelSlug)->title
-            ?? ($panelThemes->firstWhere('is_default', true)->title ?? __('admin.header.theme'));
+        $panelActive = $panelThemes->firstWhere('is_default', true);
+        $panelPrimary = $panelActive->primary ?? '#6366f1';
+        $panelTitle = $panelActive->title ?? __('admin.header.theme');
 
         // Профиль
         $me = Auth::user();
@@ -372,7 +371,7 @@
                         <p class="ahd-menu-title">{{ __('admin.header.theme') }}</p>
                         @foreach($panelThemes as $themeOption)
                             <a href="{{ route('admin.theme.set', $themeOption->slug) }}"
-                               class="ahd-menu-item {{ $themeOption->slug === $panelSlug ? 'is-active' : '' }}">
+                               class="ahd-menu-item {{ $themeOption->is_default ? 'is-active' : '' }}">
                                 <span class="ahd-dot" style="background: {{ $themeOption->primary }}"></span>
                                 <span>{{ $themeOption->title }}</span>
                                 @if($themeOption->is_default)
@@ -380,13 +379,6 @@
                                 @endif
                             </a>
                         @endforeach
-                        @if($panelSlug)
-                            <div class="ahd-menu-sep"></div>
-                            <a href="{{ route('admin.theme.set', 'reset') }}" class="ahd-menu-item">
-                                <i class="fas fa-rotate-left w-4 text-center"></i>
-                                <span>{{ __('admin.header.theme_default') }}</span>
-                            </a>
-                        @endif
                     </div>
                 </div>
             @endif

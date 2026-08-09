@@ -209,8 +209,7 @@ class SeedDefaultThemesCommand extends Command
             // ещё не выбрал свою — иначе установка перетёрла бы его выбор
             if (! Theme::where('is_default', true)->exists()) {
                 Theme::where('slug', self::DEFAULT_SLUG)->update(['is_default' => true]);
-                Cache::forget('active_theme');
-                Cache::forget('active_theme_id');
+                Theme::flushActiveCache();
             }
         });
     }

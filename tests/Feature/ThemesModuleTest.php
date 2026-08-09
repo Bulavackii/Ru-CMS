@@ -144,8 +144,16 @@ class ThemesModuleTest extends TestCase
 
         $this->assertFalse($first->fresh()->is_default);
         $this->assertTrue($second->fresh()->is_default);
-        $this->assertSame($second->id, Cache::get('active_theme_id'));
         $this->assertSame('second', Theme::getActive()->slug);
+
+        // Ключа active_theme_id больше нет намеренно: он был ВТОРЫМ
+        // источником правды рядом с колонкой is_default и, записанный через
+        // forever, перебивал базу. Проверка на его наличие стояла здесь же —
+        // тест закреплял ровно тот механизм, который ломал применение темы.
+        $this->assertNull(
+            Cache::get('active_theme_id'),
+            'Второй источник правды об активной теме заводить нельзя.'
+        );
     }
 
     public function test_active_theme_cannot_be_deleted(): void

@@ -278,8 +278,8 @@ class AdminHeaderTest extends TestCase
             ->get(route('admin.theme.set', 'terracotta'))
             ->assertRedirect(route('admin.dashboard'));
 
-        $this->actingAs($admin)->withSession(['admin_theme' => 'terracotta'])
-            ->get(route('admin.dashboard'))
+        // Никакой сессии: выбор ушёл в базу, поэтому виден в любом запросе.
+        $this->actingAs($admin)->get(route('admin.dashboard'))
             ->assertSee('--admin-primary: #c2410c', false);
     }
 
@@ -292,22 +292,75 @@ class AdminHeaderTest extends TestCase
         $this->theme('indigo', '#6366f1', true);
         $this->theme('terracotta', '#c2410c');
 
+        // Ключ сессии оставлен намеренно: он больше ни на что не влияет, и
+        // тест это фиксирует — панель показывает применённую тему сайта.
         $this->actingAs($this->admin())->withSession(['admin_theme' => 'terracotta'])
             ->get(route('admin.dashboard'))
             ->assertSee('--admin-primary: #6366f1', false);
     }
 
-    public function test_theme_reset_returns_the_site_theme(): void
+    /**
+     * Главное свойство: применённая тема переживает перезаход и видна ВСЕМ.
+     *
+     * Прежний тест на этом месте проверял «сброс личного выбора» — понятия,
+     * которого больше нет: выбор жил в сессии и умирал вместе с ней. Тест
+     * переписан вместе с закрытием пробела, а не подогнан под новый ответ.
+     */
+    public function test_applied_theme_survives_a_fresh_session(): void
     {
         $this->theme('indigo', '#6366f1', true);
         $this->theme('mint', '#0d9488');
 
         $this->actingAs($this->admin())
-            ->withSession(['admin_theme' => 'mint'])
             ->from(route('admin.dashboard'))
-            ->get(route('admin.theme.set', 'reset'))
-            ->assertRedirect(route('admin.dashboard'))
-            ->assertSessionMissing('admin_theme');
+            ->get(route('admin.theme.set', 'mint'))
+            ->assertRedirect(route('admin.dashboard'));
+
+        // Полный разрыв: ни входа, ни сессии, ни кеша — как после перезахода.
+        auth()->logout();
+        session()->flush();
+        \Illuminate\Support\Facades\Cache::flush();
+
+        $this->assertSame(
+            'mint',
+            \Modules\Visual\Models\Theme::getActive()->slug,
+            'Применённая тема обязана пережить перезаход: она хранится в базе.'
+        );
+
+        // И у обычного посетителя — то же оформление.
+        $this->get('/')->assertOk();
+        $this->assertTrue(
+            \Modules\Visual\Models\Theme::where('slug', 'mint')->value('is_default'),
+            'Тема применяется для всех, а не лично для администратора.'
+        );
+    }
+
+    /**
+     * Кеш не должен спорить с базой.
+     *
+     * Здесь и был корень: getActive() читал ключ active_theme_id ПЕРЕД базой,
+     * а писался он через forever и сам не протухал. Стоило значениям
+     * разойтись — и сайт показывал тему, которой не применяли.
+     */
+    public function test_stale_cache_key_does_not_override_the_database(): void
+    {
+        $this->theme('indigo', '#6366f1', true);
+        $mint = $this->theme('mint', '#0d9488');
+
+        \Modules\Visual\Models\Theme::apply($mint);
+
+        // Подкладываем ключ прежней схемы, указывающий на ДРУГУЮ тему.
+        \Illuminate\Support\Facades\Cache::forever(
+            'active_theme_id',
+            \Modules\Visual\Models\Theme::where('slug', 'indigo')->value('id')
+        );
+        \Illuminate\Support\Facades\Cache::forget('active_theme');
+
+        $this->assertSame(
+            'mint',
+            \Modules\Visual\Models\Theme::getActive()->slug,
+            'Источник правды — колонка is_default, а не ключ в кеше.'
+        );
     }
 
     public function test_theme_switch_ignores_an_unknown_slug(): void
@@ -317,8 +370,13 @@ class AdminHeaderTest extends TestCase
         $this->actingAs($this->admin())
             ->from(route('admin.dashboard'))
             ->get(route('admin.theme.set', 'nesushchestvuyushchaya'))
-            ->assertRedirect(route('admin.dashboard'))
-            ->assertSessionMissing('admin_theme');
+            ->assertRedirect(route('admin.dashboard'));
+
+        $this->assertSame(
+            'indigo',
+            \Modules\Visual\Models\Theme::getActive()->slug,
+            'Неизвестный слаг не должен менять применённую тему.'
+        );
     }
 
     public function test_theme_switch_is_closed_for_guests(): void

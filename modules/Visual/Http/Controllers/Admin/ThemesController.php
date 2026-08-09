@@ -39,7 +39,7 @@ class ThemesController extends Controller
         $this->regenerateCss($theme);
         $theme->save();
 
-        Cache::forget('active_theme_id');
+        Theme::flushActiveCache();
 
         return redirect()
             ->route('admin.visual.themes.edit', $theme)
@@ -77,7 +77,7 @@ class ThemesController extends Controller
         $this->regenerateCss($theme);
         $theme->save();
 
-        Cache::forget('active_theme_id');
+        Theme::flushActiveCache();
 
         return back()->with('success', 'Изменения сохранены');
     }
@@ -98,12 +98,12 @@ class ThemesController extends Controller
 
         // подчистим файлы
         Storage::disk($this->disk)->deleteDirectory("themes/{$theme->id}");
-        $deletedId = $theme->id;
         $theme->delete();
 
-        if (Cache::get('active_theme_id') == $deletedId) {
-            Cache::forget('active_theme_id');
-        }
+        // Сбрасываем безусловно: проверять, «та ли это была тема», больше
+        // нечем и незачем — активность определяет колонка в базе, а удаление
+        // в любом случае меняет список тем для переключателя.
+        Theme::flushActiveCache();
 
         return redirect()
             ->route('admin.visual.themes.index');
@@ -271,53 +271,22 @@ class ThemesController extends Controller
     }
 
     /**
-     * Генерация CSS-переменных из токенов (поддержка вложенных групп).
+     * Сборка CSS-переменных переехала в саму тему: она описывает её
+     * собственные данные, и переключателю в шапке она тоже нужна.
      */
     protected function regenerateCss(Theme $theme): void
     {
-        $tokens = $theme->tokens ?? [];
-        $css = ':root{';
-
-        // colors.*
-        foreach ((array) data_get($tokens, 'colors', []) as $k => $v) {
-            if ($v !== null && $v !== '') {
-                $css .= "--color-{$k}: {$v};";
-            }
-        }
-
-        // radius.md
-        $css .= '--radius-md: ' . (string) data_get($tokens, 'radius.md', '12px') . ';';
-
-        // font.base
-        $fontBase = (string) data_get($tokens, 'font.base', '-apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif');
-        $css .= '--font-base: ' . $fontBase . ';';
-
-        $css .= '}';
-
-        // Заменяем предыдущий :root на новый, чтобы не плодить дубли
-        $cfg  = $theme->config ?? [];
-        $prev = (string) ($cfg['css'] ?? '');
-        $prev = preg_replace('/\:root\s*\{[^}]*\}\s*/m', '', $prev);
-        $cfg['css'] = trim($prev . "\n" . $css);
-
-        $theme->config = $cfg;
+        $theme->regenerateCss();
     }
 
-    /** Атомарное применение темы + обновление кэша с ID. */
+    /**
+     * Применение темы живёт в модели: тот же метод зовёт переключатель в
+     * шапке панели. Раньше это были две независимые реализации, и они уже
+     * разошлись — переключатель не пересобирал CSS темы.
+     */
     private function applyTheme(Theme $theme): void
     {
-        DB::transaction(function () use ($theme) {
-            Theme::where('id', '!=', $theme->id)->where('is_default', true)->update(['is_default' => false]);
-
-            if (!$theme->is_default) {
-                $theme->is_default = true;
-                $this->regenerateCss($theme);
-                $theme->save();
-            }
-        });
-
-        Cache::forever('active_theme_id', $theme->id);
-        Cache::forget('active_theme');
+        Theme::apply($theme);
     }
 
     /** Неброский рекурсивный merge ассоц. массивов (правые ключи перекрывают левые). */

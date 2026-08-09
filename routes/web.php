@@ -185,28 +185,20 @@ Route::middleware(['web', 'auth', 'admin'])->group(function () {
     Route::get('/admin/theme/{slug}', function (string $slug) {
         // Тема одна на панель и на сайт, и задаётся она здесь же.
         //
-        // Раньше выбор писался в сессию как ЛИЧНОЕ оформление, а
-        // resolveForVisitor отдаёт сессии приоритет над темой сайта. Из-за
-        // этого кнопка «Применить» в разделе Темы выглядела нерабочей: она
-        // честно меняла тему сайта, но старый выбор в шапке её перекрывал.
-        // Теперь переключатель делает ровно то же, что и «Применить».
-        session()->forget(['admin_theme', 'site_theme']);
-
+        // Применение вызывается методом модели — тем же, что и у кнопки
+        // «Применить» в разделе Темы. Здесь лежала вторая, независимая
+        // реализация, и она уже разошлась с первой: не пересобирала CSS темы,
+        // поэтому одна и та же тема выглядела по-разному в зависимости от
+        // того, откуда её применили.
+        //
+        // Выбор сохраняется в базе (колонка is_default), а не в сессии.
+        // Поэтому он переживает перезаход и виден ВСЕМ — и администраторам,
+        // и обычным посетителям.
         if ($slug !== 'reset') {
             $theme = \Modules\Visual\Models\Theme::where('slug', $slug)->first();
 
             if ($theme) {
-                \Modules\Visual\Models\Theme::where('id', '!=', $theme->id)
-                    ->where('is_default', true)
-                    ->update(['is_default' => false]);
-
-                $theme->is_default = true;
-                $theme->save();
-
-                // Кеш активной темы обязателен: без него сайт продолжит
-                // отдавать прежнюю тему до истечения срока хранения.
-                \Illuminate\Support\Facades\Cache::forever('active_theme_id', $theme->id);
-                \Illuminate\Support\Facades\Cache::forget('active_theme');
+                \Modules\Visual\Models\Theme::apply($theme);
             }
         }
 
@@ -416,24 +408,17 @@ Route::get('/locale/{locale}', function (string $locale) {
     return redirect()->back();
 })->name('frontend.locale.set');
 
-// 🎨 Выбор темы оформления посетителем. Выбор личный: живёт в сессии и не
-// трогает активную тему сайта (её задаёт админка). Значение 'reset' убирает
-// личный выбор — посетитель снова видит оформление «как на сайте».
-// Работает без JS: это обычная ссылка, как у переключателя языка выше.
-Route::get('/theme/{slug}', function (string $slug) {
-    // Тот же выбор применяется и к панели — см. admin.theme.set.
-    if ($slug === 'reset') {
-        session()->forget(['site_theme', 'admin_theme']);
-
-        return redirect()->back();
-    }
-
-    if (\Modules\Visual\Models\Theme::where('slug', $slug)->exists()) {
-        session(['site_theme' => $slug, 'admin_theme' => $slug]);
-    }
-
-    return redirect()->back();
-})->name('frontend.theme.set');
+// 🎨 Маршрут выбора темы посетителем УДАЛЁН.
+//
+// Он писал выбор в сессию (site_theme / admin_theme), но композеры тем эти
+// ключи больше не читают — тема сайта определяется колонкой is_default в
+// базе. То есть маршрут молча ничего не менял. Ссылок на него в шаблонах не
+// осталось ни одной (переключатель из шапки сайта убран), поэтому мёртвый
+// код удалён, а не подперт.
+//
+// Оформление задаётся в панели: раздел «Темы» либо переключатель в её шапке.
+// Выбор общий для всего сайта и хранится в базе, поэтому переживает
+// перезаход и виден всем посетителям.
 
 // Route::get('/admin', fn() => view('admin'))->name('admin');
 // Route::get('/admin/{any}', fn() => view('admin'))
