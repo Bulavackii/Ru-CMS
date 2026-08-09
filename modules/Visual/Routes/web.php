@@ -33,6 +33,7 @@ Route::middleware(['web','auth','admin'])
             Route::get('/{fragment}/history',    [FragmentsController::class,'history'])->name('history');
             Route::post('/{fragment}/revert/{revision}', [FragmentsController::class,'revert'])->name('revert');
             Route::post('/{fragment}/duplicate', [FragmentsController::class,'duplicate'])->name('duplicate');
+            Route::post('/{fragment}/toggle',    [FragmentsController::class,'toggle'])->name('toggle');
             Route::post('/bulk-toggle',          [FragmentsController::class,'bulkToggle'])->name('bulkToggle');
             Route::post('/bulk-rebuild',         [FragmentsController::class,'bulkRebuild'])->name('bulkRebuild');
         });

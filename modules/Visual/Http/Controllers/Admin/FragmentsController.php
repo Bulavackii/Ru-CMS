@@ -139,6 +139,34 @@ class FragmentsController extends Controller
     /**
      * 🔄 Массовое переключение фрагментов
      */
+    /**
+     * Включить или выключить один фрагмент.
+     *
+     * Раньше состояние можно было изменить только двумя путями: открыть
+     * фрагмент в редакторе либо отметить галочкой и применить массовое
+     * действие. Для самой частой операции в разделе это слишком долго —
+     * теперь переключатель стоит прямо на карточке.
+     *
+     * Системные фрагменты не трогаем — тем же правилом, что и массовое
+     * переключение: шапка и подвал сайта выключаться не должны.
+     */
+    public function toggle(Fragment $fragment)
+    {
+        if ($fragment->isSystem()) {
+            return back()->with('error', 'Системный фрагмент выключить нельзя.');
+        }
+
+        $fragment->is_active = ! $fragment->is_active;
+        $fragment->save();
+
+        return back()->with(
+            'success',
+            $fragment->is_active
+                ? "Фрагмент «{$fragment->title}» включён."
+                : "Фрагмент «{$fragment->title}» выключен."
+        );
+    }
+
     public function bulkToggle(Request $request)
     {
         $request->validate([

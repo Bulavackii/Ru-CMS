@@ -310,4 +310,51 @@ class FragmentsModuleTest extends TestCase
             ->get(route('admin.visual.fragments.index', ['search' => 'Полоса']));
         $this->assertCount(1, $bySearch->viewData('fragments'));
     }
+
+    // ── Переключатель на карточке ─────────────────────────────────────────
+
+    public function test_toggle_switches_a_single_fragment(): void
+    {
+        $fragment = $this->fragment(['is_active' => false]);
+
+        $this->actingAs($this->admin())
+            ->from(route('admin.visual.fragments.index'))
+            ->post(route('admin.visual.fragments.toggle', $fragment))
+            ->assertRedirect(route('admin.visual.fragments.index'));
+
+        $this->assertTrue($fragment->fresh()->is_active, 'Первое нажатие включает фрагмент.');
+
+        $this->actingAs($this->admin())
+            ->from(route('admin.visual.fragments.index'))
+            ->post(route('admin.visual.fragments.toggle', $fragment));
+
+        $this->assertFalse($fragment->fresh()->is_active, 'Повторное нажатие выключает его обратно.');
+    }
+
+    public function test_toggle_does_not_touch_system_fragments(): void
+    {
+        // Шапка и подвал сайта выключаться не должны — тем же правилом, что и
+        // массовое переключение. Без этого одно нажатие снесло бы вёрстку.
+        $fragment = $this->fragment([
+            'slug' => 'site-header',
+            'title' => 'Шапка сайта',
+            'is_active' => true,
+        ]);
+
+        $this->actingAs($this->admin())
+            ->from(route('admin.visual.fragments.index'))
+            ->post(route('admin.visual.fragments.toggle', $fragment));
+
+        $this->assertTrue($fragment->fresh()->is_active, 'Системный фрагмент остаётся включённым.');
+    }
+
+    public function test_toggle_is_closed_for_guests(): void
+    {
+        $fragment = $this->fragment(['is_active' => false]);
+
+        $this->post(route('admin.visual.fragments.toggle', $fragment))->assertStatus(302);
+
+        $this->assertFalse($fragment->fresh()->is_active);
+        $this->assertGuest();
+    }
 }
