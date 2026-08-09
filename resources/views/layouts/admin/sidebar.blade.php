@@ -116,7 +116,7 @@
             color:var(--surface-ink,#4b5563);text-decoration:none;border-left:2px solid transparent;
             transition:background .15s ease,color .15s ease,border-color .15s ease}
         .dark .asb-item{color:#9ca3af}
-        .asb-item:hover{background:var(--admin-primary-soft,rgba(99,102,241,.1));
+        .asb-item:hover{background:var(--admin-primary-soft,color-mix(in srgb, var(--admin-primary, #6366f1) 10%, transparent));
             color:var(--admin-primary-ink,#312e81);border-left-color:var(--admin-primary,#6366f1)}
         .dark .asb-item:hover{color:#e5e7eb}
         .asb-item.is-active{color:var(--admin-on-primary,#fff);font-weight:600;border-left-color:var(--admin-accent,#a855f7);

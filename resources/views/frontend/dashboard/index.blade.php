@@ -277,7 +277,7 @@
        чтобы знак оставался узнаваемым при любом оформлении сайта. */
     .acc-socials{ display:inline-flex; flex-wrap:wrap; gap:.4rem; justify-content:flex-end }
     .acc-social{ display:inline-flex; align-items:center; gap:.35rem; padding:.2rem .55rem;
-        font-size:.78rem; font-weight:600; color:var(--surface-ink,#475569); background:rgba(99,102,241,.08);
+        font-size:.78rem; font-weight:600; color:var(--surface-ink,#475569); background:color-mix(in srgb, var(--color-primary, #6366f1) 8%, transparent);
         text-decoration:none; transition:color .15s, background .15s }
     .acc-social:hover{ color:#fff; background:var(--c,#6366f1) }
     .acc-social svg{ flex:0 0 auto }
@@ -334,7 +334,7 @@
                border:1px solid var(--surface-bd,#eef2f7); background:var(--surface,#fff); padding:.7rem .9rem }
     .acc-stat__ico{ display:inline-flex; align-items:center; justify-content:center;
                     width:2.2rem; height:2.2rem; flex:0 0 auto; font-size:.9rem;
-                    color:var(--color-primary,#6366f1); background:rgba(99,102,241,.1) }
+                    color:var(--color-primary,#6366f1); background:color-mix(in srgb, var(--color-primary, #6366f1) 10%, transparent) }
     .acc-stat__body{ display:flex; flex-direction:column; min-width:0; line-height:1.2 }
     .acc-stat__value{ font-size:1.3rem; font-weight:800; color:var(--surface-ink,#111827) }
     .acc-stat__label{ font-size:.7rem; text-transform:uppercase;
@@ -349,7 +349,7 @@
     .acc-link:hover{ border-color:var(--color-primary,#6366f1); background:var(--surface-2,#f8fafc) }
     .acc-link__ico{ display:inline-flex; align-items:center; justify-content:center;
                     width:2rem; height:2rem; flex:0 0 auto; font-size:.82rem;
-                    color:var(--color-primary,#6366f1); background:rgba(99,102,241,.1) }
+                    color:var(--color-primary,#6366f1); background:color-mix(in srgb, var(--color-primary, #6366f1) 10%, transparent) }
     .acc-link__body{ display:flex; flex-direction:column; min-width:0; line-height:1.3 }
     .acc-link__title{ font-size:.9rem; font-weight:600; color:var(--surface-ink,#111827) }
     .acc-link__note{ font-size:.75rem; color:var(--surface-mute,#6b7280) }
@@ -372,7 +372,7 @@
     .acc-list > div{ display:flex; gap:.6rem; flex-wrap:wrap; align-items:baseline }
     .acc-list dt{ color:var(--surface-mute,#6b7280); min-width:10rem }
     .acc-list dd{ margin:0; font-weight:600; color:var(--surface-ink,#111827) }
-    .acc-list a{ color:#4f46e5 }
+    .acc-list a{ color:var(--color-primary, #4f46e5) }
 
     .acc-actions{ display:flex; flex-wrap:wrap; gap:.5rem; align-items:stretch }
     /* Кнопки раздела задаём сами: общий .fx-btn рисовался под короткое
@@ -391,11 +391,11 @@
     .acc-btn-ghost{ display:inline-flex; align-items:center; gap:.5rem; padding:.55rem 1rem;
                     border:1px solid var(--surface-bd,#e5e7eb); background:var(--surface,#fff); color:var(--surface-ink,#374151);
                     font-size:.85rem; font-weight:600; transition:border-color .15s, color .15s }
-    .acc-btn-ghost:hover{ border-color:#a5b4fc; color:#4f46e5 }
+    .acc-btn-ghost:hover{ border-color:#a5b4fc; color:var(--color-primary, #4f46e5) }
     .acc-count{ margin-top:.9rem; font-size:.85rem; color:var(--surface-mute,#6b7280) }
 
     .acc-orders-head{ display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:.9rem }
-    .acc-all{ font-size:.85rem; font-weight:600; color:#4f46e5 }
+    .acc-all{ font-size:.85rem; font-weight:600; color:var(--color-primary, #4f46e5) }
 
     .acc-order{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem;
                 border:1px solid var(--surface-bd,#eef2f7); padding:.85rem 1rem; margin-bottom:.6rem; background:var(--surface,#fff) }

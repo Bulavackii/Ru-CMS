@@ -109,7 +109,7 @@
             letter-spacing:.08em;text-transform:uppercase;color:#fff;white-space:nowrap;
             font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
         .ahd-section-dot{width:.4rem;height:.4rem;background:var(--admin-primary,#6366f1);flex:none;
-            box-shadow:0 0 0 3px var(--admin-primary-soft,rgba(99,102,241,.25))}
+            box-shadow:0 0 0 3px var(--admin-primary-soft,color-mix(in srgb, var(--admin-primary, #6366f1) 25%, transparent))}
 
         /* Кнопка-действие с подписью (Создать / На сайт) */
         .ahd-action{display:inline-flex;align-items:center;gap:.4rem;height:2.25rem;padding:0 .8rem;
@@ -131,7 +131,7 @@
             font-size:.82rem;color:var(--surface-ink,#374151);text-align:left;text-decoration:none;background:none;border:0;
             cursor:pointer;transition:background .12s ease,color .12s ease}
         .dark .ahd-menu-item{color:#d1d5db}
-        .ahd-menu-item:hover{background:var(--admin-primary-soft,rgba(99,102,241,.12));
+        .ahd-menu-item:hover{background:var(--admin-primary-soft,color-mix(in srgb, var(--admin-primary, #6366f1) 12%, transparent));
             color:var(--admin-primary-ink,#312e81)}
         .dark .ahd-menu-item:hover{color:#c7d2fe}
         .ahd-menu-item.is-active{font-weight:600;color:var(--admin-primary,#4f46e5)}

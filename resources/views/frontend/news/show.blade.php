@@ -129,7 +129,7 @@
                 <span class="text-xs text-gray-500 dark:text-gray-400 mr-1">{{ __('frontend.news.share') }}</span>
                 <a href="https://vk.com/share.php?url={{ urlencode(url()->current()) }}" target="_blank" rel="noopener" class="share-btn share-btn--plain" style="--c:#0077FF" title="ВКонтакте" aria-label="Поделиться во ВКонтакте"><x-icon.vk :size="16" /></a>
                 <a href="https://max.ru/share?url={{ urlencode(url()->current()) }}&text={{ urlencode($news->t('title')) }}" target="_blank" rel="noopener" class="share-btn share-btn--plain" style="--c:#3B4BF5" title="MAX" aria-label="Поделиться в MAX"><x-icon.max :size="16" /></a>
-                <button type="button" class="share-btn copy-link" data-url="{{ url()->current() }}" style="--c:#6366f1" title="{{ __('frontend.news.copy_link') }}" aria-label="Скопировать ссылку"><i class="fas fa-link"></i></button>
+                <button type="button" class="share-btn copy-link" data-url="{{ url()->current() }}" style="--c:var(--color-primary, #6366f1)" title="{{ __('frontend.news.copy_link') }}" aria-label="Скопировать ссылку"><i class="fas fa-link"></i></button>
             </div>
         </div>
     </article>

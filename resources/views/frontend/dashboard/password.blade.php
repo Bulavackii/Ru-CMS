@@ -147,7 +147,7 @@
     }
     .acc-btn-ghost{ border:1px solid var(--surface-bd,#e5e7eb); background:var(--surface,#fff); color:var(--surface-ink,#374151);
                     transition:border-color .15s, color .15s, background .15s }
-    .acc-btn-ghost:hover{ border-color:#a5b4fc; color:#4f46e5; background:var(--surface-2,#f8fafc) }
+    .acc-btn-ghost:hover{ border-color:#a5b4fc; color:var(--color-primary, #4f46e5); background:var(--surface-2,#f8fafc) }
     .acc-actions .fx-btn:active,
     .acc-actions .acc-btn-ghost:active{ transform:translateY(1px) }
 
@@ -172,7 +172,7 @@
     .pwf-input{ width:100%; padding:.6rem .75rem; font-size:.9rem; color:var(--surface-ink,#0f172a);
         background:var(--surface,#fff); border:1px solid #d1d5db; transition:border-color .15s, box-shadow .15s }
     .pwf-input:focus{ outline:none; border-color:var(--color-primary,#6366f1);
-        box-shadow:0 0 0 3px rgba(99,102,241,.15) }
+        box-shadow:0 0 0 3px color-mix(in srgb, var(--color-primary, #6366f1) 15%, transparent) }
     .pwf-bad{ border-color:#dc2626 }
 
     .pwf-meter{ display:grid; grid-template-columns:repeat(4,1fr); gap:.25rem; margin-top:.5rem }
@@ -191,9 +191,9 @@
     .pwf-show{ display:inline-flex; align-items:center; gap:.45rem; font-size:.85rem;
         color:var(--surface-ink,#4b5563); cursor:pointer }
     .pwf-gen{ display:inline-flex; align-items:center; gap:.4rem; padding:.4rem .8rem;
-        font-size:.82rem; font-weight:600; color:#4338ca; background:rgba(99,102,241,.1);
+        font-size:.82rem; font-weight:600; color:var(--color-primary, #4338ca); background:color-mix(in srgb, var(--color-primary, #6366f1) 10%, transparent);
         border:0; cursor:pointer; transition:background .15s }
-    .pwf-gen:hover{ background:rgba(99,102,241,.2) }
+    .pwf-gen:hover{ background:color-mix(in srgb, var(--color-primary, #6366f1) 20%, transparent) }
 
     /* Отправлять нечего, пока не введён текущий пароль, новый короче
        восьми знаков или поля расходятся. */

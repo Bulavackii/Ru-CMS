@@ -206,7 +206,7 @@
     {{-- Наверх --}}
     <button id="backToTopBtn"
         class="fixed bottom-6 right-6 z-50 p-3 shadow-md transition transform hover:scale-105 opacity-0 pointer-events-none text-white"
-        style="background:var(--fx-grad,#6366f1); box-shadow:0 10px 24px -8px rgba(99,102,241,.6)"
+        style="background:var(--fx-grad,#6366f1); box-shadow:0 10px 24px -8px color-mix(in srgb, var(--color-primary, #6366f1) 60%, transparent)"
         title="{{ __('frontend.footer.to_top') }}" aria-label="{{ __('frontend.footer.to_top') }}">
         @themeIcon('arrow-up')
     </button>
@@ -311,7 +311,7 @@
     /* ===== Оформление подвала (стиль проекта, акцент из ТЕМЫ) ===== */
     .f-brand-badge{ width:2.4rem; height:2.4rem; display:inline-flex; align-items:center; justify-content:center;
         background:var(--fx-grad,#6366f1); color:#fff; font-weight:700; font-size:.85rem; letter-spacing:.02em;
-        flex:0 0 auto; box-shadow:0 8px 18px -8px rgba(99,102,241,.6); }
+        flex:0 0 auto; box-shadow:0 8px 18px -8px color-mix(in srgb, var(--color-primary, #6366f1) 60%, transparent); }
     .f-brand-card{ padding:.75rem .85rem; border:1px solid rgba(17,24,39,.08); background:rgba(255,255,255,.5);
         -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); }
     .f-devlist--tight li{ padding:.08rem 0; font-size:.78rem; }
@@ -347,7 +347,7 @@
 
     .f-menu-ico{ display:inline-flex; align-items:center; justify-content:center;
         width:1.85rem; height:1.85rem; flex:0 0 auto; color:var(--color-primary,#6366f1);
-        background:rgba(99,102,241,.1);
+        background:color-mix(in srgb, var(--color-primary, #6366f1) 10%, transparent);
         transition:color .15s ease, background .15s ease; }
     .f-menu-ico svg, .f-menu-ico i{ width:.9rem; height:.9rem; font-size:.9rem; line-height:1; }
 
@@ -361,7 +361,7 @@
     .f-menu-link:hover .f-menu-ico{ color:var(--on-accent,#fff); background:var(--color-primary,#6366f1); }
     .f-menu-link:focus-visible{ outline:2px solid var(--color-primary,#6366f1); outline-offset:2px; }
     :root.dark .f-menu-text{ color:#d1d5db; }
-    :root.dark .f-menu-ico{ background:rgba(99,102,241,.2); }
+    :root.dark .f-menu-ico{ background:color-mix(in srgb, var(--color-primary, #6366f1) 20%, transparent); }
 
     /* Вложенный уровень — мельче и со сдвигом, чтобы читалась подчинённость. */
     .f-menu-list--child{ margin:.1rem 0 .25rem 1.1rem; }
@@ -394,10 +394,10 @@
     .f-brand-chips{ display:flex; flex-wrap:wrap; gap:.35rem; }
     .f-brand-chip{ display:inline-flex; align-items:center; gap:.3rem;
         padding:.22rem .5rem; font-size:.66rem; font-weight:700; letter-spacing:.03em;
-        color:#4338ca; background:rgba(99,102,241,.1); text-decoration:none;
+        color:var(--color-primary, #4338ca); background:color-mix(in srgb, var(--color-primary, #6366f1) 10%, transparent); text-decoration:none;
         transition:background .15s ease, color .15s ease; }
     .f-brand-chip--link:hover{ color:var(--on-accent,#fff); background:var(--color-primary,#6366f1); }
-    :root.dark .f-brand-chip{ color:#c7d2fe; background:rgba(99,102,241,.2); }
+    :root.dark .f-brand-chip{ color:#c7d2fe; background:color-mix(in srgb, var(--color-primary, #6366f1) 20%, transparent); }
 
     /* Тёмная ТЕМА сайта — отдельный класс от системного тёмного режима.
        Цвет пилюли берётся из темы, а не из прибитого индиго: иначе на мятной
@@ -426,7 +426,7 @@
        контактов на самой странице «Контакты». */
     .f-contact__ico{ display:inline-flex; align-items:center; justify-content:center;
         width:2rem; height:2rem; flex:0 0 auto; color:var(--color-primary,#6366f1);
-        background:rgba(99,102,241,.1);
+        background:color-mix(in srgb, var(--color-primary, #6366f1) 10%, transparent);
         transition:color .15s ease, background .15s ease; }
     .f-contact__ico svg, .f-contact__ico i{ width:.95rem; height:.95rem; font-size:.95rem; }
 
@@ -455,7 +455,7 @@
 
     :root.dark .f-contact__value{ color:#d1d5db; }
     :root.dark .f-contact__label{ color:#6b7280; }
-    :root.dark .f-contact__ico{ background:rgba(99,102,241,.2); }
+    :root.dark .f-contact__ico{ background:color-mix(in srgb, var(--color-primary, #6366f1) 20%, transparent); }
 
     /* Соцсети.
        Значки стояли голым рядом без подписи и без опоры — читались как
@@ -485,9 +485,9 @@
 
     .f-social{ display:inline-flex; align-items:center; justify-content:center;
         width:1.6rem; height:1.6rem; flex:0 0 auto; font-size:.9rem; text-decoration:none;
-        color:var(--surface-mute,#6b7280); background:rgba(99,102,241,.08);
+        color:var(--surface-mute,#6b7280); background:color-mix(in srgb, var(--color-primary, #6366f1) 8%, transparent);
         transition:color .15s ease, background .15s ease, transform .15s ease; }
-    :root.dark .f-social{ color:#9ca3af; background:rgba(99,102,241,.18); }
+    :root.dark .f-social{ color:#9ca3af; background:color-mix(in srgb, var(--color-primary, #6366f1) 18%, transparent); }
 
     /* Плитка заливается ФИРМЕННЫМ цветом сети, а не акцентом темы: так
        узнаваемость знака работает на сайте с любым оформлением. */
@@ -497,9 +497,9 @@
     /* У ВК, MAX, Rutube и GitHub собственные цветные глифы: заливать
        плитку под ними нельзя, знак потеряется. Им — только подъём и
        мягкая подложка фирменного цвета. */
-    .f-social--plain{ background:rgba(99,102,241,.08); }
-    .f-social--plain:hover{ background:rgba(99,102,241,.16); }
-    :root.dark .f-social--plain:hover{ background:rgba(99,102,241,.28); }
+    .f-social--plain{ background:color-mix(in srgb, var(--color-primary, #6366f1) 8%, transparent); }
+    .f-social--plain:hover{ background:color-mix(in srgb, var(--color-primary, #6366f1) 16%, transparent); }
+    :root.dark .f-social--plain:hover{ background:color-mix(in srgb, var(--color-primary, #6366f1) 28%, transparent); }
     .f-social--plain svg{ transition:transform .15s ease; }
     .f-social--plain:hover svg{ transform:scale(1.08); }
 

@@ -121,7 +121,17 @@
        Читаемость обеспечена собственным светлым текстом на своём фоне,
        а не наследованием цветов страницы. */
     .gm-card{ display:flex; flex-direction:column; background:#0f172a; border:1px solid #1e293b;
-        overflow:hidden; transition:border-color .15s, transform .15s }
+        overflow:hidden; transition:border-color .15s, transform .15s;
+
+        /* Карточка тёмная ВСЕГДА, независимо от темы сайта, поэтому уровни
+           текста переопределяются прямо на ней. Иначе внутри действуют общие
+           переменные поверхностей, а они на светлой теме тёмные — и подпись
+           с датой оказывались тёмными на тёмном: замер давал 3.47 и 3.64.
+           Переопределение на самом элементе наследуется всем содержимым и
+           не задевает остальную страницу. */
+        --surface-ink:  #f1f5f9;
+        --surface-mute: #cbd5e1;
+        --surface-dim:  #94a3b8 }
     .gm-card:hover{ border-color:var(--color-accent,#8b5cf6); transform:translateY(-3px) }
 
     /* Высота под пропорцию обложек 320x200: при 10rem картинка

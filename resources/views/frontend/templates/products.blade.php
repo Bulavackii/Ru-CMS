@@ -261,7 +261,7 @@
     .pr-card__body{ display:flex; flex-direction:column; gap:.45rem; padding:1rem 1.1rem 0; flex:1 }
 
     .pr-card__cats{ display:flex; flex-wrap:wrap; gap:.3rem }
-    .pr-chip{ font-size:.68rem; font-weight:700; padding:.12rem .45rem; color:#4f46e5;
+    .pr-chip{ font-size:.68rem; font-weight:700; padding:.12rem .45rem; color:var(--color-primary, #4f46e5);
         background:color-mix(in srgb, var(--color-primary,#6366f1) 12%, var(--surface,#eef2ff)); border:1px solid color-mix(in srgb, var(--color-primary,#6366f1) 26%, var(--surface,#e0e7ff)) }
 
     .pr-card__title{ margin:0; font-size:1rem; line-height:1.35; font-weight:700 }

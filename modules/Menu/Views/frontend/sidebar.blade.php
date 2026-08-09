@@ -75,7 +75,7 @@
         display:inline-flex; align-items:center; justify-content:center;
         width:38px; height:46px; padding:0; color:#fff;
         background:var(--fx-grad,#6366f1); border:0;
-        border-radius:0 12px 12px 0; box-shadow:0 10px 22px -8px rgba(99,102,241,.6); cursor:pointer;
+        border-radius:0 12px 12px 0; box-shadow:0 10px 22px -8px color-mix(in srgb, var(--color-primary, #6366f1) 60%, transparent); cursor:pointer;
         transition:background .15s, transform .15s;
     }
     .fs-toggle:hover{ transform:translateY(-50%) translateX(2px); }
@@ -113,9 +113,9 @@
     .fs-list{ list-style:none; margin:0; padding:0; }
     .fs-link{ display:flex; align-items:center; gap:.6rem; padding:.6rem .7rem; border-radius:8px;
         text-decoration:none; color:var(--color-text,#374151); font-size:.9rem; transition:background .12s, color .12s; }
-    .fs-link:hover{ background:rgba(99,102,241,.08); color:var(--fx-a,#6366f1); }
+    .fs-link:hover{ background:color-mix(in srgb, var(--color-primary, #6366f1) 8%, transparent); color:var(--fx-a,#6366f1); }
     .fs-link--sub{ font-size:.85rem; color:var(--surface-mute,#6b7280); }
-    .fs-sub{ margin:2px 0 4px .9rem; padding-left:.5rem; border-left:1.5px solid rgba(99,102,241,.18); }
+    .fs-sub{ margin:2px 0 4px .9rem; padding-left:.5rem; border-left:1.5px solid color-mix(in srgb, var(--color-primary, #6366f1) 18%, transparent); }
     .fs-ico{ display:inline-flex; color:var(--fx-a,#6366f1); opacity:.7; }
     .fs-ico svg, .fs-ico i{ width:1.05rem; height:1.05rem; font-size:1.05rem; line-height:1; }
 </style>

@@ -196,7 +196,7 @@
             border-radius: calc(var(--au-radius) - 5px);
             outline: none; transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
         }
-        .au-input:focus { background: var(--surface,#fff); border-color: var(--au-primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, .15) }
+        .au-input:focus { background: var(--surface,#fff); border-color: var(--au-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary, #6366f1) 15%, transparent) }
         .au-input::placeholder { color:var(--surface-dim,#a8aebb) }
         .au-input.is-bad { border-color: #dc2626 }
         textarea.au-input { resize: vertical }
@@ -227,7 +227,7 @@
             background: linear-gradient(135deg, var(--au-primary), var(--au-accent));
             border: 0; border-radius: calc(var(--au-radius) - 5px);
             cursor: pointer; transition: filter .15s ease, transform .05s ease, box-shadow .15s ease;
-            box-shadow: 0 6px 16px rgba(99, 102, 241, .28);
+            box-shadow: 0 6px 16px color-mix(in srgb, var(--color-primary, #6366f1) 28%, transparent);
         }
         .au-btn:hover { filter: brightness(1.07) }
         .au-btn:active { transform: translateY(1px) }

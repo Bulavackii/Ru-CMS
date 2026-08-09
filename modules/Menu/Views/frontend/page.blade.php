@@ -111,7 +111,7 @@
                 <a href="https://vk.com/share.php?url={{ urlencode(url()->current()) }}" target="_blank" rel="noopener"
                    class="share-btn share-btn--plain" style="--c:#0077FF" title="ВКонтакте" aria-label="Поделиться во ВКонтакте"><x-icon.vk :size="16" /></a>
                 <a href="https://max.ru/share?url={{ urlencode(url()->current()) }}&text={{ urlencode($page->t('title')) }}" target="_blank" rel="noopener" class="share-btn share-btn--plain" style="--c:#3B4BF5" title="MAX" aria-label="Поделиться в MAX"><x-icon.max :size="16" /></a>
-                <button type="button" class="share-btn copy-link" data-url="{{ url()->current() }}" style="--c:#6366f1"
+                <button type="button" class="share-btn copy-link" data-url="{{ url()->current() }}" style="--c:var(--color-primary, #6366f1)"
                         title="Скопировать ссылку" aria-label="Скопировать ссылку"><i class="fas fa-link"></i></button>
             </div>
         </div>
@@ -436,7 +436,7 @@
         if (!box) return;
         const t = document.createElement('div');
         t.className = 'px-4 py-2.5 shadow text-sm font-medium text-white';
-        t.style.background = isError ? '#e11d48' : '#4f46e5';
+        t.style.background = isError ? '#e11d48' : 'var(--color-primary, #4f46e5)';
         t.textContent = message;
         box.appendChild(t);
         setTimeout(() => t.remove(), 2200);

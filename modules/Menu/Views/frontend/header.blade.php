@@ -30,7 +30,7 @@
 
 <style>
     /* ===== Мега-меню шапки: акцент + базовые стили ===== */
-    .header-nav{ --nav-accent:#6366f1; --nav-soft:rgba(99,102,241,.09);
+    .header-nav{ --nav-accent:var(--color-primary, #6366f1); --nav-soft:color-mix(in srgb, var(--color-primary, #6366f1) 9%, transparent);
         display:flex; align-items:center; gap:.15rem; }
     .header-nav ul{ margin:0; padding:0; list-style:none; }
     .header-nav .menu-link{ display:flex; align-items:center; gap:.55rem; text-decoration:none;

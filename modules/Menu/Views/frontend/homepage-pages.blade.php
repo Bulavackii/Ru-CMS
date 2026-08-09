@@ -133,7 +133,7 @@
     .pg-card__title a:hover{ color:var(--color-primary,#6366f1) }
 
     .pg-card__cats{ display:flex; flex-wrap:wrap; gap:.3rem }
-    .pg-chip{ font-size:.68rem; font-weight:700; padding:.12rem .45rem; color:#4f46e5;
+    .pg-chip{ font-size:.68rem; font-weight:700; padding:.12rem .45rem; color:var(--color-primary, #4f46e5);
         background:color-mix(in srgb, var(--color-primary,#6366f1) 12%, var(--surface,#eef2ff)); border:1px solid color-mix(in srgb, var(--color-primary,#6366f1) 26%, var(--surface,#e0e7ff)) }
 
     .pg-card__text{ margin:0; font-size:.85rem; line-height:1.55; color:var(--surface-mute,#64748b); flex:1;

@@ -428,11 +428,11 @@
             /* Полупрозрачные производные акцента (тени, подложки чипов).
                Первое объявление — запасное на случай, если браузер не знает
                color-mix; второе перекрывает его там, где функция поддержана. */
-            --fx-a-soft: rgba(99,102,241,.12);
             --fx-a-soft: color-mix(in srgb, var(--color-primary, #6366f1) 12%, transparent);
-            --fx-a-edge: rgba(99,102,241,.35);
+            --fx-a-soft: color-mix(in srgb, var(--color-primary, #6366f1) 12%, transparent);
             --fx-a-edge: color-mix(in srgb, var(--color-primary, #6366f1) 35%, transparent);
-            --fx-a-glow: rgba(99,102,241,.65);
+            --fx-a-edge: color-mix(in srgb, var(--color-primary, #6366f1) 35%, transparent);
+            --fx-a-glow: color-mix(in srgb, var(--color-primary, #6366f1) 65%, transparent);
             --fx-a-glow: color-mix(in srgb, var(--color-primary, #6366f1) 65%, transparent);
         }
         /* Тонкая градиентная акцент-полоса (верх страницы, над подвалом, у секций) */
@@ -501,7 +501,7 @@
         :root.dark .fx-noimg{ background:linear-gradient(135deg,#1e1b4b,#312e81); }
         .fx-noimg .fx-noimg-ico{ font-size:2.1rem; color:#a5b4fc; }
         :root.dark .fx-noimg .fx-noimg-ico{ color:var(--fx-a); }
-        .fx-noimg span{ font-size:.72rem; font-weight:500; letter-spacing:.04em; color:#818cf8; text-transform:uppercase; }
+        .fx-noimg span{ font-size:.72rem; font-weight:500; letter-spacing:.04em; color:var(--color-primary, #818cf8); text-transform:uppercase; }
         /* Красивое hover-подчёркивание для пунктов меню (хедер/футер/сайдбар).
            Цвет — из ТЕМЫ (--color-primary/--color-accent, меняются в модуле Тем). */
         .fx-underline{ position:relative; }

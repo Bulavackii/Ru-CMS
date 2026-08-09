@@ -119,7 +119,7 @@
             color:var(--surface-ink,#374151);text-decoration:none;border-left:2px solid transparent;
             transition:background .15s ease,color .15s ease}
         .dark .amb-item{color:#d1d5db}
-        .amb-item:hover{background:var(--admin-primary-soft,rgba(99,102,241,.1));
+        .amb-item:hover{background:var(--admin-primary-soft,color-mix(in srgb, var(--admin-primary, #6366f1) 10%, transparent));
             border-left-color:var(--admin-primary,#6366f1)}
         .amb-item.is-active{color:var(--admin-on-primary,#fff);font-weight:600;border-left-color:var(--admin-accent,#a855f7);
             background:linear-gradient(90deg,var(--admin-primary,#6366f1),transparent 340%)}

@@ -281,19 +281,19 @@
         display:inline-flex; align-items:center; justify-content:center;
         background:var(--fx-grad,#6366f1); color:#fff;
         font-weight:800; font-size:.85rem; letter-spacing:.06em;
-        box-shadow:0 10px 20px -10px rgba(99,102,241,.75);
+        box-shadow:0 10px 20px -10px color-mix(in srgb, var(--color-primary, #6366f1) 75%, transparent);
         transition:transform .18s ease, box-shadow .18s ease; }
     .hdr-logo-badge::after{ content:''; position:absolute; inset:0;
         border-top:1px solid rgba(255,255,255,.35);
         border-left:1px solid rgba(255,255,255,.18); pointer-events:none; }
     .hdr-logo:hover .hdr-logo-badge{ transform:translateY(-1px);
-        box-shadow:0 14px 24px -10px rgba(99,102,241,.85); }
+        box-shadow:0 14px 24px -10px color-mix(in srgb, var(--color-primary, #6366f1) 85%, transparent); }
 
     .hdr-logo-text{ display:flex; flex-direction:column; line-height:1.05; }
 
     /* Заливка градиентом по контуру букв. Цвет остаётся запасным на случай,
        если браузер не умеет обрезать фон по тексту. */
-    .hdr-logo-name{ font-weight:800; font-size:1.45rem; letter-spacing:-.02em; color:#6366f1;
+    .hdr-logo-name{ font-weight:800; font-size:1.45rem; letter-spacing:-.02em; color:var(--color-primary, #6366f1);
         background:var(--fx-grad,#6366f1); -webkit-background-clip:text; background-clip:text;
         -webkit-text-fill-color:transparent; }
 
@@ -339,7 +339,7 @@
        самой кнопки и меняется вместе с ней. */
     .hdr-actions .hdr-ico{ width:1.05rem; height:1.05rem; flex:0 0 auto; }
     /* Залитая кнопка остаётся залитой: полоса на градиенте не читается. */
-    .hdr-actions .hdr-pill--accent{ background:var(--fx-grad,#6366f1); color:#fff; box-shadow:0 8px 18px -10px rgba(99,102,241,.7); }
+    .hdr-actions .hdr-pill--accent{ background:var(--fx-grad,#6366f1); color:#fff; box-shadow:0 8px 18px -10px color-mix(in srgb, var(--color-primary, #6366f1) 70%, transparent); }
     .hdr-actions .hdr-pill--accent::after{ display:none; }
     .hdr-actions .hdr-pill--accent:hover{ background:var(--fx-grad,#6366f1); color:#fff; filter:brightness(1.08); }
 
@@ -370,9 +370,9 @@
     .hdr-lang-item{ display:flex; align-items:center; gap:.6rem; padding:.5rem .55rem; border-radius:8px; font-size:.83rem;
         color:var(--surface-ink,#374151); text-decoration:none; transition:background .12s ease, color .12s ease; }
     :root.dark .hdr-lang-item{ color:#d1d5db; }
-    .hdr-lang-item:hover{ background:rgba(99,102,241,.1); color:#4f46e5; }
-    :root.dark .hdr-lang-item:hover{ background:rgba(99,102,241,.2); color:#c7d2fe; }
-    .hdr-lang-item.is-active{ color:#4f46e5; font-weight:500; }
+    .hdr-lang-item:hover{ background:color-mix(in srgb, var(--color-primary, #6366f1) 10%, transparent); color:var(--color-primary, #4f46e5); }
+    :root.dark .hdr-lang-item:hover{ background:color-mix(in srgb, var(--color-primary, #6366f1) 20%, transparent); color:#c7d2fe; }
+    .hdr-lang-item.is-active{ color:var(--color-primary, #4f46e5); font-weight:500; }
 
     /* Выпадающий список языков на тёмной теме. Тёмный вид у него был описан
        только под системный тёмный режим (:root.dark), поэтому на тёмной ТЕМЕ
@@ -400,9 +400,9 @@
     :root.dark .hdr-theme-reset{ border-color:rgba(255,255,255,.08); }
 
     .hdr-lang-code{ display:inline-flex; align-items:center; justify-content:center; min-width:1.75rem; height:1.4rem;
-        padding:0 .3rem; border-radius:6px; background:rgba(99,102,241,.13); color:#4338ca; font-size:.62rem;
+        padding:0 .3rem; border-radius:6px; background:color-mix(in srgb, var(--color-primary, #6366f1) 13%, transparent); color:var(--color-primary, #4338ca); font-size:.62rem;
         font-weight:700; letter-spacing:.03em; flex:0 0 auto; }
-    :root.dark .hdr-lang-code{ background:rgba(99,102,241,.24); color:#c7d2fe; }
+    :root.dark .hdr-lang-code{ background:color-mix(in srgb, var(--color-primary, #6366f1) 24%, transparent); color:#c7d2fe; }
     /* Маленький аккуратный флаг (инлайн-SVG) */
     .flag{ width:1.4rem; height:1rem; border-radius:3px; display:inline-block; flex:0 0 auto; overflow:hidden;
         vertical-align:middle; box-shadow:0 0 0 1px rgba(17,24,39,.12); }
@@ -417,7 +417,7 @@
         transition:border-color .15s ease, box-shadow .15s ease, background .15s ease; }
     :root.dark .hdr-search-input{ background:rgba(30,41,59,.7); border-color:rgba(255,255,255,.12); color:#f3f4f6; }
     .hdr-search-input::placeholder{ color:var(--surface-dim,#9ca3af); }
-    .hdr-search-input:focus{ outline:none; border-color:#818cf8; box-shadow:0 0 0 3px rgba(99,102,241,.18); background:var(--surface,#fff); }
+    .hdr-search-input:focus{ outline:none; border-color:var(--color-primary, #818cf8); box-shadow:0 0 0 3px color-mix(in srgb, var(--color-primary, #6366f1) 18%, transparent); background:var(--surface,#fff); }
     :root.dark .hdr-search-input:focus{ background:rgba(30,41,59,.96); }
     /* Лупа слева — только значок: отправляет форму кнопка «Найти» справа */
     .hdr-search-ico{ position:absolute; left:.6rem; top:50%; transform:translateY(-50%); z-index:2;
@@ -426,7 +426,7 @@
     .hdr-search-go{ flex:0 0 auto; display:inline-flex; align-items:center; justify-content:center;
         padding:0 1.05rem; border:0; border-radius:10px; white-space:nowrap;
         background:var(--fx-grad,#6366f1); color:#fff; font-size:.82rem; font-weight:600; line-height:1.2;
-        cursor:pointer; box-shadow:0 8px 18px -10px rgba(99,102,241,.8);
+        cursor:pointer; box-shadow:0 8px 18px -10px color-mix(in srgb, var(--color-primary, #6366f1) 80%, transparent);
         transition:filter .15s ease, transform .15s ease; }
     .hdr-search-go:hover{ filter:brightness(1.07); transform:translateY(-1px); }
     .hdr-search-go:active{ transform:translateY(0); }

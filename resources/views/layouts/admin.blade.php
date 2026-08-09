@@ -49,6 +49,55 @@
       --admin-on-primary: {{ readable_ink($adminPrimary) }};
       --admin-on-accent: {{ readable_ink($adminAccent) }};
     }
+    /* ── Индиго из разметки → акцент активной темы ──────────────────────
+       В шаблонах панели фирменный индиго вписан классами Tailwind: только
+       bg-indigo-600 встречается 101 раз в 50 файлах, а вместе с рамками,
+       кольцами фокуса и цветом значков — больше шестисот вхождений. Из-за
+       этого кнопки вроде «Новый фрагмент» оставались индиго при любой теме,
+       хотя соседние кнопки того же экрана уже брали акцент из переменной, и
+       на одном экране оказывалось два разных «главных» цвета.
+
+       Правим не в пятидесяти файлах, а здесь: селектор `body.admin-sharp .X`
+       весомее одиночного класса Tailwind (0,2,0 против 0,1,0), поэтому
+       побеждает без !important и независимо от порядка подключения.
+
+       Область — только панель: класс admin-sharp висит на её теге body,
+       сайт и письма правило не задевает. */
+
+    body.admin-sharp .bg-indigo-600,
+    body.admin-sharp .bg-indigo-700{ background-color:var(--admin-primary) }
+    body.admin-sharp .hover\:bg-indigo-600:hover,
+    body.admin-sharp .hover\:bg-indigo-700:hover{ background-color:var(--admin-primary); filter:brightness(1.08) }
+
+    /* Надпись поверх акцента. Белый годится не всегда: у светлых акцентов
+       (мятный «Изумруд», голубой «Графит») по нему не прочитать — цвет
+       считает readable_ink, см. --admin-on-primary выше.
+       Селектор составной: перекрашиваем text-white только там, где он лежит
+       НА акценте, а не по всей панели. */
+    body.admin-sharp .bg-indigo-600.text-white,
+    body.admin-sharp .bg-indigo-700.text-white,
+    body.admin-sharp .bg-indigo-600 .text-white{ color:var(--admin-on-primary,#fff) }
+
+    /* Акцентный текст и значки */
+    body.admin-sharp .text-indigo-500,
+    body.admin-sharp .text-indigo-600,
+    body.admin-sharp .text-indigo-700{ color:var(--admin-primary) }
+    body.admin-sharp .hover\:text-indigo-600:hover,
+    body.admin-sharp .hover\:text-indigo-700:hover{ color:var(--admin-primary) }
+
+    /* Рамки и кольцо фокуса */
+    body.admin-sharp .border-indigo-400,
+    body.admin-sharp .border-indigo-500,
+    body.admin-sharp .border-indigo-600{ border-color:var(--admin-primary) }
+    body.admin-sharp .hover\:border-indigo-400:hover,
+    body.admin-sharp .hover\:border-indigo-500:hover,
+    body.admin-sharp .focus\:border-indigo-500:focus{ border-color:var(--admin-primary) }
+    body.admin-sharp .focus\:ring-indigo-500:focus{ --tw-ring-color:var(--admin-primary) }
+
+    /* Мягкая подложка акцента */
+    body.admin-sharp .bg-indigo-50,
+    body.admin-sharp .bg-indigo-100{ background-color:var(--admin-primary-soft) }
+
     /* Утилиты Tailwind с /NN-прозрачностью (bg-white/80 и т.п.) отсутствуют в
        собранном public/assets/css/tailwind.min.css — это статическая сборка без
        JIT-сканирования содержимого, в неё вошли только полные стандартные

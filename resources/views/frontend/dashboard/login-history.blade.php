@@ -95,7 +95,7 @@
     .acc-btn-ghost{ display:inline-flex; align-items:center; gap:.5rem; padding:.55rem 1rem;
                     border:1px solid var(--surface-bd,#e5e7eb); background:var(--surface,#fff); color:var(--surface-ink,#374151);
                     font-size:.85rem; font-weight:600 }
-    .acc-btn-ghost:hover{ border-color:#a5b4fc; color:#4f46e5 }
+    .acc-btn-ghost:hover{ border-color:#a5b4fc; color:var(--color-primary, #4f46e5) }
 
     .lh-total{ font-size:.85rem; color:var(--surface-mute,#6b7280); margin-bottom:.9rem }
 
