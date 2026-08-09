@@ -176,6 +176,22 @@
     .a11y-groups{ display:grid; gap:1rem; transition:opacity .2s }
     .a11y-groups.is-dimmed{ opacity:.5 }
 
+    /* На широком экране группы идут в ДВА столбца.
+       Форма была прибита к 62rem и центрировалась, поэтому на широком мониторе
+       по бокам оставалось пусто, а четыре группы тянулись вниз колонкой.
+       Внутри столбца возможности идут в один ряд: два ряда в столбце шириной
+       около 40rem снова рвали бы подписи на несколько строк — ровно то, от
+       чего уходили, когда отказывались от трёх узких колонок.
+
+       Раскладка ровная: слева «Текст» (3) и «Чтение» (3), справа «Зрение»
+       (5) и «Речь» (2) — шесть строк против семи. Выравнивание по верху,
+       иначе более короткий столбец растянулся бы вслед за длинным. */
+    @media (min-width:1280px){
+        .a11y-form{ max-width:88rem }
+        .a11y-groups{ grid-template-columns:1fr 1fr; align-items:start }
+        .a11y-grid{ grid-template-columns:1fr }
+    }
+
     .a11y-group-title{ display:flex; align-items:center; gap:.5rem; margin-bottom:.9rem;
         font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#9ca3af;
         padding-bottom:.6rem; border-bottom:1px solid #eef2f7 }
