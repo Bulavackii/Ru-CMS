@@ -168,8 +168,45 @@ class SeedDefaultThemesCommand extends Command
         ];
     }
 
-    /** Фоновая картинка по умолчанию — отслеживается git. */
+    /** Фоновая картинка Индиго — прежняя, отслеживается git. */
     public const DEFAULT_BACKGROUND = '/images/theme-default-bg.png';
+
+    /**
+     * Свой фон и свой знак у каждой темы.
+     *
+     * Раньше сидер выдавал ВСЕМ темам одну и ту же картинку, а логотипа не
+     * давал вовсе — темы отличались только цветами. Теперь у каждой свой узор
+     * и свой знак в её палитре.
+     *
+     * Формат SVG: узор повторяется плиткой без потери резкости, весит
+     * килобайты вместо мегабайта и правится текстом. Индиго намеренно
+     * оставлен на прежнем PNG — после обновления сайт выглядит как и до него.
+     *
+     * Ключ отсутствует — тема получает только то, что задано; ничего не
+     * подставляется молча.
+     */
+    private const ASSETS = [
+        'indigo' => [
+            'background_url' => self::DEFAULT_BACKGROUND,
+            'logo_url'       => '/images/themes/logos/indigo.svg',
+        ],
+        'scarlet' => [
+            'background_url' => '/images/themes/backgrounds/scarlet.svg',
+            'logo_url'       => '/images/themes/logos/scarlet.svg',
+        ],
+        'azure' => [
+            'background_url' => '/images/themes/backgrounds/azure.svg',
+            'logo_url'       => '/images/themes/logos/azure.svg',
+        ],
+        'graphite' => [
+            'background_url' => '/images/themes/backgrounds/graphite.svg',
+            'logo_url'       => '/images/themes/logos/graphite.svg',
+        ],
+        'magenta' => [
+            'background_url' => '/images/themes/backgrounds/magenta.svg',
+            'logo_url'       => '/images/themes/logos/magenta.svg',
+        ],
+    ];
 
     public static function seed(bool $reset = false): void
     {
@@ -182,15 +219,10 @@ class SeedDefaultThemesCommand extends Command
                     'tokens' => $definition['tokens'],
                     'config' => array_merge($definition['config'], [
                         'note' => $definition['note'],
-                        // Фон один на весь сайт и одинаковый у всех тем.
-                        // Картинка лежит в репозитории, поэтому после чистой
-                        // установки сайт сразу выглядит как задумано, а не
-                        // на голом белом фоне.
-                        'background_url' => self::DEFAULT_BACKGROUND,
                         // CSS-переменные пересобираем из токенов — тем же способом,
                         // что и контроллер при сохранении темы
                         'css'  => self::buildCss($definition['tokens']),
-                    ]),
+                    ], self::ASSETS[$definition['slug']] ?? []),
                 ];
 
                 if (! $theme) {

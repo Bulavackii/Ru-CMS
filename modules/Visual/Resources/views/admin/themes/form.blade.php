@@ -230,9 +230,16 @@
       </label>
 
       @if($logoUrl)
+        {{-- Кнопки «Убрать» и «Вернуть» работают ровно как раньше: тот же
+             скрытый флаг, тот же пересчёт примера справа. Добавлено только
+             скачивание — забрать знак себе, не открывая чужую тему. --}}
         <div id="logoPreview" class="thm-asset mt-3">
           <img src="{{ $logoUrl }}" alt="Логотип">
+          <span class="thm-asset__path" title="{{ $logoUrl }}">{{ $logoUrl }}</span>
           <div class="thm-asset__actions">
+            <a class="thm-btn" href="{{ $logoUrl }}" download title="Скачать файл знака">
+              <i class="fas fa-download"></i> Скачать
+            </a>
             <button type="button" class="thm-btn thm-btn--danger"
                     onclick="(function(){document.getElementById('removeLogoFlag').value=1; document.getElementById('logoPreview').style.display='none'; window.__themeLogoPrev=@js($logoUrl); window.__syncThemeVars();})();">
               <i class="fas fa-trash"></i> Убрать
@@ -244,6 +251,11 @@
           </div>
         </div>
       @endif
+
+      @include('Visual::admin.themes.partials.borrow', [
+          'library' => $assetLibrary ?? collect(),
+          'kind'    => 'logo',
+      ])
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
         <div>
@@ -283,9 +295,18 @@
       <p class="admin-hint mt-1">Повторяется плиткой. {{ __('admin.themes.upload_limit', ['limit' => max_upload_label(10240)]) }}</p>
 
       @if($bgUrl)
+        {{-- Раньше здесь был только путь к файлу: понять по нему, как узор
+             выглядит, невозможно. Слева — настоящая плитка, повторённая так
+             же, как она ляжет на странице. Кнопки «Убрать» и «Вернуть»
+             прежние, тронуто только оформление вокруг них. --}}
         <div id="bgPreview" class="thm-asset mt-3">
-          <span class="thm-asset__path">{{ $bgUrl }}</span>
+          <span class="thm-asset__tile" style="background-image:url('{{ $bgUrl }}')"
+                title="Так узор повторяется на странице"></span>
+          <span class="thm-asset__path" title="{{ $bgUrl }}">{{ $bgUrl }}</span>
           <div class="thm-asset__actions">
+            <a class="thm-btn" href="{{ $bgUrl }}" download title="Скачать файл узора">
+              <i class="fas fa-download"></i> Скачать
+            </a>
             <button type="button" class="thm-btn thm-btn--danger"
                     onclick="(function(){document.getElementById('removeBgFlag').value=1; document.getElementById('bgPreview').style.display='none'; window.__themeBgPrev=@js($bgUrl); window.__syncThemeVars();})();">
               <i class="fas fa-trash"></i> Убрать
@@ -297,6 +318,11 @@
           </div>
         </div>
       @endif
+
+      @include('Visual::admin.themes.partials.borrow', [
+          'library' => $assetLibrary ?? collect(),
+          'kind'    => 'background',
+      ])
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
         <div>
@@ -473,6 +499,32 @@
   .dark .thm-asset{ background:#111827; border-color:#374151; }
   .thm-asset img{ height:42px; object-fit:contain; background:#fff; padding:3px; border:1px solid #e5e7eb; }
   .thm-asset__path{ flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; color:#6b7280; }
+  /* Плитка узора: показываем ровно так, как он ляжет на странице —
+     повторением, а не одной растянутой картинкой. */
+  .thm-asset__tile{ width:64px; height:42px; flex:0 0 auto; border:1px solid #e5e7eb;
+      background-repeat:repeat; background-size:48px 48px; background-color:#fff; }
+  .dark .thm-asset__tile{ border-color:#374151; }
+
+  /* Ассеты других тем */
+  .thm-borrow{ margin-top:.75rem; border:1px solid #e5e7eb; background:#fafbfc; }
+  .dark .thm-borrow{ border-color:#374151; background:#111827; }
+  .thm-borrow > summary{ padding:.55rem .75rem; font-size:.78rem; font-weight:600;
+      color:#4b5563; cursor:pointer; list-style:none; }
+  .dark .thm-borrow > summary{ color:#d1d5db; }
+  .thm-borrow > summary::-webkit-details-marker{ display:none; }
+  .thm-borrow__list{ display:flex; flex-direction:column; gap:.4rem;
+      padding:0 .75rem .7rem; }
+  .thm-borrow__row{ display:flex; align-items:center; gap:.6rem; font-size:.78rem; }
+  .thm-borrow__dot{ width:.7rem; height:.7rem; flex:none; border:1px solid rgba(0,0,0,.15); }
+  .thm-borrow__name{ flex:1 1 auto; min-width:0; overflow:hidden;
+      text-overflow:ellipsis; white-space:nowrap; color:#374151; }
+  .dark .thm-borrow__name{ color:#d1d5db; }
+  .thm-borrow__tile{ width:34px; height:22px; flex:none; border:1px solid #e5e7eb;
+      background-repeat:repeat; background-size:26px 26px; background-color:#fff; }
+  .thm-borrow__logo{ height:22px; width:34px; object-fit:contain; flex:none;
+      border:1px solid #e5e7eb; background:#fff; padding:2px; }
+  .dark .thm-borrow__tile, .dark .thm-borrow__logo{ border-color:#374151; }
+
   .thm-asset__actions{ display:flex; gap:6px; margin-left:auto; flex:0 0 auto; }
 
   /* Кнопки */

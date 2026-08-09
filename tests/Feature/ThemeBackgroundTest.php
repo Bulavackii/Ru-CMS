@@ -10,7 +10,16 @@ use Modules\Visual\Models\Theme;
 use Tests\TestCase;
 
 /**
- * Фоновая картинка в темах: общая на весь сайт и ограничение размера.
+ * Фоновая картинка темы: принадлежит ЕЙ ОДНОЙ и ограничена по размеру.
+ *
+ * Прежде фон намеренно копировался во все темы разом — так чинилась жалоба
+ * «картинка пропадает при переключении оформления». Появлялась она оттого,
+ * что фон был всего у одной темы. Теперь свой узор есть у каждой из коробки,
+ * и владелец попросил обратного: чтобы темы отличались и картинкой тоже, а
+ * чужую можно было забрать осознанно — скачать в форме и загрузить себе.
+ *
+ * Тесты переписаны вместе с этой переменой, а не подогнаны под новый ответ:
+ * раньше они закрепляли ровно то поведение, от которого отказались.
  */
 class ThemeBackgroundTest extends TestCase
 {
@@ -31,13 +40,16 @@ class ThemeBackgroundTest extends TestCase
         ]);
     }
 
-    public function test_background_applies_to_every_theme(): void
+    public function test_background_belongs_to_the_edited_theme_only(): void
     {
         Storage::fake('public');
 
         $edited = $this->makeTheme('indigo');
         $other = $this->makeTheme('mint');
         $third = $this->makeTheme('graphite');
+
+        $other->config = ['background_url' => '/storage/themes/2/mint.png'];
+        $other->save();
 
         $this->actingAs($this->admin())->put(
             route('admin.visual.themes.update', $edited),
@@ -52,13 +64,18 @@ class ThemeBackgroundTest extends TestCase
 
         $this->assertNotNull($url, 'Фон не сохранился у редактируемой темы');
 
-        // Фон один на сайт: раньше он оставался только в той теме, которую
-        // редактировали, и при переключении оформления картинка пропадала.
-        $this->assertSame($url, data_get($other->fresh()->config, 'background_url'));
-        $this->assertSame($url, data_get($third->fresh()->config, 'background_url'));
+        $this->assertSame(
+            '/storage/themes/2/mint.png',
+            data_get($other->fresh()->config, 'background_url'),
+            'Чужой фон трогать нельзя: темы должны отличаться картинкой.'
+        );
+        $this->assertNull(
+            data_get($third->fresh()->config, 'background_url'),
+            'Теме без фона он не должен появиться сам собой.'
+        );
     }
 
-    public function test_removing_background_clears_it_everywhere(): void
+    public function test_removing_background_touches_only_its_own_theme(): void
     {
         Storage::fake('public');
 
@@ -76,35 +93,39 @@ class ThemeBackgroundTest extends TestCase
         )->assertSessionHasNoErrors();
 
         $this->assertNull(data_get($edited->fresh()->config, 'background_url'));
-        $this->assertNull(data_get($other->fresh()->config, 'background_url'));
+
+        $this->assertSame(
+            '/storage/themes/1/old.png',
+            data_get($other->fresh()->config, 'background_url'),
+            'Снятие фона у одной темы не должно раздевать остальные.'
+        );
     }
 
-    public function test_legacy_background_keys_are_cleared_on_other_themes(): void
+    public function test_legacy_background_keys_are_cleared_on_removal(): void
     {
         Storage::fake('public');
 
         $edited = $this->makeTheme('indigo');
-        $other = $this->makeTheme('mint');
 
         // bg_url и pattern_url — прежние имена того же поля. Лейаут читает их
         // по очереди, поэтому старое значение перебило бы новое.
-        $other->config = ['bg_url' => '/storage/old.png', 'pattern_url' => '/storage/older.png'];
-        $other->save();
+        $edited->config = [
+            'background_url' => '/storage/new.png',
+            'bg_url'         => '/storage/old.png',
+            'pattern_url'    => '/storage/older.png',
+        ];
+        $edited->save();
 
         $this->actingAs($this->admin())->put(
             route('admin.visual.themes.update', $edited),
-            [
-                'slug' => $edited->slug,
-                'title' => $edited->title,
-                'bg_image' => UploadedFile::fake()->image('pattern.png', 200, 200),
-            ]
+            ['slug' => $edited->slug, 'title' => $edited->title, 'remove_bg' => '1']
         )->assertSessionHasNoErrors();
 
-        $config = $other->fresh()->config;
+        $config = $edited->fresh()->config;
 
         $this->assertArrayNotHasKey('bg_url', $config);
         $this->assertArrayNotHasKey('pattern_url', $config);
-        $this->assertNotNull(data_get($config, 'background_url'));
+        $this->assertNull(data_get($config, 'background_url'));
     }
 
     public function test_upload_limit_follows_php_settings(): void
@@ -117,5 +138,70 @@ class ThemeBackgroundTest extends TestCase
         $this->assertGreaterThan(0, $limit);
         $this->assertLessThanOrEqual(10240, $limit);
         $this->assertStringContainsString('Б', max_upload_label(10240));
+    }
+
+    /**
+     * У каждой темы из коробки свой узор и свой знак.
+     *
+     * Раньше сидер выдавал всем один и тот же фон, а логотипа не давал вовсе —
+     * темы отличались только цветами.
+     */
+    public function test_seeder_gives_every_theme_its_own_assets(): void
+    {
+        \Modules\Visual\Console\Commands\SeedDefaultThemesCommand::seed(true);
+
+        $themes = Theme::whereIn('slug', ['indigo', 'scarlet', 'azure', 'graphite', 'magenta'])->get();
+
+        $this->assertCount(5, $themes, 'Ожидались все пять базовых тем.');
+
+        $backgrounds = [];
+        $logos = [];
+
+        foreach ($themes as $theme) {
+            $bg = data_get($theme->config, 'background_url');
+            $logo = data_get($theme->config, 'logo_url');
+
+            $this->assertNotNull($bg, "У темы «{$theme->slug}» нет узора.");
+            $this->assertNotNull($logo, "У темы «{$theme->slug}» нет знака.");
+
+            $backgrounds[] = $bg;
+            $logos[] = $logo;
+        }
+
+        $this->assertCount(5, array_unique($backgrounds), 'Узоры тем обязаны отличаться.');
+        $this->assertCount(5, array_unique($logos), 'Знаки тем обязаны отличаться.');
+
+        // Индиго остаётся на прежней картинке: после обновления сайт должен
+        // выглядеть ровно так же, как до него.
+        $this->assertSame(
+            '/images/theme-default-bg.png',
+            data_get(Theme::where('slug', 'indigo')->first()->config, 'background_url')
+        );
+    }
+
+    public function test_theme_form_offers_assets_of_other_themes(): void
+    {
+        $edited = $this->makeTheme('indigo');
+
+        $donor = $this->makeTheme('mint');
+        $donor->config = [
+            'background_url' => '/images/themes/backgrounds/mint.svg',
+            'logo_url'       => '/images/themes/logos/mint.svg',
+        ];
+        $donor->save();
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.visual.themes.edit', $edited))
+            ->assertOk();
+
+        $library = $response->viewData('assetLibrary');
+
+        $this->assertCount(1, $library, 'В списке должна быть только чужая тема.');
+        $this->assertSame('mint', $library->first()->slug);
+        $this->assertSame('/images/themes/logos/mint.svg', $library->first()->logo);
+
+        // Ссылки на скачивание действительно попадают в разметку.
+        $response->assertSee('/images/themes/backgrounds/mint.svg', false);
+        $response->assertSee('download', false);
     }
 }

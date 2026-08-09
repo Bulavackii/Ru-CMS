@@ -24,7 +24,10 @@ class ThemesController extends Controller
 
     public function create()
     {
-        return view('Visual::admin.themes.form', ['theme' => new Theme()]);
+        return view('Visual::admin.themes.form', [
+            'theme'        => new Theme(),
+            'assetLibrary' => $this->assetLibrary(null),
+        ]);
     }
 
     public function store(Request $request)
@@ -48,7 +51,10 @@ class ThemesController extends Controller
 
     public function edit(Theme $theme)
     {
-        return view('Visual::admin.themes.form', compact('theme'));
+        return view('Visual::admin.themes.form', [
+            'theme'        => $theme,
+            'assetLibrary' => $this->assetLibrary($theme->id),
+        ]);
     }
 
     public function update(Request $request, Theme $theme)
@@ -197,8 +203,6 @@ class ThemesController extends Controller
         }
         if ($r->boolean('remove_bg')) {
             unset($cfg['background_url'], $cfg['bg_url'], $cfg['pattern_url']);
-
-            $this->spreadBackground($theme, null);
         }
 
         // Логотип
@@ -207,17 +211,17 @@ class ThemesController extends Controller
             $cfg['logo_url'] = Storage::disk($disk)->url($path);
         }
 
-        // Фон (паттерн).
+        // Фон (узор). Принадлежит ТОЛЬКО этой теме.
         //
-        // Фон общий для всех тем — по прямой просьбе владельца. Раньше он
-        // лежал в конфиге только той темы, которую редактировали, и при
-        // переключении оформления картинка пропадала: выглядело так, будто
-        // загрузка сработала «только на одной базовой теме».
+        // Раньше загруженный фон копировался во все темы разом: это чинило
+        // прежнюю жалобу («картинка пропадает при переключении оформления»),
+        // но появилась она оттого, что фон был всего у одной темы. Теперь фон
+        // есть у каждой из коробки, и разбрасывать его больше не нужно — по
+        // прямой просьбе владельца темы должны отличаться и картинкой тоже.
+        // Чужой фон берётся осознанно: в форме есть список тем со скачиванием.
         if ($r->hasFile('bg_image')) {
             $path = $r->file('bg_image')->store($base, $disk);
             $cfg['background_url'] = Storage::disk($disk)->url($path);
-
-            $this->spreadBackground($theme, $cfg['background_url']);
         }
 
         // Локальные шрифты
@@ -280,6 +284,35 @@ class ThemesController extends Controller
     }
 
     /**
+     * Фоны и знаки ОСТАЛЬНЫХ тем — чтобы их можно было забрать себе.
+     *
+     * Владелец: «хочу зайти и скачать — установить фоновое изображение от
+     * Индиго на любую тему». Без такого списка пришлось бы открыть другую
+     * тему, скачать оттуда, вернуться и загрузить — а по дороге легко
+     * сохранить чужую тему по ошибке.
+     *
+     * @param  int|null  $exceptId  Тема, которую сейчас правят: показывать её
+     *                              среди чужих незачем.
+     */
+    private function assetLibrary(?int $exceptId)
+    {
+        return Theme::query()
+            ->when($exceptId, fn ($q) => $q->where('id', '!=', $exceptId))
+            ->orderByDesc('is_default')
+            ->orderBy('title')
+            ->get(['id', 'slug', 'title', 'tokens', 'config'])
+            ->map(fn (Theme $theme) => (object) [
+                'title'      => $theme->t('title'),
+                'slug'       => $theme->slug,
+                'primary'    => data_get($theme->tokens, 'colors.primary', '#6366f1'),
+                'background' => data_get($theme->config, 'background_url'),
+                'logo'       => data_get($theme->config, 'logo_url'),
+            ])
+            ->filter(fn ($theme) => $theme->background || $theme->logo)
+            ->values();
+    }
+
+    /**
      * Применение темы живёт в модели: тот же метод зовёт переключатель в
      * шапке панели. Раньше это были две независимые реализации, и они уже
      * разошлись — переключатель не пересобирал CSS темы.
@@ -298,35 +331,4 @@ class ThemesController extends Controller
         return array_replace_recursive($base, $over);
     }
 
-    /**
-     * Разносит фоновую картинку по остальным темам.
-     *
-     * Фон задаётся один на сайт: владелец меняет картинку в любой теме и
-     * ожидает увидеть её при любом оформлении. Ключи bg_url и pattern_url —
-     * прежние имена того же поля, их тоже чистим, иначе старое значение
-     * перебило бы новое при чтении (лейаут смотрит их по очереди).
-     *
-     * @param  string|null  $url  null — снять фон везде
-     */
-    private function spreadBackground(Theme $current, ?string $url): void
-    {
-        Theme::query()
-            ->when($current->exists, fn ($q) => $q->whereKeyNot($current->getKey()))
-            ->get()
-            ->each(function (Theme $theme) use ($url) {
-                $config = $theme->config ?? [];
-                $config = is_array($config) ? $config : (array) json_decode((string) $config, true);
-
-                unset($config['bg_url'], $config['pattern_url']);
-
-                if ($url === null) {
-                    unset($config['background_url']);
-                } else {
-                    $config['background_url'] = $url;
-                }
-
-                $theme->config = $config;
-                $theme->save();
-            });
-    }
 }
