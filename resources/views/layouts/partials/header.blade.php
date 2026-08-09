@@ -79,7 +79,7 @@
                экрана, поэтому грузится без отсрочки и в приоритете. --}}
           <img src="{{ $logoAbs }}" alt="{{ __('frontend.header.logo_alt') }}"
                fetchpriority="high" decoding="async"
-               style="width: {{ $logoW }}; max-width:100%; height:auto;" class="hdr-logo-img"
+               style="max-width: min({{ $logoW }}, 100%);" class="hdr-logo-img"
                onerror="const m = this.closest('.hdr-logo').querySelector('.hdr-logo-mark'); this.remove(); if (m) m.hidden = false;">
         @endif
 
@@ -271,7 +271,12 @@
        (body.fx-sharp с important), и прежний border-radius у знака был
        мёртвым кодом — он не применялся никогда. */
     .hdr-logo{ display:inline-flex; align-items:center; gap:.6rem; text-decoration:none; }
-    .hdr-logo-img{ display:block; }
+    /* Высота знака РАВНА высоте плашки текстовой марки (2.4rem), поэтому
+       шапка одинакова на всех темах — замер: 124px и там, и там. Настройка «Ширина» в теме задаёт
+       ПРЕДЕЛ по ширине, а не жёсткий размер: квадратный знак при width:120px
+       становился 120px и в высоту — шапка вырастала вдвое против темы по
+       умолчанию. Пропорции сохраняет object-fit. */
+    .hdr-logo-img{ display:block; height:auto; max-height:2.4rem; object-fit:contain; }
     .hdr-logo-mark{ display:inline-flex; align-items:center; gap:.6rem; }
     .hdr-logo-mark[hidden]{ display:none; }
 

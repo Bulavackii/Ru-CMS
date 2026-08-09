@@ -186,9 +186,16 @@ class SeedDefaultThemesCommand extends Command
      * подставляется молча.
      */
     private const ASSETS = [
+        // У Индиго картинки-знака НЕТ намеренно: это тема по умолчанию после
+        // установки, и в шапке у неё остаётся текстовая марка «RU CMS» —
+        // ровно то, что видно на чистой CMS. Стоит задать logo_url, и шапка
+        // подменит марку картинкой.
+        //
+        // null, а не отсутствие ключа: при --reset конфиг сливается ПОВЕРХ
+        // прежнего, и просто «не задать» мало — осталось бы старое значение.
         'indigo' => [
             'background_url' => self::DEFAULT_BACKGROUND,
-            'logo_url'       => '/images/themes/logos/indigo.svg',
+            'logo_url'       => null,
         ],
         'scarlet' => [
             'background_url' => '/images/themes/backgrounds/scarlet.svg',
@@ -226,13 +233,26 @@ class SeedDefaultThemesCommand extends Command
                 ];
 
                 if (! $theme) {
+                    $attributes['config'] = array_filter(
+                        $attributes['config'],
+                        static fn ($value) => $value !== null
+                    );
+
                     Theme::create($attributes + ['slug' => $definition['slug'], 'is_default' => false]);
                     continue;
                 }
 
                 if ($reset) {
-                    // config темы мог обрасти логотипом и фоном — их сохраняем
-                    $attributes['config'] = array_merge($theme->config ?? [], $attributes['config']);
+                    // config темы мог обрасти своими ключами — их сохраняем
+                    $merged = array_merge($theme->config ?? [], $attributes['config']);
+
+                    // null означает «этого у темы быть не должно»: ключ
+                    // убираем, иначе прежнее значение пережило бы сброс.
+                    $attributes['config'] = array_filter(
+                        $merged,
+                        static fn ($value) => $value !== null
+                    );
+
                     $theme->update($attributes);
                 }
             }

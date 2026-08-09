@@ -159,23 +159,51 @@ class ThemeBackgroundTest extends TestCase
 
         foreach ($themes as $theme) {
             $bg = data_get($theme->config, 'background_url');
-            $logo = data_get($theme->config, 'logo_url');
 
             $this->assertNotNull($bg, "У темы «{$theme->slug}» нет узора.");
-            $this->assertNotNull($logo, "У темы «{$theme->slug}» нет знака.");
-
             $backgrounds[] = $bg;
-            $logos[] = $logo;
+
+            if ($theme->slug !== 'indigo') {
+                $logo = data_get($theme->config, 'logo_url');
+                $this->assertNotNull($logo, "У темы «{$theme->slug}» нет знака.");
+                $logos[] = $logo;
+            }
         }
 
         $this->assertCount(5, array_unique($backgrounds), 'Узоры тем обязаны отличаться.');
-        $this->assertCount(5, array_unique($logos), 'Знаки тем обязаны отличаться.');
+        $this->assertCount(4, array_unique($logos), 'Знаки тем обязаны отличаться.');
+
+        $indigo = Theme::where('slug', 'indigo')->first();
 
         // Индиго остаётся на прежней картинке: после обновления сайт должен
         // выглядеть ровно так же, как до него.
-        $this->assertSame(
-            '/images/theme-default-bg.png',
-            data_get(Theme::where('slug', 'indigo')->first()->config, 'background_url')
+        $this->assertSame('/images/theme-default-bg.png', data_get($indigo->config, 'background_url'));
+
+        // И БЕЗ картинки-знака: это тема по умолчанию после установки, в её
+        // шапке остаётся текстовая марка «RU CMS». Задать logo_url — значит
+        // подменить марку картинкой.
+        $this->assertNull(
+            data_get($indigo->config, 'logo_url'),
+            'У темы по умолчанию знак остаётся текстовой маркой.'
+        );
+    }
+
+    public function test_seeder_reset_drops_a_logo_it_no_longer_defines(): void
+    {
+        \Modules\Visual\Console\Commands\SeedDefaultThemesCommand::seed(true);
+
+        $indigo = Theme::where('slug', 'indigo')->first();
+        $indigo->config = array_merge($indigo->config ?? [], ['logo_url' => '/images/old-logo.svg']);
+        $indigo->save();
+
+        \Modules\Visual\Console\Commands\SeedDefaultThemesCommand::seed(true);
+
+        // Сброс сливает конфиг ПОВЕРХ прежнего, поэтому «просто не задать
+        // ключ» мало — старое значение пережило бы сброс. Отсутствие знака
+        // объявлено явным null и ключ вычищается.
+        $this->assertNull(
+            data_get($indigo->fresh()->config, 'logo_url'),
+            'Сброс обязан снять знак, которого сидер больше не задаёт.'
         );
     }
 
