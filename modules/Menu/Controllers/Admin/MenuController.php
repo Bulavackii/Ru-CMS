@@ -15,7 +15,17 @@ class MenuController extends Controller
     /** 📋 Список меню */
     public function index()
     {
-        $menus = Menu::all();
+        // withCount вместо счёта в шаблоне: там на КАЖДУЮ карточку уходил
+        // отдельный запрос за числом пунктов. Первые пункты подгружаем сразу —
+        // карточка показывает их названиями, чтобы содержимое меню было видно
+        // не открывая его.
+        $menus = Menu::query()
+            ->withCount('items')
+            ->with(['items' => fn ($q) => $q->orderBy('order')->limit(6)])
+            ->orderBy('position')
+            ->orderBy('title')
+            ->get();
+
         return view('Menu::admin.menu.index', compact('menus'));
     }
 

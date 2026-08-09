@@ -40,6 +40,33 @@
         </div>
     </div>
 
+    {{-- ── Сводка ──────────────────────────────────────────────────────
+         Отвечает на главный вопрос раздела сразу: что из этого реально
+         показывается на сайте. Раньше это выяснялось пересчётом плашек
+         глазами — меню выводится, только если оно активно И непусто. --}}
+    @php
+        $totalMenus  = $menus->count();
+        $liveMenus   = $menus->filter(fn ($m) => $m->active && $m->items_count > 0)->count();
+        $emptyMenus  = $menus->filter(fn ($m) => $m->items_count === 0)->count();
+    @endphp
+
+    @if($totalMenus)
+        <div class="mnu-summary mb-4">
+            <span class="mnu-summary__item">@themeIcon('bars') всего: <b>{{ $totalMenus }}</b></span>
+            <span class="mnu-summary__item {{ $liveMenus ? 'is-on' : 'is-off' }}">
+                @themeIcon('eye') показывается: <b>{{ $liveMenus }}</b>
+            </span>
+            @if($emptyMenus)
+                <span class="mnu-summary__item is-warn">
+                    @themeIcon('alert-triangle') без пунктов: <b>{{ $emptyMenus }}</b>
+                </span>
+            @endif
+            @unless($liveMenus)
+                <span class="mnu-summary__note">Ни одно меню не выводится — навигация на сайте пуста.</span>
+            @endunless
+        </div>
+    @endif
+
     {{-- ── Поиск + фильтр по позиции (клиентский) ── --}}
     <div class="mb-5 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div class="relative w-full md:w-80">
@@ -67,81 +94,98 @@
     {{-- ── Карточки меню ── --}}
     <div id="menu-grid" class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
         @forelse ($menus as $menu)
-            @php $itemsCount = $menu->items()->count(); @endphp
+            @php
+                $itemsCount = $menu->items_count;
+                $isLive     = $menu->active && $itemsCount > 0;
 
-            <div class="menu-card admin-card relative overflow-hidden flex flex-col"
+                // Куда попадает меню — для мини-макета на карточке. Тот же
+                // приём, что в разделе «Фрагменты»: позицию видно, а не
+                // читаешь словом.
+                $plan = [
+                    'header'  => ['area' => 'site', 'slot' => 'header'],
+                    'footer'  => ['area' => 'site', 'slot' => 'footer'],
+                    'sidebar' => ['area' => 'site', 'slot' => 'side'],
+                    'social'  => ['area' => 'site', 'slot' => 'social'],
+                ][$menu->position] ?? null;
+            @endphp
+
+            <div class="menu-card admin-card relative overflow-hidden flex flex-col {{ $isLive ? 'mnu-card--live' : '' }}"
                  data-title="{{ Str::lower($menu->title) }}"
                  data-pos="{{ $menu->position }}">
-                <div class="admin-accent-bar"></div>
 
-                <div class="p-5 flex flex-col flex-1">
-                    {{-- Заголовок: бейдж-иконка + название, статус/позиция в потоке под ним --}}
-                    <div class="flex items-start gap-3 mb-4">
-                        <span class="admin-icon-badge shrink-0">@themeIcon('bars')</span>
-                        <div class="min-w-0 flex-1">
-                            <h2 class="font-semibold text-gray-900 dark:text-white break-words leading-tight">
-                                {{ $menu->title }}
-                            </h2>
-                            <div class="mt-1.5 flex flex-wrap items-center gap-1.5">
-                                <span class="text-xs px-2 py-0.5 font-semibold
-                                    {{ $menu->active ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300' }}">
-                                    {{ $menu->active ? __('admin.menu.on') : __('admin.menu.off') }}
-                                </span>
-                                <span class="text-xs px-2 py-0.5 font-semibold bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300 capitalize">
-                                    {{ $menu->position }}
-                                </span>
+                {{-- Мини-макет страницы с подсвеченным местом --}}
+                <div class="mnu-map">
+                    <span class="mnu-map__where">
+                        @themeIcon($menu->position === 'social' ? 'link' : 'globe')
+                        {{ $menu->position }}
+                    </span>
+
+                    <div class="mnu-map__page">
+                        <div class="mnu-map__slot mnu-map__slot--header {{ ($plan['slot'] ?? '') === 'header' ? 'is-here' : '' }}"></div>
+                        <div class="mnu-map__mid">
+                            <div class="mnu-map__slot mnu-map__slot--side {{ ($plan['slot'] ?? '') === 'side' ? 'is-here' : '' }}"></div>
+                            <div class="mnu-map__body">
+                                <span class="mnu-map__line"></span>
+                                <span class="mnu-map__line mnu-map__line--short"></span>
                             </div>
                         </div>
+                        <div class="mnu-map__slot mnu-map__slot--footer {{ ($plan['slot'] ?? '') === 'footer' ? 'is-here' : '' }}"></div>
+                        <div class="mnu-map__slot mnu-map__slot--social {{ ($plan['slot'] ?? '') === 'social' ? 'is-here' : '' }}"></div>
+                    </div>
+                </div>
+
+                <div class="p-4 flex flex-col flex-1">
+                    <div class="flex items-start gap-2">
+                        <div class="min-w-0 flex-1">
+                            <h2 class="font-bold text-gray-900 dark:text-white truncate">{{ $menu->title }}</h2>
+                            <div class="text-xs text-gray-400 mt-0.5">
+                                {{ trans_choice('admin.menu.items_plural', $itemsCount) }} · ID {{ $menu->id }}
+                            </div>
+                        </div>
+
+                        {{-- Состояние — КНОПКА, а не подпись. Раньше включение
+                             было одной из трёх равновеликих кнопок внизу, хотя
+                             это самое частое действие раздела. --}}
+                        <form method="POST" action="{{ route('admin.menus.toggle', $menu) }}" class="flex-none">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="mnu-state {{ $menu->active ? 'is-on' : 'is-off' }}"
+                                    title="{{ $menu->active ? __('admin.menu.toggle_off_title') : __('admin.menu.toggle_on_title') }}">
+                                <span class="mnu-state__dot"></span>
+                                {{ $menu->active ? __('admin.menu.on') : __('admin.menu.off') }}
+                            </button>
+                        </form>
                     </div>
 
-                    {{-- Счётчики: чипы «N пунктов» и «ID» --}}
-                    @php
-                        // Склонение отдано trans_choice: правила множественного
-                        // числа у языков разные, и захардкоженная русская логика
-                        // (1 пункт / 2–4 пункта / 5+ пунктов) на других языках
-                        // всё равно давала бы неверную форму.
-                        $itemsWord = trans_choice('admin.menu.items_plural', $itemsCount);
-                    @endphp
-                    <div class="flex flex-wrap items-center gap-2 text-xs">
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 font-semibold
-                                     {{ $itemsCount > 0 ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300' : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400' }}"
-                              title="{{ __('admin.menu.items_count_title') }}">
-                            @themeIcon('list') {{ $itemsWord }}
-                        </span>
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 font-medium bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"
-                              title="{{ __('admin.menu.id_title') }}">
-                            @themeIcon('hashtag') ID {{ $menu->id }}
-                        </span>
-                    </div>
+                    {{-- Что внутри: первые пункты названиями. Раньше содержимое
+                         меню можно было узнать, только открыв его. --}}
+                    @if($itemsCount)
+                        <div class="mnu-items">
+                            @foreach($menu->items as $item)
+                                <span class="mnu-chip">{{ $item->title }}</span>
+                            @endforeach
+                            @if($itemsCount > $menu->items->count())
+                                <span class="mnu-chip mnu-chip--more">ещё {{ $itemsCount - $menu->items->count() }}</span>
+                            @endif
+                        </div>
+                    @else
+                        <p class="mnu-empty">
+                            @themeIcon('alert-triangle') пусто — меню на сайт не попадёт
+                        </p>
+                    @endif
 
-                    {{-- Действия: три кнопки одинакового размера (grid = равная ширина,
-                         stretch = равная высота), прижаты к низу карточки --}}
-                    <div class="mt-auto pt-4 grid grid-cols-3 gap-2 text-xs border-t border-gray-100 dark:border-gray-800">
-                        <a href="{{ route('admin.menus.edit', $menu) }}"
-                           class="inline-flex items-center justify-center gap-1.5 w-full px-2 py-2 font-semibold whitespace-nowrap bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition"
+                    <div class="mt-auto pt-4 flex items-center gap-2">
+                        <a href="{{ route('admin.menus.edit', $menu) }}" class="mnu-btn mnu-btn--primary flex-1 justify-center"
                            title="{{ __('admin.menu.edit_title') }}">
                             @themeIcon('edit') <span>{{ __('admin.menu.edit') }}</span>
                         </a>
 
-                        <form method="POST" action="{{ route('admin.menus.toggle', $menu) }}" class="flex"
-                              title="{{ $menu->active ? __('admin.menu.toggle_off_title') : __('admin.menu.toggle_on_title') }}">
-                            @csrf
-                            @method('PATCH')
-                            <button type="submit"
-                                    class="inline-flex items-center justify-center gap-1.5 w-full px-2 py-2 font-semibold whitespace-nowrap shadow-sm transition
-                                           {{ $menu->active ? 'bg-yellow-500 hover:bg-yellow-600 text-white' : 'bg-gray-200 dark:bg-gray-700 hover:bg-green-600 text-gray-800 dark:text-gray-200 hover:text-white' }}">
-                                @themeIcon('power-off') <span>{{ $menu->active ? __('admin.menu.turn_off') : __('admin.menu.turn_on') }}</span>
-                            </button>
-                        </form>
-
-                        <form method="POST" action="{{ route('admin.menus.destroy', $menu) }}" class="flex"
-                              onsubmit="return confirm(@js(__('admin.menu.delete_confirm')))"
-                              title="{{ __('admin.menu.delete_title') }}">
+                        <form method="POST" action="{{ route('admin.menus.destroy', $menu) }}"
+                              onsubmit="return confirm(@js(__('admin.menu.delete_confirm')))">
                             @csrf
                             @method('DELETE')
-                            <button type="submit"
-                                    class="inline-flex items-center justify-center gap-1.5 w-full px-2 py-2 font-semibold whitespace-nowrap bg-red-600 hover:bg-red-700 text-white shadow-sm transition">
-                                @themeIcon('trash-alt') <span>{{ __('admin.delete') }}</span>
+                            <button type="submit" class="mnu-icon mnu-icon--danger" title="{{ __('admin.menu.delete_title') }}">
+                                @themeIcon('trash-alt')
                             </button>
                         </form>
                     </div>
@@ -191,3 +235,106 @@
     </script>
     @endpush
 @endsection
+
+@push('styles')
+<style>
+    /* ── Список меню ──────────────────────────────────────────────────
+       Устроен как раздел «Фрагменты»: сверху карточки — мини-макет
+       страницы с подсвеченным местом, где меню появится. Позицию видно,
+       а не читаешь словом «sidebar».
+
+       Литеральный CSS: в собранном tailwind.min.css этого проекта нет ни
+       произвольных значений, ни прозрачности через дробь. */
+
+    .mnu-summary{ display:flex; flex-wrap:wrap; align-items:center; gap:.75rem;
+        padding:.6rem .9rem; font-size:.8rem; color:#4b5563;
+        background:#f9fafb; border:1px solid #e5e7eb }
+    .dark .mnu-summary{ background:#111827; border-color:#374151; color:#d1d5db }
+    .mnu-summary__item{ display:inline-flex; align-items:center; gap:.4rem }
+    .mnu-summary__item svg, .mnu-summary__item i{ width:.9rem; height:.9rem; color:#9ca3af }
+    .mnu-summary__item.is-on svg, .mnu-summary__item.is-on i{ color:#16a34a }
+    .mnu-summary__item.is-warn svg, .mnu-summary__item.is-warn i{ color:#d97706 }
+    .mnu-summary__note{ color:#6b7280; font-style:italic }
+
+    .mnu-card--live{ outline:2px solid var(--admin-primary); outline-offset:-2px }
+
+    /* Мини-макет страницы */
+    .mnu-map{ position:relative; padding:.6rem .75rem .7rem; background:#f8fafc;
+        border-bottom:1px solid #e5e7eb }
+    .dark .mnu-map{ background:#0f172a; border-bottom-color:#374151 }
+
+    .mnu-map__where{ display:inline-flex; align-items:center; gap:.3rem; margin-bottom:.4rem;
+        font-size:.6rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#64748b }
+    .mnu-map__where svg, .mnu-map__where i{ width:.7rem; height:.7rem; color:#94a3b8 }
+    .dark .mnu-map__where{ color:#94a3b8 }
+
+    .mnu-map__page{ display:flex; flex-direction:column; gap:3px; height:78px; padding:4px;
+        background:#fff; border:1px solid #e2e8f0 }
+    .dark .mnu-map__page{ background:#1e293b; border-color:#334155 }
+
+    .mnu-map__slot{ flex:none; background:#e8edf3 }
+    .dark .mnu-map__slot{ background:#334155 }
+    .mnu-map__slot--header{ height:13px }
+    .mnu-map__slot--footer{ height:11px }
+    .mnu-map__slot--social{ height:7px }
+
+    .mnu-map__mid{ flex:1; display:flex; gap:3px; min-height:0 }
+    .mnu-map__slot--side{ width:16px; height:auto }
+    .mnu-map__body{ flex:1; display:flex; flex-direction:column; justify-content:center;
+        gap:4px; padding:0 5px }
+    .mnu-map__line{ display:block; height:3px; width:100%; background:#e8edf3 }
+    .mnu-map__line--short{ width:60% }
+    .dark .mnu-map__line{ background:#334155 }
+
+    /* Подсвеченное место — то, где появится это меню. Кольцо нужно самым
+       тонким полосам: одной заливки для них мало, чтобы заметить. */
+    .mnu-map__slot.is-here{ position:relative; background:var(--admin-primary) }
+    .mnu-map__slot.is-here::after{ content:''; position:absolute; inset:-3px;
+        border:1px solid var(--admin-primary); opacity:.45 }
+
+    /* Состояние — кнопка */
+    .mnu-state{ display:inline-flex; align-items:center; gap:.35rem; flex:none;
+        padding:.2rem .5rem; font-size:.7rem; font-weight:700; cursor:pointer;
+        border:1px solid transparent; transition:filter .15s }
+    .mnu-state:hover{ filter:brightness(.95) }
+    .mnu-state__dot{ width:.45rem; height:.45rem; border-radius:9999px; background:currentColor }
+    .mnu-state.is-on{ color:color-mix(in srgb, #16a34a 60%, #111827);
+        background:color-mix(in srgb, #16a34a 16%, #fff);
+        border-color:color-mix(in srgb, #16a34a 30%, #fff) }
+    .mnu-state.is-off{ color:#6b7280; background:#f3f4f6; border-color:#e5e7eb }
+    .dark .mnu-state.is-off{ color:#9ca3af; background:#374151; border-color:#4b5563 }
+
+    /* Пункты меню названиями */
+    .mnu-items{ display:flex; flex-wrap:wrap; gap:.3rem; margin-top:.7rem }
+    .mnu-chip{ font-size:.68rem; padding:.12rem .4rem; color:#4b5563;
+        background:#f3f4f6; border:1px solid #e5e7eb; max-width:100%;
+        overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+    .mnu-chip--more{ color:#6b7280; background:transparent; border-style:dashed }
+    .dark .mnu-chip{ color:#d1d5db; background:#374151; border-color:#4b5563 }
+
+    .mnu-empty{ margin-top:.7rem; display:inline-flex; align-items:center; gap:.35rem;
+        font-size:.72rem; padding:.3rem .5rem;
+        color:color-mix(in srgb, #d97706 60%, #111827);
+        background:color-mix(in srgb, #d97706 12%, #fff);
+        border:1px solid color-mix(in srgb, #d97706 26%, #fff) }
+    .mnu-empty svg, .mnu-empty i{ width:.85rem; height:.85rem }
+
+    /* Кнопки */
+    .mnu-btn{ display:inline-flex; align-items:center; gap:.4rem; padding:.5rem .8rem;
+        font-size:.8rem; font-weight:600; white-space:nowrap; cursor:pointer;
+        color:#374151; background:#fff; border:1px solid #d1d5db; text-decoration:none;
+        transition:background-color .15s, border-color .15s, color .15s }
+    .mnu-btn:hover{ background:#f3f4f6; border-color:var(--admin-primary); color:var(--admin-primary) }
+    .mnu-btn--primary{ color:var(--admin-on-primary,#fff); background:var(--admin-primary);
+        border-color:var(--admin-primary) }
+    .mnu-btn--primary:hover{ color:var(--admin-on-primary,#fff); background:var(--admin-primary);
+        border-color:var(--admin-primary); filter:brightness(1.08) }
+    .dark .mnu-btn{ color:#d1d5db; background:#1f2937; border-color:#374151 }
+
+    .mnu-icon{ display:inline-flex; align-items:center; justify-content:center; flex:none;
+        width:2.25rem; height:2.25rem; cursor:pointer; color:#6b7280;
+        background:transparent; border:1px solid #d1d5db; transition:border-color .15s, color .15s }
+    .mnu-icon--danger:hover{ border-color:#dc2626; color:#dc2626 }
+    .dark .mnu-icon{ color:#9ca3af; border-color:#374151 }
+</style>
+@endpush
