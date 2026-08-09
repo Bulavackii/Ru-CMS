@@ -434,4 +434,91 @@ class MenuModuleTest extends TestCase
 
         $this->assertSame(0, (int) $page->fresh()->homepage_order);
     }
+
+    // ── Соцсети отдельной позицией ────────────────────────────────────────
+
+    /**
+     * Ссылки на соцсети берутся из меню, а не из конфига.
+     *
+     * Раньше адреса лежали в config/app.php и правились только в файле —
+     * добавить новую сеть без разработчика было нельзя.
+     */
+    public function test_social_links_come_from_the_menu(): void
+    {
+        $menu = Menu::create(['title' => 'Соцсети', 'position' => 'social', 'active' => true]);
+
+        MenuItem::create([
+            'menu_id' => $menu->id, 'title' => 'ВКонтакте', 'url' => 'https://vk.com/example',
+            'type' => 'url', 'icon' => 'vk', 'order' => 1, 'active' => true,
+        ]);
+
+        Menu::flushCache();
+
+        $links = social_links();
+
+        $this->assertCount(1, $links, 'Меню должно перебивать список из конфига.');
+        $this->assertSame('vk', $links[0]['key'], 'Знакомая сеть узнаётся по домену.');
+        $this->assertSame('https://vk.com/example', $links[0]['href']);
+    }
+
+    /**
+     * Незнакомая сеть получает СВОЙ значок из пункта меню.
+     *
+     * Фирменных глифов у нас четыре; без значка из пункта добавленная сеть
+     * выводилась бы в подвале пустым квадратом.
+     */
+    public function test_unknown_network_keeps_its_own_icon(): void
+    {
+        $menu = Menu::create(['title' => 'Соцсети', 'position' => 'social', 'active' => true]);
+
+        MenuItem::create([
+            'menu_id' => $menu->id, 'title' => 'Телеграм', 'url' => 'https://t.me/example',
+            'type' => 'url', 'icon' => 'send', 'order' => 1, 'active' => true,
+        ]);
+
+        Menu::flushCache();
+
+        $links = social_links();
+
+        $this->assertSame('link', $links[0]['key'], 'Незнакомый домен не притворяется брендом.');
+        $this->assertSame('send', $links[0]['icon'], 'Значок пункта обязан дойти до подвала.');
+    }
+
+    /** Без меню список берётся из конфига — обновление с прежней версии. */
+    public function test_config_is_used_while_the_menu_does_not_exist(): void
+    {
+        config(['app.social.vk' => 'https://vk.com/from-config']);
+
+        Menu::flushCache();
+
+        $links = collect(social_links())->firstWhere('key', 'vk');
+
+        $this->assertNotNull($links, 'Без меню адреса обязаны браться из конфига.');
+        $this->assertSame('https://vk.com/from-config', $links['href']);
+    }
+
+    /**
+     * Сброс кеша охватывает ВСЕ позиции, включая новые.
+     *
+     * Список позиций был переписан от руки в четырёх местах, и, добавляя
+     * social, я обновил три: кеш новой позиции не сбрасывался, и добавленная
+     * ссылка не появлялась на сайте до истечения часа. Теперь список один.
+     */
+    public function test_cache_is_dropped_for_every_position(): void
+    {
+        foreach (Menu::POSITIONS as $position) {
+            Cache::forever('menu.' . $position, 'устаревшее');
+        }
+
+        Menu::flushCache();
+
+        foreach (Menu::POSITIONS as $position) {
+            $this->assertNull(
+                Cache::get('menu.' . $position),
+                "Кеш позиции «{$position}» обязан сбрасываться."
+            );
+        }
+
+        $this->assertContains('social', Menu::POSITIONS);
+    }
 }

@@ -689,14 +689,101 @@ if (! function_exists('social_links')) {
      */
     function social_links(): array
     {
-        $links = [
-            ['key' => 'vk',     'label' => 'ВКонтакте', 'color' => '#0077FF', 'href' => config('app.social.vk')],
-            ['key' => 'max',    'label' => 'MAX',       'color' => '#3B4BF5', 'href' => config('app.social.max')],
-            ['key' => 'rutube', 'label' => 'Rutube',    'color' => '#EE1B3D', 'href' => config('app.social.rutube')],
-            ['key' => 'github', 'label' => 'GitHub',    'color' => '#181717', 'href' => config('app.social.github')],
+        // Фирменные цвета знакомых сетей. Ключ определяется по адресу, а не
+        // по названию пункта: владелец волен назвать пункт как угодно, а
+        // глиф в подвале должен остаться правильным.
+        $known = [
+            'vk'     => ['label' => 'ВКонтакте', 'color' => '#0077FF', 'match' => 'vk.com'],
+            'max'    => ['label' => 'MAX',       'color' => '#3B4BF5', 'match' => 'max.ru'],
+            'rutube' => ['label' => 'Rutube',    'color' => '#EE1B3D', 'match' => 'rutube.ru'],
+            'github' => ['label' => 'GitHub',    'color' => '#181717', 'match' => 'github.com'],
         ];
 
+        // Сначала меню «Соцсети»: так ссылки правятся в панели, а не в файле.
+        // Молчаливый откат к конфигу нужен на случай, когда меню ещё нет —
+        // при обновлении с прежней версии или пока не отработал сидер.
+        $fromMenu = social_links_from_menu($known);
+
+        if ($fromMenu !== []) {
+            return $fromMenu;
+        }
+
+        $links = [];
+
+        foreach ($known as $key => $meta) {
+            $links[] = [
+                'key'   => $key,
+                'label' => $meta['label'],
+                'color' => $meta['color'],
+                'href'  => config('app.social.' . $key),
+                'icon'  => null,
+            ];
+        }
+
         return array_values(array_filter($links, static fn (array $l): bool => filled($l['href'])));
+    }
+}
+
+if (! function_exists('social_links_from_menu')) {
+    /**
+     * Ссылки на соцсети из меню с позицией social.
+     *
+     * Пустой массив означает «меню нет или в нём нечего показывать» — тогда
+     * вызывающий берёт адреса из конфига.
+     *
+     * Сайт не должен падать из-за оформления: пока идёт установка, таблиц
+     * меню может не быть вовсе, поэтому всё обёрнуто в try/catch.
+     *
+     * @param  array<string, array{label:string, color:string, match:string}>  $known
+     * @return array<int, array{key:string, label:string, color:string, href:string, icon:?string}>
+     */
+    function social_links_from_menu(array $known): array
+    {
+        try {
+            if (! class_exists(\Modules\Menu\Models\Menu::class)) {
+                return [];
+            }
+
+            $menus = \Modules\Menu\Models\Menu::cachedByPosition('social');
+        } catch (\Throwable $e) {
+            return [];
+        }
+
+        $links = [];
+
+        foreach ($menus as $menu) {
+            foreach ($menu->items ?? [] as $item) {
+                $href = trim((string) $item->url);
+
+                if ($href === '') {
+                    continue;
+                }
+
+                // Ключ — по домену: он и выбирает фирменный глиф в подвале.
+                $key = 'link';
+                $meta = ['color' => '#64748b'];
+
+                foreach ($known as $candidate => $data) {
+                    if (stripos($href, $data['match']) !== false) {
+                        $key = $candidate;
+                        $meta = $data;
+                        break;
+                    }
+                }
+
+                $links[] = [
+                    'key'   => $key,
+                    'label' => $item->title ?: ($meta['label'] ?? $href),
+                    'color' => $meta['color'],
+                    'href'  => $href,
+                    // Значок пункта нужен незнакомым сетям: фирменного глифа
+                    // для них нет, и без этого ссылка вышла бы пустой.
+                    'icon'  => $item->icon ?: null,
+                ];
+            }
+        }
+
+        return $links;
     }
 }
 

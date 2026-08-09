@@ -529,6 +529,8 @@ return [
         'pos_footer_desc' => 'Links at the bottom',
         'pos_sidebar' => 'Sidebar',
         'pos_sidebar_desc' => 'Side panel',
+        'pos_social' => 'Social',
+        'pos_social_desc' => 'Social links in the site and panel footer.',
         'activate' => 'Activate the menu',
         'activate_hint' => 'The menu will appear on the site (if it has items).',
         'preview' => 'Preview',

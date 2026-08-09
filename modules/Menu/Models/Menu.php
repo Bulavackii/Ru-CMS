@@ -88,7 +88,18 @@ class Menu extends Model
             : Cache::remember($key, $ttl, $builder);
     }
 
-    /** Сброс кеша для всех стандартных позиций */
+    /**
+     * Позиции меню — ОДИН список на весь модуль.
+     *
+     * Раньше он был переписан от руки в четырёх местах: проверка формы,
+     * карточки выбора позиции, фильтр в списке и сброс кеша ниже. Добавив
+     * позицию social, я обновил три из четырёх — и новая позиция молча не
+     * сбрасывала кеш: добавленная ссылка на сайте не появлялась, пока не
+     * истечёт час. Теперь список один, и забыть место негде.
+     */
+    public const POSITIONS = ['header', 'footer', 'sidebar', 'social'];
+
+    /** Сброс кеша для всех позиций */
     public static function flushCache(): void
     {
         // Групповая инвалидация по тегу — только если стор её поддерживает,
@@ -97,11 +108,11 @@ class Menu extends Model
             Cache::tags(['menus'])->flush();
         }
 
-        // Точечная инвалидация известных позиций — работает на ЛЮБОМ сторе
-        // (и как fallback для file/database, и для обратной совместимости).
-        Cache::forget('menu.header');
-        Cache::forget('menu.footer');
-        Cache::forget('menu.sidebar');
+        // Точечная инвалидация — работает на ЛЮБОМ сторе (и как fallback для
+        // file/database, и для обратной совместимости).
+        foreach (static::POSITIONS as $position) {
+            Cache::forget('menu.' . $position);
+        }
     }
 
     protected static function booted()

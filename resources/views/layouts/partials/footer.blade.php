@@ -183,11 +183,21 @@
                             <a href="{{ $social['href'] }}" target="_blank" rel="noopener"
                                class="f-social f-social--plain" style="--c:{{ $social['color'] }}"
                                title="{{ $social['label'] }}" aria-label="{{ $social['label'] }}">
+                                {{-- Ветка по умолчанию обязательна: ссылки берутся из
+                                     меню «Соцсети», и владелец волен добавить сеть, для
+                                     которой фирменного глифа у нас нет. Без неё такая
+                                     ссылка выходила бы пустым квадратом. --}}
                                 @switch($social['key'])
                                     @case('vk')     <x-icon.vk :size="17" /> @break
                                     @case('max')    <x-icon.max :size="17" /> @break
                                     @case('rutube') <x-icon.rutube :size="17" /> @break
                                     @case('github') <x-icon.github :size="17" /> @break
+                                    @default
+                                        @if(!empty($social['icon']))
+                                            @themeIcon($social['icon'], 'w-4 h-4')
+                                        @else
+                                            <i class="fas fa-link" style="font-size:15px"></i>
+                                        @endif
                                 @endswitch
                             </a>
                         @endforeach

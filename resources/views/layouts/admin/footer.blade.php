@@ -266,11 +266,20 @@
                            title="{{ $social['label'] }}" aria-label="{{ $social['label'] }}">
                             {{-- Глифов MAX и Rutube нет ни в одном открытом
                                  наборе — для них свои SVG-компоненты. --}}
+                            {{-- Ветка по умолчанию обязательна: ссылки берутся из меню
+                                 «Соцсети», и владелец волен добавить сеть, для которой
+                                 фирменного глифа у нас нет. --}}
                             @switch($social['key'])
                                 @case('max')    <x-icon.max :size="16" /> @break
                                 @case('rutube') <x-icon.rutube :size="16" /> @break
                                 @case('vk')     <x-icon.vk :size="16" /> @break
                                 @case('github') <x-icon.github :size="16" /> @break
+                                @default
+                                    @if(!empty($social['icon']))
+                                        @themeIcon($social['icon'], 'w-4 h-4')
+                                    @else
+                                        <i class="fas fa-link" style="font-size:14px"></i>
+                                    @endif
                             @endswitch
                         </a>
                     @endforeach

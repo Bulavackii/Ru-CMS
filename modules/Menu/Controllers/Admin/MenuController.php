@@ -30,7 +30,7 @@ class MenuController extends Controller
     {
         $request->validate([
             'title'    => 'required|string|max:255',
-            'position' => 'required|in:header,footer,sidebar',
+            'position' => ['required', \Illuminate\Validation\Rule::in(\Modules\Menu\Models\Menu::POSITIONS)],
             'active'   => 'nullable|boolean',
         ]);
 

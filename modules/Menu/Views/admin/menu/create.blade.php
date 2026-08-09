@@ -75,6 +75,7 @@
                             ['key' => 'header',  'title' => __('admin.menu.pos_header'), 'desc' => __('admin.menu.pos_header_desc'), 'icon' => 'window-maximize'],
                             ['key' => 'footer',  'title' => __('admin.menu.pos_footer'), 'desc' => __('admin.menu.pos_footer_desc'),     'icon' => 'window-minimize'],
                             ['key' => 'sidebar', 'title' => __('admin.menu.pos_sidebar'), 'desc' => __('admin.menu.pos_sidebar_desc'),  'icon' => 'columns'],
+                            ['key' => 'social',  'title' => __('admin.menu.pos_social'), 'desc' => __('admin.menu.pos_social_desc'),   'icon' => 'share-nodes'],
                         ];
                     @endphp
                     @foreach($cards as $c)
