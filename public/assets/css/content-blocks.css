@@ -110,7 +110,7 @@
     color:var(--surface-mute,#64748b) }
 :root.dark .page-content .pc-stats{ background:#1f2937; border-color:var(--surface-ink,#1f2937) }
 :root.dark .page-content .pc-stats li{ background:#111827 }
-:root.dark .page-content .pc-stats li > span{ color:var(--surface-mute,#94a3b8) }
+:root.dark .page-content .pc-stats li > span{ color:var(--surface-dim,#94a3b8) }
 
 /* ── Шаги ───────────────────────────────────────────────────────── */
 /* Номер рисуется счётчиком: редактор просто добавляет пункт списка,
@@ -182,7 +182,7 @@
 .page-content .pc-faq__item > summary::marker{ content:'' }
 
 .page-content .pc-faq__item > summary::after{ content:'⌄'; margin-left:auto; flex:none;
-    font-size:1.15rem; line-height:1; color:var(--surface-mute,#94a3b8); transform:translateY(-2px);
+    font-size:1.15rem; line-height:1; color:var(--surface-dim,#94a3b8); transform:translateY(-2px);
     transition:transform .2s, color .15s }
 .page-content .pc-faq__item[open] > summary::after{ transform:translateY(2px) rotate(180deg);
     color:var(--color-primary,#6366f1) }
@@ -239,7 +239,7 @@
 
 :root.dark .page-content .pc-faq-bar__input,
 :root.dark .page-content .pc-faq-bar__btn{ color:#e2e8f0; background:#111827; border-color:var(--surface-ink,#1f2937) }
-:root.dark .page-content .pc-faq-empty{ color:var(--surface-mute,#94a3b8); background:#0b1220; border-color:var(--surface-ink,#334155) }
+:root.dark .page-content .pc-faq-empty{ color:var(--surface-dim,#94a3b8); background:#0b1220; border-color:var(--surface-ink,#334155) }
 
 @media (max-width:640px){
     /* Счётчик уезжает под поле, кнопки делят строку пополам. */
@@ -294,7 +294,7 @@
    Различать по тегу надёжно ровно потому, что span редактор не трогает. */
 .page-content .pc-contacts li > span:not(.pc-ico){ display:block; margin-bottom:.3rem;
     font-size:.7rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
-    color:var(--surface-mute,#94a3b8) }
+    color:var(--surface-dim,#94a3b8) }
 .page-content .pc-contacts li > b,
 .page-content .pc-contacts li > strong{ display:block; font-size:1.05rem;
     font-weight:700; color:var(--surface-ink,#111827); line-height:1.35 }
@@ -318,7 +318,7 @@
 :root.dark .page-content .pc-contacts li{ background:#111827; border-color:var(--surface-ink,#1f2937) }
 :root.dark .page-content .pc-contacts li > b,
 :root.dark .page-content .pc-contacts li > strong{ color:#f3f4f6 }
-:root.dark .page-content .pc-copy{ color:var(--surface-mute,#94a3b8); background:#0b1220; border-color:var(--surface-ink,#1f2937) }
+:root.dark .page-content .pc-copy{ color:var(--surface-dim,#94a3b8); background:#0b1220; border-color:var(--surface-ink,#1f2937) }
 
 /* ── Карта ──────────────────────────────────────────────────────── */
 /* Пока посетитель не нажал, никаких запросов к картографу не уходит:
@@ -389,7 +389,7 @@
 .page-content .pc-sitemap__group{ padding:1.1rem 1.25rem; background:var(--surface,#fff);
     border:1px solid var(--surface-bd,#eef2f7) }
 .page-content .pc-sitemap__group h3{ margin:0 0 .6rem; font-size:.72rem; font-weight:700;
-    letter-spacing:.08em; text-transform:uppercase; color:var(--surface-mute,#94a3b8) }
+    letter-spacing:.08em; text-transform:uppercase; color:var(--surface-dim,#94a3b8) }
 .page-content .pc-sitemap__group ul{ margin:0; padding:0; list-style:none;
     display:grid; gap:.35rem }
 .page-content .pc-sitemap__group li{ margin:0 }

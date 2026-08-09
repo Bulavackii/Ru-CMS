@@ -272,13 +272,13 @@
         padding:1rem 1.15rem; overflow-x:auto; font-size:.9rem; }
     .news-content a{ color:var(--color-primary,#6366f1); text-decoration:underline; text-underline-offset:2px; }
     .news-content table{ width:100%; display:block; overflow-x:auto; }
-    .news-content h2, .news-content h3{ color:#111827; }
+    .news-content h2, .news-content h3{ color:var(--surface-ink,#111827); }
     :root.dark .news-content h2, :root.dark .news-content h3{ color:#f3f4f6; }
     @media (max-width:640px){ .news-content{ font-size:.98rem; } }
 
     /* Кнопки «Поделиться» */
     .share-btn{ display:inline-flex; align-items:center; justify-content:center; width:2.3rem; height:2.3rem;
-        border:1px solid rgba(17,24,39,.12); background:rgba(255,255,255,.6); color:#6b7280; font-size:1rem;
+        border:1px solid rgba(17,24,39,.12); background:rgba(255,255,255,.6); color:var(--surface-mute,#6b7280); font-size:1rem;
         text-decoration:none; cursor:pointer;
         transition:color .15s ease, background .15s ease, border-color .15s ease, transform .15s ease; }
     :root.dark .share-btn{ border-color:rgba(255,255,255,.12); background:rgba(30,41,59,.5); color:#9ca3af; }

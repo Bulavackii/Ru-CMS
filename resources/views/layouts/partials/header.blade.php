@@ -219,13 +219,31 @@
        правило выше про него не знает. Без этих строк на тёмной теме
        шапка светилась узором так же, как светился подвал. */
     body.fx-theme-dark .hdr-glass::after{ opacity:.14; }
+
+    /* Шапка на тёмной теме — ОТДЕЛЬНАЯ поверхность, а не тот же тон поверх
+       такого же фона. Раньше она была цветом страницы при семидесяти двух
+       процентах непрозрачности: формально тёмная, а на экране сливалась —
+       границы не видно, шапка и содержимое читались одним полотном.
+
+       Берём ту же поверхность, что у карточек (она на семь процентов светлее
+       фона), плюс заметную нижнюю грань и тень под ней. Разница небольшая,
+       но глазу хватает, чтобы прочесть край. */
     body.fx-theme-dark .hdr-glass{
-        background:color-mix(in srgb, var(--color-header) 72%, transparent);
-        border-bottom-color:rgba(255,255,255,.10);
+        background:color-mix(in srgb, var(--surface) 92%, transparent);
+        border-bottom:1px solid var(--surface-bd);
+        box-shadow:0 6px 20px -12px rgba(0,0,0,.75);
     }
     body.fx-theme-dark .hdr-glass a,
     body.fx-theme-dark .hdr-glass span,
     body.fx-theme-dark .hdr-glass button{ color:var(--color-text); }
+
+    /* Поле поиска было белым — на тёмной шапке светилось ярким пятном. */
+    body.fx-theme-dark .hdr-search-input{
+        color:var(--color-text);
+        background:color-mix(in srgb, var(--color-text) 8%, transparent);
+        border-color:var(--surface-bd);
+    }
+    body.fx-theme-dark .hdr-search-input::placeholder{ color:var(--surface-dim); }
 
     /* Логотип.
        Скругления тут не задаются: на сайте прямые углы включены глобально

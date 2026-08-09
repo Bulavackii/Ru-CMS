@@ -302,7 +302,13 @@
             --surface-2:    #f1f5f9;
             --surface-bd:   #eef2f7;
             --surface-ink:  #111827;
-            --surface-mute: #94a3b8;
+
+            /* Два уровня приглушения, как было в шаблонах до сведения к
+               переменным: подписи и совсем блёклые сноски. Одним значением
+               их объединять нельзя — подписи под цифрами стали бы бледнее,
+               чем были, и это сразу заметно на светлой теме. */
+            --surface-mute: #64748b;
+            --surface-dim:  #94a3b8;
         }
 
         /* Типографика содержимого. Плагин prose красит текст, заголовки,
@@ -331,7 +337,8 @@
             --surface-2:    color-mix(in srgb, var(--color-text) 13%, var(--color-bg));
             --surface-bd:   color-mix(in srgb, var(--color-text) 16%, transparent);
             --surface-ink:  var(--color-text);
-            --surface-mute: color-mix(in srgb, var(--color-text) 62%, transparent);
+            --surface-mute: color-mix(in srgb, var(--color-text) 72%, transparent);
+            --surface-dim:  color-mix(in srgb, var(--color-text) 55%, transparent);
         }
 
         body.fx-theme-dark .fx-btn,

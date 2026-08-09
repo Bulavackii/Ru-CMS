@@ -141,11 +141,13 @@
                             <span class="f-contact__ico">@themeIcon('map')</span>
                             <span class="f-contact__body">
                                 <span class="f-contact__label">{{ __('frontend.footer.address') }}</span>
-                                <span class="f-contact__value">г. Москва, Тверская улица, 7</span>
+                                {{-- Значок внешней ссылки стоит ВНУТРИ строки с
+                                     адресом, сразу за текстом. Раньше он висел
+                                     у правого края колонки и читался как
+                                     отдельная кнопка непонятно к чему. --}}
+                                <span class="f-contact__value">г. Москва, Тверская улица, 7<span
+                                    class="f-contact__ext" aria-hidden="true">@themeIcon('arrow-up-right-from-square')</span></span>
                             </span>
-                            {{-- Значок внешней ссылки только там, где уход со
-                                 сайта действительно происходит. --}}
-                            <span class="f-contact__ext" aria-hidden="true">@themeIcon('arrow-up-right-from-square')</span>
                         </a>
                     </li>
                 </ul>
@@ -286,6 +288,9 @@
     body.fx-theme-dark footer a,
     body.fx-theme-dark footer p,
     body.fx-theme-dark footer span,
+    body.fx-theme-dark footer b,
+    body.fx-theme-dark footer strong,
+    body.fx-theme-dark footer small,
     body.fx-theme-dark footer li{
         color:var(--color-text);
     }
@@ -376,13 +381,14 @@
        Раньше он повторял почту и телефон из колонки «Контакты» и занимал
        высоту втрое больше пользы. Теперь несёт то, чего нет рядом:
        строку о проекте, автора, год и чипы «версия / лицензия / исходники». */
-    .f-brand-about{ margin:.1rem 0 .7rem; font-size:.78rem; line-height:1.5; color:#6b7280; }
+    .f-brand-about{ margin:.1rem 0 .7rem; font-size:.78rem; line-height:1.5;
+        color:var(--surface-mute,#6b7280); }
     :root.dark .f-brand-about{ color:#9ca3af; }
 
     .f-brand-facts{ display:grid; gap:.4rem; margin:0 0 .8rem; padding:0; list-style:none;
         font-size:.8rem; }
     .f-brand-facts li{ display:flex; align-items:center; gap:.5rem; margin:0; }
-    .f-brand-facts b{ font-weight:600; color:#374151; }
+    .f-brand-facts b{ font-weight:600; color:var(--surface-ink,#374151); }
     :root.dark .f-brand-facts b{ color:#d1d5db; }
 
     .f-brand-chips{ display:flex; flex-wrap:wrap; gap:.35rem; }
@@ -392,6 +398,23 @@
         transition:background .15s ease, color .15s ease; }
     .f-brand-chip--link:hover{ color:#fff; background:var(--color-primary,#6366f1); }
     :root.dark .f-brand-chip{ color:#c7d2fe; background:rgba(99,102,241,.2); }
+
+    /* Тёмная ТЕМА сайта — отдельный класс от системного тёмного режима.
+       Цвет пилюли берётся из темы, а не из прибитого индиго: иначе на мятной
+       или янтарной теме в подвале светилась чужая фиолетовая метка. */
+    body.fx-theme-dark .f-brand-chip{
+        color:var(--color-primary);
+        background:color-mix(in srgb, var(--color-primary) 16%, transparent);
+    }
+
+    /* Подпись при наведении — цветом ФОНА темы, а не белым. У светлого
+       основного цвета (мятного, янтарного) белый текст на нём нечитаем:
+       контраст падал до двух при норме четыре с половиной. Тот же приём уже
+       применён к кнопкам сайта. */
+    body.fx-theme-dark .f-brand-chip--link:hover{
+        color:var(--color-bg);
+        background:var(--color-primary);
+    }
 
     .f-contacts{ display:grid; gap:.15rem; margin:0; padding:0; list-style:none; }
     .f-contacts li{ margin:0; }
@@ -425,7 +448,8 @@
     .f-contact:hover .f-contact__ico{ color:#fff; background:var(--color-primary,#6366f1); }
     .f-contact:focus-visible{ outline:2px solid var(--color-primary,#6366f1); outline-offset:2px; }
 
-    .f-contact__ext{ margin-left:auto; flex:0 0 auto; opacity:.35; transition:opacity .15s ease; }
+    .f-contact__ext{ display:inline-flex; align-items:center; margin-left:.35rem;
+        vertical-align:baseline; opacity:.45; transition:opacity .15s ease; }
     .f-contact__ext svg, .f-contact__ext i{ width:.7rem; height:.7rem; font-size:.7rem; }
     .f-contact:hover .f-contact__ext{ opacity:.75; }
 

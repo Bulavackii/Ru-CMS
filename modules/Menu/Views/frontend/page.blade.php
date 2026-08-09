@@ -469,7 +469,7 @@
     .page-content > *:first-child{ margin-top:0; }
     .page-content a{ color:var(--color-primary,#6366f1); text-decoration:underline; text-underline-offset:2px; word-break:break-word; }
     .page-content a:hover{ filter:brightness(1.1); }
-    .page-content h2, .page-content h3{ color:#111827; }
+    .page-content h2, .page-content h3{ color:var(--surface-ink,#111827); }
     :root.dark .page-content h2, :root.dark .page-content h3{ color:#f3f4f6; }
     .page-content pre{ white-space:pre-wrap; word-break:break-word; background:#0f172a; color:#e5e7eb;
         padding:1rem 1.15rem; overflow-x:auto; font-size:.9rem; }
@@ -500,7 +500,7 @@
 
     /* Кнопки «Поделиться» */
     .share-btn{ display:inline-flex; align-items:center; justify-content:center; width:2.3rem; height:2.3rem;
-        border:1px solid rgba(17,24,39,.12); background:rgba(255,255,255,.6); color:#6b7280; font-size:1rem;
+        border:1px solid rgba(17,24,39,.12); background:rgba(255,255,255,.6); color:var(--surface-mute,#6b7280); font-size:1rem;
         text-decoration:none; cursor:pointer;
         transition:color .15s ease, background .15s ease, border-color .15s ease, transform .15s ease; }
     :root.dark .share-btn{ border-color:rgba(255,255,255,.12); background:rgba(30,41,59,.5); color:#9ca3af; }
@@ -513,12 +513,12 @@
 
     /* ── Оглавление ─────────────────────────────────────────────────── */
     .pc-toc__title{ margin:0 0 .6rem; font-size:.75rem; font-weight:700;
-        letter-spacing:.08em; text-transform:uppercase; color:#94a3b8 }
+        letter-spacing:.08em; text-transform:uppercase; color:var(--surface-dim,#94a3b8) }
     .pc-toc__list{ margin:0; padding:0; list-style:none; display:grid;
         grid-template-columns:repeat(auto-fit,minmax(15rem,1fr)); gap:.4rem 1.5rem;
         counter-reset:pc-toc }
     .pc-toc__list li{ counter-increment:pc-toc }
-    .pc-toc__list a{ display:inline-flex; gap:.5rem; font-size:.9rem; color:#334155;
+    .pc-toc__list a{ display:inline-flex; gap:.5rem; font-size:.9rem; color:var(--surface-ink,#334155);
         text-decoration:none; line-height:1.4 }
     .pc-toc__list a::before{ content:counter(pc-toc) '.'; flex:none; font-weight:700;
         color:var(--color-primary,#6366f1) }
