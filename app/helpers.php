@@ -259,6 +259,8 @@ if (!function_exists('theme_icon_asset')) {
             'bootstrap' => local_css('bootstrap-icons.css', $version),
             'remix' => local_css('remixicon.css', $version),
             'tabler' => local_css('tabler-icons.min.css', $version),
+            'phosphor' => local_css('phosphor-icons.css', $version),
+            'boxicons' => local_css('boxicons.css', $version),
             'lucide' => local_js('lucide.min.js', $version),
             'fa' => local_css('font-awesome/all.min.css', $version),
             default => '',

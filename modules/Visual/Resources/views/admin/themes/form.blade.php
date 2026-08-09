@@ -306,6 +306,8 @@
             <option value="fa"        @selected($iconMode==='fa')>Font Awesome</option>
             <option value="bootstrap" @selected($iconMode==='bootstrap')>Bootstrap Icons</option>
             <option value="tabler"    @selected($iconMode==='tabler')>Tabler Icons</option>
+            <option value="phosphor"  @selected($iconMode==='phosphor')>Phosphor — тонкие, 1530 значков</option>
+            <option value="boxicons"  @selected($iconMode==='boxicons')>Boxicons — 1634 значка</option>
             <option value="remix"     @selected($iconMode==='remix')>Remix Icons</option>
             <option value="svg"       @selected($iconMode==='svg')>Свои SVG из архива</option>
           </select>

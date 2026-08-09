@@ -236,7 +236,7 @@ class ThemeServiceProvider extends ServiceProvider
         }
 
         // Webfont mode
-        $modeKey = in_array($mode, ['bootstrap', 'remix', 'tabler', 'lucide'], true) ? $mode : null;
+        $modeKey = in_array($mode, ['bootstrap', 'remix', 'tabler', 'lucide', 'phosphor', 'boxicons'], true) ? $mode : null;
         if ($modeKey && isset($aliases[$modeKey][strtolower($name)])) {
             $name = $aliases[$modeKey][strtolower($name)];
         }
@@ -318,6 +318,24 @@ class ThemeServiceProvider extends ServiceProvider
             return '<i class="ti ti-' . e($icon) . ' ' . e($class) . '"></i>';
         }
 
+        if ($mode === 'phosphor') {
+            $icon = $name === 'random' ? ($pick('phosphor') ?? 'question') : $name;
+            return '<i class="ph ph-' . e($icon) . ' ' . e($class) . '"></i>';
+        }
+
+        if ($mode === 'boxicons') {
+            $icon = $name === 'random' ? ($pick('boxicons') ?? 'bx-help-circle') : $name;
+
+            // Имена этого набора несут приставку сами: bx- обычные, bxs-
+            // заливкой, bxl- логотипы. Пришло имя без приставки — значит, оно
+            // не из этого набора, дописываем обычную.
+            if (!preg_match('~^bx[sl]?-~', $icon)) {
+                $icon = 'bx-' . $icon;
+            }
+
+            return '<i class="bx ' . e($icon) . ' ' . e($class) . '"></i>';
+        }
+
         // Font Awesome fallback
         $faMap = self::getFaMap();
         if ($name === 'random') {
@@ -382,12 +400,81 @@ class ThemeServiceProvider extends ServiceProvider
                 // сообщения; точный знак у подвала свой, инлайновым SVG.
                 'vk' => 'message-circle',
             ],
+
+            /*
+             * Имена значков в шаблонах свои, а у каждого набора — свои. Без
+             * перевода выбранный набор отрисовал бы пустоту на месте больше
+             * чем половины значков: совпадает меньше половины имён.
+             *
+             * Каждый перевод сверен по самой сборке скриптом — несуществующих
+             * имён здесь нет.
+             */
+            'phosphor' => [
+                'alert-circle' => 'warning-circle', 'alert-octagon' => 'warning-octagon', 'alert-triangle'
+                => 'warning', 'arrow-up-right-from-square' => 'arrow-square-out', 'at-sign' => 'at', 'badge-
+                check' => 'seal-check', 'badge-info' => 'info', 'banknote' => 'money', 'bars' => 'list',
+                'cable' => 'plugs', 'chevron-down' => 'caret-down', 'chevron-left' => 'caret-left',
+                'chevron-right' => 'caret-right', 'circle-dashed' => 'circle-dashed', 'circle-help' =>
+                'question', 'clipboard-check' => 'clipboard-text', 'cog' => 'gear', 'cogs' => 'gear-six',
+                'database-zap' => 'database', 'edit' => 'pencil-simple', 'exclamation-triangle' =>
+                'warning', 'external-link' => 'arrow-square-out', 'eye-off' => 'eye-slash', 'file-cog' =>
+                'file-text', 'github' => 'github-logo', 'grip-vertical' => 'dots-six-vertical', 'hashtag' =>
+                'hash', 'help-circle' => 'question', 'home' => 'house', 'key-round' => 'key', 'languages' =>
+                'translate', 'layers' => 'stack', 'layout-dashboard' => 'squares-four', 'life-buoy' =>
+                'lifebuoy', 'loader-2' => 'spinner', 'log-in' => 'sign-in', 'log-out' => 'sign-out', 'mail'
+                => 'envelope-simple', 'map' => 'map-trifold', 'menu' => 'list', 'message' => 'chat-circle',
+                'octagon-alert' => 'warning-octagon', 'party-popper' => 'confetti', 'plug-zap' => 'plugs-
+                connected', 'power-off' => 'power', 'puzzle' => 'puzzle-piece', 'refresh-cw' => 'arrows-
+                clockwise', 'rotate-cw' => 'arrow-clockwise', 'save' => 'floppy-disk', 'scan-search' =>
+                'magnifying-glass', 'search' => 'magnifying-glass', 'server' => 'hard-drives', 'settings' =>
+                'gear', 'shield-check' => 'shield-check', 'sign-in-alt' => 'sign-in', 'sign-out-alt' =>
+                'sign-out', 'sliders-horizontal' => 'sliders-horizontal', 'square-pen' => 'pencil-simple-
+                line', 'ticket-percent' => 'ticket', 'times' => 'x', 'trash-2' => 'trash', 'trash-alt' =>
+                'trash', 'type' => 'text-aa', 'unlock' => 'lock-open', 'user-round' => 'user', 'vk' =>
+                'chat-circle', 'wand-2' => 'magic-wand', 'x' => 'x', 'youtube' => 'youtube-logo', 'zap' =>
+                'lightning',
+            ],
+
+            'boxicons' => [
+                'alert-circle' => 'bx-error-circle', 'alert-octagon' => 'bx-error-circle', 'alert-triangle'
+                => 'bx-error', 'arrow-down' => 'bx-down-arrow-alt', 'arrow-left' => 'bx-left-arrow-alt',
+                'arrow-right' => 'bx-right-arrow-alt', 'arrow-up' => 'bx-up-arrow-alt', 'arrow-up-right-
+                from-square' => 'bx-link-external', 'at-sign' => 'bx-at', 'badge-check' => 'bx-badge-check',
+                'badge-info' => 'bx-info-circle', 'banknote' => 'bx-money', 'bars' => 'bx-menu', 'cable' =>
+                'bx-plug', 'chevron-down' => 'bx-chevron-down', 'chevron-left' => 'bx-chevron-left',
+                'chevron-right' => 'bx-chevron-right', 'circle-dashed' => 'bx-circle', 'circle-help' => 'bx-
+                help-circle', 'clipboard-check' => 'bx-clipboard', 'clock' => 'bx-time', 'cog' => 'bx-cog',
+                'cogs' => 'bx-cog', 'database' => 'bx-data', 'database-zap' => 'bx-data', 'edit' => 'bx-
+                edit', 'exclamation-triangle' => 'bx-error', 'external-link' => 'bx-link-external', 'eye' =>
+                'bx-show', 'eye-off' => 'bx-hide', 'file-cog' => 'bx-file', 'file-text' => 'bx-file',
+                'gauge' => 'bx-tachometer', 'github' => 'bxl-github', 'grip-vertical' => 'bx-dots-vertical-
+                rounded', 'hard-drive' => 'bx-server', 'hashtag' => 'bx-hash', 'help-circle' => 'bx-help-
+                circle', 'home' => 'bx-home', 'house' => 'bx-home', 'info' => 'bx-info-circle', 'key-round'
+                => 'bx-key', 'keyboard' => 'bxs-keyboard', 'languages' => 'bx-globe', 'layers' => 'bx-
+                layer', 'layout-dashboard' => 'bx-grid-alt', 'life-buoy' => 'bx-buoy', 'lightbulb' => 'bx-
+                bulb', 'list' => 'bx-list-ul', 'list-checks' => 'bx-list-check', 'loader-2' => 'bx-loader',
+                'log-in' => 'bx-log-in', 'log-out' => 'bx-log-out', 'mail' => 'bx-envelope', 'map' => 'bx-
+                map', 'menu' => 'bx-menu', 'message' => 'bx-message', 'octagon-alert' => 'bx-error-circle',
+                'party-popper' => 'bx-party', 'plug-zap' => 'bx-plug', 'power-off' => 'bx-power-off',
+                'puzzle' => 'bx-extension', 'puzzle-piece' => 'bx-extension', 'refresh-cw' => 'bx-refresh',
+                'rotate-cw' => 'bx-refresh', 'save' => 'bx-save', 'scan-search' => 'bx-search-alt', 'search'
+                => 'bx-search', 'server' => 'bx-server', 'settings' => 'bx-cog', 'shield-check' => 'bx-
+                shield', 'shopping-cart' => 'bx-cart', 'sign-in-alt' => 'bx-log-in', 'sign-out-alt' => 'bx-
+                log-out', 'skip-forward' => 'bx-skip-next', 'sliders-horizontal' => 'bx-slider', 'square-
+                pen' => 'bx-edit-alt', 'ticket' => 'bx-purchase-tag', 'ticket-percent' => 'bx-purchase-tag',
+                'times' => 'bx-x', 'trash' => 'bx-trash', 'trash-2' => 'bx-trash', 'trash-alt' => 'bx-
+                trash', 'type' => 'bx-text', 'unlock' => 'bx-lock-open', 'user-round' => 'bx-user', 'vk' =>
+                'bxl-vk', 'wand-2' => 'bxs-magic-wand', 'x' => 'bx-x', 'youtube' => 'bxl-youtube', 'zap' =>
+                'bx-bolt-circle',
+            ],
         ];
     }
 
     private static function getPools(): array
     {
         return [
+            'phosphor' => ['house', 'star', 'gear', 'bell', 'user', 'magnifying-glass', 'folder', 'image', 'package', 'tag', 'truck', 'credit-card', 'shopping-cart', 'palette', 'puzzle-piece', 'file-text', 'files', 'newspaper', 'users', 'list', 'chat-circle', 'map-pin', 'bug', 'globe', 'arrow-up', 'caret-right', 'caret-left'],
+            'boxicons' => ['bx-home', 'bx-star', 'bx-cog', 'bx-bell', 'bx-user', 'bx-search', 'bx-folder', 'bx-image', 'bx-package', 'bx-purchase-tag', 'bx-car', 'bx-credit-card', 'bx-cart', 'bx-palette', 'bx-extension', 'bx-file', 'bx-copy', 'bx-news', 'bx-group', 'bx-list-ul', 'bx-message', 'bx-map-pin', 'bx-bug', 'bx-globe', 'bx-up-arrow-alt', 'bx-chevron-right', 'bx-chevron-left'],
             'bootstrap' => ['house', 'star', 'gear', 'bell', 'person', 'search', 'folder', 'image', 'box', 'tag', 'truck', 'credit-card', 'cart', 'palette', 'puzzle', 'file-text', 'files', 'newspaper', 'people', 'list', 'chat-dots', 'geo-alt', 'bug', 'globe', 'arrow-up', 'chevron-right', 'chevron-left'],
             'remix' => ['home-2', 'star-line', 'settings-3-line', 'notification-3-line', 'user-3-line', 'search-line', 'folder-3-line', 'image-line', 'archive-2-line', 'price-tag-3-line', 'truck-line', 'bank-card-line', 'shopping-cart-2-line', 'palette-line', 'puzzle-2-line', 'file-text-line', 'file-3-line', 'newspaper-line', 'team-line', 'menu-3-line', 'message-3-line', 'map-pin-line', 'bug-line', 'earth-line', 'arrow-up-line', 'arrow-right-s-line', 'arrow-left-s-line'],
             'tabler' => ['home', 'star', 'settings', 'bell', 'user', 'search', 'folder', 'photo', 'box', 'tag', 'truck', 'credit-card', 'shopping-cart', 'palette', 'puzzle', 'file-text', 'files', 'news', 'users', 'menu-2', 'message', 'map-pin', 'bug', 'world', 'arrow-up', 'chevron-right', 'chevron-left'],
