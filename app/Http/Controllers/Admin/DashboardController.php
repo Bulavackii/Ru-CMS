@@ -41,13 +41,214 @@ class DashboardController extends Controller
         $systemStatus = $this->getSystemStatus();
         $licenseInfo = $this->subscriptionService->getLicenseInfo();
 
+        $attention = $this->getAttention();
+        $security  = $this->getSecurity();
+        $updates   = $this->getUpdates();
+
         return view('admin.dashboard.index', compact(
             'stats',
             'recentActivity',
             'quickActions',
             'systemStatus',
-            'licenseInfo'
+            'licenseInfo',
+            'attention',
+            'security',
+            'updates'
         ));
+    }
+
+/**
+     * ❗ Что требует внимания.
+     *
+     * Дашборд показывал только сводные числа: сколько всего новостей, страниц
+     * и пользователей. По ним видно состояние, но не видно, что СДЕЛАТЬ —
+     * незамеченный черновик или выключённое меню так и оставались
+     * незамеченными, пока не зайдёшь в раздел.
+     *
+     * Здесь собрано ровно то, у чего есть действие и ненулевой счёт. Пункты с
+     * нулём не показываются: список «всё по нулям» ничего не сообщает и лишь
+     * приучает его не читать.
+     *
+     * Каждый пункт обёрнут в try/catch по отдельности: модуль может быть
+     * выключен или таблицы ещё нет, и главная панели не должна из-за этого
+     * падать — она открывается чаще любой другой страницы.
+     *
+     * @return array<int, array{label:string, count:int, url:string, icon:string, tone:string}>
+     */
+    private function getAttention(): array
+    {
+        $items = [];
+
+        $add = function (string $label, callable $count, string $route, string $icon, string $tone = 'warn') use (&$items) {
+            try {
+                if (! Route::has($route)) {
+                    return;
+                }
+
+                $value = (int) $count();
+
+                if ($value > 0) {
+                    $items[] = [
+                        'label' => $label,
+                        'count' => $value,
+                        'url'   => route($route),
+                        'icon'  => $icon,
+                        'tone'  => $tone,
+                    ];
+                }
+            } catch (\Throwable $e) {
+                // Молча пропускаем: раздел недоступен, значит и внимания не просит.
+            }
+        };
+
+        $add('Черновики новостей', fn () => News::where('published', false)->count(),
+            'admin.news.index', 'fa-file-pen');
+
+        $add('Неопубликованные страницы', fn () => Page::where('published', false)->count(),
+            'admin.pages.index', 'fa-file-lines');
+
+        $add('Непрочитанные сообщения', fn () => Message::where('is_read', false)->count(),
+            'admin.messages.index', 'fa-envelope', 'info');
+
+        $add('Заказы на модерации', fn () => Order::where('status', 'pending')->count(),
+            'admin.orders.index', 'fa-cart-shopping');
+
+        // Меню без пунктов на сайт не попадает — это почти всегда недосмотр.
+        $add('Меню без пунктов', fn () => \Modules\Menu\Models\Menu::doesntHave('items')->count(),
+            'admin.menus.index', 'fa-bars');
+
+        return $items;
+    }
+
+/**
+     * 🔐 Безопасность: только ПРОВЕРЯЕМЫЕ факты.
+     *
+     * Здесь намеренно нет «оценки защищённости» и прочих цифр из воздуха.
+     * Каждый пункт — конкретная настройка, которую видно из приложения и
+     * которую владелец может изменить сам.
+     *
+     * Чего здесь НЕТ и почему: стойкость пароля администратора проверить
+     * нельзя (в базе только хеш), а «сайт не взломан» — утверждение, которое
+     * приложение о себе знать не может. Обещать такое на дашборде было бы
+     * обманом.
+     *
+     * @return array{items: array<int, array{label:string, ok:bool, note:string}>, bad: int}
+     */
+    private function getSecurity(): array
+    {
+        $items = [];
+
+        $debug = (bool) config('app.debug');
+        $items[] = [
+            'label' => 'Режим отладки',
+            'ok'    => ! $debug,
+            'note'  => $debug
+                ? 'Включён — посетитель увидит текст ошибки и часть кода. На боевом сайте выключите APP_DEBUG.'
+                : 'Выключен — ошибки не раскрывают устройство сайта.',
+        ];
+
+        $https = str_starts_with((string) config('app.url'), 'https://');
+        $items[] = [
+            'label' => 'Адрес сайта по HTTPS',
+            'ok'    => $https,
+            'note'  => $https
+                ? 'APP_URL начинается с https.'
+                : 'APP_URL без https: пароли и cookie ходят открытым текстом.',
+        ];
+
+        $key = (string) config('app.key');
+        $items[] = [
+            'label' => 'Ключ приложения',
+            'ok'    => $key !== '',
+            'note'  => $key !== ''
+                ? 'Задан — сессии и cookie подписаны.'
+                : 'Пуст: выполните php artisan key:generate.',
+        ];
+
+        $locked = file_exists(storage_path('install.lock'));
+        $items[] = [
+            'label' => 'Мастер установки закрыт',
+            'ok'    => $locked,
+            'note'  => $locked
+                ? 'Повторная установка невозможна.'
+                : 'Файл storage/install.lock отсутствует — /install открыт для всех.',
+        ];
+
+        try {
+            $captcha = (bool) config('captcha.enabled', false);
+            $items[] = [
+                'label' => 'Каптча',
+                'ok'    => $captcha,
+                'note'  => $captcha
+                    ? 'Включена — формы защищены от простых ботов.'
+                    : 'Выключена: формы принимают отправку без проверки.',
+            ];
+        } catch (\Throwable $e) {
+            // Модуль может быть выключен — тогда и пункта нет.
+        }
+
+        $standalone = (bool) config('app.standalone', false);
+        $items[] = [
+            'label' => 'Автономный режим',
+            'ok'    => true, // это выбор, а не изъян — отмечаем как сведение
+            'note'  => $standalone
+                ? 'Включён: наружу не уходит ни один запрос.'
+                : 'Выключен: интеграции могут обращаться к внешним службам.',
+        ];
+
+        return [
+            'items' => $items,
+            'bad'   => count(array_filter($items, static fn ($i) => ! $i['ok'])),
+        ];
+    }
+
+    /**
+     * ⬆️ Обновления.
+     *
+     * Проверка идёт на СВОЙ сервер, адрес которого задаёт владелец. По
+     * умолчанию он пуст, и никакого запроса наружу не происходит — раньше
+     * панель ходила на чужой адрес при каждой отрисовке, отправляя туда
+     * лицензионный ключ и версии окружения.
+     *
+     * @return array{current:string, configured:bool, latest:?string, available:bool, note:string}
+     */
+    private function getUpdates(): array
+    {
+        $current = (string) config('app.version', '1.0.0');
+        $server  = trim((string) config('app.update_server_url', ''));
+
+        if ($server === '') {
+            return [
+                'current'    => $current,
+                'configured' => false,
+                'latest'     => null,
+                'available'  => false,
+                'note'       => 'Сервер обновлений не задан — панель никуда не обращается. Свой адрес указывается в UPDATE_SERVER_URL.',
+            ];
+        }
+
+        try {
+            $result = app(\App\Services\UpdateService::class)->checkForUpdates();
+
+            return [
+                'current'    => $current,
+                'configured' => true,
+                'latest'     => $result['latest_version'] ?? null,
+                'available'  => (bool) ($result['update_available'] ?? false),
+                'note'       => ($result['update_available'] ?? false)
+                    ? 'Доступна новая версия.'
+                    : 'Установлена последняя версия.',
+            ];
+        } catch (\Throwable $e) {
+            // Сервер недоступен — это не повод ронять главную панели.
+            return [
+                'current'    => $current,
+                'configured' => true,
+                'latest'     => null,
+                'available'  => false,
+                'note'       => 'Сервер обновлений не ответил.',
+            ];
+        }
     }
 
     /**

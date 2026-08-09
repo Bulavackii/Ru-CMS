@@ -52,7 +52,17 @@ class AdminFooterTest extends TestCase
         $response->assertSee('9.9.9', false);
     }
 
-    public function test_version_is_shown_in_one_place_only(): void
+    /**
+     * Версии не должно быть в САЙДБАРЕ — там она дублировала подвал.
+     *
+     * Раньше тест требовал ровно одного вхождения на всю страницу. С тех пор
+     * на главной появился блок «Обновление», где текущая версия — суть
+     * содержимого, а не повтор: рядом с ней стоит доступная и состояние
+     * проверки. Это осмысленное второе место, а не та беда, ради которой
+     * тест писался, поэтому проверка сужена до исходной: сайдбар молчит,
+     * подвал показывает версию один раз.
+     */
+    public function test_version_is_not_duplicated_in_the_sidebar(): void
     {
         config(['app.version' => '9.9.9']);
 
@@ -60,12 +70,16 @@ class AdminFooterTest extends TestCase
             ->withSession(['app_locale' => 'ru'])
             ->get(route('admin.dashboard'))->getContent();
 
-        // Версия переехала в подвал; в сайдбаре её строки больше нет
-        $this->assertSame(1, substr_count($html, '9.9.9'), 'Версия выводится больше одного раза');
-
         $sidebar = $this->between($html, '<aside', '</aside>');
         $this->assertStringNotContainsString('9.9.9', $sidebar);
         $this->assertStringNotContainsString('Версия', $sidebar);
+
+        $footer = $this->between($html, '<footer', '</footer>');
+        $this->assertSame(
+            1,
+            substr_count($footer, '9.9.9'),
+            'В подвале версия должна стоять ровно один раз.'
+        );
     }
 
     public function test_dead_quick_links_are_gone(): void

@@ -10,16 +10,31 @@
         <span class="dash-aurora dash-aurora--a" aria-hidden="true"></span>
         <span class="dash-aurora dash-aurora--b" aria-hidden="true"></span>
 
-        <div class="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+        <div class="relative z-10 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div class="min-w-0">
-                <div class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-300">
-                    <i class="fas" :class="icon"></i>
-                    <span x-text="greeting">{{ __('admin.dashboard.welcome') }}</span>
-                </div>
-                <h1 class="mt-2 text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white break-words">
+                <h1 class="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white break-words">
+                    <span x-text="greeting">{{ __('admin.dashboard.welcome') }}</span>,
                     {{ auth()->user()->name }} <span aria-hidden="true">👋</span>
                 </h1>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400 capitalize" x-text="dateLabel"></p>
+                {{-- Дата, часы и заметка об обновлении статистики — одной
+                     строкой. Прежде под ними шла отдельная полоса с рамкой,
+                     и приветствие занимало 215px при трёх строках текста. --}}
+                <p class="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
+                    <span class="capitalize" x-text="dateLabel"></span>
+                    <span class="inline-flex items-center gap-1.5">
+                        <i class="fas fa-clock hint-ico"></i><span class="font-mono" x-text="clock"></span>
+                    </span>
+                    <span class="inline-flex items-center gap-1.5">
+                        <i class="fas fa-bolt hint-ico"></i>{{ __('admin.dashboard.stats_note') }}
+                    </span>
+                    @if($licenseInfo && ($licenseInfo['is_expiring_soon'] || $licenseInfo['is_expired']))
+                        <a href="{{ route('admin.subscriptions.index') }}"
+                           class="inline-flex items-center gap-1.5 font-semibold text-red-600 dark:text-red-400 hover:underline">
+                            <i class="fas fa-triangle-exclamation"></i>
+                            Лицензия {{ $licenseInfo['is_expired'] ? 'истекла' : 'скоро истекает' }}
+                        </a>
+                    @endif
+                </p>
             </div>
 
             {{-- Быстрое создание: одна основная кнопка + пилюли-акценты --}}
@@ -34,22 +49,6 @@
             </div>
         </div>
 
-        <div class="relative z-10 mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-gray-200 pt-4 text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400">
-            <span class="inline-flex items-center gap-1.5">
-                <i class="fas fa-clock hint-ico"></i>
-                <span class="font-mono" x-text="clock"></span>
-            </span>
-            <span class="inline-flex items-center gap-1.5">
-                <i class="fas fa-bolt hint-ico"></i>
-                {{ __('admin.dashboard.stats_note') }}
-            </span>
-            @if($licenseInfo && ($licenseInfo['is_expiring_soon'] || $licenseInfo['is_expired']))
-                <a href="{{ route('admin.subscriptions.index') }}" class="inline-flex items-center gap-1.5 font-semibold text-red-600 dark:text-red-400 hover:underline">
-                    <i class="fas fa-triangle-exclamation"></i>
-                    Лицензия {{ $licenseInfo['is_expired'] ? 'истекла' : 'скоро истекает' }}
-                </a>
-            @endif
-        </div>
     </div>
 
     {{-- ═══════════════════════ Карточки статистики ═══════════════════════ --}}
@@ -136,6 +135,53 @@
     </div>
 
     {{-- ═══════════════════════ Виджеты (перетаскиваются) ═══════════════════════ --}}
+    {{-- ── Короткая сводка ────────────────────────────────────────────
+         Числа ниже контроллер считал и раньше, но на странице их не было
+         вовсе: черновики, объём медиатеки и вошедшие сегодня. Именно они
+         отвечают на вопрос «что происходит прямо сейчас», а карточки выше —
+         на вопрос «сколько всего». --}}
+    @php
+        $facts = array_values(array_filter([
+            [
+                'label' => 'Черновики',
+                'value' => $stats['content']['news']['draft'] ?? 0,
+                'note'  => 'новости, не видные на сайте',
+                'icon'  => 'fa-file-pen',
+            ],
+            [
+                'label' => 'Заходили сегодня',
+                'value' => $stats['users']['active_today'] ?? 0,
+                'note'  => 'пользователей',
+                'icon'  => 'fa-user-clock',
+            ],
+            [
+                'label' => 'Медиатека',
+                'value' => $stats['content']['files']['total'] ?? 0,
+                'note'  => trim((string) ($stats['content']['files']['size'] ?? '')) ?: 'файлов',
+                'icon'  => 'fa-photo-film',
+            ],
+            isset($stats['orders']) ? [
+                'label' => 'Заказы за месяц',
+                'value' => $stats['orders']['this_month'] ?? 0,
+                'note'  => ($stats['orders']['completed'] ?? 0) . ' завершено',
+                'icon'  => 'fa-receipt',
+            ] : null,
+        ]));
+    @endphp
+
+    <div class="dash-facts mb-5">
+        @foreach($facts as $fact)
+            <div class="dash-fact">
+                <span class="dash-fact__ico"><i class="fas {{ $fact['icon'] }}"></i></span>
+                <div class="min-w-0">
+                    <span class="dash-fact__value">{{ $fact['value'] }}</span>
+                    <span class="dash-fact__label">{{ $fact['label'] }}</span>
+                    <span class="dash-fact__note">{{ $fact['note'] }}</span>
+                </div>
+            </div>
+        @endforeach
+    </div>
+
     <div class="grid grid-cols-1 gap-5 lg:grid-cols-3" id="dashboard-widgets">
 
         {{-- Последняя активность --}}
@@ -167,6 +213,37 @@
         </div>
 
         {{-- Лицензия --}}
+        {{-- ── Требует внимания ──────────────────────────────────────────
+             Дашборд показывал только сводные числа: сколько всего новостей,
+             страниц и пользователей. По ним видно состояние, но не видно, что
+             СДЕЛАТЬ — незамеченный черновик или пустое меню так и оставались
+             незамеченными, пока не зайдёшь в раздел.
+
+             Пункты с нулём не показываются: список «всё по нулям» ничего не
+             сообщает и лишь приучает его не читать. --}}
+        <div class="dash-card p-6" data-widget-id="attention">
+            <div class="mb-4 flex items-center gap-3">
+                <span class="dash-badge dash-badge--sm" style="background:linear-gradient(135deg,#f59e0b,#f97316)">
+                    <i class="fas fa-circle-exclamation"></i>
+                </span>
+                <h2 class="text-lg font-bold text-gray-900 dark:text-white">Требует внимания</h2>
+            </div>
+
+            @forelse($attention as $item)
+                <a href="{{ $item['url'] }}" class="dash-att {{ $item['tone'] === 'info' ? 'is-info' : '' }}">
+                    <i class="fas {{ $item['icon'] }}"></i>
+                    <span class="dash-att__label">{{ $item['label'] }}</span>
+                    <span class="dash-att__count">{{ $item['count'] }}</span>
+                    <i class="fas fa-chevron-right dash-att__go"></i>
+                </a>
+            @empty
+                <p class="dash-att__clear">
+                    <i class="fas fa-circle-check"></i>
+                    Всё в порядке: черновиков, непрочитанных сообщений и пустых меню нет.
+                </p>
+            @endforelse
+        </div>
+
         @if($licenseInfo)
             @php
                 $licenseColor = match(true) {
@@ -237,6 +314,70 @@
                 'queue' => __('admin.dashboard.st_queue'),
             ];
         @endphp
+        {{-- ── Безопасность ──────────────────────────────────────────────
+             Только ПРОВЕРЯЕМЫЕ факты — конкретные настройки, которые видно из
+             приложения и которые владелец может изменить сам.
+
+             Чего здесь нет и почему: стойкость пароля администратора проверить
+             нельзя (в базе только хеш), а «сайт не взломан» — утверждение,
+             которое приложение о себе знать не может. Обещать такое на
+             дашборде значило бы обманывать. --}}
+        <div class="dash-card p-6" data-widget-id="security">
+            <div class="mb-4 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <span class="dash-badge dash-badge--sm"
+                          style="background:linear-gradient(135deg,{{ $security['bad'] ? '#ef4444,#f97316' : '#16a34a,#22c55e' }})">
+                        <i class="fas fa-shield-halved"></i>
+                    </span>
+                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">Безопасность</h2>
+                </div>
+                @if($security['bad'])
+                    <span class="dash-sec__flag">{{ $security['bad'] }} на проверку</span>
+                @endif
+            </div>
+
+            <div class="dash-sec">
+                @foreach($security['items'] as $item)
+                    <div class="dash-sec__row {{ $item['ok'] ? 'is-ok' : 'is-bad' }}">
+                        <i class="fas {{ $item['ok'] ? 'fa-circle-check' : 'fa-triangle-exclamation' }}"></i>
+                        <div class="min-w-0">
+                            <span class="dash-sec__label">{{ $item['label'] }}</span>
+                            <span class="dash-sec__note">{{ $item['note'] }}</span>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
+        {{-- ── Обновление ────────────────────────────────────────────────
+             Проверка идёт на СВОЙ сервер, адрес которого задаёт владелец. По
+             умолчанию он пуст, и запроса наружу нет вовсе. --}}
+        <div class="dash-card p-6" data-widget-id="updates">
+            <div class="mb-4 flex items-center gap-3">
+                <span class="dash-badge dash-badge--sm"
+                      style="background:linear-gradient(135deg,{{ $updates['available'] ? '#f59e0b,#f97316' : '#6366f1,#8b5cf6' }})">
+                    <i class="fas fa-arrow-up-from-bracket"></i>
+                </span>
+                <h2 class="text-lg font-bold text-gray-900 dark:text-white">Обновление</h2>
+            </div>
+
+            <div class="dash-upd">
+                <div class="dash-upd__now">
+                    <span class="dash-upd__cap">Установлено</span>
+                    <span class="dash-upd__ver">{{ $updates['current'] }}</span>
+                </div>
+
+                @if($updates['available'] && $updates['latest'])
+                    <div class="dash-upd__now is-new">
+                        <span class="dash-upd__cap">Доступно</span>
+                        <span class="dash-upd__ver">{{ $updates['latest'] }}</span>
+                    </div>
+                @endif
+            </div>
+
+            <p class="dash-upd__note">{{ $updates['note'] }}</p>
+        </div>
+
         <div class="dash-card p-6" data-widget-id="system">
             <div class="mb-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -315,6 +456,56 @@
     .dash-stat--purple::before { background: linear-gradient(90deg, transparent, #8b5cf6, transparent); }
     .dash-stat--orange::before { background: linear-gradient(90deg, transparent, #f97316, transparent); }
     .dash-stat { padding: 1.5rem; }
+
+/* ── Короткая сводка ────────────────────────────────────────────── */
+.dash-facts{ display:grid; gap:.75rem; grid-template-columns:repeat(auto-fit, minmax(13rem, 1fr)) }
+.dash-fact{ display:flex; align-items:center; gap:.7rem; padding:.7rem .85rem;
+    background:#fff; border:1px solid #eef2f7 }
+.dark .dash-fact{ background:#111827; border-color:#374151 }
+.dash-fact__ico{ display:flex; align-items:center; justify-content:center; flex:none;
+    width:2.1rem; height:2.1rem; color:var(--admin-primary);
+    background:color-mix(in srgb, var(--admin-primary) 12%, transparent) }
+.dash-fact__value{ display:block; font-size:1.35rem; font-weight:800; line-height:1.1; color:#111827 }
+.dark .dash-fact__value{ color:#f3f4f6 }
+.dash-fact__label{ display:block; font-size:.78rem; font-weight:600; color:#4b5563 }
+.dark .dash-fact__label{ color:#d1d5db }
+.dash-fact__note{ display:block; font-size:.68rem; color:#9ca3af;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+
+/* ── Требует внимания ───────────────────────────────────────────── */
+    .dash-att{ display:flex; align-items:center; gap:.6rem; padding:.55rem .7rem;
+        font-size:.85rem; text-decoration:none; color:#4b5563;
+        border:1px solid #f0d9a8; background:#fffbeb; transition:border-color .15s }
+    .dash-att + .dash-att{ margin-top:.4rem }
+    .dash-att:hover{ border-color:#f59e0b }
+    .dash-att > i:first-child{ color:#d97706; width:1rem; text-align:center; flex:none }
+    .dash-att.is-info{ border-color:#c7d2fe; background:#eef2ff }
+    .dash-att.is-info > i:first-child{ color:var(--admin-primary) }
+    .dash-att__label{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+    .dash-att__count{ font-weight:800; color:#111827; flex:none }
+    .dash-att__go{ font-size:.7rem; opacity:.45; flex:none }
+    .dash-att__clear{ display:flex; align-items:center; gap:.5rem; font-size:.85rem; color:#166534;
+        padding:.55rem .7rem; background:#f0fdf4; border:1px solid #bbf7d0 }
+
+    /* ── Безопасность ───────────────────────────────────────────────── */
+    .dash-sec{ display:flex; flex-direction:column; gap:.55rem }
+    .dash-sec__row{ display:flex; align-items:flex-start; gap:.55rem; font-size:.82rem }
+    .dash-sec__row > i{ margin-top:.15rem; width:1rem; text-align:center; flex:none }
+    .dash-sec__row.is-ok > i{ color:#16a34a }
+    .dash-sec__row.is-bad > i{ color:#dc2626 }
+    .dash-sec__label{ display:block; font-weight:600; color:#111827 }
+    .dash-sec__note{ display:block; margin-top:.1rem; font-size:.75rem; line-height:1.4; color:#6b7280 }
+    .dash-sec__flag{ font-size:.68rem; font-weight:700; padding:.15rem .45rem;
+        color:#991b1b; background:#fee2e2; border:1px solid #fecaca; flex:none }
+
+    /* ── Обновление ─────────────────────────────────────────────────── */
+    .dash-upd{ display:flex; flex-wrap:wrap; gap:.6rem }
+    .dash-upd__now{ flex:1; min-width:7rem; padding:.55rem .7rem; background:#f9fafb; border:1px solid #e5e7eb }
+    .dash-upd__now.is-new{ background:#fffbeb; border-color:#f0d9a8 }
+    .dash-upd__cap{ display:block; font-size:.65rem; font-weight:700; letter-spacing:.06em;
+        text-transform:uppercase; color:#9ca3af }
+    .dash-upd__ver{ display:block; margin-top:.15rem; font-size:1.05rem; font-weight:800; color:#111827 }
+    .dash-upd__note{ margin-top:.6rem; font-size:.75rem; line-height:1.45; color:#6b7280 }
 
     .dash-card--accent-red::before,
     .dash-card--accent-yellow::before,
