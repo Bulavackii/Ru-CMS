@@ -116,40 +116,52 @@
                      читалась как отключённое поле ввода, а не как ссылка. Теперь
                      это обычные строки: значок в плитке, над значением — подпись,
                      что это за контакт. --}}
+                {{-- Контакты приходят из меню с позицией contacts: почта,
+                     телефон и адрес правятся в разделе «Меню», а не в этом
+                     файле. Пока меню нет — показываем прежние три строки,
+                     чтобы обновление с предыдущей версии ничего не стёрло. --}}
+                @php($contacts = contact_links())
+
                 <ul class="f-contacts">
-                    <li>
-                        <a href="mailto:info@example.com" class="f-contact">
-                            <span class="f-contact__ico">@themeIcon('mail')</span>
-                            <span class="f-contact__body">
-                                <span class="f-contact__label">{{ __('frontend.footer.write') }}</span>
-                                <span class="f-contact__value">info@example.com</span>
-                            </span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="tel:+79001234567" class="f-contact">
-                            <span class="f-contact__ico">@themeIcon('phone')</span>
-                            <span class="f-contact__body">
-                                <span class="f-contact__label">{{ __('frontend.footer.call') }}</span>
-                                <span class="f-contact__value">+7 (900) 123-45-67</span>
-                            </span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://yandex.ru/maps/?text={{ urlencode('Москва, Тверская улица, 7') }}"
-                           target="_blank" rel="noopener" class="f-contact">
-                            <span class="f-contact__ico">@themeIcon('map')</span>
-                            <span class="f-contact__body">
-                                <span class="f-contact__label">{{ __('frontend.footer.address') }}</span>
-                                {{-- Значок внешней ссылки стоит ВНУТРИ строки с
-                                     адресом, сразу за текстом. Раньше он висел
-                                     у правого края колонки и читался как
-                                     отдельная кнопка непонятно к чему. --}}
-                                <span class="f-contact__value">г. Москва, Тверская улица, 7<span
-                                    class="f-contact__ext" aria-hidden="true">@themeIcon('arrow-up-right-from-square')</span></span>
-                            </span>
-                        </a>
-                    </li>
+                    @forelse($contacts as $contact)
+                        <li>
+                            <a href="{{ $contact['href'] }}" class="f-contact"
+                               @if($contact['external']) target="_blank" rel="noopener" @endif>
+                                <span class="f-contact__ico">
+                                    @if($contact['image'])
+                                        <img src="{{ $contact['image'] }}" alt="" width="16" height="16"
+                                             style="object-fit:contain">
+                                    @else
+                                        @themeIcon($contact['icon'] ?: $contact['kind'])
+                                    @endif
+                                </span>
+                                <span class="f-contact__body">
+                                    <span class="f-contact__label">{{ $contact['label'] }}</span>
+                                    <span class="f-contact__value">{{ $contact['value'] }}@if($contact['external'])<span
+                                        class="f-contact__ext" aria-hidden="true">@themeIcon('arrow-up-right-from-square')</span>@endif</span>
+                                </span>
+                            </a>
+                        </li>
+                    @empty
+                        <li>
+                            <a href="mailto:info@example.com" class="f-contact">
+                                <span class="f-contact__ico">@themeIcon('mail')</span>
+                                <span class="f-contact__body">
+                                    <span class="f-contact__label">{{ __('frontend.footer.write') }}</span>
+                                    <span class="f-contact__value">info@example.com</span>
+                                </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="tel:+79001234567" class="f-contact">
+                                <span class="f-contact__ico">@themeIcon('phone')</span>
+                                <span class="f-contact__body">
+                                    <span class="f-contact__label">{{ __('frontend.footer.call') }}</span>
+                                    <span class="f-contact__value">+7 (900) 123-45-67</span>
+                                </span>
+                            </a>
+                        </li>
+                    @endforelse
                 </ul>
 
 
@@ -183,7 +195,13 @@
                             <a href="{{ $social['href'] }}" target="_blank" rel="noopener"
                                class="f-social f-social--plain" style="--c:{{ $social['color'] }}"
                                title="{{ $social['label'] }}" aria-label="{{ $social['label'] }}">
-                                {{-- Ветка по умолчанию обязательна: ссылки берутся из
+{{-- Своя картинка важнее фирменного глифа: владелец мог загрузить
+                                 собственный логотип прямо в пункте меню. --}}
+                            @if(!empty($social['image']))
+                                <img src="{{ $social['image'] }}" alt="" width="17" height="17"
+                                     style="object-fit:contain">
+                            @else
+                                                            {{-- Ветка по умолчанию обязательна: ссылки берутся из
                                      меню «Соцсети», и владелец волен добавить сеть, для
                                      которой фирменного глифа у нас нет. Без неё такая
                                      ссылка выходила бы пустым квадратом. --}}
@@ -199,6 +217,7 @@
                                             <i class="fas fa-link" style="font-size:15px"></i>
                                         @endif
                                 @endswitch
+                            @endif
                             </a>
                         @endforeach
                     </div>

@@ -717,6 +717,7 @@ if (! function_exists('social_links')) {
                 'color' => $meta['color'],
                 'href'  => config('app.social.' . $key),
                 'icon'  => null,
+                'image' => null,
             ];
         }
 
@@ -779,6 +780,80 @@ if (! function_exists('social_links_from_menu')) {
                     // Значок пункта нужен незнакомым сетям: фирменного глифа
                     // для них нет, и без этого ссылка вышла бы пустой.
                     'icon'  => $item->icon ?: null,
+                    // Своя картинка важнее всего: загрузили — показывается она,
+                    // даже если домен знакомый и фирменный глиф у нас есть.
+                    'image' => $item->iconImageUrl(),
+                ];
+            }
+        }
+
+        return $links;
+    }
+}
+
+if (! function_exists('contact_links')) {
+    /**
+     * 📇 Контакты подвала — из меню с позицией contacts.
+     *
+     * Раньше почта, телефон и адрес были вписаны прямо в шаблон подвала:
+     * поменять их без разработчика было нельзя. Теперь это обычные пункты
+     * меню, как соцсети.
+     *
+     * Мелкая подпись над значением («Написать», «Позвонить», «Адрес») НЕ
+     * хранится отдельным полем: она выводится из схемы ссылки. Иначе у пункта
+     * появилось бы поле, которого больше нигде в меню нет, и его пришлось бы
+     * тащить через всю форму, валидацию и сидер ради трёх строк.
+     *
+     * Пустой массив означает «меню нет» — подвал тогда показывает то же, что
+     * и раньше.
+     *
+     * @return array<int, array{kind:string, label:string, value:string, href:string, icon:?string, image:?string, external:bool}>
+     */
+    function contact_links(): array
+    {
+        try {
+            if (! class_exists(\Modules\Menu\Models\Menu::class)) {
+                return [];
+            }
+
+            $menus = \Modules\Menu\Models\Menu::cachedByPosition('contacts');
+        } catch (\Throwable $e) {
+            return [];
+        }
+
+        $links = [];
+
+        foreach ($menus as $menu) {
+            foreach ($menu->items ?? [] as $item) {
+                $href = trim((string) $item->url);
+
+                if ($href === '') {
+                    continue;
+                }
+
+                // Вид контакта — по схеме адреса, а не по названию пункта:
+                // владелец волен назвать его как угодно.
+                if (str_starts_with($href, 'mailto:')) {
+                    $kind = 'mail';
+                    $label = __('frontend.footer.write');
+                } elseif (str_starts_with($href, 'tel:')) {
+                    $kind = 'phone';
+                    $label = __('frontend.footer.call');
+                } else {
+                    $kind = 'address';
+                    $label = __('frontend.footer.address');
+                }
+
+                $links[] = [
+                    'kind'     => $kind,
+                    'label'    => $label,
+                    'value'    => $item->title,
+                    'href'     => $href,
+                    'icon'     => $item->icon ?: null,
+                    'image'    => $item->iconImageUrl(),
+                    // Значок «уходит на чужой сайт» уместен только у адреса:
+                    // почта и телефон открываются приложением, а не вкладкой.
+                    'external' => $kind === 'address',
                 ];
             }
         }

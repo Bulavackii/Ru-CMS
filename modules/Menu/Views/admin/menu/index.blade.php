@@ -88,6 +88,7 @@
             <button data-pos="footer"  class="pos-filter bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-3 py-1.5 font-medium transition">Footer</button>
             <button data-pos="sidebar" class="pos-filter bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-3 py-1.5 font-medium transition">Sidebar</button>
             <button data-pos="social"  class="pos-filter bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-3 py-1.5 font-medium transition">Соцсети</button>
+            <button data-pos="contacts" class="pos-filter bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-3 py-1.5 font-medium transition">Контакты</button>
         </div>
     </div>
 
@@ -106,6 +107,7 @@
                     'footer'  => ['area' => 'site', 'slot' => 'footer'],
                     'sidebar' => ['area' => 'site', 'slot' => 'side'],
                     'social'  => ['area' => 'site', 'slot' => 'social'],
+                    'contacts' => ['area' => 'site', 'slot' => 'footer'],
                 ][$menu->position] ?? null;
             @endphp
 

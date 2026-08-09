@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\UploadedFile;
 use Modules\Categories\Models\Category;
 use Modules\Menu\Models\Menu;
 use Modules\Menu\Models\MenuItem;
@@ -520,5 +522,139 @@ class MenuModuleTest extends TestCase
         }
 
         $this->assertContains('social', Menu::POSITIONS);
+    }
+
+    // ── Своя картинка значка ──────────────────────────────────────────────
+
+    private function socialItem(): MenuItem
+    {
+        $menu = Menu::create(['title' => 'Соцсети', 'position' => 'social', 'active' => true]);
+
+        return MenuItem::create([
+            'menu_id' => $menu->id, 'title' => 'MAX', 'url' => 'https://max.ru/example',
+            'type' => 'url', 'icon' => 'max', 'order' => 1, 'active' => true,
+        ]);
+    }
+
+    public function test_menu_item_accepts_its_own_icon_image(): void
+    {
+        Storage::fake('public');
+
+        $item = $this->socialItem();
+
+        $this->actingAs($this->admin)->put(
+            route('admin.menu_items.update', [$item->menu_id, $item->id]),
+            [
+                'title' => $item->title, 'type' => 'url', 'url' => $item->url, 'active' => 1,
+                'icon_image' => UploadedFile::fake()->image('logo.png', 64, 64),
+            ]
+        )->assertSessionHasNoErrors();
+
+        $path = $item->fresh()->icon_image;
+
+        $this->assertNotNull($path, 'Картинка обязана сохраниться.');
+        Storage::disk('public')->assertExists($path);
+    }
+
+    public function test_removing_the_image_deletes_the_file(): void
+    {
+        Storage::fake('public');
+
+        $item = $this->socialItem();
+
+        $this->actingAs($this->admin)->put(
+            route('admin.menu_items.update', [$item->menu_id, $item->id]),
+            ['title' => $item->title, 'type' => 'url', 'url' => $item->url, 'active' => 1,
+             'icon_image' => UploadedFile::fake()->image('logo.png', 64, 64)]
+        );
+
+        $path = $item->fresh()->icon_image;
+
+        $this->actingAs($this->admin)->put(
+            route('admin.menu_items.update', [$item->menu_id, $item->id]),
+            ['title' => $item->title, 'type' => 'url', 'url' => $item->url, 'active' => 1,
+             'remove_icon_image' => 1]
+        )->assertSessionHasNoErrors();
+
+        $this->assertNull($item->fresh()->icon_image);
+
+        // Файл тоже обязан уйти: иначе storage копил бы картинки, на которые
+        // уже никто не ссылается.
+        Storage::disk('public')->assertMissing($path);
+    }
+
+    public function test_svg_is_rejected_as_an_icon_image(): void
+    {
+        Storage::fake('public');
+
+        $item = $this->socialItem();
+
+        // SVG исполняет скрипт и отдаётся с домена сайта — тот же запрет,
+        // что действует в медиатеке.
+        $this->actingAs($this->admin)->put(
+            route('admin.menu_items.update', [$item->menu_id, $item->id]),
+            ['title' => $item->title, 'type' => 'url', 'url' => $item->url, 'active' => 1,
+             'icon_image' => UploadedFile::fake()->create('logo.svg', 4, 'image/svg+xml')]
+        )->assertSessionHasErrors('icon_image');
+
+        $this->assertNull($item->fresh()->icon_image);
+    }
+
+    public function test_uploaded_image_reaches_the_footer(): void
+    {
+        $item = $this->socialItem();
+        $item->update(['icon_image' => 'menu-icons/own.png']);
+
+        Menu::flushCache();
+
+        $link = collect(social_links())->firstWhere('key', 'max');
+
+        $this->assertNotNull($link);
+        $this->assertNotNull($link['image'], 'Адрес картинки обязан дойти до подвала.');
+        $this->assertStringContainsString('own.png', $link['image']);
+    }
+
+    // ── Контакты подвала ──────────────────────────────────────────────────
+
+    public function test_contacts_come_from_the_menu_with_labels_by_scheme(): void
+    {
+        $menu = Menu::create(['title' => 'Контакты', 'position' => 'contacts', 'active' => true]);
+
+        foreach ([
+            ['mail@example.com', 'mailto:mail@example.com', 'mail'],
+            ['+7 000 000-00-00', 'tel:+70000000000', 'phone'],
+            ['Москва, Тверская, 7', 'https://maps.example/x', 'address'],
+        ] as $i => [$title, $url, $kind]) {
+            MenuItem::create([
+                'menu_id' => $menu->id, 'title' => $title, 'url' => $url,
+                'type' => 'url', 'order' => $i + 1, 'active' => true,
+            ]);
+        }
+
+        Menu::flushCache();
+
+        $links = contact_links();
+
+        $this->assertCount(3, $links);
+
+        // Подпись выводится из СХЕМЫ адреса, а не хранится отдельным полем.
+        $this->assertSame('mail', $links[0]['kind']);
+        $this->assertSame('phone', $links[1]['kind']);
+        $this->assertSame('address', $links[2]['kind']);
+
+        // Значок «уходит на чужой сайт» уместен только у адреса: почта и
+        // телефон открываются приложением, а не новой вкладкой.
+        $this->assertFalse($links[0]['external']);
+        $this->assertFalse($links[1]['external']);
+        $this->assertTrue($links[2]['external']);
+    }
+
+    public function test_contacts_fall_back_while_the_menu_does_not_exist(): void
+    {
+        Menu::flushCache();
+
+        // Пустой список — знак подвалу показать прежние три строки: обновление
+        // с предыдущей версии не должно стирать контакты.
+        $this->assertSame([], contact_links());
     }
 }

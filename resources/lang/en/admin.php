@@ -531,6 +531,8 @@ return [
         'pos_sidebar_desc' => 'Side panel',
         'pos_social' => 'Social',
         'pos_social_desc' => 'Social links in the site and panel footer.',
+        'pos_contacts' => 'Contacts',
+        'pos_contacts_desc' => 'Email, phone and address in the site footer.',
         'activate' => 'Activate the menu',
         'activate_hint' => 'The menu will appear on the site (if it has items).',
         'preview' => 'Preview',

@@ -28,6 +28,7 @@ class MenuItem extends Model
         'order',
         'active',
         'icon',
+        'icon_image',
         'css_class',
         'target',
         'rel',
@@ -86,6 +87,41 @@ class MenuItem extends Model
      * 
      * @return bool
      */
+    /**
+     * Адрес картинки попадает в JSON вместе с пунктом.
+     *
+     * Редактор дерева отдаёт пункты в браузер через @json($items) и там же
+     * открывает модалку правки. Без этого поля модалка не знала бы, что у
+     * пункта уже есть картинка, и показать её было бы нечем.
+     */
+    protected $appends = ['icon_image_url'];
+
+    public function getIconImageUrlAttribute(): ?string
+    {
+        return $this->iconImageUrl();
+    }
+
+    /**
+     * Адрес загруженной картинки значка или null.
+     *
+     * Собирать путь в шаблонах нельзя: их четыре (подвал сайта, подвал
+     * панели, узел меню, карточка списка), и они уже расходились в мелочах.
+     */
+    public function iconImageUrl(): ?string
+    {
+        $path = trim((string) $this->icon_image);
+
+        if ($path === '') {
+            return null;
+        }
+
+        if (preg_match('~^(https?:)?//~i', $path) || str_starts_with($path, '/')) {
+            return $path;
+        }
+
+        return \Illuminate\Support\Facades\Storage::disk('public')->url($path);
+    }
+
     public function canHaveChildren(): bool
     {
         return $this->getDepth() < 2; // 0, 1, 2 = максимум 3 уровня

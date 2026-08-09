@@ -114,6 +114,24 @@ class MenuItemController extends Controller
     /**
      * Валидация данных пункта меню
      */
+    /**
+     * Убрать файл значка с диска.
+     *
+     * Без этого замена и снятие картинки оставляли бы файлы в storage
+     * навсегда: на них уже никто не ссылается, а места они занимают.
+     */
+    private function dropIconImage(?MenuItem $item): void
+    {
+        $path = trim((string) ($item->icon_image ?? ''));
+
+        // Внешние адреса и файлы из public/ не наши — их не трогаем.
+        if ($path === '' || str_starts_with($path, '/') || preg_match('~^https?://~i', $path)) {
+            return;
+        }
+
+        \Illuminate\Support\Facades\Storage::disk('public')->delete($path);
+    }
+
     private function validateMenuItem(Request $request, Menu $menu, ?MenuItem $item = null): array
     {
         $rules = [
@@ -158,6 +176,11 @@ class MenuItemController extends Controller
             ],
             'active'           => 'nullable|boolean',
             'icon'             => 'nullable|string|max:100',
+            // Своя картинка значка. SVG намеренно НЕ принимаем: он исполняет
+            // скрипт и отдаётся с домена сайта — тот же запрет, что в
+            // медиатеке (FileController::ALLOWED_EXTENSIONS).
+            'icon_image'       => 'nullable|image|mimes:jpeg,jpg,png,webp,gif|max:1024|dimensions:max_width=512,max_height=512',
+            'remove_icon_image' => 'nullable|boolean',
             'css_class'        => 'nullable|string|max:255',
             'target'           => 'nullable|in:_self,_blank',
             'rel'              => 'nullable|string|max:100',
@@ -170,6 +193,24 @@ class MenuItemController extends Controller
 
         // Обработка чекбокса active
         $validated['active'] = $request->has('active');
+
+        // ── Своя картинка значка ──────────────────────────────────────
+        // Файл в $validated не нужен: в базу уходит путь, а не сам файл.
+        unset($validated['icon_image'], $validated['remove_icon_image']);
+
+        if ($request->boolean('remove_icon_image')) {
+            $this->dropIconImage($item);
+            $validated['icon_image'] = null;
+        }
+
+        if ($request->hasFile('icon_image')) {
+            // Прежний файл удаляем сразу: иначе замена картинки копила бы
+            // мусор в storage, а имена уникальны и переиспользовать нечего.
+            $this->dropIconImage($item);
+
+            $validated['icon_image'] = $request->file('icon_image')
+                ->store('menu-icons', 'public');
+        }
 
         // Нормализуем parent_id к явному null. Правило 'nullable' НЕ кладёт
         // отсутствующее поле в validated(), поэтому без этой строки обращение

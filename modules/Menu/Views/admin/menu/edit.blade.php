@@ -157,40 +157,89 @@
                         <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('admin.menu.show_hint') }}</div>
                     </div>
 
-                    {{-- Иконка --}}
-                    <div>
-                        <label class="block text-xs font-semibold mb-1 text-gray-700 dark:text-gray-300">🎨 {{ __('admin.menu.icon') }}</label>
-                        <input type="text" name="icon" id="mi-icon" maxlength="50"
-                               class="w-full border border-gray-300 dark:border-gray-700 rounded-md px-3 py-2 text-sm dark:bg-gray-800 dark:text-white"
-                               placeholder="{{ __('admin.menu.icon_ph') }}">
-                        <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('admin.menu.icon_hint') }}</div>
+                    {{-- ── Значок пункта ────────────────────────────────────
+                         Два способа задать одно и то же, поэтому они собраны
+                         в один блок с явным «или»: раньше поле «Иконка» стояло
+                         среди прочих, и было неочевидно, что туда пишут ИМЯ из
+                         набора, а не путь к файлу.
+
+                         Своя картинка нужна была для соцсетей: фирменных глифов
+                         у нас четыре, а сетей бывает сколько угодно. Картинка
+                         имеет приоритет над именем. --}}
+                    <div class="sm:col-span-2 mi-icons">
+                        <div class="mi-icons__head">
+                            <span class="mi-icons__title">{{ __('admin.menu.icon') }}</span>
+                            <span class="mi-icons__note">картинка важнее имени: загрузили — показывается она</span>
+                        </div>
+
+                        <div class="mi-icons__grid">
+                            {{-- Имя значка из набора темы --}}
+                            <div>
+                                <label class="mi-label" for="mi-icon">Имя из набора</label>
+                                <input type="text" name="icon" id="mi-icon" maxlength="50"
+                                       class="mi-input" placeholder="{{ __('admin.menu.icon_ph') }}">
+                                <p class="mi-hint">{{ __('admin.menu.icon_hint') }}</p>
+                            </div>
+
+                            {{-- Своя картинка --}}
+                            <div>
+                                <label class="mi-label">Своя картинка</label>
+
+                                <div class="mi-file">
+                                    <label class="mi-file__pick" for="mi-icon-image">
+                                        @themeIcon('image')
+                                        <span id="mi-icon-image-name">Выбрать файл</span>
+                                    </label>
+                                    <input type="file" name="icon_image" id="mi-icon-image" class="hidden"
+                                           accept="image/png,image/jpeg,image/webp,image/gif">
+
+                                    {{-- Превью загруженной картинки. Показывается
+                                         и для уже сохранённых пунктов — иначе
+                                         понять, что картинка есть, было нельзя. --}}
+                                    <div id="mi-icon-image-box" class="mi-file__preview" hidden>
+                                        <img id="mi-icon-image-prev" alt="">
+                                        <button type="button" id="mi-icon-image-drop" class="mi-file__drop"
+                                                title="Убрать картинку">
+                                            @themeIcon('trash-alt')
+                                        </button>
+                                    </div>
+
+                                    {{-- Флаг снятия: сам файловый input очистить
+                                         недостаточно — сервер должен понять, что
+                                         прежнюю картинку надо удалить. --}}
+                                    <input type="hidden" name="remove_icon_image" id="mi-icon-image-remove" value="0">
+                                </div>
+
+                                <p class="mi-hint">PNG, JPEG, WebP или GIF, до 1 МБ и не больше 512×512.
+                                    SVG не принимаем: он исполняет скрипт.</p>
+                            </div>
+                        </div>
                     </div>
 
                     {{-- CSS класс --}}
                     <div>
-                        <label class="block text-xs font-semibold mb-1 text-gray-700 dark:text-gray-300">🎨 {{ __('admin.menu.css_class') }}</label>
+                        <label class="mi-label" for="mi-css-class">{{ __('admin.menu.css_class') }}</label>
                         <input type="text" name="css_class" id="mi-css-class" maxlength="255"
-                               class="w-full border border-gray-300 dark:border-gray-700 rounded-md px-3 py-2 text-sm dark:bg-gray-800 dark:text-white"
-                               placeholder="{{ __('admin.menu.css_ph') }}">
+                               class="mi-input" placeholder="{{ __('admin.menu.css_ph') }}">
+                        <p class="mi-hint">Свой класс для оформления — нужен, только если правите вёрстку.</p>
                     </div>
 
                     {{-- Target --}}
                     <div>
-                        <label class="block text-xs font-semibold mb-1 text-gray-700 dark:text-gray-300">🔗 Target</label>
-                        <select name="target" id="mi-target"
-                                class="w-full border border-gray-300 dark:border-gray-700 rounded-md px-3 py-2 text-sm dark:bg-gray-800 dark:text-white">
+                        <label class="mi-label" for="mi-target">Как открывать</label>
+                        <select name="target" id="mi-target" class="mi-input">
                             <option value="">{{ __('admin.menu.target_default') }}</option>
                             <option value="_self">{{ __('admin.menu.target_self') }}</option>
                             <option value="_blank">{{ __('admin.menu.target_blank') }}</option>
                         </select>
+                        <p class="mi-hint">«В новой вкладке» — для ссылок на чужие сайты.</p>
                     </div>
 
                     {{-- Rel --}}
                     <div class="sm:col-span-2">
-                        <label class="block text-xs font-semibold mb-1 text-gray-700 dark:text-gray-300">🔗 {{ __('admin.menu.rel') }}</label>
+                        <label class="mi-label" for="mi-rel">{{ __('admin.menu.rel') }}</label>
                         <input type="text" name="rel" id="mi-rel" maxlength="100"
-                               class="w-full border border-gray-300 dark:border-gray-700 rounded-md px-3 py-2 text-sm dark:bg-gray-800 dark:text-white"
-                               placeholder="{{ __('admin.menu.rel_ph') }}">
+                               class="mi-input" placeholder="{{ __('admin.menu.rel_ph') }}">
                         <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('admin.menu.rel_hint') }}</div>
                     </div>
                 </div>
@@ -700,21 +749,33 @@ editModal.innerHTML = `
             <h3 class="text-lg font-bold text-gray-900 dark:text-white">✏️ {{ __('admin.menu.edit_item') }}</h3>
             <button type="button" class="close-edit-modal text-gray-400 hover:text-gray-600">@themeIcon('times')</button>
         </div>
-        <form id="edit-item-form" class="space-y-4">
+        <form id="edit-item-form" class="space-y-3">
             <input type="hidden" name="_token" value="${csrf}">
             <input type="hidden" name="_method" value="PUT">
             <div class="grid sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm font-semibold mb-1">🏷️ {{ __('admin.menu.item_name') }}</label>
-                    <input type="text" name="title" id="edit-title" required class="w-full border rounded-md px-3 py-2 text-sm">
+                    <label class="mi-label" for="edit-title">{{ __('admin.menu.item_name') }}</label>
+                    <input type="text" name="title" id="edit-title" required class="mi-input">
+                    <p class="mi-hint">Подпись, которую увидит посетитель.</p>
                 </div>
+                {{-- Поле было подписано «Шаблон» — ключом admin.common.f_template,
+                     взятым из совсем другой формы. Это не шаблон, а СПОСОБ
+                     ссылки, и та же самая настройка в форме добавления выше
+                     подписана «Тип пункта». Владелец справедливо спросил, что
+                     означают «Страница» и «Категория». --}}
                 <div>
-                    <label class="block text-sm font-semibold mb-1">🔗 {{ __('admin.common.f_template') }}</label>
-                    <select name="type" id="edit-type" class="w-full border rounded-md px-3 py-2 text-sm">
-                        <option value="url">URL</option>
+                    <label class="mi-label" for="edit-type">{{ __('admin.menu.item_type') }}</label>
+                    <select name="type" id="edit-type" class="mi-input">
+                        <option value="url">{{ __('admin.menu.type_url') }}</option>
                         <option value="page">{{ __('admin.menu.type_page') }}</option>
                         <option value="category">{{ __('admin.menu.type_category') }}</option>
                     </select>
+                    {{-- Пояснение показывается ТОЛЬКО для выбранного типа: три
+                         описания сразу занимали четыре строки и вытягивали
+                         модалку за край окна. --}}
+                    <p class="mi-hint" data-type-hint="url">Адрес пишете сами — любой, внутренний или внешний.</p>
+                    <p class="mi-hint" data-type-hint="page" hidden>Готовая страница из раздела «Страницы»: ссылка соберётся сама и не сломается при смене адреса.</p>
+                    <p class="mi-hint" data-type-hint="category" hidden>Ссылка на подборку материалов выбранной категории.</p>
                 </div>
                 <div id="edit-url-field">
                     <label class="block text-sm font-semibold mb-1">🌐 URL</label>
@@ -732,26 +793,90 @@ editModal.innerHTML = `
                         <option value="">{{ __('admin.menu.no_parent') }}</option>
                     </select>
                 </div>
-                <div>
-                    <label class="block text-sm font-semibold mb-1">🎨 {{ __('admin.menu.icon') }}</label>
-                    <input type="text" name="icon" id="edit-icon" class="w-full border rounded-md px-3 py-2 text-sm">
+                {{-- ── Значок пункта ────────────────────────────────────────
+                     Два способа задать одно и то же, поэтому собраны в один
+                     блок с явным «или»: раньше поле «Иконка» стояло среди
+                     прочих, и было неочевидно, что туда пишут ИМЯ из набора
+                     значков, а не путь к файлу.
+
+                     Своя картинка понадобилась для соцсетей: фирменных глифов
+                     у нас четыре, а сетей бывает сколько угодно. Картинка
+                     важнее имени — загрузили, показывается она. --}}
+                <div class="sm:col-span-2 mi-icons">
+                    <div class="mi-icons__head">
+                        <span class="mi-icons__title">{{ __('admin.menu.icon') }}</span>
+                        <span class="mi-icons__note">картинка важнее имени: загрузили — показывается она</span>
+                    </div>
+
+                    <div class="mi-icons__grid">
+                        <div>
+                            <label class="mi-label" for="edit-icon">Имя из набора</label>
+                            <input type="text" name="icon" id="edit-icon" class="mi-input"
+                                   placeholder="{{ __('admin.menu.icon_ph') }}">
+                            <p class="mi-hint">{{ __('admin.menu.icon_hint') }}</p>
+                        </div>
+
+                        <div>
+                            <label class="mi-label">Своя картинка</label>
+
+                            <div class="mi-file">
+                                <label class="mi-file__pick" for="edit-icon-image">
+                                    @themeIcon('image')
+                                    <span id="edit-icon-image-name">Выбрать файл</span>
+                                </label>
+                                <input type="file" name="icon_image" id="edit-icon-image" class="hidden"
+                                       accept="image/png,image/jpeg,image/webp,image/gif">
+
+                                {{-- Превью показывается и для УЖЕ загруженной
+                                     картинки: иначе понять, что она есть, было
+                                     нельзя — и убрать её тоже. --}}
+                                <div id="edit-icon-image-box" class="mi-file__preview" hidden>
+                                    <img id="edit-icon-image-prev" alt="">
+                                    <button type="button" id="edit-icon-image-drop" class="mi-file__drop"
+                                            title="Убрать картинку">@themeIcon('trash-alt')</button>
+                                </div>
+
+                                {{-- Флаг снятия: очистить файловый input мало —
+                                     сервер должен понять, что прежнюю картинку
+                                     надо удалить с диска. --}}
+                                <input type="hidden" name="remove_icon_image" id="edit-icon-image-remove" value="0">
+                            </div>
+
+                            <p class="mi-hint">PNG, JPEG, WebP или GIF, до 1 МБ и не больше 512×512.
+                                SVG не принимаем: он исполняет скрипт.</p>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-semibold mb-1">🎨 {{ __('admin.menu.css_class') }}</label>
-                    <input type="text" name="css_class" id="edit-css-class" class="w-full border rounded-md px-3 py-2 text-sm">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold mb-1">🔗 Target</label>
-                    <select name="target" id="edit-target" class="w-full border rounded-md px-3 py-2 text-sm">
-                        <option value="">{{ __('admin.menu.item_default') }}</option>
-                        <option value="_self">_self</option>
-                        <option value="_blank">_blank</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold mb-1">🔗 Rel</label>
-                    <input type="text" name="rel" id="edit-rel" class="w-full border rounded-md px-3 py-2 text-sm">
-                </div>
+
+                {{-- Редко нужные поля — под раскрытием. Открытыми они занимали
+                     треть модалки, и та переставала помещаться в окно, хотя
+                     трогают их единицы пунктов. --}}
+                <details class="mi-extra sm:col-span-2">
+                    <summary>Дополнительно — класс, поведение ссылки, rel</summary>
+
+                    <div class="mi-extra__grid">
+                        <div>
+                            <label class="mi-label" for="edit-css-class">{{ __('admin.menu.css_class') }}</label>
+                            <input type="text" name="css_class" id="edit-css-class" class="mi-input">
+                            <p class="mi-hint">Нужен, только если правите вёрстку.</p>
+                        </div>
+                        <div>
+                            <label class="mi-label" for="edit-target">Как открывать</label>
+                            <select name="target" id="edit-target" class="mi-input">
+                                <option value="">{{ __('admin.menu.item_default') }}</option>
+                                <option value="_self">В том же окне</option>
+                                <option value="_blank">В новой вкладке</option>
+                            </select>
+                            <p class="mi-hint">«В новой вкладке» — для чужих сайтов.</p>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="mi-label" for="edit-rel">Rel</label>
+                            <input type="text" name="rel" id="edit-rel" class="mi-input"
+                                   placeholder="{{ __('admin.menu.rel_ph') }}">
+                            <p class="mi-hint">{{ __('admin.menu.rel_hint') }}</p>
+                        </div>
+                    </div>
+                </details>
                 <div class="sm:col-span-2">
                     <label class="inline-flex items-center gap-2.5 cursor-pointer select-none">
                         <span class="admin-toggle">
@@ -821,11 +946,84 @@ function collectDescendantIds(item) {
     return ids;
 }
 
+// Пояснение под списком типов показывается только для выбранного: три
+// описания сразу вытягивали модалку за край окна.
+function syncTypeHint() {
+    const select = document.getElementById('edit-type');
+
+    if (!select) return;
+
+    document.querySelectorAll('[data-type-hint]').forEach(el => {
+        el.hidden = el.dataset.typeHint !== select.value;
+    });
+}
+
+document.getElementById('edit-type')?.addEventListener('change', syncTypeHint);
+
+// ── Своя картинка значка ─────────────────────────────────────────────
+// Один набор обработчиков на обе формы (добавление и правка): поля у них
+// одинаковые, и вторая копия кода неминуемо разошлась бы с первой.
+function setIconImage(prefix, url) {
+    const box  = document.getElementById(prefix + '-icon-image-box');
+    const img  = document.getElementById(prefix + '-icon-image-prev');
+    const name = document.getElementById(prefix + '-icon-image-name');
+    const drop = document.getElementById(prefix + '-icon-image-remove');
+    const file = document.getElementById(prefix + '-icon-image');
+
+    if (!box) return;
+
+    if (url) {
+        img.src = url;
+        box.hidden = false;
+        if (name) name.textContent = 'Заменить файл';
+    } else {
+        img.removeAttribute('src');
+        box.hidden = true;
+        if (name) name.textContent = 'Выбрать файл';
+        if (file) file.value = '';
+    }
+
+    if (drop) drop.value = '0';
+}
+
+function bindIconImage(prefix) {
+    const file = document.getElementById(prefix + '-icon-image');
+    const drop = document.getElementById(prefix + '-icon-image-drop');
+    const flag = document.getElementById(prefix + '-icon-image-remove');
+
+    if (!file) return;
+
+    file.addEventListener('change', () => {
+        const chosen = file.files && file.files[0];
+
+        if (!chosen) { return; }
+
+        // Показываем выбранный файл ДО отправки: иначе непонятно, что
+        // именно выбрано, пока форма не сохранена.
+        setIconImage(prefix, URL.createObjectURL(chosen));
+        if (flag) flag.value = '0';
+    });
+
+    if (drop) {
+        drop.addEventListener('click', () => {
+            setIconImage(prefix, '');
+            // Снятие — намерение, а не пустое поле: сервер должен удалить
+            // прежний файл с диска.
+            if (flag) flag.value = '1';
+        });
+    }
+}
+
+['mi', 'edit'].forEach(bindIconImage);
+
 function openEditModal(item) {
     $('#edit-title').value = item.title || '';
     $('#edit-type').value = item.type || 'url';
     $('#edit-url').value = item.url || '';
     $('#edit-icon').value = item.icon || '';
+    // Уже загруженная картинка: показываем её, иначе понять, что она есть,
+    // было нельзя — и убрать тоже.
+    setIconImage('edit', item.icon_image_url || '');
     $('#edit-css-class').value = item.css_class || '';
     $('#edit-target').value = item.target || '';
     $('#edit-rel').value = item.rel || '';
@@ -840,6 +1038,8 @@ function openEditModal(item) {
             .map(row => `<option value="${row.item.id}">${'— '.repeat(row.depth)}${escapeHtml(row.item.title)}</option>`)
             .join('');
     parentSelect.value = item.parent_id || '';
+
+    syncTypeHint();
 
     // Показать/скрыть поля в зависимости от типа
     if (item.type === 'url') {
@@ -1035,5 +1235,73 @@ $('#bulk-delete').addEventListener('click', () => bulkAction('delete'));
         border: 1px dashed #a5b4fc;   /* indigo-300 */
         background: #eef2ff;          /* indigo-50  */
     }
+</style>
+@endpush
+
+@push('styles')
+<style>
+    /* ── Поля пункта меню ─────────────────────────────────────────────
+       Литеральный CSS: в собранном tailwind.min.css этого проекта нет ни
+       произвольных значений, ни прозрачности через дробь. */
+
+    .mi-label{ display:block; margin-bottom:.25rem; font-size:.78rem; font-weight:600; color:#374151 }
+    .dark .mi-label{ color:#d1d5db }
+
+    .mi-input{ display:block; width:100%; padding:.5rem .7rem; font-size:.85rem;
+        color:#111827; background:#fff; border:1px solid #d1d5db;
+        transition:border-color .15s, box-shadow .15s }
+    .mi-input:focus{ outline:none; border-color:var(--admin-primary);
+        box-shadow:0 0 0 3px color-mix(in srgb, var(--admin-primary) 22%, transparent) }
+    .dark .mi-input{ color:#f3f4f6; background:#111827; border-color:#374151 }
+
+    /* Пояснение под полем: раньше по названию «Rel» или «Target» понять,
+       что туда писать, было нельзя. */
+    .mi-hint{ margin-top:.25rem; font-size:.72rem; line-height:1.4; color:#6b7280 }
+    .dark .mi-hint{ color:#9ca3af }
+
+    /* Блок значка: имя ИЛИ картинка */
+    .mi-icons{ padding:.75rem; border:1px solid #e5e7eb; background:#f9fafb }
+    .dark .mi-icons{ border-color:#374151; background:#111827 }
+    .mi-icons__head{ display:flex; flex-wrap:wrap; align-items:baseline; gap:.5rem; margin-bottom:.6rem }
+    .mi-icons__title{ font-size:.78rem; font-weight:700; color:#374151 }
+    .dark .mi-icons__title{ color:#d1d5db }
+    .mi-icons__note{ font-size:.7rem; color:#6b7280; font-style:italic }
+    .mi-icons__grid{ display:grid; gap:.75rem }
+    @media (min-width:640px){ .mi-icons__grid{ grid-template-columns:1fr 1fr } }
+
+    /* Выбор файла */
+    .mi-file{ display:flex; align-items:center; gap:.5rem }
+    .mi-file__pick{ display:inline-flex; align-items:center; gap:.4rem; flex:1;
+        padding:.45rem .6rem; font-size:.78rem; font-weight:600; cursor:pointer;
+        color:#374151; background:#fff; border:1px dashed #cbd5e1;
+        transition:border-color .15s, color .15s }
+    .mi-file__pick:hover{ border-color:var(--admin-primary); color:var(--admin-primary) }
+    .dark .mi-file__pick{ color:#d1d5db; background:#1f2937; border-color:#4b5563 }
+    .mi-file__pick svg, .mi-file__pick i{ width:.95rem; height:.95rem }
+
+    .mi-file__preview{ position:relative; flex:none; width:2.6rem; height:2.6rem;
+        border:1px solid #e5e7eb; background:#fff }
+    .dark .mi-file__preview{ border-color:#374151; background:#1f2937 }
+    .mi-file__preview img{ width:100%; height:100%; object-fit:contain; padding:2px }
+    .mi-file__preview[hidden]{ display:none }
+
+    .mi-file__drop{ position:absolute; top:-.4rem; right:-.4rem;
+        display:inline-flex; align-items:center; justify-content:center;
+        width:1.2rem; height:1.2rem; cursor:pointer; color:#fff; background:#dc2626; border:0 }
+    .mi-file__drop svg, .mi-file__drop i{ width:.65rem; height:.65rem }
+
+    /* Редкие поля под раскрытием */
+    .mi-extra{ border:1px solid #e5e7eb; background:#f9fafb }
+    .dark .mi-extra{ border-color:#374151; background:#111827 }
+    .mi-extra > summary{ padding:.5rem .7rem; font-size:.78rem; font-weight:600;
+        color:#4b5563; cursor:pointer; list-style:none }
+    .dark .mi-extra > summary{ color:#d1d5db }
+    .mi-extra > summary::-webkit-details-marker{ display:none }
+    .mi-extra > summary::before{ content:'\25B8'; display:inline-block; margin-right:.4rem;
+        transition:transform .15s }
+    .mi-extra[open] > summary::before{ transform:rotate(90deg) }
+    .mi-extra__grid{ display:grid; gap:.7rem; padding:0 .7rem .7rem }
+    @media (min-width:640px){ .mi-extra__grid{ grid-template-columns:1fr 1fr } }
+    .mi-extra__grid > .sm\:col-span-2{ grid-column:1 / -1 }
 </style>
 @endpush

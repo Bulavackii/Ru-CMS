@@ -97,7 +97,7 @@ class Menu extends Model
      * сбрасывала кеш: добавленная ссылка на сайте не появлялась, пока не
      * истечёт час. Теперь список один, и забыть место негде.
      */
-    public const POSITIONS = ['header', 'footer', 'sidebar', 'social'];
+    public const POSITIONS = ['header', 'footer', 'sidebar', 'social', 'contacts'];
 
     /** Сброс кеша для всех позиций */
     public static function flushCache(): void
