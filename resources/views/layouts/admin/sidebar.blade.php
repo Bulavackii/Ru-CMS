@@ -113,7 +113,7 @@
         /* Пункт навигации. Активный держит слева акцентную грань — по ней видно
            текущий раздел, даже когда заливка неразличима на тёмной теме. */
         .asb-item{display:flex;align-items:center;gap:.6rem;padding:.3rem .6rem;font-size:.875rem;
-            color:#4b5563;text-decoration:none;border-left:2px solid transparent;
+            color:var(--surface-ink,#4b5563);text-decoration:none;border-left:2px solid transparent;
             transition:background .15s ease,color .15s ease,border-color .15s ease}
         .dark .asb-item{color:#9ca3af}
         .asb-item:hover{background:var(--admin-primary-soft,rgba(99,102,241,.1));
@@ -125,7 +125,7 @@
 
         /* Заголовок группы */
         .asb-group{display:flex;align-items:center;gap:.4rem;padding:0 .6rem;margin-bottom:.25rem;
-            font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af}
+            font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--surface-dim,#9ca3af)}
         .asb-group-dot{width:.25rem;height:.25rem;border-radius:999px;flex:none;
             background:var(--admin-primary,#6366f1)}
 
@@ -133,7 +133,7 @@
         .asb-count{flex:none;min-width:1.25rem;padding:.05rem .3rem;text-align:center;
             font-size:.65rem;font-weight:700;line-height:1.4;color:var(--admin-on-primary,#fff);
             background:var(--admin-primary,#6366f1)}
-        .asb-item.is-active .asb-count{color:var(--admin-primary,#4f46e5);background:#fff}
+        .asb-item.is-active .asb-count{color:var(--admin-primary,#4f46e5);background:var(--surface,#fff)}
 
     </style>
 

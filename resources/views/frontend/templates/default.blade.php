@@ -185,10 +185,10 @@
     .nw{ max-width:80rem; margin:2.5rem auto; padding:0 1rem }
 
     .nw__head{ display:inline-flex; align-items:center; gap:.75rem; padding:.7rem 1.15rem;
-        background:#fff; border:1px solid rgba(17,24,39,.08); box-shadow:0 2px 10px rgba(15,23,42,.06);
+        background:var(--surface,#fff); border:1px solid rgba(17,24,39,.08); box-shadow:0 2px 10px rgba(15,23,42,.06);
         margin-bottom:1.5rem }
-    .nw__title{ margin:0; font-size:1.5rem; font-weight:700; color:#111827; line-height:1.2 }
-    .nw__sub{ margin:.1rem 0 0; font-size:.82rem; color:#6b7280 }
+    .nw__title{ margin:0; font-size:1.5rem; font-weight:700; color:var(--surface-ink,#111827); line-height:1.2 }
+    .nw__sub{ margin:.1rem 0 0; font-size:.82rem; color:var(--surface-mute,#6b7280) }
 
     .nw-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(18rem,1fr)); gap:1rem }
 
@@ -199,11 +199,11 @@
     .nw-card__media{ position:relative; height:11rem; background:var(--surface-2,#f1f5f9) }
     .nw-card__media img, .nw-card__media video{ width:100%; height:100%; object-fit:cover; display:block }
     .nw-card__noimg{ display:flex; flex-direction:column; align-items:center; justify-content:center;
-        gap:.4rem; height:100%; color:#94a3b8; font-size:.75rem }
+        gap:.4rem; height:100%; color:var(--surface-dim,#94a3b8); font-size:.75rem }
     .nw-card__noimg i{ font-size:1.6rem; opacity:.5 }
 
     .nw-card__cats{ position:absolute; top:.6rem; left:.6rem; display:flex; flex-wrap:wrap; gap:.3rem }
-    .nw-chip{ font-size:.68rem; font-weight:700; padding:.15rem .5rem; color:#fff;
+    .nw-chip{ font-size:.68rem; font-weight:700; padding:.15rem .5rem; color:var(--on-accent,#fff);
         background:var(--color-primary,#6366f1) }
 
     .nw-card__body{ display:flex; flex-direction:column; gap:.45rem; padding:1rem 1.1rem 1.15rem; flex:1 }
@@ -211,7 +211,7 @@
     /* Обрезка строками — настоящим CSS: класса line-clamp в сборке нет,
        и без этого длинный заголовок ломал высоту карточек в ряду. */
     .nw-card__title{ margin:0; font-size:1.05rem; line-height:1.35; font-weight:700 }
-    .nw-card__title a{ color:#111827; display:-webkit-box; -webkit-line-clamp:2;
+    .nw-card__title a{ color:var(--surface-ink,#111827); display:-webkit-box; -webkit-line-clamp:2;
         -webkit-box-orient:vertical; overflow:hidden }
     .nw-card__title a:hover{ color:var(--color-primary,#6366f1) }
 
@@ -221,20 +221,20 @@
        разведены. */
     .nw-card__meta{ display:flex; align-items:center; justify-content:space-between; gap:.75rem;
         margin:.65rem -1.1rem -1.15rem; padding:.55rem 1.1rem; font-size:.75rem;
-        border-top:1px solid #eef2f7; background:#f8fafc }
-    .nw-meta__date{ color:#94a3b8; font-variant-numeric:tabular-nums }
+        border-top:1px solid #eef2f7; background:var(--surface-2,#f8fafc) }
+    .nw-meta__date{ color:var(--surface-dim,#94a3b8); font-variant-numeric:tabular-nums }
     .nw-meta__date::before{ content:'🗓'; margin-right:.35rem; opacity:.75 }
-    .nw-meta__time{ color:#475569; font-weight:600; white-space:nowrap }
+    .nw-meta__time{ color:var(--surface-ink,#475569); font-weight:600; white-space:nowrap }
     .nw-meta__time::before{ content:'⏱'; margin-right:.3rem; opacity:.75 }
 
-    .nw-card__text{ margin:0; font-size:.85rem; line-height:1.55; color:#64748b; flex:1;
+    .nw-card__text{ margin:0; font-size:.85rem; line-height:1.55; color:var(--surface-mute,#64748b); flex:1;
         display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden }
 
     .nw-card__more{ font-size:.85rem; font-weight:700; color:var(--color-primary,#6366f1) }
 
     .nw-pager{ margin-top:1.5rem; display:flex; justify-content:center }
 
-    .nw-empty{ padding:3rem 1rem; text-align:center; color:#94a3b8 }
+    .nw-empty{ padding:3rem 1rem; text-align:center; color:var(--surface-dim,#94a3b8) }
     .nw-empty i{ font-size:2rem; display:block; margin-bottom:.75rem; opacity:.5 }
 
 

@@ -107,14 +107,14 @@
     .fs-head{ display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-bottom:1px solid rgba(17,24,39,.07); }
     :root.dark .fs-head{ border-color:rgba(255,255,255,.08); }
     .fs-title{ font-weight:600; font-size:.95rem; color:var(--color-text,#111827); }
-    .fs-close{ display:inline-flex; padding:6px; border:0; background:transparent; color:#6b7280; cursor:pointer; border-radius:6px; }
+    .fs-close{ display:inline-flex; padding:6px; border:0; background:transparent; color:var(--surface-mute,#6b7280); cursor:pointer; border-radius:6px; }
     .fs-close:hover{ background:rgba(17,24,39,.06); color:var(--fx-a,#6366f1); }
     .fs-nav{ padding:8px; }
     .fs-list{ list-style:none; margin:0; padding:0; }
     .fs-link{ display:flex; align-items:center; gap:.6rem; padding:.6rem .7rem; border-radius:8px;
         text-decoration:none; color:var(--color-text,#374151); font-size:.9rem; transition:background .12s, color .12s; }
     .fs-link:hover{ background:rgba(99,102,241,.08); color:var(--fx-a,#6366f1); }
-    .fs-link--sub{ font-size:.85rem; color:#6b7280; }
+    .fs-link--sub{ font-size:.85rem; color:var(--surface-mute,#6b7280); }
     .fs-sub{ margin:2px 0 4px .9rem; padding-left:.5rem; border-left:1.5px solid rgba(99,102,241,.18); }
     .fs-ico{ display:inline-flex; color:var(--fx-a,#6366f1); opacity:.7; }
     .fs-ico svg, .fs-ico i{ width:1.05rem; height:1.05rem; font-size:1.05rem; line-height:1; }

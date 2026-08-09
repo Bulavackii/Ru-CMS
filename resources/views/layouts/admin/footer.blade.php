@@ -293,11 +293,11 @@
            строку и выталкивали соцсети на вторую */
         .adm-f-set{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem;flex:0 1 auto;min-width:0}
         .adm-f-chip{display:inline-flex;align-items:center;gap:.3rem;padding:.15rem .45rem;
-            font-size:.68rem;line-height:1.3;white-space:nowrap;color:#4b5563;
+            font-size:.68rem;line-height:1.3;white-space:nowrap;color:var(--surface-ink,#4b5563);
             background:rgba(17,24,39,.04);border:1px solid rgba(17,24,39,.07);
             font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
         .dark .adm-f-chip{color:#9ca3af;background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.08)}
-        .adm-f-key{color:#9ca3af;font-weight:600}
+        .adm-f-key{color:var(--surface-dim,#9ca3af);font-weight:600}
         .adm-f-ico{font-size:.7rem;color:var(--admin-primary,#6366f1)}
         /* Включённая отладка — не украшение, а предупреждение */
         .adm-f-chip.is-warn{color:#92400e;background:#fef3c7;border-color:#fcd34d}
@@ -306,7 +306,7 @@
         /* Соцсети: тот же приём, что в подвале сайта — фирменный цвет приходит
            переменной --c и проявляется при наведении */
         .adm-f-social{display:grid;place-items:center;width:1.9rem;height:1.9rem;flex:none;
-            color:#6b7280;border:1px solid rgba(17,24,39,.1);
+            color:var(--surface-mute,#6b7280);border:1px solid rgba(17,24,39,.1);
             transition:color .15s ease,border-color .15s ease,background .15s ease}
         .dark .adm-f-social{color:#9ca3af;border-color:rgba(255,255,255,.1)}
         .adm-f-social:hover{color:var(--c,#6366f1);border-color:var(--c,#6366f1);
@@ -316,7 +316,7 @@
         .adm-f-link{color:var(--admin-primary,#4f46e5);font-weight:500}
         .adm-f-link:hover{text-decoration:underline}
         .adm-f-dot{opacity:.45}
-        .adm-f-mut{color:#9ca3af}
+        .adm-f-mut{color:var(--surface-dim,#9ca3af)}
 
         /* Три полосы содержимого в одной строке: по краям — сколько нужно,
            середина забирает остаток и встаёт по центру. Сеткой, а не flex:
@@ -336,11 +336,11 @@
         }
 
         .adm-f-live{display:inline-flex;align-items:center;gap:.3rem;white-space:nowrap}
-        .adm-f-clock{color:#4b5563;font-weight:600;font-variant-numeric:tabular-nums}
+        .adm-f-clock{color:var(--surface-ink,#4b5563);font-weight:600;font-variant-numeric:tabular-nums}
         .dark .adm-f-clock{color:#d1d5db}
 
         .adm-f-soc-label{margin-right:.15rem;font-size:.6rem;font-weight:700;
-            letter-spacing:.08em;text-transform:uppercase;color:#9ca3af}
+            letter-spacing:.08em;text-transform:uppercase;color:var(--surface-dim,#9ca3af)}
     </style>
 
     <script>

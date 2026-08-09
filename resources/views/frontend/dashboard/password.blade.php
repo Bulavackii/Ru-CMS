@@ -145,9 +145,9 @@
         padding:.65rem 1.4rem; line-height:1.25; white-space:nowrap; width:auto;
         font-size:.88rem; font-weight:600;
     }
-    .acc-btn-ghost{ border:1px solid #e5e7eb; background:#fff; color:#374151;
+    .acc-btn-ghost{ border:1px solid var(--surface-bd,#e5e7eb); background:var(--surface,#fff); color:var(--surface-ink,#374151);
                     transition:border-color .15s, color .15s, background .15s }
-    .acc-btn-ghost:hover{ border-color:#a5b4fc; color:#4f46e5; background:#f8fafc }
+    .acc-btn-ghost:hover{ border-color:#a5b4fc; color:#4f46e5; background:var(--surface-2,#f8fafc) }
     .acc-actions .fx-btn:active,
     .acc-actions .acc-btn-ghost:active{ transform:translateY(1px) }
 
@@ -167,10 +167,10 @@
        на странице смены пароля в панели — человек видит один и тот же
        приём в обоих местах. */
     .pwf-label{ display:block; margin-bottom:.35rem; font-size:.875rem; font-weight:600;
-        color:#374151 }
+        color:var(--surface-ink,#374151) }
     .pwf-req{ color:#ef4444 }
-    .pwf-input{ width:100%; padding:.6rem .75rem; font-size:.9rem; color:#0f172a;
-        background:#fff; border:1px solid #d1d5db; transition:border-color .15s, box-shadow .15s }
+    .pwf-input{ width:100%; padding:.6rem .75rem; font-size:.9rem; color:var(--surface-ink,#0f172a);
+        background:var(--surface,#fff); border:1px solid #d1d5db; transition:border-color .15s, box-shadow .15s }
     .pwf-input:focus{ outline:none; border-color:var(--color-primary,#6366f1);
         box-shadow:0 0 0 3px rgba(99,102,241,.15) }
     .pwf-bad{ border-color:#dc2626 }
@@ -182,14 +182,14 @@
     .pwf-meter span.is-on.s3{ background:#eab308 }
     .pwf-meter span.is-on.s4{ background:#22c55e }
 
-    .pwf-note{ margin-top:.35rem; font-size:.78rem; color:#6b7280 }
+    .pwf-note{ margin-top:.35rem; font-size:.78rem; color:var(--surface-mute,#6b7280) }
     .pwf-note--bad{ color:#dc2626; font-weight:600 }
     .pwf-note--ok{ color:#15803d; font-weight:600 }
 
     .pwf-tools{ display:flex; align-items:center; justify-content:space-between;
         gap:1rem; flex-wrap:wrap }
     .pwf-show{ display:inline-flex; align-items:center; gap:.45rem; font-size:.85rem;
-        color:#4b5563; cursor:pointer }
+        color:var(--surface-ink,#4b5563); cursor:pointer }
     .pwf-gen{ display:inline-flex; align-items:center; gap:.4rem; padding:.4rem .8rem;
         font-size:.82rem; font-weight:600; color:#4338ca; background:rgba(99,102,241,.1);
         border:0; cursor:pointer; transition:background .15s }

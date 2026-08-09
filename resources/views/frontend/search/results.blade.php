@@ -216,7 +216,7 @@
 @push('styles')
 <style>
     /* Подсветка совпадений — в тон акценту фронта */
-    .fx-mark{ background:#fde68a; color:#111827; padding:0 .12em; }
+    .fx-mark{ background:#fde68a; color:var(--surface-ink,#111827); padding:0 .12em; }
     :root.dark .fx-mark{ background:#a16207; color:#fff; }
 </style>
 @endpush

@@ -370,7 +370,7 @@
 
     .a11y-fab__btn{ display:flex; align-items:center; justify-content:center; width:3rem; height:3rem;
                     border:0; cursor:pointer; border-radius:9999px;
-                    background:var(--color-primary, #6366f1); color:#fff;
+                    background:var(--color-primary, #6366f1); color:var(--on-accent,#fff);
                     box-shadow:0 4px 14px rgba(15,23,42,.25);
                     transition:transform .15s ease, box-shadow .15s ease, background .2s ease }
     .a11y-fab__btn:hover{ transform:translateY(-2px); box-shadow:0 8px 20px rgba(15,23,42,.3) }

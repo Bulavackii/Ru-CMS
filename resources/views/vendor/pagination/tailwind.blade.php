@@ -35,7 +35,7 @@
     .pg__link:hover{ border-color:var(--color-primary,#6366f1); color:var(--color-primary,#6366f1) }
     .pg__link:focus-visible{ outline:2px solid var(--color-primary,#6366f1); outline-offset:2px }
 
-    .pg__link--active{ color:#fff; background:var(--color-primary,#6366f1);
+    .pg__link--active{ color:var(--on-accent,#fff); background:var(--color-primary,#6366f1);
         border-color:var(--color-primary,#6366f1); cursor:default }
     .pg__link--active:hover{ color:#fff }
 

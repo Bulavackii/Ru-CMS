@@ -297,7 +297,7 @@
     /* Подпись набрана в разрядку прописными: так короткая строка читается
        как часть знака, а не как обрывок текста под ним. */
     .hdr-logo-sub{ font-size:.58rem; font-weight:600; letter-spacing:.14em;
-        text-transform:uppercase; color:#94a3b8; margin-top:2px; white-space:nowrap; }
+        text-transform:uppercase; color:var(--surface-dim,#94a3b8); margin-top:2px; white-space:nowrap; }
     :root.dark .hdr-logo-sub{ color:#9ca3af; }
 
     /* На узком экране остаётся только знак и название — подпись не влезает
@@ -311,7 +311,7 @@
     /* Пилюли-действия */
     .hdr-actions .hdr-pill, .hdr-actions .hdr-icon-btn{
         display:inline-flex; align-items:center; gap:.4rem; padding:.42rem .72rem; border-radius:9px;
-        font-size:.82rem; font-weight:500; line-height:1; color:#374151; background:transparent; border:0;
+        font-size:.82rem; font-weight:500; line-height:1; color:var(--surface-ink,#374151); background:transparent; border:0;
         cursor:pointer; text-decoration:none; white-space:nowrap; position:relative;
         transition:background .14s ease, color .14s ease, filter .14s ease; }
     :root.dark .hdr-actions .hdr-pill, :root.dark .hdr-actions .hdr-icon-btn{ color:#d1d5db; }
@@ -365,7 +365,7 @@
         border:1px solid rgba(17,24,39,.08); border-radius:11px; box-shadow:0 16px 40px -14px rgba(17,24,39,.3); }
     :root.dark .hdr-lang-menu{ background:rgba(15,23,42,.96); border-color:rgba(255,255,255,.08); }
     .hdr-lang-item{ display:flex; align-items:center; gap:.6rem; padding:.5rem .55rem; border-radius:8px; font-size:.83rem;
-        color:#374151; text-decoration:none; transition:background .12s ease, color .12s ease; }
+        color:var(--surface-ink,#374151); text-decoration:none; transition:background .12s ease, color .12s ease; }
     :root.dark .hdr-lang-item{ color:#d1d5db; }
     .hdr-lang-item:hover{ background:rgba(99,102,241,.1); color:#4f46e5; }
     :root.dark .hdr-lang-item:hover{ background:rgba(99,102,241,.2); color:#c7d2fe; }
@@ -392,8 +392,8 @@
     /* Переключатель темы: кружок-превью в цвете акцента темы */
     .hdr-theme-dot{ width:.85rem; height:.85rem; border-radius:999px; flex:0 0 auto;
         border:1px solid rgba(17,24,39,.15); box-shadow:0 1px 2px rgba(17,24,39,.15); }
-    .hdr-theme-note{ font-size:.62rem; color:#9ca3af; letter-spacing:.02em; }
-    .hdr-theme-reset{ border-top:1px solid rgba(17,24,39,.08); margin-top:.2rem; padding-top:.55rem; color:#6b7280; }
+    .hdr-theme-note{ font-size:.62rem; color:var(--surface-dim,#9ca3af); letter-spacing:.02em; }
+    .hdr-theme-reset{ border-top:1px solid rgba(17,24,39,.08); margin-top:.2rem; padding-top:.55rem; color:var(--surface-mute,#6b7280); }
     :root.dark .hdr-theme-reset{ border-color:rgba(255,255,255,.08); }
 
     .hdr-lang-code{ display:inline-flex; align-items:center; justify-content:center; min-width:1.75rem; height:1.4rem;
@@ -410,15 +410,15 @@
     /* Поле и кнопка — одной высоты, кнопка рядом с полем (align-items:stretch) */
     .hdr-search-row{ display:flex; align-items:stretch; gap:.5rem; width:100%; }
     .hdr-search-input{ width:100%; height:100%; padding:.55rem .9rem .55rem 2.3rem; border-radius:10px; font-size:.85rem; line-height:1.2;
-        border:1px solid rgba(17,24,39,.14); background:rgba(255,255,255,.7); color:#111827;
+        border:1px solid rgba(17,24,39,.14); background:rgba(255,255,255,.7); color:var(--surface-ink,#111827);
         transition:border-color .15s ease, box-shadow .15s ease, background .15s ease; }
     :root.dark .hdr-search-input{ background:rgba(30,41,59,.7); border-color:rgba(255,255,255,.12); color:#f3f4f6; }
-    .hdr-search-input::placeholder{ color:#9ca3af; }
-    .hdr-search-input:focus{ outline:none; border-color:#818cf8; box-shadow:0 0 0 3px rgba(99,102,241,.18); background:#fff; }
+    .hdr-search-input::placeholder{ color:var(--surface-dim,#9ca3af); }
+    .hdr-search-input:focus{ outline:none; border-color:#818cf8; box-shadow:0 0 0 3px rgba(99,102,241,.18); background:var(--surface,#fff); }
     :root.dark .hdr-search-input:focus{ background:rgba(30,41,59,.96); }
     /* Лупа слева — только значок: отправляет форму кнопка «Найти» справа */
     .hdr-search-ico{ position:absolute; left:.6rem; top:50%; transform:translateY(-50%); z-index:2;
-        display:inline-flex; color:#9ca3af; pointer-events:none; }
+        display:inline-flex; color:var(--surface-dim,#9ca3af); pointer-events:none; }
     /* Кнопка отправки рядом с полем, той же высоты */
     .hdr-search-go{ flex:0 0 auto; display:inline-flex; align-items:center; justify-content:center;
         padding:0 1.05rem; border:0; border-radius:10px; white-space:nowrap;

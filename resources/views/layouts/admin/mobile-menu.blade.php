@@ -114,9 +114,9 @@
         .amb-logo{display:grid;place-items:center;width:2rem;height:2rem;flex:none;color:var(--admin-on-primary,#fff);
             background:linear-gradient(135deg,var(--admin-primary,#6366f1),var(--admin-accent,#a855f7))}
         .amb-group{padding:0 .6rem;margin-bottom:.25rem;font-size:.68rem;font-weight:700;
-            letter-spacing:.06em;text-transform:uppercase;color:#9ca3af}
+            letter-spacing:.06em;text-transform:uppercase;color:var(--surface-dim,#9ca3af)}
         .amb-item{display:flex;align-items:center;gap:.7rem;padding:.5rem .6rem;font-size:.875rem;
-            color:#374151;text-decoration:none;border-left:2px solid transparent;
+            color:var(--surface-ink,#374151);text-decoration:none;border-left:2px solid transparent;
             transition:background .15s ease,color .15s ease}
         .dark .amb-item{color:#d1d5db}
         .amb-item:hover{background:var(--admin-primary-soft,rgba(99,102,241,.1));
@@ -125,6 +125,6 @@
             background:linear-gradient(90deg,var(--admin-primary,#6366f1),transparent 340%)}
         .amb-count{flex:none;min-width:1.25rem;padding:.05rem .3rem;text-align:center;font-size:.65rem;
             font-weight:700;color:var(--admin-on-primary,#fff);background:var(--admin-primary,#6366f1)}
-        .amb-item.is-active .amb-count{color:var(--admin-primary,#4f46e5);background:#fff}
+        .amb-item.is-active .amb-count{color:var(--admin-primary,#4f46e5);background:var(--surface,#fff)}
     </style>
 </div>

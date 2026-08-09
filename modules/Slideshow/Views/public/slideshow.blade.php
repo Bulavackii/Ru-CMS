@@ -286,7 +286,7 @@
     .sld-badge:hover{ background:rgba(15,23,42,.58); border-color:rgba(255,255,255,.34) }
 
     .sld-badge__ico{ display:inline-flex; align-items:center; justify-content:center;
-        width:1.55rem; height:1.55rem; flex:none; font-size:.72rem; color:#fff;
+        width:1.55rem; height:1.55rem; flex:none; font-size:.72rem; color:var(--on-accent,#fff);
         background:linear-gradient(135deg,var(--color-primary,#6366f1),var(--color-accent,#8b5cf6)) }
 
     .sld-badge__text{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap;

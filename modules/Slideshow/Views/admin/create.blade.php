@@ -143,7 +143,7 @@
     .pos-switch .pos-chip{
         display:inline-flex; align-items:center; gap:.4rem; cursor:pointer; user-select:none;
         padding:.45rem .85rem; font-size:.875rem; font-weight:500;
-        border:1px solid #d1d5db; background:#fff; color:#374151;
+        border:1px solid #d1d5db; background:#fff; color:var(--surface-ink,#374151);
         transition:background .15s ease, color .15s ease, border-color .15s ease;
     }
     .dark .pos-switch .pos-chip{ background:#111827; border-color:#374151; color:#d1d5db; }

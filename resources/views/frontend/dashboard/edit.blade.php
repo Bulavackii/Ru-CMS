@@ -111,7 +111,7 @@
     .acc-head{ display:flex; align-items:center; justify-content:center; gap:.9rem;
                margin:0 auto 1.25rem; max-width:52rem; text-align:left }
     .acc-h2{ font-size:.78rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase;
-             color:#9ca3af; margin-bottom:.9rem }
+             color:var(--surface-dim,#9ca3af); margin-bottom:.9rem }
     .acc-form{ max-width:52rem; margin-inline:auto }
 
     .acc-flash{ border:1px solid #bbf7d0; background:#f0fdf4; color:#166534;
@@ -125,7 +125,7 @@
     .acc-fields__wide{ grid-column:1 / -1 }
 
     .acc-check{ display:inline-flex; align-items:center; gap:.6rem; cursor:pointer;
-                font-size:.92rem; color:#374151 }
+                font-size:.92rem; color:var(--surface-ink,#374151) }
 
     /* Кнопки страницы. Общий .fx-btn рисовался под короткое «Подробнее»:
        длинная подпись вылезала за его фон, поэтому размеры задаём сами. */
@@ -137,9 +137,9 @@
         padding:.65rem 1.4rem; line-height:1.25; white-space:nowrap; width:auto;
         font-size:.88rem; font-weight:600;
     }
-    .acc-btn-ghost{ border:1px solid #e5e7eb; background:#fff; color:#374151;
+    .acc-btn-ghost{ border:1px solid var(--surface-bd,#e5e7eb); background:var(--surface,#fff); color:var(--surface-ink,#374151);
                     transition:border-color .15s, color .15s, background .15s }
-    .acc-btn-ghost:hover{ border-color:#a5b4fc; color:#4f46e5; background:#f8fafc }
+    .acc-btn-ghost:hover{ border-color:#a5b4fc; color:#4f46e5; background:var(--surface-2,#f8fafc) }
     .acc-actions .fx-btn:active,
     .acc-actions .acc-btn-ghost:active{ transform:translateY(1px) }
 

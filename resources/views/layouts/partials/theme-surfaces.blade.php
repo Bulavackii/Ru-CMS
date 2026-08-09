@@ -1,0 +1,79 @@
+{{-- Переменные поверхностей — ОДИН набор на весь сайт.
+
+     Подключается и основным макетом (layouts.frontend), и макетом входа
+     (layouts.guest). Раньше набор жил внутри основного макета, и страницы
+     входа с регистрацией просто не имели тёмного вида: тема сайта тёмная,
+     а формы оставались светлыми.
+
+     Карточки в шаблонах были прибиты к белому, а тёмный вид описывался под
+     `@media (prefers-color-scheme: dark)` — то есть под тёмный режим
+     ОПЕРАЦИОННОЙ СИСТЕМЫ. К тёмной ТЕМЕ САЙТА это отношения не имеет, и на
+     ней карточки оставались белыми: замер показывал пятьдесят один светлый
+     блок на тёмной странице.
+
+     Тёмные значения выводятся ИЗ САМОЙ ТЕМЫ — цвет её текста подмешивается
+     к цвету её фона. Поэтому любая новая тёмная тема получает согласованные
+     поверхности сама, без правки шаблонов. --}}
+<style>
+    :root{
+        --surface:      #ffffff;
+        --surface-2:    #f1f5f9;
+        --surface-bd:   #eef2f7;
+        --surface-ink:  #111827;
+
+        /* Два уровня приглушения, как было в шаблонах до сведения к
+           переменным: подписи и совсем блёклые сноски. Одним значением их
+           объединять нельзя — подписи под цифрами стали бы бледнее, чем
+           были, и это сразу заметно на светлой теме. */
+        --surface-mute: #64748b;
+        --surface-dim:  #94a3b8;
+
+        /* Цвет надписи ПОВЕРХ акцента темы (кнопки, бейджи, чипы). Он не
+           всегда белый: у тёмных тем акцент светлый — мятный «Изумруд» с
+           белой надписью давал контраст 1.8 при пороге 4.5. Значение здесь
+           одно на весь сайт, потому что прибитый #fff успел разъехаться
+           по двум десяткам шаблонов. */
+        --on-accent:    #ffffff;
+    }
+
+    body.fx-theme-dark{
+        --surface:      color-mix(in srgb, var(--color-text) 7%,  var(--color-bg));
+        --surface-2:    color-mix(in srgb, var(--color-text) 13%, var(--color-bg));
+        --surface-bd:   color-mix(in srgb, var(--color-text) 16%, transparent);
+        --surface-ink:  var(--color-text);
+
+        /* На тёмном фоне приглушение читается иначе: те же проценты выглядят
+           заметно бледнее. Уровни здесь выше — второстепенный текст должен
+           оставаться читаемым, а не угадываемым. */
+        --surface-mute: color-mix(in srgb, var(--color-text) 86%, transparent);
+        --surface-dim:  color-mix(in srgb, var(--color-text) 72%, transparent);
+
+        /* Акценты тёмных тем светлые, поэтому надпись поверх них берёт цвет
+           фона темы — он тёмный и по определению с ней согласован. */
+        --on-accent:    var(--color-bg);
+    }
+
+    .fx-btn,
+    .btn-theme{ color: var(--on-accent, #fff); }
+
+    /* Типографика содержимого. Плагин prose красит текст, заголовки,
+       полужирное и ссылки СВОИМИ переменными — для того они и заведены.
+       По умолчанию там тёмные значения: на тёмной теме полужирные слова
+       в абзаце пропадали, оставаясь чёрными на чёрном. */
+    body.fx-theme-dark .prose{
+        --tw-prose-body:          var(--color-text);
+        --tw-prose-headings:      var(--color-text);
+        --tw-prose-lead:          var(--surface-mute);
+        --tw-prose-bold:          var(--color-text);
+        --tw-prose-links:         var(--color-primary);
+        --tw-prose-counters:      var(--surface-mute);
+        --tw-prose-bullets:       var(--surface-mute);
+        --tw-prose-quotes:        var(--color-text);
+        --tw-prose-quote-borders: var(--surface-bd);
+        --tw-prose-captions:      var(--surface-mute);
+        --tw-prose-code:          var(--color-text);
+        --tw-prose-hr:            var(--surface-bd);
+        --tw-prose-th-borders:    var(--surface-bd);
+        --tw-prose-td-borders:    var(--surface-bd);
+    }
+</style>

@@ -122,12 +122,12 @@
         margin-bottom:1.5rem }
     .mag__badge{ display:flex; align-items:center; justify-content:center; width:2.4rem; height:2.4rem;
         flex:none; font-size:1.2rem; background:var(--color-primary,#6366f1) }
-    .mag__title{ margin:0; font-size:1.5rem; font-weight:700; color:#111827; line-height:1.2 }
-    .mag__sub{ margin:.1rem 0 0; font-size:.82rem; color:#6b7280 }
+    .mag__title{ margin:0; font-size:1.5rem; font-weight:700; color:var(--surface-ink,#111827); line-height:1.2 }
+    .mag__sub{ margin:.1rem 0 0; font-size:.82rem; color:var(--surface-mute,#6b7280) }
 
     /* ── Ведущий материал ── */
     .mag-lead{ display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); gap:0;
-        background:#fff; border:1px solid #eef2f7; margin-bottom:1rem; overflow:hidden;
+        background:var(--surface,#fff); border:1px solid var(--surface-bd,#eef2f7); margin-bottom:1rem; overflow:hidden;
         transition:border-color .15s, transform .15s }
     .mag-lead:hover{ border-color:var(--color-primary,#6366f1); transform:translateY(-2px) }
     .mag-lead__media{ position:relative; min-height:22rem; display:flex; align-items:center;
@@ -135,21 +135,21 @@
     .mag-lead__media img{ width:100%; height:100%; object-fit:cover; display:block }
     .mag-lead__letter{ font-size:7rem; font-weight:800; color:#fff; opacity:.9; line-height:1 }
     .mag-lead__body{ padding:2rem 2.25rem; display:flex; flex-direction:column; justify-content:center }
-    .mag-lead__title{ margin:.75rem 0 .6rem; font-size:1.75rem; line-height:1.25; font-weight:700; color:#111827 }
-    .mag-lead__text{ margin:0; font-size:1rem; line-height:1.6; color:#475569 }
+    .mag-lead__title{ margin:.75rem 0 .6rem; font-size:1.75rem; line-height:1.25; font-weight:700; color:var(--surface-ink,#111827) }
+    .mag-lead__text{ margin:0; font-size:1rem; line-height:1.6; color:var(--surface-ink,#475569) }
     /* У ведущего материала та же полоса, только шире и со ссылкой справа. */
     .mag-lead__meta{ display:flex; align-items:center; gap:1rem; flex-wrap:wrap;
-        margin-top:1.5rem; padding-top:.85rem; font-size:.82rem; color:#94a3b8;
+        margin-top:1.5rem; padding-top:.85rem; font-size:.82rem; color:var(--surface-dim,#94a3b8);
         border-top:1px solid #eef2f7 }
     .mag-lead__meta .mag-meta__time{ margin-right:auto }
     .mag-lead__more{ font-weight:700; color:var(--color-primary,#6366f1) }
 
     .mag-chip{ align-self:flex-start; font-size:.7rem; font-weight:700; letter-spacing:.04em;
-        padding:.2rem .6rem; color:#fff; background:var(--color-accent,#8b5cf6) }
+        padding:.2rem .6rem; color:var(--on-accent,#fff); background:var(--color-accent,#8b5cf6) }
 
     /* ── Сетка остальных ── */
     .mag-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(17rem,1fr)); gap:1rem }
-    .mag-card{ display:flex; flex-direction:column; background:#fff; border:1px solid #eef2f7;
+    .mag-card{ display:flex; flex-direction:column; background:var(--surface,#fff); border:1px solid var(--surface-bd,#eef2f7);
         overflow:hidden; transition:border-color .15s, transform .15s }
     .mag-card:hover{ border-color:var(--color-primary,#6366f1); transform:translateY(-2px) }
     /* Высота под пропорцию 8:5: при 9.5rem обложка срезалась почти вдвое */
@@ -158,17 +158,17 @@
     .mag-card__media img{ width:100%; height:100%; object-fit:cover; display:block }
     .mag-card__letter{ font-size:3rem; font-weight:800; color:#fff; opacity:.9; line-height:1 }
     .mag-card__body{ padding:1rem 1.1rem 1.15rem; display:flex; flex-direction:column; gap:.4rem; flex:1 }
-    .mag-card__title{ margin:0; font-size:1rem; line-height:1.35; font-weight:700; color:#111827 }
-    .mag-card__text{ margin:0; font-size:.84rem; line-height:1.5; color:#64748b; flex:1 }
+    .mag-card__title{ margin:0; font-size:1rem; line-height:1.35; font-weight:700; color:var(--surface-ink,#111827) }
+    .mag-card__text{ margin:0; font-size:.84rem; line-height:1.5; color:var(--surface-mute,#64748b); flex:1 }
     /* Нижняя строка карточки. Раньше это был обычный текст того же цвета,
        что и анонс, вплотную к нему — строка в тексте тонула. Теперь у неё
        своя полоса: линия сверху, лёгкая подложка, края разведены. */
     .mag-card__meta{ display:flex; align-items:center; justify-content:space-between; gap:.75rem;
         margin:.65rem -1.1rem -1.15rem; padding:.55rem 1.1rem; font-size:.75rem;
-        border-top:1px solid #eef2f7; background:#f8fafc }
-    .mag-meta__date{ color:#94a3b8; font-variant-numeric:tabular-nums }
+        border-top:1px solid #eef2f7; background:var(--surface-2,#f8fafc) }
+    .mag-meta__date{ color:var(--surface-dim,#94a3b8); font-variant-numeric:tabular-nums }
     .mag-meta__date::before{ content:'🗓'; margin-right:.35rem; opacity:.75 }
-    .mag-meta__time{ color:#475569; font-weight:600; white-space:nowrap }
+    .mag-meta__time{ color:var(--surface-ink,#475569); font-weight:600; white-space:nowrap }
     .mag-meta__time::before{ content:'⏱'; margin-right:.3rem; opacity:.75 }
 
     @media (max-width: 860px){

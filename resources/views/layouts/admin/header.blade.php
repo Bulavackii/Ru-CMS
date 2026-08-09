@@ -78,7 +78,7 @@
            есть следует за выбранным оформлением панели. */
         .ahd-btn{position:relative;display:grid;place-items:center;width:2.25rem;height:2.25rem;
             border:1px solid #374151;color:#d1d5db;transition:background .15s ease,border-color .15s ease,color .15s ease}
-        .ahd-btn:hover{background:rgba(255,255,255,.08);border-color:#4b5563;color:#fff}
+        .ahd-btn:hover{background:rgba(255,255,255,.08);border-color:var(--surface-ink,#4b5563);color:#fff}
         .ahd-badge{position:absolute;top:-.375rem;right:-.375rem;min-width:1.25rem;height:1.25rem;
             display:flex;align-items:center;justify-content:center;padding:0 .2rem;
             font-size:.68rem;line-height:1;color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.4)}
@@ -117,18 +117,18 @@
         .ahd-action--primary{background:var(--admin-primary,#6366f1);color:var(--admin-on-primary,#fff);border:1px solid transparent}
         .ahd-action--primary:hover{filter:brightness(1.12);color:var(--admin-on-primary,#fff)}
         .ahd-action--ghost{border:1px solid #374151;color:#d1d5db}
-        .ahd-action--ghost:hover{background:rgba(255,255,255,.08);border-color:#4b5563;color:#fff}
+        .ahd-action--ghost:hover{background:rgba(255,255,255,.08);border-color:var(--surface-ink,#4b5563);color:#fff}
 
         /* Выпадающие меню шапки (язык, оформление, создание, профиль) */
         .ahd-menu{position:absolute;right:0;top:calc(100% + .45rem);z-index:70;min-width:12.5rem;
-            padding:.3rem;background:#fff;border:1px solid #e5e7eb;
+            padding:.3rem;background:var(--surface,#fff);border:1px solid var(--surface-bd,#e5e7eb);
             box-shadow:0 24px 48px -20px rgba(17,24,39,.55)}
         .dark .ahd-menu{background:#111827;border-color:#374151}
         .ahd-menu--left{right:auto;left:0}
         .ahd-menu-title{padding:.5rem .6rem .25rem;font-size:.63rem;font-weight:700;letter-spacing:.06em;
-            text-transform:uppercase;color:#9ca3af}
+            text-transform:uppercase;color:var(--surface-dim,#9ca3af)}
         .ahd-menu-item{display:flex;align-items:center;gap:.6rem;width:100%;padding:.45rem .6rem;
-            font-size:.82rem;color:#374151;text-align:left;text-decoration:none;background:none;border:0;
+            font-size:.82rem;color:var(--surface-ink,#374151);text-align:left;text-decoration:none;background:none;border:0;
             cursor:pointer;transition:background .12s ease,color .12s ease}
         .dark .ahd-menu-item{color:#d1d5db}
         .ahd-menu-item:hover{background:var(--admin-primary-soft,rgba(99,102,241,.12));
@@ -139,7 +139,7 @@
         .ahd-menu-item--danger:hover{background:rgba(220,38,38,.1);color:#b91c1c}
         .ahd-menu-sep{margin:.25rem 0;border-top:1px solid #e5e7eb}
         .dark .ahd-menu-sep{border-color:#374151}
-        .ahd-menu-note{margin-left:auto;font-size:.62rem;color:#9ca3af;letter-spacing:.02em}
+        .ahd-menu-note{margin-left:auto;font-size:.62rem;color:var(--surface-dim,#9ca3af);letter-spacing:.02em}
 
         /* Флаг локали (тот же приём, что в шапке сайта) */
         .flag{width:1.3rem;height:.92rem;display:inline-block;flex:none;overflow:hidden;
@@ -164,7 +164,7 @@
         @media (min-width:768px){.ahd-user-text{display:block}}
         .ahd-user-name{display:block;max-width:8.5rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
             font-size:.78rem;font-weight:600}
-        .ahd-user-role{display:block;font-size:.62rem;letter-spacing:.03em;color:#9ca3af}
+        .ahd-user-role{display:block;font-size:.62rem;letter-spacing:.03em;color:var(--surface-dim,#9ca3af)}
         .ahd-user-caret{font-size:.55rem;opacity:.6}
     </style>
 

@@ -452,6 +452,48 @@ if (!function_exists('readable_ink')) {
 }
 
 /**
+ * 🌗 theme_is_dark() — тёмная ли тема сайта по цвету её фона.
+ *
+ * Класс `fx-theme-dark` на теге body включает весь тёмный набор: подложки
+ * карточек, цвет надписи поверх акцента, приглушённый текст. Признак жил
+ * блоком `@php` внутри `layouts/frontend` — и макет входа/регистрации
+ * (`layouts/guest`) его попросту не имел: страницы входа оставались светлыми
+ * при тёмной теме сайта. Ровно тот случай «одно и то же в двух местах»,
+ * который в этом проекте уже разъезжался не раз, поэтому признак здесь один.
+ *
+ * Порог 0.45 по относительной яркости WCAG — то же, что считает
+ * readable_ink(). Непонятный цвет означает «не тёмная»: прежнее поведение.
+ *
+ * @param string|null $background HEX-цвет фона темы (#rgb или #rrggbb)
+ */
+if (!function_exists('theme_is_dark')) {
+    function theme_is_dark(?string $background): bool
+    {
+        $hex = ltrim(trim((string) $background), '#');
+
+        if (strlen($hex) === 3) {
+            $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+        }
+
+        if (!preg_match('~^[0-9a-fA-F]{6}$~', $hex)) {
+            return false;
+        }
+
+        $channel = function (int $value): float {
+            $c = $value / 255;
+
+            return $c <= 0.04045 ? $c / 12.92 : (($c + 0.055) / 1.055) ** 2.4;
+        };
+
+        $luminance = 0.2126 * $channel((int) hexdec(substr($hex, 0, 2)))
+            + 0.7152 * $channel((int) hexdec(substr($hex, 2, 2)))
+            + 0.0722 * $channel((int) hexdec(substr($hex, 4, 2)));
+
+        return $luminance < 0.45;
+    }
+}
+
+/**
  * 🔖 render_shortcodes() - Раскрытие шорткодов в содержимом материала.
  *
  * Текст новостей и страниц пишется в TinyMCE и хранится как HTML, поэтому

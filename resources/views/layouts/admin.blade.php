@@ -82,7 +82,7 @@
        Литеральный .dark-селектор ЗДЕСЬ работает (класс .dark реально висит
        на <html>), в отличие от Tailwind dark:-утилит, которых в сборке нет. */
     .admin-icon-badge{display:inline-flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;background:linear-gradient(135deg,var(--admin-primary),var(--admin-accent));color:#fff;flex:none}
-    .admin-card{background:#fff;border:1px solid #e5e7eb;transition:box-shadow .2s ease,transform .2s ease}
+    .admin-card{background:var(--surface,#fff);border:1px solid var(--surface-bd,#e5e7eb);transition:box-shadow .2s ease,transform .2s ease}
     .admin-card:hover{box-shadow:0 12px 24px -10px var(--admin-primary-glow);transform:translateY(-2px)}
     .dark .admin-card{background:#1f2937;border-color:#374151}
     /* Пояснение под полем — обычный мелкий серый текст.
@@ -91,7 +91,7 @@
        на форме с десятком полей глаз цеплялся за подсказки, а не за поля.
        Тот же вывод уже был сделан в Геолокации (.geo-help) — теперь правило
        общее для всей панели. */
-    .admin-hint{font-size:.8rem;line-height:1.5;color:#64748b}
+    .admin-hint{font-size:.8rem;line-height:1.5;color:var(--surface-mute,#64748b)}
     .dark .admin-hint{color:#94a3b8}
 
     /* Врезка-примечание — то, чем .admin-hint был раньше. Оставлена для
@@ -109,7 +109,7 @@
     .admin-toggle{position:relative;display:inline-block;width:2.5rem;height:1.4rem;flex:none}
     .admin-toggle input{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;cursor:pointer;z-index:2}
     .admin-toggle .track{position:absolute;inset:0;background:#cbd5e1;transition:background .2s}
-    .admin-toggle .knob{position:absolute;top:2px;left:2px;width:calc(1.4rem - 4px);height:calc(1.4rem - 4px);background:#fff;transition:left .2s;box-shadow:0 1px 2px rgba(0,0,0,.25);pointer-events:none}
+    .admin-toggle .knob{position:absolute;top:2px;left:2px;width:calc(1.4rem - 4px);height:calc(1.4rem - 4px);background:var(--surface,#fff);transition:left .2s;box-shadow:0 1px 2px rgba(0,0,0,.25);pointer-events:none}
     .admin-toggle input:checked ~ .track{background:var(--admin-primary)}
     .admin-toggle input:checked ~ .knob{left:calc(100% - 1.4rem + 2px)}
     .dark .admin-toggle .track{background:#4b5563}

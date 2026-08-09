@@ -16,6 +16,9 @@
     // ThemeServiceProvider отдаёт $activeTheme на каждую вьюху.
     $pageTheme = $siteTheme ?? $activeTheme ?? null;
     $themed = (bool) $pageTheme;
+    // Тот же признак, что у layouts.frontend: без класса fx-theme-dark
+    // вход и регистрация оставались светлыми при тёмной теме сайта.
+    $themeIsDark = theme_is_dark(data_get($pageTheme->tokens ?? [], 'colors.bg'));
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -29,6 +32,8 @@
 
     <link href="{{ local_css('tailwind.min.css') }}" rel="stylesheet">
     @include('layouts.partials.tw-compat')
+    {{-- Переменные поверхностей: один набор на сайт и на страницы входа. --}}
+    @include('layouts.partials.theme-surfaces')
 
     {{-- Font Awesome нужен явно, а не «из темы»: партиал темы подключает НАБОР
          ИЗ ЕЁ НАСТРОЙКИ, а по умолчанию это lucide. Разметка этих экранов
@@ -60,10 +65,17 @@
             --au-accent: var(--color-accent, #8b5cf6);
             --au-bg: var(--color-bg, #f4f5fb);
             --au-text: var(--color-text, #111827);
-            --au-card: #ffffff;
-            --au-line: #e3e6ee;
-            --au-soft: #f7f8fc;
-            --au-muted: #6b7280;
+            /* Подложки берутся из общего набора поверхностей (партиал
+               layouts.partials.theme-surfaces), а не задаются здесь заново.
+               Прежние прибитые значения были светлыми, поэтому при тёмной
+               теме сайта карточка входа оставалась белой, а подписи полей на
+               ней — светлыми: контраст 1.2 при пороге 4.5. Второй набор тех
+               же цветов рядом с общим неминуемо разъезжается — в этом
+               проекте так уже случалось не раз. */
+            --au-card: var(--surface, #ffffff);
+            --au-line: var(--surface-bd, #e3e6ee);
+            --au-soft: var(--surface-2, #f7f8fc);
+            --au-muted: var(--surface-mute, #6b7280);
             --au-radius: var(--radius-md, 12px);
 
             margin: 0;
@@ -184,8 +196,8 @@
             border-radius: calc(var(--au-radius) - 5px);
             outline: none; transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
         }
-        .au-input:focus { background: #fff; border-color: var(--au-primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, .15) }
-        .au-input::placeholder { color: #a8aebb }
+        .au-input:focus { background: var(--surface,#fff); border-color: var(--au-primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, .15) }
+        .au-input::placeholder { color:var(--surface-dim,#a8aebb) }
         .au-input.is-bad { border-color: #dc2626 }
         textarea.au-input { resize: vertical }
 
@@ -222,7 +234,7 @@
         .au-btn[disabled] { opacity: .6; cursor: progress }
 
         .au-btn--ghost {
-            color: var(--au-text); background: #fff; border: 1px solid var(--au-line); box-shadow: none;
+            color: var(--au-text); background: var(--surface,#fff); border: 1px solid var(--au-line); box-shadow: none;
         }
         .au-btn--ghost:hover { background: var(--au-soft); filter: none }
 
@@ -292,7 +304,7 @@
          (та мина живёт в layouts/frontend, здесь её нет). --}}
     <script defer src="{{ local_js('alpine.min.js') }}"></script>
 </head>
-<body class="au {{ $themed ? 'fx-themed' : '' }}">
+<body class="au {{ $themed ? 'fx-themed' : '' }} {{ $themeIsDark ? 'fx-theme-dark' : '' }}">
     <div class="au-wrap">
 
         {{-- ── Представление проекта ── --}}

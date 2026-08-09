@@ -318,11 +318,11 @@
     .f-devlist--tight .f-ico svg, .f-devlist--tight .f-ico i{ width:.9rem; height:.9rem; font-size:.9rem; }
     :root.dark .f-brand-card{ border-color:rgba(255,255,255,.08); background:rgba(30,41,59,.4); }
     .f-heading{ font-size:.78rem; font-weight:600; letter-spacing:.05em; text-transform:uppercase;
-        color:#6b7280; margin-bottom:1rem; }
+        color:var(--surface-mute,#6b7280); margin-bottom:1rem; }
     :root.dark .f-heading{ color:#9ca3af; }
 
     .f-devlist{ list-style:none; margin:0; padding:0; }
-    .f-devlist li{ display:flex; align-items:center; gap:.55rem; font-size:.82rem; padding:.22rem 0; color:#6b7280; }
+    .f-devlist li{ display:flex; align-items:center; gap:.55rem; font-size:.82rem; padding:.22rem 0; color:var(--surface-mute,#6b7280); }
     :root.dark .f-devlist li{ color:#9ca3af; }
     .f-ico{ display:inline-flex; color:var(--color-primary,#6366f1); flex:0 0 auto; }
     .f-ico svg, .f-ico i{ width:1rem; height:1rem; font-size:1rem; line-height:1; }
@@ -336,7 +336,7 @@
        подложкой и выбивались из общего ряда. Число столбцов на вид не
        влияет: их рисует партиал модуля Меню по числу footer-меню. */
     .footer-col-title{ margin:0 0 .9rem; font-size:.95rem; font-weight:700;
-        color:#111827; }
+        color:var(--surface-ink,#111827); }
     :root.dark .footer-col-title{ color:#f3f4f6; }
 
     .f-menu-list{ display:grid; gap:.15rem; margin:0; padding:0; list-style:none; }
@@ -351,14 +351,14 @@
         transition:color .15s ease, background .15s ease; }
     .f-menu-ico svg, .f-menu-ico i{ width:.9rem; height:.9rem; font-size:.9rem; line-height:1; }
 
-    .f-menu-text{ position:relative; font-size:.85rem; color:#374151;
+    .f-menu-text{ position:relative; font-size:.85rem; color:var(--surface-ink,#374151);
         transition:color .15s ease; }
     .f-menu-text::after{ content:''; position:absolute; left:0; right:0; bottom:-2px;
         height:1px; background:var(--color-primary,#6366f1);
         transform:scaleX(0); transform-origin:left; transition:transform .2s ease; }
     .f-menu-link:hover .f-menu-text{ color:var(--color-primary,#6366f1); }
     .f-menu-link:hover .f-menu-text::after{ transform:scaleX(1); }
-    .f-menu-link:hover .f-menu-ico{ color:#fff; background:var(--color-primary,#6366f1); }
+    .f-menu-link:hover .f-menu-ico{ color:var(--on-accent,#fff); background:var(--color-primary,#6366f1); }
     .f-menu-link:focus-visible{ outline:2px solid var(--color-primary,#6366f1); outline-offset:2px; }
     :root.dark .f-menu-text{ color:#d1d5db; }
     :root.dark .f-menu-ico{ background:rgba(99,102,241,.2); }
@@ -396,7 +396,7 @@
         padding:.22rem .5rem; font-size:.66rem; font-weight:700; letter-spacing:.03em;
         color:#4338ca; background:rgba(99,102,241,.1); text-decoration:none;
         transition:background .15s ease, color .15s ease; }
-    .f-brand-chip--link:hover{ color:#fff; background:var(--color-primary,#6366f1); }
+    .f-brand-chip--link:hover{ color:var(--on-accent,#fff); background:var(--color-primary,#6366f1); }
     :root.dark .f-brand-chip{ color:#c7d2fe; background:rgba(99,102,241,.2); }
 
     /* Тёмная ТЕМА сайта — отдельный класс от системного тёмного режима.
@@ -432,8 +432,8 @@
 
     .f-contact__body{ display:flex; flex-direction:column; min-width:0; line-height:1.25; }
     .f-contact__label{ font-size:.62rem; font-weight:700; letter-spacing:.1em;
-        text-transform:uppercase; color:#9ca3af; }
-    .f-contact__value{ font-size:.85rem; font-weight:500; color:#374151;
+        text-transform:uppercase; color:var(--surface-dim,#9ca3af); }
+    .f-contact__value{ font-size:.85rem; font-weight:500; color:var(--surface-ink,#374151);
         overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
         transition:color .15s ease; }
 
@@ -445,7 +445,7 @@
         transform:scaleX(0); transform-origin:left; transition:transform .2s ease; }
     .f-contact:hover .f-contact__value{ color:var(--color-primary,#6366f1); }
     .f-contact:hover .f-contact__value::after{ transform:scaleX(1); }
-    .f-contact:hover .f-contact__ico{ color:#fff; background:var(--color-primary,#6366f1); }
+    .f-contact:hover .f-contact__ico{ color:var(--on-accent,#fff); background:var(--color-primary,#6366f1); }
     .f-contact:focus-visible{ outline:2px solid var(--color-primary,#6366f1); outline-offset:2px; }
 
     .f-contact__ext{ display:inline-flex; align-items:center; margin-left:.35rem;
@@ -478,14 +478,14 @@
     /* Подпись стоит в строку со значками, а не над ними: в узкой полосе
        второй строке места нет. */
     .f-social-label{ margin:0 .15rem 0 0; font-size:.6rem; font-weight:700;
-        letter-spacing:.1em; text-transform:uppercase; color:#9ca3af; }
+        letter-spacing:.1em; text-transform:uppercase; color:var(--surface-dim,#9ca3af); }
     :root.dark .f-social-label{ color:#6b7280; }
 
     .f-socials{ display:flex; align-items:center; gap:.35rem; flex-wrap:wrap; }
 
     .f-social{ display:inline-flex; align-items:center; justify-content:center;
         width:1.6rem; height:1.6rem; flex:0 0 auto; font-size:.9rem; text-decoration:none;
-        color:#6b7280; background:rgba(99,102,241,.08);
+        color:var(--surface-mute,#6b7280); background:rgba(99,102,241,.08);
         transition:color .15s ease, background .15s ease, transform .15s ease; }
     :root.dark .f-social{ color:#9ca3af; background:rgba(99,102,241,.18); }
 
@@ -507,7 +507,7 @@
         background:rgba(99,102,241,.1); color:var(--color-primary,#6366f1); letter-spacing:.02em; }
     :root.dark .f-meta-chip{ background:rgba(99,102,241,.2); color:#c7d2fe; }
 
-        color:#111827; font-size:.85rem; transition:border-color .15s ease, box-shadow .15s ease; }
+        color:var(--surface-ink,#111827); font-size:.85rem; transition:border-color .15s ease, box-shadow .15s ease; }
         background:var(--fx-grad,#6366f1); color:#fff; font-weight:500; font-size:.85rem; white-space:nowrap;
         box-shadow:0 8px 18px -10px rgba(99,102,241,.7); transition:filter .15s ease, transform .15s ease; }
 </style>

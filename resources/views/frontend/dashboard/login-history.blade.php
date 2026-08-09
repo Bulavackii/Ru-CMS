@@ -93,30 +93,30 @@
        значений, ни части палитры, на которой держались прежние бейджи. */
     .acc-head{ display:flex; align-items:center; gap:.9rem; margin-bottom:1.25rem }
     .acc-btn-ghost{ display:inline-flex; align-items:center; gap:.5rem; padding:.55rem 1rem;
-                    border:1px solid #e5e7eb; background:#fff; color:#374151;
+                    border:1px solid var(--surface-bd,#e5e7eb); background:var(--surface,#fff); color:var(--surface-ink,#374151);
                     font-size:.85rem; font-weight:600 }
     .acc-btn-ghost:hover{ border-color:#a5b4fc; color:#4f46e5 }
 
-    .lh-total{ font-size:.85rem; color:#6b7280; margin-bottom:.9rem }
+    .lh-total{ font-size:.85rem; color:var(--surface-mute,#6b7280); margin-bottom:.9rem }
 
     .lh-row{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between;
-             gap:.75rem; border:1px solid #eef2f7; background:#fff;
+             gap:.75rem; border:1px solid var(--surface-bd,#eef2f7); background:var(--surface,#fff);
              padding:.75rem 1rem; margin-bottom:.5rem }
     .lh-row:hover{ border-color:#c7d2fe }
     .lh-row__top{ display:flex; flex-wrap:wrap; align-items:center; gap:.5rem }
     .lh-row__meta{ display:flex; flex-wrap:wrap; gap:.25rem 1rem; margin-top:.35rem;
-                   font-size:.8rem; color:#6b7280 }
-    .lh-ip{ font-size:.8rem; color:#4b5563; background:#f8fafc;
-            border:1px solid #eef2f7; padding:.15rem .45rem; white-space:nowrap }
+                   font-size:.8rem; color:var(--surface-mute,#6b7280) }
+    .lh-ip{ font-size:.8rem; color:var(--surface-ink,#4b5563); background:var(--surface-2,#f8fafc);
+            border:1px solid var(--surface-bd,#eef2f7); padding:.15rem .45rem; white-space:nowrap }
 
     .lh-status{ font-size:.72rem; font-weight:700; padding:.15rem .5rem; border:1px solid }
     .lh-status--ok{ color:#166534; background:#f0fdf4; border-color:#bbf7d0 }
     .lh-status--bad{ color:#991b1b; background:#fef2f2; border-color:#fecaca }
     .lh-status--wait{ color:#3730a3; background:#eef2ff; border-color:#c7d2fe }
-    .lh-status--warn{ color:#92400e; background:#fffbeb; border-color:#fde68a }
+    .lh-status--warn{ color:#92400e; background:var(--surface,#fff)beb; border-color:#fde68a }
 
     .lh-empty{ text-align:center; padding:2.5rem 1rem }
-    .lh-empty__title{ font-weight:700; color:#111827; margin:.9rem 0 .25rem }
+    .lh-empty__title{ font-weight:700; color:var(--surface-ink,#111827); margin:.9rem 0 .25rem }
 
     .lh-pager{ margin-top:1rem }
 

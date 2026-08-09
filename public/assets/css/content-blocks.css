@@ -78,7 +78,7 @@
 :root.dark .page-content .pc-note{ background:#0b1220 }
 
 .page-content .pc-cta{ display:flex; align-items:center; justify-content:space-between;
-    gap:1rem; flex-wrap:wrap; margin:1.75rem 0 .5rem; padding:1.25rem 1.5rem; color:#fff;
+    gap:1rem; flex-wrap:wrap; margin:1.75rem 0 .5rem; padding:1.25rem 1.5rem; color:var(--on-accent,#fff);
     background:linear-gradient(135deg,var(--color-primary,#6366f1),var(--color-accent,#8b5cf6)) }
 .page-content .pc-cta > :first-child{ margin:0 }
 .page-content .pc-cta a{ flex:none; padding:.6rem 1.35rem; font-weight:700;
@@ -91,7 +91,7 @@
    Редактор меняет только имя иконки в классе, оформление остаётся. */
 .page-content .pc-ico{ display:inline-flex; align-items:center; justify-content:center;
     width:2.4rem; height:2.4rem; margin-bottom:.75rem; flex:none;
-    font-size:.95rem; color:#fff;
+    font-size:.95rem; color:var(--on-accent,#fff);
     background:linear-gradient(135deg,var(--color-primary,#6366f1),var(--color-accent,#8b5cf6)) }
 
 /* ── Цифры ──────────────────────────────────────────────────────── */
@@ -121,7 +121,7 @@
     padding:1.1rem 1.25rem 1.1rem 3.4rem; background:var(--surface,#fff); border:1px solid var(--surface-bd,#eef2f7) }
 .page-content .pc-steps li::before{ content:counter(pc-step); position:absolute;
     left:1.1rem; top:1.05rem; display:flex; align-items:center; justify-content:center;
-    width:1.7rem; height:1.7rem; font-size:.8rem; font-weight:800; color:#fff;
+    width:1.7rem; height:1.7rem; font-size:.8rem; font-weight:800; color:var(--on-accent,#fff);
     background:var(--color-primary,#6366f1) }
 .page-content .pc-steps strong{ display:block; margin-bottom:.2rem; color:var(--surface-ink,#111827) }
 :root.dark .page-content .pc-steps li{ background:#111827; border-color:var(--surface-ink,#1f2937) }
@@ -142,7 +142,7 @@
 .page-content .pc-tech{ display:flex; flex-wrap:wrap; gap:.45rem; margin:1.25rem 0;
     padding:0; list-style:none }
 .page-content .pc-tech li{ margin:0; padding:.35rem .8rem; font-size:.8rem; font-weight:600;
-    color:#4338ca; background:#eef2ff; border:1px solid #e0e7ff }
+    color:#4338ca; background:color-mix(in srgb, var(--color-primary,#6366f1) 12%, var(--surface,#eef2ff)); border:1px solid color-mix(in srgb, var(--color-primary,#6366f1) 26%, var(--surface,#e0e7ff)) }
 :root.dark .page-content .pc-tech li{ color:#c7d2fe; background:#1e1b4b; border-color:#312e81 }
 
 @media (max-width:640px){
@@ -196,12 +196,12 @@
 .page-content .pc-faq__item > summary::before{ content:counter(pc-faq); flex:none;
     display:flex; align-items:center; justify-content:center; width:1.5rem; height:1.5rem;
     font-size:.7rem; font-weight:800; color:var(--color-primary,#6366f1);
-    background:#eef2ff }
-.page-content .pc-faq__item[open] > summary::before{ color:#fff;
+    background:color-mix(in srgb, var(--color-primary,#6366f1) 12%, var(--surface,#eef2ff)) }
+.page-content .pc-faq__item[open] > summary::before{ color:var(--on-accent,#fff);
     background:var(--color-primary,#6366f1) }
 
 .page-content .pc-faq__item > :not(summary){ margin:0 1.15rem .95rem;
-    padding-left:2.25rem; color:#475569; line-height:1.6 }
+    padding-left:2.25rem; color:var(--surface-ink,#475569); line-height:1.6 }
 .page-content .pc-faq__item > summary + *{ margin-top:.15rem }
 
 :root.dark .page-content .pc-faq__item{ background:#111827; border-color:var(--surface-ink,#1f2937) }
@@ -219,7 +219,7 @@
 .page-content .pc-faq-bar{ display:flex; align-items:center; gap:.5rem; flex-wrap:wrap;
     margin:1.5rem 0 .75rem }
 .page-content .pc-faq-bar__input{ flex:1 1 14rem; min-width:0; height:42px;
-    padding:0 .9rem; font-size:.9rem; color:#0f172a;
+    padding:0 .9rem; font-size:.9rem; color:var(--surface-ink,#0f172a);
     background:var(--surface,#fff); border:1px solid var(--surface-bd,#e2e8f0) }
 .page-content .pc-faq-bar__input:focus{ outline:none; border-color:var(--color-primary,#6366f1);
     box-shadow:0 0 0 3px rgba(99,102,241,.15) }
@@ -312,7 +312,7 @@
     border-color:var(--color-primary,#6366f1) }
 .page-content .pc-copy:focus-visible{ outline:2px solid var(--color-primary,#6366f1);
     outline-offset:2px }
-.page-content .pc-copy.is-done{ color:#fff; background:var(--color-primary,#6366f1);
+.page-content .pc-copy.is-done{ color:var(--on-accent,#fff); background:var(--color-primary,#6366f1);
     border-color:var(--color-primary,#6366f1) }
 
 :root.dark .page-content .pc-contacts li{ background:#111827; border-color:var(--surface-ink,#1f2937) }
@@ -324,13 +324,16 @@
 /* Пока посетитель не нажал, никаких запросов к картографу не уходит:
    персональные данные не утекают, и страница грузится быстрее. */
 .page-content .pc-map{ position:relative; margin:1.5rem 0; overflow:hidden;
-    background:#eef2ff; border:1px solid #e0e7ff }
+    background:color-mix(in srgb, var(--color-primary,#6366f1) 12%, var(--surface,#eef2ff)); border:1px solid color-mix(in srgb, var(--color-primary,#6366f1) 26%, var(--surface,#e0e7ff)) }
 .page-content .pc-map__stub{ display:flex; flex-direction:column; align-items:center;
     justify-content:center; gap:.75rem; min-height:18rem; padding:2rem 1rem;
-    text-align:center; color:#4338ca }
+    text-align:center; color:color-mix(in srgb, var(--color-primary,#6366f1) 45%, var(--surface-ink,#4338ca)) }
 .page-content .pc-map__note{ max-width:32rem; font-size:.85rem; color:var(--surface-mute,#64748b) }
 .page-content .pc-map__btn{ padding:.65rem 1.4rem; font-size:.9rem; font-weight:700;
-    color:#fff; background:var(--color-primary,#6366f1); border:0; cursor:pointer }
+    color:var(--on-accent,#fff); background:var(--color-primary,#6366f1); border:0; cursor:pointer }
+/* Надпись на кнопке следует теме: у светлых акцентов белый текст на них не
+   читается. Тот же приём, что у общей кнопки .fx-btn в макете сайта. */
+body.fx-theme-dark .page-content .pc-map__btn{ color:var(--color-bg) }
 .page-content .pc-map__btn:hover{ filter:brightness(1.07) }
 /* Отступ обнуляется намеренно: типографика содержимого вешает на iframe
    margin 24px сверху и снизу, и внутри рамки карты оставались полосы фона
@@ -339,8 +342,6 @@
 .page-content .pc-map iframe{ display:block; width:100%; margin:0; border:0;
     height:clamp(20rem, 58vh, 34rem) }
 
-:root.dark .page-content .pc-map{ background:#0b1220; border-color:var(--surface-ink,#1f2937) }
-:root.dark .page-content .pc-map__stub{ color:#c7d2fe }
 
 /* ── Быстрые действия ───────────────────────────────────────────── */
 /* Крупные кнопки для главных действий: позвонить, написать, проложить
@@ -351,7 +352,7 @@
 .page-content .pc-actions li{ margin:0; flex:1 1 12rem }
 .page-content .pc-actions a{ display:flex; align-items:center; justify-content:center;
     gap:.55rem; min-height:48px; padding:.7rem 1.2rem; font-size:.95rem; font-weight:700;
-    color:#fff; text-decoration:none;
+    color:var(--on-accent,#fff); text-decoration:none;
     background:linear-gradient(135deg,var(--color-primary,#6366f1),var(--color-accent,#8b5cf6));
     transition:filter .15s, transform .15s }
 .page-content .pc-actions a:hover{ filter:brightness(1.07); transform:translateY(-1px) }
@@ -370,13 +371,14 @@
 /* Подпись ставит скрипт, разбирая расписание из атрибута карточки. */
 .page-content .pc-now{ display:inline-flex; align-items:center; gap:.4rem;
     margin-top:.45rem; padding:.16rem .55rem; font-size:.72rem; font-weight:700;
-    color:#166534; background:#dcfce7 }
+    color:color-mix(in srgb, #16a34a 62%, var(--surface-ink,#166534));
+    background:color-mix(in srgb, #16a34a 18%, var(--surface,#dcfce7)) }
 .page-content .pc-now::before{ content:''; width:.45rem; height:.45rem; flex:none;
     border-radius:9999px; background:#22c55e }
-.page-content .pc-now.is-closed{ color:#9a3412; background:#ffedd5 }
+.page-content .pc-now.is-closed{
+    color:color-mix(in srgb, #ea580c 62%, var(--surface-ink,#9a3412));
+    background:color-mix(in srgb, #ea580c 18%, var(--surface,#ffedd5)) }
 .page-content .pc-now.is-closed::before{ background:#f97316 }
-:root.dark .page-content .pc-now{ color:#bbf7d0; background:#14532d }
-:root.dark .page-content .pc-now.is-closed{ color:#fed7aa; background:#7c2d12 }
 
 /* Иконка карточки контакта — в тон значкам карточек. */
 .page-content .pc-contacts .pc-ico{ width:2rem; height:2rem; margin-bottom:.6rem;
@@ -418,7 +420,7 @@
     gap: .85rem;
     padding: .8rem 1rem;
     text-decoration: none;
-    color: #1f2937;
+    color:var(--surface-ink,#1f2937);
     background: var(--surface-2, #f8fafc);
     border: 1px solid #e5e7eb;
     transition: border-color .15s ease, background .15s ease;
@@ -452,7 +454,7 @@
 .page-content .pc-file__size {
     flex: 0 0 auto;
     font-size: .8rem;
-    color: #6b7280;
+    color:var(--surface-ink,#6b7280);
 }
 
 /* Проигрыватели не должны вылезать за колонку текста. */

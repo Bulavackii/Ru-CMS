@@ -112,8 +112,8 @@
         margin-bottom:1.5rem }
     .gm__badge{ display:flex; align-items:center; justify-content:center; width:2.4rem; height:2.4rem;
         flex:none; font-size:1.2rem; background:var(--color-primary,#6366f1) }
-    .gm__title{ margin:0; font-size:1.5rem; font-weight:700; color:#111827; line-height:1.2 }
-    .gm__sub{ margin:.1rem 0 0; font-size:.82rem; color:#6b7280 }
+    .gm__title{ margin:0; font-size:1.5rem; font-weight:700; color:var(--surface-ink,#111827); line-height:1.2 }
+    .gm__sub{ margin:.1rem 0 0; font-size:.82rem; color:var(--surface-mute,#6b7280) }
 
     .gm-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(17.5rem,1fr)); gap:1rem }
 
@@ -141,14 +141,14 @@
         box-shadow:0 4px 14px rgba(15,23,42,.35) }
     .gm-card__score::before{ content:'★'; margin-right:.2rem }
     .gm-card__score{ position:absolute; bottom:.7rem; right:.7rem; padding:.25rem .6rem;
-        font-size:.85rem; font-weight:800; color:#0f172a; background:#facc15;
+        font-size:.85rem; font-weight:800; color:var(--surface-ink,#0f172a); background:#facc15;
         border-radius:1.25rem; box-shadow:0 4px 14px rgba(15,23,42,.4); letter-spacing:.02em }
 
     .gm-card__body{ padding:.9rem 1rem 1.05rem; display:flex; flex-direction:column; gap:.35rem; flex:1 }
         /* Обрезка строками настоящим CSS: класса line-clamp в сборке нет. */
     .gm-card__title{ margin:0; font-size:1rem; line-height:1.3; font-weight:700; color:#f8fafc;
         display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden }
-    .gm-card__text{ margin:0; font-size:.82rem; line-height:1.5; color:#94a3b8; flex:1;
+    .gm-card__text{ margin:0; font-size:.82rem; line-height:1.5; color:var(--surface-dim,#94a3b8); flex:1;
         display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden }
     /* Нижняя строка карточки. Раньше это был обычный текст того же
        приглушённого цвета, что и анонс, — строка в нём тонула. Теперь
@@ -156,7 +156,7 @@
     .gm-card__meta{ display:flex; align-items:center; justify-content:space-between; gap:.75rem;
         margin:.65rem -1rem -1.05rem; padding:.55rem 1rem; font-size:.75rem;
         border-top:1px solid #1e293b; background:#0b1220 }
-    .gm-meta__date{ color:#94a3b8; font-variant-numeric:tabular-nums }
+    .gm-meta__date{ color:var(--surface-dim,#94a3b8); font-variant-numeric:tabular-nums }
     .gm-meta__date::before{ content:'🗓'; margin-right:.35rem; opacity:.75 }
     .gm-meta__time{ color:#cbd5e1; font-weight:600; white-space:nowrap }
     .gm-meta__time::before{ content:'⏱'; margin-right:.3rem; opacity:.75 }

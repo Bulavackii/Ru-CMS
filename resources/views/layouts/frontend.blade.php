@@ -135,6 +135,8 @@
     <link rel="stylesheet" href="{{ local_css('swiper-bundle.min.css') }}" />
     <link href="{{ local_css('tailwind.min.css') }}" rel="stylesheet">
     @include('layouts.partials.tw-compat')
+    {{-- Переменные поверхностей: один набор на сайт и на страницы входа. --}}
+    @include('layouts.partials.theme-surfaces')
     {{-- Фолбэк-иконки --}}
     <link rel="stylesheet" href="{{ local_css('font-awesome/all.min.css') }}"
         crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -281,70 +283,6 @@
             color: color-mix(in srgb, var(--color-text) 70%, transparent);
         }
 
-        /* У тёмных тем акцент светлый, и белый текст на кнопке нечитаем
-           (контраст 2.1). Берём тёмный цвет фона темы — контраст 8.3. */
-        /* ── Поверхности: карточки, шапки разделов, подложки ──────────
-           Карточки в шаблонах были прибиты к белому, а тёмный вид описан под
-           @media (prefers-color-scheme: dark) — то есть под тёмный режим
-           ОПЕРАЦИОННОЙ СИСТЕМЫ. К тёмной теме сайта это отношения не имеет, и
-           на ней карточки оставались белыми: замер показывал пятьдесят один
-           светлый блок на тёмной странице.
-
-           Значения собраны здесь, а шаблоны на них ссылаются. Второй набор
-           тех же цветов в каждом шаблоне неизбежно разошёлся бы с первым —
-           в этом проекте так уже случалось не раз.
-
-           Тёмные значения выводятся ИЗ ТЕМЫ: подмешиваем цвет текста к цвету
-           фона. Поэтому любая тёмная тема получает согласованные карточки
-           сама, без правки шаблонов. */
-        :root{
-            --surface:      #ffffff;
-            --surface-2:    #f1f5f9;
-            --surface-bd:   #eef2f7;
-            --surface-ink:  #111827;
-
-            /* Два уровня приглушения, как было в шаблонах до сведения к
-               переменным: подписи и совсем блёклые сноски. Одним значением
-               их объединять нельзя — подписи под цифрами стали бы бледнее,
-               чем были, и это сразу заметно на светлой теме. */
-            --surface-mute: #64748b;
-            --surface-dim:  #94a3b8;
-        }
-
-        /* Типографика содержимого. Плагин prose красит текст, заголовки,
-           полужирное и ссылки СВОИМИ переменными — для того они и заведены.
-           По умолчанию там тёмные значения: на тёмной теме полужирные слова
-           в абзаце пропадали, оставаясь чёрными на чёрном. */
-        body.fx-theme-dark .prose{
-            --tw-prose-body:        var(--color-text);
-            --tw-prose-headings:    var(--color-text);
-            --tw-prose-lead:        var(--surface-mute);
-            --tw-prose-bold:        var(--color-text);
-            --tw-prose-links:       var(--color-primary);
-            --tw-prose-counters:    var(--surface-mute);
-            --tw-prose-bullets:     var(--surface-mute);
-            --tw-prose-quotes:      var(--color-text);
-            --tw-prose-quote-borders: var(--surface-bd);
-            --tw-prose-captions:    var(--surface-mute);
-            --tw-prose-code:        var(--color-text);
-            --tw-prose-hr:          var(--surface-bd);
-            --tw-prose-th-borders:  var(--surface-bd);
-            --tw-prose-td-borders:  var(--surface-bd);
-        }
-
-        body.fx-theme-dark{
-            --surface:      color-mix(in srgb, var(--color-text) 7%,  var(--color-bg));
-            --surface-2:    color-mix(in srgb, var(--color-text) 13%, var(--color-bg));
-            --surface-bd:   color-mix(in srgb, var(--color-text) 16%, transparent);
-            --surface-ink:  var(--color-text);
-            --surface-mute: color-mix(in srgb, var(--color-text) 72%, transparent);
-            --surface-dim:  color-mix(in srgb, var(--color-text) 55%, transparent);
-        }
-
-        body.fx-theme-dark .fx-btn,
-        body.fx-theme-dark .btn-theme {
-            color: var(--color-bg);
-        }
 
         /* Заголовки и приглушённый текст набраны классами, у которых в
            основе светлая тема: тёмный текст на светлом фоне. Тёмный режим у
@@ -372,6 +310,26 @@
             color: color-mix(in srgb, var(--color-text) 68%, transparent);
         }
 
+        /* Заливки, набранные готовыми классами. У них есть тёмный вариант, но
+           он отзывается на .dark — тёмный режим СИСТЕМЫ, а не тему сайта.
+           Отсюда светлые прямоугольники посреди тёмной страницы: панель
+           покупки под товаром, кнопки счётчика, служебные врезки.
+
+           Перечислять их по одному в каждом шаблоне бессмысленно — классов
+           наперечёт, а мест десятки. */
+        body.fx-theme-dark .bg-white,
+        body.fx-theme-dark .bg-gray-50,
+        body.fx-theme-dark .bg-gray-100,
+        body.fx-theme-dark .bg-slate-50,
+        body.fx-theme-dark .bg-slate-100 {
+            background-color: var(--surface);
+        }
+
+        body.fx-theme-dark .bg-gray-200,
+        body.fx-theme-dark .bg-slate-200 {
+            background-color: var(--surface-2);
+        }
+
         /* Разделители рисуются светло-серым — на тёмном фоне их не видно
            вовсе, и блоки слипаются в одно полотно. */
         body.fx-theme-dark .border-gray-200,
@@ -389,7 +347,7 @@
 
         .btn-theme {
             background: var(--color-primary);
-            color: #fff
+            color:var(--on-accent,#fff)
         }
 
         .rounded-theme {
@@ -523,18 +481,18 @@
             background:var(--fx-a-soft); color:var(--fx-a-ink); font-size:.72rem; font-weight:500; line-height:1.5; }
         :root.dark .fx-chip{ background:var(--fx-a-soft); color:var(--fx-a2); }
         /* Заголовок секции */
-        .fx-section-title{ font-weight:600; letter-spacing:-.01em; color:#111827; }
+        .fx-section-title{ font-weight:600; letter-spacing:-.01em; color:var(--surface-ink,#111827); }
 
         /* Плашка под заголовком секции.
            На светлом фоне заголовок читался, но стоит владельцу поставить
            свою фоновую картинку — тёмную или пёструю — и текст пропадал.
            Белая подложка с прямыми углами, в стиле остального фронта. */
         .fx-section-head{ display:inline-flex; align-items:center; gap:.75rem;
-            padding:.7rem 1.15rem; background:#fff; border:1px solid rgba(17,24,39,.08);
+            padding:.7rem 1.15rem; background:var(--surface,#fff); border:1px solid rgba(17,24,39,.08);
             box-shadow:0 2px 10px rgba(15,23,42,.06); max-width:100%; }
         :root.dark .fx-section-head{ background:#111827; border-color:rgba(255,255,255,.1); }
         :root.dark .fx-section-title{ color:#f3f4f6; }
-        .fx-section-sub{ font-size:.85rem; color:#6b7280; }
+        .fx-section-sub{ font-size:.85rem; color:var(--surface-mute,#6b7280); }
         :root.dark .fx-section-sub{ color:#9ca3af; }
         .fx-ico{ color:var(--fx-a); }
         /* Заглушка «Нет изображения» — в тон редизайну (мягкий indigo-градиент) */
@@ -565,14 +523,10 @@
 </head>
 
 @php
-    // Тёмная тема определяется по яркости фонового токена: у тёмных тем
-    // нужно перекрасить не только акцент, но и подложки карточек и текст,
-    // иначе получалась белая страница с тёмно-синими кнопками.
-    $themeIsDark = false;
-    if (preg_match('/^#([0-9a-f]{6})$/i', trim((string) $cBg), $m)) {
-        [$rr, $gg, $bb] = sscanf($m[1], '%2x%2x%2x');
-        $themeIsDark = (0.2126 * $rr + 0.7152 * $gg + 0.0722 * $bb) / 255 < 0.45;
-    }
+    // Признак тёмной темы считает хелпер theme_is_dark(): тот же расчёт нужен
+    // макету входа, а второй экземпляр этой арифметики неминуемо разошёлся бы
+    // с первым — в этом проекте так уже случалось не раз.
+    $themeIsDark = theme_is_dark($cBg);
 @endphp
 
 <body class="fx-sharp relative text-gray-800 dark:text-gray-100 min-h-screen flex flex-col overflow-x-hidden bg-white dark:bg-gray-900 transition-colors duration-200 {{ $pageTheme ? 'fx-themed' : '' }} {{ $themeIsDark ? 'fx-theme-dark' : '' }}"
@@ -703,7 +657,7 @@
                  margin:0;display:flex;flex-direction:column;align-items:center;gap:.5rem;">
             <button data-close="1" type="button"
                 style="position:absolute;right:-12px;top:-12px;width:42px;height:42px;border:0;border-radius:50%;
-                   background:#fff;color:#111;font-size:26px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.25)">×</button>
+                   background:var(--surface,#fff);color:var(--surface-ink,#111);font-size:26px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.25)">×</button>
 
             <!-- Сцена: скроллим/таскаем, внутри меняем ширину картинки по scale -->
             <div id="ru-lb-stage"
@@ -719,15 +673,15 @@
             <!-- Панель действий -->
             <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;justify-content:center">
                 <a id="ru-lb-dl" href="#" download
-                    style="display:inline-block;padding:.55rem .85rem;border-radius:.6rem;background:#fff;color:#111;
-                text-decoration:none;font-weight:600;border:1px solid #e5e7eb;">{{ __('frontend.common.download') }}</a>
+                    style="display:inline-block;padding:.55rem .85rem;border-radius:.6rem;background:var(--surface,#fff);color:var(--surface-ink,#111);
+                text-decoration:none;font-weight:600;border:1px solid var(--surface-bd,#e5e7eb);">{{ __('frontend.common.download') }}</a>
 
                 <button id="ru-lb-zi" type="button"
-                    style="padding:.55rem .85rem;border-radius:.6rem;background:#ffffff;color:#111;border:1px solid #e5e7eb;font-weight:600">+</button>
+                    style="padding:.55rem .85rem;border-radius:.6rem;background:var(--surface,#fff)fff;color:var(--surface-ink,#111);border:1px solid var(--surface-bd,#e5e7eb);font-weight:600">+</button>
                 <button id="ru-lb-zo" type="button"
-                    style="padding:.55rem .85rem;border-radius:.6rem;background:#ffffff;color:#111;border:1px solid #e5e7eb;font-weight:600">-</button>
+                    style="padding:.55rem .85rem;border-radius:.6rem;background:var(--surface,#fff)fff;color:var(--surface-ink,#111);border:1px solid var(--surface-bd,#e5e7eb);font-weight:600">-</button>
                 <button id="ru-lb-fit" type="button"
-                    style="padding:.55rem .85rem;border-radius:.6rem;background:#ffffff;color:#111;border:1px solid #e5e7eb;font-weight:600">{{ __('frontend.common.fit_screen') }}</button>
+                    style="padding:.55rem .85rem;border-radius:.6rem;background:var(--surface,#fff)fff;color:var(--surface-ink,#111);border:1px solid var(--surface-bd,#e5e7eb);font-weight:600">{{ __('frontend.common.fit_screen') }}</button>
                 <span id="ru-lb-zoomval" style="color:#e5e7eb;font-size:.9rem;margin-left:.25rem">100%</span>
             </div>
         </figure>

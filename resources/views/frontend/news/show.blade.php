@@ -73,14 +73,27 @@
 
             {{-- Блок с ценой, остатком, количеством и кнопкой (товары) --}}
             @if($news->price)
-                <div class="mt-8 border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-800/60 p-6">
+                {{-- Панель покупки.
+
+                     Была набрана Tailwind-классами с `dark:`-вариантами
+                     (bg-gray-50/70 dark:bg-gray-800/60 и т.п.), а в собранном
+                     tailwind.min.css этого проекта нет НИ ОДНОГО `dark:`, как
+                     нет и модификаторов прозрачности вида `/70`. То есть весь
+                     тёмный набор здесь был мёртвым кодом: на тёмной теме сайта
+                     панель оставалась светло-серой, а плашки цены и остатка —
+                     бледно-пастельными пятнами.
+
+                     Цвета берём из общих переменных поверхностей. Зелёный у
+                     цены и янтарный у остатка несут смысл, поэтому оттенок
+                     сохраняется, а светлота подмешивается из темы. --}}
+                <div class="mt-8 buy-panel">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
                         <div class="space-y-3">
-                            <div class="inline-flex items-center gap-2 bg-green-100 text-green-900 dark:bg-green-900 dark:text-green-200 px-4 py-2 font-semibold text-sm">
+                            <div class="buy-chip buy-chip--price">
                                 <i class="fas fa-tag"></i> {{ number_format($news->price, 2, ',', ' ') }} ₽
                             </div>
                             @if (!is_null($news->stock))
-                                <div class="inline-flex items-center gap-2 bg-yellow-100 text-yellow-900 dark:bg-yellow-900 dark:text-yellow-200 px-4 py-2 font-semibold text-sm stock-display" data-id="{{ $news->id }}">
+                                <div class="buy-chip buy-chip--stock stock-display" data-id="{{ $news->id }}">
                                     <i class="fas fa-box"></i> {{ __('frontend.news.in_stock') }} <span>{{ $news->stock }}</span>
                                 </div>
                             @endif
@@ -88,11 +101,11 @@
 
                         <div class="space-y-3 flex flex-col sm:items-end">
                             <div class="flex items-center gap-2">
-                                <span class="text-sm font-medium text-gray-700 dark:text-gray-200">{{ __('frontend.news.quantity') }}</span>
-                                <div class="flex items-center border border-gray-300 dark:border-gray-600 overflow-hidden">
-                                    <button type="button" class="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-600 font-bold text-lg decrement" data-id="{{ $news->id }}">−</button>
-                                    <input type="text" id="qty-{{ $news->id }}" value="1" readonly class="w-12 text-center border-x border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm qty-input" data-id="{{ $news->id }}">
-                                    <button type="button" class="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-600 font-bold text-lg increment" data-id="{{ $news->id }}" data-stock="{{ $news->stock }}">+</button>
+                                <span class="text-sm font-medium buy-qty__label">{{ __('frontend.news.quantity') }}</span>
+                                <div class="flex items-center buy-qty">
+                                    <button type="button" class="buy-qty__btn decrement" data-id="{{ $news->id }}">−</button>
+                                    <input type="text" id="qty-{{ $news->id }}" value="1" readonly class="buy-qty__input qty-input" data-id="{{ $news->id }}">
+                                    <button type="button" class="buy-qty__btn increment" data-id="{{ $news->id }}" data-stock="{{ $news->stock }}">+</button>
                                 </div>
                             </div>
 
@@ -261,6 +274,38 @@
 
 @push('styles')
 <style>
+    /* ── Панель покупки ──────────────────────────────────────────────
+       Оформление литеральным CSS, а не Tailwind-утилитами: в собранном
+       tailwind.min.css этого проекта нет ни `dark:`-вариантов, ни
+       прозрачности вида `/70`, и прежний набор классов на тёмной теме
+       не давал ничего. */
+    .buy-panel{ padding:1.5rem; background:var(--surface-2,#f9fafb);
+        border:1px solid var(--surface-bd,#e5e7eb) }
+
+    .buy-chip{ display:inline-flex; align-items:center; gap:.5rem;
+        padding:.5rem 1rem; font-size:.875rem; font-weight:600 }
+
+    /* Зелёный у цены и янтарный у остатка несут смысл, поэтому оттенок
+       остаётся, а светлота подмешивается из темы: на тёмной теме прежние
+       пастельные заливки выглядели выцветшими пятнами. */
+    .buy-chip--price{
+        color:color-mix(in srgb, #16a34a 55%, var(--surface-ink,#14532d));
+        background:color-mix(in srgb, #16a34a 18%, var(--surface,#dcfce7)) }
+    .buy-chip--stock{
+        color:color-mix(in srgb, #d97706 55%, var(--surface-ink,#713f12));
+        background:color-mix(in srgb, #d97706 18%, var(--surface,#fef9c3)) }
+
+    .buy-qty__label{ color:var(--surface-ink,#374151) }
+    .buy-qty{ border:1px solid var(--surface-bd,#d1d5db); overflow:hidden }
+    .buy-qty__btn{ padding:.375rem .75rem; font-size:1.125rem; font-weight:700;
+        color:var(--surface-ink,#374151); background:var(--surface-2,#f3f4f6);
+        border:0; cursor:pointer }
+    .buy-qty__btn:hover{ background:var(--surface-bd,#e5e7eb) }
+    .buy-qty__input{ width:3rem; padding:.375rem 0; text-align:center; font-size:.875rem;
+        color:var(--surface-ink,#111827); background:var(--surface,#fff);
+        border:0; border-left:1px solid var(--surface-bd,#e5e7eb);
+        border-right:1px solid var(--surface-bd,#e5e7eb) }
+
     /* Контент новости: читаемая ширина (карточка на всю ширину, текст — комфортной мерой) */
     .news-content{ word-break:break-word; overflow-wrap:anywhere; line-height:1.8; font-size:1.06rem;
         max-width:70rem !important; margin-inline:auto; }

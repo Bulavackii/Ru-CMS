@@ -504,7 +504,7 @@
   .thm-preview__mark{
       display:flex; align-items:center; justify-content:center;
       width:28px; height:28px; flex:0 0 auto;
-      font-size:13px; font-weight:700; color:#fff; background:var(--color-primary,#2563eb);
+      font-size:13px; font-weight:700; color:var(--on-accent,#fff); background:var(--color-primary,#2563eb);
   }
   .thm-preview__name{ font-weight:700; font-size:14px; }
   .thm-preview__nav{ display:flex; gap:10px; margin-left:auto; font-size:12px; opacity:.75; }
@@ -513,7 +513,7 @@
   .thm-preview__btns{ display:flex; flex-wrap:wrap; gap:8px; }
   .thm-preview__btn{
       padding:7px 13px; font:inherit; font-size:13px; font-weight:600;
-      color:#fff; background:var(--color-primary,#2563eb); border:0; cursor:default;
+      color:var(--on-accent,#fff); background:var(--color-primary,#2563eb); border:0; cursor:default;
   }
   .thm-preview__btn--accent{ background:var(--color-accent,#10b981); }
   .thm-preview__foot{ margin-top:14px; padding:8px 10px; font-size:12px; background:var(--color-footer,#fff); }

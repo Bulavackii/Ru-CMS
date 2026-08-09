@@ -277,7 +277,7 @@
        чтобы знак оставался узнаваемым при любом оформлении сайта. */
     .acc-socials{ display:inline-flex; flex-wrap:wrap; gap:.4rem; justify-content:flex-end }
     .acc-social{ display:inline-flex; align-items:center; gap:.35rem; padding:.2rem .55rem;
-        font-size:.78rem; font-weight:600; color:#475569; background:rgba(99,102,241,.08);
+        font-size:.78rem; font-weight:600; color:var(--surface-ink,#475569); background:rgba(99,102,241,.08);
         text-decoration:none; transition:color .15s, background .15s }
     .acc-social:hover{ color:#fff; background:var(--c,#6366f1) }
     .acc-social svg{ flex:0 0 auto }
@@ -287,15 +287,15 @@
     /* Пустой раздел — одной строкой, а не столбиком по центру. */
     .acc-empty__row{ display:flex; align-items:center; gap:1rem; flex-wrap:wrap }
     .acc-empty__ico{ display:inline-flex; align-items:center; justify-content:center;
-        width:2.75rem; height:2.75rem; flex:0 0 auto; font-size:1.05rem; color:#fff;
+        width:2.75rem; height:2.75rem; flex:0 0 auto; font-size:1.05rem; color:var(--on-accent,#fff);
         background:linear-gradient(135deg,var(--color-primary,#6366f1),var(--color-accent,#8b5cf6)) }
     .acc-empty__text{ flex:1 1 14rem; min-width:0; text-align:left }
-    .acc-empty__sub{ margin:.15rem 0 0; font-size:.85rem; color:#6b7280 }
+    .acc-empty__sub{ margin:.15rem 0 0; font-size:.85rem; color:var(--surface-mute,#6b7280) }
 
     /* Перечень в три колонки: столбиком он растягивал блок по высоте. */
     .acc-empty__facts{ display:grid; grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));
         gap:.4rem 1.25rem; margin:1rem 0 0; padding:.9rem 0 0; list-style:none;
-        font-size:.82rem; color:#64748b; text-align:left; border-top:1px solid #eef2f7 }
+        font-size:.82rem; color:var(--surface-mute,#64748b); text-align:left; border-top:1px solid #eef2f7 }
     .acc-empty__facts li{ position:relative; padding-left:1.35rem }
     .acc-empty__facts li::before{ content:'✓'; position:absolute; left:0; top:0;
         font-weight:700; color:var(--color-primary,#6366f1) }
@@ -316,7 +316,7 @@
     /* Подсказка о незаполненном профиле. */
     .acc-fill-hint{ display:flex; align-items:flex-start; gap:.5rem; margin:1rem 0 0;
         padding-top:.9rem; border-top:1px solid #eef2f7;
-        font-size:.8rem; line-height:1.5; color:#6b7280 }
+        font-size:.8rem; line-height:1.5; color:var(--surface-mute,#6b7280) }
     .acc-fill-hint i{ margin-top:.15rem; color:var(--color-primary,#6366f1) }
     .acc-fill-hint a{ color:var(--color-primary,#6366f1); font-weight:600 }
 
@@ -331,28 +331,28 @@
     .acc-stats{ display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
                 gap:.6rem; margin-bottom:1rem }
     .acc-stat{ display:flex; align-items:center; gap:.75rem;
-               border:1px solid #eef2f7; background:#fff; padding:.7rem .9rem }
+               border:1px solid var(--surface-bd,#eef2f7); background:var(--surface,#fff); padding:.7rem .9rem }
     .acc-stat__ico{ display:inline-flex; align-items:center; justify-content:center;
                     width:2.2rem; height:2.2rem; flex:0 0 auto; font-size:.9rem;
                     color:var(--color-primary,#6366f1); background:rgba(99,102,241,.1) }
     .acc-stat__body{ display:flex; flex-direction:column; min-width:0; line-height:1.2 }
-    .acc-stat__value{ font-size:1.3rem; font-weight:800; color:#111827 }
+    .acc-stat__value{ font-size:1.3rem; font-weight:800; color:var(--surface-ink,#111827) }
     .acc-stat__label{ font-size:.7rem; text-transform:uppercase;
-                      letter-spacing:.06em; color:#9ca3af }
+                      letter-spacing:.06em; color:var(--surface-dim,#9ca3af) }
 
     /* Действия — строки со значком и пояснением. Ряд одинаковых кнопок не
        говорил, что будет после нажатия, и занимал всю ширину карточки. */
     .acc-links{ display:grid; gap:.4rem }
     .acc-link{ display:flex; align-items:center; gap:.7rem; padding:.6rem .65rem;
-               text-decoration:none; color:inherit; border:1px solid #eef2f7;
+               text-decoration:none; color:inherit; border:1px solid var(--surface-bd,#eef2f7);
                transition:border-color .15s, background-color .15s }
-    .acc-link:hover{ border-color:var(--color-primary,#6366f1); background:#f8fafc }
+    .acc-link:hover{ border-color:var(--color-primary,#6366f1); background:var(--surface-2,#f8fafc) }
     .acc-link__ico{ display:inline-flex; align-items:center; justify-content:center;
                     width:2rem; height:2rem; flex:0 0 auto; font-size:.82rem;
                     color:var(--color-primary,#6366f1); background:rgba(99,102,241,.1) }
     .acc-link__body{ display:flex; flex-direction:column; min-width:0; line-height:1.3 }
-    .acc-link__title{ font-size:.9rem; font-weight:600; color:#111827 }
-    .acc-link__note{ font-size:.75rem; color:#6b7280 }
+    .acc-link__title{ font-size:.9rem; font-weight:600; color:var(--surface-ink,#111827) }
+    .acc-link__note{ font-size:.75rem; color:var(--surface-mute,#6b7280) }
     .acc-link__arrow{ margin-left:auto; font-size:.7rem; color:#cbd5e1 }
     .acc-link:hover .acc-link__arrow{ color:var(--color-primary,#6366f1) }
 
@@ -360,7 +360,7 @@
     :root.dark .acc-link:hover{ background:#111827 }
     :root.dark .acc-link__title{ color:#f3f4f6 }
     .acc-h2{ font-size:.78rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase;
-             color:#9ca3af; margin-bottom:.9rem }
+             color:var(--surface-dim,#9ca3af); margin-bottom:.9rem }
 
     .acc-flash{ border:1px solid #bbf7d0; background:#f0fdf4; color:#166534;
                 padding:.7rem 1rem; margin-bottom:1rem; font-size:.9rem }
@@ -370,8 +370,8 @@
 
     .acc-list{ display:grid; gap:.55rem; font-size:.92rem }
     .acc-list > div{ display:flex; gap:.6rem; flex-wrap:wrap; align-items:baseline }
-    .acc-list dt{ color:#6b7280; min-width:10rem }
-    .acc-list dd{ margin:0; font-weight:600; color:#111827 }
+    .acc-list dt{ color:var(--surface-mute,#6b7280); min-width:10rem }
+    .acc-list dd{ margin:0; font-weight:600; color:var(--surface-ink,#111827) }
     .acc-list a{ color:#4f46e5 }
 
     .acc-actions{ display:flex; flex-wrap:wrap; gap:.5rem; align-items:stretch }
@@ -389,31 +389,31 @@
         .acc-actions .acc-btn-ghost{ white-space:normal; width:100% }
     }
     .acc-btn-ghost{ display:inline-flex; align-items:center; gap:.5rem; padding:.55rem 1rem;
-                    border:1px solid #e5e7eb; background:#fff; color:#374151;
+                    border:1px solid var(--surface-bd,#e5e7eb); background:var(--surface,#fff); color:var(--surface-ink,#374151);
                     font-size:.85rem; font-weight:600; transition:border-color .15s, color .15s }
     .acc-btn-ghost:hover{ border-color:#a5b4fc; color:#4f46e5 }
-    .acc-count{ margin-top:.9rem; font-size:.85rem; color:#6b7280 }
+    .acc-count{ margin-top:.9rem; font-size:.85rem; color:var(--surface-mute,#6b7280) }
 
     .acc-orders-head{ display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:.9rem }
     .acc-all{ font-size:.85rem; font-weight:600; color:#4f46e5 }
 
     .acc-order{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem;
-                border:1px solid #eef2f7; padding:.85rem 1rem; margin-bottom:.6rem; background:#fff }
+                border:1px solid var(--surface-bd,#eef2f7); padding:.85rem 1rem; margin-bottom:.6rem; background:var(--surface,#fff) }
     .acc-order:hover{ border-color:#c7d2fe }
     .acc-order__top{ display:flex; align-items:center; gap:.6rem; flex-wrap:wrap }
     .acc-order__meta{ display:flex; flex-wrap:wrap; gap:.25rem 1rem; margin-top:.35rem;
-                      font-size:.8rem; color:#6b7280 }
+                      font-size:.8rem; color:var(--surface-mute,#6b7280) }
     .acc-order__sum{ text-align:right; white-space:nowrap }
-    .acc-order__sum-label{ display:block; font-size:.72rem; color:#9ca3af }
-    .acc-order__sum b{ font-size:1.05rem; color:#111827 }
+    .acc-order__sum-label{ display:block; font-size:.72rem; color:var(--surface-dim,#9ca3af) }
+    .acc-order__sum b{ font-size:1.05rem; color:var(--surface-ink,#111827) }
 
     .acc-status{ font-size:.72rem; font-weight:700; padding:.15rem .5rem; border:1px solid }
     .acc-status--ok{ color:#166534; background:#f0fdf4; border-color:#bbf7d0 }
-    .acc-status--wait{ color:#92400e; background:#fffbeb; border-color:#fde68a }
+    .acc-status--wait{ color:#92400e; background:var(--surface,#fff)beb; border-color:#fde68a }
     .acc-status--bad{ color:#991b1b; background:#fef2f2; border-color:#fecaca }
 
     .acc-empty{ text-align:center; padding:2.5rem 1rem }
-    .acc-empty__title{ font-weight:700; color:#111827; margin:.9rem 0 .25rem }
+    .acc-empty__title{ font-weight:700; color:var(--surface-ink,#111827); margin:.9rem 0 .25rem }
 
     @media (prefers-color-scheme: dark){
         .acc-list dd, .acc-order__sum b, .acc-empty__title, .acc-stat__value{ color:#f3f4f6 }
