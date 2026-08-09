@@ -49,8 +49,12 @@
     </ol>
 
     <div class="au-qr">
-        @if($qrCodeUrl)
-            <img src="{{ $qrCodeUrl }}" alt="{{ __('frontend.auth.tfa_qr_alt') }}" width="192" height="192">
+        @if(!empty($qrCodeSvg))
+            {{-- Код вставлен разметкой, а не ссылкой на картинку: не зависит от
+                 политики безопасности страницы и не мылится при увеличении. --}}
+            <div class="au-qr__img" role="img" aria-label="{{ __('frontend.auth.tfa_qr_alt') }}">
+                {!! $qrCodeSvg !!}
+            </div>
         @else
             <p class="au-err">{{ __('frontend.auth.tfa_qr_missing') }}</p>
         @endif
@@ -89,6 +93,10 @@
     .au-steps { margin: 0 0 16px; padding-left: 20px; font-size: .84rem; line-height: 1.7; color: var(--au-muted) }
     .au-qr { display: flex; justify-content: center; margin-bottom: 16px; padding: 12px;
              background: #fff; border: 1px solid var(--au-line); border-radius: calc(var(--au-radius) - 4px) }
+    /* Ширину задаём здесь, а не в самой картинке: код квадратный, высота
+       следует за шириной сама, и на узком экране он не вылезает за карточку. */
+    .au-qr__img { width: 192px; max-width: 100%; line-height: 0 }
+    .au-qr__img svg { width: 100%; height: auto }
     .au-secret { display: block; padding: 9px 11px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
                  font-size: .8rem; word-break: break-all; background: #f3f4f6; color: #374151;
                  border-radius: calc(var(--au-radius) - 6px) }

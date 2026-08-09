@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use App\Services\SecurityService;
+use App\Support\QrCode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -53,10 +54,15 @@ class TwoFactorSetupController extends Controller implements HasMiddleware
             
             // Сохраняем временный секрет в сессии (до подтверждения)
             session(['2fa_temp_secret' => $secret]);
-            
+
             return view('auth.two-factor-setup', [
                 'secret' => $secret,
                 'qrCodeUrl' => $qrCodeUrl,
+                // Картинку рисуем здесь, а не во вьюхе: раньше в тег картинки
+                // подставлялась сама строка otpauth://… — это содержимое кода,
+                // а не изображение, и на странице была пустая рамка.
+                // Сканировать было нечего, оставался только ручной ввод ключа.
+                'qrCodeSvg' => $qrCodeUrl ? QrCode::svg($qrCodeUrl, 5) : null,
             ]);
         }
 

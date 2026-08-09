@@ -168,7 +168,7 @@ return [
         'tfa_setup' => 'Turn on',
         'tfa_setup_title' => 'Set up two-factor authentication',
         'tfa_setup_lead' => 'Link your account to an authenticator app.',
-        'tfa_step1' => 'Install an authenticator app on your phone.',
+        'tfa_step1' => 'Install an authenticator app on your phone — Yandex Key, for example.',
         'tfa_step2' => 'Scan the code below with it.',
         'tfa_step3' => 'Enter the six digits from the app to confirm the link.',
         'tfa_qr_alt' => 'Code for the authenticator app',
