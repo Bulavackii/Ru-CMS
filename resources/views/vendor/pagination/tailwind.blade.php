@@ -10,6 +10,11 @@
     и в панели вдобавок принудительно сняты глобальным правилом. Цвет активной
     страницы берётся из активной темы.
 
+    Подложки и текст — из общих переменных поверхностей. Прежде они были
+    прибиты к светлым значениям, и на тёмной теме сайта кнопки страниц
+    оставались белыми прямоугольниками, а цифры в подписи слева («показано
+    с 1 по 15 из 34») пропадали вовсе — тёмный текст на тёмном фоне.
+
     Необязательный параметр summary — готовая подпись слева вместо счётчика
     записей. Нужен там, где постранично разбиваются не сами записи: на списке
     новостей страница набирается целыми группами-шаблонами, и «показано с 1 по
@@ -22,28 +27,30 @@
     .pg{ display:flex; align-items:center; justify-content:space-between; gap:1rem;
         flex-wrap:wrap; width:100%; font-size:.875rem }
 
-    .pg__info{ color:#64748b; line-height:1.4 }
-    .pg__info b{ font-weight:600; color:#0f172a }
+    .pg__info{ color:var(--surface-mute,#64748b); line-height:1.4 }
+    .pg__info b{ font-weight:600; color:var(--surface-ink,#0f172a) }
 
     .pg__list{ display:flex; align-items:center; gap:.35rem; margin:0 auto; padding:0; list-style:none }
 
     /* 40px — минимум, за который уверенно попадают пальцем. */
     .pg__link{ display:inline-flex; align-items:center; justify-content:center;
-        min-width:40px; height:40px; padding:0 .7rem; font-weight:600; color:#334155;
-        background:#fff; border:1px solid #e2e8f0; text-decoration:none;
+        min-width:40px; height:40px; padding:0 .7rem; font-weight:600;
+        color:var(--surface-ink,#334155); background:var(--surface,#fff);
+        border:1px solid var(--surface-bd,#e2e8f0); text-decoration:none;
         transition:border-color .15s, color .15s, background-color .15s }
     .pg__link:hover{ border-color:var(--color-primary,#6366f1); color:var(--color-primary,#6366f1) }
     .pg__link:focus-visible{ outline:2px solid var(--color-primary,#6366f1); outline-offset:2px }
 
     .pg__link--active{ color:var(--on-accent,#fff); background:var(--color-primary,#6366f1);
         border-color:var(--color-primary,#6366f1); cursor:default }
-    .pg__link--active:hover{ color:#fff }
+    .pg__link--active:hover{ color:var(--on-accent,#fff) }
 
-    .pg__link--off{ color:#cbd5e1; background:#f8fafc; cursor:not-allowed }
-    .pg__link--off:hover{ border-color:#e2e8f0; color:#cbd5e1 }
+    .pg__link--off{ color:var(--surface-dim,#cbd5e1); background:var(--surface-2,#f8fafc);
+        cursor:not-allowed }
+    .pg__link--off:hover{ border-color:var(--surface-bd,#e2e8f0); color:var(--surface-dim,#cbd5e1) }
 
     .pg__gap{ display:inline-flex; align-items:center; justify-content:center;
-        min-width:24px; height:40px; color:#94a3b8; letter-spacing:.1em }
+        min-width:24px; height:40px; color:var(--surface-dim,#94a3b8); letter-spacing:.1em }
 
     /* Подпись у стрелок шире самой стрелки — на узком экране прячется. */
     .pg__word{ margin:0 .3rem }

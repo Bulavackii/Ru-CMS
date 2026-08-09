@@ -677,11 +677,11 @@
                 text-decoration:none;font-weight:600;border:1px solid var(--surface-bd,#e5e7eb);">{{ __('frontend.common.download') }}</a>
 
                 <button id="ru-lb-zi" type="button"
-                    style="padding:.55rem .85rem;border-radius:.6rem;background:var(--surface,#fff)fff;color:var(--surface-ink,#111);border:1px solid var(--surface-bd,#e5e7eb);font-weight:600">+</button>
+                    style="padding:.55rem .85rem;border-radius:.6rem;background:var(--surface,#ffffff);color:var(--surface-ink,#111);border:1px solid var(--surface-bd,#e5e7eb);font-weight:600">+</button>
                 <button id="ru-lb-zo" type="button"
-                    style="padding:.55rem .85rem;border-radius:.6rem;background:var(--surface,#fff)fff;color:var(--surface-ink,#111);border:1px solid var(--surface-bd,#e5e7eb);font-weight:600">-</button>
+                    style="padding:.55rem .85rem;border-radius:.6rem;background:var(--surface,#ffffff);color:var(--surface-ink,#111);border:1px solid var(--surface-bd,#e5e7eb);font-weight:600">-</button>
                 <button id="ru-lb-fit" type="button"
-                    style="padding:.55rem .85rem;border-radius:.6rem;background:var(--surface,#fff)fff;color:var(--surface-ink,#111);border:1px solid var(--surface-bd,#e5e7eb);font-weight:600">{{ __('frontend.common.fit_screen') }}</button>
+                    style="padding:.55rem .85rem;border-radius:.6rem;background:var(--surface,#ffffff);color:var(--surface-ink,#111);border:1px solid var(--surface-bd,#e5e7eb);font-weight:600">{{ __('frontend.common.fit_screen') }}</button>
                 <span id="ru-lb-zoomval" style="color:#e5e7eb;font-size:.9rem;margin-left:.25rem">100%</span>
             </div>
         </figure>

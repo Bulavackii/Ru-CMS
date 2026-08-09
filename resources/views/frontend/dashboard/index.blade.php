@@ -408,9 +408,15 @@
     .acc-order__sum b{ font-size:1.05rem; color:var(--surface-ink,#111827) }
 
     .acc-status{ font-size:.72rem; font-weight:700; padding:.15rem .5rem; border:1px solid }
-    .acc-status--ok{ color:#166534; background:#f0fdf4; border-color:#bbf7d0 }
-    .acc-status--wait{ color:#92400e; background:var(--surface,#fff)beb; border-color:#fde68a }
-    .acc-status--bad{ color:#991b1b; background:#fef2f2; border-color:#fecaca }
+    .acc-status--ok{ color:color-mix(in srgb, #16a34a 55%, var(--surface-ink,#111827));
+        background:color-mix(in srgb, #16a34a 16%, var(--surface,#fff));
+        border-color:color-mix(in srgb, #16a34a 34%, var(--surface,#fff)) }
+    .acc-status--wait{ color:color-mix(in srgb, #d97706 55%, var(--surface-ink,#111827));
+        background:color-mix(in srgb, #d97706 16%, var(--surface,#fff));
+        border-color:color-mix(in srgb, #d97706 34%, var(--surface,#fff)) }
+    .acc-status--bad{ color:color-mix(in srgb, #dc2626 55%, var(--surface-ink,#111827));
+        background:color-mix(in srgb, #dc2626 16%, var(--surface,#fff));
+        border-color:color-mix(in srgb, #dc2626 34%, var(--surface,#fff)) }
 
     .acc-empty{ text-align:center; padding:2.5rem 1rem }
     .acc-empty__title{ font-weight:700; color:var(--surface-ink,#111827); margin:.9rem 0 .25rem }

@@ -110,10 +110,18 @@
             border:1px solid var(--surface-bd,#eef2f7); padding:.15rem .45rem; white-space:nowrap }
 
     .lh-status{ font-size:.72rem; font-weight:700; padding:.15rem .5rem; border:1px solid }
-    .lh-status--ok{ color:#166534; background:#f0fdf4; border-color:#bbf7d0 }
-    .lh-status--bad{ color:#991b1b; background:#fef2f2; border-color:#fecaca }
-    .lh-status--wait{ color:#3730a3; background:#eef2ff; border-color:#c7d2fe }
-    .lh-status--warn{ color:#92400e; background:var(--surface,#fff)beb; border-color:#fde68a }
+    .lh-status--ok{ color:color-mix(in srgb, #16a34a 55%, var(--surface-ink,#111827));
+        background:color-mix(in srgb, #16a34a 16%, var(--surface,#fff));
+        border-color:color-mix(in srgb, #16a34a 34%, var(--surface,#fff)) }
+    .lh-status--bad{ color:color-mix(in srgb, #dc2626 55%, var(--surface-ink,#111827));
+        background:color-mix(in srgb, #dc2626 16%, var(--surface,#fff));
+        border-color:color-mix(in srgb, #dc2626 34%, var(--surface,#fff)) }
+    .lh-status--wait{ color:color-mix(in srgb, #4f46e5 55%, var(--surface-ink,#111827));
+        background:color-mix(in srgb, #4f46e5 16%, var(--surface,#fff));
+        border-color:color-mix(in srgb, #4f46e5 34%, var(--surface,#fff)) }
+    .lh-status--warn{ color:color-mix(in srgb, #d97706 55%, var(--surface-ink,#111827));
+        background:color-mix(in srgb, #d97706 16%, var(--surface,#fff));
+        border-color:color-mix(in srgb, #d97706 34%, var(--surface,#fff)) }
 
     .lh-empty{ text-align:center; padding:2.5rem 1rem }
     .lh-empty__title{ font-weight:700; color:var(--surface-ink,#111827); margin:.9rem 0 .25rem }

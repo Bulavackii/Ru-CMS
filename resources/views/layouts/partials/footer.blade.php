@@ -503,11 +503,14 @@
     .f-social--plain svg{ transition:transform .15s ease; }
     .f-social--plain:hover svg{ transform:scale(1.08); }
 
+    /* Заливка выводится из акцента ТЕМЫ, а не из вписанного индиго: раньше
+       чипы versий не следовали оформлению вовсе, а соседнее правило смотрело
+       на :root.dark — тёмный режим ОПЕРАЦИОННОЙ СИСТЕМЫ, к тёмной теме сайта
+       отношения не имеющий. На тёмной теме чипы оставались светлыми пятнами. */
     .f-meta-chip{ display:inline-flex; align-items:center; gap:.3rem; padding:.18rem .5rem; font-size:.66rem; font-weight:600;
-        background:rgba(99,102,241,.1); color:var(--color-primary,#6366f1); letter-spacing:.02em; }
-    :root.dark .f-meta-chip{ background:rgba(99,102,241,.2); color:#c7d2fe; }
+        background:color-mix(in srgb, var(--color-primary,#6366f1) 16%, transparent);
+        color:var(--color-primary,#6366f1); letter-spacing:.02em; }
 
-        color:var(--surface-ink,#111827); font-size:.85rem; transition:border-color .15s ease, box-shadow .15s ease; }
-        background:var(--fx-grad,#6366f1); color:#fff; font-weight:500; font-size:.85rem; white-space:nowrap;
-        box-shadow:0 8px 18px -10px rgba(99,102,241,.7); transition:filter .15s ease, transform .15s ease; }
+    /* Ниже здесь лежали два набора свойств БЕЗ СЕЛЕКТОРА — разбирающий CSS
+       их отбрасывает целиком. Мёртвый код, удалён. */
 </style>

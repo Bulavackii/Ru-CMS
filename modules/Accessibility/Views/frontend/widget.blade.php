@@ -39,8 +39,13 @@
                     <i :class="option.icon + ' mr-1'"></i>
                     <span x-text="option.label"></span>
                 </div>
-                <button @click="option.action()" class="px-2 py-1 rounded text-xs font-semibold"
-                    :class="option.active ? 'bg-red-100 hover:bg-red-200' : 'bg-green-100 hover:bg-green-200'"
+                {{-- Кнопка НЕ задавала цвет текста, только заливку
+                     (bg-green-100 / bg-red-100), поэтому надпись наследовалась
+                     от панели. На тёмной теме текст светлый, а заливка
+                     оставалась бледно-зелёной — подписи «Включить» и
+                     «Выключить» пропадали. Свои классы задают пару целиком. --}}
+                <button @click="option.action()" class="a11y-opt-btn"
+                    :class="option.active ? 'a11y-opt-btn--on' : 'a11y-opt-btn--off'"
                     x-text="option.active ? option.disableText : option.enableText">
                 </button>
             </div>
@@ -366,6 +371,30 @@
        перекрашивался, а она оставалась синей. Позиционирование тоже здесь —
        литеральным CSS, а не утилитами: так оно не зависит от того, какие
        классы попали в статическую сборку Tailwind. */
+    /* Кнопки «Включить» / «Выключить» у каждой настройки.
+
+       Зелёный и красный несут смысл (включить / выключить), поэтому оттенок
+       сохраняется, а светлота выводится из темы: прежние bg-green-100 и
+       bg-red-100 оставались бледными на тёмной теме, и надпись на них
+       пропадала — она наследовала светлый цвет текста панели. */
+    .a11y-opt-btn{ padding:.25rem .5rem; font-size:.75rem; font-weight:600;
+        border:1px solid transparent; cursor:pointer;
+        transition:background-color .15s ease, border-color .15s ease }
+
+    .a11y-opt-btn--off{
+        color:color-mix(in srgb, #16a34a 55%, var(--surface-ink,#111827));
+        background:color-mix(in srgb, #16a34a 16%, var(--surface,#dcfce7));
+        border-color:color-mix(in srgb, #16a34a 32%, var(--surface,#dcfce7)) }
+    .a11y-opt-btn--off:hover{
+        background:color-mix(in srgb, #16a34a 26%, var(--surface,#dcfce7)) }
+
+    .a11y-opt-btn--on{
+        color:color-mix(in srgb, #dc2626 55%, var(--surface-ink,#111827));
+        background:color-mix(in srgb, #dc2626 16%, var(--surface,#fee2e2));
+        border-color:color-mix(in srgb, #dc2626 32%, var(--surface,#fee2e2)) }
+    .a11y-opt-btn--on:hover{
+        background:color-mix(in srgb, #dc2626 26%, var(--surface,#fee2e2)) }
+
     .a11y-fab{ position:fixed; bottom:1.5rem; left:1.5rem; z-index:9999; filter:none !important; isolation:isolate }
 
     .a11y-fab__btn{ display:flex; align-items:center; justify-content:center; width:3rem; height:3rem;
