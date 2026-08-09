@@ -118,7 +118,7 @@
     .pg-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(18rem,1fr)); gap:1rem }
 
     .pg-card{ display:flex; flex-direction:column; gap:.55rem; padding:1.3rem 1.4rem;
-        background:#fff; border:1px solid #eef2f7; transition:border-color .15s, transform .15s }
+        background:var(--surface,#fff); border:1px solid var(--surface-bd,#eef2f7); transition:border-color .15s, transform .15s }
     .pg-card:hover{ border-color:var(--color-primary,#6366f1); transform:translateY(-2px) }
 
     .pg-card__ico{ display:flex; align-items:center; justify-content:center; width:2.5rem; height:2.5rem;
@@ -149,6 +149,14 @@
     .pg-card__more{ font-size:.8rem; font-weight:700; color:var(--color-primary,#6366f1);
         white-space:nowrap }
 
+
+    /* Тёмная ТЕМА сайта — не то же, что тёмный режим системы ниже.
+       Значения берутся из общих переменных поверхностей, объявленных
+       в макете: один набор на все шаблоны. */
+    body.fx-theme-dark .pg__head,
+    body.fx-theme-dark .pg-card{ background:var(--surface); border-color:var(--surface-bd) }
+    body.fx-theme-dark .pg-card__meta{ background:var(--surface-2); border-color:var(--surface-bd) }
+    body.fx-theme-dark .pg__title, body.fx-theme-dark .pg-card__title a{ color:var(--surface-ink) }
     @media (prefers-color-scheme: dark){
         .pg__head, .pg-card{ background:#111827; border-color:#1f2937 }
         .pg-card__meta{ background:#0b1220; border-color:#1f2937 }

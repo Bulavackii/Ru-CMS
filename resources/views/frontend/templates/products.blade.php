@@ -238,12 +238,12 @@
 
     .pr-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(18rem,1fr)); gap:1rem }
 
-    .pr-card{ display:flex; flex-direction:column; background:#fff; border:1px solid #eef2f7;
+    .pr-card{ display:flex; flex-direction:column; background:var(--surface,#fff); border:1px solid var(--surface-bd,#eef2f7);
         overflow:hidden; transition:border-color .15s, transform .15s }
     .pr-card:hover{ border-color:var(--color-primary,#6366f1); transform:translateY(-2px) }
     .pr-card.is-out{ opacity:.72 }
 
-    .pr-card__media{ position:relative; height:12.5rem; background:#f1f5f9 }
+    .pr-card__media{ position:relative; height:12.5rem; background:var(--surface-2,#f1f5f9) }
     .pr-card__media img, .pr-card__media video{ width:100%; height:100%; object-fit:cover; display:block }
     .pr-card__noimg{ display:flex; flex-direction:column; align-items:center; justify-content:center;
         gap:.4rem; height:100%; color:#94a3b8; font-size:.75rem }
@@ -306,6 +306,14 @@
     .pr-empty{ padding:3rem 1rem; text-align:center; color:#94a3b8 }
     .pr-empty i{ font-size:2rem; display:block; margin-bottom:.75rem; opacity:.5 }
 
+
+    /* Тёмная ТЕМА сайта — не то же, что тёмный режим системы ниже.
+       Значения берутся из общих переменных поверхностей, объявленных
+       в макете: один набор на все шаблоны. */
+    body.fx-theme-dark .pr__head,
+    body.fx-theme-dark .pr-card{ background:var(--surface); border-color:var(--surface-bd) }
+    body.fx-theme-dark .pr-card__meta{ background:var(--surface-2); border-color:var(--surface-bd) }
+    body.fx-theme-dark .pr__title, body.fx-theme-dark .pr-card__title a, body.fx-theme-dark .pr-card__price{ color:var(--surface-ink) }
     @media (prefers-color-scheme: dark){
         .pr__head, .pr-card{ background:#111827; border-color:#1f2937 }
         .pr__title, .pr-card__title a, .pr-card__price{ color:#f3f4f6 }

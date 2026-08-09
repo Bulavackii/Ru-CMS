@@ -118,7 +118,7 @@
     .mag{ max-width:80rem; margin:2.5rem auto; padding:0 1rem }
 
     .mag__head{ display:inline-flex; align-items:center; gap:.75rem; padding:.7rem 1.15rem;
-        background:#fff; border:1px solid rgba(17,24,39,.08); box-shadow:0 2px 10px rgba(15,23,42,.06);
+        background:var(--surface,#fff); border:1px solid var(--surface-bd,rgba(17,24,39,.08)); box-shadow:0 2px 10px rgba(15,23,42,.06);
         margin-bottom:1.5rem }
     .mag__badge{ display:flex; align-items:center; justify-content:center; width:2.4rem; height:2.4rem;
         flex:none; font-size:1.2rem; background:var(--color-primary,#6366f1) }
@@ -177,6 +177,12 @@
         .mag-lead__body{ padding:1.35rem }
         .mag-lead__title{ font-size:1.35rem }
     }
+
+
+    /* Тёмная ТЕМА сайта — не то же, что тёмный режим системы ниже.
+       Цвета берутся из общих переменных поверхностей в макете. */
+    body.fx-theme-dark .mag__head{ background:var(--surface); border-color:var(--surface-bd) }
+    body.fx-theme-dark .mag__title{ color:var(--surface-ink) }
 
     @media (prefers-color-scheme: dark){
         .mag__head, .mag-lead, .mag-card{ background:#111827; border-color:#1f2937 }

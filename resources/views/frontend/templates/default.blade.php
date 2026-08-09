@@ -192,11 +192,11 @@
 
     .nw-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(18rem,1fr)); gap:1rem }
 
-    .nw-card{ display:flex; flex-direction:column; background:#fff; border:1px solid #eef2f7;
+    .nw-card{ display:flex; flex-direction:column; background:var(--surface,#fff); border:1px solid var(--surface-bd,#eef2f7);
         overflow:hidden; transition:border-color .15s, transform .15s }
     .nw-card:hover{ border-color:var(--color-primary,#6366f1); transform:translateY(-2px) }
 
-    .nw-card__media{ position:relative; height:11rem; background:#f1f5f9 }
+    .nw-card__media{ position:relative; height:11rem; background:var(--surface-2,#f1f5f9) }
     .nw-card__media img, .nw-card__media video{ width:100%; height:100%; object-fit:cover; display:block }
     .nw-card__noimg{ display:flex; flex-direction:column; align-items:center; justify-content:center;
         gap:.4rem; height:100%; color:#94a3b8; font-size:.75rem }
@@ -237,6 +237,14 @@
     .nw-empty{ padding:3rem 1rem; text-align:center; color:#94a3b8 }
     .nw-empty i{ font-size:2rem; display:block; margin-bottom:.75rem; opacity:.5 }
 
+
+    /* Тёмная ТЕМА сайта — не то же, что тёмный режим системы ниже.
+       Значения берутся из общих переменных поверхностей, объявленных
+       в макете: один набор на все шаблоны. */
+    body.fx-theme-dark .nw__head,
+    body.fx-theme-dark .nw-card{ background:var(--surface); border-color:var(--surface-bd) }
+    body.fx-theme-dark .nw-card__meta{ background:var(--surface-2); border-color:var(--surface-bd) }
+    body.fx-theme-dark .nw__title, body.fx-theme-dark .nw-card__title a{ color:var(--surface-ink) }
     @media (prefers-color-scheme: dark){
         .nw__head, .nw-card{ background:#111827; border-color:#1f2937 }
         .nw-card__meta{ background:#0b1220; border-color:#1f2937 }

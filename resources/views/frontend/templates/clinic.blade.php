@@ -111,7 +111,7 @@
     .clinic-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(19rem,1fr)); gap:1rem }
 
     .clinic-card{ display:flex; flex-direction:column; gap:.6rem; padding:1.4rem 1.5rem;
-        background:#fff; border:1px solid #eef2f7; transition:border-color .15s, transform .15s }
+        background:var(--surface,#fff); border:1px solid var(--surface-bd,#eef2f7); transition:border-color .15s, transform .15s }
     .clinic-card:hover{ border-color:var(--color-primary,#6366f1); transform:translateY(-2px) }
     /* Значок и дата в одной строке: низ карточки занят ценой и ссылкой,
        поэтому дата ушла в правый верхний угол. */
@@ -139,6 +139,14 @@
         color:#111827; background:#fff }
     .clinic-cta__btn:hover{ color:var(--color-primary,#6366f1) }
 
+
+    /* Тёмная ТЕМА сайта — не то же, что тёмный режим системы ниже.
+       Значения берутся из общих переменных поверхностей, объявленных
+       в макете: один набор на все шаблоны. */
+    body.fx-theme-dark .clinic__head,
+    body.fx-theme-dark .clinic-card{ background:var(--surface); border-color:var(--surface-bd) }
+    body.fx-theme-dark .clinic-card__meta{ background:var(--surface-2); border-color:var(--surface-bd) }
+    body.fx-theme-dark .clinic__title, body.fx-theme-dark .clinic-card__title a, body.fx-theme-dark .clinic-card__price{ color:var(--surface-ink) }
     @media (prefers-color-scheme: dark){
         .clinic__head, .clinic-card{ background:#111827; border-color:#1f2937 }
         .clinic__title, .clinic-card__title a, .clinic-card__price{ color:#f3f4f6 }
