@@ -2,6 +2,127 @@
 @section('title', $fragment->exists ? 'Редактировать фрагмент' : 'Создать фрагмент')
 
 @section('content')
+
+@push('styles')
+<style>
+    /* ── Редактор фрагментов ─────────────────────────────────────────────
+       Литеральный CSS, а не Tailwind-утилиты: в собранном tailwind.min.css
+       этого проекта нет ни прозрачности через дробь, ни произвольных
+       значений, ни варианта peer-checked — см. памятку проекта. Поля здесь
+       раньше были набраны как `border rounded px-3 py-2`, то есть без
+       подсветки при фокусе и с скруглением, которое всё равно снимает
+       глобальное правило admin-sharp. */
+
+    /* Две колонки — литеральным CSS.
+
+       Сначала я задал их Tailwind-классом с произвольным значением
+       (xl:grid-cols-[20rem_minmax(0,1fr)]) и наступил на мину, описанную в
+       памятке этого же проекта: в собранном tailwind.min.css произвольных
+       значений НЕТ ВООБЩЕ. Класс молча не применился, и форма осталась в
+       одну колонку — ровно та жалоба, с которой всё началось.
+       Правило: любая утилита сложнее базовой проверяется грепом по сборке. */
+    .frg-grid{ display:grid; grid-template-columns:1fr; gap:1.5rem; align-items:start }
+
+    @media (min-width:1280px){
+        .frg-grid{ grid-template-columns:20rem minmax(0, 1fr) }
+        /* Липкой колонка становится только когда она РЯДОМ с содержимым:
+           в одну колонку прилипание мешало бы прокрутке.
+
+           Высоту обязательно ограничиваем окном. Прилипающий блок ВЫШЕ окна
+           ведёт себя противно: он упирается в верх и дальше просто не
+           двигается, а его нижняя часть остаётся недостижимой (здесь было
+           825px при окне 720px). Поэтому лишнее прокручивается внутри самой
+           колонки. */
+        .frg-aside{ position:sticky; top:calc(var(--admin-header-h, 60px) + 1.25rem);
+            max-height:calc(100vh - var(--admin-header-h, 60px) - 2.5rem);
+            overflow-y:auto; scrollbar-gutter:stable }
+    }
+
+    /* h-[520px] — тоже произвольное значение, тоже не существует в сборке. */
+    .frg-preview{ height:520px }
+
+    .frg-h{ font-size:.7rem; font-weight:700; letter-spacing:.06em;
+        text-transform:uppercase; color:#6b7280 }
+    .dark .frg-h{ color:#9ca3af }
+
+    .frg-label{ display:block; margin-bottom:.25rem; font-size:.875rem;
+        font-weight:500; color:#374151 }
+    .dark .frg-label{ color:#d1d5db }
+
+    /* Поля ввода */
+    .frg-input{ display:block; width:100%; padding:.5rem .75rem; font-size:.875rem;
+        color:#111827; background:#fff; border:1px solid #d1d5db;
+        transition:border-color .15s, box-shadow .15s }
+    .frg-input:focus{ outline:none; border-color:var(--admin-primary);
+        box-shadow:0 0 0 3px color-mix(in srgb, var(--admin-primary) 22%, transparent) }
+    .frg-input[readonly], .frg-input:disabled{ background:#f3f4f6; color:#6b7280; cursor:not-allowed }
+    .frg-input--sm{ width:auto; padding:.3rem .5rem; font-size:.75rem }
+    .dark .frg-input{ color:#f3f4f6; background:#111827; border-color:#374151 }
+    .dark .frg-input[readonly], .dark .frg-input:disabled{ background:#1f2937; color:#9ca3af }
+
+    /* Поля с кодом */
+    .frg-code{ display:block; width:100%; padding:.6rem .75rem; font-size:.8rem; line-height:1.6;
+        font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        color:#111827; background:#f9fafb; border:1px solid #d1d5db;
+        transition:border-color .15s, box-shadow .15s; resize:vertical }
+    .frg-code:focus{ outline:none; border-color:var(--admin-primary);
+        box-shadow:0 0 0 3px color-mix(in srgb, var(--admin-primary) 22%, transparent) }
+    .dark .frg-code{ color:#e5e7eb; background:#0f172a; border-color:#374151 }
+
+    /* Мелкие кнопки-инструменты */
+    .frg-mini{ display:inline-flex; align-items:center; justify-content:center; gap:.35rem;
+        padding:.35rem .6rem; font-size:.75rem; font-weight:600; white-space:nowrap;
+        color:#374151; background:#fff; border:1px solid #d1d5db; cursor:pointer;
+        text-decoration:none; transition:background-color .15s, border-color .15s, color .15s }
+    .frg-mini:hover{ background:#f3f4f6; border-color:var(--admin-primary); color:var(--admin-primary) }
+    .dark .frg-mini{ color:#d1d5db; background:#1f2937; border-color:#374151 }
+    .dark .frg-mini:hover{ background:#374151 }
+
+    /* Кнопки в шапке страницы */
+    .frg-btn{ display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .8rem;
+        font-size:.875rem; font-weight:600; white-space:nowrap;
+        color:#374151; background:transparent; border:1px solid #d1d5db; cursor:pointer;
+        text-decoration:none; transition:background-color .15s, border-color .15s, color .15s }
+    .frg-btn:hover{ background:#f3f4f6; border-color:var(--admin-primary); color:var(--admin-primary) }
+    .dark .frg-btn{ color:#e5e7eb; border-color:#4b5563 }
+    .dark .frg-btn:hover{ background:#374151 }
+
+    /* Надпись на акценте берёт цвет через readable_ink: акценты тем очень
+       разной яркости, и белым по светло-мятному не прочитать. */
+    .frg-btn--primary{ color:var(--admin-on-primary, #fff);
+        background:var(--admin-primary); border-color:var(--admin-primary) }
+    .frg-btn--primary:hover{ color:var(--admin-on-primary, #fff); filter:brightness(1.08);
+        background:var(--admin-primary); border-color:var(--admin-primary) }
+    .dark .frg-btn--primary{ color:var(--admin-on-primary, #fff) }
+
+    /* Полоса-заголовок карточки с инструментами */
+    .frg-bar{ display:flex; flex-wrap:wrap; align-items:center; gap:.5rem;
+        padding:.7rem 1rem; border-bottom:1px solid #e5e7eb; background:#f9fafb }
+    .dark .frg-bar{ border-bottom-color:#374151; background:#111827 }
+
+    /* Токены темы */
+    .frg-token{ display:flex; align-items:center; gap:.5rem; min-width:0;
+        padding:.35rem .5rem; font-size:.7rem; font-family:ui-monospace, Menlo, Consolas, monospace;
+        color:#374151; background:#fff; border:1px solid #e5e7eb; cursor:pointer;
+        transition:border-color .15s, background-color .15s }
+    .frg-token:hover{ border-color:var(--admin-primary); background:#f9fafb }
+    .dark .frg-token{ color:#d1d5db; background:#1f2937; border-color:#374151 }
+    .dark .frg-token:hover{ background:#374151 }
+
+    .frg-swatch{ width:1rem; height:1rem; flex:none; border:1px solid rgba(17,24,39,.15) }
+    .frg-swatch--plain{ background:#e5e7eb }
+    .dark .frg-swatch{ border-color:rgba(255,255,255,.2) }
+
+    /* Раскрывающиеся блоки: значок-стрелка у сводки */
+    details > summary{ list-style:none }
+    details > summary::-webkit-details-marker{ display:none }
+    details > summary::before{ content:'\25B8'; display:inline-block; margin-right:.4rem;
+        transition:transform .15s }
+    details[open] > summary::before{ transform:rotate(90deg) }
+</style>
+@endpush
+
+
 @php
     $isSystem = in_array($fragment->slug, ['site-header','site-footer'], true);
     $themeCfg = ($activeTheme->config ?? []);
@@ -36,19 +157,33 @@
     </div>
   </div>
 
+  {{-- Кнопка сохранения переехала сюда из самого низа страницы. Там она
+       стояла ПОСЛЕ предпросмотра и полей JSON, то есть чтобы сохранить
+       правку, надо было проматывать всю страницу вниз — а выше по дороге
+       попадалась кнопка «Сохранить» у черновика, которая сохраняет совсем
+       другое. Атрибут form= позволяет держать её вне тега формы. --}}
   <div class="flex items-center gap-2 flex-shrink-0">
     @if ($fragment->exists)
-      <a href="{{ route('admin.visual.fragments.history', $fragment) }}"
-         class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
-                hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition">
-        <i class="fas fa-clock-rotate-left"></i> История
+      <a href="{{ route('admin.visual.fragments.history', $fragment) }}" class="frg-btn" title="История версий">
+        <i class="fas fa-clock-rotate-left"></i>
+        <span class="hidden sm:inline">История</span>
       </a>
+      <form action="{{ route('admin.visual.fragments.rebuild', $fragment) }}" method="POST" class="inline">
+        @csrf
+        <button type="submit" class="frg-btn" title="Собрать HTML заново из данных фрагмента">
+          <i class="fas fa-arrows-rotate"></i>
+          <span class="hidden lg:inline">Пересобрать</span>
+        </button>
+      </form>
     @endif
-    <a href="{{ route('admin.visual.fragments.index') }}"
-       class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
-              hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition">
-      <i class="fas fa-arrow-left"></i> К списку
+    <a href="{{ route('admin.visual.fragments.index') }}" class="frg-btn">
+      <i class="fas fa-arrow-left"></i>
+      <span class="hidden sm:inline">К списку</span>
     </a>
+    <button type="submit" form="fragmentForm" class="frg-btn frg-btn--primary">
+      <i class="fas fa-floppy-disk"></i>
+      {{ $fragment->exists ? 'Сохранить' : 'Создать' }}
+    </button>
   </div>
 </div>
 
@@ -62,199 +197,238 @@
 
 <form id="fragmentForm" method="POST"
       action="{{ $fragment->exists ? route('admin.visual.fragments.update', $fragment) : route('admin.visual.fragments.store') }}"
-      class="grid grid-cols-1 2xl:grid-cols-3 gap-6">
+      class="frg-grid">
   @csrf
   @if ($fragment->exists) @method('PUT') @endif
   <input type="hidden" name="type" value="{{ old('type', $fragment->type ?: 'html') }}">
 
-  {{-- Левая колонка: мета --}}
-  <div class="space-y-4">
-    <div>
-      <label class="block text-sm mb-1">Название</label>
-      <input type="text" name="title" class="border rounded px-3 py-2 w-full"
-             value="{{ old('title', $fragment->title) }}" required>
-    </div>
+  {{-- ── Левая колонка: свойства фрагмента ──────────────────────────────
+       Липкая: содержимое справа длинное, и при прокрутке к предпросмотру
+       поля названия и зоны уезжали из виду. --}}
+  <aside class="frg-aside space-y-4">
 
-    <div>
-      <label class="block text-sm mb-1">Slug</label>
-      <input type="text" name="slug" class="border rounded px-3 py-2 w-full"
-             value="{{ old('slug', $fragment->slug) }}" {{ $isSystem ? 'readonly' : '' }} required>
-      @if ($isSystem)
-        <p class="text-xs text-gray-500 mt-1">Системный фрагмент — slug изменять нельзя.</p>
-      @endif
-    </div>
+    <section class="admin-card p-4 space-y-4">
+      <h2 class="frg-h">Свойства</h2>
 
-    <div>
-      <label class="block text-sm mb-1">Зона</label>
-      <select name="zone" class="border rounded px-3 py-2 w-full" {{ $isSystem ? 'disabled' : '' }}>
-        <option value="">— не выбрана —</option>
-        @foreach(\Modules\Visual\Models\Fragment::ZONE_LABELS as $zoneValue => $zoneLabel)
-          <option value="{{ $zoneValue }}" @selected(old('zone', $fragment->zone) === $zoneValue)>{{ $zoneLabel }}</option>
-        @endforeach
-      </select>
-      @if ($isSystem)
-        <input type="hidden" name="zone" value="{{ $fragment->slug === 'site-header' ? 'header':'footer' }}">
-      @endif
-    </div>
-
-    <label class="inline-flex items-center gap-2">
-      <input type="checkbox" name="is_active" value="1" class="rounded border-gray-400"
-             @checked(old('is_active', $fragment->is_active ?? true))>
-      <span class="text-sm">Активен</span>
-    </label>
-
-    {{-- Черновик / автосейв --}}
-    <div class="flex flex-wrap gap-2 items-center">
-      <button type="button" id="saveDraft" class="px-3 py-1.5 rounded border">Сохранить</button>
-      <button type="button" id="loadDraft" class="px-3 py-1.5 rounded border">Восстановить</button>
-      <button type="button" id="clearDraft" class="px-3 py-1.5 rounded border">Очистить</button>
-      <span id="autosaveBadge" class="text-xs text-gray-500 ml-1">Автосохранение: выкл.</span>
-    </div>
-
-    {{-- Быстрые пресеты --}}
-    @if (!$fragment->exists)
-      <div class="text-sm text-gray-600 space-x-2">
-        Быстро создать:
-        <a class="text-blue-600 underline" href="{{ route('admin.visual.fragments.create',['preset'=>'header']) }}">Шапка</a>
-        <a class="text-blue-600 underline" href="{{ route('admin.visual.fragments.create',['preset'=>'footer']) }}">Подвал</a>
+      <div>
+        <label class="frg-label">Название</label>
+        <input type="text" name="title" class="frg-input" required
+               value="{{ old('title', $fragment->title) }}">
       </div>
+
+      <div>
+        <label class="frg-label">Slug</label>
+        <input type="text" name="slug" class="frg-input font-mono text-sm" required
+               value="{{ old('slug', $fragment->slug) }}" {{ $isSystem ? 'readonly' : '' }}>
+        @if ($isSystem)
+          <p class="admin-hint mt-1"><i class="fas fa-lock mr-1"></i>Системный фрагмент — slug изменять нельзя.</p>
+        @endif
+      </div>
+
+      <div>
+        <label class="frg-label">Зона</label>
+        <select name="zone" class="frg-input" {{ $isSystem ? 'disabled' : '' }}>
+          <option value="">— не выбрана —</option>
+          @foreach(\Modules\Visual\Models\Fragment::ZONE_LABELS as $zoneValue => $zoneLabel)
+            <option value="{{ $zoneValue }}" @selected(old('zone', $fragment->zone) === $zoneValue)>{{ $zoneLabel }}</option>
+          @endforeach
+        </select>
+        @if ($isSystem)
+          <input type="hidden" name="zone" value="{{ $fragment->slug === 'site-header' ? 'header':'footer' }}">
+        @endif
+        <p class="admin-hint mt-1">Место на странице, куда выводится блок.</p>
+      </div>
+
+      {{-- Тумблер вместо голой галочки: в этой сборке Tailwind нет варианта
+           peer-checked:, поэтому по всей панели используется .admin-toggle. --}}
+      <div class="flex items-center gap-3 pt-1">
+        <label class="admin-toggle">
+          <input type="checkbox" name="is_active" value="1"
+                 @checked(old('is_active', $fragment->is_active ?? true))>
+          <span class="track"></span>
+          <span class="knob"></span>
+        </label>
+        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Активен</span>
+      </div>
+    </section>
+
+    {{-- ── Черновик ───────────────────────────────────────────────────
+         Отдельной карточкой и с другими подписями по делу: кнопки назывались
+         «Сохранить», «Восстановить», «Очистить» и стояли ВЫШЕ настоящей
+         кнопки сохранения формы. «Сохранить» здесь НЕ сохраняет фрагмент —
+         она кладёт копию в память браузера, и перепутать их было проще
+         простого. --}}
+    <section class="admin-card p-4 space-y-3">
+      <h2 class="frg-h">Черновик в браузере</h2>
+      <p class="admin-hint">
+        Копия формы в этом браузере. На сервер не отправляется — фрагмент
+        сохраняет кнопка вверху страницы.
+      </p>
+      <div class="grid grid-cols-3 gap-2">
+        <button type="button" id="saveDraft" class="frg-mini"><i class="fas fa-bookmark"></i> Запомнить</button>
+        <button type="button" id="loadDraft" class="frg-mini"><i class="fas fa-rotate-left"></i> Вернуть</button>
+        <button type="button" id="clearDraft" class="frg-mini"><i class="fas fa-eraser"></i> Забыть</button>
+      </div>
+      <span id="autosaveBadge" class="block text-xs text-gray-500 dark:text-gray-400">Автосохранение: выкл.</span>
+    </section>
+
+    @if (!$fragment->exists)
+      <section class="admin-card p-4 space-y-2">
+        <h2 class="frg-h">Быстро создать</h2>
+        <div class="grid grid-cols-2 gap-2">
+          <a class="frg-mini" href="{{ route('admin.visual.fragments.create',['preset'=>'header']) }}">
+            <i class="fas fa-window-maximize"></i> Шапка
+          </a>
+          <a class="frg-mini" href="{{ route('admin.visual.fragments.create',['preset'=>'footer']) }}">
+            <i class="fas fa-window-minimize"></i> Подвал
+          </a>
+        </div>
+      </section>
     @endif
 
-    {{-- Памятка по токенам темы --}}
-    <div class="text-xs">
-      <div class="font-semibold mb-1">Токены темы</div>
+    <section class="admin-card p-4 space-y-3">
+      <h2 class="frg-h">Токены темы</h2>
       <div class="grid grid-cols-2 gap-2">
-        <button type="button" class="copy-var flex items-center gap-2 px-2 py-1 border rounded" data-var="--color-primary">
-          <span class="w-4 h-4 rounded" style="background: {{ $cPrimary }}"></span> --color-primary
+        <button type="button" class="copy-var frg-token" data-var="--color-primary">
+          <span class="frg-swatch" style="background: {{ $cPrimary }}"></span>
+          <span class="truncate">--color-primary</span>
         </button>
-        <button type="button" class="copy-var flex items-center gap-2 px-2 py-1 border rounded" data-var="--radius-md">
-          <span class="w-4 h-4 rounded bg-gray-200"></span> --radius-md
+        <button type="button" class="copy-var frg-token" data-var="--radius-md">
+          <span class="frg-swatch frg-swatch--plain"></span>
+          <span class="truncate">--radius-md</span>
         </button>
-        <button type="button" class="copy-var flex items-center gap-2 px-2 py-1 border rounded" data-var="--color-text">
-          <span class="w-4 h-4 rounded" style="background: {{ $cText }}"></span> --color-text
+        <button type="button" class="copy-var frg-token" data-var="--color-text">
+          <span class="frg-swatch" style="background: {{ $cText }}"></span>
+          <span class="truncate">--color-text</span>
         </button>
-        <button type="button" class="copy-var flex items-center gap-2 px-2 py-1 border rounded" data-var="--color-bg">
-          <span class="w-4 h-4 rounded" style="background: {{ $cBg }}"></span> --color-bg
+        <button type="button" class="copy-var frg-token" data-var="--color-bg">
+          <span class="frg-swatch" style="background: {{ $cBg }}"></span>
+          <span class="truncate">--color-bg</span>
         </button>
       </div>
-      <p class="text-gray-500 mt-2">Клик по карточке — скопирует имя переменной в буфер.</p>
-    </div>
+      <p class="admin-hint">Клик по токену копирует имя переменной в буфер.</p>
+    </section>
 
-    {{-- Подсказка (экранируем директиву) --}}
-    <div class="text-xs text-gray-500">
-      В HTML можно использовать иконки классами (FA/BI/RI/TI) или Lucide
-      (<code>&lt;i data-lucide="heart"&gt;</code>). Для Blade используйте
-      <code>@@themeIcon('heart','w-5')</code>.
-    </div>
-  </div>
+    {{-- Подсказка про значки нужна раз в жизни, а места занимала как поле
+         ввода — убрана под раскрытие. --}}
+    <details class="admin-card p-4">
+      <summary class="frg-h cursor-pointer">Значки в HTML</summary>
+      <p class="admin-hint mt-3">
+        Классами набора (FA/BI/RI/TI) либо Lucide:
+        <code class="font-mono">&lt;i data-lucide="heart"&gt;</code>.
+        В Blade — <code class="font-mono">@@themeIcon('heart','w-5')</code>.
+      </p>
+    </details>
+  </aside>
 
-  {{-- Центральная/правая колонка --}}
-  <div class="2xl:col-span-2 space-y-4">
+  {{-- ── Правая колонка: содержимое ──────────────────────────────────── --}}
+  <div class="space-y-5 min-w-0">
 
-    {{-- Вставки/сниппеты --}}
-    <div class="flex flex-wrap gap-2 items-center">
-      <div class="font-semibold mr-2">Быстрые вставки:</div>
-      <button type="button" id="btnIcon"  class="px-3 py-1.5 rounded border">Иконка</button>
-      <button type="button" id="btnBtn"   class="px-3 py-1.5 rounded border">Кнопка</button>
-      <button type="button" id="btnWrap"  class="px-3 py-1.5 rounded border">Карточка</button>
-      <button type="button" id="btnHero"  class="px-3 py-1.5 rounded border">Hero</button>
-      <button type="button" id="btnAlert" class="px-3 py-1.5 rounded border">Алерт</button>
-      <button type="button" id="btnGrid"  class="px-3 py-1.5 rounded border">Grid 3</button>
+    {{-- Содержимое и панель вставок — ОДНОЙ карточкой. Раньше «Быстрые
+         вставки» висели отдельной строкой над редактором и читались как
+         часть шапки страницы, а не как его инструменты. --}}
+    {{-- Без overflow:hidden — намеренно.
 
-      <span class="inline-block w-px h-5 bg-gray-300 mx-1"></span>
-      @if ($fragment->exists)
-        <form action="{{ route('admin.visual.fragments.rebuild',$fragment) }}" method="POST" class="inline">
-          @csrf
-          <button type="submit" class="px-3 py-1.5 rounded border">Пересобрать HTML</button>
-        </form>
-      @endif
-    </div>
+         Он превращает карточку в контейнер прокрутки, и прилипание панели
+         инструментов редактора внутри неё перестаёт работать: панель просто
+         уезжает вверх вместе со страницей. Скруглять тут всё равно нечего —
+         глобальное правило admin-sharp снимает радиусы по всей панели. --}}
+    <section class="admin-card">
+      <header class="frg-bar">
+        <span class="text-sm font-semibold text-gray-700 dark:text-gray-300 mr-1">Содержимое</span>
+        <span class="text-xs text-gray-500 dark:text-gray-400">вставить:</span>
+        <button type="button" id="btnIcon"  class="frg-mini">Иконка</button>
+        <button type="button" id="btnBtn"   class="frg-mini">Кнопка</button>
+        <button type="button" id="btnWrap"  class="frg-mini">Карточка</button>
+        <button type="button" id="btnHero"  class="frg-mini">Hero</button>
+        <button type="button" id="btnAlert" class="frg-mini">Алерт</button>
+        <button type="button" id="btnGrid"  class="frg-mini">Grid 3</button>
+      </header>
 
-    {{-- TinyMCE --}}
-    <div>
-      <label class="block text-sm mb-1">Содержимое фрагмента</label>
-      <x-ru-editor name="html_cached" id="fragment-editor" preset="page" :height="520"
-                   :value="$fragment->html_cached" :body-class="''" :content-css="false" />
-      <div class="text-xs text-gray-500 mt-1">Ctrl/Cmd+S — сохранить форму, Ctrl/Cmd+Enter — обновить предпросмотр.</div>
-    </div>
+      <div class="p-4">
+        <x-ru-editor name="html_cached" id="fragment-editor" preset="page" :height="520"
+                     :value="$fragment->html_cached" :body-class="''" :content-css="false" />
+        <p class="admin-hint mt-2">
+          Ctrl/Cmd+S — сохранить фрагмент, Ctrl/Cmd+Enter — обновить предпросмотр.
+        </p>
+      </div>
+    </section>
 
-    {{-- Стили отдельно от содержимого: css_inline не переводится, поэтому
-         блок выглядит одинаково на всех языках, а перевод меняет только текст.
-         Если вставить <style> прямо в содержимое, он сам переедет сюда при
-         сохранении (см. FragmentsController::extractStyles). --}}
-    <div class="mt-4">
-      <label class="block text-sm mb-1 font-semibold text-gray-700 dark:text-gray-300">Стили фрагмента (CSS)</label>
-      <textarea name="css_inline" rows="8"
-                class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm font-mono
-                       focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+    {{-- ── Предпросмотр: сразу под содержимым ────────────────────────────
+         Стоял в самом низу, после полей JSON: чтобы увидеть результат
+         правки, приходилось прокручивать мимо всего остального. --}}
+    <section class="admin-card overflow-hidden">
+      <header class="frg-bar justify-between">
+        <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Предпросмотр</span>
+        <div class="flex flex-wrap items-center gap-2">
+          <label class="inline-flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+            <input id="pvDark" type="checkbox" class="border-gray-400"> тёмный фон
+          </label>
+          <select id="pvWidth" class="frg-input frg-input--sm">
+            <option value="375">Телефон · 375</option>
+            <option value="768">Планшет · 768</option>
+            <option value="1024" selected>Экран · 1024</option>
+            <option value="full">Во всю ширину</option>
+          </select>
+          <button type="button" id="pvRefresh" class="frg-mini"><i class="fas fa-rotate"></i> Обновить</button>
+        </div>
+      </header>
+
+      <div class="p-3 bg-gray-100 dark:bg-gray-900">
+        <div id="pvWrap" class="mx-auto" style="width:1024px; max-width:100%;">
+          <iframe id="preview" class="frg-preview w-full border border-gray-300 dark:border-gray-700 bg-white"></iframe>
+        </div>
+      </div>
+    </section>
+
+    <section class="admin-card p-4 space-y-2">
+      <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Стили фрагмента (CSS)</label>
+      <textarea name="css_inline" rows="8" class="frg-code"
                 placeholder=".my-block{ padding: 1rem; }">{{ old('css_inline', $fragment->css_inline) }}</textarea>
-      <p class="admin-hint mt-1">
+      <p class="admin-hint">
         Оформление общее для всех языков — переводится только содержимое.
         Тег <span class="font-mono">&lt;style&gt;</span> писать не нужно.
       </p>
-    </div>
+    </section>
 
-    {{-- JSON поля --}}
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <div class="flex items-center justify-between">
-          <label class="block text-sm mb-1">Schema (JSON)</label>
-          <span id="schemaState" class="text-xs text-gray-500">—</span>
+    {{-- ── Данные фрагмента ──────────────────────────────────────────────
+         Схема и данные нужны единицам фрагментов, а занимали два поля по
+         восемь строк наравне с содержимым. Убраны под раскрытие. --}}
+    <details class="admin-card">
+      <summary class="px-4 py-3 text-sm font-semibold text-gray-700 dark:text-gray-300 cursor-pointer">
+        Данные фрагмента (JSON)
+        <span class="ml-1 text-xs font-normal text-gray-500 dark:text-gray-400">— для параметризованных блоков</span>
+      </summary>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 pt-0 border-t border-gray-200 dark:border-gray-700">
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Schema</label>
+            <span id="schemaState" class="text-xs text-gray-500">—</span>
+          </div>
+          <textarea id="schemaField" name="schema" rows="8" class="frg-code" placeholder="{}">{{ old('schema', json_encode($fragment->schema ?? [], JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE)) }}</textarea>
+          <div class="mt-2 flex gap-2">
+            <button type="button" id="fmtSchema" class="frg-mini">Форматировать</button>
+            <button type="button" id="clearSchema" class="frg-mini">Очистить</button>
+          </div>
         </div>
-        <textarea id="schemaField" name="schema" rows="8" class="border rounded px-3 py-2 w-full font-mono" placeholder="{}">{{ old('schema', json_encode($fragment->schema ?? [], JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE)) }}</textarea>
-        <div class="mt-1 flex gap-2">
-          <button type="button" id="fmtSchema" class="px-2 py-1 rounded border text-xs">Форматировать</button>
-          <button type="button" id="clearSchema" class="px-2 py-1 rounded border text-xs">Очистить</button>
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Data</label>
+            <span id="dataState" class="text-xs text-gray-500">—</span>
+          </div>
+          <textarea id="dataField" name="data" rows="8" class="frg-code" placeholder="{}">{{ old('data', json_encode($fragment->data ?? [], JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE)) }}</textarea>
+          <div class="mt-2 flex gap-2">
+            <button type="button" id="fmtData" class="frg-mini">Форматировать</button>
+            <button type="button" id="clearData" class="frg-mini">Очистить</button>
+          </div>
         </div>
       </div>
-      <div>
-        <div class="flex items-center justify-between">
-          <label class="block text-sm mb-1">Data (JSON)</label>
-          <span id="dataState" class="text-xs text-gray-500">—</span>
-        </div>
-        <textarea id="dataField" name="data" rows="8" class="border rounded px-3 py-2 w-full font-mono" placeholder="{}">{{ old('data', json_encode($fragment->data ?? [], JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE)) }}</textarea>
-        <div class="mt-1 flex gap-2">
-          <button type="button" id="fmtData" class="px-2 py-1 rounded border text-xs">Форматировать</button>
-          <button type="button" id="clearData" class="px-2 py-1 rounded border text-xs">Очистить</button>
-        </div>
-      </div>
-    </div>
-
-    {{-- Предпросмотр --}}
-    <div class="space-y-2">
-      <div class="flex flex-wrap items-center gap-2 justify-between">
-        <div class="font-semibold">Предпросмотр</div>
-        <div class="flex flex-wrap items-center gap-2">
-          <label class="inline-flex items-center gap-2 text-sm">
-            <input id="pvDark" type="checkbox" class="rounded border-gray-400">
-            Dark
-          </label>
-          <select id="pvWidth" class="border rounded px-2 py-1 text-sm">
-            <option value="375">Phone (375px)</option>
-            <option value="768">Tablet (768px)</option>
-            <option value="1024" selected>Desktop (1024px)</option>
-            <option value="full">Full width</option>
-          </select>
-          <button type="button" id="pvRefresh" class="px-3 py-1.5 rounded border text-sm">Обновить</button>
-        </div>
-      </div>
-
-      <div class="border rounded bg-white p-2">
-        <div id="pvWrap" class="mx-auto" style="width:1024px; max-width:100%;">
-          <iframe id="preview" class="w-full h-[520px] border rounded bg-white"></iframe>
-        </div>
-      </div>
-    </div>
-
-    <div class="flex gap-3 pt-1">
-      <button class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition">
-        {{ $fragment->exists ? 'Сохранить' : 'Создать' }}
-      </button>
-    </div>
-  </div>
+    </details>
 
     {{-- Переводы контента на другие языки (content_translations) --}}
     <x-admin.translations :model="$fragment" :fields="['title' => 'Название', 'html_cached' => ['label' => 'Содержимое', 'type' => 'textarea']]" />
+  </div>
 
 </form>
 
@@ -291,7 +465,24 @@
 </div>
 @endsection
 
-@section('scripts')
+{{-- Стек, а НЕ секция.
+
+     Раньше этот блок объявлялся секцией с именем scripts. Макет панели
+     собирает скрипты стеком того же имени, а секцию с ним не выводит вовсе —
+     и блок не попадал на страницу НИ РАЗУ. Не работало ничего из
+     интерактивного: предпросмотр, черновики, автосохранение, быстрые
+     вставки, окно выбора значка, проверка JSON, сохранение по Ctrl+S.
+     Со стороны это выглядело как «предпросмотр пустой».
+
+     Проверено грепом: во всём проекте это была единственная вьюха, которая
+     объявляла скрипты секцией, а не стеком.
+
+     NB: названия директив здесь намеренно записаны словами. Blade
+     компилирует файл построчно и про комментарии не знает — упомянутая
+     буквально директива срабатывает по-настоящему и открывает лишний
+     непарный блок. Эта грабля описана в памятке проекта, и я на неё
+     только что наступил, набирая это самое пояснение. --}}
+@push('scripts')
 
   <script>
     // ====== тема и набор иконок из PHP ======
@@ -410,7 +601,10 @@
         case 'bootstrap': return `<link rel="stylesheet" href="${LOCAL_ASSETS.icons.bootstrap}">`;
         case 'remix':     return `<link rel="stylesheet" href="${LOCAL_ASSETS.icons.remix}">`;
         case 'tabler':    return `<link rel="stylesheet" href="${LOCAL_ASSETS.icons.tabler}">`;
-        case 'lucide':    return `<script src="${LOCAL_ASSETS.icons.lucide}"></script>`;
+        // Закрывающий тег экранирован: без этого он обрывал бы <script>,
+        // внутри которого лежит, и остаток скрипта уезжал бы на страницу
+        // видимым текстом.
+        case 'lucide':    return `<script src="${LOCAL_ASSETS.icons.lucide}"><\/script>`;
         case 'fa':        return `<link rel="stylesheet" href="${LOCAL_ASSETS.icons.fa}">`;
         default:          return ''; // svg — не нужен CDN
       }
@@ -434,7 +628,7 @@ body{ font-family:var(--font-base); color:var(--color-text); }
 <div class="p-4">
 ${safe || '<div class="text-gray-400">Пока пусто…</div>'}
 </div>
-<script> if(window.lucide){ try{ window.lucide.createIcons(); }catch(e){} } </script>
+<script> if(window.lucide){ try{ window.lucide.createIcons(); }catch(e){} } <\/script>
 </body></html>`;
     }
 
@@ -450,8 +644,45 @@ ${safe || '<div class="text-gray-400">Пока пусто…</div>'}
       updatePreview();
     });
 
-    // первичная отрисовка
-    document.addEventListener('DOMContentLoaded', ()=>{ updatePreview(); });
+    // Первичная отрисовка.
+    //
+    // Здесь стояло document.addEventListener('DOMContentLoaded', ...) — и
+    // предпросмотр НИКОГДА не рисовался при открытии страницы: скрипт лежит в
+    // конце тела, к моменту его выполнения документ уже complete, событие
+    // давно прошло, обработчик не вызывался ни разу. В рамке не было даже
+    // надписи «Пока пусто…» — атрибут srcdoc просто не задавался.
+    //
+    // Плюс редактор поднимается своим скриптом и на этот момент может быть
+    // ещё не готов: рисуем и сразу, и повторно по его сигналу ready.
+    function firstPreview(){
+      updatePreview();
+
+      const ed = window.RuEditor && window.RuEditor.get
+        ? window.RuEditor.get('fragment-editor') : null;
+
+      if (ed && typeof ed.on === 'function') {
+        ed.on('ready', updatePreview);
+        return;
+      }
+
+      // Редактора ещё нет — ждём его недолго, но не бесконечно.
+      let tries = 0;
+      const timer = setInterval(() => {
+        const late = window.RuEditor && window.RuEditor.get
+          ? window.RuEditor.get('fragment-editor') : null;
+
+        if (late || ++tries > 40) {
+          clearInterval(timer);
+          if (late) { updatePreview(); }
+        }
+      }, 100);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', firstPreview);
+    } else {
+      firstPreview();
+    }
 
     // ====== черновик (ручной + автосейв) ======
     const form = $('#fragmentForm');
@@ -508,4 +739,4 @@ ${safe || '<div class="text-gray-400">Пока пусто…</div>'}
       btn.addEventListener('click', async ()=>{ await copy(btn.dataset.var); btn.classList.add('ring','ring-blue-300'); setTimeout(()=>btn.classList.remove('ring','ring-blue-300'),500); });
     });
   </script>
-@endsection
+@endpush

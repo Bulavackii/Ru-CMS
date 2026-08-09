@@ -106,6 +106,12 @@
        peer-checked не переключались визуально. Здесь состояние берётся
        настоящим CSS-селектором input:checked ~ .track/.knob — он работает
        независимо от сборки Tailwind. */
+    /* Высота закреплённой шапки панели. Её знает не только сама шапка:
+       на неё опирается всё, что тоже прилипает к верху — иначе элементы
+       съезжаются в одну точку и перекрывают друг друга. Панель инструментов
+       редактора читает эту переменную (см. ru-editor.css). */
+    :root{ --admin-header-h: 60px; --ru-ed-stick-top: 60px }
+
     .admin-toggle{position:relative;display:inline-block;width:2.5rem;height:1.4rem;flex:none}
     .admin-toggle input{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;cursor:pointer;z-index:2}
     .admin-toggle .track{position:absolute;inset:0;background:#cbd5e1;transition:background .2s}
