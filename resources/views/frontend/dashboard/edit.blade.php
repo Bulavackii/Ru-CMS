@@ -20,8 +20,14 @@
         @csrf
         @method('PUT')
 
+        {{-- Профиль и контакты — рядом: в них по два-три поля, и вытянутые
+             друг под другом они гнали страницу вниз, оставляя половину
+             ширины пустой. Реквизиты организации остаются во всю ширину —
+             там шесть полей и блок раскрывается галочкой. --}}
+        <div class="acc-cols">
+
         {{-- ── Основное ── --}}
-        <section class="fx-card p-5 mb-4">
+        <section class="fx-card p-5">
             <h2 class="acc-h2"><i class="fas fa-id-card fx-ico"></i> {{ __('frontend.account.profile') }}</h2>
 
             <div class="acc-fields">
@@ -37,7 +43,7 @@
         </section>
 
         {{-- ── Контакты ── --}}
-        <section class="fx-card p-5 mb-4">
+        <section class="fx-card p-5">
             <h2 class="acc-h2"><i class="fas fa-address-book fx-ico"></i> {{ __('frontend.account.g_contacts') }}</h2>
 
             <div class="acc-fields">
@@ -55,14 +61,25 @@
             </div>
         </section>
 
+        </div>
+
         {{-- ── Реквизиты организации ──
              Блок раскрывается галочкой. Раньше переключение делал отдельный
              скрипт по id; теперь это Alpine, как в остальном проекте. --}}
         <section class="fx-card p-5 mb-4">
-            <label class="acc-check">
+            {{-- Тумблер вместо галочки: он раскрывает целый блок из шести
+                 полей, а не отмечает признак, — и в остальных разделах
+                 проекта такие переключатели уже тумблеры. --}}
+            <label class="acc-switch">
                 <input type="hidden" name="is_company" value="0">
-                <input type="checkbox" name="is_company" value="1" x-model="company">
-                <span>{{ __('frontend.account.legal_entity') }}</span>
+                <span class="admin-toggle">
+                    <input type="checkbox" name="is_company" value="1" x-model="company">
+                    <span class="track"></span><span class="knob"></span>
+                </span>
+                <span class="acc-switch__body">
+                    <span class="acc-switch__title">{{ __('frontend.account.legal_entity') }}</span>
+                    <span class="acc-switch__note">{{ __('frontend.account.legal_entity_hint') }}</span>
+                </span>
             </label>
 
             <div x-cloak x-show="company" class="mt-4">
@@ -109,10 +126,15 @@
     /* Литеральный CSS. Общего партиала под стили кабинета в проекте нет,
        поэтому каждая страница несёт свои. */
     .acc-head{ display:flex; align-items:center; justify-content:center; gap:.9rem;
-               margin:0 auto 1.25rem; max-width:52rem; text-align:left }
+               margin:0 auto 1.25rem; max-width:var(--acc-w); text-align:left }
     .acc-h2{ font-size:.78rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase;
              color:var(--surface-dim,#9ca3af); margin-bottom:.9rem }
-    .acc-form{ max-width:52rem; margin-inline:auto }
+    /* Ширина колонки. 52rem задавалось под ОДИН столбец карточек; когда
+       карточек стало две, при них оставалось по 400 пикселей, а по краям
+       экрана — пустота в треть ширины. Теперь ширина растёт вместе с
+       окном, но не безгранично: строка ввода шире 700 пикселей читается
+       хуже, а не лучше. */
+    .acc-form{ max-width:var(--acc-w); margin-inline:auto }
 
     .acc-flash{ border:1px solid #bbf7d0; background:#f0fdf4; color:#166534;
                 padding:.7rem 1rem; margin-bottom:1rem; font-size:.9rem }
@@ -120,8 +142,44 @@
 
     /* Два поля в ряд на десктопе — форма из десяти полей в одну колонку
        вынуждала прокручивать страницу целиком. */
+    /* Две колонки карточек на широком экране; ниже — обычным столбцом.
+       `align-items:start` обязателен: иначе карточки растягиваются до
+       высоты соседней, и под короткими полями висит пустая рамка. */
+/* Тумблер раскрытия блока реквизитов. Тумблер `.admin-toggle` объявлен
+       в лейауте панели, на сайте его нет — повторяем правила здесь, цвет
+       берём из темы. */
+    .acc-switch{ display:flex; align-items:flex-start; gap:.7rem; cursor:pointer }
+    .acc-switch__body{ display:flex; flex-direction:column; gap:.15rem; line-height:1.35 }
+    .acc-switch__title{ font-size:.92rem; font-weight:600; color:var(--surface-ink,#111827) }
+    .acc-switch__note{ font-size:.76rem; color:var(--surface-mute,#6b7280) }
+
+    .admin-toggle{ position:relative; display:inline-block; width:2.5rem; height:1.4rem; flex:none }
+    .admin-toggle input{ position:absolute; inset:0; width:100%; height:100%; opacity:0; margin:0; cursor:pointer; z-index:2 }
+    .admin-toggle .track{ position:absolute; inset:0; background:var(--surface-bd,#cbd5e1); transition:background .2s }
+    .admin-toggle .knob{ position:absolute; top:2px; left:2px; width:calc(1.4rem - 4px); height:calc(1.4rem - 4px);
+                         background:var(--surface,#fff); transition:left .2s; box-shadow:0 1px 2px rgba(0,0,0,.25); pointer-events:none }
+    .admin-toggle input:checked ~ .track{ background:var(--color-primary,#6366f1) }
+    .admin-toggle input:checked ~ .knob{ left:calc(100% - 1.4rem + 2px) }
+
+    /* Один источник ширины на шапку и форму: раньше 52rem стояло в двух
+       местах и разъехалось бы при первой же правке. */
+    .acc-form, .acc-head{ --acc-w:52rem }
+    @media (min-width:1280px){ .acc-form, .acc-head{ --acc-w:68rem } }
+    @media (min-width:1600px){ .acc-form, .acc-head{ --acc-w:78rem } }
+
+    .acc-cols{ display:grid; grid-template-columns:1fr; gap:1rem; margin-bottom:1rem; align-items:start }
+    @media (min-width:900px){ .acc-cols{ grid-template-columns:1fr 1fr } }
+
     .acc-fields{ display:grid; grid-template-columns:1fr; gap:.85rem }
     @media (min-width:680px){ .acc-fields{ grid-template-columns:1fr 1fr } }
+
+    /* ⚠️ Внутри двух колонок поля НЕ делятся надвое.
+       Порог по ширине окна здесь не работает: карточка вдвое уже окна, и
+       на широком экране «Телефон» с «ВКонтакте» вставали рядом по 180px —
+       у ссылки обрезался заполнитель («https://vk.com/exa»), а подсказка
+       уезжала в три строки. Ширину окна карточка не знает, поэтому проще
+       сказать прямо: в этих карточках поля идут по одному в ряд. */
+    .acc-cols .acc-fields{ grid-template-columns:1fr }
     .acc-fields__wide{ grid-column:1 / -1 }
 
     .acc-check{ display:inline-flex; align-items:center; gap:.6rem; cursor:pointer;

@@ -143,10 +143,20 @@
        само (стрелка забирает свободный отступ через margin-left:auto). */
     /* Тон потемнее серого: полужирная подпись в 0.68rem на светлой плашке
        иначе не дотягивает до 4.5 по контрасту. */
-    .acc-state{ flex:0 0 auto; margin-left:auto; padding:.12rem .45rem; font-size:.68rem; font-weight:700;
-                color:#4b5563; background:#f3f4f6; border:1px solid #e5e7eb; white-space:nowrap }
+    /* Те же правила, что в кабинете на сайте: цвет подмешивается к
+       подложке, а не задаётся готовой парой. Панель светлая, но оформление
+       следует активной теме, и прибитая пара цветов на тёмных темах
+       давала нечитаемую плашку. */
+    .acc-action .acc-state{ flex:0 0 auto; margin-left:auto; padding:.12rem .45rem;
+                font-size:.68rem; font-weight:700; white-space:nowrap;
+                color:color-mix(in srgb, var(--surface-ink,#111827) 72%, var(--surface-2,#f3f4f6));
+                background:var(--surface-2,#f3f4f6);
+                border:1px solid var(--surface-bd,#e5e7eb) }
     .acc-state + .acc-action__arrow{ margin-left:.55rem }
-    .acc-state.is-on{ color:#15803d; background:#dcfce7; border-color:#86efac }
+    .acc-action .acc-state.is-on{
+                color:color-mix(in srgb, #16a34a 45%, var(--surface-ink,#111827));
+                background:color-mix(in srgb, #16a34a 16%, var(--surface,#ffffff));
+                border-color:color-mix(in srgb, #16a34a 40%, var(--surface,#ffffff)) }
 
     .acc-help{ margin-top:.9rem; font-size:.78rem; line-height:1.5; color:#64748b }
 

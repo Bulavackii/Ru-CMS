@@ -382,12 +382,27 @@
     /* Приглушённый цвет темы (--surface-mute) давал на этой подложке 4.41 —
        для полужирной подписи в 0.68rem этого мало. Смесь с основным цветом
        текста следует теме так же, но даёт 6.73. */
-    .acc-state{ flex:0 0 auto; margin-left:auto; padding:.12rem .45rem; font-size:.68rem; font-weight:700;
+    /* Плашка состояния целиком выведена из темы. Раньше «Включена» была
+       прибита светло-зелёными числами (#15803d на #dcfce7): на тёмной теме
+       подложка оставалась светлой, а цвет текста приходил от темы — контраст
+       падал до 1.12, надпись читалась как пустой прямоугольник.
+
+       Селектор с родителем не для красоты: одиночный класс проигрывал по
+       специфичности правилу темы, из-за чего цвет и не применялся. */
+    .acc-link .acc-state{ flex:0 0 auto; margin-left:auto; padding:.12rem .45rem;
+                font-size:.68rem; font-weight:700; border-radius:999px; white-space:nowrap;
                 color:color-mix(in srgb, var(--surface-ink,#111827) 72%, var(--surface-2,#f1f5f9));
                 background:var(--surface-2,#f1f5f9);
-                border:1px solid var(--surface-bd,#e5e7eb); border-radius:999px; white-space:nowrap }
+                border:1px solid var(--surface-bd,#e5e7eb) }
     .acc-state + .acc-link__arrow{ margin-left:.55rem }
-    .acc-state.is-on{ color:#15803d; background:#dcfce7; border-color:#86efac }
+
+    /* Зелёный подмешивается к цвету текста и к подложке ТЕМЫ, а не задаётся
+       готовой парой: на светлой теме получается светло-зелёная плашка с
+       тёмной надписью, на тёмной — тёмно-зелёная со светлой. */
+    .acc-link .acc-state.is-on{
+                color:color-mix(in srgb, #16a34a 45%, var(--surface-ink,#111827));
+                background:color-mix(in srgb, #16a34a 16%, var(--surface,#ffffff));
+                border-color:color-mix(in srgb, #16a34a 40%, var(--surface,#ffffff)) }
 
     :root.dark .acc-link{ border-color:#374151 }
     :root.dark .acc-link:hover{ background:#111827 }
