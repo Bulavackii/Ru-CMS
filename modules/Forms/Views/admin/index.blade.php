@@ -502,6 +502,12 @@
     <section class="admin-card p-4 mt-4">
         <h2 class="fm-section fm-section--first">{{ __('admin.forms.saved') }}</h2>
 
+        {{-- Две колонки на широком экране: формы шли одна под другой и при
+             шести штуках занимали больше экрана, хотя каждая карточка узкая
+             и справа от неё оставалось пусто. Разделители-линии заменены
+             рамкой карточки — между колонками сплошная линия читалась бы
+             как продолжение соседней строки. --}}
+        <div class="fm-saved-grid">
         @forelse($forms as $item)
             <div class="fm-saved">
                 <span class="fm-type-ico"><i class="fas fa-list-check"></i></span>
@@ -574,6 +580,7 @@
         @empty
             <p class="text-sm text-gray-500">{{ __('admin.forms.empty') }}</p>
         @endforelse
+        </div>
     </section>
 
     {{-- ══════════ Памятка ══════════ --}}
@@ -814,8 +821,13 @@
     .fm-preview .rf { margin:0 }
     .fm-note { margin-top:8px; font-size:.72rem; color:#9ca3af; line-height:1.5 }
 
-    .fm-saved { display:flex; align-items:flex-start; gap:12px; padding:11px 0; border-top:1px solid #f3f4f6 }
-    .fm-saved:first-of-type { border-top:0 }
+    .fm-saved-grid { display:grid; gap:10px }
+    @media (min-width:1280px){ .fm-saved-grid { grid-template-columns:1fr 1fr } }
+
+    .fm-saved { display:flex; align-items:flex-start; gap:12px; padding:11px 12px;
+                border:1px solid #f1f5f9; transition:border-color .15s }
+    .fm-saved:hover { border-color:var(--admin-primary) }
+    .dark .fm-saved { border-color:#374151 }
     .fm-code { padding:1px 6px; font-size:.68rem; color:#4b5563; background:#f3f4f6 }
     .fm-off { padding:1px 7px; font-size:.68rem; color:#92400e; background:#fef3c7 }
     .fm-stats { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:3px;
