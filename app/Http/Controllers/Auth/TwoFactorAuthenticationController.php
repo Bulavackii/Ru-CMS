@@ -43,10 +43,14 @@ class TwoFactorAuthenticationController extends Controller implements HasMiddlew
     /**
      * Показать форму ввода 2FA кода
      */
-    public function show(Request $request): View
+    public function show(Request $request): View|RedirectResponse
     {
         if (!$request->session()->has('login.id')) {
-            return redirect()->route('login');
+            // Тип возврата был объявлен как View, а здесь возвращается
+            // редирект — заход на страницу без начатого входа падал с
+            // TypeError и отдавал 500 вместо обычного возврата на форму.
+            return redirect()->route('login')
+                ->with('status', __('frontend.auth.tfa_password_first'));
         }
 
         return view('auth.two-factor');

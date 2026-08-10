@@ -174,6 +174,38 @@ class TwoFactorLoginTest extends TestCase
         $this->assertSame(0, $user->tokens()->count());
     }
 
+    /**
+     * Тип возврата у `show()` был объявлен как View, а ветка без начатого
+     * входа возвращала редирект — заход на адрес отдавал 500.
+     */
+    #[Test]
+    public function страница_кода_без_начатого_входа_возвращает_на_форму(): void
+    {
+        $this->get(route('two-factor.login'))
+            ->assertRedirect(route('login'))
+            ->assertSessionHas('status');
+    }
+
+    #[Test]
+    public function на_форме_входа_есть_ссылка_на_шаг_с_кодом(): void
+    {
+        $this->get(route('login'))
+            ->assertOk()
+            ->assertSee(route('two-factor.login'), false)
+            ->assertSee(__('frontend.auth.tfa_entry'), false);
+    }
+
+    #[Test]
+    public function при_незавершённом_входе_ссылка_предлагает_продолжить(): void
+    {
+        $user = $this->guarded();
+
+        $this->post('/login', ['email' => $user->email, 'password' => 'secret-pass']);
+
+        $this->get(route('login'))
+            ->assertSee(__('frontend.auth.tfa_continue'), false);
+    }
+
     #[Test]
     public function без_двухфакторной_проверки_вход_как_прежде(): void
     {
