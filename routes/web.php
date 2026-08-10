@@ -90,6 +90,9 @@ Route::middleware('guest')->group(function () {
 
 // 🔒 Выход
 Route::post('/logout', function () {
+    // Вместе с сеансом убираем и брошенный шаг проверки: иначе он пережил
+    // бы выход и на форме входа осталась бы ссылка «продолжить».
+    session()->forget(['login.id', 'login.remember', 'login.at']);
     Auth::logout();
     return redirect('/');
 })->name('logout')->middleware('auth');

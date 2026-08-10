@@ -78,10 +78,18 @@ class LoginController extends Controller
 
             $request->session()->put('login.id', $user->id);
             $request->session()->put('login.remember', $request->boolean('remember'));
+            // Отметка времени: незаконченный шаг не должен оставаться
+            // действующим все два часа жизни сессии.
+            $request->session()->put('login.at', now()->timestamp);
 
             // Редирект на страницу ввода 2FA кода
             return redirect()->route('two-factor.login');
         }
+
+        // Брошенный шаг проверки от прошлой попытки убираем: иначе на форме
+        // входа так и висела бы живая ссылка «продолжить», а на странице
+        // кода — форма для входа, которого никто не начинал.
+        $request->session()->forget(['login.id', 'login.remember', 'login.at']);
 
         // 🔄 Генерация новой сессии для безопасности
         $request->session()->regenerate();

@@ -22,7 +22,7 @@
         </div>
     @endif
 
-    @if(auth()->user()->two_factor_enabled)
+    @if(auth()->user()->hasTwoFactorEnabled())
         <div class="au-note au-note--ok">
             <i class="fas fa-shield-halved"></i>
             <span>{{ __('frontend.auth.tfa_on') }}</span>

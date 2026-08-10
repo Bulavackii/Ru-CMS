@@ -67,7 +67,7 @@ class TwoFactorSetupController extends Controller implements HasMiddleware
         }
 
         return view('auth.two-factor-status', [
-            'enabled' => $user->two_factor_enabled,
+            'enabled' => $user->hasTwoFactorEnabled(),
         ]);
     }
 

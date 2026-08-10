@@ -186,8 +186,11 @@
                         <span class="acc-link__title">{{ __('frontend.account.two_factor') }}</span>
                         <span class="acc-link__note">{{ __('frontend.account.two_factor_note') }}</span>
                     </span>
-                    <span class="acc-state {{ $user->two_factor_enabled ? 'is-on' : '' }}">
-                        {{ $user->two_factor_enabled ? __('frontend.account.two_factor_on') : __('frontend.account.two_factor_off') }}
+                    {{-- hasTwoFactorEnabled(), а не голый флаг: флаг может
+                         стоять при утраченном ключе, и плашка обещала бы
+                         защиту, которой на входе уже нет. --}}
+                    <span class="acc-state {{ $user->hasTwoFactorEnabled() ? 'is-on' : '' }}">
+                        {{ $user->hasTwoFactorEnabled() ? __('frontend.account.two_factor_on') : __('frontend.account.two_factor_off') }}
                     </span>
                     <i class="fas fa-chevron-right acc-link__arrow"></i>
                 </a>

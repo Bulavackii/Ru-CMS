@@ -41,11 +41,39 @@ class TwoFactorAuthenticationController extends Controller implements HasMiddlew
     }
 
     /**
-     * Показать форму ввода 2FA кода
+     * Сколько минут действует пройденный пароль.
+     *
+     * Без срока начатый и брошенный шаг оставался бы живым все два часа
+     * жизни сессии: вернувшись к форме через час, человек видел действующую
+     * ссылку «продолжить вход».
+     */
+    private const PENDING_MINUTES = 10;
+
+    /** Начатый шаг проверки — есть ли он и не просрочен ли. */
+    private function pendingUserId(Request $request): ?int
+    {
+        $id = $request->session()->get('login.id');
+        $at = (int) $request->session()->get('login.at', 0);
+
+        if (! $id) {
+            return null;
+        }
+
+        if ($at > 0 && now()->timestamp - $at > self::PENDING_MINUTES * 60) {
+            $request->session()->forget(['login.id', 'login.remember', 'login.at']);
+
+            return null;
+        }
+
+        return (int) $id;
+    }
+
+    /**
+     * Показать форму ввода кода.
      */
     public function show(Request $request): View|RedirectResponse
     {
-        if (!$request->session()->has('login.id')) {
+        if (! $this->pendingUserId($request)) {
             // Тип возврата был объявлен как View, а здесь возвращается
             // редирект — заход на страницу без начатого входа падал с
             // TypeError и отдавал 500 вместо обычного возврата на форму.
@@ -68,9 +96,10 @@ class TwoFactorAuthenticationController extends Controller implements HasMiddlew
             'code' => 'required|string|max:16',
         ]);
 
-        $userId = $request->session()->get('login.id');
+        $userId = $this->pendingUserId($request);
         if (!$userId) {
-            return redirect()->route('login');
+            return redirect()->route('login')
+                ->with('status', __('frontend.auth.tfa_password_first'));
         }
 
         $user = \App\Models\User::find($userId);
@@ -129,7 +158,7 @@ class TwoFactorAuthenticationController extends Controller implements HasMiddlew
         Auth::loginUsingId($userId, $request->session()->get('login.remember', false));
 
         $request->session()->regenerate();
-        $request->session()->forget(['login.id', 'login.remember']);
+        $request->session()->forget(['login.id', 'login.remember', 'login.at']);
 
         // Логируем успешный вход
         $this->loginHistoryService->logLoginAttempt(

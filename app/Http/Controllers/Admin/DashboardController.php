@@ -192,7 +192,14 @@ class DashboardController extends Controller
         // (`is_admin`). У покупателей она тоже есть, но её отсутствие у них
         // панель уязвимой не делает и только размывало бы картину.
         $total = User::where('is_admin', true)->count();
-        $guarded = User::where('is_admin', true)->where('two_factor_enabled', true)->count();
+        // Флага мало: он может стоять при утраченном ключе, и тогда
+        // сводка отчиталась бы о защите, которой на входе уже нет.
+        // Условие повторяет hasTwoFactorEnabled() — запросом, а не в PHP,
+        // чтобы не тащить всех администраторов в память.
+        $guarded = User::where('is_admin', true)
+            ->where('two_factor_enabled', true)
+            ->whereNotNull('two_factor_secret')
+            ->count();
 
         if ($total > 0) {
             $items[] = [

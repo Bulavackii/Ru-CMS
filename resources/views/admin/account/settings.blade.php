@@ -79,8 +79,8 @@
                         {{-- Состояние прямо в строке: иначе понять, включена
                              проверка или нет, можно было только перейдя по
                              ссылке — а там показывается уже другая страница. --}}
-                        <span class="acc-state {{ auth()->user()->two_factor_enabled ? 'is-on' : '' }}">
-                            {{ auth()->user()->two_factor_enabled ? __('admin.account.two_factor_on') : __('admin.account.two_factor_off') }}
+                        <span class="acc-state {{ auth()->user()->hasTwoFactorEnabled() ? 'is-on' : '' }}">
+                            {{ auth()->user()->hasTwoFactorEnabled() ? __('admin.account.two_factor_on') : __('admin.account.two_factor_off') }}
                         </span>
                         <i class="fas fa-chevron-right acc-action__arrow"></i>
                     </a>

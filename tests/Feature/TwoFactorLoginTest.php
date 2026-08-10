@@ -187,6 +187,69 @@ class TwoFactorLoginTest extends TestCase
     }
 
     /**
+     * Флаг без ключа — не защита.
+     *
+     * Ровно в таком состоянии оказалась учётная запись владельца: галочка
+     * стояла, коды восстановления лежали, а ключ был утрачен. Вход при этом
+     * пускал по одному паролю, но панель и кабинет показывали «Включена».
+     */
+    #[Test]
+    public function флаг_без_ключа_не_считается_включённой_проверкой(): void
+    {
+        $user = User::factory()->create([
+            'password' => Hash::make('secret-pass'),
+            'two_factor_enabled' => true,
+            'two_factor_secret' => null,
+        ]);
+
+        $this->assertFalse($user->hasTwoFactorEnabled());
+
+        $this->post('/login', ['email' => $user->email, 'password' => 'secret-pass']);
+        $this->assertAuthenticatedAs($user);
+
+        // И в кабинете плашка обязана говорить правду.
+        $this->get(route('dashboard'))->assertSee(__('frontend.account.two_factor_off'), false);
+    }
+
+    /**
+     * Брошенный шаг не должен переживать обычный вход: иначе на форме
+     * оставалась живая ссылка «продолжить», а на странице кода — форма для
+     * входа, которого никто не начинал.
+     */
+    #[Test]
+    public function обычный_вход_убирает_брошенный_шаг_проверки(): void
+    {
+        $guarded = $this->guarded();
+        $this->post('/login', ['email' => $guarded->email, 'password' => 'secret-pass']);
+        $this->assertNotNull(session('login.id'));
+
+        $plain = User::factory()->create([
+            'password' => Hash::make('secret-pass'),
+            'two_factor_enabled' => false,
+        ]);
+
+        $this->post('/login', ['email' => $plain->email, 'password' => 'secret-pass']);
+
+        $this->assertNull(session('login.id'));
+        $this->assertAuthenticatedAs($plain);
+    }
+
+    #[Test]
+    public function просроченный_шаг_проверки_не_действует(): void
+    {
+        $user = $this->guarded();
+
+        $this->post('/login', ['email' => $user->email, 'password' => 'secret-pass']);
+
+        // Отматываем отметку времени за границу срока.
+        session(['login.at' => now()->subMinutes(11)->timestamp]);
+
+        $this->get(route('two-factor.login'))->assertRedirect(route('login'));
+        $this->assertNull(session('login.id'));
+        $this->assertGuest();
+    }
+
+    /**
      * Полоса шагов называет второй шаг, но ССЫЛКОЙ он становится только
      * когда действительно начат. Иначе переход вёл бы в никуда: без
      * введённого пароля страница кода всё равно вернёт на форму.
