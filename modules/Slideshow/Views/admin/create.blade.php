@@ -29,131 +29,124 @@
     </a>
 </div>
 
-{{-- Ошибки --}}
+{{-- Ошибки.
+     `dark:bg-red-900/30` в этой сборке не рендерится (прозрачности через
+     дробь в ней нет вовсе) — подложка была прозрачной. --}}
 @if ($errors->any())
-  <div class="border-l-4 border-red-500 bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 px-4 py-3 mb-6 text-sm">
-      <div class="flex items-start gap-2">
-          <i class="fas fa-triangle-exclamation mt-0.5"></i>
-          <div>
-              <div class="font-semibold mb-1">{{ __('admin.slideshow.check_form') }}</div>
-              <ul class="list-disc pl-5 space-y-0.5">
-                  @foreach ($errors->all() as $e)
-                      <li>{{ $e }}</li>
-                  @endforeach
-              </ul>
-          </div>
+  <div class="sl-errors">
+      <i class="fas fa-triangle-exclamation"></i>
+      <div>
+          <div class="sl-errors__title">{{ __('admin.slideshow.check_form') }}</div>
+          <ul>
+              @foreach ($errors->all() as $e)
+                  <li>{{ $e }}</li>
+              @endforeach
+          </ul>
       </div>
   </div>
 @endif
 
-<form id="slideshow-form" method="POST" action="{{ route('admin.slideshow.store') }}" class="w-full">
-    @csrf
+{{-- Две колонки: форма и что будет дальше. Раньше поле названия тянулось
+     на всю ширину экрана — полторы тысячи пикселей под короткую строку, —
+     а справа от него была пустота. --}}
+<div class="sl-create">
 
-    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm p-6 space-y-6">
+    <form id="slideshow-form" method="POST" action="{{ route('admin.slideshow.store') }}" class="admin-card">
+        @csrf
 
-        {{-- Название --}}
-        <div>
-            <label for="title" class="block font-semibold mb-1 text-gray-800 dark:text-gray-200"><i class="fas fa-tag"></i> {{ __('admin.slideshow.name') }}</label>
-            <div class="relative">
+        <div class="sl-cardhead">
+            <i class="fas fa-sliders"></i> {{ __('admin.slideshow.settings') }}
+        </div>
+
+        <div class="sl-create__body">
+            <div class="sl-field">
+                <label class="sl-label" for="title"><i class="fas fa-tag"></i> {{ __('admin.slideshow.name') }}</label>
                 <input type="text" name="title" id="title" required value="{{ old('title') }}"
                        placeholder="{{ __('admin.slideshow.name_ph') }}"
-                       class="peer w-full h-11 border border-gray-300 dark:border-gray-700 rounded-md px-3
-                              bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
-                              focus:outline-none focus:ring-2 focus:ring-blue-500/40"
-                       autocomplete="off" />
-                <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-300 peer-focus:text-blue-400">
-                    <i class="fa-regular fa-pen-to-square"></i>
+                       class="sl-input" autocomplete="off">
+                <span class="sl-hint">{{ __('admin.slideshow.name_hint') }}</span>
+            </div>
+
+            {{-- Позиция.
+                 ⚠️ Раньше подсветка выбранного варианта делалась через
+                 peer-checked/top: и peer-checked/btm: — этих вариантов в
+                 собранном tailwind.min.css НЕТ, поэтому выбор визуально не
+                 отображался вовсе. Теперь настоящий селектор
+                 input:checked + label. --}}
+            <div class="sl-field">
+                <span class="sl-label"><i class="fas fa-location-dot"></i> {{ __('admin.slideshow.position') }}</span>
+
+                <div class="pos-switch" role="radiogroup" aria-label="{{ __('admin.slideshow.position') }}">
+                    <input class="sr-only" type="radio" id="pos-top" name="position" value="top"
+                           {{ $pos === 'top' ? 'checked' : '' }}>
+                    <label for="pos-top" class="pos-chip">
+                        <i class="fa-solid fa-arrow-up"></i> {{ __('admin.slideshow.top') }}
+                    </label>
+
+                    <input class="sr-only" type="radio" id="pos-bottom" name="position" value="bottom"
+                           {{ $pos === 'bottom' ? 'checked' : '' }}>
+                    <label for="pos-bottom" class="pos-chip">
+                        <i class="fa-solid fa-arrow-down"></i> {{ __('admin.slideshow.bottom') }}
+                    </label>
                 </div>
+
+                <span id="pos-hint" class="sl-hint">
+                    {{ __('admin.slideshow.will_appear') }}
+                    <span data-pos="top" class="{{ $pos==='top' ? '' : 'hidden' }}">{{ __('admin.slideshow.above_content') }}</span>
+                    <span data-pos="bottom" class="{{ $pos==='bottom' ? '' : 'hidden' }}">{{ __('admin.slideshow.below_blocks') }}</span>
+                </span>
             </div>
-            <p class="mt-1 text-xs text-gray-500">
-                {{ __('admin.slideshow.name_hint') }}
-            </p>
-        </div>
 
-        {{-- Позиция.
-             ⚠️ Раньше подсветка выбранного варианта делалась через peer-checked/top:
-             и peer-checked/btm: — этих вариантов в собранном tailwind.min.css НЕТ
-             (как и палитры amber), поэтому выбор визуально не отображался вовсе.
-             Теперь — настоящий CSS-селектор input:checked + label (см. <style> ниже). --}}
-        <div>
-            <span class="block font-semibold mb-2 text-gray-800 dark:text-gray-200">{{ __('admin.slideshow.position') }}</span>
-
-            <div class="pos-switch inline-flex items-center gap-2" role="radiogroup" aria-label="{{ __('admin.slideshow.position') }}">
-                <input class="sr-only" type="radio" id="pos-top" name="position" value="top"
-                       {{ $pos === 'top' ? 'checked' : '' }}>
-                <label for="pos-top" class="pos-chip">
-                    <i class="fa-solid fa-arrow-up"></i> {{ __('admin.slideshow.top') }}
+            {{-- Тот же тумблер, что в настройках готового слайдшоу: голая
+                 галочка рядом с ним выглядела другим элементом. --}}
+            <div class="sl-field">
+                <label class="sl-switch">
+                    <span class="admin-toggle">
+                        <input type="checkbox" name="published" value="1" {{ old('published', true) ? 'checked' : '' }}>
+                        <span class="track"></span><span class="knob"></span>
+                    </span>
+                    <span>{{ __('admin.slideshow.publish_now') }}</span>
                 </label>
-
-                <input class="sr-only" type="radio" id="pos-bottom" name="position" value="bottom"
-                       {{ $pos === 'bottom' ? 'checked' : '' }}>
-                <label for="pos-bottom" class="pos-chip">
-                    <i class="fa-solid fa-arrow-down"></i> {{ __('admin.slideshow.bottom') }}
-                </label>
+                <span class="sl-hint">{{ __('admin.slideshow.publish_hint') }}</span>
             </div>
-
-            <p id="pos-hint" class="mt-2 text-xs text-gray-600 dark:text-gray-400">
-                {{ __('admin.slideshow.will_appear') }} <span data-pos="top" class="{{ $pos==='top' ? '' : 'hidden' }}">{{ __('admin.slideshow.above_content') }}</span>
-                <span data-pos="bottom" class="{{ $pos==='bottom' ? '' : 'hidden' }}">{{ __('admin.slideshow.below_blocks') }}</span>
-            </p>
         </div>
 
-        {{-- Публикация --}}
-        <div>
-            <label class="flex items-start gap-3 cursor-pointer">
-                <input type="checkbox" name="published" value="1"
-                       {{ old('published', true) ? 'checked' : '' }}
-                       class="w-4 h-4 mt-0.5">
-                <div>
-                    <span class="block font-semibold text-gray-800 dark:text-gray-200">{{ __('admin.slideshow.publish_now') }}</span>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                        {{ __('admin.slideshow.publish_hint') }}
-                    </p>
-                </div>
-            </label>
-        </div>
-
-        {{-- Подсказки --}}
-        <aside class="bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-xs text-gray-600 dark:text-gray-300">
-            <ul class="list-disc pl-5 space-y-1">
-                <li><b>Ctrl + Enter</b> {{ __('admin.slideshow.hk_create') }}</li>
-                <li><b>T</b> {{ __('admin.slideshow.hk_top') }} <b>B</b> {{ __('admin.slideshow.hk_bottom') }}</li>
-                <li><b>Esc</b> {{ __('admin.slideshow.hk_back') }}</li>
-            </ul>
-            <div class="mt-2 text-[11px] text-gray-500">
-                {{ __('admin.slideshow.shortcode_note') }}
-            </div>
-        </aside>
-
-        {{-- Кнопка --}}
-        <div class="pt-2 flex items-center justify-end">
-            <button id="submit-btn" type="submit"
-                    class="inline-flex items-center gap-2 px-5 h-10 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm transition
-                           disabled:opacity-50 disabled:cursor-not-allowed"
+        <div class="sl-create__foot">
+            <a href="{{ route('admin.slideshow.index') }}" class="sl-btn">{{ __('admin.slideshow.back_short') }}</a>
+            <button id="submit-btn" type="submit" class="sl-btn sl-btn--primary"
                     title="{{ __('admin.slideshow.create_hk') }}">
                 <i class="fa-solid fa-floppy-disk"></i> {{ __('admin.slideshow.create') }}
             </button>
         </div>
-    </div>
-</form>
+    </form>
 
-{{-- Чипы выбора позиции: литеральный CSS вместо отсутствующих в сборке
-     peer-checked/*-вариантов (см. CLAUDE.md про неполную Tailwind-сборку). --}}
-<style>
-    .pos-switch .pos-chip{
-        display:inline-flex; align-items:center; gap:.4rem; cursor:pointer; user-select:none;
-        padding:.45rem .85rem; font-size:.875rem; font-weight:500;
-        border:1px solid #d1d5db; background:#fff; color:var(--surface-ink,#374151);
-        transition:background .15s ease, color .15s ease, border-color .15s ease;
-    }
-    .dark .pos-switch .pos-chip{ background:#111827; border-color:#374151; color:#d1d5db; }
-    .pos-switch .pos-chip:hover{ border-color:#818cf8; color:#4f46e5; }
-    .pos-switch input:checked + .pos-chip{
-        background:#4f46e5; border-color:#4f46e5; color:#fff;
-        box-shadow:0 8px 18px -10px rgba(99,102,241,.7);
-    }
-    .pos-switch input:focus-visible + .pos-chip{ outline:2px solid #818cf8; outline-offset:2px; }
-</style>
+    {{-- Что дальше. Раньше об этом сообщала одна строка мелким шрифтом под
+         списком горячих клавиш, и порядок действий приходилось угадывать. --}}
+    <aside class="admin-card sl-next">
+        <div class="sl-cardhead">
+            <i class="fas fa-list-check"></i> {{ __('admin.slideshow.next_title') }}
+        </div>
+
+        <ol class="sl-steps">
+            <li><span class="sl-steps__n">1</span><span>{{ __('admin.slideshow.next_1') }}</span></li>
+            <li><span class="sl-steps__n">2</span><span>{{ __('admin.slideshow.next_2') }}</span></li>
+            <li><span class="sl-steps__n">3</span><span>{{ __('admin.slideshow.next_3') }}</span></li>
+        </ol>
+
+        <div class="sl-keys">
+            <span class="sl-keys__title">{{ __('admin.slideshow.hotkeys_title') }}</span>
+            <ul>
+                <li><kbd>Ctrl</kbd><kbd>Enter</kbd> {{ __('admin.slideshow.hk_create') }}</li>
+                <li><kbd>T</kbd> {{ __('admin.slideshow.hk_top') }} <kbd>B</kbd> {{ __('admin.slideshow.hk_bottom') }}</li>
+                <li><kbd>Esc</kbd> {{ __('admin.slideshow.hk_back') }}</li>
+            </ul>
+        </div>
+    </aside>
+</div>
+
+@include('Slideshow::admin.partials.styles')
+
+
 
 {{-- Мини-скрипт UX: блокируем кнопку без названия, горячие клавиши, живой хинт позиции --}}
 <script>
