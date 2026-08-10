@@ -33,6 +33,22 @@ class TwoFactorSetupTest extends TestCase
         $response->assertDontSee('src="otpauth', false);
     }
 
+    /**
+     * Привязка была доступна ТОЛЬКО из настроек в админке: обычный
+     * покупатель включить её не мог никак, хотя страница работает для
+     * любого вошедшего.
+     */
+    #[Test]
+    public function из_кабинета_на_сайте_есть_вход_в_привязку(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get(route('dashboard'));
+
+        $response->assertOk();
+        $response->assertSee(route('two-factor.setup'), false);
+    }
+
     #[Test]
     public function нарисован_код_именно_того_ключа_что_показан_рядом(): void
     {

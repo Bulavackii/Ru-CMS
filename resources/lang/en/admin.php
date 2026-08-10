@@ -666,6 +666,8 @@ return [
         'change_password' => 'Change password',
         'change_password_note' => 'Current password required',
         'two_factor' => 'Two-factor check',
+        'two_factor_on' => 'On',
+        'two_factor_off' => 'Off',
         'two_factor_note' => 'App code on every sign-in',
         'login_history' => 'Sign-in history',
         'login_history_note' => 'When and from where you signed in',

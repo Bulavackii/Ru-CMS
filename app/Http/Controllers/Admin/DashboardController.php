@@ -187,6 +187,23 @@ class DashboardController extends Controller
             // Модуль может быть выключен — тогда и пункта нет.
         }
 
+        // Двухфакторная проверка. Считаем только по тем, кто реально может
+        // зайти в панель — по тому же признаку, что проверяет AdminMiddleware
+        // (`is_admin`). У покупателей она тоже есть, но её отсутствие у них
+        // панель уязвимой не делает и только размывало бы картину.
+        $total = User::where('is_admin', true)->count();
+        $guarded = User::where('is_admin', true)->where('two_factor_enabled', true)->count();
+
+        if ($total > 0) {
+            $items[] = [
+                'label' => 'Двухфакторная проверка',
+                'ok'    => $guarded === $total,
+                'note'  => $guarded === $total
+                    ? 'Включена у всех, кто имеет доступ в панель.'
+                    : 'Включена у ' . $guarded . ' из ' . $total . ': остальным для входа хватает пароля.',
+            ];
+        }
+
         $standalone = (bool) config('app.standalone', false);
         $items[] = [
             'label' => 'Автономный режим',

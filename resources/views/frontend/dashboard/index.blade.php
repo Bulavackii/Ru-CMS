@@ -175,6 +175,24 @@
                 <i class="fas fa-chevron-right acc-link__arrow"></i>
             </a>
 
+            {{-- Двухфакторная проверка была доступна ТОЛЬКО из настроек в
+                 админке: обычный покупатель включить её не мог никак, хотя
+                 страница привязки работает для любого вошедшего. Маршрут
+                 проверяется — часть проекта может быть отключена. --}}
+            @if (Route::has('two-factor.setup'))
+                <a href="{{ route('two-factor.setup') }}" class="acc-link">
+                    <span class="acc-link__ico"><i class="fas fa-mobile-screen"></i></span>
+                    <span class="acc-link__body">
+                        <span class="acc-link__title">{{ __('frontend.account.two_factor') }}</span>
+                        <span class="acc-link__note">{{ __('frontend.account.two_factor_note') }}</span>
+                    </span>
+                    <span class="acc-state {{ $user->two_factor_enabled ? 'is-on' : '' }}">
+                        {{ $user->two_factor_enabled ? __('frontend.account.two_factor_on') : __('frontend.account.two_factor_off') }}
+                    </span>
+                    <i class="fas fa-chevron-right acc-link__arrow"></i>
+                </a>
+            @endif
+
             @if (Route::has('dashboard.login-history'))
                 <a href="{{ route('dashboard.login-history') }}" class="acc-link">
                     <span class="acc-link__ico"><i class="fas fa-clock-rotate-left"></i></span>
@@ -355,6 +373,18 @@
     .acc-link__note{ font-size:.75rem; color:var(--surface-mute,#6b7280) }
     .acc-link__arrow{ margin-left:auto; font-size:.7rem; color:#cbd5e1 }
     .acc-link:hover .acc-link__arrow{ color:var(--color-primary,#6366f1) }
+
+    /* Состояние строки. Стоит ПЕРЕД стрелкой, поэтому отодвигается влево
+       само (стрелка забирает весь свободный отступ через margin-left:auto). */
+    /* Приглушённый цвет темы (--surface-mute) давал на этой подложке 4.41 —
+       для полужирной подписи в 0.68rem этого мало. Смесь с основным цветом
+       текста следует теме так же, но даёт 6.73. */
+    .acc-state{ flex:0 0 auto; margin-left:auto; padding:.12rem .45rem; font-size:.68rem; font-weight:700;
+                color:color-mix(in srgb, var(--surface-ink,#111827) 72%, var(--surface-2,#f1f5f9));
+                background:var(--surface-2,#f1f5f9);
+                border:1px solid var(--surface-bd,#e5e7eb); border-radius:999px; white-space:nowrap }
+    .acc-state + .acc-link__arrow{ margin-left:.55rem }
+    .acc-state.is-on{ color:#15803d; background:#dcfce7; border-color:#86efac }
 
     :root.dark .acc-link{ border-color:#374151 }
     :root.dark .acc-link:hover{ background:#111827 }

@@ -76,6 +76,12 @@
                             <span class="acc-action__title">{{ __('admin.account.two_factor') }}</span>
                             <span class="acc-action__note">{{ __('admin.account.two_factor_note') }}</span>
                         </span>
+                        {{-- Состояние прямо в строке: иначе понять, включена
+                             проверка или нет, можно было только перейдя по
+                             ссылке — а там показывается уже другая страница. --}}
+                        <span class="acc-state {{ auth()->user()->two_factor_enabled ? 'is-on' : '' }}">
+                            {{ auth()->user()->two_factor_enabled ? __('admin.account.two_factor_on') : __('admin.account.two_factor_off') }}
+                        </span>
                         <i class="fas fa-chevron-right acc-action__arrow"></i>
                     </a>
                 @endif
@@ -132,6 +138,15 @@
     .acc-action__note{ font-size:.75rem; color:#64748b }
     .acc-action__arrow{ margin-left:auto; font-size:.7rem; color:#cbd5e1 }
     .acc-action:hover .acc-action__arrow{ color:var(--admin-primary,#6366f1) }
+
+    /* Состояние строки. Стоит ПЕРЕД стрелкой, поэтому отодвигается влево
+       само (стрелка забирает свободный отступ через margin-left:auto). */
+    /* Тон потемнее серого: полужирная подпись в 0.68rem на светлой плашке
+       иначе не дотягивает до 4.5 по контрасту. */
+    .acc-state{ flex:0 0 auto; margin-left:auto; padding:.12rem .45rem; font-size:.68rem; font-weight:700;
+                color:#4b5563; background:#f3f4f6; border:1px solid #e5e7eb; white-space:nowrap }
+    .acc-state + .acc-action__arrow{ margin-left:.55rem }
+    .acc-state.is-on{ color:#15803d; background:#dcfce7; border-color:#86efac }
 
     .acc-help{ margin-top:.9rem; font-size:.78rem; line-height:1.5; color:#64748b }
 

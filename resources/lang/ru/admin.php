@@ -666,6 +666,8 @@ return [
         'change_password' => 'Сменить пароль',
         'change_password_note' => 'Понадобится текущий пароль',
         'two_factor' => 'Двухфакторная проверка',
+        'two_factor_on' => 'Включена',
+        'two_factor_off' => 'Выключена',
         'two_factor_note' => 'Код из приложения при каждом входе',
         'login_history' => 'История входов',
         'login_history_note' => 'Когда и откуда заходили в панель',
