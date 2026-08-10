@@ -92,6 +92,20 @@ class AuthController extends BaseApiController
         }
 
         $user = Auth::user();
+
+        // Обход двухфакторной проверки: на сайте пароля мало, а тут по нему
+        // выдавался постоянный токен с полным доступом. Пошагового ввода
+        // кода в этом API нет, поэтому вход по паролю для таких учётных
+        // записей просто закрыт — токен выдаётся из личного кабинета.
+        if ($user->hasTwoFactorEnabled()) {
+            Auth::logout();
+
+            return $this->error(
+                'Для этой учётной записи включена двухфакторная проверка: вход по паролю через API недоступен.',
+                403
+            );
+        }
+
         $token = $user->createToken('api-token')->plainTextToken;
 
         return $this->success(

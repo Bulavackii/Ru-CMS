@@ -151,10 +151,25 @@ class TwoFactorSetupController extends Controller implements HasMiddleware
      */
     protected function generateRecoveryCodes(int $count = 8): array
     {
+        // random_int, а не str_shuffle: коды восстановления заменяют собой
+        // второй рубеж входа, а str_shuffle берёт числа из обычного
+        // генератора Mt19937 — зная его состояние, весь набор
+        // предсказывается. Плюс перемешивание алфавита не давало повторов
+        // символов внутри кода, что само по себе сужало перебор.
+        $alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $last = strlen($alphabet) - 1;
         $codes = [];
+
         for ($i = 0; $i < $count; $i++) {
-            $codes[] = strtoupper(substr(str_shuffle('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 10));
+            $code = '';
+
+            for ($j = 0; $j < 10; $j++) {
+                $code .= $alphabet[random_int(0, $last)];
+            }
+
+            $codes[] = $code;
         }
+
         return $codes;
     }
 }

@@ -64,7 +64,18 @@ class LoginController extends Controller
 
         // 🔐 Проверка 2FA, если включена
         if ($user->hasTwoFactorEnabled()) {
-            // Сохраняем email в сессии для повторной аутентификации после 2FA
+            // Пароль принят, но вход ЕЩЁ НЕ СОСТОЯЛСЯ. Раньше здесь просто
+            // шёл редирект, а сам вход уже был выполнен строкой выше
+            // (authenticate() зовёт Auth::attempt). Страница ввода кода
+            // закрыта middleware `guest` — вошедшего с неё сразу уводило на
+            // сайт, и код не спрашивался НИ У КОГО: пароля хватало и
+            // администратору, и обычному пользователю.
+            Auth::logout();
+
+            // Новый идентификатор сессии до того, как в ней окажется
+            // отметка о пройденном пароле, — защита от фиксации сессии.
+            $request->session()->regenerate();
+
             $request->session()->put('login.id', $user->id);
             $request->session()->put('login.remember', $request->boolean('remember'));
 

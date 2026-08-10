@@ -82,7 +82,10 @@ Route::middleware('guest')->group(function () {
 
     // 2FA маршруты
     Route::get('/two-factor/login', [\App\Http\Controllers\Auth\TwoFactorAuthenticationController::class, 'show'])->name('two-factor.login');
-    Route::post('/two-factor/login', [\App\Http\Controllers\Auth\TwoFactorAuthenticationController::class, 'verify'])->name('two-factor.verify');
+    // Ограничение попыток тут обязательно: код всего шесть цифр, а пароль
+    // к этому моменту уже подобран или украден — без ограничения остаётся
+    // перебрать миллион вариантов, и второй рубеж ничего не стоит.
+    Route::post('/two-factor/login', [\App\Http\Controllers\Auth\TwoFactorAuthenticationController::class, 'verify'])->name('two-factor.verify')->middleware('throttle:5,1'); // 5 попыток в минуту
 });
 
 // 🔒 Выход

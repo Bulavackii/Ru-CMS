@@ -57,8 +57,11 @@ class TwoFactorAuthenticationController extends Controller implements HasMiddlew
      */
     public function verify(Request $request): RedirectResponse
     {
+        // Длина не фиксирована: кроме шестизначного кода из приложения
+        // принимается код восстановления в десять знаков — иначе потерянный
+        // телефон означал бы потерю доступа навсегда.
         $request->validate([
-            'code' => 'required|string|size:6',
+            'code' => 'required|string|max:16',
         ]);
 
         $userId = $request->session()->get('login.id');
@@ -71,11 +74,37 @@ class TwoFactorAuthenticationController extends Controller implements HasMiddlew
             return redirect()->route('login');
         }
 
+        $input = trim((string) $request->input('code'));
+
         // Проверяем код 2FA (Laravel автоматически расшифровывает через cast)
         $isValid = $this->securityService->verify2FACode(
             $user->two_factor_secret,
-            $request->input('code')
+            $input
         );
+
+        // Не подошёл — пробуем как код восстановления. Подошедший код
+        // ВЫЧЁРКИВАЕТСЯ: он одноразовый, иначе подсмотренный листок с
+        // кодами работал бы вечно.
+        $byRecoveryCode = false;
+
+        if (! $isValid) {
+            $codes = $user->two_factor_recovery_codes ?? [];
+            $used = array_search(strtoupper($input), array_map('strtoupper', $codes), true);
+
+            if ($used !== false) {
+                unset($codes[$used]);
+                $user->forceFill(['two_factor_recovery_codes' => array_values($codes)])->save();
+
+                $isValid = true;
+                $byRecoveryCode = true;
+
+                Log::warning('Вход по коду восстановления', [
+                    'user_id' => $user->id,
+                    'осталось_кодов' => count($codes),
+                    'ip' => $request->ip(),
+                ]);
+            }
+        }
 
         if (!$isValid) {
             // Логируем неудачную попытку 2FA
@@ -112,10 +141,14 @@ class TwoFactorAuthenticationController extends Controller implements HasMiddlew
             'user_id' => $user->id,
             'email' => $user->email,
             'ip' => $request->ip(),
+            'по_коду_восстановления' => $byRecoveryCode,
         ]);
 
-        $redirectTo = $user->is_admin 
-            ? '/admin/modules' 
+        // Тот же адрес, что и при обычном входе (LoginController): главная
+        // панели. Здесь стоял «/admin/modules» — два контроллера одного и
+        // того же входа уводили администратора в разные места.
+        $redirectTo = $user->is_admin
+            ? route('admin.dashboard')
             : '/dashboard';
 
         return redirect()->intended($redirectTo);
