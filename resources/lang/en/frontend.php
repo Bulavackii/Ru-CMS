@@ -240,6 +240,7 @@ return [
         'hello' => 'Hello, :name',
         'spent' => 'Total spent',
         'last_order' => 'Last order',
+        'no_orders_yet' => 'none yet',
         'history_hint' => 'When, from where and from which device the account was accessed',
         'history_empty_hint' => 'Records will appear after the first sign-in.',
         'history_total' => 'Records in total',

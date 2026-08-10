@@ -58,7 +58,9 @@
     <div class="acc-stat">
         <span class="acc-stat__ico"><i class="fas fa-calendar-day"></i></span>
         <span class="acc-stat__body">
-            <b class="acc-stat__value">{{ $lastOrder ? $lastOrder->created_at->format('d.m.Y') : '—' }}</b>
+            {{-- Прочерк ничего не сообщает: пишем словом, что заказов не
+                 было. Дата появится с первым же. --}}
+            <b class="acc-stat__value">{{ $lastOrder ? $lastOrder->created_at->format('d.m.Y') : __('frontend.account.no_orders_yet') }}</b>
             <span class="acc-stat__label">{{ __('frontend.account.last_order') }}</span>
         </span>
     </div>
@@ -329,10 +331,15 @@
     .acc-empty__sub{ margin:.15rem 0 0; font-size:.85rem; color:var(--surface-mute,#6b7280) }
 
     /* Перечень в три колонки: столбиком он растягивал блок по высоте. */
-    .acc-empty__facts{ display:grid; grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));
-        gap:.4rem 1.25rem; margin:1rem 0 0; padding:.9rem 0 0; list-style:none;
-        font-size:.82rem; color:var(--surface-mute,#64748b); text-align:left; border-top:1px solid #eef2f7 }
-    .acc-empty__facts li{ position:relative; padding-left:1.35rem }
+    /* Три подписи стояли сеткой по 14rem на колонку и растягивались на всю
+       ширину карточки; при пустом списке заказов это давало высокий блок
+       ни о чём. Теперь они идут одной полосой чипов и переносятся по мере
+       надобности. */
+    .acc-empty__facts{ display:flex; flex-wrap:wrap; gap:.4rem .9rem;
+        margin:.9rem 0 0; padding:.8rem 0 0; list-style:none;
+        font-size:.78rem; color:var(--surface-mute,#64748b); text-align:left;
+        border-top:1px solid var(--surface-bd,#eef2f7) }
+    .acc-empty__facts li{ position:relative; padding-left:1.15rem }
     .acc-empty__facts li::before{ content:'✓'; position:absolute; left:0; top:0;
         font-weight:700; color:var(--color-primary,#6366f1) }
 
@@ -441,7 +448,10 @@
     .acc-flash{ border:1px solid #bbf7d0; background:#f0fdf4; color:#166534;
                 padding:.7rem 1rem; margin-bottom:1rem; font-size:.9rem }
 
-    .acc-grid{ display:grid; grid-template-columns:1fr; gap:1rem }
+    /* `align-items:start` обязателен: без него «Профиль» растягивался до
+       высоты «Действий», и под подсказкой висело восемьдесят пикселей
+       пустой карточки. */
+    .acc-grid{ display:grid; grid-template-columns:1fr; gap:1rem; align-items:start }
     @media (min-width:900px){ .acc-grid{ grid-template-columns:1.35fr 1fr } }
 
     .acc-list{ display:grid; gap:.55rem; font-size:.92rem }
