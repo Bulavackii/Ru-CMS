@@ -19,6 +19,10 @@
 {{-- ── Шапка раздела ── --}}
 {{-- Шапка с обращением по имени: страница личная, безличный заголовок
      «Личный кабинет» этого не передавал. --}}
+{{-- Акцентная полоса — тот же приём, что открывает разделы панели и
+     карточку входа: страница начинается узнаваемо. --}}
+<div class="acc-bar"></div>
+
 <div class="acc-head">
     <span class="acc-avatar">{{ mb_strtoupper(mb_substr($user->name, 0, 1)) }}</span>
     <div class="min-w-0">
@@ -40,30 +44,28 @@
 
 {{-- Сводка: три плитки со значком. Прежние были высокими и почти
      пустыми — подпись сверху, число снизу и много воздуха между ними. --}}
-<div class="acc-stats">
-    <div class="acc-stat">
-        <span class="acc-stat__ico"><i class="fas fa-box"></i></span>
-        <span class="acc-stat__body">
-            <b class="acc-stat__value">{{ $orders->count() }}</b>
-            <span class="acc-stat__label">{{ __('frontend.account.orders_count') }}</span>
-        </span>
-    </div>
-    <div class="acc-stat">
-        <span class="acc-stat__ico"><i class="fas fa-ruble-sign"></i></span>
-        <span class="acc-stat__body">
-            <b class="acc-stat__value">{{ number_format((float) $ordersTotal, 0, ',', ' ') }} ₽</b>
-            <span class="acc-stat__label">{{ __('frontend.account.spent') }}</span>
-        </span>
-    </div>
-    <div class="acc-stat">
-        <span class="acc-stat__ico"><i class="fas fa-calendar-day"></i></span>
-        <span class="acc-stat__body">
-            {{-- Прочерк ничего не сообщает: пишем словом, что заказов не
-                 было. Дата появится с первым же. --}}
-            <b class="acc-stat__value">{{ $lastOrder ? $lastOrder->created_at->format('d.m.Y') : __('frontend.account.no_orders_yet') }}</b>
-            <span class="acc-stat__label">{{ __('frontend.account.last_order') }}</span>
-        </span>
-    </div>
+{{-- Сводка одной полосой — как в разделах «Меню» и «Фрагменты». Три
+     карточки во всю высоту занимали 78 пикселей ради трёх чисел; здесь
+     те же числа, но подпись стоит рядом со значением, а не под ним.
+     Прочерк у последнего заказа заменён словами: он ничего не сообщал. --}}
+<div class="acc-summary">
+    <span class="acc-sum">
+        <i class="fas fa-box"></i>
+        <span class="acc-sum__label">{{ __('frontend.account.orders_count') }}</span>
+        <b class="acc-sum__value">{{ $orders->count() }}</b>
+    </span>
+
+    <span class="acc-sum">
+        <i class="fas fa-ruble-sign"></i>
+        <span class="acc-sum__label">{{ __('frontend.account.spent') }}</span>
+        <b class="acc-sum__value">{{ number_format((float) $ordersTotal, 0, ',', ' ') }} ₽</b>
+    </span>
+
+    <span class="acc-sum">
+        <i class="fas fa-calendar-day"></i>
+        <span class="acc-sum__label">{{ __('frontend.account.last_order') }}</span>
+        <b class="acc-sum__value">{{ $lastOrder ? $lastOrder->created_at->format('d.m.Y') : __('frontend.account.no_orders_yet') }}</b>
+    </span>
 </div>
 
 <div class="acc-grid">
@@ -397,6 +399,33 @@
              font-size:.64rem; letter-spacing:.1em }
     .acc-list dt{ font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
              font-size:.68rem; letter-spacing:.06em; text-transform:uppercase }
+
+/* ── Язык разделов «Меню» и «Фрагменты» ───────────────────────────
+       Акцентная полоса, сводка чипами и точка перед заголовком раздела.
+       Скругления сайта не трогаем: в панели края прямые, но здесь то же
+       оформление, что у новостей и подвала. */
+
+    .acc-bar{ height:3px; margin-bottom:1.1rem;
+        background:linear-gradient(90deg, var(--color-primary,#6366f1),
+                                          var(--color-accent,#8b5cf6),
+                                          var(--color-primary,#6366f1)) }
+
+    .acc-summary{ display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:1rem }
+    .acc-sum{ display:inline-flex; align-items:baseline; gap:.5rem;
+        padding:.45rem .8rem; font-size:.82rem;
+        color:var(--surface-ink,#111827);
+        background:var(--surface,#fff); border:1px solid var(--surface-bd,#eef2f7) }
+    .acc-sum i{ align-self:center; font-size:.78rem; color:var(--color-primary,#6366f1) }
+    .acc-sum__label{ font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size:.62rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+        color:var(--surface-mute,#6b7280) }
+    .acc-sum__value{ font-size:.95rem; font-weight:800 }
+
+    /* Точка-акцент перед заголовком раздела — тот же маркер, что у групп
+       в боковом меню панели. */
+    .acc-h2{ display:flex; align-items:center; gap:.5rem }
+    .acc-h2::before{ content:''; width:5px; height:5px; flex:none;
+        background:var(--color-primary,#6366f1) }
 
     .acc-links{ display:grid; gap:.4rem }
     .acc-link{ display:flex; align-items:center; gap:.7rem; padding:.6rem .65rem;
