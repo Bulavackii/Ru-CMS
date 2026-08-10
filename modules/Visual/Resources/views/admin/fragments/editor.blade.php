@@ -229,7 +229,7 @@
         <label class="frg-label">Зона</label>
         <select name="zone" class="frg-input" {{ $isSystem ? 'disabled' : '' }}>
           <option value="">— не выбрана —</option>
-          @foreach(\Modules\Visual\Models\Fragment::ZONE_LABELS as $zoneValue => $zoneLabel)
+          @foreach(\Modules\Visual\Models\Fragment::selectableZones(old('zone', $fragment->zone)) as $zoneValue => $zoneLabel)
             <option value="{{ $zoneValue }}" @selected(old('zone', $fragment->zone) === $zoneValue)>{{ $zoneLabel }}</option>
           @endforeach
         </select>

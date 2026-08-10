@@ -44,15 +44,51 @@ class Fragment extends Model
         'frontend.footer'         => 'Сайт · в подвале',
         'admin.header'            => 'Панель · под шапкой',
         'admin.footer'            => 'Панель · в подвале',
-        'header'                  => 'Устаревшая зона: шапка',
-        'footer'                  => 'Устаревшая зона: подвал',
+        // Ниже — зоны, которые НЕ выводятся ни в одном шаблоне (см.
+        // DEAD_ZONES). Подписи оставлены ради старых записей.
+        'header'                  => 'Не выводится: старая зона «шапка»',
+        'footer'                  => 'Не выводится: старая зона «подвал»',
         'custom'                  => 'Без зоны (вставка вручную)',
     ];
 
-    /** @return string[] */
+    /**
+     * Зоны, которых нет ни в одном шаблоне.
+     *
+     * `FragmentRenderer::zone()` вызывается ровно для шести зон, и этих
+     * двух среди них нет. Старый `layouts/app.blade.php` ищет блоки не по
+     * зоне, а по слагу (`site-header` / `site-footer`), поэтому поле «Зона»
+     * на него не влияет. Фрагмент, которому выбрали такую зону, не
+     * показывается нигде — и узнать об этом было неоткуда.
+     *
+     * Значения оставлены: в старых установках такие записи могут быть, и
+     * подпись для них нужна. Из списка выбора они убраны.
+     */
+    public const DEAD_ZONES = ['header', 'footer'];
+
+    /**
+     * Все известные значения — для проверки при сохранении и для подписей.
+     *
+     * @return string[]
+     */
     public static function zones(): array
     {
         return array_keys(self::ZONE_LABELS);
+    }
+
+    /**
+     * Что предлагаем выбрать. Мёртвая зона попадает в список только если
+     * фрагмент уже в ней: иначе выбранное значение пропало бы из select и
+     * при сохранении молча сменилось на первое попавшееся.
+     *
+     * @return array<string, string>
+     */
+    public static function selectableZones(?string $current = null): array
+    {
+        return array_filter(
+            self::ZONE_LABELS,
+            fn ($zone) => ! in_array($zone, self::DEAD_ZONES, true) || $zone === $current,
+            ARRAY_FILTER_USE_KEY
+        );
     }
 
     public function zoneLabel(): string

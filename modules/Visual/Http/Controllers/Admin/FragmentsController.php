@@ -64,10 +64,14 @@ class FragmentsController extends Controller
             'type'      => 'blade',
         ]);
 
+        // Заготовки вели в зоны `header`/`footer`, которых нет ни в одном
+        // шаблоне: созданный по кнопке блок не выводился нигде. Слаги
+        // оставлены — по ним блок ищет старый layouts/app.blade.php, — а
+        // зона теперь настоящая, из тех, что выводятся на сайте.
         if ($preset === 'header') {
-            $fragment->fill(['title' => 'Шапка сайта', 'slug' => 'site-header', 'zone' => 'header']);
+            $fragment->fill(['title' => 'Шапка сайта', 'slug' => 'site-header', 'zone' => 'frontend.header']);
         } elseif ($preset === 'footer') {
-            $fragment->fill(['title' => 'Подвал сайта', 'slug' => 'site-footer', 'zone' => 'footer']);
+            $fragment->fill(['title' => 'Подвал сайта', 'slug' => 'site-footer', 'zone' => 'frontend.footer']);
         }
 
         return view('Visual::admin.fragments.editor', compact('fragment'));
