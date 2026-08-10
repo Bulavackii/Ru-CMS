@@ -218,18 +218,19 @@
                         </div>
                     </div>
 
-                    {{-- Is Active --}}
+                    {{-- Тумблер вместо голой галочки: тот же элемент, что в
+                         «Меню» и «Слайдшоу». Галочка рядом с ними читалась
+                         как другой элемент управления, хотя делает ровно то
+                         же. Имя поля и значение не менялись. --}}
                     <div class="pt-1 border-t border-gray-100 dark:border-gray-800">
-                        <label class="inline-flex items-start gap-2 mt-4 cursor-pointer">
-                            <input
-                                type="checkbox"
-                                name="is_active"
-                                value="1"
-                                {{ old('is_active', $category->is_active) ? 'checked' : '' }}
-                                class="mt-0.5">
-                            <span class="text-sm text-gray-700 dark:text-gray-300">
-                                {{ __('admin.categories.active') }}
-                                <span class="block text-xs text-gray-500 dark:text-gray-400">{{ __('admin.categories.f_active_hint') }}</span>
+                        <label class="cat-switch">
+                            <span class="admin-toggle">
+                                <input type="checkbox" name="is_active" value="1" {{ old('is_active', $category->is_active) ? 'checked' : '' }}>
+                                <span class="track"></span><span class="knob"></span>
+                            </span>
+                            <span class="cat-switch__body">
+                                <span class="cat-switch__title">{{ __('admin.categories.active') }}</span>
+                                <span class="cat-switch__note">{{ __('admin.categories.f_active_hint') }}</span>
                             </span>
                         </label>
                     </div>
@@ -261,6 +262,16 @@
 
     {{-- Styles --}}
     <style>
+        /* Строка-тумблер: подпись и пояснение рядом с рычажком, а не под
+           галочкой. Литеральный CSS — в сборке проекта нет ни прозрачности
+           через дробь, ни варианта peer-checked. */
+        .cat-switch{ display:inline-flex; align-items:flex-start; gap:.6rem; margin-top:1rem; cursor:pointer }
+        .cat-switch__body{ display:flex; flex-direction:column; gap:.15rem; line-height:1.35 }
+        .cat-switch__title{ font-size:.875rem; font-weight:600; color:#374151 }
+        .cat-switch__note{ font-size:.75rem; color:#6b7280 }
+        .dark .cat-switch__title{ color:#e5e7eb }
+        .dark .cat-switch__note{ color:#9ca3af }
+
         @keyframes fade-in { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
         #catEditForm { animation: fade-in .25s ease-out }
     </style>
