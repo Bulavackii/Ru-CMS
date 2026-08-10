@@ -65,7 +65,16 @@
         <div class="pm-card__bar"></div>
 
         <div class="pm-card__head">
-            <span class="pm-logo"><i class="fas {{ $brand['icon'] }}"></i></span>
+            {{-- Настоящий знак, если файл положен; иначе значок способа
+                 оплаты. Подложка под логотипом белая: знаки рисуются под
+                 светлый фон, на фирменном цвете они бы слились. --}}
+            <span class="pm-logo {{ $brand['logo'] ? 'has-logo' : '' }}">
+                @if($brand['logo'])
+                    <img src="{{ $brand['logo'] }}" alt="{{ $method->title }}" loading="lazy">
+                @else
+                    <i class="fas {{ $brand['icon'] }}"></i>
+                @endif
+            </span>
 
             <div class="pm-card__name">
                 <b class="pm-title">{{ $method->title }}</b>
@@ -182,8 +191,13 @@
 
     .pm-card__head{ display:flex; align-items:center; gap:.7rem; padding:.9rem 1rem 0 }
     .pm-logo{ display:inline-flex; align-items:center; justify-content:center; flex:none;
-        width:2.5rem; height:2.5rem; font-size:1rem;
+        width:2.5rem; height:2.5rem; font-size:1rem; overflow:hidden;
         color:var(--pm-ink); background:var(--pm) }
+    /* С логотипом подложка светлая и с рамкой в фирменном цвете: знаки
+       нарисованы под белый фон, на цветном они бы потерялись. */
+    .pm-logo.has-logo{ background:#fff; border:1px solid color-mix(in srgb, var(--pm) 35%, transparent); padding:3px }
+    .pm-logo img{ width:100%; height:100%; object-fit:contain; display:block }
+    .dark .pm-logo.has-logo{ background:#fff }
     .pm-card__name{ display:flex; flex-direction:column; gap:.15rem; min-width:0; flex:1 }
     .pm-title{ font-size:.95rem; font-weight:700; color:#111827;
         overflow:hidden; text-overflow:ellipsis; white-space:nowrap }

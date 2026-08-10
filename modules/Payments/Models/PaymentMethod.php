@@ -53,6 +53,32 @@ class PaymentMethod extends Model
         'transfer'      => ['color' => '#0EA5E9', 'icon' => 'fa-building-columns'],
     ];
 
+    /**
+     * Где лежат логотипы платёжных систем.
+     *
+     * Файл кладётся руками: public/images/payments/<тип>.svg (или .png).
+     * Свои знаки эти системы публикуют сами — качать их в рантайме проекту
+     * нельзя, он работает и без интернета. Пока файла нет, на плитке
+     * остаётся значок способа оплаты, и раздел выглядит законченно.
+     */
+    public const LOGO_DIR = 'images/payments';
+
+    /** Логотип метода, если файл положен; иначе null. */
+    public function logoUrl(): ?string
+    {
+        foreach (['svg', 'png', 'webp'] as $ext) {
+            $relative = self::LOGO_DIR . '/' . $this->type . '.' . $ext;
+
+            if (is_file(public_path($relative))) {
+                // Метка времени в адресе: заменили файл — браузер увидит
+                // новый, а не свою старую копию.
+                return asset($relative) . '?v=' . filemtime(public_path($relative));
+            }
+        }
+
+        return null;
+    }
+
     /** Оформление этого метода; для незнакомого типа — нейтральное. */
     public function brand(): array
     {
@@ -65,6 +91,7 @@ class PaymentMethod extends Model
         }
 
         $brand['ink'] = readable_ink($brand['color']);
+        $brand['logo'] = $this->logoUrl();
 
         return $brand;
     }
