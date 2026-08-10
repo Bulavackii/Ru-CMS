@@ -159,7 +159,11 @@
                     <button type="button" class="fm-starter" @click="applyStarter(starter)">
                         <i class="fas" :class="starter.icon"></i>
                         <span x-text="starter.title"></span>
-                        <small x-text="starter.fields.length + ' ' + @js(__('admin.forms.fields_short'))"></small>
+                        {{-- Только число: слово «полей» повторялось тринадцать
+                             раз подряд и ничего не добавляло. Полная подпись
+                             осталась в подсказке при наведении. --}}
+                        <small x-text="starter.fields.length"
+                               :title="starter.fields.length + ' ' + @js(__('admin.forms.fields_short'))"></small>
                     </button>
                 </template>
             </div>
@@ -661,29 +665,50 @@
     .fm-field { display:flex; flex-direction:column; gap:4px; min-width:0 }
     .fm-label { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:#6b7280 }
     .fm-hint  { font-size:.72rem; color:#9ca3af; line-height:1.45 }
-    .fm-input { width:100%; padding:7px 10px; font-size:.85rem; color:#111827; background:#fff;
+    /* Высота задана явно. «Название» набрано крупнее и полужирным — это
+       главное поле блока, — но стояло рядом с «Описанием» в одной строке,
+       и из-за большего кегля с большими отступами получалось выше соседа
+       на шесть пикселей. Рядом два поля разной высоты читаются как
+       недоделка, а не как расстановка важности. Кегль оставлен, отступы
+       уравнены, высота закреплена. */
+    .fm-input { display:flex; align-items:center; width:100%; height:38px;
+                padding:7px 10px; font-size:.85rem; color:#111827; background:#fff;
                 border:1px solid #d1d5db; outline:none; transition:border-color .15s ease }
     .fm-input:focus { border-color:#6366f1 }
-    .fm-input--big { font-size:.95rem; font-weight:600; padding:9px 11px }
+    .fm-input--big { font-size:.95rem; font-weight:600; padding:7px 11px }
 
     /* ── Быстрый старт ── */
-    .fm-starters { display:flex; flex-wrap:wrap; align-items:stretch; gap:8px; margin-bottom:14px;
-                   padding:12px; background:#f8f9ff; border:1px dashed #c7cbf5 }
-    .fm-starters-label { width:100%; font-size:.72rem; font-weight:700; text-transform:uppercase;
-                         letter-spacing:.04em; color:#6366f1 }
-    .fm-starter { display:flex; flex-direction:column; align-items:flex-start; gap:2px; padding:8px 12px;
-                  font-size:.82rem; font-weight:600; color:#312e81; background:#fff;
+    /* Готовые наборы. Были карточками в две строки: значок, название и
+       число полей друг под другом — тринадцать штук занимали под триста
+       пикселей. Теперь всё в одну строку внутри чипа, подпись блока —
+       слева, а не отдельной строкой сверху. */
+    .fm-starters { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-bottom:12px;
+                   padding:9px 11px; background:#f8f9ff; border:1px dashed #c7cbf5 }
+    .fm-starters-label { flex:0 0 auto; margin-right:.2rem;
+                         font-size:.66rem; font-weight:700; text-transform:uppercase;
+                         letter-spacing:.05em; color:#6366f1 }
+    .fm-starter { display:inline-flex; align-items:center; gap:6px; padding:4px 9px;
+                  font-size:.76rem; font-weight:600; color:#312e81; background:#fff;
                   border:1px solid #c7cbf5; cursor:pointer; transition:border-color .15s ease }
     .fm-starter:hover { border-color:#6366f1 }
-    .fm-starter small { font-size:.68rem; font-weight:400; color:#8b90a8 }
+    .fm-starter i { font-size:.7rem; color:#8b90a8 }
+    .fm-starter small { font-size:.68rem; font-weight:700; color:#6366f1 }
 
     /* ── Палитра ── */
-    .fm-palette { display:grid; gap:8px; padding:10px; margin-bottom:12px; background:#fafafa;
+    /* Палитра. Была сеткой: подпись «Добавить поле» вставала отдельной
+       строкой и на узкой колонке ломалась на два слова. Теперь всё одной
+       строкой. */
+    .fm-palette { display:flex; flex-wrap:wrap; align-items:center; gap:6px;
+                  padding:8px 11px; margin-bottom:12px; background:#fafafa;
                   border:1px solid #eceef3 }
     .fm-pal-group { display:flex; flex-wrap:wrap; align-items:center; gap:6px }
-    .fm-pal-label { width:5.6rem; flex:0 0 auto; font-size:.68rem; font-weight:700; text-transform:uppercase;
-                    letter-spacing:.04em; color:#9ca3af }
-    .fm-pal-items { display:flex; flex-wrap:wrap; gap:5px; flex:1 1 auto; min-width:0 }
+    .fm-pal-label { flex:0 0 auto; margin-right:.2rem; white-space:nowrap;
+                    font-size:.66rem; font-weight:700; text-transform:uppercase;
+                    letter-spacing:.05em; color:#9ca3af }
+    /* Обёртка растворяется: кнопки становятся соседями подписи и переносятся
+       по одной. Раньше она была одним флекс-элементом во всю ширину ряда и
+       уезжала на вторую строку целиком, из-за чего блок был вдвое выше. */
+    .fm-pal-items { display:contents }
     .fm-chip { display:inline-flex; align-items:center; gap:5px; padding:4px 9px; font-size:.75rem;
                color:#374151; background:#fff; border:1px solid #e1e4ea; cursor:pointer;
                transition:border-color .15s ease, color .15s ease }
