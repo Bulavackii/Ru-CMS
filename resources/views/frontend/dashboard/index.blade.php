@@ -29,6 +29,37 @@
         <h1 class="fx-section-title">{{ __('frontend.account.hello', ['name' => $user->name]) }}</h1>
         <p class="fx-section-sub">{{ __('frontend.account.subtitle') }}</p>
     </div>
+
+    {{-- Ссылки на сети переехали сюда из карточки профиля: это способ
+         связаться, а не реквизит вроде ИНН, и рядом с именем они на
+         своём месте. В профиле строка занимала место наравне с почтой
+         и датой регистрации. --}}
+    @if ($user->vk || $user->max)
+        {{-- Только значки: названия сетей дублировали то, что и так видно
+             по логотипу, и растягивали шапку. Подпись слева говорит, что
+             это за ряд, а название каждой сети осталось в подсказке при
+             наведении и в aria-label — для чтения с экрана. --}}
+        <span class="acc-head__socials">
+            <span class="acc-socials__label">{{ __('frontend.account.your_socials') }}</span>
+
+            <span class="acc-socials">
+                @if ($user->vk)
+                    <a href="{{ $user->vk }}" target="_blank" rel="noopener"
+                       class="acc-social acc-social--icon" style="--c:#0077FF"
+                       title="ВКонтакте" aria-label="ВКонтакте">
+                        <x-icon.vk :size="16" />
+                    </a>
+                @endif
+                @if ($user->max)
+                    <a href="{{ $user->max }}" target="_blank" rel="noopener"
+                       class="acc-social acc-social--icon" style="--c:#3B4BF5"
+                       title="MAX" aria-label="MAX">
+                        <x-icon.max :size="16" />
+                    </a>
+                @endif
+            </span>
+        </span>
+    @endif
 </div>
 
 @if (session('success'))
@@ -49,23 +80,28 @@
      те же числа, но подпись стоит рядом со значением, а не под ним.
      Прочерк у последнего заказа заменён словами: он ничего не сообщал. --}}
 <div class="acc-summary">
-    <span class="acc-sum">
+    {{-- Чипы ведут туда, куда указывают. Пока заказов нет, ссылки нет:
+         переход в пустой список — это тупик, а не помощь. Тег выбирается
+         по наличию заказов, поэтому неактивный чип и выглядит иначе. --}}
+    @php $ordersLink = $orders->count() ? route('dashboard.orders') : null; @endphp
+
+    <{{ $ordersLink ? 'a' : 'span' }} class="acc-sum" @if($ordersLink) href="{{ $ordersLink }}" @endif>
         <i class="fas fa-box"></i>
         <span class="acc-sum__label">{{ __('frontend.account.orders_count') }}</span>
         <b class="acc-sum__value">{{ $orders->count() }}</b>
-    </span>
+    </{{ $ordersLink ? 'a' : 'span' }}>
 
-    <span class="acc-sum">
+    <{{ $ordersLink ? 'a' : 'span' }} class="acc-sum" @if($ordersLink) href="{{ $ordersLink }}" @endif>
         <i class="fas fa-ruble-sign"></i>
         <span class="acc-sum__label">{{ __('frontend.account.spent') }}</span>
         <b class="acc-sum__value">{{ number_format((float) $ordersTotal, 0, ',', ' ') }} ₽</b>
-    </span>
+    </{{ $ordersLink ? 'a' : 'span' }}>
 
-    <span class="acc-sum">
+    <{{ $lastOrder ? 'a' : 'span' }} class="acc-sum" @if($lastOrder) href="{{ route('dashboard.orders') }}#order-{{ $lastOrder->id }}" @endif>
         <i class="fas fa-calendar-day"></i>
         <span class="acc-sum__label">{{ __('frontend.account.last_order') }}</span>
         <b class="acc-sum__value">{{ $lastOrder ? $lastOrder->created_at->format('d.m.Y') : __('frontend.account.no_orders_yet') }}</b>
-    </span>
+    </{{ $lastOrder ? 'a' : 'span' }}>
 </div>
 
 <div class="acc-grid">
@@ -98,29 +134,6 @@
                     <dd>{{ $user->created_at->format('d.m.Y') }}</dd></div>
             @endif
 
-            {{-- Строка появляется, только если ссылка задана: пустое поле с
-                 прочерком в профиле ничего не сообщает. --}}
-            @if ($user->vk || $user->max)
-                <div>
-                    <dt>{{ __('frontend.account.socials') }}</dt>
-                    <dd>
-                        <span class="acc-socials">
-                            @if ($user->vk)
-                                <a href="{{ $user->vk }}" target="_blank" rel="noopener"
-                                   class="acc-social" style="--c:#0077FF" title="ВКонтакте">
-                                    <x-icon.vk :size="15" /> <span>ВКонтакте</span>
-                                </a>
-                            @endif
-                            @if ($user->max)
-                                <a href="{{ $user->max }}" target="_blank" rel="noopener"
-                                   class="acc-social" style="--c:#3B4BF5" title="MAX">
-                                    <x-icon.max :size="15" /> <span>MAX</span>
-                                </a>
-                            @endif
-                        </span>
-                    </dd>
-                </div>
-            @endif
 
             @if ($user->is_company)
                 <div><dt>{{ __('frontend.account.company') }}</dt><dd>{{ $user->company_name ?: '—' }}</dd></div>
@@ -229,17 +242,17 @@
     </section>
 </div>
 
-{{-- ── Заказы ── --}}
-<section class="fx-card p-5 mt-5">
-    <div class="acc-orders-head">
-        <h2 class="acc-h2 mb-0"><i class="fas fa-box fx-ico"></i> {{ __('frontend.account.orders_last') }}</h2>
-
-        @if ($orders->count())
+{{-- ── Заказы ──
+     Пока заказов нет, карточка целиком не выводится: она занимала 199
+     пикселей ради двух предложений и трёх подписей о том, что появится
+     когда-нибудь. Вместо неё одна строка-приглашение. --}}
+@if ($orders->count())
+    <section class="fx-card p-5 mt-5">
+        <div class="acc-orders-head">
+            <h2 class="acc-h2 mb-0"><i class="fas fa-box fx-ico"></i> {{ __('frontend.account.orders_last') }}</h2>
             <a href="{{ route('dashboard.orders') }}" class="acc-all">{{ __('frontend.account.orders_all') }} →</a>
-        @endif
-    </div>
-
-    @forelse ($orders as $order)
+        </div>
+        @foreach ($orders as $order)
         @php
             $status = $order->status ?? '';
             $label = $statusLabels[$status] ?? __('frontend.account.st_unknown');
@@ -269,43 +282,21 @@
                 <span class="acc-order__sum-label">{{ __('frontend.account.order_sum') }}</span>
                 <b>{{ number_format((float) $order->total, 2, ',', ' ') }} ₽</b>
             </div>
-        </article>
-    @empty
-        {{-- Прежнее пустое состояние отправляло «к новостям»: человек ждёт
-             товары, а попадает в ленту статей. Теперь кнопка ведёт в каталог,
-             а рядом коротко сказано, что вообще будет храниться в этом
-             разделе — иначе пустая карточка не сообщает ничего. --}}
-        {{-- Пустой раздел занимал 357px по высоте ради трёх строк текста:
-             значок, заголовок, подпись, список и кнопки шли столбиком по
-             центру. Теперь всё в одну строку — значок и текст слева,
-             действия справа, — а перечень идёт под ней в три колонки. --}}
-        <div class="acc-empty">
-            <div class="acc-empty__row">
-                <span class="acc-empty__ico"><i class="fas fa-box-open"></i></span>
+            </article>        @endforeach
+    </section>
+@else
+    <div class="acc-invite mt-5">
+        <span class="acc-invite__ico"><i class="fas fa-box-open"></i></span>
+        <span class="acc-invite__text">
+            <b>{{ __('frontend.account.orders_empty') }}</b>
+            {{ __('frontend.account.orders_none_hint') }}
+        </span>
+        <a href="{{ route('news.index') }}" class="fx-btn acc-invite__go">
+            <i class="fas fa-store"></i> {{ __('frontend.account.to_catalog') }}
+        </a>
+    </div>
+@endif
 
-                <div class="acc-empty__text">
-                    <p class="acc-empty__title">{{ __('frontend.account.orders_empty') }}</p>
-                    <p class="acc-empty__sub">{{ __('frontend.account.orders_none_hint') }}</p>
-                </div>
-
-                <div class="acc-empty__actions">
-                    <a href="{{ url('/news') }}" class="fx-btn">
-                        <i class="fas fa-store"></i> {{ __('frontend.account.to_catalog') }}
-                    </a>
-                    <a href="{{ route('cart.index') }}" class="acc-btn-ghost">
-                        <i class="fas fa-cart-shopping"></i> {{ __('frontend.account.to_cart') }}
-                    </a>
-                </div>
-            </div>
-
-            <ul class="acc-empty__facts">
-                <li>{{ __('frontend.account.orders_fact_status') }}</li>
-                <li>{{ __('frontend.account.orders_fact_docs') }}</li>
-                <li>{{ __('frontend.account.orders_fact_repeat') }}</li>
-            </ul>
-        </div>
-    @endforelse
-</section>
 @endsection
 
 @push('styles')
@@ -367,7 +358,7 @@
 
     :root.dark .acc-empty__facts, :root.dark .acc-fill-hint{ border-color:#374151 }
 
-    .acc-head{ display:flex; align-items:center; gap:.9rem; margin-bottom:1.25rem }
+    .acc-head{ display:flex; flex-wrap:wrap; align-items:center; gap:.9rem; margin-bottom:1.25rem }
     .acc-avatar{ width:3rem; height:3rem; flex:0 0 auto; display:inline-flex;
                  align-items:center; justify-content:center;
                  background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff;
@@ -409,6 +400,34 @@
         background:linear-gradient(90deg, var(--color-primary,#6366f1),
                                           var(--color-accent,#8b5cf6),
                                           var(--color-primary,#6366f1)) }
+
+    .acc-head__socials{ display:inline-flex; align-items:center; gap:.6rem }
+    .acc-socials__label{ font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size:.62rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+        color:var(--surface-mute,#6b7280); white-space:nowrap }
+    /* Значок без подписи: квадрат по размеру логотипа, цвет сети — на
+       рамке при наведении, чтобы ряд не пестрил. */
+    .acc-social--icon{ display:inline-flex; align-items:center; justify-content:center;
+        width:2rem; height:2rem; padding:0 }
+
+    /* Строка-приглашение вместо пустой карточки заказов. */
+    .acc-invite{ display:flex; flex-wrap:wrap; align-items:center; gap:.9rem;
+        padding:.9rem 1.1rem;
+        background:var(--surface,#fff); border:1px solid var(--surface-bd,#eef2f7) }
+    .acc-invite__ico{ display:inline-flex; align-items:center; justify-content:center; flex:none;
+        width:2.4rem; height:2.4rem; font-size:.95rem; color:var(--on-accent,#fff);
+        background:linear-gradient(135deg,var(--color-primary,#6366f1),var(--color-accent,#8b5cf6)) }
+    .acc-invite__text{ flex:1; min-width:14rem; font-size:.85rem; color:var(--surface-mute,#6b7280) }
+    .acc-invite__text b{ color:var(--surface-ink,#111827) }
+    .acc-invite__go{ flex:none; margin-left:auto }
+
+    /* Сети в шапке отодвигаются вправо и переносятся на своём месте. */
+    .acc-head__socials{ margin-left:auto; flex:none }
+    @media (max-width:640px){ .acc-head__socials{ margin-left:0; width:100% } }
+
+    /* Кликабельный чип сводки: указывает, что это переход. */
+    a.acc-sum{ text-decoration:none; transition:border-color .15s }
+    a.acc-sum:hover{ border-color:var(--color-primary,#6366f1) }
 
     .acc-summary{ display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:1rem }
     .acc-sum{ display:inline-flex; align-items:baseline; gap:.5rem;

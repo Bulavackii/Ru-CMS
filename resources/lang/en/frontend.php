@@ -217,6 +217,7 @@ return [
         'vk_hint' => 'Full page address, e.g. https://vk.com/example',
         'max_hint' => 'Full page address, e.g. https://max.ru/example',
         'socials' => 'Networks',
+        'your_socials' => 'Your social links:',
         'pw_short' => ':n more characters',
         'pw_weak' => 'Weak',
         'pw_fair' => 'Fair',

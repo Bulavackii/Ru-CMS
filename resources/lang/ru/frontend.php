@@ -217,6 +217,7 @@ return [
         'vk_hint' => 'Полный адрес страницы, например https://vk.com/example',
         'max_hint' => 'Полный адрес страницы, например https://max.ru/example',
         'socials' => 'Сети',
+        'your_socials' => 'Ваши соц сети:',
         'pw_short' => 'ещё :n символов',
         'pw_weak' => 'Слабый',
         'pw_fair' => 'Сойдёт',
