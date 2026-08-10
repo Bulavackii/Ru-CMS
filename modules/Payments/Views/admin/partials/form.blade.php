@@ -11,14 +11,34 @@
 
     // Названия платёжных систем — торговые марки, не переводятся.
     // Переводится только короткое пояснение под названием.
+    //
+    // Значок и фирменный цвет берутся из карты в модели — одного места на
+    // весь раздел. Логотип подставляется, если файл положен в
+    // public/images/payments; иначе остаётся значок способа оплаты.
     $types = [
-        'yookassa' => ['label' => 'ЮKassa',  'icon' => 'fa-wallet',       'note' => __('admin.payments.n_yookassa')],
-        'sbp'      => ['label' => 'СБП',     'icon' => 'fa-qrcode',       'note' => __('admin.payments.n_sbp')],
-        'sberpay'  => ['label' => 'SberPay', 'icon' => 'fa-mobile-screen', 'note' => __('admin.payments.n_sberpay')],
-        'tbank'    => ['label' => 'Т-Банк',  'icon' => 'fa-building-columns', 'note' => __('admin.payments.n_tbank')],
-        'online'   => ['label' => 'Online',  'icon' => 'fa-globe',        'note' => __('admin.payments.n_online')],
-        'offline'  => ['label' => 'Offline', 'icon' => 'fa-hand-holding-dollar', 'note' => __('admin.payments.n_offline')],
+        'yookassa' => ['label' => 'ЮKassa',  'note' => __('admin.payments.n_yookassa')],
+        'sbp'      => ['label' => 'СБП',     'note' => __('admin.payments.n_sbp')],
+        'sberpay'  => ['label' => 'SberPay', 'note' => __('admin.payments.n_sberpay')],
+        'tbank'    => ['label' => 'Т-Банк',  'note' => __('admin.payments.n_tbank')],
+        'online'   => ['label' => 'Online',  'note' => __('admin.payments.n_online')],
+        'offline'  => ['label' => 'Offline', 'note' => __('admin.payments.n_offline')],
     ];
+
+    foreach ($types as $value => $meta) {
+        $brand = \Modules\Payments\Models\PaymentMethod::BRANDS[$value]
+            ?? ['color' => '#6366F1', 'icon' => 'fa-credit-card'];
+
+        $logo = null;
+        foreach (['svg', 'png', 'webp'] as $ext) {
+            $rel = \Modules\Payments\Models\PaymentMethod::LOGO_DIR . '/' . $value . '.' . $ext;
+            if (is_file(public_path($rel))) {
+                $logo = asset($rel) . '?v=' . filemtime(public_path($rel));
+                break;
+            }
+        }
+
+        $types[$value] += ['icon' => $brand['icon'], 'color' => $brand['color'], 'logo' => $logo];
+    }
 
     // Подписи полей реквизитов — технические имена из документации систем,
     // поэтому не переводятся: владелец ищет ровно их в личном кабинете.
@@ -33,7 +53,7 @@
     $settings = (array) old('settings', $method->settings ?? []);
 @endphp
 
-<div x-data="{
+<div class="pm-form" x-data="{
         type: @js($currentType),
         fields: @js($credentialFields),
         checking: false,
@@ -60,15 +80,21 @@
         }
      }">
 
+    {{-- Две колонки: слева описание метода, справа его реквизиты и
+         проверка связи. Раньше секции шли одна под другой, и до полей с
+         ключами приходилось прокручивать мимо выбора системы, который
+         меняют один раз. --}}
+    <div class="pm-cols">
+
     {{-- ── Основное ── --}}
-    <section class="admin-card p-5 mb-4">
+    <section class="admin-card p-5">
         <h2 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-4">
             <i class="fas fa-tag text-indigo-500"></i> {{ __('admin.payments.g_main') }}
         </h2>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-                <label for="title" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
+                <label for="title" class="pm-field-label block text-gray-800 dark:text-gray-200 mb-1">
                     {{ __('admin.payments.f_title') }} <span class="text-red-500">*</span>
                 </label>
                 <input type="text" id="title" name="title" required
@@ -87,9 +113,18 @@
                      системы поддерживаются и чем они отличаются. --}}
                 <div class="pm-types">
                     @foreach($types as $value => $meta)
-                        <label class="pm-type" :class="type === @js($value) ? 'is-active' : ''">
+                        <label class="pm-type" style="--pm:{{ $meta['color'] }}"
+                               :class="type === @js($value) ? 'is-active' : ''">
                             <input type="radio" name="type" value="{{ $value }}" x-model="type" class="sr-only">
-                            <i class="fas {{ $meta['icon'] }}"></i>
+
+                            <span class="pm-type__mark">
+                                @if($meta['logo'])
+                                    <img src="{{ $meta['logo'] }}" alt="{{ $meta['label'] }}" loading="lazy">
+                                @else
+                                    <i class="fas {{ $meta['icon'] }}"></i>
+                                @endif
+                            </span>
+
                             <span class="pm-type__name">{{ $meta['label'] }}</span>
                             <span class="pm-type__note">{{ $meta['note'] }}</span>
                         </label>
@@ -98,7 +133,7 @@
             </div>
 
             <div class="md:col-span-2">
-                <label for="description" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
+                <label for="description" class="pm-field-label block text-gray-800 dark:text-gray-200 mb-1">
                     {{ __('admin.payments.f_desc') }}
                 </label>
                 <textarea id="description" name="description" rows="2"
@@ -107,7 +142,7 @@
             </div>
 
             <div>
-                <label for="code" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
+                <label for="code" class="pm-field-label block text-gray-800 dark:text-gray-200 mb-1">
                     {{ __('admin.payments.f_code') }}
                 </label>
                 <input type="text" id="code" name="code" value="{{ old('code', $method->code ?? '') }}"
@@ -116,7 +151,7 @@
             </div>
 
             <div>
-                <label for="sort_order" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
+                <label for="sort_order" class="pm-field-label block text-gray-800 dark:text-gray-200 mb-1">
                     {{ __('admin.payments.f_sort') }}
                 </label>
                 <input type="number" id="sort_order" name="sort_order" value="{{ old('sort_order', $method->sort_order ?? 0) }}"
@@ -152,7 +187,7 @@
     </section>
 
     {{-- ── Реквизиты платёжной системы ── --}}
-    <section class="admin-card p-5 mb-4">
+    <section class="admin-card p-5">
         <h2 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-4">
             <i class="fas fa-key text-indigo-500"></i> {{ __('admin.payments.g_creds') }}
         </h2>
@@ -164,7 +199,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             @foreach($fieldLabels as $field => $label)
                 <div x-cloak x-show="currentFields.includes(@js($field))">
-                    <label class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">{{ $label }}</label>
+                    <label class="pm-field-label block text-gray-800 dark:text-gray-200 mb-1">{{ $label }}</label>
                     <input type="text" name="settings[{{ $field }}]" autocomplete="off"
                            value="{{ $settings[$field] ?? '' }}"
                            class="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-800 px-3 py-2 text-sm font-mono">
@@ -177,7 +212,7 @@
         </template>
 
         <div class="mt-4">
-            <label for="docs_url" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
+            <label for="docs_url" class="pm-field-label block text-gray-800 dark:text-gray-200 mb-1">
                 {{ __('admin.payments.f_docs') }}
             </label>
             <input type="url" id="docs_url" name="docs_url" value="{{ old('docs_url', $method->docs_url ?? '') }}"
@@ -200,14 +235,14 @@
     </section>
 
     {{-- ── Суммы и комиссия ── --}}
-    <section class="admin-card p-5 mb-4">
+    <section class="admin-card p-5">
         <h2 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-4">
             <i class="fas fa-ruble-sign text-indigo-500"></i> {{ __('admin.payments.g_limits') }}
         </h2>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-                <label for="commission" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
+                <label for="commission" class="pm-field-label block text-gray-800 dark:text-gray-200 mb-1">
                     {{ __('admin.payments.f_commission') }}
                 </label>
                 <input type="number" step="0.01" id="commission" name="commission"
@@ -216,7 +251,7 @@
             </div>
 
             <div>
-                <label for="min_amount" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
+                <label for="min_amount" class="pm-field-label block text-gray-800 dark:text-gray-200 mb-1">
                     {{ __('admin.payments.f_min') }}
                 </label>
                 <input type="number" step="0.01" id="min_amount" name="min_amount"
@@ -225,7 +260,7 @@
             </div>
 
             <div>
-                <label for="max_amount" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
+                <label for="max_amount" class="pm-field-label block text-gray-800 dark:text-gray-200 mb-1">
                     {{ __('admin.payments.f_max') }}
                 </label>
                 <input type="number" step="0.01" id="max_amount" name="max_amount"
@@ -237,7 +272,7 @@
         <p class="admin-hint mt-1">{{ __('admin.payments.f_limits_hint') }}</p>
 
         <div class="mt-4">
-            <label for="currencies" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
+            <label for="currencies" class="pm-field-label block text-gray-800 dark:text-gray-200 mb-1">
                 {{ __('admin.payments.f_currencies') }}
             </label>
             <input type="text" id="currencies" name="currencies"
@@ -246,6 +281,8 @@
             <p class="admin-hint mt-1">{{ __('admin.payments.f_currencies_hint') }}</p>
         </div>
     </section>
+    </div>
+
 
     <div class="flex flex-wrap items-center gap-2">
         <button type="submit"
@@ -263,7 +300,37 @@
 
 @push('styles')
 <style>
+/* Две колонки: описание метода и его реквизиты. `align-items:start`
+       обязателен — иначе короткая карточка растягивается до высоты
+       соседней и под ней висит пустая рамка. */
+    .pm-cols{ display:grid; gap:1rem; align-items:start; margin-bottom:1rem }
+    @media (min-width:1180px){ .pm-cols{ grid-template-columns:1.25fr 1fr } }
+
+    /* Типографика как на страницах входа и в кабинете: подписи полей и
+       заголовки секций — моноширинным, мелко, капсом, с крупным
+       просветом. Второй шрифт не нужен — системный моноширинный стек уже
+       используется в проекте для ключей и кодов. */
+    .pm-form label:not(.pm-type):not(.pm-check),
+    .pm-form h2{ font-family:ui-monospace, SFMono-Regular, Menlo, monospace }
+    .pm-form h2{ font-size:.7rem; letter-spacing:.12em }
+    .pm-form .pm-field-label{ font-size:.66rem; font-weight:700;
+        letter-spacing:.1em; text-transform:uppercase }
+
     .pm-types { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .5rem }
+
+    /* Место под знак системы: если файл положен — логотип, если нет —
+       значок способа оплаты. Размер один и тот же, чтобы ряд карточек не
+       прыгал по высоте. */
+    .pm-type__mark { display:flex; align-items:center; justify-content:center;
+        width:2.25rem; height:2.25rem; margin:0 auto .35rem }
+    .pm-type__mark img { width:100%; height:100%; object-fit:contain; display:block }
+    .pm-type__mark i { font-size:1.05rem; color:var(--pm, #6366f1) }
+
+    /* Выбранная карточка — в фирменном цвете системы, а не общим индиго:
+       так видно, что выбрано, ещё до чтения подписи. */
+    .pm-type.is-active { border-color: var(--pm, #6366f1);
+        box-shadow: 0 0 0 1px var(--pm, #6366f1),
+                    0 6px 16px color-mix(in srgb, var(--pm, #6366f1) 20%, transparent) }
     .pm-type {
         display: block; padding: .75rem; cursor: pointer; text-align: center;
         border: 1px solid #e5e7eb; background: #fff; transition: border-color .15s, box-shadow .15s;

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Банковский перевод">
+  <!--
+    Знак «банковский перевод»: здание банка и стрелка перевода. Рисуем
+    сами — обозначение категории, а не чужой товарный знак.
+
+    Файл назван по КОДУ метода (bank_transfer), а не по типу: наличные и
+    перевод заведены одним типом offline, и по типу их не различить.
+  -->
+  <defs>
+    <linearGradient id="bt-g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#38BDF8"/>
+      <stop offset="1" stop-color="#0284C7"/>
+    </linearGradient>
+  </defs>
+
+  <!-- крыша -->
+  <path d="M32 8 4 22h56L32 8Z" fill="url(#bt-g)"/>
+  <!-- колонны -->
+  <g fill="url(#bt-g)">
+    <rect x="11" y="26" width="7" height="20" rx="1.5"/>
+    <rect x="28.5" y="26" width="7" height="20" rx="1.5"/>
+    <rect x="46" y="26" width="7" height="20" rx="1.5"/>
+  </g>
+  <!-- основание -->
+  <rect x="4" y="49" width="56" height="7" rx="2.5" fill="#0369A1"/>
+  <!-- стрелка перевода -->
+  <path d="M20 37h18m0 0-5-5m5 5-5 5" fill="none" stroke="#F0F9FF" stroke-width="3.2"
+        stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

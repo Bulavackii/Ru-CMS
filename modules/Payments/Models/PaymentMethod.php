@@ -63,16 +63,28 @@ class PaymentMethod extends Model
      */
     public const LOGO_DIR = 'images/payments';
 
-    /** Логотип метода, если файл положен; иначе null. */
+    /**
+     * Логотип метода, если файл положен; иначе null.
+     *
+     * Сначала ищем по КОДУ, потом по типу. Наличные и банковский перевод
+     * заведены одним типом `offline`, но знак у них разный — по типу их не
+     * различить, а код у каждого свой.
+     */
     public function logoUrl(): ?string
     {
-        foreach (['svg', 'png', 'webp'] as $ext) {
-            $relative = self::LOGO_DIR . '/' . $this->type . '.' . $ext;
+        foreach ([$this->code, $this->type] as $key) {
+            if (blank($key)) {
+                continue;
+            }
 
-            if (is_file(public_path($relative))) {
-                // Метка времени в адресе: заменили файл — браузер увидит
-                // новый, а не свою старую копию.
-                return asset($relative) . '?v=' . filemtime(public_path($relative));
+            foreach (['svg', 'png', 'webp'] as $ext) {
+                $relative = self::LOGO_DIR . '/' . $key . '.' . $ext;
+
+                if (is_file(public_path($relative))) {
+                    // Метка времени в адресе: заменили файл — браузер увидит
+                    // новый, а не свою старую копию.
+                    return asset($relative) . '?v=' . filemtime(public_path($relative));
+                }
             }
         }
 
