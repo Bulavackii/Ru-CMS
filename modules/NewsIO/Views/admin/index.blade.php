@@ -133,7 +133,10 @@
           </div>
 
           <label class="flex items-center gap-2 sm:mt-6 text-gray-700 dark:text-gray-300">
-            <input type="checkbox" name="with_media" value="1" class="rounded border-gray-400 dark:border-gray-600">
+            <span class="admin-toggle">
+              <input type="checkbox" name="with_media" value="1">
+              <span class="track"></span><span class="knob"></span>
+            </span>
             <span class="text-sm">{{ __('admin.newsio.with_covers') }}</span>
           </label>
         </div>
@@ -167,45 +170,44 @@
             x-init="init()">
         @csrf
 
-        {{-- Drop-zone + Обзор --}}
-        <div
-          class="group relative rounded-xl border border-dashed border-gray-300 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-800/60 p-4 md:p-5"
-          :class="{'ring-2 ring-indigo-500 border-indigo-500': dragging}"
-          @dragenter.prevent="dragging = true"
-          @dragover.prevent="dragging = true"
-          @dragleave.prevent="dragging = false"
-          @drop.prevent="onDrop($event)">
+        {{-- Зона выбора файла.
+             Рамка была высотой в двести пикселей: слева пустой квадрат
+             192×160 под превью, справа кнопка и подпись. Превью там
+             показаться не могло НИКОГДА — оно рисуется только для
+             изображений (`onFile`), а поле принимает json, txt, csv и zip.
+             Вместо мёртвого квадрата — значок по расширению выбранного
+             файла: он и правда что-то сообщает. --}}
+        <div class="io-drop"
+             :class="{ 'is-over': dragging, 'has-file': fileName }"
+             @dragenter.prevent="dragging = true"
+             @dragover.prevent="dragging = true"
+             @dragleave.prevent="dragging = false"
+             @drop.prevent="onDrop($event)">
 
-          <div class="flex flex-col sm:flex-row gap-4">
-            <div class="w-full sm:w-48 h-40 rounded-lg overflow-hidden bg-white dark:bg-gray-900 grid place-items-center ring-1 ring-gray-100 dark:ring-gray-800">
-              <svg x-show="!previewUrl" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-gray-300" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M4 5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5Zm8-1.5V8h4.5L12 3.5Z"/>
-              </svg>
-              <img x-show="previewUrl" :src="previewUrl" class="w-full h-full object-cover" alt="preview">
-            </div>
+          <span class="io-drop__ico">
+            <i class="fas"
+               :class="!fileName ? 'fa-file-arrow-up'
+                     : (fileName.endsWith('.zip') ? 'fa-file-zipper'
+                     : (fileName.endsWith('.csv') ? 'fa-file-csv' : 'fa-file-code'))"></i>
+          </span>
 
-            <div class="flex-1">
-              <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">{{ __('admin.newsio.file') }}</label>
-
-              <input id="importFile" name="file" type="file" accept=".json,.txt,.csv,.zip" class="hidden" @change="onFile($event)" required>
-
-              <div class="flex items-center gap-3">
-                <button type="button"
-                        class="inline-flex items-center gap-2 px-4 h-10 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm transition"
-                        @click="openDialog()">
-                  <i class="fas fa-folder-open"></i> {{ __('admin.newsio.browse') }}
-                </button>
-                <span class="text-xs md:text-sm text-gray-500 truncate" x-text="fileName || 'Файл не выбран'"></span>
-              </div>
-
-              <p class="text-xs text-gray-500 mt-2">
-                {{ __('admin.newsio.file_hint') }}
-              </p>
-            </div>
+          <div class="io-drop__body">
+            <span class="io-drop__title">{{ __('admin.newsio.file') }}</span>
+            <span class="io-drop__name" x-text="fileName || @js(__('admin.newsio.no_file'))"></span>
+            <span class="io-drop__hint">{{ __('admin.newsio.file_hint') }}</span>
           </div>
 
-          {{-- кликабельный фон — откроет диалог выбора файла --}}
-          <button type="button" class="absolute inset-0 rounded-xl focus:outline-none" @click="openDialog()" aria-label="{{ __('admin.newsio.choose_file') }}"></button>
+          <input id="importFile" name="file" type="file" accept=".json,.txt,.csv,.zip"
+                 class="hidden" @change="onFile($event)" required>
+
+          <button type="button" class="io-btn io-btn--primary" @click="openDialog()">
+            <i class="fas fa-folder-open"></i> {{ __('admin.newsio.browse') }}
+          </button>
+
+          {{-- Кликабельный фон: открывает тот же диалог. Лежит ПОД кнопкой
+               по порядку, поэтому нажатие на саму кнопку не удваивается. --}}
+          <button type="button" class="io-drop__bg" @click="openDialog()"
+                  aria-label="{{ __('admin.newsio.choose_file') }}"></button>
         </div>
 
         {{-- Параметры совпадений --}}
@@ -233,7 +235,10 @@
           </div>
 
           <label class="flex items-center gap-2 sm:mt-6 text-gray-700 dark:text-gray-300">
-            <input type="checkbox" name="create_missing_cats" value="1" class="rounded border-gray-400 dark:border-gray-600">
+            <span class="admin-toggle">
+              <input type="checkbox" name="create_missing_cats" value="1">
+              <span class="track"></span><span class="knob"></span>
+            </span>
             <span class="text-sm">{{ __('admin.newsio.create_cats') }}</span>
           </label>
         </div>
@@ -259,12 +264,12 @@
 
         {{-- Ошибка dry-run --}}
         <template x-if="error">
-          <div class="border-l-4 border-red-500 bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 px-4 py-3 text-sm" x-text="error"></div>
+          <div class="border-l-4 border-red-500 io-note io-note--bad text-red-800 dark:text-red-200 px-4 py-3 text-sm" x-text="error"></div>
         </template>
 
         {{-- Результат dry-run. Палитры amber в сборке нет (см. CLAUDE.md) — берём indigo. --}}
         <template x-if="summary">
-          <div class="border-l-4 border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-gray-800 dark:text-gray-100 p-4 text-sm leading-6">
+          <div class="border-l-4 border-indigo-500 io-note io-note--info text-gray-800 dark:text-gray-100 p-4 text-sm leading-6">
             <div class="font-semibold mb-2 flex items-center gap-2">
               <i class="fas fa-circle-check text-green-600"></i> {{ __('admin.newsio.check_done') }}
             </div>
@@ -285,7 +290,7 @@
         {{-- Предупреждения dry-run: что пойдёт не так при импорте.
              Раньше сервер присылал сюда весь дамп записей, и блока не было вовсе. --}}
         <template x-if="warnings && warnings.length">
-          <div class="border-l-4 border-yellow-500 bg-yellow-50 dark:bg-yellow-900/30 text-yellow-900 dark:text-yellow-100 p-4 text-sm">
+          <div class="border-l-4 border-yellow-500 io-note io-note--warn text-yellow-900 dark:text-yellow-100 p-4 text-sm">
             <div class="font-semibold mb-2 flex items-center gap-2">
               <i class="fas fa-triangle-exclamation"></i>
               {{ __('admin.newsio.attention') }} (<span x-text="warnings.length"></span>):
@@ -300,7 +305,7 @@
 
         {{-- Ошибки импорта --}}
         @if(session('import_errors'))
-          <div class="border-l-4 border-red-500 bg-red-50 dark:bg-red-900/30 p-4 text-sm">
+          <div class="border-l-4 border-red-500 io-note io-note--bad p-4 text-sm">
             <div class="font-semibold mb-2 text-red-800 dark:text-red-200 flex items-center gap-2">
               <i class="fas fa-circle-exclamation"></i>
               Ошибки импорта (показано {{ min(5, session('import_errors_count', 0)) }} из {{ session('import_errors_count', 0) }}):
@@ -316,11 +321,16 @@
           </div>
         @endif
 
-        <div class="text-xs text-gray-500 leading-relaxed">
-          {{ __('admin.newsio.json_note') }}
-          <code>id, slug, title, content, template, published, cover, price, stock, is_promo, meta_title, meta_description, meta_keywords, meta_header, categories: [{id|slug|title}]</code>.<br>
-          {{ __('admin.newsio.csv_note') }} <code>categories</code> {{ __('admin.newsio.csv_list') }} <code>news,updates</code>.
-        </div>
+        {{-- Перечень полей свёрнут: это справка на один раз, а открытым он
+             занимал четыре строки моноширинного текста под кнопками. --}}
+        <details class="io-fields">
+          <summary>{{ __('admin.newsio.fields_ref') }}</summary>
+          <div class="io-fields__body">
+            {{ __('admin.newsio.json_note') }}
+            <code>id, slug, title, content, template, published, cover, price, stock, is_promo, meta_title, meta_description, meta_keywords, meta_header, categories: [{id|slug|title}]</code>.<br>
+            {{ __('admin.newsio.csv_note') }} <code>categories</code> {{ __('admin.newsio.csv_list') }} <code>news,updates</code>.
+          </div>
+        </details>
       </form>
     </section>
 
@@ -459,6 +469,61 @@
 {{-- Чипы выбора категорий: настоящий CSS-селектор input:checked, а не
      peer-checked (этого варианта в собранном tailwind.min.css нет — см. CLAUDE.md). --}}
 <style>
+  /* ── Зона выбора файла и заметки ──────────────────────────────────
+     Литеральный CSS: прозрачности через дробь (`bg-gray-50/70`,
+     `dark:bg-red-900/30`) в сборке проекта нет вовсе — подложки были
+     прозрачными, а рамки заметок висели без фона. */
+
+  .io-drop { position:relative; display:flex; flex-wrap:wrap; align-items:center; gap:.9rem;
+             padding:.9rem 1rem; background:#f9fafb; border:1px dashed #cbd5e1;
+             transition:border-color .15s, box-shadow .15s }
+  .io-drop:hover { border-color:var(--admin-primary) }
+  .io-drop.is-over { border-color:var(--admin-primary);
+                     box-shadow:0 0 0 3px color-mix(in srgb, var(--admin-primary) 20%, transparent) }
+  .dark .io-drop { background:#111827; border-color:#374151 }
+
+  .io-drop__ico { display:inline-flex; align-items:center; justify-content:center; flex:none;
+                  width:2.6rem; height:2.6rem; font-size:1rem;
+                  color:var(--admin-primary);
+                  background:color-mix(in srgb, var(--admin-primary) 12%, transparent);
+                  border:1px solid color-mix(in srgb, var(--admin-primary) 25%, transparent) }
+  .io-drop.has-file .io-drop__ico { color:var(--admin-on-primary,#fff); background:var(--admin-primary);
+                                    border-color:var(--admin-primary) }
+
+  .io-drop__body { display:flex; flex-direction:column; gap:.1rem; flex:1; min-width:12rem }
+  .io-drop__title { font-size:.8rem; font-weight:600; color:#374151 }
+  .dark .io-drop__title { color:#d1d5db }
+  .io-drop__name { font-size:.82rem; color:#6b7280; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+  .io-drop.has-file .io-drop__name { font-weight:600; color:var(--admin-primary) }
+  .io-drop__hint { font-size:.72rem; line-height:1.4; color:#9ca3af }
+
+  /* Фон-кнопка лежит ниже настоящих кнопок по слою, поэтому нажатие на
+     «Обзор» не срабатывает дважды. */
+  .io-drop__bg { position:absolute; inset:0; z-index:0; background:none; border:0; cursor:pointer }
+  .io-drop > *:not(.io-drop__bg) { position:relative; z-index:1 }
+
+  .io-btn { display:inline-flex; align-items:center; gap:.45rem; padding:.5rem .85rem; flex:none;
+            font-size:.8rem; font-weight:600; cursor:pointer;
+            color:#374151; background:#fff; border:1px solid #d1d5db }
+  .io-btn--primary { color:var(--admin-on-primary,#fff); background:var(--admin-primary);
+                     border-color:var(--admin-primary) }
+  .io-btn--primary:hover { filter:brightness(1.08) }
+
+  .io-note { }
+  .io-note--bad { background:#fef2f2 }
+  .io-note--warn { background:#fffbeb }
+  .io-note--info { background:#eef2ff }
+  .dark .io-note--bad { background:#3f1d1d }
+  .dark .io-note--warn { background:#3b2f10 }
+  .dark .io-note--info { background:#1e1b4b }
+
+  .io-fields { font-size:.72rem; color:#6b7280 }
+  .io-fields summary { cursor:pointer; font-weight:600; color:#4b5563; user-select:none }
+  .io-fields summary:hover { color:var(--admin-primary) }
+  .io-fields__body { margin-top:.5rem; line-height:1.6 }
+  .io-fields code { font-size:.7rem; word-break:break-word }
+  .dark .io-fields summary { color:#d1d5db }
+
   .cat-picker .cat-chip{ display:inline-flex; cursor:pointer; user-select:none; }
   .cat-picker .cat-chip-body{
       display:inline-flex; align-items:center; gap:.45rem;

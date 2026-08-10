@@ -1590,6 +1590,8 @@ return [
         'csv_list' => '— a comma-separated list (slug), for example:',
         'news_in_cat' => 'Articles in the category:',
         'choose_file' => 'Choose a file',
+        'no_file' => 'No file chosen',
+        'fields_ref' => 'Which fields the import understands',
     ],
 
     'localization' => [
