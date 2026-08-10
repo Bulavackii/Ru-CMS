@@ -146,11 +146,23 @@
              занимали всю ширину карточки и не говорили, что будет после
              нажатия; под ними оставалась пустота в половину блока. --}}
         <div class="acc-links">
+            {{-- Плашки в строках показывают то, что и правда известно из
+                 базы: сколько полей профиля заполнено и когда был последний
+                 вход. Раньше строки отличались только подписью, и понять,
+                 куда стоит зайти, можно было только зайдя. --}}
+            @php
+                $profileFields = ['phone', 'address', 'zip', 'vk', 'max'];
+                $profileFilled = count(array_filter($profileFields, fn ($f) => filled($user->$f)));
+            @endphp
+
             <a href="{{ route('dashboard.edit') }}" class="acc-link">
                 <span class="acc-link__ico"><i class="fas fa-pen"></i></span>
                 <span class="acc-link__body">
                     <span class="acc-link__title">{{ __('frontend.account.edit') }}</span>
                     <span class="acc-link__note">{{ __('frontend.account.edit_note') }}</span>
+                </span>
+                <span class="acc-state {{ $profileFilled === count($profileFields) ? 'is-on' : '' }}">
+                    {{ $profileFilled }}/{{ count($profileFields) }}
                 </span>
                 <i class="fas fa-chevron-right acc-link__arrow"></i>
             </a>
@@ -203,6 +215,9 @@
                         <span class="acc-link__title">{{ __('frontend.account.login_history') }}</span>
                         <span class="acc-link__note">{{ __('frontend.account.login_history_note') }}</span>
                     </span>
+                    @if ($user->last_login_at)
+                        <span class="acc-state">{{ $user->last_login_at->format('d.m.Y') }}</span>
+                    @endif
                     <i class="fas fa-chevron-right acc-link__arrow"></i>
                 </a>
             @endif
@@ -363,6 +378,19 @@
 
     /* Действия — строки со значком и пояснением. Ряд одинаковых кнопок не
        говорил, что будет после нажатия, и занимал всю ширину карточки. */
+/* ── Типографика как на страницах входа ───────────────────────────
+       Заголовки разделов — моноширинным, мелко, капсом, с крупным
+       просветом; обращение по имени крупнее и с плотным трекингом. Второй
+       шрифт не нужен: системный моноширинный стек уже используется в
+       проекте для ключей и кодов. */
+    .fx-section-title{ font-size:clamp(1.5rem, 3.4vw, 1.95rem); line-height:1.08; letter-spacing:-.03em }
+    .acc-h2{ font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
+             font-size:.68rem; letter-spacing:.12em }
+    .acc-stat__label{ font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
+             font-size:.64rem; letter-spacing:.1em }
+    .acc-list dt{ font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
+             font-size:.68rem; letter-spacing:.06em; text-transform:uppercase }
+
     .acc-links{ display:grid; gap:.4rem }
     .acc-link{ display:flex; align-items:center; gap:.7rem; padding:.6rem .65rem;
                text-decoration:none; color:inherit; border:1px solid var(--surface-bd,#eef2f7);
