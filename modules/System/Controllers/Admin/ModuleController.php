@@ -24,12 +24,17 @@ class ModuleController extends Controller
     {
         $query = Module::query();
 
-        // Поиск по названию
+        // Поиск по названию.
+        // ⚠️ На PostgreSQL оператор LIKE регистрозависимый: запрос «меню» не
+        // находил модуль «Меню», и поиск выглядел сломанным. Оператор
+        // выбирается по драйверу — тот же приём, что в подборщике медиатеки.
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('title', 'like', "%{$search}%");
+            $like = \Illuminate\Support\Facades\DB::connection()->getDriverName() === 'pgsql' ? 'ilike' : 'like';
+
+            $query->where(function ($q) use ($search, $like) {
+                $q->where('name', $like, "%{$search}%")
+                  ->orWhere('title', $like, "%{$search}%");
             });
         }
 
@@ -58,7 +63,17 @@ class ModuleController extends Controller
             }
         }
 
-        $modules = $query->orderBy('priority')->get()->map(function ($module) {
+        // Сводка считается по ВСЕЙ выборке, а не по странице: иначе на
+        // второй странице «Всего» и «Активных» показывали бы её содержимое.
+        $totalCount = (clone $query)->count();
+        $activeCount = (clone $query)->where('active', true)->count();
+
+        $perPage = (int) $request->get('per_page', 10);
+        $perPage = in_array($perPage, [10, 20, 50, 100], true) ? $perPage : 10;
+
+        $modules = $query->orderBy('priority')->paginate($perPage)->withQueryString();
+
+        $modules->getCollection()->transform(function ($module) {
             $module->is_installed = is_dir(base_path("modules/{$module->name}"));
             $module->is_signed = \Modules\System\Models\ModuleSignature::where('module_name', $module->name)->exists();
             $module->is_protected = ProtectedModulesService::isProtected($module->name);
@@ -67,7 +82,15 @@ class ModuleController extends Controller
             return $module;
         });
 
-        return view('admin.modules', compact('modules'));
+        // Эти два счёта требуют проверки файлов и списка защищённых, поэтому
+        // считаются по именам всей выборки, а не запросом.
+        $allNames = (clone $query)->pluck('name');
+        $missingCount = $allNames->filter(fn ($name) => ! is_dir(base_path("modules/{$name}")))->count();
+        $protectedCount = $allNames->filter(fn ($name) => ProtectedModulesService::isProtected($name))->count();
+
+        return view('admin.modules', compact(
+            'modules', 'totalCount', 'activeCount', 'missingCount', 'protectedCount'
+        ));
     }
 
     /**
