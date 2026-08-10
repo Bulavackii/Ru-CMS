@@ -147,7 +147,7 @@
     }
     .acc-btn-ghost{ border:1px solid var(--surface-bd,#e5e7eb); background:var(--surface,#fff); color:var(--surface-ink,#374151);
                     transition:border-color .15s, color .15s, background .15s }
-    .acc-btn-ghost:hover{ border-color:#a5b4fc; color:var(--color-primary, #4f46e5); background:var(--surface-2,#f8fafc) }
+    .acc-btn-ghost:hover{ border-color:color-mix(in srgb, var(--color-primary,#6366f1) 55%, var(--surface,#fff)); color:var(--color-primary, #4f46e5); background:var(--surface-2,#f8fafc) }
     .acc-actions .fx-btn:active,
     .acc-actions .acc-btn-ghost:active{ transform:translateY(1px) }
 

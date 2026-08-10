@@ -163,6 +163,22 @@
 
     /* Один источник ширины на шапку и форму: раньше 52rem стояло в двух
        местах и разъехалось бы при первой же правке. */
+/* ── Типографика как на страницах входа ───────────────────────────
+       Подписи полей и заголовки разделов — моноширинным, мелко, капсом,
+       с крупным просветом. Второй «шрифт» бесплатный: системный
+       моноширинный стек уже показывает в проекте ключи и коды, ничего
+       дозагружать не нужно. Заголовок страницы — крупнее и с плотным
+       трекингом, как «Вход». */
+
+    .fx-section-title{ font-size:clamp(1.5rem, 3.4vw, 1.95rem); line-height:1.08; letter-spacing:-.03em }
+
+    .acc-h2{ font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
+             font-size:.68rem; letter-spacing:.12em }
+
+    .acc-fields label{ font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
+                       font-size:.66rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+                       color:color-mix(in srgb, var(--surface-ink,#111827) 74%, var(--surface,#fff)) }
+
     .acc-form, .acc-head{ --acc-w:52rem }
     @media (min-width:1280px){ .acc-form, .acc-head{ --acc-w:68rem } }
     @media (min-width:1600px){ .acc-form, .acc-head{ --acc-w:78rem } }
@@ -197,7 +213,7 @@
     }
     .acc-btn-ghost{ border:1px solid var(--surface-bd,#e5e7eb); background:var(--surface,#fff); color:var(--surface-ink,#374151);
                     transition:border-color .15s, color .15s, background .15s }
-    .acc-btn-ghost:hover{ border-color:#a5b4fc; color:var(--color-primary, #4f46e5); background:var(--surface-2,#f8fafc) }
+    .acc-btn-ghost:hover{ border-color:color-mix(in srgb, var(--color-primary,#6366f1) 55%, var(--surface,#fff)); color:var(--color-primary, #4f46e5); background:var(--surface-2,#f8fafc) }
     .acc-actions .fx-btn:active,
     .acc-actions .acc-btn-ghost:active{ transform:translateY(1px) }
 
@@ -207,9 +223,10 @@
         .acc-actions .acc-btn-ghost{ white-space:normal; width:100% }
     }
 
-    @media (prefers-color-scheme: dark){
-        .acc-check{ color:#d1d5db }
-        .acc-btn-ghost{ background:transparent; border-color:#374151; color:#d1d5db }
-    }
+    /* ⚠️ Здесь стоял блок @media (prefers-color-scheme: dark) —
+       это настройка ОПЕРАЦИОННОЙ СИСТЕМЫ, а не тема сайта. При
+       тёмной системе и светлой теме он перекрашивал кнопку «Назад»
+       в #d1d5db на белой подложке, и надпись почти не читалась.
+       Правила выше и так выведены из переменных темы. */
 </style>
 @endpush

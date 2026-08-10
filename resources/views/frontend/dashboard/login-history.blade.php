@@ -95,7 +95,7 @@
     .acc-btn-ghost{ display:inline-flex; align-items:center; gap:.5rem; padding:.55rem 1rem;
                     border:1px solid var(--surface-bd,#e5e7eb); background:var(--surface,#fff); color:var(--surface-ink,#374151);
                     font-size:.85rem; font-weight:600 }
-    .acc-btn-ghost:hover{ border-color:#a5b4fc; color:var(--color-primary, #4f46e5) }
+    .acc-btn-ghost:hover{ border-color:color-mix(in srgb, var(--color-primary,#6366f1) 55%, var(--surface,#fff)); color:var(--color-primary, #4f46e5) }
 
     .lh-total{ font-size:.85rem; color:var(--surface-mute,#6b7280); margin-bottom:.9rem }
 
@@ -128,11 +128,10 @@
 
     .lh-pager{ margin-top:1rem }
 
-    @media (prefers-color-scheme: dark){
-        .lh-row, .acc-btn-ghost{ background:transparent; border-color:#374151 }
-        .lh-empty__title{ color:#f3f4f6 }
-        .lh-ip{ background:transparent; border-color:#374151; color:#d1d5db }
-        .acc-btn-ghost{ color:#d1d5db }
-    }
+    /* ⚠️ Здесь стоял блок @media (prefers-color-scheme: dark) —
+       это настройка ОПЕРАЦИОННОЙ СИСТЕМЫ, а не тема сайта. При
+       тёмной системе и светлой теме он перекрашивал кнопку «Назад»
+       в #d1d5db на белой подложке, и надпись почти не читалась.
+       Правила выше и так выведены из переменных темы. */
 </style>
 @endpush
