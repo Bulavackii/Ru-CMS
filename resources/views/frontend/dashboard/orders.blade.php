@@ -3,6 +3,17 @@
 @section('title', 'Мои заказы')
 
 @section('content')
+@php
+    // Подписи статусов — из словаря, тот же набор, что в кабинете.
+    // Раньше здесь печаталось сырое значение из базы.
+    $statusLabels = [
+        'pending' => __('frontend.account.st_pending'),
+        'paid' => __('frontend.account.st_paid'),
+        'completed' => __('frontend.account.st_completed'),
+        'cancelled' => __('frontend.account.st_cancelled'),
+        'canceled' => __('frontend.account.st_cancelled'),
+    ];
+@endphp
     <h1 class="text-2xl font-bold mb-6 text-center">📋 {{ __('frontend.account.my_orders') }}</h1>
 
     @if ($orders->count())
@@ -35,12 +46,27 @@
                                 @endif
                             </td>
                             <td class="px-3 py-2 whitespace-nowrap">
+                                {{-- ⚠️ Здесь выводился ucfirst($order->status): покупатель
+                                     на русском языке видел «Completed» и «Pending» —
+                                     сырое значение из базы. Подписи берутся из того же
+                                     словаря, что и в кабинете.
+
+                                     Классы тоже собирались строкой: bg-{$color}-100.
+                                     Tailwind таких имён не видит при сборке, и держалось
+                                     это только на том, что нужные классы случайно есть в
+                                     полном бандле. Плюс в списке цветов стоял `canceled`
+                                     с одной «l», а в базе встречается и `cancelled` —
+                                     отменённый заказ красился серым. Теперь цвет
+                                     выбирается явно. --}}
                                 @php
-                                    $colors = ['pending' => 'gray', 'paid' => 'green', 'canceled' => 'red'];
-                                    $color = $colors[$order->status] ?? 'gray';
+                                    $tone = match ($order->status) {
+                                        'completed', 'paid' => 'ok',
+                                        'cancelled', 'canceled' => 'bad',
+                                        default => 'wait',
+                                    };
                                 @endphp
-                                <span class="inline-block px-2 py-1 text-xs rounded-full bg-{{ $color }}-100 text-{{ $color }}-800">
-                                    {{ ucfirst($order->status) }}
+                                <span class="ord-status ord-status--{{ $tone }}">
+                                    {{ $statusLabels[$order->status] ?? __('frontend.account.st_unknown') }}
                                 </span>
                             </td>
                             <td class="px-3 py-2 whitespace-nowrap">{{ $order->created_at->format('d.m.Y H:i') }}</td>
@@ -57,3 +83,15 @@
         <p class="text-gray-500 text-center">{{ __('frontend.account.orders_empty') }}</p>
     @endif
 @endsection
+
+@push('styles')
+<style>
+    /* Литеральный CSS вместо классов, собранных строкой: Tailwind не видит
+       имена вида bg-{$color}-100 при сборке. */
+    .ord-status{ display:inline-block; padding:.15rem .5rem; font-size:.72rem; font-weight:700;
+                 white-space:nowrap; border:1px solid }
+    .ord-status--ok{ color:#15803d; background:#dcfce7; border-color:#86efac }
+    .ord-status--bad{ color:#b91c1c; background:#fee2e2; border-color:#fca5a5 }
+    .ord-status--wait{ color:#92400e; background:#fef3c7; border-color:#fcd34d }
+</style>
+@endpush

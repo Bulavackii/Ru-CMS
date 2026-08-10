@@ -291,9 +291,14 @@
             <b>{{ __('frontend.account.orders_empty') }}</b>
             {{ __('frontend.account.orders_none_hint') }}
         </span>
-        <a href="{{ route('news.index') }}" class="fx-btn acc-invite__go">
-            <i class="fas fa-store"></i> {{ __('frontend.account.to_catalog') }}
-        </a>
+        <span class="acc-invite__go">
+            <a href="{{ route('news.index') }}" class="fx-btn">
+                <i class="fas fa-store"></i> {{ __('frontend.account.to_catalog') }}
+            </a>
+            <a href="{{ route('cart.index') }}" class="acc-btn-ghost">
+                <i class="fas fa-cart-shopping"></i> {{ __('frontend.account.to_cart') }}
+            </a>
+        </span>
     </div>
 @endif
 
@@ -414,12 +419,21 @@
     .acc-invite{ display:flex; flex-wrap:wrap; align-items:center; gap:.9rem;
         padding:.9rem 1.1rem;
         background:var(--surface,#fff); border:1px solid var(--surface-bd,#eef2f7) }
+    /* Плитка со значком — как у строк «Действий»: мягкая подложка из
+       акцента и сам акцент на глифе. Сплошной градиентный квадрат бил в
+       глаза сильнее, чем строка, ради которой он стоит, и выбивался из
+       ряда остальных плиток кабинета. */
     .acc-invite__ico{ display:inline-flex; align-items:center; justify-content:center; flex:none;
-        width:2.4rem; height:2.4rem; font-size:.95rem; color:var(--on-accent,#fff);
-        background:linear-gradient(135deg,var(--color-primary,#6366f1),var(--color-accent,#8b5cf6)) }
+        width:2.4rem; height:2.4rem; font-size:.95rem;
+        color:var(--color-primary,#6366f1);
+        background:color-mix(in srgb, var(--color-primary,#6366f1) 12%, transparent);
+        border:1px solid color-mix(in srgb, var(--color-primary,#6366f1) 22%, transparent) }
     .acc-invite__text{ flex:1; min-width:14rem; font-size:.85rem; color:var(--surface-mute,#6b7280) }
     .acc-invite__text b{ color:var(--surface-ink,#111827) }
-    .acc-invite__go{ flex:none; margin-left:auto }
+    .acc-invite__go{ display:inline-flex; flex-wrap:wrap; gap:.5rem; flex:none; margin-left:auto }
+    .acc-invite__go .fx-btn,
+    .acc-invite__go .acc-btn-ghost{ display:inline-flex; align-items:center; gap:.45rem;
+        padding:.5rem 1rem; font-size:.82rem; font-weight:600; white-space:nowrap }
 
     /* Сети в шапке отодвигаются вправо и переносятся на своём месте. */
     .acc-head__socials{ margin-left:auto; flex:none }
