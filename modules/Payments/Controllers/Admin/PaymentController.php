@@ -14,7 +14,10 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        $methods = PaymentMethod::orderBy('sort_order')->orderBy('id')->paginate(5);
+        // Постраничный вывод убран: способов оплаты у сайта единицы, а
+        // разбиение по пять штук прятало половину списка на вторую
+        // страницу и мешало окинуть взглядом, что вообще подключено.
+        $methods = PaymentMethod::orderBy('sort_order')->orderBy('id')->get();
 
         return view('Payments::admin.index', compact('methods'));
     }

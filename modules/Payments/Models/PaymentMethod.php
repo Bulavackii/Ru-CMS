@@ -24,6 +24,51 @@ class PaymentMethod extends Model
     // ?? Название таблицы в БД
     protected $table = 'payment_methods';
 
+    /**
+     * 🎨 Оформление метода: фирменный цвет и значок.
+     *
+     * Цвета — корпоративные, публично известные: это факт, а не товарный
+     * знак. Сами ЛОГОТИПЫ здесь намеренно не воспроизводятся: это чужие
+     * знаки, их нельзя просто нарисовать по памяти, а качать в рантайме
+     * проекту нельзя — он работает и без интернета (см. «Независимость от
+     * внешних служб» в CLAUDE.md). Вместо логотипа — значок, который
+     * говорит о СПОСОБЕ оплаты: карта, QR, телефон, наличные, перевод.
+     *
+     * Цвет надписи на плитке не задаётся руками: его считает readable_ink()
+     * по яркости фона. Иначе на жёлтом Т-Банке белые буквы дали бы
+     * контраст около 1.5.
+     */
+    public const BRANDS = [
+        'yookassa'      => ['color' => '#8B3FFD', 'icon' => 'fa-wallet'],
+        'sbp'           => ['color' => '#5B2D8E', 'icon' => 'fa-qrcode'],
+        'sberpay'       => ['color' => '#21A038', 'icon' => 'fa-mobile-screen-button'],
+        'sberbank'      => ['color' => '#21A038', 'icon' => 'fa-credit-card'],
+        'tbank'         => ['color' => '#FFDD2D', 'icon' => 'fa-credit-card'],
+        'tinkoff'       => ['color' => '#FFDD2D', 'icon' => 'fa-credit-card'],
+        'cloudpayments' => ['color' => '#0091FF', 'icon' => 'fa-cloud'],
+        'robokassa'     => ['color' => '#12B34A', 'icon' => 'fa-robot'],
+        'qiwi'          => ['color' => '#FF8C00', 'icon' => 'fa-wallet'],
+        'online'        => ['color' => '#6366F1', 'icon' => 'fa-credit-card'],
+        'offline'       => ['color' => '#64748B', 'icon' => 'fa-money-bill-wave'],
+        'transfer'      => ['color' => '#0EA5E9', 'icon' => 'fa-building-columns'],
+    ];
+
+    /** Оформление этого метода; для незнакомого типа — нейтральное. */
+    public function brand(): array
+    {
+        $brand = self::BRANDS[$this->type] ?? ['color' => '#6366F1', 'icon' => 'fa-credit-card'];
+
+        // Банковский перевод заводится типом offline, но выглядеть как
+        // наличные не должен: у него своё дело и свой значок.
+        if ($this->type === 'offline' && str_contains(mb_strtolower((string) $this->title), 'перевод')) {
+            $brand = self::BRANDS['transfer'];
+        }
+
+        $brand['ink'] = readable_ink($brand['color']);
+
+        return $brand;
+    }
+
     // ?? Разрешённые к массовому заполнению поля
     protected $fillable = [
         'title',        // ??? Название метода оплаты
