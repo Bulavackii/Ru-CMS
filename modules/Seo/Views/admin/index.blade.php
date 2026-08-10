@@ -76,86 +76,68 @@
   </div>
 @endif
 
-{{-- ── Сводка ── --}}
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+{{-- ── Сводка ──
+     Четыре карточки во всю высоту занимали 110 пикселей ради четырёх
+     чисел. Те же числа и подсказки — одной полосой. --}}
+<div class="seo-summary mb-4">
   @foreach([
-      [__('admin.seo.stat_urls'), $stats['total'], 'fa-list', __('admin.seo.stat_urls_hint')],
-      [__('admin.seo.stat_noindex'), $stats['noindex'], 'fa-eye-slash', 'noindex'],
-      [__('admin.seo.stat_locked'), $stats['locked'], 'fa-lock', __('admin.seo.stat_locked_hint')],
-      [__('admin.seo.stat_problems'), $stats['problems'], 'fa-triangle-exclamation', __('admin.seo.stat_problems_hint')],
-  ] as [$label, $value, $icon, $hint])
-    <div class="admin-card p-4">
-      <div class="flex items-center gap-2 text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
-        <i class="fas {{ $icon }} text-indigo-500"></i> {{ $label }}
-      </div>
-      <div class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $value }}</div>
-      <div class="text-xs text-gray-400 dark:text-gray-500 mt-1">{{ $hint }}</div>
-    </div>
+      [__('admin.seo.stat_urls'), $stats['total'], 'fa-list', __('admin.seo.stat_urls_hint'), ''],
+      [__('admin.seo.stat_noindex'), $stats['noindex'], 'fa-eye-slash', 'noindex', $stats['noindex'] ? 'is-warn' : ''],
+      [__('admin.seo.stat_locked'), $stats['locked'], 'fa-lock', __('admin.seo.stat_locked_hint'), ''],
+      [__('admin.seo.stat_problems'), $stats['problems'], 'fa-triangle-exclamation', __('admin.seo.stat_problems_hint'), $stats['problems'] ? 'is-bad' : ''],
+  ] as [$label, $value, $icon, $hint, $tone])
+    <span class="seo-stat {{ $tone }}" title="{{ $hint }}">
+      <i class="fas {{ $icon }}"></i>
+      <span class="seo-stat__label">{{ $label }}</span>
+      <b class="seo-stat__value">{{ $value }}</b>
+    </span>
   @endforeach
 </div>
 
-{{-- ── Служебные инструменты ── --}}
-<div class="admin-card p-4 mb-5">
-  <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-2">
-    <i class="fas fa-screwdriver-wrench text-indigo-500"></i> {{ __('admin.seo.tools') }}
-  </h2>
-  <div class="flex flex-wrap items-center gap-2">
-    <form action="{{ route('seo.sitemaps.rebuild') }}" method="post" class="inline">
-      @csrf
-      <button class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
-                     hover:border-indigo-400 hover:text-indigo-600 px-3 py-2 text-sm transition">
-        <i class="fas fa-sitemap"></i> {{ __('admin.seo.rebuild_sitemap') }}
-      </button>
-    </form>
+{{-- ── Служебные инструменты ──
+     Были карточкой с надписью «Инструменты» над рядом кнопок: заголовок
+     занимал строку, а сами кнопки и так подписаны. --}}
+<div class="seo-tools mb-4">
+  <form action="{{ route('seo.sitemaps.rebuild') }}" method="post" class="inline">
+    @csrf
+    <button class="seo-tool"><i class="fas fa-sitemap"></i> {{ __('admin.seo.rebuild_sitemap') }}</button>
+  </form>
 
-    <a href="{{ route('seo.sitemaps.index') }}"
-       class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
-              hover:border-indigo-400 hover:text-indigo-600 px-3 py-2 text-sm transition">
-      <i class="fas fa-gauge"></i> {{ __('admin.seo.sitemap_state') }}
-    </a>
+  <a href="{{ route('seo.sitemaps.index') }}" class="seo-tool">
+    <i class="fas fa-gauge"></i> {{ __('admin.seo.sitemap_state') }}
+  </a>
 
-    <a href="{{ route('seo.sitemap.xml') }}" target="_blank" rel="noopener"
-       class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
-              hover:border-indigo-400 hover:text-indigo-600 px-3 py-2 text-sm transition">
-      <i class="fas fa-file-code"></i> sitemap.xml
-    </a>
+  <a href="{{ route('seo.sitemap.xml') }}" target="_blank" rel="noopener" class="seo-tool">
+    <i class="fas fa-file-code"></i> sitemap.xml
+  </a>
 
-    <a href="{{ route('seo.robots.edit') }}"
-       class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
-              hover:border-indigo-400 hover:text-indigo-600 px-3 py-2 text-sm transition">
-      <i class="fas fa-robot"></i> robots.txt
-    </a>
+  <a href="{{ route('seo.robots.edit') }}" class="seo-tool">
+    <i class="fas fa-robot"></i> robots.txt
+  </a>
 
-    <a href="{{ route('seo.redirects.index') }}"
-       class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
-              hover:border-indigo-400 hover:text-indigo-600 px-3 py-2 text-sm transition">
-      <i class="fas fa-signs-post"></i> {{ __('admin.seo.redirects') }}
-    </a>
+  <a href="{{ route('seo.redirects.index') }}" class="seo-tool">
+    <i class="fas fa-signs-post"></i> {{ __('admin.seo.redirects') }}
+  </a>
 
-    <span class="mx-1 h-6 w-px bg-gray-200 dark:bg-gray-700"></span>
+  <span class="seo-tools__sep"></span>
 
-    <a href="https://webmaster.yandex.ru/" target="_blank" rel="noopener"
-       class="inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-indigo-600 transition">
-      <i class="fas fa-arrow-up-right-from-square text-xs"></i> {{ __('admin.seo.webmaster') }}
-    </a>
-    <a href="https://search.google.com/search-console" target="_blank" rel="noopener"
-       class="inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-indigo-600 transition">
-      <i class="fas fa-arrow-up-right-from-square text-xs"></i> Google Search Console
-    </a>
-  </div>
+  <a href="https://webmaster.yandex.ru/" target="_blank" rel="noopener" class="seo-tool seo-tool--link">
+    <i class="fas fa-arrow-up-right-from-square"></i> {{ __('admin.seo.webmaster') }}
+  </a>
+  <a href="https://search.google.com/search-console" target="_blank" rel="noopener" class="seo-tool seo-tool--link">
+    <i class="fas fa-arrow-up-right-from-square"></i> Google Search Console
+  </a>
 </div>
 
 {{-- ── Фильтры (одной карточкой, работают на сервере) ── --}}
-<form method="GET" action="{{ route('seo.pages.index') }}" class="admin-card p-5 mb-5">
-  <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
-    <i class="fas fa-filter text-indigo-500"></i> {{ __('admin.common.filters') }}
-  </h2>
-
-  <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-    <div class="md:col-span-3">
-      <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.header.search') }}</label>
+{{-- Заголовок «Фильтры» и подписи полей убраны: строка поиска и список
+     «на странице» узнаются без подписей, а карточка из-за них была на
+     полторы сотни пикселей выше. --}}
+<form method="GET" action="{{ route('seo.pages.index') }}" class="admin-card seo-filters mb-4">
+  <div class="seo-filters__row">
+    <div class="seo-filters__search">
       <div class="relative">
-        <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+        <svg class="seo-filters__ico"
              width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path>
@@ -166,16 +148,21 @@
       </div>
     </div>
 
-    <div>
-      <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{{ __('admin.seo.per_page') }}</label>
-      <select name="per_page"
-              class="w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
-                     focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
-        @foreach([10, 25, 50, 100] as $n)
-          <option value="{{ $n }}" @selected((int) $perPageParam === $n)>{{ $n }}</option>
-        @endforeach
-      </select>
-    </div>
+    <select name="per_page" class="seo-perpage" title="{{ __('admin.seo.per_page') }}">
+      @foreach([10, 25, 50, 100] as $n)
+        <option value="{{ $n }}" @selected((int) $perPageParam === $n)>{{ $n }}</option>
+      @endforeach
+    </select>
+
+    <button type="submit" class="seo-apply">
+      <i class="fas fa-magnifying-glass"></i> {{ __('admin.common.apply') }}
+    </button>
+
+    @if($hasFilters)
+      <a href="{{ route('seo.pages.index') }}" class="seo-tool">
+        <i class="fas fa-rotate-left"></i> {{ __('admin.users.reset') }}
+      </a>
+    @endif
   </div>
 
   {{-- Значения фильтров-чипов переносим в форму, чтобы поиск их не сбрасывал --}}
@@ -183,7 +170,7 @@
   <input type="hidden" name="follow" value="{{ $followFilter }}">
   <input type="hidden" name="meta" value="{{ implode(',', $metaFilter) }}">
 
-  <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+  <div class="seo-filters__chips">
     <span class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ __('admin.seo.indexing_f') }}</span>
     <span class="flex items-center gap-1">
       @foreach(['' => __('admin.common.all'), '1' => 'index', '0' => 'noindex'] as $value => $label)
@@ -214,19 +201,6 @@
     </span>
   </div>
 
-  <div class="mt-4 flex flex-wrap items-center gap-2">
-    <button type="submit"
-            class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition">
-      <i class="fas fa-magnifying-glass"></i> {{ __('admin.common.apply') }}
-    </button>
-    @if($hasFilters)
-      <a href="{{ route('seo.pages.index') }}"
-         class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
-                hover:bg-gray-100 dark:hover:bg-gray-800 px-4 py-2 text-sm font-semibold transition">
-        <i class="fas fa-rotate-left"></i> {{ __('admin.users.reset') }}
-      </a>
-    @endif
-  </div>
 </form>
 
 @if($items->isEmpty())
@@ -276,7 +250,11 @@
        Форма оборачивает только панель: чекбоксы в таблице привязаны к ней
        атрибутом form, иначе они оказались бы внутри форм строк (вложенные
        формы HTML запрещает). --}}
-  <form method="POST" action="{{ route('seo.pages.bulk') }}" id="seoBulkForm" class="admin-card p-4 mb-4">
+  {{-- Панель появляется, только когда что-то отмечено: пустая она занимала
+       семьдесят пикселей на каждом заходе и предлагала действие без цели.
+       Тот же приём, что в медиатеке. --}}
+  <form method="POST" action="{{ route('seo.pages.bulk') }}" id="seoBulkForm"
+        class="admin-card p-4 mb-4 seo-bulk" hidden>
     @csrf
     <div class="flex flex-wrap items-center gap-2">
       <span class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ __('admin.seo.with_selected') }}</span>
@@ -445,6 +423,68 @@
 
 @push('styles')
 <style>
+  /* ── Сжатая шапка списка ──────────────────────────────────────────
+     Литеральный CSS: в сборке проекта нет ни прозрачности через дробь,
+     ни произвольных значений. */
+
+  .seo-summary{ display:flex; flex-wrap:wrap; gap:.5rem }
+  .seo-stat{ display:inline-flex; align-items:center; gap:.45rem;
+      padding:.4rem .7rem; font-size:.8rem; color:#4b5563;
+      background:#f9fafb; border:1px solid #e5e7eb }
+  .seo-stat i{ color:#9ca3af }
+  .seo-stat__label{ text-transform:uppercase; letter-spacing:.05em; font-size:.68rem; font-weight:700; color:#6b7280 }
+  .seo-stat__value{ font-size:.95rem; font-weight:800; color:#111827 }
+  .seo-stat.is-warn{ background:#fffbeb; border-color:#f0d9a8 }
+  .seo-stat.is-warn i, .seo-stat.is-warn .seo-stat__value{ color:#b45309 }
+  .seo-stat.is-bad{ background:#fef2f2; border-color:#fecaca }
+  .seo-stat.is-bad i, .seo-stat.is-bad .seo-stat__value{ color:#b91c1c }
+  .dark .seo-stat{ color:#d1d5db; background:#111827; border-color:#374151 }
+  .dark .seo-stat__value{ color:#f3f4f6 }
+
+  .seo-tools{ display:flex; flex-wrap:wrap; align-items:center; gap:.4rem }
+  .seo-tool{ display:inline-flex; align-items:center; gap:.4rem; padding:.4rem .7rem;
+      font-size:.78rem; font-weight:600; white-space:nowrap; cursor:pointer; text-decoration:none;
+      color:#374151; background:#fff; border:1px solid #d1d5db;
+      transition:border-color .15s, color .15s }
+  .seo-tool:hover{ border-color:var(--admin-primary); color:var(--admin-primary) }
+  .seo-tool i{ font-size:.72rem; color:#9ca3af }
+  .seo-tool:hover i{ color:var(--admin-primary) }
+  .dark .seo-tool{ color:#d1d5db; background:#1f2937; border-color:#374151 }
+  .seo-tool--link{ background:transparent; border-color:transparent; color:#6b7280 }
+  .dark .seo-tool--link{ background:transparent; border-color:transparent }
+  .seo-tools__sep{ width:1px; height:1.4rem; background:#e5e7eb; margin:0 .3rem }
+  .dark .seo-tools__sep{ background:#374151 }
+
+  .seo-filters{ padding:.85rem 1rem }
+  .seo-filters__row{ display:flex; flex-wrap:wrap; align-items:center; gap:.5rem }
+  .seo-filters__search{ flex:1; min-width:14rem }
+  .seo-filters__search input{ width:100%; padding:.45rem .75rem .45rem 2.25rem; font-size:.85rem;
+      color:#111827; background:#fff; border:1px solid #d1d5db }
+  .seo-filters__search input:focus{ outline:none; border-color:var(--admin-primary);
+      box-shadow:0 0 0 3px color-mix(in srgb, var(--admin-primary) 22%, transparent) }
+  .dark .seo-filters__search input{ color:#f3f4f6; background:#111827; border-color:#374151 }
+
+  .seo-perpage{ padding:.45rem .6rem; font-size:.8rem; color:#374151;
+      background:#fff; border:1px solid #d1d5db }
+  .dark .seo-perpage{ color:#e5e7eb; background:#111827; border-color:#374151 }
+
+  .seo-apply{ display:inline-flex; align-items:center; gap:.4rem; padding:.45rem .8rem;
+      font-size:.8rem; font-weight:600; cursor:pointer;
+      color:var(--admin-on-primary,#fff); background:var(--admin-primary);
+      border:1px solid var(--admin-primary) }
+  .seo-apply:hover{ filter:brightness(1.08) }
+
+  .seo-filters__chips{ display:flex; flex-wrap:wrap; align-items:center;
+      gap:.35rem 1rem; margin-top:.7rem; padding-top:.7rem; border-top:1px solid #e5e7eb }
+  .dark .seo-filters__chips{ border-top-color:#374151 }
+  .seo-filters__chips > span:first-child{ margin-left:0 }
+
+  /* Утилит -translate-y-1/2 в сборке нет (см. CLAUDE.md) — центрируем
+     расчётом от высоты значка. */
+  .seo-filters__ico{ position:absolute; left:.7rem; top:50%; margin-top:-9px;
+      color:#9ca3af; pointer-events:none }
+
+
   .seo-chip{ display:inline-flex; align-items:center; padding:.25rem .6rem; font-size:.75rem; line-height:1;
       border:1px solid #d1d5db; background:#fff; color:#374151; text-decoration:none; transition:all .15s; }
   .seo-chip:hover{ border-color:#6366f1; color:#4338ca; }
@@ -460,10 +500,15 @@
     const boxes = () => document.querySelectorAll('.seo-bulk-checkbox');
     const counter = document.getElementById('seoBulkCounter');
 
+    const panel = document.getElementById('seoBulkForm');
+
     const refresh = () => {
       const checked = document.querySelectorAll('.seo-bulk-checkbox:checked').length;
       if (counter) counter.textContent = checked ? `отмечено: ${checked}` : '';
       if (selectAll) selectAll.checked = checked > 0 && checked === boxes().length;
+      // Панель массовых действий показывается только при выборе: пустая она
+      // занимала семьдесят пикселей и предлагала действие без цели.
+      if (panel) panel.hidden = checked === 0;
     };
 
     selectAll?.addEventListener('change', function () {
