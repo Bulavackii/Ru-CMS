@@ -269,9 +269,11 @@
     .msg-star{ color:#f59e0b }
     .msg-draft{ font-size:.8rem; font-weight:600; color:#4f46e5 }
 
-    @media (prefers-color-scheme: dark){
-        .msg-drop{ border-color:#4b5563 }
-        .msg-files{ color:#cbd5e1 }
-    }
+    /* ⚠️ Здесь стоял блок @media (prefers-color-scheme: dark) — это
+       настройка ОПЕРАЦИОННОЙ СИСТЕМЫ, а не оформление панели. При тёмной
+       системе и светлой панели он перекрашивал текст в почти белый на
+       белом фоне: сумма заказа пропадала совсем. Тему панели задают класс
+       .dark и переменные --admin-*; перекрытие по настройке ОС их только
+       ломало. */
 </style>
 @endpush

@@ -224,13 +224,11 @@
     .msg-chip{ display:inline-block; font-size:.68rem; font-weight:700; padding:.12rem .45rem;
                border:1px solid #e5e7eb; color:#6b7280 }
 
-    @media (prefers-color-scheme: dark){
-        .msg-action{ border-color:#374151; color:#cbd5e1 }
-        .msg-people{ border-color:#1f2937 }
-        .msg-people__list dd, .msg-body, .msg-attach__name, .msg-reply strong{ color:#f3f4f6 }
-        .msg-attach li, .msg-reply{ border-color:#374151 }
-        .msg-thread a{ border-color:#374151 }
-        .msg-thread a.is-current{ background:#1e1b4b }
-    }
+    /* ⚠️ Здесь стоял блок @media (prefers-color-scheme: dark) — это
+       настройка ОПЕРАЦИОННОЙ СИСТЕМЫ, а не оформление панели. При тёмной
+       системе и светлой панели он перекрашивал текст в почти белый на
+       белом фоне: сумма заказа пропадала совсем. Тему панели задают класс
+       .dark и переменные --admin-*; перекрытие по настройке ОС их только
+       ломало. */
 </style>
 @endpush

@@ -265,12 +265,11 @@
         .msg-row__actions{ width:100%; justify-content:flex-end }
     }
 
-    @media (prefers-color-scheme: dark){
-        .msg-search__field, .msg-row__subject{ color:#f3f4f6 }
-        .msg-tab{ background:transparent; border-color:#374151; color:#cbd5e1 }
-        .msg-row{ background:transparent; border-color:#374151 }
-        .msg-row.is-picked{ background:#1e1b4b }
-        .msg-btn:hover{ background:#1f2937 }
-    }
+    /* ⚠️ Здесь стоял блок @media (prefers-color-scheme: dark) — это
+       настройка ОПЕРАЦИОННОЙ СИСТЕМЫ, а не оформление панели. При тёмной
+       системе и светлой панели он перекрашивал текст в почти белый на
+       белом фоне: сумма заказа пропадала совсем. Тему панели задают класс
+       .dark и переменные --admin-*; перекрытие по настройке ОС их только
+       ломало. */
 </style>
 @endpush

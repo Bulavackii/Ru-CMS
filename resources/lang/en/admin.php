@@ -1497,6 +1497,17 @@ return [
         'cancel' => 'Cancel',
         'days' => 'days',
         'ru_system' => 'Russian delivery service',
+
+        // Сводка над списком служб.
+        'sum_total' => 'total:',
+        'sum_live' => 'working:',
+        'sum_nokeys' => 'no keys:',
+
+        // Своя служба доставки: код и ключи задаёт владелец.
+        'm_custom' => 'Other service',
+        'custom_hint' => 'Your own code and your own set of keys: fits any service with an API. There is no calculation driver for a custom code, so the price stays fixed until one is written.',
+        'custom_fields' => 'Access keys',
+        'custom_fields_hint' => 'Fill in only what your service issued — empty ones are not saved.',
     ],
 
     'reviews' => [

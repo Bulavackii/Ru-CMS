@@ -229,16 +229,20 @@
         margin-top:auto; padding:.7rem 1rem 0; border-top:1px solid #f1f5f9 }
     .dark .pm-card__foot{ border-top-color:#374151 }
 
+    /* Цвет ссылки — фирменный, но подмешанный к тёмному: чистый цвет
+       системы бывает слишком светлым (жёлтый Т-Банк на белом — контраст
+       1.3, читать нечем). */
     .pm-docs{ display:inline-flex; align-items:center; gap:.35rem; font-size:.75rem;
-        color:var(--pm); text-decoration:none; font-weight:600 }
+        color:color-mix(in srgb, var(--pm) 55%, #111827); text-decoration:none; font-weight:600 }
     .pm-docs:hover{ text-decoration:underline }
+    .dark .pm-docs{ color:color-mix(in srgb, var(--pm) 65%, #e5e7eb) }
 
     .pm-actions{ display:inline-flex; align-items:center; gap:.35rem; margin-left:auto }
     .pm-icon{ display:inline-flex; align-items:center; justify-content:center;
         width:2rem; height:2rem; font-size:.78rem; cursor:pointer;
         color:#4b5563; background:#fff; border:1px solid #e5e7eb;
         transition:border-color .15s, color .15s }
-    .pm-icon:hover{ border-color:var(--pm); color:var(--pm) }
+    .pm-icon:hover{ border-color:var(--pm); color:color-mix(in srgb, var(--pm) 55%, #111827) }
     .pm-icon--danger:hover{ border-color:#dc2626; color:#b91c1c }
     .dark .pm-icon{ color:#d1d5db; background:#111827; border-color:#374151 }
 

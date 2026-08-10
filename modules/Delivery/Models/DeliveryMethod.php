@@ -17,6 +17,92 @@ class DeliveryMethod extends Model
      */
     public const ALL_REGIONS = 'Все регионы РФ';
 
+    /**
+     * Фирменные цвета и значки служб доставки — одно место на весь
+     * раздел: список, форма и всё, что появится позже.
+     *
+     * Ключ — КОД службы: он же имя файла логотипа и он же идентификатор
+     * драйвера в калькуляторе. Цвета сняты с самих знаков, а не подобраны
+     * на глаз (Почта — синий подложки, Boxberry — малиновый, СДЭК —
+     * зелёный шара, Яндекс — красный кружка «Я»).
+     */
+    public const BRANDS = [
+        'pochta'          => ['color' => '#004B9C', 'icon' => 'fa-envelope'],
+        'cdek'            => ['color' => '#8CC63F', 'icon' => 'fa-truck-fast'],
+        'boxberry'        => ['color' => '#C0004A', 'icon' => 'fa-box'],
+        'yandex_delivery' => ['color' => '#FC3F1D', 'icon' => 'fa-motorcycle'],
+        'pickup'          => ['color' => '#0EA5E9', 'icon' => 'fa-store'],
+        'courier_local'   => ['color' => '#6366F1', 'icon' => 'fa-person-biking'],
+    ];
+
+    /**
+     * Запасной набор по ТИПУ — для служб, которые владелец завёл сам.
+     * Без него своя служба выглядела бы бесцветной заготовкой рядом с
+     * фирменными карточками.
+     */
+    public const TYPE_BRANDS = [
+        'post'     => ['color' => '#0EA5E9', 'icon' => 'fa-envelope'],
+        'courier'  => ['color' => '#6366F1', 'icon' => 'fa-truck-fast'],
+        'terminal' => ['color' => '#7C3AED', 'icon' => 'fa-store'],
+        'pickup'   => ['color' => '#64748B', 'icon' => 'fa-person-walking-luggage'],
+    ];
+
+    /**
+     * Где лежат логотипы служб: public/images/delivery/<код>.png|svg|webp.
+     *
+     * Файлы лежат в проекте, а не тянутся из сети: CMS обязана работать
+     * без интернета (см. «Независимость от внешних служб» в CLAUDE.md).
+     */
+    public const LOGO_DIR = 'images/delivery';
+
+    /**
+     * Ссылка на логотип службы или null, если файла нет.
+     *
+     * Ищем сначала по КОДУ (pochta, cdek), потом по ТИПУ — так своя
+     * служба владельца с типом post получит хотя бы общий знак.
+     */
+    public function logoUrl(): ?string
+    {
+        foreach ([$this->code, $this->type] as $name) {
+            if (blank($name)) {
+                continue;
+            }
+
+            foreach (['svg', 'png', 'webp'] as $ext) {
+                $relative = self::LOGO_DIR . '/' . $name . '.' . $ext;
+                $absolute = public_path($relative);
+
+                if (is_file($absolute)) {
+                    // Метка времени файла в адресе: заменённый логотип
+                    // виден сразу, без чистки кеша браузера.
+                    return asset($relative) . '?v=' . filemtime($absolute);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Цвет, значок, цвет надписи поверх цвета и логотип — всё, что нужно
+     * карточке службы.
+     *
+     * @return array{color: string, icon: string, ink: string, logo: ?string}
+     */
+    public function brand(): array
+    {
+        $brand = self::BRANDS[$this->code]
+            ?? self::TYPE_BRANDS[$this->type]
+            ?? ['color' => '#6366F1', 'icon' => 'fa-truck'];
+
+        // Цвета служб очень разной яркости: на светло-зелёном СДЭК белая
+        // надпись нечитаема, на тёмно-синей Почте — наоборот.
+        $brand['ink'] = readable_ink($brand['color']);
+        $brand['logo'] = $this->logoUrl();
+
+        return $brand;
+    }
+
 
     /**
      * 📦 Указываем, какие поля можно массово заполнять (mass assignment).

@@ -37,7 +37,7 @@
 
 {{-- ── Фильтры ── --}}
 <form method="GET" action="{{ route('admin.orders.index') }}" class="admin-card p-4 mb-4">
-    <h2 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-3">
+    <h2 class="ord-h2">
         <i class="fas fa-filter text-indigo-500"></i> {{ __('admin.orders.filters') }}
     </h2>
 
@@ -96,7 +96,7 @@
             </a>
         @endif
 
-        <span class="text-xs text-gray-500 dark:text-gray-400 ml-auto">
+        <span class="ord-count ml-auto">
             {{ __('admin.orders.shown', ['shown' => $orders->count(), 'total' => $orders->total()]) }}
         </span>
     </div>
@@ -124,7 +124,7 @@
                 @endif
             </div>
 
-            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+            <div class="ord-meta flex flex-wrap items-center gap-x-4 gap-y-1 mt-1.5">
                 <span><i class="fas fa-user"></i>
                     {{ $order->customer_name ?: ($order->user->name ?? __('admin.orders.guest')) }}</span>
 
@@ -166,13 +166,24 @@
     /* Литеральный CSS: в статической сборке Tailwind нет ни произвольных
        значений, ни части палитры, нужной для бейджей статуса. */
     .ord-row{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between;
-              gap:1rem; border:1px solid #eef2f7; background:#fff;
+              gap:1rem; border:1px solid var(--surface-bd,#eef2f7); background:var(--surface,#fff);
               padding:.85rem 1rem; margin-bottom:.5rem; transition:border-color .15s }
     .ord-row:hover{ border-color:#c7d2fe }
 
     .ord-sum{ text-align:right; white-space:nowrap }
-    .ord-sum__label{ display:block; font-size:.7rem; color:#9ca3af }
-    .ord-sum b{ font-size:1.05rem; color:#111827 }
+    /* Подписи выведены из переменных панели, а не прибиты серым: при
+       тёмных темах #9ca3af на тёмной подложке давал контраст около 2. */
+    .ord-h2{ display:flex; align-items:center; gap:.4rem; margin-bottom:.75rem;
+        font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+        font-size:.7rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+        color:color-mix(in srgb, var(--surface-ink,#111827) 62%, var(--surface,#fff)) }
+    .ord-count{ font-size:.72rem;
+        color:color-mix(in srgb, var(--surface-ink,#111827) 68%, var(--surface,#fff)) }
+    .ord-meta{ font-size:.72rem;
+        color:color-mix(in srgb, var(--surface-ink,#111827) 70%, var(--surface,#fff)) }
+    .ord-sum__label{ display:block; font-size:.7rem;
+        color:color-mix(in srgb, var(--surface-ink,#111827) 62%, var(--surface,#fff)) }
+    .ord-sum b{ font-size:1.05rem; color:var(--surface-ink,#111827) }
 
     .ord-status{ font-size:.72rem; font-weight:700; padding:.15rem .5rem; border:1px solid }
     .ord-status--ok{ color:#166534; background:#f0fdf4; border-color:#bbf7d0 }
@@ -180,9 +191,11 @@
     .ord-status--bad{ color:#991b1b; background:#fef2f2; border-color:#fecaca }
     .ord-status--new{ color:#3730a3; background:#eef2ff; border-color:#c7d2fe }
 
-    @media (prefers-color-scheme: dark){
-        .ord-row{ background:transparent; border-color:#374151 }
-        .ord-sum b{ color:#f3f4f6 }
-    }
+    /* ⚠️ Здесь стоял блок @media (prefers-color-scheme: dark) — это
+       настройка ОПЕРАЦИОННОЙ СИСТЕМЫ, а не оформление панели. При тёмной
+       системе и светлой панели он перекрашивал текст в почти белый на
+       белом фоне: сумма заказа пропадала совсем. Тему панели задают класс
+       .dark и переменные --admin-*; перекрытие по настройке ОС их только
+       ломало. */
 </style>
 @endpush

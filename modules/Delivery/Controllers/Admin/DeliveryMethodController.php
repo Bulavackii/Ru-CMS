@@ -13,7 +13,11 @@ class DeliveryMethodController extends Controller
      */
     public function index()
     {
-        $methods = DeliveryMethod::orderBy('sort_order')->orderBy('title')->paginate(5);
+        // Без постраничного вывода: служб единицы, а карточки и так
+        // раскладываются сеткой. Раньше стоял paginate(5), но ссылок на
+        // страницы вьюха не рисовала НИКОГДА — шестая служба («Курьер по
+        // городу») просто не показывалась и добраться до неё было нечем.
+        $methods = DeliveryMethod::orderBy('sort_order')->orderBy('title')->get();
 
         return view('Delivery::admin.index', compact('methods'));
     }

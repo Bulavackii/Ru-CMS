@@ -282,11 +282,10 @@
                color:#4f46e5; border-top:1px solid #f1f5f9 }
     .ntf-foot:hover{ background:#f8fafc }
 
-    @media (prefers-color-scheme: dark){
-        .ntf-panel{ background:#111827; border-color:#374151 }
-        .ntf-head, .ntf-item, .ntf-foot{ border-color:#1f2937 }
-        .ntf-item:hover, .ntf-foot:hover{ background:#1f2937 }
-        .ntf-item__title{ color:#f3f4f6 }
-    }
+    /* ⚠️ Здесь стоял блок по тёмному режиму ОПЕРАЦИОННОЙ СИСТЕМЫ. Тему
+       панели задают класс .dark и переменные --admin-*, а настройка ОС к
+       ним отношения не имеет: при тёмной системе и светлой панели
+       выпадающий список уведомлений становился тёмным посреди светлой
+       шапки, а заголовки — почти белыми на белом. */
 </style>
 @endonce

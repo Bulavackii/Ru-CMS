@@ -202,9 +202,11 @@
     .geo-empty{ text-align:center; padding:1.5rem .5rem }
     .geo-empty i{ font-size:1.75rem; color:#c7d2fe; display:block; margin-bottom:.75rem }
 
-    @media (prefers-color-scheme: dark){
-        .geo-ip, .geo-list dd{ color:#f3f4f6 }
-        .geo-list > div{ border-color:#1f2937 }
-    }
+    /* ⚠️ Здесь стоял блок @media (prefers-color-scheme: dark) — это
+       настройка ОПЕРАЦИОННОЙ СИСТЕМЫ, а не оформление панели. При тёмной
+       системе и светлой панели он перекрашивал текст в почти белый на
+       белом фоне: сумма заказа пропадала совсем. Тему панели задают класс
+       .dark и переменные --admin-*; перекрытие по настройке ОС их только
+       ломало. */
 </style>
 @endpush

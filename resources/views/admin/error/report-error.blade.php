@@ -213,10 +213,11 @@
               color:#92400e; background:#fffbeb; border:1px solid #fde68a; padding:.85rem 1rem }
     .er-warn i{ font-size:1.1rem; margin-top:.1rem }
 
-    @media (prefers-color-scheme: dark){
-        .er-context{ background:transparent; border-color:#374151; color:#cbd5e1 }
-        .er-drop{ border-color:#4b5563 }
-        .er-help{ color:#94a3b8 }
-    }
+    /* ⚠️ Здесь стоял блок @media (prefers-color-scheme: dark) — это
+       настройка ОПЕРАЦИОННОЙ СИСТЕМЫ, а не оформление панели. При тёмной
+       системе и светлой панели он перекрашивал текст в почти белый на
+       белом фоне: сумма заказа пропадала совсем. Тему панели задают класс
+       .dark и переменные --admin-*; перекрытие по настройке ОС их только
+       ломало. */
 </style>
 @endpush
