@@ -107,157 +107,173 @@
 
                 {{-- Slug --}}
                 <div>
-                    <label class="block text-sm font-medium">Slug
-                        <span class="text-xs text-gray-500">{{ __('admin.seo.path_or_url') }}</span>
+                    <label class="seo-label">Slug
+                        <span class="seo-hint">{{ __('admin.seo.path_or_url') }}</span>
                     </label>
-                    <input name="slug" value="{{ old('slug', $item->slug) }}" class="mt-1 border p-2 rounded w-full"
+                    <input name="slug" value="{{ old('slug', $item->slug) }}" class="seo-input"
                         maxlength="1024" placeholder="{{ __('admin.seo.url_ph') }}">
-                    <p class="text-xs text-gray-500 mt-1">
+                    <p class="seo-hint">
                         {{ __('admin.seo.slug_note') }}
                     </p>
                     @error('slug')
-                        <div class="text-red-600 text-xs mt-1">{{ $message }}</div>
+                        <div class="seo-err">{{ $message }}</div>
                     @enderror
                 </div>
 
                 {{-- Title / H1 --}}
                 <div class="grid md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium">Title</label>
+                        <label class="seo-label">Title</label>
                         <input name="title" value="{{ old('title', $item->title) }}"
-                            class="mt-1 border p-2 rounded w-full js-count" data-limit="60" maxlength="255"
+                            class="seo-input js-count" data-limit="60" maxlength="255"
                             placeholder="{{ __('admin.seo.title_ph') }}">
-                        <div class="text-xs text-gray-500 mt-1">
+                        <div class="seo-hint">
                             Рекомендуем до 60 символов. <span class="js-count-out"></span>
                         </div>
                         @error('title')
-                            <div class="text-red-600 text-xs mt-1">{{ $message }}</div>
+                            <div class="seo-err">{{ $message }}</div>
                         @enderror
                     </div>
                     <div>
-                        <label class="block text-sm font-medium">H1</label>
-                        <input name="h1" value="{{ old('h1', $item->h1) }}" class="mt-1 border p-2 rounded w-full"
+                        <label class="seo-label">H1</label>
+                        <input name="h1" value="{{ old('h1', $item->h1) }}" class="seo-input"
                             maxlength="255" placeholder="{{ __('admin.seo.h1_ph') }}">
                         @error('h1')
-                            <div class="text-red-600 text-xs mt-1">{{ $message }}</div>
+                            <div class="seo-err">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>
 
                 {{-- Description --}}
                 <div>
-                    <label class="block text-sm font-medium">Description</label>
-                    <textarea name="description" rows="2" class="mt-1 border p-2 rounded w-full js-count" data-limit="160"
+                    <label class="seo-label">Description</label>
+                    <textarea name="description" rows="2" class="seo-input js-count" data-limit="160"
                         maxlength="255" placeholder="{{ __('admin.seo.desc_ph') }}">{{ old('description', $item->description) }}</textarea>
-                    <div class="text-xs text-gray-500 mt-1">
+                    <div class="seo-hint">
                         Лучше до 160 символов. <span class="js-count-out"></span>
                     </div>
                     @error('description')
-                        <div class="text-red-600 text-xs mt-1">{{ $message }}</div>
+                        <div class="seo-err">{{ $message }}</div>
                     @enderror
                 </div>
 
                 {{-- Keywords --}}
                 <div>
-                    <label class="block text-sm font-medium">Keywords
-                        <span class="text-xs text-gray-500">{{ __('admin.seo.comma_separated') }}</span>
+                    <label class="seo-label">Keywords
+                        <span class="seo-hint">{{ __('admin.seo.comma_separated') }}</span>
                     </label>
                     <input name="keywords" value="{{ old('keywords', $item->keywords) }}"
-                        class="mt-1 border p-2 rounded w-full js-count" data-limit="255" maxlength="255"
+                        class="seo-input js-count" data-limit="255" maxlength="255"
                         placeholder="{{ __('admin.seo.keywords_ph') }}">
-                    <div class="text-xs text-gray-500 mt-1">
+                    <div class="seo-hint">
                         {{ __('admin.seo.optional') }} <span class="js-count-out"></span>
                     </div>
                     @error('keywords')
-                        <div class="text-red-600 text-xs mt-1">{{ $message }}</div>
+                        <div class="seo-err">{{ $message }}</div>
                     @enderror
                 </div>
 
                 {{-- Canonical --}}
                 <div>
-                    <label class="block text-sm font-medium">Canonical
-                        <span class="text-xs text-gray-500">{{ __('admin.seo.can_be_relative') }}</span>
+                    <label class="seo-label">Canonical
+                        <span class="seo-hint">{{ __('admin.seo.can_be_relative') }}</span>
                     </label>
                     <input name="canonical" value="{{ old('canonical', $item->canonical) }}"
-                        class="mt-1 border p-2 rounded w-full" maxlength="1024"
+                        class="seo-input" maxlength="1024"
                         placeholder="{{ __('admin.seo.url_ph') }}">
-                    <div class="text-xs text-gray-500 mt-1">
+                    <div class="seo-hint">
                         {{ __('admin.seo.no_canonical') }}
                     </div>
                     @error('canonical')
-                        <div class="text-red-600 text-xs mt-1">{{ $message }}</div>
+                        <div class="seo-err">{{ $message }}</div>
                     @enderror
                 </div>
 
                 {{-- Robots --}}
                 <div class="grid md:grid-cols-2 gap-4">
+                    {{-- Тумблеры вместо галочек: тот же элемент, что в «Меню»,
+                         «Слайдшоу» и «Категориях». Имена полей и скрытые нули
+                         оставлены как были. Классы js-robots-* добавлены, чтобы
+                         строка итоговой директивы менялась сразу, а не только
+                         после сохранения — на форме создания так уже было. --}}
                     <div>
                         <input type="hidden" name="robots_index" value="0">
-                        <label class="inline-flex items-center">
-                            <input type="checkbox" name="robots_index" value="1" class="mr-2"
-                                {{ old('robots_index', $item->robots_index) ? 'checked' : '' }}>
-                            index
+                        <label class="seo-switch">
+                            <span class="admin-toggle">
+                                <input type="checkbox" name="robots_index" value="1" class="js-robots-index"
+                                    {{ old('robots_index', $item->robots_index) ? 'checked' : '' }}>
+                                <span class="track"></span><span class="knob"></span>
+                            </span>
+                            <span class="seo-switch__body">
+                                <span class="seo-switch__title">index</span>
+                                <span class="seo-hint">{{ __('admin.seo.allow_indexing') }}</span>
+                            </span>
                         </label>
-                        <p class="text-xs text-gray-500">{{ __('admin.seo.allow_indexing') }}</p>
                         @error('robots_index')
-                            <div class="text-red-600 text-xs mt-1">{{ $message }}</div>
+                            <div class="seo-err">{{ $message }}</div>
                         @enderror
                     </div>
 
                     <div>
                         <input type="hidden" name="robots_follow" value="0">
-                        <label class="inline-flex items-center">
-                            <input type="checkbox" name="robots_follow" value="1" class="mr-2"
-                                {{ old('robots_follow', $item->robots_follow) ? 'checked' : '' }}>
-                            follow
+                        <label class="seo-switch">
+                            <span class="admin-toggle">
+                                <input type="checkbox" name="robots_follow" value="1" class="js-robots-follow"
+                                    {{ old('robots_follow', $item->robots_follow) ? 'checked' : '' }}>
+                                <span class="track"></span><span class="knob"></span>
+                            </span>
+                            <span class="seo-switch__body">
+                                <span class="seo-switch__title">follow</span>
+                                <span class="seo-hint">{{ __('admin.seo.allow_follow') }}</span>
+                            </span>
                         </label>
-                        <p class="text-xs text-gray-500">{{ __('admin.seo.allow_follow') }}</p>
                         @error('robots_follow')
-                            <div class="text-red-600 text-xs mt-1">{{ $message }}</div>
+                            <div class="seo-err">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>
-                <div class="text-xs text-gray-500 -mt-2">
-                    Итоговая директива будет: <code>
-                        {{ old('robots_index', $item->robots_index) ? 'index' : 'noindex' }},
-                        {{ old('robots_follow', $item->robots_follow) ? 'follow' : 'nofollow' }}
-                    </code>
+
+                {{-- ⚠️ Здесь стоял отрицательный отступ `-mt-2`: строка с итоговой
+                     директивой заезжала на подсказку «Разрешить индексирование
+                     страницы», и обе читались друг сквозь друга. --}}
+                <div class="seo-directive">
+                    {{ __('admin.seo.directive') }} <code id="robotsPreview">{{ old('robots_index', $item->robots_index) ? 'index' : 'noindex' }}, {{ old('robots_follow', $item->robots_follow) ? 'follow' : 'nofollow' }}</code>
                 </div>
 
                 {{-- OG / Twitter --}}
                 <div class="border rounded p-3 space-y-2">
                     <div class="text-sm font-semibold">OG / Twitter</div>
                     <input name="og_title" value="{{ old('og_title', $item->og['og:title'] ?? '') }}"
-                        class="w-full border p-2 rounded" maxlength="255" placeholder="og:title">
+                        class="seo-input" maxlength="255" placeholder="og:title">
                     <input name="og_description" value="{{ old('og_description', $item->og['og:description'] ?? '') }}"
-                        class="w-full border p-2 rounded" maxlength="512" placeholder="og:description">
+                        class="seo-input" maxlength="512" placeholder="og:description">
                     <input name="og_image" value="{{ old('og_image', $item->og['og:image'] ?? '') }}"
-                        class="w-full border p-2 rounded" maxlength="1024" placeholder="og:image (URL)">
+                        class="seo-input" maxlength="1024" placeholder="og:image (URL)">
                     <input name="twitter_card" value="{{ old('twitter_card', $item->og['twitter:card'] ?? '') }}"
-                        class="w-full border p-2 rounded" maxlength="50"
+                        class="seo-input" maxlength="50"
                         placeholder="twitter:card (summary / summary_large_image)">
                     <input name="twitter_title" value="{{ old('twitter_title', $item->og['twitter:title'] ?? '') }}"
-                        class="w-full border p-2 rounded" maxlength="255" placeholder="twitter:title">
+                        class="seo-input" maxlength="255" placeholder="twitter:title">
                     <input name="twitter_description"
                         value="{{ old('twitter_description', $item->og['twitter:description'] ?? '') }}"
-                        class="w-full border p-2 rounded" maxlength="512" placeholder="twitter:description">
+                        class="seo-input" maxlength="512" placeholder="twitter:description">
                     <input name="twitter_image" value="{{ old('twitter_image', $item->og['twitter:image'] ?? '') }}"
-                        class="w-full border p-2 rounded" maxlength="1024" placeholder="twitter:image (URL)">
-                    <p class="text-xs text-gray-500">{{ __('admin.seo.empty_no_overwrite') }}</p>
+                        class="seo-input" maxlength="1024" placeholder="twitter:image (URL)">
+                    <p class="seo-hint">{{ __('admin.seo.empty_no_overwrite') }}</p>
                 </div>
 
                 {{-- JSON-LD --}}
                 <div>
-                    <label class="block text-sm font-medium">JSON-LD</label>
+                    <label class="seo-label">JSON-LD</label>
                     <textarea name="jsonld_raw" rows="8" class="mt-1 w-full border p-2 rounded font-mono"
                         placeholder='{"@@context":"https://schema.org","@@type":"Article",...}'>{{ old('jsonld_raw', isset($item->jsonld) ? json_encode($item->jsonld, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) : '') }}</textarea>
                     <div class="flex items-center justify-between mt-1">
-                        <div class="text-xs text-gray-500">Сохраняем только валидный JSON.</div>
+                        <div class="seo-hint">Сохраняем только валидный JSON.</div>
                         <button type="button"
                             class="px-2 py-1 text-xs border rounded js-json-pretty">{{ __('admin.seo.format') }}</button>
                     </div>
                     @error('jsonld_raw')
-                        <div class="text-red-600 text-xs mt-1">{{ $message }}</div>
+                        <div class="seo-err">{{ $message }}</div>
                     @enderror
                 </div>
 
@@ -382,3 +398,65 @@
         });
     </script>
 @endsection
+
+@push('styles')
+<style>
+    /* ── Раздел SEO: поля ─────────────────────────────────────────────
+       Литеральный CSS: в сборке проекта нет ни прозрачности через дробь,
+       ни произвольных значений; скругления сняты общим рубильником
+       `body.admin-sharp`, поэтому классы `rounded` тут ничего не делали. */
+
+    .seo-label{ display:block; margin-bottom:.3rem; font-size:.8rem; font-weight:600; color:#374151 }
+    .seo-label span{ font-weight:400; color:#9ca3af }
+    .dark .seo-label{ color:#d1d5db }
+
+    .seo-input{ display:block; width:100%; padding:.5rem .75rem; font-size:.875rem;
+        color:#111827; background:#fff; border:1px solid #d1d5db;
+        transition:border-color .15s, box-shadow .15s }
+    .seo-input:focus{ outline:none; border-color:var(--admin-primary);
+        box-shadow:0 0 0 3px color-mix(in srgb, var(--admin-primary) 22%, transparent) }
+    .dark .seo-input{ color:#f3f4f6; background:#111827; border-color:#374151 }
+    textarea.seo-input{ resize:vertical }
+
+    /* Подсказка всегда с отступом сверху: раньше у части полей его не было,
+       и подпись следующего поля прилипала к предыдущей строке. */
+    .seo-hint{ display:block; margin-top:.3rem; font-size:.72rem; line-height:1.45; color:#6b7280 }
+    .dark .seo-hint{ color:#9ca3af }
+    .seo-err{ margin-top:.3rem; font-size:.72rem; color:#dc2626 }
+
+    .seo-directive{ margin-top:.6rem; font-size:.72rem; color:#6b7280 }
+    .dark .seo-directive{ color:#9ca3af }
+
+    .seo-switch{ display:inline-flex; align-items:flex-start; gap:.6rem; cursor:pointer }
+    .seo-switch__body{ display:flex; flex-direction:column; gap:.1rem; line-height:1.35 }
+    .seo-switch__title{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+        font-size:.82rem; font-weight:700; color:#374151 }
+    .dark .seo-switch__title{ color:#e5e7eb }
+    .seo-switch .seo-hint{ margin-top:0 }
+</style>
+@endpush
+
+@push('scripts')
+<script>
+    // Итоговая директива меняется сразу при переключении тумблеров: раньше
+    // строка обновлялась только после сохранения, и проверить выбор было
+    // нечем. Тот же код, что на форме создания.
+    (function () {
+        const idx = document.querySelector('.js-robots-index');
+        const fol = document.querySelector('.js-robots-follow');
+        const out = document.getElementById('robotsPreview');
+
+        if (!idx || !fol || !out) {
+            return;
+        }
+
+        const upd = () => {
+            out.textContent = (idx.checked ? 'index' : 'noindex') + ', ' + (fol.checked ? 'follow' : 'nofollow');
+        };
+
+        idx.addEventListener('change', upd);
+        fol.addEventListener('change', upd);
+        upd();
+    })();
+</script>
+@endpush
