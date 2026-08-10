@@ -1,6 +1,7 @@
 @extends('layouts.guest')
 
 @section('title', __('frontend.auth.tfa_title'))
+@section('eyebrow', __('frontend.auth.eyebrow_code'))
 @section('heading', __('frontend.auth.tfa_title'))
 @section('lead', __('frontend.auth.tfa_lead'))
 
@@ -20,6 +21,9 @@
             </div>
         </div>
     @endif
+
+    {{-- Та же полоса, что на форме входа: видно, что пароль уже позади. --}}
+    @include('auth.partials.sign-in-flow', ['step' => 2])
 
     <form method="POST" action="{{ route('two-factor.verify') }}">
         @csrf

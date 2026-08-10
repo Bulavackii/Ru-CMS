@@ -96,47 +96,93 @@
             justify-content: space-between;
             padding: 34px 40px;
             color: #fff;
-            background: linear-gradient(140deg, var(--au-primary), var(--au-accent));
+            /* Три остановки вместо двух: ровный переход двух ярких тонов
+               читался плоско, а уход в тёмный к нижнему краю даёт колонке
+               глубину и держит подпись внизу читаемой. Тёмный тон выведен
+               из акцента, поэтому следует теме, а не прибит числом. */
+            background: linear-gradient(155deg,
+                var(--au-primary) 0%,
+                var(--au-accent) 52%,
+                color-mix(in srgb, var(--au-accent) 58%, #171033) 100%);
             overflow: hidden;
         }
         @media (min-width: 1024px) { .au-aside { display: flex } }
 
-        /* Свечение и сетка поверх градиента — иначе заливка выглядит плоской.
-           Всё рисуется CSS: ничего не грузится и не зависит от темы. */
+        /* Свечение поверх заливки — иначе она выглядит плоской. Рисуется
+           CSS: ничего не грузится и не зависит от темы. */
         .au-aside::before {
             content: '';
             position: absolute; inset: 0;
             background-image:
-                radial-gradient(560px 420px at 88% -8%, rgba(255,255,255,.20), transparent 62%),
-                radial-gradient(420px 380px at -6% 108%, rgba(255,255,255,.16), transparent 60%),
-                linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px);
-            background-size: auto, auto, 42px 42px, 42px 42px;
+                radial-gradient(620px 460px at 86% -10%, rgba(255,255,255,.22), transparent 64%),
+                radial-gradient(460px 400px at -8% 106%, rgba(255,255,255,.14), transparent 62%);
             pointer-events: none;
         }
 
-        .au-brand { position: relative; display: inline-flex; align-items: center; gap: 11px;
-                    font-size: 1rem; font-weight: 700; color: #fff; text-decoration: none }
+        /* ── Фактура колонки ───────────────────────────────────────────
+           Это настоящий QR-код адреса сайта, нарисованный своим генератором
+           и увеличенный так, что в кадр попадает только угол. Сканировать
+           его не предлагается — из кадра он обрезан; смысл в том, что
+           модульная сетка и есть облик этой CMS: тот же рисунок собирается
+           на странице привязки двухфакторной проверки.
+
+           Раньше здесь лежала ровная сетка 42×42 из двух градиентов. Она не
+           значила ничего и встречается на каждой второй странице входа. */
+        .au-pattern {
+            position: absolute; right: -14%; bottom: -20%;
+            width: 76%; aspect-ratio: 1;
+            color: #fff; opacity: .1;
+            /* Растворяем к содержимому, иначе фактура лезет под текст. */
+            -webkit-mask-image: radial-gradient(125% 125% at 100% 100%, #000 18%, transparent 70%);
+            mask-image: radial-gradient(125% 125% at 100% 100%, #000 18%, transparent 70%);
+            pointer-events: none;
+        }
+        .au-pattern svg { display: block; width: 100%; height: 100% }
+
+        /* Название набрано моноширинным с крупным просветом — та же
+           микроподпись, что у надзаголовка формы и в разделах панели. */
+        .au-brand { position: relative; display: inline-flex; align-self: flex-start;
+                    align-items: center; gap: 11px; color: #fff; text-decoration: none }
+        /* Подложки у знака нет: фигура сама по себе читается, а бледный
+           квадрат вокруг делал её похожей на заглушку. */
         .au-brand-mark {
             display: inline-flex; align-items: center; justify-content: center;
-            width: 38px; height: 38px; font-size: 16px;
-            background: rgba(255, 255, 255, .18); border-radius: var(--au-radius);
+            width: 38px; height: 38px; flex: 0 0 auto; color: #fff;
         }
-        .au-brand img { max-height: 38px; width: auto }
+        .au-brand-mark svg { display: block; width: 100%; height: 100% }
+
+        .au-brand-text { display: flex; flex-direction: column; gap: 2px; line-height: 1 }
+        /* Название — моноширинным с крупным просветом: та же микроподпись,
+           что у надзаголовка формы и в разделах панели. */
+        .au-brand-name { font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+                         font-size: .78rem; font-weight: 700; letter-spacing: .2em; text-transform: uppercase }
+        .au-brand-tag { font-size: .68rem; letter-spacing: .01em; color: rgba(255, 255, 255, .72) }
 
         .au-lead { position: relative; max-width: 27rem }
-        .au-lead h2 { margin: 0 0 10px; font-size: 1.85rem; font-weight: 800; line-height: 1.18; letter-spacing: -.01em }
-        .au-lead p { margin: 0; font-size: .93rem; line-height: 1.6; color: rgba(255, 255, 255, .9) }
+        .au-lead-rule { display: block; width: 44px; height: 3px; margin-bottom: 15px;
+                        background: linear-gradient(90deg, #fff, rgba(255, 255, 255, .25)) }
+        .au-lead h2 { margin: 0 0 11px; font-size: clamp(1.9rem, 2.7vw, 2.35rem); font-weight: 800;
+                      line-height: 1.06; letter-spacing: -.03em }
+        .au-lead p { margin: 0; max-width: 25rem; font-size: .93rem; line-height: 1.6; color: rgba(255, 255, 255, .9) }
 
-        .au-points { position: relative; display: grid; gap: 9px; margin: 20px 0 0; padding: 0; list-style: none }
-        .au-points li { display: flex; align-items: center; gap: 10px; font-size: .86rem; line-height: 1.45 }
+        /* Строки разделены волосяными линиями, а плитки значков квадратные —
+           тот же приём, что в списках разделов панели. Круглые заливки
+           смотрелись мягче остального оформления. */
+        .au-points { position: relative; display: grid; gap: 0; margin: 22px 0 0; padding: 0; list-style: none }
+        .au-points li { display: flex; align-items: center; gap: 11px; padding: 9px 0;
+                        font-size: .85rem; line-height: 1.4;
+                        border-top: 1px solid rgba(255, 255, 255, .17) }
         .au-points i {
             display: inline-flex; align-items: center; justify-content: center;
-            width: 22px; height: 22px; font-size: 10px; flex: 0 0 auto;
-            background: rgba(255, 255, 255, .2); border-radius: 50%;
+            width: 26px; height: 26px; font-size: 10px; flex: 0 0 auto;
+            background: rgba(255, 255, 255, .13);
+            border: 1px solid rgba(255, 255, 255, .26);
+            border-radius: 0;
         }
 
-        .au-aside-foot { position: relative; font-size: .76rem; color: rgba(255, 255, 255, .74) }
+        .au-aside-foot { position: relative;
+                         font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+                         font-size: .68rem; letter-spacing: .04em; color: rgba(255, 255, 255, .78) }
         .au-aside-foot a { color: #fff; text-decoration: underline }
 
         /* ── Правая колонка: форма ── */
@@ -152,11 +198,39 @@
         .au-card--wide { max-width: 34rem }
 
         .au-top { margin-bottom: 16px }
+        /* Возврат на сайт — не сноска, а отдельное действие: своя рамка,
+           прямые края и моноширинная подпись, как у остальных микроподписей
+           этих страниц. Стрелка отъезжает влево при наведении — направление
+           перехода видно до нажатия. */
+        .au-toprow { display: flex; align-items: center; justify-content: space-between;
+                     gap: 12px; margin-bottom: 11px }
+
         .au-back {
-            display: inline-flex; align-items: center; gap: 6px; margin-bottom: 12px;
-            font-size: .78rem; color: var(--au-muted); text-decoration: none;
+            display: inline-flex; align-items: stretch; flex: 0 0 auto;
+            color: var(--au-text); text-decoration: none;
+            background: var(--au-card); border: 1px solid var(--au-line); border-radius: 0;
+            box-shadow: 0 1px 2px rgba(17,24,39,.05);
+            transition: border-color .15s ease, box-shadow .15s ease;
         }
-        .au-back:hover { color: var(--au-primary) }
+        .au-back__ico {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 26px; font-size: .68rem; color: #fff;
+            background: linear-gradient(135deg, var(--au-primary), var(--au-accent));
+        }
+        .au-back__ico i { transition: transform .15s ease }
+        .au-back__t {
+            padding: 6px 11px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: .64rem; font-weight: 700; letter-spacing: .13em; text-transform: uppercase;
+        }
+        .au-back:hover { border-color: var(--au-primary); box-shadow: 0 3px 10px color-mix(in srgb, var(--color-primary, #6366f1) 22%, transparent) }
+        .au-back:hover .au-back__ico i { transform: translateX(-2px) }
+        .au-back:focus-visible { outline: 2px solid var(--au-primary); outline-offset: 2px }
+        @media (prefers-reduced-motion: reduce) {
+            .au-back, .au-back__ico i { transition: none }
+            .au-back:hover .au-back__ico i { transform: none }
+        }
+
 
         .au-head { display: flex; align-items: center; gap: 12px }
         .au-badge {
@@ -165,7 +239,27 @@
             background: linear-gradient(135deg, var(--au-primary), var(--au-accent));
             border-radius: var(--au-radius);
         }
-        .au-title { margin: 0; font-size: 1.4rem; font-weight: 800; line-height: 1.2; letter-spacing: -.01em }
+        /* Надзаголовок набран моноширинным — второй «шрифт» страницы, за
+           который не надо платить загрузкой: тем же набором в проекте
+           показываются ключ привязки и коды. Мелкий кегль с крупным
+           межбуквенным просветом — та же микроподпись, что в разделах
+           «Фрагменты» и «Меню». */
+        .au-eyebrow {
+            display: block;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: .62rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
+            color: var(--au-muted);
+        }
+        /* Заголовок — единственное громкое место карточки. Плотный трекинг
+           на тяжёлом начертании: у Inter это заметно меняет характер, а
+           платить загрузкой второго шрифта не приходится. */
+        .au-title { margin: 0; font-weight: 800;
+                    font-size: clamp(1.75rem, 5.4vw, 2.15rem); line-height: 1.04; letter-spacing: -.035em }
+
+        /* Прямые края по всей карточке — тот же рубильник, что в панели
+           (body.admin-sharp). Перечислять классы по одному пришлось бы в
+           каждой вьюхе: у привязки свои плитки, у ввода кода — свои. */
+        body.au .au-card, body.au .au-card * { border-radius: 0 !important }
         .au-sub { margin: 4px 0 0; font-size: .83rem; line-height: 1.5; color: var(--au-muted) }
 
         .au-box {
@@ -186,7 +280,12 @@
 
         /* ── Поля ── */
         .au-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 11px; min-width: 0 }
-        .au-label { font-size: .78rem; font-weight: 600 }
+        /* Подписи полей — та же микроподпись, что у надзаголовка и знака. */
+        .au-label {
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: .66rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+            color: color-mix(in srgb, var(--au-text) 74%, var(--au-card));
+        }
         .au-req { margin-left: 3px; color: #dc2626 }
 
         .au-input {
@@ -282,15 +381,20 @@
         @media (min-width: 1024px) and (max-height: 800px) {
             .au-main { padding: 14px 20px }
             .au-aside { padding: 24px 32px }
-            .au-lead h2 { font-size: 1.55rem; margin-bottom: 8px }
+            .au-lead h2 { font-size: 1.8rem; margin-bottom: 8px }
             .au-lead p { font-size: .88rem }
             .au-points { gap: 7px; margin-top: 16px }
             .au-box { padding: 15px }
             .au-field { margin-bottom: 8px }
             .au-top { margin-bottom: 10px }
-            .au-back { margin-bottom: 8px }
+            /* Отступ держит строка целиком: у кнопки собственный нижний
+               отступ сдвигал её вверх относительно надзаголовка, с которым
+               она теперь стоит в одну линию. */
+            .au-toprow { margin-bottom: 8px }
             .au-badge { width: 36px; height: 36px; font-size: 14px }
-            .au-title { font-size: 1.25rem }
+            /* Ниже обычного, но не мелким: 1.25rem съедало характер
+               заголовка ради нескольких пикселей. */
+            .au-title { font-size: 1.6rem }
             .au-split { margin: 9px 0 8px }
             .au-note { margin-bottom: 9px; padding: 8px 10px }
             .au-foot { margin-top: 10px }
@@ -309,16 +413,54 @@
 
         {{-- ── Представление проекта ── --}}
         <aside class="au-aside">
+            <div class="au-pattern">{!! auth_pattern_svg() !!}</div>
+
+            {{-- Знак и надпись — один локап. Раньше картинка темы выводилась
+                 РЯДОМ с названием, и на месте знака висел второй логотип: у
+                 светлых логотипов на этой заливке он читался как пятно, а
+                 название дублировалось. Теперь картинка темы занимает место
+                 знака, а подпись под названием говорит, что это за продукт. --}}
             <a href="{{ url('/') }}" class="au-brand">
-                @if($pageTheme && data_get($pageTheme->config, 'logo_url'))
-                    <img src="{{ data_get($pageTheme->config, 'logo_url') }}" alt="{{ config('app.name') }}">
-                @else
-                    <span class="au-brand-mark"><i class="fas fa-layer-group"></i></span>
-                @endif
-                <span>{{ config('app.name') }}</span>
+                {{-- Знак — угол QR-кода: та самая фигура, из которой собрана
+                     фактура колонки, и та же, что рисует своя реализация кода
+                     на странице привязки. Раньше здесь стоял общий глиф
+                     «слои» в полупрозрачном квадрате: на этой заливке он
+                     читался как пустая рамка и не значил ничего.
+
+                     Пропорции настоящие: рамка 7×7 модулей с ядром 3×3 плюс
+                     чередующиеся модули полосы синхронизации — поэтому
+                     фигура опознаётся как код, а не как квадрат в квадрате. --}}
+                <span class="au-brand-mark" aria-hidden="true">
+                    <svg viewBox="0 0 9 9" shape-rendering="crispEdges" focusable="false">
+                        <rect x=".5" y=".5" width="6" height="6" fill="none" stroke="currentColor" stroke-width="1"/>
+                        <rect x="2" y="2" width="3" height="3" fill="currentColor"/>
+                        <g fill="currentColor" opacity=".72">
+                            <rect x="8" y="0" width="1" height="1"/>
+                            <rect x="8" y="2" width="1" height="1"/>
+                            <rect x="8" y="4" width="1" height="1"/>
+                            <rect x="8" y="6" width="1" height="1"/>
+                            <rect x="0" y="8" width="1" height="1"/>
+                            <rect x="2" y="8" width="1" height="1"/>
+                            <rect x="4" y="8" width="1" height="1"/>
+                            <rect x="6" y="8" width="1" height="1"/>
+                        </g>
+                    </svg>
+                </span>
+
+                {{-- Логотип темы здесь намеренно НЕ выводится. Это широкая
+                     надпись (200×40), нарисованная под светлую подложку: на
+                     цветной заливке колонки её тёмные буквы почти не видны, а
+                     в рамке знака картинка сжималась в полоску 30×6. Название
+                     набирается текстом — оно читается при любой теме. --}}
+                <span class="au-brand-text">
+                    <span class="au-brand-name">{{ config('app.name') }}</span>
+                    <span class="au-brand-tag">{{ __('frontend.common.cms_tagline') }}</span>
+                </span>
             </a>
 
             <div class="au-lead">
+                {{-- Та же акцентная черта, что открывает разделы панели. --}}
+                <span class="au-lead-rule" aria-hidden="true"></span>
                 <h2>@yield('aside_title', __('frontend.auth.aside_title'))</h2>
                 <p>@yield('aside_text', __('frontend.auth.aside_text'))</p>
 
@@ -342,9 +484,28 @@
         <main class="au-main">
             <div class="au-card @yield('card_class')">
                 <div class="au-top">
-                    <a href="{{ url('/') }}" class="au-back">
-                        <i class="fas fa-arrow-left"></i> {{ __('frontend.auth.to_site') }}
-                    </a>
+                    {{-- Надзаголовок и возврат на сайт стоят в одной строке.
+                         Отдельной строкой кнопка висела над карточкой сама по
+                         себе: красивая, но ни к чему не привязанная. Здесь у
+                         неё есть пара — слева подпись шага, справа выход.
+
+                         Надзаголовок необязателен: на регистрации и
+                         восстановлении пароля его нет, и кнопка тогда просто
+                         остаётся слева, как было раньше.
+
+                         Стрелка вынесена в градиентную плитку — тот же приём
+                         «плитка + надпись», что у заголовка страницы и у знака
+                         в левой колонке. --}}
+                    <div class="au-toprow">
+                        @hasSection('eyebrow')
+                            <span class="au-eyebrow">@yield('eyebrow')</span>
+                        @endif
+
+                        <a href="{{ url('/') }}" class="au-back">
+                            <span class="au-back__ico" aria-hidden="true"><i class="fas fa-arrow-left"></i></span>
+                            <span class="au-back__t">{{ __('frontend.auth.to_site') }}</span>
+                        </a>
+                    </div>
 
                     <div class="au-head">
                         <span class="au-badge" aria-hidden="true"><i class="fas @yield('icon', 'fa-right-to-bracket')"></i></span>

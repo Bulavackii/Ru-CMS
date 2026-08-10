@@ -1,6 +1,7 @@
 @extends('layouts.guest')
 
 @section('title', __('frontend.auth.login_title'))
+@section('eyebrow', __('frontend.auth.eyebrow_login'))
 @section('heading', __('frontend.auth.login_title'))
 @section('lead', __('frontend.auth.login_lead'))
 
@@ -28,6 +29,14 @@
             </div>
         </div>
     @endif
+
+    {{-- Полоса шагов. Второй шаг становится ссылкой, только когда он
+         действительно начат: пароль принят и ждём код. Иначе вернувшийся
+         на форму набирал бы пароль заново. --}}
+    @include('auth.partials.sign-in-flow', [
+        'step' => 1,
+        'link' => session()->has('login.id') ? route('two-factor.login') : null,
+    ])
 
     <form method="POST" action="{{ route('login') }}">
         @csrf
@@ -73,36 +82,9 @@
 @endsection
 
 @section('under')
-    {{-- Вход по коду из приложения. Код — ВТОРОЙ рубеж, а не замена паролю,
-         поэтому ссылка ведёт на тот же шаг проверки, а не в обход формы:
-         если пароль уже введён и мы ждём код, она возвращает на его ввод
-         (иначе вернувшийся сюда набирал бы пароль заново); если нет —
-         страница проверки сама скажет, что сперва нужны почта и пароль. --}}
-    <a href="{{ route('two-factor.login') }}" class="au-tfa-entry">
-        <i class="fas fa-shield-halved"></i>
-        <span>
-            {{ session()->has('login.id')
-                ? __('frontend.auth.tfa_continue')
-                : __('frontend.auth.tfa_entry') }}
-        </span>
-    </a>
-
-    <span class="au-under-sep">
-        {{ __('frontend.auth.no_account') }}
-        <a href="{{ route('register') }}">{{ __('frontend.auth.register_do') }}</a>
-    </span>
+    {{-- Пилюля «Вход по коду» отсюда убрана: тот же переход теперь живёт в
+         полосе шагов над формой, где он на своём месте — вторым шагом
+         последовательности, а не сноской рядом с регистрацией. --}}
+    {{ __('frontend.auth.no_account') }}
+    <a href="{{ route('register') }}">{{ __('frontend.auth.register_do') }}</a>
 @endsection
-
-@push('styles')
-<style>
-    /* Селектор с родителем не для красоты: у лейаута есть `.au-foot a`
-       с индиго, и по специфичности оно перебивало одиночный класс —
-       ссылка выходила индиговой с контрастом 4.27. */
-    .au-foot .au-tfa-entry { display: flex; align-items: center; justify-content: center; gap: 7px;
-                    margin-bottom: 9px; font-size: .8rem; text-decoration: none;
-                    color: var(--au-text) }
-    .au-tfa-entry i { color: var(--au-primary) }
-    .au-tfa-entry:hover { text-decoration: underline }
-    .au-under-sep { display: block }
-</style>
-@endpush

@@ -1,6 +1,7 @@
 @extends('layouts.guest')
 
 @section('title', __('frontend.auth.tfa_setup_title'))
+@section('eyebrow', __('frontend.auth.eyebrow_tfa_setup'))
 @section('heading', __('frontend.auth.tfa_setup_title'))
 @section('lead', __('frontend.auth.tfa_setup_lead'))
 

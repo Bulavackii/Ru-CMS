@@ -1031,3 +1031,67 @@ if (! function_exists('send_alert')) {
         }
     }
 }
+
+if (! function_exists('auth_pattern_svg')) {
+    /**
+     * 🔲 Фактура для левой колонки страниц входа.
+     *
+     * Это НАСТОЯЩИЙ QR-код адреса сайта, нарисованный своим генератором
+     * (App\Support\QrCode) и увеличенный так, что в кадр попадает лишь угол.
+     * Смысл не в том, чтобы его сканировали — из кадра он всё равно
+     * обрезан, — а в том, что модульная сетка и есть облик этой CMS:
+     * тот же рисунок собирается на странице привязки двухфакторной
+     * проверки. Прежняя фактура была ровной сеткой 42×42 из двух
+     * градиентов — она не значила ничего и встречается на каждой второй
+     * странице входа.
+     *
+     * Возвращается голая матрица квадратов: ни белой подложки, ни полей —
+     * цвет и прозрачность задаёт CSS колонки. Считается один раз и живёт
+     * в кеше: рисовать код на каждый заход входа незачем.
+     */
+    function auth_pattern_svg(): string
+    {
+        $url = (string) config('app.url', 'https://localhost');
+
+        return \Illuminate\Support\Facades\Cache::remember(
+            'auth.aside.pattern.' . md5($url),
+            now()->addDay(),
+            static function () use ($url) {
+                try {
+                    $matrix = \App\Support\QrCode::matrix($url);
+                } catch (\Throwable $e) {
+                    // Слишком длинный адрес или иная неожиданность: колонка
+                    // просто останется без фактуры, а не уронит вход.
+                    return '';
+                }
+
+                $size = count($matrix);
+                $parts = [];
+
+                foreach ($matrix as $row => $cells) {
+                    $col = 0;
+
+                    while ($col < $size) {
+                        if ($cells[$col] !== 1) {
+                            $col++;
+                            continue;
+                        }
+
+                        $run = 0;
+
+                        while ($col + $run < $size && $cells[$col + $run] === 1) {
+                            $run++;
+                        }
+
+                        $parts[] = '<rect x="' . $col . '" y="' . $row . '" width="' . $run . '" height="1"/>';
+                        $col += $run;
+                    }
+                }
+
+                return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' . $size . ' ' . $size . '" '
+                    . 'preserveAspectRatio="xMinYMin slice" aria-hidden="true" focusable="false">'
+                    . '<g fill="currentColor">' . implode('', $parts) . '</g></svg>';
+            }
+        );
+    }
+}

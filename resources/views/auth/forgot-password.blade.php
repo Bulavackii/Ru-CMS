@@ -1,6 +1,7 @@
 @extends('layouts.guest')
 
 @section('title', __('frontend.auth.forgot_title'))
+@section('eyebrow', __('frontend.auth.eyebrow_forgot'))
 @section('heading', __('frontend.auth.forgot_title'))
 @section('lead', __('frontend.auth.forgot_lead'))
 

@@ -12,6 +12,7 @@
 @extends('layouts.guest')
 
 @section('title', __('frontend.auth.register_title'))
+@section('eyebrow', __('frontend.auth.eyebrow_register'))
 @section('heading', __('frontend.auth.register_title'))
 @section('lead', __('frontend.auth.register_lead'))
 @section('icon', 'fa-user-plus')

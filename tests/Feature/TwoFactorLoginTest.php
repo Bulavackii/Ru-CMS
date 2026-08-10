@@ -186,24 +186,48 @@ class TwoFactorLoginTest extends TestCase
             ->assertSessionHas('status');
     }
 
+    /**
+     * Полоса шагов называет второй шаг, но ССЫЛКОЙ он становится только
+     * когда действительно начат. Иначе переход вёл бы в никуда: без
+     * введённого пароля страница кода всё равно вернёт на форму.
+     */
     #[Test]
-    public function на_форме_входа_есть_ссылка_на_шаг_с_кодом(): void
+    public function на_форме_входа_второй_шаг_назван_но_не_кликабелен(): void
     {
-        $this->get(route('login'))
-            ->assertOk()
-            ->assertSee(route('two-factor.login'), false)
-            ->assertSee(__('frontend.auth.tfa_entry'), false);
+        $response = $this->get(route('login'));
+
+        $response->assertOk();
+        $response->assertSee(__('frontend.auth.step_code'), false);
+        $response->assertSee(__('frontend.auth.step_code_if'), false);
+        $response->assertDontSee('href="' . route('two-factor.login') . '"', false);
     }
 
     #[Test]
-    public function при_незавершённом_входе_ссылка_предлагает_продолжить(): void
+    public function при_незавершённом_входе_на_второй_шаг_можно_перейти(): void
     {
         $user = $this->guarded();
 
         $this->post('/login', ['email' => $user->email, 'password' => 'secret-pass']);
 
-        $this->get(route('login'))
-            ->assertSee(__('frontend.auth.tfa_continue'), false);
+        $response = $this->get(route('login'));
+
+        $response->assertSee('href="' . route('two-factor.login') . '"', false);
+        // Оговорка «если включена проверка» здесь была бы неправдой:
+        // проверка заведомо включена, раз мы ждём код.
+        $response->assertDontSee(__('frontend.auth.step_code_if'), false);
+    }
+
+    #[Test]
+    public function на_странице_кода_первый_шаг_отмечен_пройденным(): void
+    {
+        $user = $this->guarded();
+
+        $this->post('/login', ['email' => $user->email, 'password' => 'secret-pass']);
+
+        $this->get(route('two-factor.login'))
+            ->assertOk()
+            ->assertSee('sif-step is-done', false)
+            ->assertSee(__('frontend.auth.step_password'), false);
     }
 
     #[Test]
