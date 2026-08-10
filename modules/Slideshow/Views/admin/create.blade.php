@@ -53,7 +53,7 @@
 
         {{-- Название --}}
         <div>
-            <label for="title" class="block font-semibold mb-1 text-gray-800 dark:text-gray-200">🏷️ {{ __('admin.slideshow.name') }}</label>
+            <label for="title" class="block font-semibold mb-1 text-gray-800 dark:text-gray-200"><i class="fas fa-tag"></i> {{ __('admin.slideshow.name') }}</label>
             <div class="relative">
                 <input type="text" name="title" id="title" required value="{{ old('title') }}"
                        placeholder="{{ __('admin.slideshow.name_ph') }}"
