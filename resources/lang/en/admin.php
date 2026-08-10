@@ -1571,6 +1571,7 @@ return [
         'match_cats' => 'Match categories by',
         'match_hint' => 'The key that links to categories.',
         'create_cats' => 'Create new categories',
+        'create_cats_hint' => 'If a category from the file is missing on the site, it will be created.',
         'dry_run' => 'Check (dry run)',
         'checking' => 'Checking…',
         'do_import' => 'Import',

@@ -49,17 +49,28 @@
       <form method="POST" action="{{ route('admin.newsio.export') }}" class="grid gap-5 px-5 py-5">
         @csrf
 
-        {{-- Формат --}}
-        <div>
-          <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{{ __('admin.newsio.format') }}</label>
-          <select name="format"
-                  class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-            <option value="json">{{ __('admin.newsio.json_array') }}</option>
-            <option value="ndjson">{{ __('admin.newsio.ndjson') }}</option>
-            <option value="csv">CSV</option>
-            <option value="zip">ZIP (manifest.json + media/*)</option>
-          </select>
-          <p class="mt-1 text-xs text-gray-500">{{ __('admin.newsio.zip_includes') }} <code>manifest.json</code> {{ __('admin.newsio.and_folder') }} <code>media/*</code>.</p>
+        {{-- Формат и охват — рядом: это два ответа на один вопрос «что
+             скачиваем». Раньше «Опубликованные» стояло через три блока
+             от формата, в самом низу колонки. --}}
+        <div class="io-row">
+          <div class="io-field">
+            <label class="io-label" for="io-format">{{ __('admin.newsio.format') }}</label>
+            <select id="io-format" name="format" class="io-input">
+              <option value="json">{{ __('admin.newsio.json_array') }}</option>
+              <option value="ndjson">{{ __('admin.newsio.ndjson') }}</option>
+              <option value="csv">CSV</option>
+              <option value="zip">ZIP (manifest.json + media/*)</option>
+            </select>
+          </div>
+
+          <div class="io-field">
+            <label class="io-label" for="io-published">{{ __('admin.newsio.published') }}</label>
+            <select id="io-published" name="published" class="io-input">
+              <option value="all">{{ __('admin.newsio.all') }}</option>
+              <option value="1">{{ __('admin.newsio.published_only') }}</option>
+              <option value="0">{{ __('admin.newsio.drafts_only') }}</option>
+            </select>
+          </div>
         </div>
 
         {{-- Категории: чекбоксы-чипы вместо тесного multiple-select, в котором
@@ -101,52 +112,37 @@
             </div>
           @endif
 
-          <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-            {{ __('admin.newsio.none_selected') }}
-          </p>
+          <p class="io-hint mt-2">{{ __('admin.newsio.none_selected') }}</p>
         </div>
 
-        {{-- Даты --}}
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{{ __('admin.newsio.date_from') }}</label>
-            <input type="date" name="date_from"
-                   class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+        {{-- Период --}}
+        <div class="io-row">
+          <div class="io-field">
+            <label class="io-label" for="io-from">{{ __('admin.newsio.date_from') }}</label>
+            <input id="io-from" type="date" name="date_from" class="io-input">
           </div>
-          <div>
-            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{{ __('admin.newsio.date_to') }}</label>
-            <input type="date" name="date_to"
-                   class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+          <div class="io-field">
+            <label class="io-label" for="io-to">{{ __('admin.newsio.date_to') }}</label>
+            <input id="io-to" type="date" name="date_to" class="io-input">
           </div>
         </div>
 
-        {{-- Публикация + ZIP-медиа --}}
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{{ __('admin.newsio.published') }}</label>
-            <select name="published"
-                    class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-              <option value="all">{{ __('admin.newsio.all') }}</option>
-              <option value="1">{{ __('admin.newsio.published_only') }}</option>
-              <option value="0">{{ __('admin.newsio.drafts_only') }}</option>
-            </select>
-          </div>
-
-          <label class="flex items-center gap-2 sm:mt-6 text-gray-700 dark:text-gray-300">
+        {{-- Подвал колонки: тумблер, пояснение про ZIP и кнопка в одной
+             полосе. Совет «сначала отфильтруйте, потом скачайте» убран:
+             он пересказывал порядок полей, который и так виден. --}}
+        <div class="io-foot">
+          <label class="io-switch">
             <span class="admin-toggle">
               <input type="checkbox" name="with_media" value="1">
               <span class="track"></span><span class="knob"></span>
             </span>
-            <span class="text-sm">{{ __('admin.newsio.with_covers') }}</span>
+            <span class="io-switch__body">
+              <span class="io-switch__title">{{ __('admin.newsio.with_covers') }}</span>
+              <span class="io-hint">{{ __('admin.newsio.zip_includes') }} <code>manifest.json</code> {{ __('admin.newsio.and_folder') }} <code>media/*</code>.</span>
+            </span>
           </label>
-        </div>
 
-        <aside class="admin-note px-3 py-2 text-xs">
-          <i class="fas fa-lightbulb"></i> {{ __('admin.newsio.tip') }}
-        </aside>
-
-        <div class="flex justify-end">
-          <button class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition">
+          <button class="io-btn io-btn--primary io-foot__go">
             <i class="fa-solid fa-download"></i> {{ __('admin.newsio.download') }}
           </button>
         </div>
@@ -210,38 +206,50 @@
                   aria-label="{{ __('admin.newsio.choose_file') }}"></button>
         </div>
 
-        {{-- Параметры совпадений --}}
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div>
-            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{{ __('admin.newsio.update_by') }}</label>
-            <select name="update_by"
-                    class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+        {{-- Параметры совпадений.
+             Было три равные колонки: два списка с подписью сверху и
+             пояснением снизу, а третьей — тумблер, прибитый отступом
+             `sm:mt-6`. Отступ подогнан под ОДНУ строку подписи, а пояснения
+             под списками занимали две — тумблер оказывался выше их нижнего
+             края, и блок выглядел перекошенным. Плюс `text-[11px]` в этой
+             сборке не рендерится вовсе, поэтому пояснения были того же
+             кегля, что и подписи.
+
+             Теперь два списка стоят в ряд, как в колонке выгрузки, а
+             тумблер — отдельной полосой под ними: у него своё пояснение и
+             подгонять его к чужой высоте больше не надо. --}}
+        <div class="io-row">
+          <div class="io-field">
+            <label class="io-label" for="io-update-by">{{ __('admin.newsio.update_by') }}</label>
+            <select id="io-update-by" name="update_by" class="io-input">
               <option value="slug">slug</option>
               <option value="id">id</option>
               <option value="none">{{ __('admin.newsio.never_update') }}</option>
             </select>
-            <p class="mt-1 text-[11px] text-gray-500">{{ __('admin.newsio.update_hint') }}</p>
+            <span class="io-hint">{{ __('admin.newsio.update_hint') }}</span>
           </div>
 
-          <div>
-            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{{ __('admin.newsio.match_cats') }}</label>
-            <select name="match_category_by"
-                    class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+          <div class="io-field">
+            <label class="io-label" for="io-match-cats">{{ __('admin.newsio.match_cats') }}</label>
+            <select id="io-match-cats" name="match_category_by" class="io-input">
               <option value="id">id</option>
               <option value="slug">slug</option>
               <option value="title">title</option>
             </select>
-            <p class="mt-1 text-[11px] text-gray-500">{{ __('admin.newsio.match_hint') }}</p>
+            <span class="io-hint">{{ __('admin.newsio.match_hint') }}</span>
           </div>
-
-          <label class="flex items-center gap-2 sm:mt-6 text-gray-700 dark:text-gray-300">
-            <span class="admin-toggle">
-              <input type="checkbox" name="create_missing_cats" value="1">
-              <span class="track"></span><span class="knob"></span>
-            </span>
-            <span class="text-sm">{{ __('admin.newsio.create_cats') }}</span>
-          </label>
         </div>
+
+        <label class="io-switch io-switch--row">
+          <span class="admin-toggle">
+            <input type="checkbox" name="create_missing_cats" value="1">
+            <span class="track"></span><span class="knob"></span>
+          </span>
+          <span class="io-switch__body">
+            <span class="io-switch__title">{{ __('admin.newsio.create_cats') }}</span>
+            <span class="io-hint">{{ __('admin.newsio.create_cats_hint') }}</span>
+          </span>
+        </label>
 
         {{-- Кнопки --}}
         <div class="flex flex-wrap items-center gap-3">
@@ -469,6 +477,39 @@
 {{-- Чипы выбора категорий: настоящий CSS-селектор input:checked, а не
      peer-checked (этого варианта в собранном tailwind.min.css нет — см. CLAUDE.md). --}}
 <style>
+  /* ── Колонка выгрузки ── */
+  .io-row { display:grid; gap:1rem }
+  @media (min-width:640px){ .io-row { grid-template-columns:1fr 1fr } }
+  .io-field { display:flex; flex-direction:column; gap:.3rem; min-width:0 }
+  .io-label { font-size:.8rem; font-weight:600; color:#374151 }
+  .dark .io-label { color:#d1d5db }
+  .io-input { width:100%; height:38px; padding:.4rem .7rem; font-size:.85rem;
+              color:#111827; background:#fff; border:1px solid #d1d5db;
+              transition:border-color .15s, box-shadow .15s }
+  .io-input:focus { outline:none; border-color:var(--admin-primary);
+                    box-shadow:0 0 0 3px color-mix(in srgb, var(--admin-primary) 22%, transparent) }
+  .dark .io-input { color:#f3f4f6; background:#111827; border-color:#374151 }
+
+  .io-hint { display:block; font-size:.72rem; line-height:1.45; color:#6b7280 }
+  .dark .io-hint { color:#9ca3af }
+
+  /* Подвал: тумблер слева, кнопка справа. Раньше кнопка стояла отдельной
+     строкой под советом, и колонка тянулась ещё на семьдесят пикселей. */
+  .io-foot { display:flex; flex-wrap:wrap; align-items:center; gap:1rem;
+             padding-top:.9rem; border-top:1px solid #e5e7eb }
+  .dark .io-foot { border-top-color:#374151 }
+  .io-switch { display:inline-flex; align-items:flex-start; gap:.6rem; flex:1; min-width:14rem; cursor:pointer }
+  .io-switch__body { display:flex; flex-direction:column; gap:.1rem; line-height:1.35 }
+  .io-switch__title { font-size:.85rem; font-weight:600; color:#374151 }
+  .dark .io-switch__title { color:#e5e7eb }
+  .io-foot__go { margin-left:auto; flex:none }
+
+  /* Тумблер отдельной полосой: у него своё пояснение, и подгонять его
+     отступом под высоту соседних списков больше не нужно. */
+  .io-switch--row { display:flex; width:100%; padding:.7rem .9rem;
+                    background:#f9fafb; border:1px solid #e5e7eb }
+  .dark .io-switch--row { background:#111827; border-color:#374151 }
+
   /* ── Зона выбора файла и заметки ──────────────────────────────────
      Литеральный CSS: прозрачности через дробь (`bg-gray-50/70`,
      `dark:bg-red-900/30`) в сборке проекта нет вовсе — подложки были
