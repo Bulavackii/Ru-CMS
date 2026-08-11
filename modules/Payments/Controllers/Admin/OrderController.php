@@ -44,11 +44,20 @@ class OrderController extends Controller
                     }
                 });
             })
-            ->latest()
-            ->paginate(5)
-            ->withQueryString();
+            ->latest();
 
-        return view('Payments::admin.orders.index', compact('orders', 'freshIds'));
+        // Сводку считаем по ВСЕЙ выборке, а не по странице: иначе она
+        // отвечала бы на бессмысленный вопрос «сколько на этом экране».
+        $summary = [
+            'count' => (clone $orders)->count(),
+            'amount' => (float) (clone $orders)->sum('total'),
+            'pending' => (clone $orders)->whereIn('status', ['pending', 'processing'])->count(),
+            'done' => (clone $orders)->where('status', 'completed')->count(),
+        ];
+
+        $orders = $orders->paginate(15)->withQueryString();
+
+        return view('Payments::admin.orders.index', compact('orders', 'freshIds', 'summary'));
     }
 
     /**

@@ -1174,6 +1174,12 @@ return [
         'reset' => 'Reset',
         'export' => 'Export to CSV',
         'shown' => 'Showing :shown of :total',
+
+        // Сводка над списком заказов.
+        'sum_total' => 'orders:',
+        'sum_amount' => 'total:',
+        'sum_pending' => 'awaiting payment:',
+        'sum_done' => 'completed:',
         'empty' => 'There are no orders.',
         'empty_hint' => 'Orders placed on the site will appear here.',
         'empty_filtered' => 'No orders match these conditions.',
