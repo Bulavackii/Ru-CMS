@@ -67,22 +67,48 @@ class CartPageTest extends TestCase
         $this->assertEmpty(session('cart', []));
     }
 
-    public function test_selects_and_script_reference_the_same_elements(): void
+    public function test_markup_and_script_reference_the_same_elements(): void
     {
         // Однажды разметку перевели на радиокнопки, а скрипт продолжал искать
         // <select id="delivery-method">. Переменная была null, первый же вызов
         // падал с TypeError, скрипт умирал целиком — и «Всего к оплате»
-        // навсегда оставалось 0,00 при непустой корзине. Проверяем, что
-        // разметка и скрипт снова говорят об одних и тех же элементах.
+        // навсегда оставалось 0,00 при непустой корзине.
+        //
+        // Выпадающих списков больше нет: выбор сделан карточками, чтобы
+        // покупатель видел логотип, срок и цену не открывая список. Инвариант
+        // остался прежним — разметка и скрипт говорят об одних и тех же
+        // элементах, поэтому проверяем новый контракт, а не старый.
         $product = $this->product();
         $this->methods();
 
         $html = $this->withSession($this->cartWith($product))->get('/cart')->assertOk()->getContent();
 
-        foreach (['payment-method', 'delivery-method'] as $id) {
-            $this->assertStringContainsString('id="' . $id . '"', $html, "В разметке нет select #{$id}");
-            $this->assertStringContainsString("getElementById('" . $id . "')", $html, "Скрипт не читает #{$id}");
+        foreach (['payment_method_id', 'delivery_method_id'] as $name) {
+            $this->assertStringContainsString(
+                'name="' . $name . '"',
+                $html,
+                "В разметке нет переключателей {$name}"
+            );
+
         }
+
+        // Скрипт читает выбранное значение по имени поля. Разъедется
+        // селектор с разметкой — итог молча останется нулевым.
+        $this->assertStringContainsString(
+            '[name="\' + name + \'"]:checked',
+            $html,
+            'Скрипт ищет отмеченный переключатель не по имени поля'
+        );
+
+        // Пересчёт итога живёт на этих data-атрибутах: пропадёт любой —
+        // доставка или комиссия молча посчитаются нулём.
+        foreach (['data-price', 'data-free-from', 'data-commission'] as $attribute) {
+            $this->assertStringContainsString($attribute, $html, "В разметке нет {$attribute}");
+        }
+
+        // Старых обращений к select остаться не должно.
+        $this->assertStringNotContainsString("getElementById('delivery-method')", $html);
+        $this->assertStringNotContainsString("getElementById('payment-method')", $html);
     }
 
     public function test_goods_total_is_rendered_by_the_server(): void

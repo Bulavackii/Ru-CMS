@@ -360,6 +360,10 @@ return [
         'quantity' => 'Qty:',
         'sum' => 'Subtotal:',
         'title' => 'Your cart',
+        'eyebrow' => 'Checkout',
+        'step_goods' => 'Items in cart',
+        'summary' => 'Summary',
+        'no_fee' => 'no fee',
         'total' => 'Total to pay:',
     ],
 

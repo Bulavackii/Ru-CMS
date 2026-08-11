@@ -7,12 +7,12 @@
     ╔══════════════════════════════════════════════════════════════════╗
     ║  🛒 КОРЗИНА                                                      ║
     ╠══════════════════════════════════════════════════════════════════╣
-    ║  Слева товары, справа оформление: способ оплаты, доставка, итог.  ║
+    ║  Слева три шага: товары, оплата, доставка. Справа — липкий итог. ║
     ║                                                                  ║
     ║  СПОСОБЫ ОПЛАТЫ И ДОСТАВКИ                                       ║
-    ║    Выпадающие списки. Подробности выбранного варианта — под       ║
-    ║    списком: описание, срок, комиссия. Список берётся из разделов  ║
-    ║    «Оплата» и «Доставка» панели, показываются только включённые.  ║
+    ║    Карточки с логотипом, названием, пояснением и ценой. Знак и    ║
+    ║    фирменный цвет берутся из brand() тех же моделей, что и в      ║
+    ║    панели. Показываются только включённые способы.                ║
     ║                                                                  ║
     ║  ИТОГ                                                            ║
     ║    Сумма товаров считается на СЕРВЕРЕ и приходит в разметке —     ║
@@ -26,118 +26,195 @@
 @endphp
 
 <section class="crt">
-    <div class="crt__head">
-        <span class="fx-badge"><i class="fas fa-cart-shopping"></i></span>
-        <div>
-            <h1 class="crt__title">{{ __('frontend.cart.title') }}</h1>
-            <p class="crt__sub">{{ __('frontend.cart.subtitle', ['count' => count($cart)]) }}</p>
-        </div>
-    </div>
+    <header class="crt__head">
+        <p class="crt__eyebrow">{{ __('frontend.cart.eyebrow') }}</p>
+        <h1 class="crt__title">{{ __('frontend.cart.title') }}</h1>
+        <p class="crt__sub">{{ __('frontend.cart.subtitle', ['count' => count($cart)]) }}</p>
+    </header>
 
     @if (count($cart))
         <form action="{{ route('cart.checkout') }}" method="POST" class="crt-grid">
             @csrf
 
-            {{-- ── Товары ── --}}
-            <div class="crt-items">
-                @foreach ($cart as $item)
-                    @php $subtotal = $item['qty'] * $item['price']; @endphp
+            <div class="crt-main">
+                {{-- ── 01. Товары ── --}}
+                <section class="crt-step">
+                    <h2 class="crt-step__title">
+                        <span class="crt-step__num">01</span>
+                        {{ __('frontend.cart.step_goods') }}
+                        <span class="crt-step__count">{{ count($cart) }}</span>
+                    </h2>
 
-                    <article class="crt-item">
-                        <div class="crt-item__main">
-                            <h2 class="crt-item__title">{{ $item['title'] }}</h2>
-                            <p class="crt-item__price">
-                                <span class="price">{{ number_format($item['price'], 2, ',', ' ') }}</span> ₽
-                                <span class="crt-item__per">{{ __('frontend.cart.per_item') }}</span>
-                            </p>
-                        </div>
+                    <div class="crt-items">
+                        @foreach ($cart as $item)
+                            @php $subtotal = $item['qty'] * $item['price']; @endphp
 
-                        <div class="crt-item__qty">
-                            <button type="button" class="crt-qty__btn decrement" data-id="{{ $item['id'] }}"
-                                    aria-label="{{ __('frontend.products.less') }}">−</button>
-                            {{-- id обязателен: обработчики +/- ищут поле как #cart-qty-{id}. --}}
-                            <input type="text" readonly value="{{ $item['qty'] }}" id="cart-qty-{{ $item['id'] }}"
-                                   class="crt-qty__input qty-input" data-id="{{ $item['id'] }}"
-                                   aria-label="{{ __('frontend.products.qty') }}">
-                            <button type="button" class="crt-qty__btn increment" data-id="{{ $item['id'] }}"
-                                    aria-label="{{ __('frontend.products.more') }}">+</button>
-                        </div>
+                            <article class="crt-item">
+                                <div class="crt-item__main">
+                                    <h3 class="crt-item__title">{{ $item['title'] }}</h3>
+                                    <p class="crt-item__price">
+                                        <span class="price">{{ number_format($item['price'], 2, ',', ' ') }}</span> ₽
+                                        <span class="crt-item__per">{{ __('frontend.cart.per_item') }}</span>
+                                    </p>
+                                </div>
 
-                        <div class="crt-item__sum">
-                            <span class="subtotal">{{ number_format($subtotal, 2, ',', ' ') }}</span> ₽
-                        </div>
+                                <div class="crt-item__qty">
+                                    <button type="button" class="crt-qty__btn decrement" data-id="{{ $item['id'] }}"
+                                            aria-label="{{ __('frontend.products.less') }}">−</button>
+                                    {{-- id обязателен: обработчики +/- ищут поле как #cart-qty-{id}. --}}
+                                    <input type="text" readonly value="{{ $item['qty'] }}" id="cart-qty-{{ $item['id'] }}"
+                                           class="crt-qty__input qty-input" data-id="{{ $item['id'] }}"
+                                           aria-label="{{ __('frontend.products.qty') }}">
+                                    <button type="button" class="crt-qty__btn increment" data-id="{{ $item['id'] }}"
+                                            aria-label="{{ __('frontend.products.more') }}">+</button>
+                                </div>
 
-                        {{-- formnovalidate обязателен: кнопка лежит внутри формы
-                             оформления, где способ оплаты и доставки помечены
-                             required. Без него браузер требовал выбрать их,
-                             чтобы... удалить товар из корзины. --}}
-                        <button formnovalidate formaction="{{ route('cart.remove') }}" formmethod="POST"
-                                name="id" value="{{ $item['id'] }}" class="crt-item__del"
-                                aria-label="{{ __('frontend.cart.remove') }}"
-                                title="{{ __('frontend.cart.remove') }}">
-                            <i class="fas fa-trash-can"></i>
-                        </button>
-                    </article>
-                @endforeach
+                                <div class="crt-item__sum">
+                                    <span class="subtotal">{{ number_format($subtotal, 2, ',', ' ') }}</span> ₽
+                                </div>
 
-                <a href="{{ url('/') }}" class="crt-back">
-                    <i class="fas fa-arrow-left"></i> {{ __('frontend.cart.continue') }}
-                </a>
-            </div>
+                                {{-- formnovalidate обязателен: кнопка лежит внутри формы
+                                     оформления, где способ оплаты и доставки помечены
+                                     required. Без него браузер требовал выбрать их,
+                                     чтобы... удалить товар из корзины. --}}
+                                <button formnovalidate formaction="{{ route('cart.remove') }}" formmethod="POST"
+                                        name="id" value="{{ $item['id'] }}" class="crt-item__del"
+                                        aria-label="{{ __('frontend.cart.remove') }}"
+                                        title="{{ __('frontend.cart.remove') }}">
+                                    <i class="fas fa-trash-can"></i>
+                                </button>
+                            </article>
+                        @endforeach
+                    </div>
 
-            {{-- ── Оформление ── --}}
-            <aside class="crt-side">
-                <div class="crt-box">
-                    <h2 class="crt-box__title">
-                        <i class="fas fa-credit-card"></i> {{ __('frontend.cart.payment_method') }}
+                    <a href="{{ url('/') }}" class="crt-back">
+                        <i class="fas fa-arrow-left"></i> {{ __('frontend.cart.continue') }}
+                    </a>
+                </section>
+
+                {{-- ── 02. Оплата ── --}}
+                <section class="crt-step">
+                    <h2 class="crt-step__title">
+                        <span class="crt-step__num">02</span>
+                        {{ __('frontend.cart.payment_method') }}
                     </h2>
 
                     @if ($paymentMethods->count())
-                        <select name="payment_method_id" id="payment-method" required class="crt-select">
-                            <option value="">{{ __('frontend.cart.choose') }}</option>
+                        {{-- Карточки, а не выпадающий список: в списке покупатель
+                             видел одни названия и открывал его ради каждого
+                             сравнения. Знак и фирменный цвет берутся из той же
+                             карты, что и в панели. --}}
+                        <div class="crt-pick" role="radiogroup"
+                             aria-label="{{ __('frontend.cart.payment_method') }}">
                             @foreach ($paymentMethods as $method)
-                                <option value="{{ $method->id }}"
-                                        data-description="{{ $method->description ?? '' }}"
-                                        data-commission="{{ $method->commission ?? 0 }}"
-                                        data-commission-text="{{ $method->commission > 0 ? $method->formattedCommission : '' }}">
-                                    {{ $method->title }}
-                                </option>
-                            @endforeach
-                        </select>
+                                @php $brand = $method->brand(); @endphp
 
-                        <p id="payment-description" class="crt-hint"></p>
+                                <label class="crt-opt" style="--pm:{{ $brand['color'] }}; --pm-ink:{{ $brand['ink'] }}">
+                                    <input type="radio" name="payment_method_id" value="{{ $method->id }}" required
+                                           data-title="{{ $method->title }}"
+                                           data-description="{{ $method->description ?? '' }}"
+                                           data-commission="{{ $method->commission ?? 0 }}"
+                                           data-commission-text="{{ $method->commission > 0 ? $method->formattedCommission : '' }}">
+
+                                    <span class="crt-opt__mark {{ $brand['logo'] ? 'has-logo' : '' }}">
+                                        @if($brand['logo'])
+                                            <img src="{{ $brand['logo'] }}" alt="{{ $method->title }}" loading="lazy">
+                                        @else
+                                            <i class="fas {{ $brand['icon'] }}"></i>
+                                        @endif
+                                    </span>
+
+                                    <span class="crt-opt__body">
+                                        <span class="crt-opt__name">{{ $method->title }}</span>
+                                        @if($method->description)
+                                            <span class="crt-opt__note">{{ $method->description }}</span>
+                                        @endif
+                                    </span>
+
+                                    <span class="crt-opt__meta">
+                                        {{ $method->commission > 0 ? $method->formattedCommission : __('frontend.cart.no_fee') }}
+                                    </span>
+
+                                    <i class="crt-opt__tick fas fa-circle-check" aria-hidden="true"></i>
+                                </label>
+                            @endforeach
+                        </div>
                     @else
                         <p class="crt-hint">{{ __('frontend.cart.no_payment') }}</p>
                     @endif
-                </div>
+                </section>
 
-                <div class="crt-box">
-                    <h2 class="crt-box__title">
-                        <i class="fas fa-truck"></i> {{ __('frontend.cart.delivery_method') }}
+                {{-- ── 03. Доставка ── --}}
+                <section class="crt-step">
+                    <h2 class="crt-step__title">
+                        <span class="crt-step__num">03</span>
+                        {{ __('frontend.cart.delivery_method') }}
                     </h2>
 
                     @if ($deliveryMethods->count())
-                        <select name="delivery_method_id" id="delivery-method" required class="crt-select">
-                            <option value="">{{ __('frontend.cart.choose') }}</option>
+                        <div class="crt-pick" role="radiogroup"
+                             aria-label="{{ __('frontend.cart.delivery_method') }}">
                             @foreach ($deliveryMethods as $method)
-                                <option value="{{ $method->id }}"
-                                        data-price="{{ $method->price }}"
-                                        data-days="{{ $method->delivery_days }}"
-                                        data-description="{{ $method->description ?? '' }}"
-                                        data-free-from="{{ $method->free_delivery_threshold ?? 0 }}">
-                                    {{ $method->title }} — {{ $method->formatted_price }}
-                                </option>
-                            @endforeach
-                        </select>
+                                @php $brand = $method->brand(); @endphp
 
-                        <p id="delivery-description" class="crt-hint"></p>
+                                <label class="crt-opt" style="--pm:{{ $brand['color'] }}; --pm-ink:{{ $brand['ink'] }}">
+                                    <input type="radio" name="delivery_method_id" value="{{ $method->id }}" required
+                                           data-title="{{ $method->title }}"
+                                           data-price="{{ $method->price }}"
+                                           data-days="{{ $method->delivery_days }}"
+                                           data-description="{{ $method->description ?? '' }}"
+                                           data-free-from="{{ $method->free_delivery_threshold ?? 0 }}">
+
+                                    <span class="crt-opt__mark {{ $brand['logo'] ? 'has-logo' : '' }}">
+                                        @if($brand['logo'])
+                                            <img src="{{ $brand['logo'] }}" alt="{{ $method->title }}" loading="lazy">
+                                        @else
+                                            <i class="fas {{ $brand['icon'] }}"></i>
+                                        @endif
+                                    </span>
+
+                                    <span class="crt-opt__body">
+                                        <span class="crt-opt__name">{{ $method->title }}</span>
+                                        <span class="crt-opt__note">
+                                            {{ collect([
+                                                $method->delivery_days,
+                                                $method->free_delivery_threshold > 0
+                                                    ? __('frontend.cart.free_delivery_from', ['sum' => number_format((float) $method->free_delivery_threshold, 0, ',', ' ')])
+                                                    : null,
+                                                $method->description,
+                                            ])->filter()->join(' · ') }}
+                                        </span>
+                                    </span>
+
+                                    <span class="crt-opt__meta">{{ $method->formatted_price }}</span>
+
+                                    <i class="crt-opt__tick fas fa-circle-check" aria-hidden="true"></i>
+                                </label>
+                            @endforeach
+                        </div>
                     @else
                         <p class="crt-hint">{{ __('frontend.cart.no_delivery') }}</p>
                     @endif
-                </div>
+                </section>
+            </div>
 
-                {{-- ── Итог ── --}}
+            {{-- ── Итог ── --}}
+            <aside class="crt-side">
                 <div class="crt-box crt-total">
+                    <p class="crt-box__title">{{ __('frontend.cart.summary') }}</p>
+
+                    {{-- Что именно выбрано — строкой, чтобы это не приходилось
+                         искать глазами по карточкам выше. --}}
+                    <div class="crt-chosen" id="chosen-payment" hidden>
+                        <span class="crt-chosen__label">{{ __('frontend.cart.payment_method') }}</span>
+                        <span class="crt-chosen__value"></span>
+                    </div>
+
+                    <div class="crt-chosen" id="chosen-delivery" hidden>
+                        <span class="crt-chosen__label">{{ __('frontend.cart.delivery_method') }}</span>
+                        <span class="crt-chosen__value"></span>
+                    </div>
+
                     <div class="crt-total__row">
                         <span>{{ __('frontend.cart.goods') }}</span>
                         <b><span id="cart-total">{{ number_format($goodsTotal, 2, ',', ' ') }}</span> ₽</b>
@@ -184,8 +261,9 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const paymentSelect  = document.getElementById('payment-method');
-    const deliverySelect = document.getElementById('delivery-method');
+    // Выбор переехал с выпадающих списков на карточки-переключатели.
+    // Данные для пересчёта лежат там же, где лежали у option.
+    const picked = (name) => document.querySelector('input[name="' + name + '"]:checked');
     const deliveryCost   = document.getElementById('delivery-cost');
     const commissionCost = document.getElementById('commission-cost');
     const commissionRow  = document.getElementById('commission-row');
@@ -229,9 +307,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Доставка: бесплатна, если сумма перевалила порог у выбранного способа.
         let delivery = 0;
-        const dOpt = deliverySelect ? deliverySelect.selectedOptions[0] : null;
+        const dOpt = picked('delivery_method_id');
 
-        if (dOpt && dOpt.value) {
+        if (dOpt) {
             delivery = parseFloat(dOpt.dataset.price || 0) || 0;
             const freeFrom = parseFloat(dOpt.dataset.freeFrom || 0) || 0;
             if (freeFrom > 0 && goods >= freeFrom) delivery = 0;
@@ -241,9 +319,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Комиссия — процент от суммы товаров.
         let fee = 0;
-        const pOpt = paymentSelect ? paymentSelect.selectedOptions[0] : null;
+        const pOpt = picked('payment_method_id');
 
-        if (pOpt && pOpt.value) {
+        if (pOpt) {
             const percent = parseFloat(pOpt.dataset.commission || 0) || 0;
             if (percent > 0) fee = goods * percent / 100;
         }
@@ -254,31 +332,35 @@ document.addEventListener('DOMContentLoaded', function () {
         if (grandTotal) grandTotal.textContent = money(goods + delivery + fee);
     }
 
-    function describe(select, targetId, build) {
-        const target = document.getElementById(targetId);
-        if (!select || !target) return;
+    // Класс на выбранной карточке ставит JS, а не CSS-селектор :has():
+    // он есть не везде, а без подсветки выбор читается плохо.
+    function markPicked(name) {
+        let chosen = null;
 
-        const opt = select.selectedOptions[0];
-        target.textContent = opt && opt.value ? build(opt) : '';
-    }
-
-    if (paymentSelect) {
-        paymentSelect.addEventListener('change', function () {
-            describe(paymentSelect, 'payment-description', function (o) {
-                return [o.dataset.description, o.dataset.commissionText].filter(Boolean).join(' · ');
-            });
-            recalc();
+        document.querySelectorAll('input[name="' + name + '"]').forEach(function (input) {
+            input.closest('.crt-opt').classList.toggle('is-picked', input.checked);
+            if (input.checked) chosen = input;
         });
+
+        // Строка «что выбрано» в итоге: карточки остаются выше, а сводка
+        // липкая — иначе выбор приходилось бы искать прокруткой.
+        const box = document.getElementById(name === 'payment_method_id' ? 'chosen-payment' : 'chosen-delivery');
+        if (!box) return;
+
+        box.hidden = !chosen;
+        if (chosen) box.querySelector('.crt-chosen__value').textContent = chosen.dataset.title || '';
     }
 
-    if (deliverySelect) {
-        deliverySelect.addEventListener('change', function () {
-            describe(deliverySelect, 'delivery-description', function (o) {
-                return [o.dataset.description, o.dataset.days].filter(Boolean).join(' · ');
+    ['payment_method_id', 'delivery_method_id'].forEach(function (name) {
+        document.querySelectorAll('input[name="' + name + '"]').forEach(function (input) {
+            input.addEventListener('change', function () {
+                markPicked(name);
+                recalc();
             });
-            recalc();
         });
-    }
+
+        markPicked(name);
+    });
 
     // ── Количество ──
     function changeQty(id, delta) {
@@ -334,13 +416,44 @@ document.addEventListener('DOMContentLoaded', function () {
        значений, ни прозрачности через /NN. Цвета — из активной темы. */
     .crt{ max-width:76rem; margin:2.5rem auto; padding:0 1rem }
 
-    .crt__head{ display:inline-flex; align-items:center; gap:.75rem; padding:.7rem 1.15rem;
-        background:var(--surface,#fff); border:1px solid rgba(17,24,39,.08); box-shadow:0 2px 10px rgba(15,23,42,.06);
-        margin-bottom:1.5rem }
-    .crt__title{ margin:0; font-size:1.5rem; font-weight:700; color:var(--surface-ink,#111827); line-height:1.2 }
-    .crt__sub{ margin:.1rem 0 0; font-size:.82rem; color:var(--surface-mute,#6b7280) }
+    /* ── Типографика ──
+       Тот же приём, что на страницах входа и в разделах панели: мелкий
+       моноширинный надзаголовок капсом с крупным просветом плюс крупный
+       заголовок с плотным трекингом. Второй шрифт не нужен — системный
+       моноширинный стек уже используется в проекте. */
+    /* Подложка обязательна: у тем есть фоновая картинка, и текст без
+       плашки на ней читается через силу. Плашка обнимает содержимое
+       (inline-block), а не растягивается на всю ширину. */
+    .crt__head{ display:inline-block; margin-bottom:1.5rem; padding:.85rem 1.25rem 1rem;
+        background:var(--surface,#fff); border:1px solid var(--surface-bd,#eef2f7);
+        box-shadow:0 2px 12px rgba(15,23,42,.06) }
+    /* Цвет темы, подмешанный к тексту: чистый акцент у оранжевых тем даёт
+       контраст 3.67, а это мелкий текст — нужно от 4.5. */
+    .crt__eyebrow{ margin:0 0 .35rem; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+        font-size:.66rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase;
+        color:color-mix(in srgb, var(--color-primary,#6366f1) 72%, var(--surface-ink,#111827)) }
+    .crt__title{ margin:0; font-size:clamp(1.6rem, 4vw, 2.15rem); font-weight:800;
+        letter-spacing:-.03em; line-height:1.1; color:var(--surface-ink,#111827) }
+    .crt__sub{ margin:.35rem 0 0; font-size:.85rem; color:var(--surface-mute,#6b7280) }
 
-    .crt-grid{ display:grid; grid-template-columns:minmax(0,1fr) 21rem; gap:1rem; align-items:start }
+    .crt-grid{ display:grid; grid-template-columns:minmax(0,1fr) 21rem; gap:1.25rem; align-items:start }
+
+    /* Шаги оформления. Выбор способов переехал сюда из боковой колонки:
+       слева пустовало полстраницы, а подписи в карточках обрезались на
+       140 пикселях ширины. */
+    .crt-main{ display:grid; gap:1.5rem; min-width:0 }
+    .crt-step{ min-width:0 }
+    .crt-step__title{ display:inline-flex; align-items:center; gap:.55rem; margin:0 0 .7rem;
+        padding:.3rem .7rem .3rem .3rem;
+        background:var(--surface,#fff); border:1px solid var(--surface-bd,#eef2f7);
+        font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+        font-size:.72rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+        color:var(--surface-ink,#111827) }
+    .crt-step__num{ display:inline-flex; align-items:center; justify-content:center;
+        align-self:stretch; min-width:1.75rem; padding:.25rem .4rem; font-size:.7rem; letter-spacing:.06em;
+        color:var(--on-accent,#fff); background:var(--color-primary,#6366f1) }
+    .crt-step__count{ padding:.1rem .35rem; font-size:.68rem; font-weight:700;
+        color:var(--surface-mute,#64748b); background:var(--surface-2,#f8fafc) }
 
     /* ── Товары ── */
     .crt-items{ display:grid; gap:.5rem; align-content:start }
@@ -359,34 +472,84 @@ document.addEventListener('DOMContentLoaded', function () {
         border-right:1px solid #e2e8f0; font-size:.85rem; color:var(--surface-ink,#111827); background:var(--surface,#fff) }
 
     .crt-item__sum{ font-size:1.05rem; font-weight:800; color:var(--surface-ink,#111827); white-space:nowrap;
-        min-width:7rem; text-align:right }
+        min-width:7rem; text-align:right; font-variant-numeric:tabular-nums }
 
     .crt-item__del{ width:2.2rem; height:2.2rem; display:inline-flex; align-items:center;
         justify-content:center; color:#cbd5e1; background:transparent; border:0; cursor:pointer }
     .crt-item__del:hover{ color:#dc2626 }
 
-    .crt-back{ display:inline-flex; align-items:center; gap:.45rem; margin-top:.35rem;
-        font-size:.85rem; font-weight:600; color:var(--color-primary,#6366f1) }
+    .crt-back{ display:inline-flex; align-items:center; gap:.45rem; margin-top:.6rem;
+        padding:.45rem .8rem; font-size:.85rem; font-weight:600;
+        background:var(--surface,#fff); border:1px solid var(--surface-bd,#eef2f7);
+        color:color-mix(in srgb, var(--color-primary,#6366f1) 72%, var(--surface-ink,#111827));
+        transition:border-color .15s }
+    .crt-back:hover{ border-color:var(--color-primary,#6366f1) }
 
     /* ── Оформление ── */
     .crt-side{ display:grid; gap:.75rem; position:sticky; top:1rem }
     .crt-box{ padding:1.1rem 1.2rem; background:var(--surface,#fff); border:1px solid var(--surface-bd,#eef2f7) }
-    .crt-box__title{ display:flex; align-items:center; gap:.5rem; margin:0 0 .75rem;
-        font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--surface-dim,#9ca3af) }
-    .crt-box__title i{ color:var(--color-primary,#6366f1); font-size:.85rem }
+    .crt-box__title{ margin:0 0 .75rem; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+        font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.14em;
+        color:var(--surface-mute,#64748b) }
 
-    .crt-select{ width:100%; padding:.6rem .7rem; font-size:.9rem; color:var(--surface-ink,#111827);
-        background:var(--surface,#fff); border:1px solid var(--surface-bd,#e2e8f0) }
-    .crt-select:focus{ outline:2px solid var(--color-primary,#6366f1); outline-offset:-1px }
+    /* Что выбрано — прямо в липкой сводке. */
+    .crt-chosen{ display:flex; align-items:baseline; justify-content:space-between; gap:.75rem;
+        padding:.35rem 0; border-bottom:1px dashed var(--surface-bd,#e2e8f0) }
+    .crt-chosen__label{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+        font-size:.6rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+        color:var(--surface-mute,#94a3b8) }
+    .crt-chosen__value{ font-size:.8rem; font-weight:700; color:var(--surface-ink,#111827);
+        text-align:right; min-width:0 }
+
+    /* ── Выбор способа: карточки вместо выпадающего списка ──
+       Фирменный цвет приходит переменной --pm со стороны разметки:
+       способов столько же, сколько цветов, и перечислять их правилами
+       пришлось бы дважды — в CSS и в модели. */
+    .crt-pick{ display:grid; gap:.5rem; grid-template-columns:repeat(auto-fill, minmax(19rem, 1fr)) }
+
+    .crt-opt{ display:grid; grid-template-columns:2.5rem minmax(0,1fr) auto auto;
+        align-items:center; gap:.7rem; padding:.65rem .75rem; cursor:pointer;
+        background:var(--surface,#fff); border:1px solid var(--surface-bd,#e2e8f0);
+        transition:border-color .15s, box-shadow .15s }
+    .crt-opt:hover{ border-color:var(--pm,#6366f1) }
+    .crt-opt.is-picked{ border-color:var(--pm,#6366f1);
+        box-shadow:inset 0 0 0 1px var(--pm,#6366f1) }
+
+    /* Сам переключатель не рисуем: роль «выбрано» несёт вся карточка, а
+       рамка фокуса остаётся — с клавиатуры выбор виден. */
+    .crt-opt input{ position:absolute; opacity:0; width:0; height:0 }
+    .crt-opt:focus-within{ outline:2px solid var(--color-primary,#6366f1); outline-offset:1px }
+
+    .crt-opt__mark{ display:flex; align-items:center; justify-content:center;
+        width:2.5rem; height:2.5rem; overflow:hidden;
+        color:var(--pm-ink,#fff); background:var(--pm,#6366f1) }
+    /* С логотипом подложка светлая: знаки нарисованы под свой фон и
+       занимают плитку целиком. */
+    .crt-opt__mark.has-logo{ background:#fff }
+    .crt-opt__mark img{ width:100%; height:100%; object-fit:cover; display:block }
+
+    .crt-opt__body{ display:flex; flex-direction:column; gap:.05rem; min-width:0 }
+    .crt-opt__name{ font-size:.88rem; font-weight:700; color:var(--surface-ink,#111827);
+        overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+    .crt-opt__note{ font-size:.72rem; line-height:1.35; color:var(--surface-mute,#64748b);
+        display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden }
+
+    .crt-opt__meta{ font-size:.82rem; font-weight:700; white-space:nowrap;
+        color:var(--surface-ink,#111827); font-variant-numeric:tabular-nums }
+
+    .crt-opt__tick{ font-size:.9rem; color:var(--surface-bd,#e2e8f0) }
+    .crt-opt.is-picked .crt-opt__tick{ color:var(--pm,#6366f1) }
     .crt-hint{ margin:.5rem 0 0; font-size:.78rem; line-height:1.5; color:var(--surface-mute,#64748b) }
 
     .crt-total__row{ display:flex; align-items:baseline; justify-content:space-between; gap:1rem;
-        padding:.35rem 0; font-size:.88rem; color:#475569 }
-    .crt-total__row b{ color:var(--surface-ink,#111827); white-space:nowrap }
+        padding:.35rem 0; font-size:.88rem; color:var(--surface-mute,#475569) }
+    .crt-total__row b{ color:var(--surface-ink,#111827); white-space:nowrap;
+        font-variant-numeric:tabular-nums }
     .crt-total__grand{ display:flex; align-items:baseline; justify-content:space-between; gap:1rem;
         margin-top:.5rem; padding-top:.75rem; border-top:1px solid #eef2f7;
         font-size:.95rem; font-weight:700; color:var(--surface-ink,#111827) }
-    .crt-total__grand b{ font-size:1.35rem; white-space:nowrap }
+    .crt-total__grand b{ font-size:1.45rem; white-space:nowrap; letter-spacing:-.02em;
+        font-variant-numeric:tabular-nums }
 
     .crt-submit{ display:flex; align-items:center; justify-content:center; gap:.5rem; width:100%;
         margin-top:1rem; padding:.8rem 1rem; font-size:.95rem; font-weight:700; color:var(--on-accent,#fff);
@@ -413,18 +576,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     @media (max-width: 960px){
         .crt-grid{ grid-template-columns:1fr }
+        .crt-main{ gap:1.25rem }
+        .crt-pick{ grid-template-columns:1fr }
         .crt-side{ position:static }
         .crt-item{ grid-template-columns:minmax(0,1fr) auto; row-gap:.75rem }
         .crt-item__sum{ text-align:left; min-width:0 }
     }
 
-    @media (prefers-color-scheme: dark){
-        .crt__head, .crt-item, .crt-box, .crt-empty{ background:#111827; border-color:#1f2937 }
-        .crt__title, .crt-item__title, .crt-item__sum, .crt-total__row b,
-        .crt-total__grand, .crt-empty__title{ color:#f3f4f6 }
-        .crt-select, .crt-qty__input{ background:#111827; color:#f3f4f6; border-color:#1f2937 }
-        .crt-qty__btn{ background:#1f2937; color:#cbd5e1 }
-        .crt-total__grand{ border-color:#1f2937 }
-    }
+    /* ⚠️ Здесь стоял блок по тёмному режиму ОПЕРАЦИОННОЙ СИСТЕМЫ. Тему
+       сайта задаёт оформление (переменные --surface-*), и корзина уже
+       следует ей; настройка ОС к ней отношения не имеет и только
+       перекрашивала карточки в тёмные посреди светлой страницы. */
 </style>
 @endpush
