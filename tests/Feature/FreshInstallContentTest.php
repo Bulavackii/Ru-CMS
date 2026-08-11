@@ -28,6 +28,17 @@ class FreshInstallContentTest extends TestCase
         $method->invoke($controller);
     }
 
+    public function test_install_creates_no_orders(): void
+    {
+        // Заказы — данные покупателя, а не продукт: на свежем сайте их
+        // быть не должно ни одного. Демо-заказ в кабинете выглядит
+        // уместно ровно до того, как его увидит покупатель.
+        $this->seedDemo();
+
+        $this->assertSame(0, DB::table('orders')->count());
+        $this->assertSame(0, DB::table('order_items')->count());
+    }
+
     public function test_content_is_seeded_and_split_by_template(): void
     {
         $this->seedDemo();
