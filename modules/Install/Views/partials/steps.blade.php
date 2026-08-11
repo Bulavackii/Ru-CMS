@@ -27,7 +27,10 @@
     $__installTotal = count($__installStepKeys) - 1;
     $__installProgress = $__installTotal > 0 ? round(($__installCurrentIndex / $__installTotal) * 100) : 0;
 @endphp
-<div class="space-y-2.5" aria-label="{{ __('install.steps.aria') }}">
+{{-- lg:hidden — на широких экранах те же шаги показывает лестница в
+     левой колонке макета, и вторая полоса внутри карточки была ровно тем
+     же самым, только чипами. --}}
+<div class="space-y-2.5 lg:hidden" aria-label="{{ __('install.steps.aria') }}">
     {{-- Заголовок прогресса + полоса на всю ширину --}}
     <div>
         {{-- min-w-0 + truncate: название шага в разных языках сильно разной

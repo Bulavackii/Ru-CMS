@@ -6,26 +6,26 @@
 <div class="w-full max-w-3xl max-h-full flex flex-col">
     <div class="install-card rounded-3xl flex flex-col max-h-full overflow-hidden">
 
-        {{-- Шапка: логотип + название --}}
-        <div class="px-6 sm:px-10 pt-7 pb-4 text-center shrink-0">
-            {{-- max-w-full + min-w-0: inline-flex ужимается по содержимому,
-                 поэтому длинный слоган на некоторых языках распирал шапку. --}}
-            <div class="inline-flex items-center gap-3 max-w-full">
-                {{-- Логотип: акцентный квадрат со «слоями» — намёк на модульность CMS --}}
-                <div class="accent-badge w-12 h-12 shrink-0 rounded-2xl grid place-items-center text-white"
-                     data-tip="{{ __('install.welcome.logo_tip') }}">
-                    <i data-lucide="layers" class="w-6 h-6"></i>
-                </div>
-                <div class="text-left min-w-0">
-                    <p class="ins-eyebrow">{{ __('install.welcome.suffix') }}</p>
-                    <h1 class="ins-title break-words">Ru&nbsp;CMS</h1>
-                    <p class="ins-tagline break-words">{{ __('install.welcome.tagline') }}</p>
-                </div>
+        {{-- Шапка карточки называет ШАГ, а не продукт: имя «Ru CMS» уже
+             написано крупно в левой колонке, а вот чем занят текущий шаг —
+             больше нигде. Знак, номер, название и одна строка о том, что
+             здесь происходит: тот же приём, что у заголовков разделов на
+             сайте и в панели. --}}
+        <div class="ins-head shrink-0">
+            <div class="accent-badge ins-head__badge grid place-items-center text-white"
+                 data-tip="{{ __('install.welcome.logo_tip') }}">
+                <i data-lucide="sparkles" class="w-5 h-5"></i>
+            </div>
+
+            <div class="min-w-0">
+                <p class="ins-eyebrow">{{ __('install.steps.step') }} 01 · {{ __('install.welcome.suffix') }}</p>
+                <h1 class="ins-title break-words">{{ __('install.steps.welcome') }}</h1>
+                <p class="ins-head__about">{{ __('install.about.welcome') }}</p>
             </div>
         </div>
 
         {{-- Прокручиваемая середина (на маленьких экранах), обычно всё влезает --}}
-        <div class="px-6 sm:px-10 overflow-y-auto install-scroll min-h-0 space-y-4">
+        <div class="px-5 sm:px-6 py-5 overflow-y-auto install-scroll min-h-0 space-y-4">
 
             {{-- 🌍 Выбор языка: флаг — главный элемент --}}
             <div class="rounded-2xl border border-white/60 bg-white/40 backdrop-blur p-4"
@@ -51,7 +51,7 @@
                 <form method="GET" action="{{ route('install.welcome') }}">
                     {{-- Колонок ровно столько, сколько кнопок: при двух языках сетка на
                          четыре оставляла половину строки пустой. --}}
-                    <div class="grid gap-2.5 {{ count($presetCountries) > 2 ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-2' }}">
+                    <div class="ins-langs {{ count($presetCountries) > 2 ? 'is-many' : '' }}">
                         @foreach($presetCountries as $code => $country)
                             @php $isSel = ($currentCountry ?? 'RU') === $code; @endphp
                             <button type="submit"
@@ -59,19 +59,18 @@
                                     value="{{ $code }}"
                                     data-tip="{{ $country['name'] ?? $code }} · {{ $country['currency_code'] ?? '' }} · {{ $country['timezone'] ?? '' }}"
                                     data-tip-pos="bottom"
-                                    class="country-select-btn rounded-2xl border-2 p-3 text-center bg-white/60 min-w-0"
-                                    style="{{ $isSel
-                                        ? 'border-color:var(--accent); box-shadow:0 12px 26px -12px color-mix(in srgb, var(--accent) 60%, transparent), inset 0 1px 0 rgba(255,255,255,.7)'
-                                        : 'border-color:rgba(0,0,0,.08)' }}">
-                                <div class="flex justify-center mb-2">{!! $flagSvg[$code] ?? '<span class="text-2xl leading-none">🌍</span>' !!}</div>
-                                <div class="ins-lang__name break-words {{ $isSel ? 'is-sel' : '' }}">{{ $country['lang'] ?? $country['name'] ?? $code }}</div>
-                                {{-- Страна — на её собственном языке: под флагом это читается
-                                     естественно на любой локали интерфейса. --}}
-                                <div class="ins-lang__native break-words">{{ $country['native_name'] ?? $country['name'] ?? $code }}</div>
+                                    class="ins-lang {{ $isSel ? 'is-sel' : '' }}">
+                                <span class="ins-lang__flag">{!! $flagSvg[$code] ?? '<span class="text-xl leading-none">🌍</span>' !!}</span>
+
+                                <span class="ins-lang__body">
+                                    <span class="ins-lang__name break-words">{{ $country['lang'] ?? $country['name'] ?? $code }}</span>
+                                    {{-- Страна — на её собственном языке: рядом с флагом это
+                                         читается естественно на любой локали интерфейса. --}}
+                                    <span class="ins-lang__native break-words">{{ $country['native_name'] ?? $country['name'] ?? $code }}</span>
+                                </span>
+
                                 @if ($isSel)
-                                    <div class="ins-lang__mark" style="color:var(--accent)">
-                                        <i data-lucide="check" class="w-3 h-3"></i> {{ __('install.welcome.selected') }}
-                                    </div>
+                                    <i data-lucide="check" class="w-4 h-4 ins-lang__tick"></i>
                                 @endif
                             </button>
                         @endforeach
@@ -87,51 +86,70 @@
             @include('Install::partials.steps', ['current' => 'welcome'])
 
             {{-- Три мини-фичи в одну строку --}}
-            <div class="grid grid-cols-3 gap-2.5">
+            <div class="ins-feats">
                 {{-- min-w-0 + break-words: колонок три, а слова в разных языках
                      длинные и неразрывные («Безопасность», «Қауіпсіздік»).
                      Без этого min-content колонки распирал бы сетку. --}}
-                <div class="hint rounded-2xl p-3 text-center min-w-0" data-tip="{{ __('install.welcome.f_easy_tip') }}">
-                    <i data-lucide="gauge" class="w-4 h-4 mx-auto mb-1 hint-ico"></i>
-                    <div class="ins-feat__title break-words">{{ __('install.welcome.f_easy') }}</div>
-                    <div class="ins-feat__sub hidden sm:block break-words">{{ __('install.welcome.f_easy_sub') }}</div>
+                <div class="ins-feat" data-tip="{{ __('install.welcome.f_easy_tip') }}">
+                    <span class="ins-feat__ico"><i data-lucide="gauge" class="w-4 h-4"></i></span>
+                    <span class="min-w-0">
+                        <span class="ins-feat__title break-words">{{ __('install.welcome.f_easy') }}</span>
+                        <span class="ins-feat__sub break-words">{{ __('install.welcome.f_easy_sub') }}</span>
+                    </span>
                 </div>
-                <div class="hint rounded-2xl p-3 text-center min-w-0" data-tip="{{ __('install.welcome.f_secure_tip') }}">
-                    <i data-lucide="shield-check" class="w-4 h-4 mx-auto mb-1 hint-ico"></i>
-                    <div class="ins-feat__title break-words">{{ __('install.welcome.f_secure') }}</div>
-                    <div class="ins-feat__sub hidden sm:block break-words">{{ __('install.welcome.f_secure_sub') }}</div>
+                <div class="ins-feat" data-tip="{{ __('install.welcome.f_secure_tip') }}">
+                    <span class="ins-feat__ico"><i data-lucide="shield-check" class="w-4 h-4"></i></span>
+                    <span class="min-w-0">
+                        <span class="ins-feat__title break-words">{{ __('install.welcome.f_secure') }}</span>
+                        <span class="ins-feat__sub break-words">{{ __('install.welcome.f_secure_sub') }}</span>
+                    </span>
                 </div>
-                <div class="hint rounded-2xl p-3 text-center min-w-0" data-tip="{{ __('install.welcome.f_nocdn_tip') }}">
-                    <i data-lucide="hard-drive" class="w-4 h-4 mx-auto mb-1 hint-ico"></i>
-                    <div class="ins-feat__title break-words">{{ __('install.welcome.f_nocdn') }}</div>
-                    <div class="ins-feat__sub hidden sm:block break-words">{{ __('install.welcome.f_nocdn_sub') }}</div>
+                <div class="ins-feat" data-tip="{{ __('install.welcome.f_nocdn_tip') }}">
+                    <span class="ins-feat__ico"><i data-lucide="hard-drive" class="w-4 h-4"></i></span>
+                    <span class="min-w-0">
+                        <span class="ins-feat__title break-words">{{ __('install.welcome.f_nocdn') }}</span>
+                        <span class="ins-feat__sub break-words">{{ __('install.welcome.f_nocdn_sub') }}</span>
+                    </span>
                 </div>
             </div>
 
-            {{-- Подсказка про реквизиты БД --}}
-            <div class="hint rounded-2xl px-3 py-2 ins-note flex items-center justify-center gap-2">
-                <i data-lucide="database" class="w-3.5 h-3.5 shrink-0 hint-ico"></i>
-                <span class="min-w-0 break-words">{{ __('install.welcome.db_hint') }}</span>
+            {{-- Что понадобится: одна строка про реквизиты выглядела пустой
+                 в широкой плашке. Здесь то, что стоит подготовить ДО
+                 запуска, и что можно пропустить. --}}
+            <div class="ins-need">
+                <span class="ins-need__cap">{{ __('install.welcome.need_title') }}</span>
+
+                <ul class="ins-need__list">
+                    <li><i data-lucide="database" class="w-3.5 h-3.5"></i><span>{{ __('install.welcome.need_db') }}</span></li>
+                    <li><i data-lucide="user-round" class="w-3.5 h-3.5"></i><span>{{ __('install.welcome.need_admin') }}</span></li>
+                    <li><i data-lucide="skip-forward" class="w-3.5 h-3.5"></i><span>{{ __('install.welcome.need_skip') }}</span></li>
+                </ul>
             </div>
         </div>
 
         {{-- Кнопки: прижаты к низу карточки --}}
-        <div class="px-6 sm:px-10 py-4 shrink-0 border-t border-white/50 mt-4">
-            <div class="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-2">
-                <a href="{{ route('install.requirements') }}"
-                   class="ui-btn ui-btn-primary group w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-white bg-gray-900 hover:bg-black">
-                    <i data-lucide="play" class="w-4 h-4"></i>
+        <div class="ins-foot shrink-0">
+            {{-- Полосы во всю ширину вместо трёх кнопок по центру: главное
+                 действие занимает столько же места, сколько весит по смыслу,
+                 и попасть в него мышью проще, чем в кнопку 180px. --}}
+            <div class="ins-actions">
+                <a href="{{ route('install.requirements') }}" class="ins-act ins-act--go">
+                    {{-- Значка «play» слева нет: он дублировал стрелку справа —
+                         два указателя направления на одной кнопке. --}}
                     <span>{{ __('install.welcome.start') }}</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4 ins-act__go"></i>
                 </a>
-                <a href="{{ route('install.features') }}"
-                   data-tip="{{ __('install.welcome.features_tip') }}"
-                   class="ui-btn w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-800 bg-white/70 hover:bg-white border border-white/70">
-                    <i data-lucide="star" class="w-4 h-4"></i><span>{{ __('install.welcome.features') }}</span>
+
+                <a href="{{ route('install.features') }}" class="ins-act"
+                   data-tip="{{ __('install.welcome.features_tip') }}">
+                    <i data-lucide="star" class="w-4 h-4"></i>
+                    <span>{{ __('install.welcome.features') }}</span>
                 </a>
-                <a href="https://github.com/#" target="_blank" rel="noopener"
-                   data-tip="{{ __('install.welcome.github_tip') }}"
-                   class="ui-btn w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-500 bg-black/5 hover:bg-black/10 border border-white/50">
-                    <i data-lucide="github" class="w-4 h-4"></i><span>GitHub</span>
+
+                <a href="https://github.com/#" target="_blank" rel="noopener" class="ins-act ins-act--dim"
+                   data-tip="{{ __('install.welcome.github_tip') }}">
+                    <i data-lucide="github" class="w-4 h-4"></i>
+                    <span>GitHub</span>
                 </a>
             </div>
         </div>
@@ -149,8 +167,40 @@
     .ins-eyebrow{ margin:0 0 .1rem; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
         font-size:.6rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase;
         color:var(--accent,#6366f1) }
-    .ins-title{ margin:0; font-size:1.6rem; font-weight:800; letter-spacing:-.03em;
+    .ins-title{ margin:0; font-size:1.5rem; font-weight:800; letter-spacing:-.03em;
         line-height:1.05; color:#111827 }
+
+    /* Шапка карточки — одна полоса с разделителем снизу. */
+    .ins-head{ display:flex; align-items:center; gap:.85rem; padding:1.1rem 1.5rem;
+        border-bottom:1px solid var(--surface-bd,#e3e6ee) }
+    .ins-head__badge{ width:2.6rem; height:2.6rem; flex:none }
+    .ins-head__about{ margin:.2rem 0 0; font-size:.78rem; line-height:1.45; color:#4b5563 }
+    @media (max-width:640px){ .ins-head{ padding:1rem 1.1rem } }
+
+    /* ── Полосы действий ──────────────────────────────────────────────
+       Первая — акцентная и во всю оставшуюся ширину, остальные ужимаются
+       по содержимому. Прямые края и заливка цветом шага: тот же язык, что
+       у карточек «Оплаты» и «Доставки». */
+    /* Кнопки по содержимому и прижаты вправо: растянутая во всю ширину
+       главная кнопка читалась как полоса-заглушка, а не как действие. */
+    .ins-actions{ display:flex; flex-wrap:wrap; gap:.5rem; justify-content:flex-end }
+    @media (max-width:640px){ .ins-actions .ins-act{ flex:1 1 100% } }
+
+    .ins-act{ display:inline-flex; align-items:center; justify-content:center; gap:.5rem;
+        padding:.75rem 1.1rem; font-size:.85rem; font-weight:700;
+        color:#374151; background:var(--surface-2,#f7f8fc);
+        border:1px solid var(--surface-bd,#e3e6ee);
+        transition:border-color .15s ease, background .15s ease, color .15s ease }
+    .ins-act:hover{ border-color:color-mix(in srgb, var(--accent) 55%, var(--surface-bd,#e3e6ee));
+        background:#fff; color:#111827 }
+
+    .ins-act--go{ color:#fff; border-color:transparent;
+        background:linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 62%, #8b5cf6)) }
+    .ins-act--go:hover{ color:#fff; filter:brightness(1.08);
+        background:linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 62%, #8b5cf6)) }
+    .ins-act__go{ opacity:.85 }
+
+    .ins-act--dim{ color:#6b7280 }
     .ins-tagline{ margin:.15rem 0 0; font-size:.72rem; color:#4b5563 }
 
     .ins-group-title{ display:flex; flex-wrap:wrap; align-items:center; justify-content:center;
@@ -161,17 +211,71 @@
     .ins-group-title i{ color:var(--accent,#6366f1) }
     .ins-group-note{ font-weight:600; letter-spacing:.04em; text-transform:none; color:#6b7280 }
 
-    .ins-lang__name{ font-size:.82rem; font-weight:700; color:#374151 }
-    .ins-lang__name.is-sel{ color:#111827 }
-    .ins-lang__native{ font-size:.68rem; color:#6b7280 }
-    .ins-lang__mark{ display:inline-flex; align-items:center; justify-content:center; gap:.15rem;
-        margin-top:.35rem; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
-        font-size:.6rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase }
+    /* ── Выбор языка ──────────────────────────────────────────────────
+       Флаг слева, подписи справа, отметка в конце строки. Прежде карточка
+       была центрированной колонкой на половину ширины: флаг, два слова и
+       много пустого поля вокруг. */
+    .ins-langs{ display:grid; gap:.5rem; grid-template-columns:repeat(2, minmax(0,1fr)) }
+    .ins-langs.is-many{ grid-template-columns:repeat(2, minmax(0,1fr)) }
+    @media (min-width:640px){ .ins-langs.is-many{ grid-template-columns:repeat(4, minmax(0,1fr)) } }
+
+    .ins-lang{ display:flex; align-items:center; gap:.6rem; padding:.55rem .7rem; min-width:0;
+        text-align:left; background:var(--surface,#fff);
+        border:1px solid var(--surface-bd,#e3e6ee);
+        transition:border-color .15s ease, background .15s ease, box-shadow .15s ease }
+    .ins-lang:hover{ border-color:color-mix(in srgb, var(--accent) 45%, var(--surface-bd,#e3e6ee)) }
+    .ins-lang.is-sel{ border-color:var(--accent);
+        box-shadow:inset 0 0 0 1px var(--accent) }
+
+    .ins-lang__flag{ display:flex; flex:none }
+    .ins-lang__flag svg{ width:1.75rem; height:1.2rem; display:block }
+    .ins-lang__body{ display:flex; flex-direction:column; min-width:0 }
+    .ins-lang__name{ font-size:.8rem; font-weight:700; color:#374151 }
+    .ins-lang.is-sel .ins-lang__name{ color:#111827 }
+    .ins-lang__native{ font-size:.65rem; color:#6b7280 }
+    .ins-lang__tick{ margin-left:auto; flex:none; color:var(--accent) }
+
+    /* ── Что понадобится ── */
+    .ins-need{ padding:.75rem .9rem; background:var(--surface-2,#f7f8fc);
+        border:1px solid var(--surface-bd,#e3e6ee) }
+    .ins-need__cap{ display:block; margin-bottom:.4rem;
+        font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+        font-size:.6rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+        color:#4b5563 }
+    .ins-need__list{ display:grid; gap:.35rem; margin:0; padding:0; list-style:none }
+    .ins-need__list li{ display:flex; align-items:flex-start; gap:.5rem;
+        font-size:.74rem; line-height:1.45; color:#4b5563 }
+    .ins-need__list i{ margin-top:.15rem; flex:none; color:var(--accent) }
 
     .ins-note{ font-size:.7rem; line-height:1.5; color:#4b5563 }
 
-    .ins-feat__title{ font-size:.72rem; font-weight:700; color:#111827 }
-    .ins-feat__sub{ margin-top:.1rem; font-size:.64rem; color:#6b7280 }
+    /* ── Три факта о мастере ──────────────────────────────────────────
+       Карточка со значком на акцентной плитке слева и подписями справа:
+       раньше это были три одинаковых серых прямоугольника со значком по
+       центру, которые взгляд проскакивал не читая. */
+    .ins-feats{ display:grid; gap:.5rem; grid-template-columns:1fr }
+    @media (min-width:640px){ .ins-feats{ grid-template-columns:repeat(3, minmax(0,1fr)) } }
+
+    .ins-feat{ display:flex; align-items:center; gap:.6rem; padding:.6rem .7rem; min-width:0;
+        background:var(--surface,#fff); border:1px solid var(--surface-bd,#e3e6ee);
+        border-left:3px solid color-mix(in srgb, var(--accent) 55%, transparent);
+        transition:border-color .15s ease, box-shadow .15s ease }
+    .ins-feat:hover{ border-left-color:var(--accent);
+        box-shadow:0 6px 18px -12px color-mix(in srgb, var(--accent) 60%, transparent) }
+
+    .ins-feat__ico{ display:grid; place-items:center; flex:none; width:1.9rem; height:1.9rem;
+        color:var(--accent); background:color-mix(in srgb, var(--accent) 12%, transparent) }
+
+    .ins-feat__title{ display:block; font-size:.76rem; font-weight:700; color:#111827 }
+    .ins-feat__sub{ display:block; margin-top:.05rem;
+        font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+        font-size:.58rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+        color:#6b7280 }
+
+    /* Подвал карточки — линия того же цвета, что и шапка: белая
+       полупрозрачная грань осталась от стеклянного оформления и на
+       сплошной поверхности была не видна. */
+    .ins-foot{ padding:1rem 1.5rem; border-top:1px solid var(--surface-bd,#e3e6ee) }
 
     .country-select-btn { transition: transform .15s ease, box-shadow .2s ease, border-color .2s ease; }
     .country-select-btn:hover { transform: translateY(-3px); }

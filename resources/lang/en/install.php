@@ -63,6 +63,10 @@ return [
         'f_nocdn_sub'  => 'Fully local',
         'f_nocdn_tip'  => 'All assets are local — not a single request to an external CDN',
         'db_hint'      => 'You will need PostgreSQL credentials: host, port, database name, user and password.',
+        'need_title' => 'What you will need',
+        'need_db' => 'PostgreSQL credentials: host, port, database name, user and password. Create the database beforehand — empty.',
+        'need_admin' => 'Administrator e-mail and password: the only account with full access.',
+        'need_skip' => 'Mail and license can be skipped and set up later in the panel.',
         'start'        => 'Start installation',
         'features'     => 'Features',
         'features_tip' => 'Overview of the CMS features',
@@ -164,7 +168,8 @@ return [
         'username'       => 'User',
         'username_tip'   => 'A PostgreSQL role with LOGIN permission and access to the database',
         'password'       => 'Password',
-        'help'           => 'Cannot connect? Check that the PostgreSQL service is running, the port is correct and the user has access to the database. You can <a href=":url" class="underline hover:text-gray-800">re-check the requirements</a>.',
+        'help'           => 'Check that the PostgreSQL service is running, the port is correct and the user has access to the database. You can <a href=":url">re-check the requirements</a>.',
+        'help_cap' => 'Cannot connect?',
         'submit'         => 'Test and continue',
         'submitting'     => 'Testing the connection…',
     ],
@@ -342,5 +347,20 @@ return [
         'smtp' => 'This step can be skipped — the site works without mail. You only lose e-mail password recovery and order notifications.',
         'license' => 'The key is kept in .env and never sent anywhere: the check runs locally, the CMS makes no outbound calls.',
         'finish' => 'After the install, open Themes and Menus: appearance and navigation live there, and demo content can be safely deleted.',
+    ],
+
+    /*
+    |----------------------------------------------------------------
+    | Короткое описание шага — заголовок карточки справа
+    |----------------------------------------------------------------
+    */
+    'about' => [
+        'welcome' => 'Choose the panel language and make sure the database credentials are at hand. Seven short steps follow.',
+        'requirements' => 'Checking the PHP version, extensions and write permissions. Fix anything red before moving on.',
+        'database' => 'Connecting to PostgreSQL and creating the tables. The database must exist and be empty.',
+        'admin' => 'Creating the only account with full access to the control panel.',
+        'smtp' => 'Setting up outgoing mail. Optional — the site works without it.',
+        'license' => 'Entering the license key. It is stored in .env and never sent anywhere.',
+        'finish' => 'Installing demo content, appearance and menus. After this the site is ready.',
     ],
 ];

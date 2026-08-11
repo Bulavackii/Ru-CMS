@@ -43,12 +43,15 @@
            шаг. Раньше мастер был узкой карточкой по центру пустого экрана:
            на ноутбуке две трети ширины пропадали, а шаги и подсказки
            теснились внутри той же карточки. */
-        .ins-shell{ display:grid; min-height:100vh; min-height:100dvh }
+        /* Высота фиксирована по окну, а не min-height: страница целиком не
+           прокручивается никогда, длинный шаг скроллится внутри своей
+           карточки. */
+        .ins-shell{ display:grid; height:100vh; height:100dvh; overflow:hidden }
         @media (min-width:1024px){ .ins-shell{ grid-template-columns:22rem minmax(0,1fr) } }
         @media (min-width:1536px){ .ins-shell{ grid-template-columns:26rem minmax(0,1fr) } }
 
         .ins-aside{ display:none; position:relative; flex-direction:column; gap:1.25rem;
-            padding:2rem 1.75rem; color:#fff; overflow:hidden;
+            padding:2rem 1.75rem; color:#fff; overflow-y:auto; overflow-x:hidden;
             background:linear-gradient(155deg,
                 var(--accent) 0%,
                 color-mix(in srgb, var(--accent) 72%, #8b5cf6) 52%,
@@ -104,8 +107,11 @@
         .ins-aside__bar span{ display:block; height:100%; background:#fff; transition:width .3s ease }
 
         /* ── Колонка шага ── */
+        /* overflow-x:hidden обязателен: фактура позиционируется за правым
+           краем (right:-10%), и без обрезки колонка получала
+           горизонтальную прокрутку. */
         .ins-main{ display:flex; flex-direction:column; align-items:center; justify-content:center;
-            gap:.75rem; padding:1.5rem 1rem; min-width:0; overflow-y:auto }
+            gap:.75rem; padding:1.5rem 1rem; min-width:0; min-height:0; overflow:hidden }
         @media (min-width:640px){ .ins-main{ padding:2rem 2.5rem } }
 
         .ins-main{ position:relative; isolation:isolate }
@@ -118,7 +124,7 @@
         /* Ширина карточки шага задаётся здесь, а не в каждой из восьми
            вьюх: у admin/database/smtp/license стояло max-w-xl (36rem), и на
            широком экране форма оставалась узкой полоской. */
-        .ins-main > div[class*="max-w-"]{ max-width:min(64rem, 100%) }
+        .ins-main > div[class*="max-w-"]{ max-width:min(64rem, 100%); max-height:100% }
 
         .ins-notice{ display:flex; align-items:flex-start; gap:.5rem; width:100%; max-width:48rem;
             padding:.6rem .8rem; font-size:.82rem; color:#92400e;
