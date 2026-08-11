@@ -38,6 +38,93 @@
         }
         [x-cloak] { display: none !important; }
 
+        /* ───────────────────────── Широкий каркас ───────────────────────────
+           Слева фирменная колонка с лестницей шагов и советом, справа сам
+           шаг. Раньше мастер был узкой карточкой по центру пустого экрана:
+           на ноутбуке две трети ширины пропадали, а шаги и подсказки
+           теснились внутри той же карточки. */
+        .ins-shell{ display:grid; min-height:100vh; min-height:100dvh }
+        @media (min-width:1024px){ .ins-shell{ grid-template-columns:22rem minmax(0,1fr) } }
+        @media (min-width:1536px){ .ins-shell{ grid-template-columns:26rem minmax(0,1fr) } }
+
+        .ins-aside{ display:none; position:relative; flex-direction:column; gap:1.25rem;
+            padding:2rem 1.75rem; color:#fff; overflow:hidden;
+            background:linear-gradient(155deg,
+                var(--accent) 0%,
+                color-mix(in srgb, var(--accent) 72%, #8b5cf6) 52%,
+                color-mix(in srgb, var(--accent) 55%, #171033) 100%) }
+        @media (min-width:1024px){ .ins-aside{ display:flex } }
+
+        /* Свечение поверх заливки — иначе она выглядит плоской. Рисуется
+           CSS: ничего не грузится и не зависит от темы. */
+        .ins-aside__glow{ position:absolute; inset:0; pointer-events:none;
+            background:
+                radial-gradient(620px 460px at 86% -10%, rgba(255,255,255,.22), transparent 64%),
+                radial-gradient(460px 400px at -8% 106%, rgba(255,255,255,.14), transparent 62%) }
+
+        .ins-brand{ position:relative; display:flex; align-items:center; gap:.75rem }
+        .ins-brand__badge{ display:grid; place-items:center; flex:none; width:2.75rem; height:2.75rem;
+            color:#fff; background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.28) }
+        .ins-brand__text{ display:flex; flex-direction:column; min-width:0 }
+        .ins-brand__eyebrow{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+            font-size:.58rem; font-weight:700; letter-spacing:.18em; text-transform:uppercase;
+            color:rgba(255,255,255,.75) }
+        .ins-brand__name{ font-size:1.35rem; font-weight:800; letter-spacing:-.02em; line-height:1.1 }
+
+        /* ── Лестница шагов ── */
+        .ins-steps{ position:relative; display:grid; gap:.15rem; margin:0; padding:0; list-style:none; flex:1 }
+        .ins-step{ display:flex; align-items:center; gap:.7rem; padding:.5rem .55rem;
+            color:rgba(255,255,255,.72); transition:background .15s ease, color .15s ease }
+        .ins-step__num{ display:grid; place-items:center; flex:none; width:1.7rem; height:1.7rem;
+            font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.66rem; font-weight:700;
+            background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.22) }
+        .ins-step__label{ font-size:.85rem; font-weight:600; min-width:0 }
+        .ins-step__opt{ margin-left:.35rem; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+            font-size:.55rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+            color:rgba(255,255,255,.6) }
+
+        .ins-step.is-done{ color:rgba(255,255,255,.9) }
+        .ins-step.is-done .ins-step__num{ background:rgba(255,255,255,.25); border-color:transparent }
+        .ins-step.is-now{ color:#fff; background:rgba(255,255,255,.16) }
+        .ins-step.is-now .ins-step__num{ color:var(--accent); background:#fff; border-color:#fff }
+
+        /* ── Совет ── */
+        .ins-tip{ position:relative; padding:.85rem .9rem; background:rgba(255,255,255,.13);
+            border:1px solid rgba(255,255,255,.2) }
+        .ins-tip__cap{ display:inline-flex; align-items:center; gap:.35rem;
+            font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+            font-size:.58rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+            color:rgba(255,255,255,.8) }
+        .ins-tip__text{ margin:.4rem 0 0; font-size:.8rem; line-height:1.5; color:rgba(255,255,255,.94) }
+
+        .ins-aside__foot{ position:relative; margin:0; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+            font-size:.6rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+            color:rgba(255,255,255,.75) }
+        .ins-aside__bar{ display:block; height:3px; margin-bottom:.5rem; background:rgba(255,255,255,.22) }
+        .ins-aside__bar span{ display:block; height:100%; background:#fff; transition:width .3s ease }
+
+        /* ── Колонка шага ── */
+        .ins-main{ display:flex; flex-direction:column; align-items:center; justify-content:center;
+            gap:.75rem; padding:1.5rem 1rem; min-width:0; overflow-y:auto }
+        @media (min-width:640px){ .ins-main{ padding:2rem 2.5rem } }
+
+        .ins-main{ position:relative; isolation:isolate }
+        .ins-main__pattern{ position:absolute; right:-10%; bottom:-14%; width:52%; aspect-ratio:1;
+            z-index:-1; color:var(--accent); opacity:.07; pointer-events:none;
+            -webkit-mask-image:radial-gradient(120% 120% at 100% 100%, #000 16%, transparent 68%);
+            mask-image:radial-gradient(120% 120% at 100% 100%, #000 16%, transparent 68%) }
+        .ins-main__pattern svg{ display:block; width:100%; height:100% }
+
+        /* Ширина карточки шага задаётся здесь, а не в каждой из восьми
+           вьюх: у admin/database/smtp/license стояло max-w-xl (36rem), и на
+           широком экране форма оставалась узкой полоской. */
+        .ins-main > div[class*="max-w-"]{ max-width:min(64rem, 100%) }
+
+        .ins-notice{ display:flex; align-items:flex-start; gap:.5rem; width:100%; max-width:48rem;
+            padding:.6rem .8rem; font-size:.82rem; color:#92400e;
+            background:#fffbeb; border:1px solid #fde68a }
+        .ins-notice i{ margin-top:.15rem; color:#b45309 }
+
         /* ───────────────────────── Подложка ─────────────────────────────────
            Как на странице входа: спокойная сплошная поверхность из набора
            темы плюс одно неподвижное акцентное свечение сверху. Прежде здесь
@@ -49,19 +136,8 @@
             isolation: isolate;
             background: var(--color-bg, #f4f5fb);
         }
-        .install-backdrop::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            z-index: -1;
-            pointer-events: none;
-            background:
-                radial-gradient(760px 520px at 50% -12%,
-                    color-mix(in srgb, var(--accent) 22%, transparent), transparent 68%),
-                radial-gradient(520px 420px at 88% 108%,
-                    color-mix(in srgb, var(--accent) 12%, transparent), transparent 66%);
-        }
-
+        /* Свечение убрано из-под карточки: слева теперь цветная колонка,
+           и второе пятно справа делало страницу пёстрой. */
         /* ───────────────────────── Стеклянная карточка ─────────────────────── */
         .install-card {
             position: relative;
@@ -242,11 +318,96 @@
     (класс install-scroll), а не всей страницей. Цвет шага (--accent) задаётся
     страницей через @section('accent', '#hex') и живёт здесь, на подложке.
 --}}
-<div class="install-backdrop h-screen overflow-hidden" style="--accent: @yield('accent', '#6366f1')">
-    <main class="h-full flex flex-col items-center justify-center px-4 sm:px-6 py-4 animate-fade-in">
+@php
+    // Текущий шаг берём из имени маршрута — так layout знает его, не требуя
+    // от каждой вьюхи объявлять секцию. Шаги перечислены здесь же: у
+    // партиала свой список для мобильной полосы, но он рисует чипы, а тут
+    // нужна вертикальная лестница.
+    $insSteps = [
+        'welcome'      => ['label' => __('install.steps.welcome'),      'icon' => 'sparkles'],
+        'requirements' => ['label' => __('install.steps.requirements'), 'icon' => 'clipboard-check'],
+        'database'     => ['label' => __('install.steps.database'),     'icon' => 'database'],
+        'admin'        => ['label' => __('install.steps.admin'),        'icon' => 'user-round'],
+        'smtp'         => ['label' => __('install.steps.smtp'),         'icon' => 'mail', 'optional' => true],
+        'license'      => ['label' => __('install.steps.license'),      'icon' => 'key-round'],
+        'finish'       => ['label' => __('install.steps.finish'),       'icon' => 'check-circle-2'],
+    ];
+
+    $insRoute = request()->route()?->getName() ?? '';
+    $insCurrent = str_starts_with($insRoute, 'install.') ? substr($insRoute, 8) : 'welcome';
+    $insKeys = array_keys($insSteps);
+    $insIndex = array_search($insCurrent, $insKeys, true);
+    $insIndex = $insIndex === false ? 0 : $insIndex;
+    $insProgress = (int) round($insIndex / (count($insKeys) - 1) * 100);
+@endphp
+
+<div class="ins-shell" style="--accent: @yield('accent', '#6366f1')">
+
+    {{-- ══ Левая колонка: проект, лестница шагов, совет ══
+         Показывается с 1024px. На узких экранах её заменяет полоса чипов
+         внутри карточки шага (Install::partials.steps). --}}
+    <aside class="ins-aside">
+        <span class="ins-aside__glow" aria-hidden="true"></span>
+
+        <div class="ins-brand">
+            <span class="ins-brand__badge"><i data-lucide="layers" class="w-6 h-6"></i></span>
+            <span class="ins-brand__text">
+                <span class="ins-brand__eyebrow">{{ __('install.welcome.suffix') }}</span>
+                <span class="ins-brand__name">Ru&nbsp;CMS</span>
+            </span>
+        </div>
+
+        {{-- Лестница шагов: пройденные с галочкой, текущий подсвечен,
+             будущие приглушены. Номера моноширинными — по ним взгляд
+             находит место в процессе, не читая подписи. --}}
+        <ol class="ins-steps">
+            @foreach($insSteps as $key => $step)
+                @php
+                    $i = array_search($key, $insKeys, true);
+                    $state = $i < $insIndex ? 'is-done' : ($i === $insIndex ? 'is-now' : '');
+                @endphp
+                <li class="ins-step {{ $state }}">
+                    <span class="ins-step__num">
+                        @if($i < $insIndex)
+                            <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                        @else
+                            {{ str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT) }}
+                        @endif
+                    </span>
+                    <span class="ins-step__label">
+                        {{ $step['label'] }}
+                        @if($step['optional'] ?? false)
+                            <span class="ins-step__opt">{{ __('install.steps.optional') }}</span>
+                        @endif
+                    </span>
+                </li>
+            @endforeach
+        </ol>
+
+        {{-- Совет к текущему шагу: то, что стоит знать ДО того, как
+             заполнишь форму и упрёшься в ошибку. --}}
+        <div class="ins-tip">
+            <span class="ins-tip__cap"><i data-lucide="lightbulb" class="w-3.5 h-3.5"></i> {{ __('install.tips.cap') }}</span>
+            <p class="ins-tip__text">{{ __('install.tips.' . $insCurrent) }}</p>
+        </div>
+
+        <p class="ins-aside__foot">
+            <span class="ins-aside__bar"><span style="width: {{ $insProgress }}%"></span></span>
+            {{ __('install.steps.step') }} {{ $insIndex + 1 }} {{ __('install.steps.of') }} {{ count($insKeys) }} · {{ $insProgress }}%
+        </p>
+    </aside>
+
+    {{-- ══ Правая колонка: сам шаг ══
+         Фактура — тот же приём, что в колонке страницы входа: настоящий
+         QR-код адреса сайта, увеличенный так, что в кадр попадает только
+         угол. Рисуется своим генератором и кешируется, внешних запросов
+         нет. --}}
+    <main class="ins-main install-backdrop">
+        <span class="ins-main__pattern" aria-hidden="true">{!! auth_pattern_svg() !!}</span>
+
         @if (session('install_notice'))
-            <div class="install-card w-full max-w-xl mb-3 rounded-2xl px-4 py-2.5 text-sm text-gray-800 flex items-start gap-2 shrink-0">
-                <i data-lucide="alert-triangle" class="w-4 h-4 mt-0.5 shrink-0 hint-ico"></i>
+            <div class="ins-notice">
+                <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0"></i>
                 <span>{{ session('install_notice') }}</span>
             </div>
         @endif

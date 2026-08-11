@@ -42,6 +42,7 @@ return [
         'of'           => 'of',
         'chip_tip'     => 'Step :n of :total: :label',
         'aria'         => 'Installation progress',
+        'optional'     => 'optional',
     ],
 
     'welcome' => [
@@ -325,5 +326,21 @@ return [
         'mail_encryption'   => 'Encryption',
         'mail_from_address' => 'From address',
         'mail_from_name'    => 'From name',
+    ],
+
+    /*
+    |----------------------------------------------------------------
+    | Советы к шагам мастера (левая колонка)
+    |----------------------------------------------------------------
+    */
+    'tips' => [
+        'cap' => 'Tip',
+        'welcome' => 'The interface language can be changed later in Localization — this choice is not final.',
+        'requirements' => 'A red line is not a dead end: some requirements are one setting away in php.ini. Hover a name to see why it matters.',
+        'database' => 'Create the database beforehand and leave it empty: the wizard connects to it, it does not create it. Credentials come from your hosting panel.',
+        'admin' => 'This is the only account with full access. The e-mail is used for password recovery — store the password in a password manager right away.',
+        'smtp' => 'This step can be skipped — the site works without mail. You only lose e-mail password recovery and order notifications.',
+        'license' => 'The key is kept in .env and never sent anywhere: the check runs locally, the CMS makes no outbound calls.',
+        'finish' => 'After the install, open Themes and Menus: appearance and navigation live there, and demo content can be safely deleted.',
     ],
 ];
