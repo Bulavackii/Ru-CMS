@@ -39,29 +39,30 @@
 
 @includeIf('layouts.partials.flash')
 
-{{-- ── Сводка ── --}}
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+{{-- ── Сводка ──
+     Тот же приём, что в «Оплате», «Доставке» и «Заказах»: числа раздела
+     строкой чипов. Четыре плитки занимали целый экран ради четырёх
+     чисел. Устойчивый ключ (data-stat) сохранён — по нему подпись
+     берётся из словаря и на него опираются проверки. --}}
+<div class="loc-summary mb-4">
     @foreach([
         ['countries', $stats['total_countries'] ?? 0, 'fa-globe'],
         ['active', $stats['active_countries'] ?? 0, 'fa-circle-check'],
         ['settings', $stats['total_settings'] ?? 0, 'fa-sliders'],
         ['system', $stats['system_settings'] ?? 0, 'fa-lock'],
     ] as [$stat, $value, $icon])
-        <div class="admin-card p-4">
-            <div class="flex items-center gap-2 text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                <i class="fas {{ $icon }} text-indigo-500"></i> {{ __('admin.localization.stat_' . $stat) }}
-            </div>
-            <div class="text-2xl font-bold text-gray-900 dark:text-white mt-1" data-stat="{{ $stat }}">
-                {{ $value }}
-            </div>
-            <div class="text-xs text-gray-400 dark:text-gray-500 mt-1">{{ __('admin.localization.stat_' . $stat . '_hint') }}</div>
-        </div>
+        <span class="loc-chip {{ $stat === 'active' ? 'is-on' : '' }}"
+              title="{{ __('admin.localization.stat_' . $stat . '_hint') }}">
+            <i class="fas {{ $icon }}"></i>
+            {{ __('admin.localization.stat_' . $stat) }}
+            <b data-stat="{{ $stat }}">{{ $value }}</b>
+        </span>
     @endforeach
 </div>
 
 {{-- ── Инструменты ── --}}
 <div class="admin-card p-4 mb-5" x-data="{ importOpen: false }">
-    <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-2">
+    <h2 class="loc-h2">
         <i class="fas fa-screwdriver-wrench text-indigo-500"></i> {{ __('admin.localization.tools') }}
     </h2>
 
@@ -161,81 +162,63 @@
         </a>
     </div>
 @else
-    {{-- ── Таблица стран ── --}}
-    <div class="admin-card overflow-x-auto">
-        <table class="min-w-full text-sm">
-            <thead class="bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
-                <tr>
-                    <th class="px-4 py-3 text-left font-semibold">{{ __('admin.localization.th_country') }}</th>
-                    <th class="px-4 py-3 text-left font-semibold">{{ __('admin.localization.th_currency') }}</th>
-                    <th class="px-4 py-3 text-left font-semibold">{{ __('admin.localization.th_locale') }}</th>
-                    <th class="px-4 py-3 text-center font-semibold">{{ __('admin.localization.th_settings') }}</th>
-                    <th class="px-4 py-3 text-center font-semibold">{{ __('admin.localization.th_status') }}</th>
-                    <th class="px-4 py-3 text-center font-semibold">{{ __('admin.localization.th_actions') }}</th>
-                </tr>
-            </thead>
+    {{-- ── Страны карточками ──
+         Таблица на шесть колонок при одной стране давала полторы тысячи
+         пикселей пустоты и горизонтальную прокрутку на ноутбуке. --}}
+    <div class="loc-grid">
+        @foreach($countries as $country)
+            <article class="loc-card {{ $country->active ? '' : 'is-off' }}">
+                <div class="loc-card__head">
+                    <span class="loc-flag">{{ $country->flag ?? '🏳️' }}</span>
 
-            <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                @foreach($countries as $country)
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-                        <td class="px-4 py-3 align-top">
-                            <div class="flex items-center gap-3">
-                                <span class="text-xl leading-none">{{ $country->flag ?? '🏳️' }}</span>
-                                <div class="min-w-0">
-                                    <div class="font-semibold text-gray-900 dark:text-white">{{ $country->name }}</div>
-                                    @if($country->native_name)
-                                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ $country->native_name }}</div>
-                                    @endif
-                                    <div class="text-xs font-mono text-gray-400 mt-0.5">{{ $country->code }}</div>
-                                </div>
-                            </div>
-                        </td>
+                    <div class="loc-card__name">
+                        <b class="loc-title">{{ $country->name }}</b>
+                        @if($country->native_name && $country->native_name !== $country->name)
+                            <span class="loc-native">{{ $country->native_name }}</span>
+                        @endif
+                    </div>
 
-                        <td class="px-4 py-3 align-top text-gray-700 dark:text-gray-300">
-                            {{ $country->currency_code }}
-                            @if($country->currency_symbol)
-                                <span class="text-gray-400">({{ $country->currency_symbol }})</span>
-                            @endif
-                        </td>
+                    <span class="loc-state {{ $country->active ? 'is-on' : '' }}">
+                        <i class="fas {{ $country->active ? 'fa-circle-check' : 'fa-ban' }}"></i>
+                        {{ $country->active ? __('admin.localization.status_on') : __('admin.localization.status_off') }}
+                    </span>
+                </div>
 
-                        <td class="px-4 py-3 align-top font-mono text-xs text-gray-600 dark:text-gray-300">
-                            {{ $country->locale }}
-                        </td>
+                <div class="loc-figures">
+                    <span class="loc-fig">
+                        <span class="loc-fig__label">{{ __('admin.localization.code_label') }}</span>
+                        <b>{{ $country->code }}</b>
+                    </span>
+                    <span class="loc-fig">
+                        <span class="loc-fig__label">{{ __('admin.localization.th_currency') }}</span>
+                        <b>{{ $country->currency_code }}{{ $country->currency_symbol ? ' ' . $country->currency_symbol : '' }}</b>
+                    </span>
+                    <span class="loc-fig">
+                        <span class="loc-fig__label">{{ __('admin.localization.th_locale') }}</span>
+                        <b>{{ $country->locale }}</b>
+                    </span>
+                    <span class="loc-fig">
+                        <span class="loc-fig__label">{{ __('admin.localization.th_settings') }}</span>
+                        <b>{{ $country->settings_count }}</b>
+                    </span>
+                </div>
 
-                        <td class="px-4 py-3 align-top text-center">
-                            <span class="text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 px-2 py-0.5">
-                                {{ $country->settings_count }}
-                            </span>
-                        </td>
+                <div class="loc-card__foot">
+                    <a href="{{ route('admin.localization.edit', $country->code) }}" class="loc-btn">
+                        <i class="fas fa-pen"></i> {{ __('admin.localization.act_edit') }}
+                    </a>
 
-                        <td class="px-4 py-3 align-top text-center">
-                            @if($country->active)
-                                <span class="text-xs bg-green-100 text-green-800 px-2 py-0.5">{{ __('admin.localization.status_on') }}</span>
-                            @else
-                                <span class="text-xs bg-gray-200 text-gray-700 px-2 py-0.5">{{ __('admin.localization.status_off') }}</span>
-                            @endif
-                        </td>
+                    <a href="{{ route('admin.localization.settings', $country->code) }}" class="loc-btn">
+                        <i class="fas fa-sliders"></i> {{ __('admin.localization.act_formats') }}
+                    </a>
 
-                        <td class="px-4 py-3 align-top text-center whitespace-nowrap">
-                            <a href="{{ route('admin.localization.edit', $country->code) }}"
-                               class="inline-flex items-center justify-center w-8 h-8 border border-gray-300 dark:border-gray-600
-                                      text-gray-600 dark:text-gray-300 hover:border-indigo-400 hover:text-indigo-600 transition"
-                               title="{{ __('admin.localization.act_edit') }}"><i class="fas fa-pen"></i></a>
-
-                            <a href="{{ route('admin.localization.settings', $country->code) }}"
-                               class="inline-flex items-center justify-center w-8 h-8 border border-gray-300 dark:border-gray-600
-                                      text-gray-600 dark:text-gray-300 hover:border-indigo-400 hover:text-indigo-600 transition"
-                               title="{{ __('admin.localization.act_formats') }}"><i class="fas fa-sliders"></i></a>
-
-                            <button type="submit" form="delete-country-{{ $country->code }}"
-                                    class="inline-flex items-center justify-center w-8 h-8 border border-gray-300 dark:border-gray-600
-                                           text-gray-600 dark:text-gray-300 hover:border-red-400 hover:text-red-600 transition"
-                                    title="{{ __('admin.localization.act_delete') }}"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+                    <button type="submit" form="delete-country-{{ $country->code }}"
+                            class="loc-btn loc-btn--danger" title="{{ __('admin.localization.act_delete') }}">
+                        <i class="fas fa-trash-can"></i>
+                    </button>
+                </div>
+            </article>
+        @endforeach
     </div>
 
     {{-- Формы удаления — вне таблицы --}}
@@ -248,3 +231,76 @@
     @endforeach
 @endif
 @endsection
+
+@push('styles')
+<style>
+    /* ── Локализация ──────────────────────────────────────────────────
+       Литеральный CSS: в сборке проекта нет ни прозрачности через дробь,
+       ни произвольных значений. Типографика — как в «Оплате» и
+       «Доставке»: подписи моноширинным капсом. */
+
+    .loc-summary{ display:flex; flex-wrap:wrap; gap:.5rem }
+    .loc-chip{ display:inline-flex; align-items:center; gap:.45rem;
+        padding:.4rem .7rem; font-size:.8rem; color:#4b5563;
+        background:#f9fafb; border:1px solid #e5e7eb }
+    .loc-chip i{ color:#9ca3af }
+    .loc-chip b{ color:#111827; font-variant-numeric:tabular-nums }
+    .loc-chip.is-on i{ color:#16a34a }
+    .dark .loc-chip{ color:#d1d5db; background:#111827; border-color:#374151 }
+    .dark .loc-chip b{ color:#f3f4f6 }
+
+    .loc-h2{ display:flex; align-items:center; gap:.4rem; margin-bottom:.75rem;
+        font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+        font-size:.7rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+        color:color-mix(in srgb, var(--surface-ink,#111827) 62%, var(--surface,#fff)) }
+
+    .loc-grid{ display:grid; gap:1rem;
+        grid-template-columns:repeat(auto-fill, minmax(20rem, 1fr)) }
+
+    .loc-card{ display:flex; flex-direction:column; gap:.7rem; padding:0 0 .8rem;
+        background:var(--surface,#fff); border:1px solid var(--surface-bd,#e5e7eb);
+        transition:border-color .15s, box-shadow .15s }
+    .loc-card:hover{ border-color:#a5b4fc; box-shadow:0 6px 18px rgba(15,23,42,.07) }
+    .loc-card.is-off .loc-flag{ filter:grayscale(1); opacity:.6 }
+
+    .loc-card__head{ display:flex; align-items:center; gap:.7rem; padding:.9rem 1rem 0 }
+    .loc-flag{ font-size:1.6rem; line-height:1; flex:none }
+    .loc-card__name{ display:flex; flex-direction:column; gap:.1rem; min-width:0; flex:1 }
+    .loc-title{ font-size:.95rem; font-weight:700; color:var(--surface-ink,#111827);
+        overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+    .loc-native{ font-size:.72rem;
+        color:color-mix(in srgb, var(--surface-ink,#111827) 60%, var(--surface,#fff)) }
+
+    .loc-state{ display:inline-flex; align-items:center; gap:.3rem; flex:none;
+        padding:.15rem .45rem; font-size:.68rem; font-weight:700; white-space:nowrap;
+        color:#6b7280; background:#f3f4f6; border:1px solid #e5e7eb }
+    .loc-state.is-on{ color:#15803d; background:#dcfce7; border-color:#86efac }
+    .dark .loc-state{ color:#d1d5db; background:#1f2937; border-color:#374151 }
+
+    /* Четыре факта в ряд: код, валюта, локаль, число настроек. */
+    .loc-figures{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr));
+        gap:.5rem; margin:0 1rem }
+    .loc-fig{ display:flex; align-items:baseline; gap:.4rem; padding:.3rem .55rem;
+        background:#f9fafb; border:1px solid #eef2f7; min-width:0 }
+    .loc-fig__label{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+        font-size:.58rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+        color:#6b7280; flex:none }
+    .loc-fig b{ font-size:.82rem; margin-left:auto; color:var(--surface-ink,#111827);
+        overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+        font-variant-numeric:tabular-nums }
+    .dark .loc-fig{ background:#0f172a; border-color:#374151 }
+
+    .loc-card__foot{ display:flex; align-items:center; gap:.35rem;
+        margin-top:auto; padding:.7rem 1rem 0; border-top:1px solid #f1f5f9 }
+    .dark .loc-card__foot{ border-top-color:#374151 }
+
+    .loc-btn{ display:inline-flex; align-items:center; gap:.35rem; padding:.35rem .6rem;
+        font-size:.75rem; font-weight:600; cursor:pointer;
+        color:#4b5563; background:var(--surface,#fff); border:1px solid #e5e7eb;
+        transition:border-color .15s, color .15s }
+    .loc-btn:hover{ border-color:#6366f1; color:#4338ca }
+    .loc-btn--danger{ margin-left:auto }
+    .loc-btn--danger:hover{ border-color:#dc2626; color:#b91c1c }
+    .dark .loc-btn{ color:#d1d5db; background:#111827; border-color:#374151 }
+</style>
+@endpush

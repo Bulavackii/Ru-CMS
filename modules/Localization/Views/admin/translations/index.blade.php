@@ -12,23 +12,32 @@
 @section('content')
 <div x-data="{ addOpen: false, deleteCode: null, deleteName: '' }">
 
-    {{-- 🔰 Заголовок --}}
-    <div class="mb-6 flex items-start justify-between flex-wrap gap-3">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-800 dark:text-white">📝 {{ __('admin.translations.title') }}</h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                {{ __('admin.translations.index_hint') }} <code class="font-mono">resources/lang</code> {{ __('admin.translations.from_admin') }} <strong>{{ $reference }}</strong>.
-            </p>
+    {{-- ── Шапка раздела ── --}}
+    <div class="admin-accent-bar mb-0"></div>
+    <div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-5
+                flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div class="flex items-center gap-3 min-w-0">
+            <span class="admin-icon-badge"><i class="fas fa-language"></i></span>
+            <div class="min-w-0">
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('admin.translations.title') }}</h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                    {{ __('admin.translations.index_hint') }} <code class="loc-code">resources/lang</code>
+                    {{ __('admin.translations.from_admin') }} <strong>{{ $reference }}</strong>.
+                </p>
+            </div>
         </div>
-        <div class="flex items-center gap-2">
-            <button type="button" x-on:click="addOpen = true"
-                    class="bg-black text-white px-4 py-2 rounded text-sm hover:bg-gray-800 transition inline-flex items-center gap-2">
-                <i class="fas fa-plus"></i> {{ __('admin.translations.add_language') }}
-            </button>
+
+        <div class="flex items-center gap-2 flex-shrink-0">
             <a href="{{ route('admin.localization.index') }}"
-               class="border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 px-4 py-2 rounded text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition inline-flex items-center gap-2">
+               class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+                      hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition">
                 <i class="fas fa-globe"></i> {{ __('admin.translations.countries') }}
             </a>
+
+            <button type="button" x-on:click="addOpen = true"
+                    class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition">
+                <i class="fas fa-plus"></i> {{ __('admin.translations.add_language') }}
+            </button>
         </div>
     </div>
 
@@ -54,79 +63,85 @@
     @endif
 
     {{-- ℹ️ Как считается прогресс --}}
-    <div class="mb-5 rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 px-4 py-3 text-xs text-gray-600 dark:text-gray-400 flex gap-2">
-        <i class="fas fa-info-circle mt-0.5 text-gray-400"></i>
+    <div class="tr-note mb-4">
+        <i class="fas fa-circle-info"></i>
         <span>
             {{ __('admin.translations.progress_note') }} <strong>{{ __('admin.translations.not_translated') }}</strong> {{ __('admin.translations.not_translated_hint') }}
         </span>
     </div>
 
-    {{-- 🌍 Карточки языков --}}
-    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+    {{-- ── Языки карточками ── --}}
+    <div class="tr-grid">
         @foreach ($locales as $locale)
             @php
                 $s = $locale['stats'];
                 $percent = $s['reference'] ? 100 : $s['percent'];
-                $barColor = $s['reference']
-                    ? 'bg-gray-900 dark:bg-gray-200'
-                    : ($percent >= 90 ? 'bg-green-500' : ($percent >= 50 ? 'bg-amber-500' : 'bg-red-500'));
+                $tone = $s['reference'] ? 'is-ref' : ($percent >= 90 ? 'is-ok' : ($percent >= 50 ? 'is-warn' : 'is-bad'));
             @endphp
-            <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm p-4 flex flex-col">
-                <div class="flex items-start justify-between mb-3">
-                    <div>
-                        <div class="font-semibold text-gray-900 dark:text-white">{{ $locale['name'] }}</div>
-                        <div class="flex items-center gap-1.5 mt-0.5">
-                            <code class="text-xs text-gray-500 font-mono">{{ $locale['code'] }}</code>
+
+            <article class="tr-card {{ $tone }}">
+                <div class="tr-card__head">
+                    <div class="tr-card__name">
+                        <b class="tr-title">{{ $locale['name'] }}</b>
+                        <span class="tr-meta">
+                            <code class="tr-code">{{ $locale['code'] }}</code>
+
                             @if ($s['reference'])
-                                <span class="text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded bg-gray-900 text-white dark:bg-gray-200 dark:text-gray-900">{{ __('admin.translations.reference') }}</span>
+                                <span class="tr-tag is-ref">{{ __('admin.translations.reference') }}</span>
                             @elseif ($locale['protected'])
-                                <span class="text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200">fallback</span>
+                                <span class="tr-tag">{{ __('admin.translations.fallback') }}</span>
                             @endif
-                        </div>
+                        </span>
                     </div>
-                    <div class="text-2xl font-bold {{ $percent >= 90 ? 'text-green-600' : 'text-gray-400' }}">{{ $percent }}%</div>
+
+                    <span class="tr-percent">{{ $percent }}%</span>
                 </div>
 
-                <div class="h-1.5 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden mb-2">
-                    <div class="h-full {{ $barColor }} transition-all" style="width: {{ $percent }}%"></div>
-                </div>
+                <div class="tr-bar"><span style="width: {{ $percent }}%"></span></div>
 
-                <div class="text-xs text-gray-500 dark:text-gray-400 mb-4 flex-1">
+                <p class="tr-stats">
                     @if ($s['reference'])
                         {{ __('admin.translations.source_lang', ['count' => $s['total']]) }}
                     @else
                         {{ __('admin.translations.translated_of', ['done' => $s['translated'], 'total' => $s['total']]) }}
+
+                        {{-- ⚠️ Число подставляется ПАРАМЕТРОМ. Раньше строка
+                             выводилась как есть, а число дописывалось рядом —
+                             на странице печаталось «Совпадает с эталоном:
+                             :count 17». --}}
                         @if ($s['missing'] > 0)
-                            · <span class="text-red-600 dark:text-red-400">{{ __('admin.translations.missing_n') }} {{ $s['missing'] }}</span>
+                            <span class="tr-bad">· {{ __('admin.translations.missing_n', ['count' => $s['missing']]) }}</span>
                         @endif
+
                         @if ($s['same'] > 0)
-                            · <span class="text-amber-600 dark:text-amber-400">{{ __('admin.translations.same_n') }} {{ $s['same'] }}</span>
+                            <span class="tr-warn">· {{ __('admin.translations.same_n', ['count' => $s['same']]) }}</span>
                         @endif
                     @endif
-                </div>
+                </p>
 
-                <div class="flex gap-2">
-                    <a href="{{ route('admin.localization.translations.edit', $locale['code']) }}"
-                       class="flex-1 text-center bg-black text-white px-3 py-2 rounded text-sm hover:bg-gray-800 transition">
-                        <i class="fas fa-pen mr-1"></i> {{ __('admin.edit') }}
+                <div class="tr-card__foot">
+                    <a href="{{ route('admin.localization.translations.edit', $locale['code']) }}" class="tr-btn">
+                        <i class="fas fa-pen"></i> {{ __('admin.edit') }}
                     </a>
+
                     @unless ($locale['protected'])
                         <button type="button"
                                 x-on:click="deleteCode = @js($locale['code']); deleteName = @js($locale['name'])"
                                 title="{{ __('admin.translations.delete_language') }}"
-                                class="px-3 py-2 rounded text-sm border border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-900/20 transition">
-                            <i class="fas fa-trash"></i>
+                                class="tr-btn tr-btn--danger">
+                            <i class="fas fa-trash-can"></i>
                         </button>
                     @endunless
                 </div>
-            </div>
+            </article>
         @endforeach
     </div>
 
-    <div class="mt-5 text-xs text-gray-500 dark:text-gray-400">
-        <i class="fas fa-folder-open mr-1"></i>
-        {{ __('admin.translations.files') }} ({{ count($groups) }}):
-        @foreach ($groups as $g)<code class="font-mono">{{ $g }}</code>@if (!$loop->last), @endif @endforeach
+    <div class="tr-files mt-4">
+        <span class="tr-files__label">
+            <i class="fas fa-folder-open"></i> {{ __('admin.translations.files') }} ({{ count($groups) }})
+        </span>
+        @foreach ($groups as $g)<code class="tr-code">{{ $g }}</code>@endforeach
     </div>
 
     {{-- ➕ Диалог: новый язык --}}
@@ -210,3 +225,78 @@
     </div>
 </div>
 @endsection
+
+@include('Localization::admin.partials.form-styles')
+
+@push('styles')
+<style>
+    /* ── Переводы интерфейса ─────────────────────────────────────────
+       Литеральный CSS: скруглений в панели нет (сняты общим
+       рубильником), а прозрачности через дробь нет в сборке Tailwind —
+       прежние rounded-xl и bg-black/40 держались на них. */
+
+    .tr-note{ display:flex; gap:.5rem; padding:.7rem .9rem; font-size:.78rem; line-height:1.5;
+        color:color-mix(in srgb, var(--surface-ink,#111827) 72%, var(--surface,#fff));
+        background:#f9fafb; border:1px solid #e5e7eb }
+    .tr-note i{ margin-top:.15rem; color:#6366f1 }
+    .dark .tr-note{ background:#0f172a; border-color:#374151 }
+
+    .tr-grid{ display:grid; gap:1rem;
+        grid-template-columns:repeat(auto-fill, minmax(18rem, 1fr)) }
+
+    .tr-card{ display:flex; flex-direction:column; gap:.6rem; padding:1rem;
+        background:var(--surface,#fff); border:1px solid var(--surface-bd,#e5e7eb);
+        transition:border-color .15s, box-shadow .15s }
+    .tr-card:hover{ border-color:#a5b4fc; box-shadow:0 6px 18px rgba(15,23,42,.07) }
+
+    .tr-card__head{ display:flex; align-items:flex-start; justify-content:space-between; gap:.75rem }
+    .tr-card__name{ display:flex; flex-direction:column; gap:.25rem; min-width:0 }
+    .tr-title{ font-size:.95rem; font-weight:700; color:var(--surface-ink,#111827) }
+    .tr-meta{ display:inline-flex; align-items:center; gap:.35rem }
+
+    .tr-code{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.7rem;
+        padding:.05rem .3rem; background:#f3f4f6; color:#4b5563 }
+    .dark .tr-code{ background:#1f2937; color:#d1d5db }
+
+    .tr-tag{ padding:.1rem .35rem; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+        font-size:.58rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+        color:#4b5563; background:#f3f4f6; border:1px solid #e5e7eb }
+    .tr-tag.is-ref{ color:#3730a3; background:#eef2ff; border-color:#c7d2fe }
+    .dark .tr-tag{ color:#d1d5db; background:#1f2937; border-color:#374151 }
+
+    .tr-percent{ font-size:1.35rem; font-weight:800; letter-spacing:-.02em; white-space:nowrap;
+        font-variant-numeric:tabular-nums; color:#6b7280 }
+    .tr-card.is-ok .tr-percent{ color:#15803d }
+    .tr-card.is-warn .tr-percent{ color:#b45309 }
+    .tr-card.is-bad .tr-percent{ color:#b91c1c }
+    .tr-card.is-ref .tr-percent{ color:#4338ca }
+
+    .tr-bar{ height:4px; background:#f3f4f6; overflow:hidden }
+    .tr-bar span{ display:block; height:100%; background:#9ca3af }
+    .tr-card.is-ok .tr-bar span{ background:#16a34a }
+    .tr-card.is-warn .tr-bar span{ background:#d97706 }
+    .tr-card.is-bad .tr-bar span{ background:#dc2626 }
+    .tr-card.is-ref .tr-bar span{ background:#6366f1 }
+    .dark .tr-bar{ background:#1f2937 }
+
+    .tr-stats{ margin:0; flex:1; font-size:.76rem; line-height:1.5;
+        color:color-mix(in srgb, var(--surface-ink,#111827) 68%, var(--surface,#fff)) }
+    .tr-bad{ color:#b91c1c }
+    .tr-warn{ color:#b45309 }
+
+    .tr-card__foot{ display:flex; gap:.35rem; margin-top:auto }
+    .tr-btn{ display:inline-flex; align-items:center; justify-content:center; gap:.4rem; flex:1;
+        padding:.5rem .75rem; font-size:.8rem; font-weight:600; cursor:pointer;
+        color:var(--on-accent,#fff); background:#4f46e5; border:1px solid #4f46e5;
+        transition:filter .15s }
+    .tr-btn:hover{ filter:brightness(1.08); color:#fff }
+    .tr-btn--danger{ flex:none; color:#b91c1c; background:var(--surface,#fff); border-color:#fecaca }
+    .tr-btn--danger:hover{ color:#991b1b; border-color:#dc2626; filter:none }
+
+    .tr-files{ display:flex; flex-wrap:wrap; align-items:center; gap:.35rem; font-size:.76rem;
+        color:color-mix(in srgb, var(--surface-ink,#111827) 68%, var(--surface,#fff)) }
+    .tr-files__label{ display:inline-flex; align-items:center; gap:.35rem;
+        font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+        font-size:.62rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase }
+</style>
+@endpush

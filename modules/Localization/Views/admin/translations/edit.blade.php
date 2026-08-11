@@ -12,22 +12,30 @@
 @section('content')
 <div x-data="translationEditor()">
 
-    {{-- 🔰 Заголовок --}}
-    <div class="mb-5 flex items-start justify-between flex-wrap gap-3">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2 flex-wrap">
-                📝 {{ $localeName }}
-                <code class="text-sm font-mono text-gray-500">{{ $locale }}</code>
-                @if ($isReference)
-                    <span class="text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded bg-gray-900 text-white dark:bg-gray-200 dark:text-gray-900">{{ __('admin.translations.reference') }}</span>
-                @endif
-            </h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                Файл <code class="font-mono">resources/lang/{{ $locale }}/{{ $group }}.php</code>
-            </p>
+    {{-- ── Шапка страницы ── --}}
+    <div class="admin-accent-bar mb-0"></div>
+    <div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-4
+                flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div class="flex items-center gap-3 min-w-0">
+            <span class="admin-icon-badge"><i class="fas fa-language"></i></span>
+            <div class="min-w-0">
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2 flex-wrap">
+                    {{ $localeName }}
+                    <code class="tr-code">{{ $locale }}</code>
+                    @if ($isReference)
+                        <span class="tr-tag is-ref">{{ __('admin.translations.reference') }}</span>
+                    @endif
+                </h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                    {{ __('admin.translations.file_label') }}
+                    <code class="tr-code">resources/lang/{{ $locale }}/{{ $group }}.php</code>
+                </p>
+            </div>
         </div>
+
         <a href="{{ route('admin.localization.translations.index') }}"
-           class="border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 px-4 py-2 rounded text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition inline-flex items-center gap-2">
+           class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+                  hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition flex-shrink-0">
             <i class="fas fa-arrow-left"></i> {{ __('admin.translations.all_languages') }}
         </a>
     </div>
@@ -45,8 +53,8 @@
     @endif
 
     @if ($isReference)
-        <div class="mb-4 rounded-lg border border-amber-200 bg-amber-50 text-amber-900 px-4 py-3 text-xs dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-200 flex gap-2">
-            <i class="fas fa-exclamation-triangle mt-0.5"></i>
+        <div class="tr-note is-warn mb-4">
+            <i class="fas fa-triangle-exclamation"></i>
             <span>
                 Это <strong>{{ __('admin.translations.reference_lang') }}</strong> {{ __('admin.translations.reference_note') }}
             </span>
@@ -57,29 +65,26 @@
 
         {{-- 📂 {{ __('admin.translations.files') }} --}}
         <div class="lg:col-span-1">
-            <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
-                <div class="px-4 py-2.5 border-b border-gray-200 dark:border-gray-800 text-sm font-semibold text-gray-700 dark:text-gray-200">
-                    {{ __('admin.translations.files') }}
-                </div>
-                <div class="divide-y divide-gray-100 dark:divide-gray-800 max-h-[70vh] overflow-y-auto">
+            <div class="admin-card">
+                <div class="tr-panel__head">{{ __('admin.translations.files') }}</div>
+                <div class="tr-files-list">
                     @foreach ($groups as $g)
                         @php
                             $gs = $groupStats[$g];
                             $active = $g === $group;
                         @endphp
                         <a href="{{ route('admin.localization.translations.edit', [$locale, $g]) }}"
-                           class="block px-4 py-2.5 transition {{ $active ? 'bg-gray-900 text-white dark:bg-gray-200 dark:text-gray-900' : 'hover:bg-gray-50 dark:hover:bg-gray-800' }}">
-                            <div class="flex items-center justify-between gap-2">
-                                <code class="font-mono text-xs {{ $active ? '' : 'text-gray-700 dark:text-gray-300' }}">{{ $g }}</code>
-                                <span class="text-[11px] {{ $active ? 'opacity-70' : 'text-gray-400' }}">
-                                    {{ $isReference ? $gs['total'] : $gs['percent'] . '%' }}
-                                </span>
-                            </div>
+                           class="tr-file {{ $active ? 'is-active' : '' }}">
+                            <span class="tr-file__row">
+                                <code>{{ $g }}</code>
+                                <span class="tr-file__num">{{ $isReference ? $gs['total'] : $gs['percent'] . '%' }}</span>
+                            </span>
+
                             @unless ($isReference)
-                                <div class="h-0.5 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mt-1.5">
-                                    <div class="h-full {{ $gs['percent'] >= 90 ? 'bg-green-500' : ($gs['percent'] >= 50 ? 'bg-amber-500' : 'bg-red-500') }}"
-                                         style="width: {{ $gs['percent'] }}%"></div>
-                                </div>
+                                <span class="tr-bar tr-bar--thin
+                                             {{ $gs['percent'] >= 90 ? 'is-ok' : ($gs['percent'] >= 50 ? 'is-warn' : 'is-bad') }}">
+                                    <span style="width: {{ $gs['percent'] }}%"></span>
+                                </span>
                             @endunless
                         </a>
                     @endforeach
@@ -93,14 +98,14 @@
                 @csrf
                 @method('PUT')
 
-                <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
+                <div class="admin-card">
 
                     {{-- Панель: поиск, фильтр, сохранение --}}
-                    <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex flex-wrap items-center gap-3 justify-between">
+                    <div class="tr-toolbar">
                         <div class="flex items-center gap-3 flex-1 min-w-[260px]">
                             <input type="search" x-model="query" x-on:input="apply()"
                                    placeholder="{{ __('admin.translations.search_ph') }}" autocomplete="off"
-                                   class="flex-1 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded px-3 py-1.5 text-sm">
+                                   class="loc-input flex-1">
                             @unless ($isReference)
                                 <label class="inline-flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-300 whitespace-nowrap cursor-pointer">
                                     <input type="checkbox" x-model="todoOnly" x-on:change="apply()" class="rounded">
@@ -109,48 +114,47 @@
                             @endunless
                         </div>
                         <div class="flex items-center gap-3">
-                            <span class="text-xs text-gray-500" x-text="counter"></span>
-                            <button type="submit" class="bg-black text-white px-4 py-1.5 rounded text-sm hover:bg-gray-800 transition">
-                                <i class="fas fa-save mr-1"></i> Сохранить
+                            <span class="tr-counter" x-text="counter"></span>
+                            <button type="submit" class="tr-save">
+                                <i class="fas fa-floppy-disk"></i> {{ __('admin.translations.save') }}
                             </button>
                         </div>
                     </div>
 
                     {{-- Таблица --}}
-                    <div class="overflow-x-auto max-h-[65vh] overflow-y-auto">
-                        <table class="min-w-full text-sm">
-                            <thead class="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs uppercase tracking-wider sticky top-0 z-10">
+                    <div class="tr-scroll">
+                        <table class="tr-table">
+                            <thead>
                                 <tr>
-                                    <th class="py-2 px-3 text-left w-1/4">{{ __('admin.translations.key') }}</th>
+                                    <th class="w-1/4">{{ __('admin.translations.key') }}</th>
                                     @unless ($isReference)
-                                        <th class="py-2 px-3 text-left w-1/3">Эталон ({{ $reference }})</th>
+                                        <th class="w-1/3">{{ __('admin.translations.th_reference', ['locale' => $reference]) }}</th>
                                     @endunless
-                                    <th class="py-2 px-3 text-left">Перевод ({{ $locale }})</th>
+                                    <th>{{ __('admin.translations.th_translation', ['locale' => $locale]) }}</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                            <tbody>
                                 @foreach ($rows as $row)
                                     <tr class="tr-row align-top"
                                         data-todo="{{ ($row['missing'] || $row['same']) && !$isReference ? '1' : '0' }}"
                                         data-haystack="{{ mb_strtolower($row['key'] . ' ' . $row['reference'] . ' ' . $row['value']) }}">
                                         <td class="py-2 px-3">
-                                            <code class="font-mono text-xs text-gray-700 dark:text-gray-300 break-all">{{ $row['key'] }}</code>
+                                            <code class="tr-key">{{ $row['key'] }}</code>
                                             @if ($row['extra'])
-                                                <span class="ml-1 text-[10px] px-1 py-0.5 rounded bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200" title="{{ __('admin.translations.not_in_reference') }}">{{ __('admin.translations.extra') }}</span>
+                                                <span class="tr-mark" title="{{ __('admin.translations.not_in_reference') }}">{{ __('admin.translations.extra') }}</span>
                                             @elseif ($row['missing'] && !$isReference)
-                                                <span class="ml-1 text-[10px] px-1 py-0.5 rounded bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300">{{ __('admin.translations.none') }}</span>
+                                                <span class="tr-mark is-bad">{{ __('admin.translations.none') }}</span>
                                             @elseif ($row['same'] && !$isReference)
-                                                <span class="ml-1 text-[10px] px-1 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300" title="{{ __('admin.translations.same_as_reference') }}">=</span>
+                                                <span class="tr-mark is-warn" title="{{ __('admin.translations.same_as_reference') }}">=</span>
                                             @endif
                                         </td>
                                         @unless ($isReference)
-                                            <td class="py-2 px-3 text-xs text-gray-500 dark:text-gray-400">{{ $row['reference'] }}</td>
+                                            <td class="tr-ref">{{ $row['reference'] }}</td>
                                         @endunless
                                         <td class="py-2 px-3">
                                             <textarea name="lines[{{ $row['key'] }}]" rows="1" spellcheck="false"
                                                       x-on:input="fit($event.target)" x-init="fit($el)"
-                                                      class="tr-input w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded px-2 py-1 text-sm font-normal resize-y"
-                                                      style="min-height: 34px;">{{ $row['value'] }}</textarea>
+                                                      class="tr-input loc-input">{{ $row['value'] }}</textarea>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -159,14 +163,14 @@
                     </div>
 
                     {{-- Подвал --}}
-                    <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-800 flex flex-wrap items-center justify-between gap-2">
-                        <span class="text-xs text-gray-500">
+                    <div class="tr-foot">
+                        <span class="tr-foot__note">
                             {{ __('admin.translations.empty_note') }}
-                            <code class="font-mono">{{ config('app.fallback_locale') }}</code>.
-                            Перед записью создаётся <code class="font-mono">.bak</code>.
+                            <code class="tr-code">{{ config('app.fallback_locale') }}</code>.
+                            {{ __('admin.translations.bak_note') }}.
                         </span>
-                        <button type="submit" class="bg-black text-white px-4 py-1.5 rounded text-sm hover:bg-gray-800 transition">
-                            <i class="fas fa-save mr-1"></i> Сохранить
+                        <button type="submit" class="tr-save">
+                            <i class="fas fa-floppy-disk"></i> {{ __('admin.translations.save') }}
                         </button>
                     </div>
                 </div>
@@ -174,6 +178,100 @@
         </div>
     </div>
 </div>
+
+@include('Localization::admin.partials.form-styles')
+
+@push('styles')
+<style>
+    /* ── Редактор переводов ──────────────────────────────────────────
+       Литеральный CSS: скругления в панели сняты общим рубильником, а
+       произвольных значений (max-h-[65vh]) и прозрачности через дробь в
+       сборке Tailwind нет — прежняя вёрстка держалась на них. */
+
+    .tr-note{ display:flex; gap:.5rem; padding:.7rem .9rem; font-size:.78rem; line-height:1.5;
+        color:color-mix(in srgb, var(--surface-ink,#111827) 72%, var(--surface,#fff));
+        background:#f9fafb; border:1px solid #e5e7eb }
+    .tr-note i{ margin-top:.15rem; color:#6366f1 }
+    .tr-note.is-warn{ color:#92400e; background:#fffbeb; border-color:#fde68a }
+    .tr-note.is-warn i{ color:#b45309 }
+
+    .tr-code{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.72rem;
+        padding:.05rem .3rem; background:#f3f4f6; color:#4b5563 }
+    .dark .tr-code{ background:#1f2937; color:#d1d5db }
+
+    .tr-tag{ padding:.1rem .35rem; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+        font-size:.58rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+        color:#4b5563; background:#f3f4f6; border:1px solid #e5e7eb }
+    .tr-tag.is-ref{ color:#3730a3; background:#eef2ff; border-color:#c7d2fe }
+
+    .tr-panel__head{ padding:.6rem .9rem; border-bottom:1px solid var(--surface-bd,#eef2f7);
+        font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+        font-size:.64rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+        color:color-mix(in srgb, var(--surface-ink,#111827) 62%, var(--surface,#fff)) }
+
+    .tr-files-list{ max-height:70vh; overflow-y:auto }
+    .tr-file{ display:block; padding:.55rem .9rem; border-bottom:1px solid #f1f5f9;
+        transition:background .15s }
+    .tr-file:hover{ background:#f9fafb }
+    .tr-file.is-active{ background:#eef2ff }
+    .dark .tr-file{ border-bottom-color:#374151 }
+    .dark .tr-file:hover{ background:#1f2937 }
+    .dark .tr-file.is-active{ background:#1e1b4b }
+
+    .tr-file__row{ display:flex; align-items:center; justify-content:space-between; gap:.5rem }
+    .tr-file code{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.75rem;
+        color:var(--surface-ink,#111827) }
+    .tr-file__num{ font-size:.7rem; font-variant-numeric:tabular-nums;
+        color:color-mix(in srgb, var(--surface-ink,#111827) 60%, var(--surface,#fff)) }
+
+    .tr-bar{ display:block; height:4px; margin-top:.35rem; background:#f3f4f6; overflow:hidden }
+    .tr-bar span{ display:block; height:100%; background:#9ca3af }
+    .tr-bar.is-ok span{ background:#16a34a }
+    .tr-bar.is-warn span{ background:#d97706 }
+    .tr-bar.is-bad span{ background:#dc2626 }
+    .tr-bar--thin{ height:3px }
+    .dark .tr-bar{ background:#1f2937 }
+
+    .tr-toolbar{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between;
+        gap:.75rem; padding:.7rem .9rem; border-bottom:1px solid var(--surface-bd,#eef2f7) }
+    .tr-counter{ font-size:.72rem; font-variant-numeric:tabular-nums;
+        color:color-mix(in srgb, var(--surface-ink,#111827) 62%, var(--surface,#fff)) }
+
+    .tr-save{ display:inline-flex; align-items:center; gap:.4rem; padding:.5rem .9rem;
+        font-size:.8rem; font-weight:700; cursor:pointer; white-space:nowrap;
+        color:var(--on-accent,#fff); background:#4f46e5; border:1px solid #4f46e5;
+        transition:filter .15s }
+    .tr-save:hover{ filter:brightness(1.08) }
+
+    .tr-scroll{ max-height:65vh; overflow:auto }
+    .tr-table{ width:100%; font-size:.85rem; border-collapse:collapse }
+    .tr-table thead th{ position:sticky; top:0; z-index:10; text-align:left;
+        padding:.5rem .75rem; background:#f9fafb; border-bottom:1px solid #e5e7eb;
+        font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+        font-size:.62rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+        color:color-mix(in srgb, var(--surface-ink,#111827) 62%, var(--surface,#fff)) }
+    .dark .tr-table thead th{ background:#111827; border-bottom-color:#374151 }
+    .tr-table td{ padding:.4rem .75rem; vertical-align:top; border-bottom:1px solid #f1f5f9 }
+    .dark .tr-table td{ border-bottom-color:#1f2937 }
+
+    .tr-key{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.72rem;
+        word-break:break-all; color:var(--surface-ink,#111827) }
+    .tr-ref{ font-size:.78rem;
+        color:color-mix(in srgb, var(--surface-ink,#111827) 65%, var(--surface,#fff)) }
+
+    .tr-mark{ margin-left:.3rem; padding:.05rem .25rem; font-size:.6rem; font-weight:700;
+        color:#4b5563; background:#f3f4f6; border:1px solid #e5e7eb }
+    .tr-mark.is-bad{ color:#b91c1c; background:#fef2f2; border-color:#fecaca }
+    .tr-mark.is-warn{ color:#b45309; background:#fffbeb; border-color:#fde68a }
+
+    .tr-input{ min-height:34px; resize:vertical; padding:.3rem .5rem; font-size:.85rem }
+
+    .tr-foot{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between;
+        gap:.75rem; padding:.7rem .9rem; border-top:1px solid var(--surface-bd,#eef2f7) }
+    .tr-foot__note{ font-size:.72rem;
+        color:color-mix(in srgb, var(--surface-ink,#111827) 62%, var(--surface,#fff)) }
+</style>
+@endpush
 
 @push('scripts')
 <script>
@@ -207,7 +305,11 @@
                     if (visible) shown++;
                 });
 
-                this.counter = shown + ' из ' + rows.length + ' строк';
+                // Строка счётчика — из словаря: раньше «из … строк» было
+                // зашито по-русски и оставалось русским на любой локали.
+                this.counter = @js(__('admin.translations.rows_counter'))
+                    .replace(':shown', shown)
+                    .replace(':total', rows.length);
             },
         };
     }
