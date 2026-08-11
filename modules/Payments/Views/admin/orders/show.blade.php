@@ -83,14 +83,50 @@
             <i class="fas fa-receipt text-indigo-500"></i> {{ __('admin.orders.g_order') }}
         </h2>
 
+        @php
+            // Знак и фирменный цвет — из тех же моделей, что в списках
+            // «Оплата» и «Доставка» и в корзине покупателя.
+            $payBrand = $order->paymentMethod?->brand();
+            $shipBrand = $order->deliveryMethod?->brand();
+        @endphp
+
         <dl class="ord-list">
             <div><dt>{{ __('admin.orders.f_payment') }}</dt>
-                <dd>{{ $order->paymentMethod->title ?? '—' }}</dd></div>
+                <dd>
+                    @if($payBrand)
+                        <span class="ord-way" style="--pm:{{ $payBrand['color'] }}; --pm-ink:{{ $payBrand['ink'] }}">
+                            <span class="ord-way__mark {{ $payBrand['logo'] ? 'has-logo' : '' }}">
+                                @if($payBrand['logo'])
+                                    <img src="{{ $payBrand['logo'] }}" alt="{{ $order->paymentMethod->title }}" loading="lazy">
+                                @else
+                                    <i class="fas {{ $payBrand['icon'] }}"></i>
+                                @endif
+                            </span>
+                            {{ $order->paymentMethod->title }}
+                        </span>
+                    @else
+                        —
+                    @endif
+                </dd></div>
 
             <div><dt>{{ __('admin.orders.f_delivery') }}</dt>
-                <dd>{{ $order->deliveryMethod->title ?? '—' }}
-                    @if($order->delivery_price > 0)
-                        <span class="text-gray-500">({{ number_format((float) $order->delivery_price, 2, ',', ' ') }} ₽)</span>
+                <dd>
+                    @if($shipBrand)
+                        <span class="ord-way" style="--pm:{{ $shipBrand['color'] }}; --pm-ink:{{ $shipBrand['ink'] }}">
+                            <span class="ord-way__mark {{ $shipBrand['logo'] ? 'has-logo' : '' }}">
+                                @if($shipBrand['logo'])
+                                    <img src="{{ $shipBrand['logo'] }}" alt="{{ $order->deliveryMethod->title }}" loading="lazy">
+                                @else
+                                    <i class="fas {{ $shipBrand['icon'] }}"></i>
+                                @endif
+                            </span>
+                            {{ $order->deliveryMethod->title }}
+                            @if($order->delivery_price > 0)
+                                <span class="ord-way__price">{{ number_format((float) $order->delivery_price, 2, ',', ' ') }} ₽</span>
+                            @endif
+                        </span>
+                    @else
+                        —
                     @endif
                 </dd></div>
 
@@ -135,6 +171,20 @@
         <i class="fas fa-cart-shopping text-indigo-500"></i> {{ __('admin.orders.g_items') }}
     </h2>
 
+    @if($order->items->isEmpty())
+        {{-- У заказа может не быть строк товаров: так создаются заказы,
+             оформленные до появления позиций, и тестовые. Пустая шапка
+             таблицы с одним «Итого» выглядела поломкой. --}}
+        <div class="ord-noitems">
+            <i class="fas fa-box-open"></i>
+            <p class="ord-noitems__title">{{ __('admin.orders.items_empty') }}</p>
+            <p class="admin-hint">{{ __('admin.orders.items_empty_hint') }}</p>
+            <p class="ord-noitems__sum">
+                {{ __('admin.orders.total') }}
+                <b>{{ number_format((float) $order->total, 2, ',', ' ') }} ₽</b>
+            </p>
+        </div>
+    @else
     <div class="overflow-x-auto">
         <table class="w-full text-sm">
             <thead>
@@ -167,6 +217,7 @@
             </tfoot>
         </table>
     </div>
+    @endif
 </section>
 @endsection
 
@@ -175,12 +226,43 @@
     /* Литеральный CSS: динамических классов bg-{$color}-100, на которых
        держался прежний бейдж статуса, в статической сборке Tailwind нет —
        он выводился бесцветным. */
-    .ord-list{ display:grid; gap:.5rem; font-size:.92rem }
-    .ord-list > div{ display:flex; gap:.6rem; flex-wrap:wrap; align-items:baseline }
-    .ord-list dt{ color:#6b7280; min-width:11rem }
-    .ord-list dd{ margin:0; font-weight:600; color:#111827 }
+    /* Типографика как в «Оплате» и «Доставке»: подписи — моноширинным,
+       мелко, капсом; суммы — табличными цифрами, иначе колонка «пляшет»
+       по разрядам. */
+    .ord-list{ display:grid; gap:.55rem; font-size:.92rem }
+    .ord-list > div{ display:flex; gap:.6rem; flex-wrap:wrap; align-items:center }
+    .ord-list dt{ min-width:11rem; flex:none;
+        font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+        font-size:.64rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+        color:color-mix(in srgb, var(--surface-ink,#111827) 62%, var(--surface,#fff)) }
+    .ord-list dd{ margin:0; font-weight:600; color:var(--surface-ink,#111827) }
     .ord-list a{ color:#4f46e5 }
-    .ord-total{ font-size:1.05rem; font-weight:700; color:#111827 }
+    .ord-total{ font-size:1.05rem; font-weight:700; color:var(--surface-ink,#111827);
+        font-variant-numeric:tabular-nums }
+
+    /* Способ оплаты и доставки — со знаком системы. */
+    .ord-way{ display:inline-flex; align-items:center; gap:.45rem }
+    .ord-way__mark{ display:inline-flex; align-items:center; justify-content:center; flex:none;
+        width:1.6rem; height:1.6rem; overflow:hidden; font-size:.7rem;
+        color:var(--pm-ink,#fff); background:var(--pm,#6366f1) }
+    .ord-way__mark.has-logo{ background:#fff; border:1px solid color-mix(in srgb, var(--pm) 35%, transparent) }
+    .ord-way__mark img{ width:100%; height:100%; object-fit:cover; display:block }
+    .ord-way__price{ font-size:.78rem; font-weight:600;
+        color:color-mix(in srgb, var(--surface-ink,#111827) 60%, var(--surface,#fff));
+        font-variant-numeric:tabular-nums }
+
+    /* Заказ без строк товаров. */
+    .ord-noitems{ padding:1.75rem 1rem; text-align:center }
+    .ord-noitems i{ display:block; margin-bottom:.6rem; font-size:1.75rem; color:#c7d2fe }
+    .ord-noitems__title{ margin:0 0 .2rem; font-size:.95rem; font-weight:700;
+        color:var(--surface-ink,#111827) }
+    .ord-noitems__sum{ display:inline-flex; align-items:baseline; gap:.5rem; margin:1rem 0 0;
+        padding:.45rem .8rem; background:#f9fafb; border:1px solid #eef2f7;
+        font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+        font-size:.64rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+        color:color-mix(in srgb, var(--surface-ink,#111827) 62%, var(--surface,#fff)) }
+    .ord-noitems__sum b{ font-family:inherit; font-size:1.05rem; letter-spacing:0;
+        color:var(--surface-ink,#111827); font-variant-numeric:tabular-nums }
 
     .ord-status{ display:inline-block; font-size:.72rem; font-weight:700;
                  padding:.15rem .5rem; border:1px solid; vertical-align:middle }

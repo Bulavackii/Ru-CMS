@@ -1139,6 +1139,8 @@ return [
         'card_title' => 'Order',
         'g_order' => 'About the order',
         'g_items' => 'Items in the order',
+        'items_empty' => 'No line items',
+        'items_empty_hint' => 'The order was placed without line items — this happens with orders created before contents were recorded, and with test ones. The total comes from the order itself.',
         't_product' => 'Product',
         't_price' => 'Price',
         't_qty' => 'Qty',
