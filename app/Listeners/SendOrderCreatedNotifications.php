@@ -50,12 +50,15 @@ class SendOrderCreatedNotifications
         }
 
         try {
-            Mail::send('emails.order_created', [
+            // Письмо уходит после ответа: покупатель и админ не должны
+            // ждать почтовый сервер, а недоступный SMTP не должен ронять
+            // страницу по лимиту времени выполнения.
+            after_response(fn () => Mail::send('emails.order_created', [
                 'order' => $order,
             ], function ($message) use ($order, $email) {
                 $message->to($email)
                         ->subject("Заказ #{$order->id} успешно оформлен");
-            });
+            }), ['order_id' => $order->id, 'mail' => 'order_created']);
         } catch (\Exception $e) {
             Log::error('Failed to send order created email', [
                 'order_id' => $order->id,

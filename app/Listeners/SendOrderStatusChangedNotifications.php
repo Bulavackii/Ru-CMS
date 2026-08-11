@@ -50,13 +50,16 @@ class SendOrderStatusChangedNotifications
         }
 
         try {
-            Mail::send('emails.order_status', [
+            // Письмо уходит после ответа: покупатель и админ не должны
+            // ждать почтовый сервер, а недоступный SMTP не должен ронять
+            // страницу по лимиту времени выполнения.
+            after_response(fn () => Mail::send('emails.order_status', [
                 'order' => $order,
                 'oldStatus' => $oldStatus,
             ], function ($message) use ($order, $email) {
                 $message->to($email)
                         ->subject("Обновление статуса заказа #{$order->id}");
-            });
+            }), ['order_id' => $order->id, 'mail' => 'order_status']);
         } catch (\Exception $e) {
             Log::error('Failed to send order status email', [
                 'order_id' => $order->id,

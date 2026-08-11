@@ -132,4 +132,25 @@ class OrderNotificationTest extends TestCase
         $this->assertStringContainsString(__('admin.orders.st_pending'), $notification->message);
         $this->assertStringContainsString(__('admin.orders.st_paid'), $notification->message);
     }
+
+    public function test_customer_emails_leave_only_after_the_response(): void
+    {
+        // Письма уходили прямо в запросе. Недоступный SMTP (у владельца —
+        // smtp.mail.ru:465, закрытый провайдером) держал сокет до лимита
+        // PHP, и смена статуса падала фатальной ошибкой «Maximum execution
+        // time of 30 seconds exceeded». Теперь отправка регистрируется на
+        // завершение запроса — ответ уходит в браузер первым.
+        config(['mail.default' => 'array']);
+        $transport = Mail::mailer('array')->getSymfonyTransport();
+
+        $order = $this->makeOrder();   // письмо о создании заказа
+        $order->status = 'completed';  // письмо о смене статуса
+        $order->save();
+
+        $this->assertCount(0, $transport->messages(), 'Письмо ушло прямо в запросе');
+
+        $this->app->terminate();
+
+        $this->assertCount(2, $transport->messages(), 'Письма не ушли после ответа');
+    }
 }

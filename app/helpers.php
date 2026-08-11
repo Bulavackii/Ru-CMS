@@ -1095,3 +1095,30 @@ if (! function_exists('auth_pattern_svg')) {
         );
     }
 }
+
+if (! function_exists('after_response')) {
+    /**
+     * Выполнить работу ПОСЛЕ того, как ответ ушёл в браузер.
+     *
+     * Нужно для писем: очередь в проекте по умолчанию `sync`, поэтому
+     * даже слушатель с ShouldQueue выполнялся бы прямо в запросе, и
+     * медленный SMTP заставлял бы админа смотреть в белый экран (а при
+     * недоступном сервере — ловить фатальную ошибку по лимиту времени).
+     *
+     * Ошибки внутри гасятся и уходят в лог: ответ уже отдан, показать их
+     * всё равно некому, а падение здесь ломает завершение запроса.
+     */
+    function after_response(callable $work, array $context = []): void
+    {
+        app()->terminating(function () use ($work, $context) {
+            try {
+                $work();
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error(
+                    'Работа после ответа не выполнена',
+                    $context + ['error' => $e->getMessage()]
+                );
+            }
+        });
+    }
+}

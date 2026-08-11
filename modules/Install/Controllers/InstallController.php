@@ -513,6 +513,9 @@ class InstallController extends Controller
                 'MAIL_ENCRYPTION'   => $encryption === 'none' ? '' : $encryption,
                 'MAIL_FROM_ADDRESS' => $fromAddr,
                 'MAIL_FROM_NAME'    => $fromName,
+                // Без таймаута недоступный почтовый сервер держит запрос
+                // до лимита PHP и роняет страницу.
+                'MAIL_TIMEOUT'      => '5',
             ]);
 
             Artisan::call('config:clear');
