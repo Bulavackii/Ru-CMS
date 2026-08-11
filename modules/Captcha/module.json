@@ -2,7 +2,7 @@
   "name": "Captcha",
   "title": "🛡️ Каптча",
   "version": "1.0.0",
-  "active": false,
+  "active": true,
   "priority": 80,
   "description": "Гибкая система каптчи с возможностью встраивания в любое место",
   "providers": [

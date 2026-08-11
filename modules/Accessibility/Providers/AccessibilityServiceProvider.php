@@ -25,5 +25,11 @@ class AccessibilityServiceProvider extends ServiceProvider
         }
 
         // Миграции модуля живут в единой database/migrations/.
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \Modules\Accessibility\Console\Commands\SeedDefaultAccessibilityCommand::class,
+            ]);
+        }
     }
 }

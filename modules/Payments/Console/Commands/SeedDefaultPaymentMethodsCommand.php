@@ -37,6 +37,12 @@ class SeedDefaultPaymentMethodsCommand extends Command
      * Описания методов. Ключи settings пустые намеренно: это подсказка
      * формы о том, какие поля нужны драйверу, а не место для боевых ключей.
      */
+    /**
+     * Способы, включённые сразу после установки: им не нужны реквизиты.
+     * Онлайн-системы включает владелец, когда введёт ключи.
+     */
+    public const ENABLED_BY_DEFAULT = ['cash', 'bank_transfer'];
+
     public static function definitions(): array
     {
         return [
@@ -154,7 +160,11 @@ class SeedDefaultPaymentMethodsCommand extends Command
                 'test_mode' => true,
                 // Выключен: без ключей метод всё равно не работает, а
                 // включённый пустой метод показался бы покупателю в корзине.
-                'active' => false,
+                // Наличные и перевод включены сразу: им не нужны ключи, и
+                // без единого способа оплаты корзина на свежем сайте не
+                // работает вовсе. Онлайн-системы остаются выключенными —
+                // без реквизитов они всё равно не примут платёж.
+                'active' => in_array($definition['code'], self::ENABLED_BY_DEFAULT, true),
                 'sort_order' => $index,
             ];
 

@@ -39,6 +39,12 @@ class SeedDefaultDeliveryMethodsCommand extends Command
      * Ключи api_settings пустые намеренно: это подсказка форме о том,
      * какие реквизиты нужны службе, а не место для боевых токенов.
      */
+    /**
+     * Службы, включённые сразу после установки. Ключи им не нужны:
+     * стоимость фиксированная, расчёт по API выключен.
+     */
+    public const ENABLED_BY_DEFAULT = ['pochta', 'cdek', 'courier_local'];
+
     public static function definitions(): array
     {
         return [
@@ -169,7 +175,10 @@ class SeedDefaultDeliveryMethodsCommand extends Command
                 'is_russian' => true,
                 // Выключен: включённый метод без настроек показался бы
                 // покупателю в корзине и посчитал бы доставку неверно.
-                'active' => false,
+// Включены службы, которые работают и без ключей: цена у них
+                // фиксированная, расчёт по API остаётся выключенным. Без
+                // единого способа доставки оформить заказ невозможно.
+                'active' => in_array($definition['code'], self::ENABLED_BY_DEFAULT, true),
                 'sort_order' => $index,
             ];
 

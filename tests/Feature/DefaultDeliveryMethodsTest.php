@@ -28,11 +28,18 @@ class DefaultDeliveryMethodsTest extends TestCase
         );
     }
 
-    public function test_methods_are_created_disabled(): void
+    public function test_only_key_free_services_are_enabled(): void
     {
+        // Включёнными приходят только службы с фиксированной ценой: без
+        // единого способа доставки заказ оформить нельзя вовсе. Расчёт по
+        // API выключен у всех — без ключей он всё равно не работает.
         SeedDefaultDeliveryMethodsCommand::seed();
 
-        $this->assertSame(0, DeliveryMethod::where('active', true)->count());
+        $this->assertSame(
+            SeedDefaultDeliveryMethodsCommand::ENABLED_BY_DEFAULT,
+            DeliveryMethod::where('active', true)->orderBy('sort_order')->pluck('code')->all()
+        );
+
         $this->assertSame(0, DeliveryMethod::where('api_enabled', true)->count());
     }
 
@@ -77,12 +84,17 @@ class DefaultDeliveryMethodsTest extends TestCase
 
     public function test_reset_rewrites_the_method(): void
     {
+        // Берём службу, которой во включённых нет: --reset должен вернуть
+        // ей состояние по умолчанию, то есть «выключена».
         SeedDefaultDeliveryMethodsCommand::seed();
-        DeliveryMethod::where('code', 'cdek')->update(['active' => true]);
+        DeliveryMethod::where('code', 'boxberry')->update(['active' => true, 'price' => 999]);
 
         SeedDefaultDeliveryMethodsCommand::seed(true);
 
-        $this->assertFalse((bool) DeliveryMethod::where('code', 'cdek')->value('active'));
+        $method = DeliveryMethod::where('code', 'boxberry')->first();
+
+        $this->assertFalse((bool) $method->active);
+        $this->assertNotSame('999.00', (string) $method->price);
     }
 
     public function test_api_services_point_to_their_documentation(): void

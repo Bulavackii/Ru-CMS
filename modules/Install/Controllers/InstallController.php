@@ -633,6 +633,10 @@ class InstallController extends Controller
             // и файлы. Вызови её раньше — привязывать будет нечего.
             $this->seedDefaultCategories();
             $this->seedContentTranslations();
+            $this->seedDefaultAccessibility();
+            // SEO — ПОСЛЕ всего содержимого: команда описывает то, что уже
+            // создано. Вызови её раньше — описывать будет нечего.
+            $this->seedSeoPages();
             $this->seedRolesAndPermissions();
             $this->hardenPublicStorage();
 
@@ -1505,6 +1509,25 @@ class InstallController extends Controller
      * «Пользователи» действие «Назначить роль» вело в тупик — выбирать было
      * нечего. Сидер идемпотентен (firstOrCreate по slug).
      */
+    /**
+     * Настройки спецвозможностей. Без них строка заводится лениво и
+     * приходит ВЫКЛЮЧЕННОЙ — кнопки спецвозможностей на сайте нет вовсе.
+     */
+    private function seedDefaultAccessibility(): void
+    {
+        \Modules\Accessibility\Console\Commands\SeedDefaultAccessibilityCommand::seed(false);
+    }
+
+    /**
+     * SEO-записи для созданного содержимого. Демо-материалы вставляются
+     * запросом, а не через модель, поэтому события синхронизации не
+     * срабатывают и раздел SEO после установки оставался пустым.
+     */
+    private function seedSeoPages(): void
+    {
+        \Modules\Seo\Console\Commands\SeedSeoPagesCommand::seed(false);
+    }
+
     private function seedRolesAndPermissions(): void
     {
         (new \Database\Seeders\RbacSeeder())->run();

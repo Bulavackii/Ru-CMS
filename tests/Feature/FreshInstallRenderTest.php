@@ -122,4 +122,58 @@ class FreshInstallRenderTest extends TestCase
             );
         }
     }
+
+    public function test_install_leaves_the_site_usable(): void
+    {
+        // Сверка чистой установки с боевым сайтом показала четыре пробела:
+        // не было ни одной SEO-записи, настройки спецвозможностей не
+        // создавались вовсе (виджет не появлялся), а все способы оплаты и
+        // доставки приходили выключенными — заказ оформить было нечем.
+        User::factory()->create(['is_admin' => true]);
+
+        $controller = app(\Modules\Install\Controllers\InstallController::class);
+
+        foreach ([
+            'seedDefaultMenu', 'seedDefaultPaymentMethods', 'seedDefaultDeliveryMethods',
+            'seedDefaultPages', 'installDemoData', 'seedDefaultCategories',
+            'seedDefaultAccessibility', 'seedSeoPages',
+        ] as $step) {
+            $method = new \ReflectionMethod($controller, $step);
+            $method->setAccessible(true);
+            $method->invoke($controller);
+        }
+
+        // Оформить заказ есть чем.
+        $this->assertGreaterThan(
+            0,
+            \Modules\Payments\Models\PaymentMethod::where('active', true)->count(),
+            'После установки нет ни одного способа оплаты'
+        );
+
+        $this->assertGreaterThan(
+            0,
+            \Modules\Delivery\Models\DeliveryMethod::where('active', true)->count(),
+            'После установки нет ни одного способа доставки'
+        );
+
+        // Ключи при этом не заведены ни у кого — репозиторий публичный.
+        foreach (\Modules\Payments\Models\PaymentMethod::all() as $method) {
+            foreach ((array) $method->settings as $key => $value) {
+                $this->assertSame('', $value, "У метода {$method->code} заполнен ключ {$key}");
+            }
+        }
+
+        // Виджет спецвозможностей включён, а не заводится лениво выключенным.
+        $this->assertTrue(
+            (bool) \Modules\Accessibility\Models\AccessibilitySetting::settings()->enabled,
+            'Виджет спецвозможностей выключен после установки'
+        );
+
+        // Раздел SEO описывает созданное содержимое.
+        $this->assertGreaterThan(
+            0,
+            \Modules\Seo\Models\SeoPage::count(),
+            'После установки нет ни одной SEO-записи'
+        );
+    }
 }

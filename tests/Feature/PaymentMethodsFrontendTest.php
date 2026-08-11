@@ -20,6 +20,10 @@ class PaymentMethodsFrontendTest extends TestCase
     public function test_only_active_methods_are_offered(): void
     {
         SeedDefaultPaymentMethodsCommand::seed();
+
+        // Выключаем всё и включаем ровно один способ: в корзину должен
+        // попасть только он.
+        PaymentMethod::query()->update(['active' => false]);
         PaymentMethod::where('code', 'cash')->update(['active' => true]);
 
         $offered = PaymentMethod::where('active', true)->orderBy('sort_order')->get();
@@ -40,13 +44,20 @@ class PaymentMethodsFrontendTest extends TestCase
         $this->assertSame(['first', 'second'], $codes);
     }
 
-    public function test_seeded_methods_are_not_offered_until_enabled(): void
+    public function test_methods_needing_keys_are_not_offered_until_enabled(): void
     {
         // Сидирование при установке не должно показать покупателю
-        // ненастроенные способы.
+        // ненастроенные способы: онлайн-системы без реквизитов приняли бы
+        // выбор и не смогли бы провести платёж. Наличные и перевод
+        // включены намеренно — им реквизиты не нужны.
         SeedDefaultPaymentMethodsCommand::seed();
 
-        $this->assertSame(0, PaymentMethod::where('active', true)->count());
+        $needKeys = array_keys(array_filter(SeedDefaultPaymentMethodsCommand::credentialFields()));
+
+        $this->assertSame(
+            [],
+            PaymentMethod::where('active', true)->whereIn('type', $needKeys)->pluck('code')->all()
+        );
     }
 
     public function test_commission_is_formatted_for_the_customer(): void

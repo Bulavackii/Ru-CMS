@@ -30,13 +30,25 @@ class DefaultPaymentMethodsTest extends TestCase
         );
     }
 
-    public function test_methods_are_created_disabled(): void
+    public function test_only_key_free_methods_are_enabled(): void
     {
-        // Включённый метод без ключей показался бы покупателю в корзине
-        // и не смог бы принять платёж.
+        // Включённая онлайн-система без ключей показалась бы покупателю в
+        // корзине и не смогла бы принять платёж. Наличные и перевод ключей
+        // не требуют, и без них корзина на свежем сайте нерабочая.
         SeedDefaultPaymentMethodsCommand::seed();
 
-        $this->assertSame(0, PaymentMethod::where('active', true)->count());
+        $this->assertSame(
+            SeedDefaultPaymentMethodsCommand::ENABLED_BY_DEFAULT,
+            PaymentMethod::where('active', true)->orderBy('sort_order')->pluck('code')->all()
+        );
+
+        // Ни одна система, которой нужны реквизиты, не включена.
+        $needKeys = array_keys(array_filter(SeedDefaultPaymentMethodsCommand::credentialFields()));
+
+        $this->assertSame(
+            [],
+            PaymentMethod::where('active', true)->whereIn('type', $needKeys)->pluck('code')->all()
+        );
     }
 
     public function test_no_credentials_are_shipped_in_the_seed(): void

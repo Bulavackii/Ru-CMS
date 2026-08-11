@@ -42,6 +42,10 @@ class SeoServiceProvider extends ServiceProvider
         // --- Публикации (миграции модуля живут в единой database/migrations/)
         if ($this->app->runningInConsole()) {
             $this->publishes([__DIR__ . '/../Config/seo.php' => config_path('seo.php')], 'seo-config');
+
+            $this->commands([
+                \Modules\Seo\Console\Commands\SeedSeoPagesCommand::class,
+            ]);
         }
 
         // --- Автосинк источников и push-back
