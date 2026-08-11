@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Modules\Payments\Models\Order;
 use Modules\Payments\Models\OrderItem;
 use Modules\Payments\Models\PaymentMethod;
@@ -120,8 +121,10 @@ class OrderController extends Controller
      */
     public function updateStatus(Request $request, Order $order)
     {
+        // Набор берём у модели: раньше он был переписан здесь руками и
+        // разошёлся со списком во вьюхе — «Оплачен» не сохранялся.
         $request->validate([
-            'status' => 'required|in:pending,processing,completed,cancelled',
+            'status' => ['required', Rule::in(Order::STATUSES)],
         ]);
 
         $oldStatus = $order->status;
@@ -334,13 +337,6 @@ class OrderController extends Controller
      */
     private function getStatusText($status)
     {
-        $statuses = [
-            'pending' => 'В ожидании',
-            'processing' => 'В обработке',
-            'completed' => 'Завершён',
-            'cancelled' => 'Отменён',
-        ];
-
-        return $statuses[$status] ?? $status;
+        return Order::statusLabels()[$status] ?? $status;
     }
 }

@@ -1182,6 +1182,7 @@ return [
         'th_date' => 'Date',
         'st_pending' => 'Awaiting payment',
         'st_paid' => 'Paid',
+        'st_processing' => 'Processing',
         'st_completed' => 'Completed',
         'st_cancelled' => 'Cancelled',
         'st_unknown' => 'Processing',

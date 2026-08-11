@@ -7,6 +7,10 @@ use App\Services\NotificationService;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use App\Models\User;
+// Без этого импорта тип-хинт Order резолвится в App\Listeners\Order, и
+// слушатель падает с TypeError при первом же событии. Тот же баг уже был
+// у SendOrderCreatedNotifications.
+use Modules\Payments\Models\Order;
 
 /**
  * 📧 Отправка уведомлений при изменении статуса заказа
@@ -67,12 +71,10 @@ class SendOrderStatusChangedNotifications
      */
     protected function notifyAdmins(Order $order, string $oldStatus): void
     {
-        $statusText = [
-            'pending' => 'В ожидании',
-            'processing' => 'В обработке',
-            'completed' => 'Завершен',
-            'cancelled' => 'Отменен',
-        ];
+        // Подписи берём у модели — одним источником со списком в панели.
+        // Своя копия набора здесь уже разошлась: в ней не было статуса
+        // «Оплачен», и уведомление показывало сырой код.
+        $statusText = Order::statusLabels();
 
         $oldStatusText = $statusText[$oldStatus] ?? $oldStatus;
         $newStatusText = $statusText[$order->status] ?? $order->status;

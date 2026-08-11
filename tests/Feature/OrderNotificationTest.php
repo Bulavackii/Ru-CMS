@@ -107,4 +107,29 @@ class OrderNotificationTest extends TestCase
         $this->assertNotSame('pusher', $config['default'],
             'Дефолт вещания не должен требовать пакета, которого нет в проекте');
     }
+
+    public function test_status_change_notifies_admins_with_readable_labels(): void
+    {
+        // Слушатель тип-хинтил Order БЕЗ импорта: имя резолвилось в
+        // App\Listeners\Order, и первое же событие роняло TypeError.
+        // Тот же баг уже был у слушателя создания заказа.
+        Mail::fake();
+
+        $admin = User::factory()->create(['is_admin' => true]);
+        $order = $this->makeOrder();
+
+        DB::table('admin_notifications')->delete();
+
+        $order->status = 'paid';
+        $order->save();
+
+        $notification = DB::table('admin_notifications')->latest('id')->first();
+
+        $this->assertNotNull($notification, 'Уведомление о смене статуса не создано');
+
+        // Подписи, а не сырые коды: свой набор в слушателе не знал
+        // статуса «Оплачен» и печатал его как paid.
+        $this->assertStringContainsString(__('admin.orders.st_pending'), $notification->message);
+        $this->assertStringContainsString(__('admin.orders.st_paid'), $notification->message);
+    }
 }

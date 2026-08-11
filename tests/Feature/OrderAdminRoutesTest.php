@@ -82,4 +82,65 @@ class OrderAdminRoutesTest extends TestCase
 
         $this->post(route('orders.payment.initiate', $order->id))->assertRedirect();
     }
+
+    public function test_admin_can_change_order_status(): void
+    {
+        // Смена статуса падала с 500 на любом заказе: модель складывала
+        // прежний статус в $order->old_status, а это заводило АТРИБУТ, и
+        // Eloquent писал его в UPDATE — «столбец old_status не существует».
+        $admin = User::factory()->create(['is_admin' => true]);
+        $order = $this->order();
+
+        $this->actingAs($admin)
+            ->put(route('admin.orders.update.status', $order->id), ['status' => 'pending'])
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame('pending', $order->fresh()->status);
+    }
+
+    public function test_every_status_offered_by_the_panel_is_accepted(): void
+    {
+        // Набор статусов жил в трёх местах и разошёлся: вьюхи предлагали
+        // «Оплачен» (paid), а валидация принимала processing — сохранить
+        // выбранное из списка значение было невозможно.
+        $admin = User::factory()->create(['is_admin' => true]);
+        $order = $this->order();
+
+        foreach (Order::STATUSES as $status) {
+            $this->actingAs($admin)
+                ->put(route('admin.orders.update.status', $order->id), ['status' => $status])
+                ->assertSessionHasNoErrors();
+
+            $this->assertSame($status, $order->fresh()->status, "Статус {$status} не сохранился");
+        }
+    }
+
+    public function test_status_change_reports_the_previous_value(): void
+    {
+        // Уведомления опираются на прежний статус — если он потеряется,
+        // покупателю уедет письмо «было completed → стало completed».
+        Event::fake([\App\Events\OrderStatusChanged::class]);
+
+        $order = $this->order();
+        $order->status = 'cancelled';
+        $order->save();
+
+        Event::assertDispatched(\App\Events\OrderStatusChanged::class, function ($event) use ($order) {
+            return $event->order->is($order)
+                && $event->oldStatus === 'completed'
+                && $event->newStatus === 'cancelled';
+        });
+    }
+
+    public function test_status_change_does_not_fire_without_a_change(): void
+    {
+        Event::fake([\App\Events\OrderStatusChanged::class]);
+
+        $order = $this->order();
+        $order->customer_name = 'Другое имя';
+        $order->save();
+
+        Event::assertNotDispatched(\App\Events\OrderStatusChanged::class);
+    }
 }

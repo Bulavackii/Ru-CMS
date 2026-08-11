@@ -6,12 +6,8 @@
 @php
     $freshIds = $freshIds ?? [];
 
-    $statuses = [
-        'pending' => __('admin.orders.st_pending'),
-        'paid' => __('admin.orders.st_paid'),
-        'completed' => __('admin.orders.st_completed'),
-        'cancelled' => __('admin.orders.st_cancelled'),
-    ];
+    // Набор статусов — из модели, одним источником с валидацией.
+    $statuses = \Modules\Payments\Models\Order::statusLabels();
 
     $filtered = request()->hasAny(['q', 'status', 'from', 'to']);
 @endphp

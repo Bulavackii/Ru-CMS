@@ -1182,6 +1182,7 @@ return [
         'th_date' => 'Дата',
         'st_pending' => 'Ожидает оплаты',
         'st_paid' => 'Оплачен',
+        'st_processing' => 'В обработке',
         'st_completed' => 'Выполнен',
         'st_cancelled' => 'Отменён',
         'st_unknown' => 'В обработке',

@@ -132,6 +132,34 @@ class Order extends Model
     /**
      * Boot метод для событий модели
      */
+    /**
+     * Статусы заказа — единственный источник на весь модуль.
+     *
+     * Раньше набор был описан трижды (обе вьюхи и правило валидации) и
+     * успел разойтись: панель предлагала «Оплачен», а валидация его не
+     * принимала — сохранить такой статус было невозможно.
+     *
+     * Значения — идентификаторы в базе, переводить их нельзя; подписи
+     * лежат в admin.orders.st_<статус>.
+     */
+    public const STATUSES = ['pending', 'paid', 'processing', 'completed', 'cancelled'];
+
+    /**
+     * Подписи статусов для выпадающих списков и плашек.
+     *
+     * @return array<string, string>
+     */
+    public static function statusLabels(): array
+    {
+        $labels = [];
+
+        foreach (self::STATUSES as $status) {
+            $labels[$status] = __('admin.orders.st_' . $status);
+        }
+
+        return $labels;
+    }
+
     protected static function boot(): void
     {
         parent::boot();
@@ -143,20 +171,29 @@ class Order extends Model
             event(new OrderCreated($order));
         });
 
-        // Событие изменения статуса
-        static::updating(function ($order) {
-            if ($order->isDirty('status')) {
-                $order->old_status = $order->getOriginal('status');
-            }
-        });
-
+        // Событие изменения статуса.
+        //
+        // ⚠️ Прежний вариант складывал старый статус в `$order->old_status`.
+        // У модели нет такого свойства, поэтому присваивание заводило
+        // АТРИБУТ, и Eloquent добавлял его в UPDATE: «столбец old_status
+        // не существует», 500 на КАЖДОЙ смене статуса из панели.
+        //
+        // Ничего запоминать и не нужно: syncOriginal() выполняется уже
+        // после события updated, так что getOriginal() здесь ещё отдаёт
+        // значение до сохранения, а wasChanged() — факт изменения.
         static::updated(function ($order) {
-            if (isset($order->old_status) && $order->old_status !== $order->status) {
-                // Загружаем связи для уведомлений
-                $order->load(['items', 'user', 'paymentMethod', 'deliveryMethod']);
-                event(new OrderStatusChanged($order, $order->old_status, $order->status));
-                unset($order->old_status);
+            if (! $order->wasChanged('status')) {
+                return;
             }
+
+            // Загружаем связи для уведомлений
+            $order->load(['items', 'user', 'paymentMethod', 'deliveryMethod']);
+
+            event(new OrderStatusChanged(
+                $order,
+                (string) $order->getOriginal('status'),
+                (string) $order->status,
+            ));
         });
     }
 }

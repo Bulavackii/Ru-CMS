@@ -4,12 +4,8 @@
 
 @section('content')
 @php
-    $statuses = [
-        'pending' => __('admin.orders.st_pending'),
-        'paid' => __('admin.orders.st_paid'),
-        'completed' => __('admin.orders.st_completed'),
-        'cancelled' => __('admin.orders.st_cancelled'),
-    ];
+    // Набор статусов — из модели, одним источником с валидацией.
+    $statuses = \Modules\Payments\Models\Order::statusLabels();
 
     $label = $statuses[$order->status] ?? __('admin.orders.st_unknown');
     $tone = match ($order->status) {
