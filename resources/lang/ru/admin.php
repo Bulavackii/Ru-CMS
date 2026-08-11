@@ -57,6 +57,7 @@ return [
         'license_expired' => 'истекла',
         'license_expires' => 'истекает через',
         'report_bug' => 'Сообщить об ошибке',
+        'tools' => 'Служебные страницы',
         'geolocation' => 'Моя геолокация и устройство',
         'system_info' => 'Сведения о сервере',
         'language' => 'Язык интерфейса',

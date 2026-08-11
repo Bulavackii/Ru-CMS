@@ -212,4 +212,39 @@ class AdminSidebarTest extends TestCase
             $this->assertStringContainsString('href="' . $section['url'] . '"', $html);
         }
     }
+
+    public function test_every_section_matches_its_own_page(): void
+    {
+        // link() сравнивает шаблон через routeIs(), то есть ждёт ИМЯ
+        // маршрута. Разделам «Поиск», «Модули» и «Спецвозможности» были
+        // переданы пути («admin/search»), и они не подсвечивались никогда:
+        // в меню не появлялась плашка активного пункта, а шапка показывала
+        // «Обзор» вместо названия раздела.
+        $admin = User::factory()->create(['is_admin' => true]);
+        $this->actingAs($admin);
+
+        foreach (AdminSections::all() as $section) {
+            $response = $this->get($section['url']);
+
+            // Раздел может быть недоступен по правам или отдавать редирект —
+            // проверяем только те, что реально открываются.
+            if ($response->getStatusCode() !== 200) {
+                continue;
+            }
+
+            $matched = $section['is_route']
+                ? request()->routeIs($section['pattern'])
+                : request()->is($section['pattern']);
+
+            $matched = $matched
+                || (isset($section['also']) && request()->is($section['also']));
+
+            $this->assertTrue(
+                $matched,
+                "Раздел «{$section['key']}» не узнаёт собственную страницу {$section['url']}: "
+                . "шаблон «{$section['pattern']}» не совпал с маршрутом «"
+                . (request()->route()?->getName() ?? '—') . '»'
+            );
+        }
+    }
 }

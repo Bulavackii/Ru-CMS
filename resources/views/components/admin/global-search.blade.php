@@ -28,7 +28,9 @@
                :aria-expanded="panelOpen.toString()"
                aria-controls="ags-panel"
                @input="onInput()"
-               @focus="panelOpen = true"
+               {{-- Открываем панель только если в поле уже что-то есть:
+                    пустое поле показывать нечем. --}}
+               @focus="panelOpen = query.trim().length > 0"
                @keydown.arrow-down.prevent="selectNext()"
                @keydown.arrow-up.prevent="selectPrev()"
                @keydown.enter="onEnter($event)"
@@ -49,19 +51,10 @@
     <div id="ags-panel" x-show="panelOpen" x-transition.opacity.duration.120ms
          @click.outside="close()" class="ags-panel" x-ref="panel">
 
-        {{-- Пустой запрос: куда обычно ходят + частые действия --}}
-        <template x-if="!query">
-            <div>
-                <p class="ags-group">{{ __('admin.header.search_sections') }}</p>
-                <template x-for="(item, i) in shortcuts" :key="item.url">
-                    <a :href="item.url" class="ags-item" @click="close()">
-                        <i :class="item.icon" class="ags-item-ico"></i>
-                        <span class="ags-item-title" x-text="item.title"></span>
-                        <span class="ags-item-note" x-text="item.note"></span>
-                    </a>
-                </template>
-            </div>
-        </template>
+        {{-- ⚠️ Здесь был блок «Быстрый переход»: по щелчку в пустое поле
+             открывались четыре ссылки на создание. Это дублировало кнопку
+             «Создать», стоящую в шапке рядом, и мешало по делу — владелец
+             шёл искать, а получал меню. Поиск теперь только ищет. --}}
 
         {{-- Слишком короткий запрос --}}
         <template x-if="query && query.trim().length < 2">
@@ -110,7 +103,7 @@
        (bg-white/10), ни произвольных значений — «стеклянное» поле на них
        просто не отрисовалось бы. */
     .ags-form{position:relative;display:flex;align-items:center;width:100%}
-    .ags-input{width:100%;height:2.25rem;padding:0 4.6rem 0 2.1rem;font-size:.82rem;line-height:1;
+    .ags-input{width:100%;height:2rem;padding:0 4.6rem 0 2.1rem;font-size:.8rem;line-height:1;
         color:#e5e7eb;background:rgba(255,255,255,.06);border:1px solid #374151;outline:none;
         transition:border-color .15s ease,background .15s ease,box-shadow .15s ease}
     .ags-input::placeholder{color:#9ca3af}
@@ -166,26 +159,6 @@ function globalSearch() {
         requestId: 0,
         placeholder: @js(__('admin.header.search_placeholder')),
 
-        // Куда чаще всего идут из шапки. Показывается, пока поле пустое —
-        // чтобы поиск сразу что-то предлагал, а не встречал пустотой.
-        //
-        // Каждая подсказка ведёт в свой модуль: выключенный модуль не должен
-        // предлагаться в поиске, иначе панель зовёт туда, откуда раздел уже
-        // убран. Заодно проверяется сам маршрут — на случай отсутствующего.
-        @php
-            $searchShortcuts = array_values(array_filter([
-                ['route' => 'admin.news.create',  'module' => 'News',   'title' => __('admin.header.quick_news'),  'icon' => 'fas fa-newspaper text-blue-500'],
-                ['route' => 'admin.pages.create', 'module' => 'Menu',   'title' => __('admin.header.quick_page'),  'icon' => 'fas fa-file text-green-500'],
-                ['route' => 'admin.users.create', 'module' => 'Users',  'title' => __('admin.header.quick_user'),  'icon' => 'fas fa-user-plus text-purple-500'],
-                ['route' => 'admin.search.index', 'module' => 'Search', 'title' => __('admin.header.search_full'), 'icon' => 'fas fa-list text-indigo-500'],
-            ], fn (array $s) => \Illuminate\Support\Facades\Route::has($s['route']) && module_enabled($s['module'])));
-        @endphp
-        shortcuts: [
-            @foreach($searchShortcuts as $shortcut)
-                { title: @js($shortcut['title']), note: '', url: @js(route($shortcut['route'])), icon: @js($shortcut['icon']) },
-            @endforeach
-        ],
-
         init() {
             // Ctrl+K / Cmd+K ставит курсор в поле (раньше открывал модалку)
             document.addEventListener('keydown', (e) => {
@@ -193,7 +166,7 @@ function globalSearch() {
                     e.preventDefault();
                     this.$refs.input.focus();
                     this.$refs.input.select();
-                    this.panelOpen = true;
+                    this.panelOpen = this.query.trim().length > 0;
                 }
             });
         },

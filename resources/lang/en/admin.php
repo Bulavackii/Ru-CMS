@@ -57,6 +57,7 @@ return [
         'license_expired' => 'expired',
         'license_expires' => 'expires in',
         'report_bug' => 'Report a problem',
+        'tools' => 'Service pages',
         'geolocation' => 'My location and device',
         'system_info' => 'Server information',
         'language' => 'Interface language',

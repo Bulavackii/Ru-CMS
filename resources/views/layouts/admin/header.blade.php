@@ -76,9 +76,10 @@
            произвольных значений, поэтому «стеклянные» элементы на утилитах
            просто не отрисовались бы. Акцент берётся из --admin-primary, то
            есть следует за выбранным оформлением панели. */
-        .ahd-btn{position:relative;display:grid;place-items:center;width:2.25rem;height:2.25rem;
+        .ahd-btn{position:relative;display:grid;place-items:center;width:2rem;height:2rem;
             border:1px solid #374151;color:#d1d5db;transition:background .15s ease,border-color .15s ease,color .15s ease}
-        .ahd-btn:hover{background:rgba(255,255,255,.08);border-color:var(--surface-ink,#4b5563);color:#fff}
+        .ahd-btn:hover{background:rgba(255,255,255,.08);
+            border-color:color-mix(in srgb, var(--admin-primary,#6366f1) 60%, #374151);color:#fff}
         .ahd-badge{position:absolute;top:-.375rem;right:-.375rem;min-width:1.25rem;height:1.25rem;
             display:flex;align-items:center;justify-content:center;padding:0 .2rem;
             font-size:.68rem;line-height:1;color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.4)}
@@ -89,35 +90,50 @@
            глаз не видел, где кончается один смысловой блок и начинается
            другой, и весь правый край читался как один ком. */
         /* Высота обоймы = высоте кнопок «Создать» / «На сайт» / поля поиска
-           (2.25rem): всё в полосе должно стоять на одной линии */
-        .ahd-group{display:inline-flex;align-items:stretch;gap:.125rem;height:2.25rem;padding:.125rem;
+           (2rem): всё в полосе должно стоять на одной линии. Полоса сделана
+           компактнее — раньше 2.25rem содержимого занимали 56px высоты. */
+        .ahd-group{display:inline-flex;align-items:stretch;gap:.125rem;height:2rem;padding:.125rem;
             flex:none;box-sizing:border-box;border:1px solid #374151;background:rgba(255,255,255,.04)}
-        .ahd-group .ahd-btn{width:2rem;height:100%;border:0;background:transparent}
-        .ahd-group .ahd-btn:hover{background:rgba(255,255,255,.1);color:#fff}
+        .ahd-group .ahd-btn{width:1.75rem;height:100%;border:0;background:transparent}
+        .ahd-group .ahd-btn:hover{background:var(--admin-primary-soft,rgba(255,255,255,.1));color:#fff}
+        /* Обойма подсвечивается акцентом ТЕМЫ, а не серым: панель следует
+           выбранному оформлению, и рамка не должна быть единственным
+           местом, которое этого не делает. */
+        .ahd-group:hover{border-color:color-mix(in srgb, var(--admin-primary,#6366f1) 55%, #374151)}
         /* Кнопка центра уведомлений приходит из своего компонента со своими
            классами — подгоняем её под размер соседей по обойме */
         .ahd-group > div{display:flex;align-items:stretch}
         .ahd-group > div > button:not(.ahd-btn):not(.ahd-user){position:relative;display:grid;
-            place-items:center;width:2rem;height:100%;padding:0;color:#d1d5db;
+            place-items:center;width:1.75rem;height:100%;padding:0;color:#d1d5db;
             transition:background .15s ease,color .15s ease}
         .ahd-group > div > button:not(.ahd-btn):not(.ahd-user):hover{background:rgba(255,255,255,.1);color:#fff}
-        /* Переключатели языка и оформления — те же кнопки обоймы, но с подписью */
+        /* Переключатели языка и оформления — те же кнопки обоймы, но с
+           подписью. Подпись моноширинным капсом: это не текст интерфейса,
+           а метка состояния, и так она не спорит с названием раздела. */
         .ahd-group .ahd-btn--wide{width:auto;padding:0 .5rem;gap:.35rem;display:inline-flex;align-items:center}
+        .ahd-group .ahd-btn--wide span{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+            font-size:.66rem;font-weight:700;letter-spacing:.08em}
 
-        /* Текущий раздел */
-        .ahd-section{display:inline-flex;align-items:center;gap:.5rem;font-size:.7rem;font-weight:700;
-            letter-spacing:.08em;text-transform:uppercase;color:#fff;white-space:nowrap;
+        /* Текущий раздел — плашкой на подложке, как надзаголовки в
+           разделах панели: раньше подпись висела в воздухе и на тёмном
+           фоне читалась как часть ленты кнопок. */
+        .ahd-section{display:inline-flex;align-items:center;gap:.4rem;height:2rem;padding:0 .6rem;
+            font-size:.65rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+            color:#fff;white-space:nowrap;background:rgba(255,255,255,.06);border:1px solid #374151;
             font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+        a.ahd-section:hover{border-color:color-mix(in srgb, var(--admin-primary,#6366f1) 60%, #374151);
+            background:rgba(255,255,255,.1);color:#fff}
         .ahd-section-dot{width:.4rem;height:.4rem;background:var(--admin-primary,#6366f1);flex:none;
             box-shadow:0 0 0 3px var(--admin-primary-soft,color-mix(in srgb, var(--admin-primary, #6366f1) 25%, transparent))}
 
         /* Кнопка-действие с подписью (Создать / На сайт) */
-        .ahd-action{display:inline-flex;align-items:center;gap:.4rem;height:2.25rem;padding:0 .8rem;
-            font-size:.78rem;font-weight:600;white-space:nowrap;transition:filter .15s ease,background .15s ease,color .15s ease}
+        .ahd-action{display:inline-flex;align-items:center;gap:.4rem;height:2rem;padding:0 .7rem;
+            font-size:.76rem;font-weight:600;white-space:nowrap;transition:filter .15s ease,background .15s ease,color .15s ease}
         .ahd-action--primary{background:var(--admin-primary,#6366f1);color:var(--admin-on-primary,#fff);border:1px solid transparent}
         .ahd-action--primary:hover{filter:brightness(1.12);color:var(--admin-on-primary,#fff)}
         .ahd-action--ghost{border:1px solid #374151;color:#d1d5db}
-        .ahd-action--ghost:hover{background:rgba(255,255,255,.08);border-color:var(--surface-ink,#4b5563);color:#fff}
+        .ahd-action--ghost:hover{background:rgba(255,255,255,.08);
+            border-color:color-mix(in srgb, var(--admin-primary,#6366f1) 60%, #374151);color:#fff}
 
         /* Выпадающие меню шапки (язык, оформление, создание, профиль) */
         .ahd-menu{position:absolute;right:0;top:calc(100% + .45rem);z-index:70;min-width:12.5rem;
@@ -125,8 +141,9 @@
             box-shadow:0 24px 48px -20px rgba(17,24,39,.55)}
         .dark .ahd-menu{background:#111827;border-color:#374151}
         .ahd-menu--left{right:auto;left:0}
-        .ahd-menu-title{padding:.5rem .6rem .25rem;font-size:.63rem;font-weight:700;letter-spacing:.06em;
-            text-transform:uppercase;color:var(--surface-dim,#9ca3af)}
+        .ahd-menu-title{padding:.5rem .6rem .3rem;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+            font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+            color:color-mix(in srgb, var(--surface-ink,#111827) 55%, var(--surface,#fff))}
         .ahd-menu-item{display:flex;align-items:center;gap:.6rem;width:100%;padding:.45rem .6rem;
             font-size:.82rem;color:var(--surface-ink,#374151);text-align:left;text-decoration:none;background:none;border:0;
             cursor:pointer;transition:background .12s ease,color .12s ease}
@@ -152,11 +169,11 @@
         .ahd-menu .ahd-dot{border-color:rgba(17,24,39,.15)}
 
         /* Блок профиля: отдельная карточка, а не ещё одна иконка в ленте */
-        .ahd-user{display:inline-flex;align-items:center;gap:.55rem;height:2.25rem;padding:0 .6rem 0 .35rem;
+        .ahd-user{display:inline-flex;align-items:center;gap:.5rem;height:2rem;padding:0 .5rem 0 .3rem;
             border:1px solid #374151;background:rgba(255,255,255,.05);color:#e5e7eb;
             transition:background .15s ease,border-color .15s ease}
         .ahd-user:hover{background:rgba(255,255,255,.1);border-color:var(--admin-primary,#6366f1)}
-        .ahd-user-ava{display:grid;place-items:center;width:1.6rem;height:1.6rem;flex:none;overflow:hidden;
+        .ahd-user-ava{display:grid;place-items:center;width:1.4rem;height:1.4rem;flex:none;overflow:hidden;
             background:linear-gradient(135deg,var(--admin-primary,#6366f1),var(--admin-accent,#a855f7));
             color:#fff;font-size:.66rem;font-weight:700;letter-spacing:.02em}
         .ahd-user-ava img{width:100%;height:100%;object-fit:cover}
@@ -164,7 +181,8 @@
         @media (min-width:768px){.ahd-user-text{display:block}}
         .ahd-user-name{display:block;max-width:8.5rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
             font-size:.78rem;font-weight:600}
-        .ahd-user-role{display:block;font-size:.62rem;letter-spacing:.03em;color:var(--surface-dim,#9ca3af)}
+        .ahd-user-role{display:block;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+            font-size:.58rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#9ca3af}
         .ahd-user-caret{font-size:.55rem;opacity:.6}
     </style>
 
@@ -173,13 +191,17 @@
         // (App\Support\AdminSections) — раньше здесь была своя третья копия.
         $route = request()->route()?->getName() ?? '';
         $section = null;
+        $sectionUrl = null;
         foreach (\App\Support\AdminSections::all() as $item) {
-            if ($item['is_route'] && $route !== '' && request()->routeIs($item['pattern'])) {
+            $match = $item['is_route']
+                ? ($route !== '' && request()->routeIs($item['pattern']))
+                : request()->is($item['pattern']);
+
+            if ($match) {
                 $section = $item['label'];
-                break;
-            }
-            if (! $item['is_route'] && request()->is($item['pattern'])) {
-                $section = $item['label'];
+                // Адрес раздела: с формы создания или правки подпись
+                // возвращает к списку — раньше это была мёртвая надпись.
+                $sectionUrl = $item['url'] ?? null;
                 break;
             }
         }
@@ -227,14 +249,21 @@
          max-w-screen-2xl mx-auto: при широком окне контейнер оказывался уже
          доступного места и центрировался, из-за чего у обоих краёв оставались
          пустые поля, а весь ряд кнопок «висел» посередине. --}}
-    <div class="w-full px-4 py-2.5 flex flex-wrap items-center gap-x-3 gap-y-2">
+    <div class="w-full px-4 py-1.5 flex flex-wrap items-center gap-x-2 gap-y-2">
 
         {{-- ══ Слева: где я и что могу сделать ══ --}}
         <div class="flex items-center gap-2 flex-wrap flex-none">
-            <span class="ahd-section" aria-label="{{ __('admin.header.section') }}">
-                <span class="ahd-section-dot" aria-hidden="true"></span>
-                {{ $section ?? __('admin.header.overview') }}
-            </span>
+            @if($sectionUrl)
+                <a href="{{ $sectionUrl }}" class="ahd-section" aria-label="{{ __('admin.header.section') }}">
+                    <span class="ahd-section-dot" aria-hidden="true"></span>
+                    {{ $section }}
+                </a>
+            @else
+                <span class="ahd-section" aria-label="{{ __('admin.header.section') }}">
+                    <span class="ahd-section-dot" aria-hidden="true"></span>
+                    {{ $section ?? __('admin.header.overview') }}
+                </span>
+            @endif
 
             <div x-data="{open:false}" class="relative">
                 <button type="button" @click="open=!open" @click.outside="open=false"
@@ -320,19 +349,33 @@
                 @endif
             </div>
 
-            {{-- Обойма 2: служебные страницы, куда заходят изредка. Подписи
-                 уточнены: «глобус» показывает геолокацию и устройство ТЕКУЩЕГО
-                 администратора, а не пользователей сайта — прежняя подпись
-                 «Геолокация пользователей» обещала не то. --}}
-            <div class="ahd-group hidden md:inline-flex">
-                <a href="{{ route('admin.error.report') }}" class="ahd-btn" title="{{ __('admin.header.report_bug') }}"
-                   aria-label="{{ __('admin.header.report_bug') }}">@themeIcon('bug')</a>
+            {{-- Служебные страницы — одной кнопкой с меню. Раньше это была
+                 обойма из трёх иконок, спрятанная на узких экранах
+                 (hidden md:inline-flex): с телефона три страницы были
+                 недостижимы из шапки вовсе. Подписи уточнены: «глобус»
+                 показывает геолокацию и устройство ТЕКУЩЕГО администратора,
+                 а не пользователей сайта. --}}
+            <div x-data="{open:false}" class="relative">
+                <button type="button" @click="open=!open" @click.outside="open=false"
+                        @keydown.escape.window="open=false"
+                        class="ahd-btn" title="{{ __('admin.header.tools') }}"
+                        aria-label="{{ __('admin.header.tools') }}" :aria-expanded="open.toString()">
+                    <i class="fas fa-screwdriver-wrench" aria-hidden="true"></i>
+                </button>
 
-                <a href="{{ route('admin.geolocation') }}" class="ahd-btn" title="{{ __('admin.header.geolocation') }}"
-                   aria-label="{{ __('admin.header.geolocation') }}">@themeIcon('globe')</a>
+                <div x-cloak x-show="open" x-transition.opacity.duration.120ms class="ahd-menu">
+                    <p class="ahd-menu-title">{{ __('admin.header.tools') }}</p>
 
-                <a href="{{ route('admin.system_info') }}" class="ahd-btn" title="{{ __('admin.header.system_info') }}"
-                   aria-label="{{ __('admin.header.system_info') }}">@themeIcon('cog')</a>
+                    <a href="{{ route('admin.error.report') }}" class="ahd-menu-item">
+                        <i class="fas fa-bug w-4 text-center"></i>{{ __('admin.header.report_bug') }}
+                    </a>
+                    <a href="{{ route('admin.geolocation') }}" class="ahd-menu-item">
+                        <i class="fas fa-location-dot w-4 text-center"></i>{{ __('admin.header.geolocation') }}
+                    </a>
+                    <a href="{{ route('admin.system_info') }}" class="ahd-menu-item">
+                        <i class="fas fa-circle-info w-4 text-center"></i>{{ __('admin.header.system_info') }}
+                    </a>
+                </div>
             </div>
 
             {{-- Обойма 3: личное — язык и оформление --}}

@@ -44,9 +44,9 @@ class AdminSections
                 // отсутствующий маршрут, и выключенный модуль. Раньше часть
                 // разделов задавалась прямым путём — такой пункт не исчезал
                 // никогда, каким бы ни был флаг модуля.
-                self::link('modules', 'admin.modules.index', 'puzzle', 'admin/modules'),
+                self::link('modules', 'admin.modules.index', 'puzzle', 'admin.modules.*'),
                 self::link('users', 'admin.users.index', 'user', 'admin.users.*', module: 'Users'),
-                self::link('search', 'admin.search.index', 'search', 'admin/search', module: 'Search'),
+                self::link('search', 'admin.search.index', 'search', 'admin.search.*', module: 'Search'),
                 self::link('notifications', 'admin.notifications.index', 'bell', 'admin.notifications.*', 'notifications', module: 'Notifications'),
                 // SEO живёт в отдельном модуле с собственным префиксом маршрутов,
                 // поэтому активным раздел считается и по имени маршрута, и по пути
@@ -55,7 +55,7 @@ class AdminSections
                 self::link('fragments', 'admin.visual.fragments.index', 'puzzle', 'admin.visual.fragments.*', module: 'Visual'),
                 self::link('localization', 'admin.localization.index', 'globe', 'admin.localization.*', module: 'Localization'),
                 self::link('captcha', 'admin.captcha.index', 'shield', 'admin.captcha.*', module: 'Captcha'),
-                self::link('accessibility', 'admin.accessibility.index', 'user', 'admin/accessibility*', module: 'Accessibility'),
+                self::link('accessibility', 'admin.accessibility.index', 'user', 'admin.accessibility.*', module: 'Accessibility'),
             ],
 
             __('admin.section_groups.payments') => [
@@ -171,6 +171,14 @@ class AdminSections
      * подпись: по нему берутся и название раздела, и синонимы для поиска.
      * Раньше здесь были русские литералы, и панель оставалась русской при
      * любом выбранном языке.
+     */
+    /**
+     * ⚠️ $pattern — ШАБЛОН ИМЕНИ МАРШРУТА (`admin.news.*`), а не путь:
+     * сравнение идёт через request()->routeIs(). Трём разделам сюда были
+     * переданы пути («admin/search», «admin/modules»,
+     * «admin/accessibility*»), и они не подсвечивались в меню никогда, а
+     * шапка показывала на них «Обзор». Путь можно передать отдельным
+     * параметром $also — он сравнивается через request()->is().
      */
     private static function link(
         string $key,
