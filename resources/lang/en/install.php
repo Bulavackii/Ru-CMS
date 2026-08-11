@@ -219,6 +219,8 @@ return [
         'verify'           => 'Test the connection before saving',
         'verify_note'      => 'The wizard will try to connect to the SMTP server and authenticate.',
         'help'             => 'The details are stored in <span class="font-mono">.env</span> (<span class="font-mono">MAIL_*</span>) and used for admin access recovery messages.',
+        'help_cap' => 'Where this is saved',
+        'port_note' => 'If the connection hangs and times out, port 465 is blocked by your provider. Use port 587 with TLS (STARTTLS) instead — it is allowed almost everywhere.',
         'help_with_email'  => 'The details are stored in <span class="font-mono">.env</span> (<span class="font-mono">MAIL_*</span>) and used for access recovery messages — the password reset link can be sent to <span class="font-mono">:email</span>.',
         'skip'             => 'Skip',
         'skip_tip'         => 'Set email up later in .env or in the admin panel',

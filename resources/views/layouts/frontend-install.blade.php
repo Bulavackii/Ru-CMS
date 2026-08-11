@@ -167,6 +167,21 @@
             font-size:.58rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
             color:#fff; background:var(--accent) }
 
+        /* Мягкая метка — для необязательного шага: заливка акцентом здесь
+           кричала бы о том, что как раз можно пропустить. */
+        .ins-tag--soft{ color:var(--accent); background:color-mix(in srgb, var(--accent) 12%, transparent);
+            box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--accent) 32%, transparent) }
+
+        /* Галочка-переключатель внутри шага. */
+        .ins-check{ display:flex; align-items:flex-start; gap:.6rem; padding:.6rem .7rem; cursor:pointer;
+            background:var(--surface-2,#f7f8fc); border:1px solid var(--surface-bd,#e3e6ee);
+            transition:border-color .15s ease }
+        .ins-check:hover{ border-color:color-mix(in srgb, var(--accent) 45%, var(--surface-bd,#e3e6ee)) }
+        .ins-check input{ margin-top:.15rem }
+        .ins-check__title{ font-size:.85rem; font-weight:700; color:#111827 }
+        .ins-check__note{ display:flex; align-items:center; gap:.3rem; margin:.15rem 0 0;
+            font-size:.72rem; color:#4b5563 }
+
         .ins-label{ display:flex; align-items:center; gap:.35rem; margin-bottom:.3rem;
             font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
             font-size:.62rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
