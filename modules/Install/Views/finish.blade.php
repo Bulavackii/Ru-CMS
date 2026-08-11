@@ -6,36 +6,60 @@
 <div class="w-full max-w-xl max-h-full flex flex-col">
     <div class="install-card rounded-3xl flex flex-col max-h-full overflow-hidden">
 
-        {{-- Шапка --}}
-        <div class="px-6 sm:px-8 pt-5 pb-3 shrink-0 space-y-3 text-center">
-            @include('Install::partials.steps', ['current' => 'finish'])
-            <div>
-                <div class="accent-badge mx-auto w-12 h-12 rounded-full text-white grid place-items-center mb-2">
-                    <i data-lucide="check" class="w-6 h-6"></i>
-                </div>
-                <h2 class="text-lg font-bold text-gray-900">{{ __('install.finish.title') }}</h2>
-                <p class="text-gray-500 text-xs">{{ __('install.finish.subtitle') }}</p>
+        {{-- Шапка шага — полосой, как на остальных шагах. --}}
+        <div class="ins-head shrink-0">
+            <div class="accent-badge ins-head__badge grid place-items-center text-white">
+                <i data-lucide="check" class="w-5 h-5"></i>
             </div>
 
-            {{-- Авто-переход в админку --}}
-            <div x-data="{ seconds: 5, cancelled: false }"
-                 x-init="const t = setInterval(() => { if (cancelled) { clearInterval(t); return; } seconds--; if (seconds <= 0) { clearInterval(t); window.location.href = @js(route('admin.dashboard')); } }, 1000)"
-                 x-show="!cancelled" x-cloak
-                 class="hint rounded-xl px-3 py-2 text-[11px] text-gray-500 flex items-center justify-center gap-2">
-                <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>
-                <span>{{ __('install.finish.redirect_pre') }} <span class="font-semibold text-gray-900" x-text="seconds"></span> {{ __('install.finish.redirect_post') }}</span>
-                <button type="button" class="text-gray-700 hover:text-gray-900 underline font-medium" x-on:click="cancelled = true">{{ __('install.finish.stay') }}</button>
+            <div class="min-w-0">
+                <p class="ins-eyebrow">{{ __('install.steps.step') }} 07 · {{ __('install.welcome.suffix') }}</p>
+                <h1 class="ins-title break-words">{{ __('install.finish.title') }}</h1>
+                <p class="ins-head__about">{{ __('install.finish.subtitle') }}</p>
             </div>
         </div>
 
-        <div class="px-6 sm:px-8 overflow-y-auto install-scroll min-h-0 space-y-3">
+        <div class="px-5 sm:px-6 pt-4 shrink-0 space-y-3">
+            @include('Install::partials.steps', ['current' => 'finish'])
+
+            {{-- Авто-переход в панель. На нуле строка меняется на
+                 «переходим…»: раньше счётчик замирал на «через 0 с» всё
+                 время, пока грузится следующая страница, и выглядело это
+                 как зависший переход. --}}
+            <div x-data="{ seconds: 5, cancelled: false, going: false }"
+                 x-init="const t = setInterval(() => {
+                            if (cancelled) { clearInterval(t); return; }
+                            seconds = Math.max(0, seconds - 1);
+                            if (seconds === 0) {
+                                clearInterval(t);
+                                going = true;
+                                window.location.href = @js(url('/'));
+                            }
+                         }, 1000)"
+                 x-show="!cancelled" x-cloak
+                 class="ins-countdown">
+                <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>
+
+                <span x-show="!going">
+                    {{ __('install.finish.redirect_pre') }}
+                    <b x-text="seconds"></b>
+                    {{ __('install.finish.redirect_post') }}
+                </span>
+                <span x-show="going" x-cloak>{{ __('install.finish.redirect_now') }}</span>
+
+                <button type="button" class="ins-countdown__stay" x-on:click="cancelled = true">
+                    {{ __('install.finish.stay') }}
+                </button>
+            </div>
+        </div>
+
+        <div class="px-5 sm:px-6 py-4 overflow-y-auto install-scroll min-h-0 space-y-3">
             @if (!empty($warnings))
-                <div class="hint rounded-2xl p-3 text-left">
-                    <div class="text-xs font-semibold text-gray-800 mb-1.5 flex items-center gap-1.5">
-                        <i data-lucide="alert-triangle" class="w-3.5 h-3.5 hint-ico"></i>
-                        {{ __('install.finish.warnings') }}
-                    </div>
-                    <ul class="text-[11px] text-gray-600 space-y-1 list-disc pl-5">
+                <div class="ins-help">
+                    <span class="ins-help__cap">
+                        <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> {{ __('install.finish.warnings') }}
+                    </span>
+                    <ul class="ins-warn-list">
                         @foreach ($warnings as $warning)
                             <li>{{ $warning }}</li>
                         @endforeach
@@ -44,62 +68,60 @@
             @endif
 
             @if ($selectedCountry)
-                <div class="hint rounded-2xl p-3 text-left">
-                    <div class="text-xs font-semibold text-gray-900 mb-1.5 flex items-center gap-1.5">
-                        <i data-lucide="globe" class="w-3.5 h-3.5 hint-ico"></i>
-                        <span>{{ __('install.finish.localization', ['country' => $selectedCountry['native_name'] ?? $selectedCountry['name']]) }}</span>
-                    </div>
-                    <div class="text-[11px] text-gray-600 grid grid-cols-2 gap-y-0.5">
-                        <div class="flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3 text-gray-400"></i> {{ $selectedCountry['native_name'] ?? $selectedCountry['name'] }}</div>
-                        <div class="flex items-center gap-1"><i data-lucide="languages" class="w-3 h-3 text-gray-400"></i> {{ strtoupper($selectedCountry['locale']) }}</div>
-                        <div class="flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3 text-gray-400"></i> {{ $selectedCountry['timezone'] }}</div>
-                        <div class="flex items-center gap-1"><i data-lucide="banknote" class="w-3 h-3 text-gray-400"></i> {{ $selectedCountry['currency_code'] }} ({{ $selectedCountry['currency_symbol'] }})</div>
+                <div class="ins-help">
+                    <span class="ins-help__cap">
+                        <i data-lucide="globe" class="w-3.5 h-3.5"></i>
+                        {{ __('install.finish.localization', ['country' => $selectedCountry['native_name'] ?? $selectedCountry['name']]) }}
+                    </span>
+                    <div class="ins-facts">
+                        <div class="ins-facts__row"><i data-lucide="map-pin" class="w-3 h-3 text-gray-400"></i> {{ $selectedCountry['native_name'] ?? $selectedCountry['name'] }}</div>
+                        <div class="ins-facts__row"><i data-lucide="languages" class="w-3 h-3 text-gray-400"></i> {{ strtoupper($selectedCountry['locale']) }}</div>
+                        <div class="ins-facts__row"><i data-lucide="clock" class="w-3 h-3 text-gray-400"></i> {{ $selectedCountry['timezone'] }}</div>
+                        <div class="ins-facts__row"><i data-lucide="banknote" class="w-3 h-3 text-gray-400"></i> {{ $selectedCountry['currency_code'] }} ({{ $selectedCountry['currency_symbol'] }})</div>
                     </div>
                 </div>
             @endif
 
             {{-- Рекомендации: компактные строки с иконками --}}
-            <div class="hint rounded-2xl p-3 text-left space-y-1.5">
-                <h3 class="text-xs font-semibold text-gray-900 flex items-center gap-1.5">
-                    <i data-lucide="list-checks" class="w-3.5 h-3.5 hint-ico"></i> {{ __('install.finish.recommend') }}
-                </h3>
-                <div class="grid sm:grid-cols-2 gap-x-3 gap-y-1 text-[11px] text-gray-600">
-                    <div class="flex items-center gap-1.5" data-tip="{{ __('install.finish.rec_env_tip') }}">
+            <div class="ins-help">
+                <span class="ins-help__cap">
+                    <i data-lucide="list-checks" class="w-3.5 h-3.5"></i> {{ __('install.finish.recommend') }}
+                </span>
+                <div class="ins-facts ins-facts--wide">
+                    <div class="ins-facts__row" data-tip="{{ __('install.finish.rec_env_tip') }}">
                         <i data-lucide="file-cog" class="w-3 h-3 text-gray-400 shrink-0"></i> {!! __('install.finish.rec_env') !!}
                     </div>
-                    <div class="flex items-center gap-1.5" data-tip="{{ __('install.finish.rec_mail_tip') }}">
+                    <div class="ins-facts__row" data-tip="{{ __('install.finish.rec_mail_tip') }}">
                         <i data-lucide="mail" class="w-3 h-3 text-gray-400 shrink-0"></i> {{ __('install.finish.rec_mail') }}
                     </div>
-                    <div class="flex items-center gap-1.5" data-tip="{{ __('install.finish.rec_cache_tip') }}">
+                    <div class="ins-facts__row" data-tip="{{ __('install.finish.rec_cache_tip') }}">
                         <i data-lucide="zap" class="w-3 h-3 text-gray-400 shrink-0"></i> {{ __('install.finish.rec_cache') }}
                     </div>
-                    <div class="flex items-center gap-1.5" data-tip="{{ __('install.finish.rec_cron_tip') }}">
+                    <div class="ins-facts__row" data-tip="{{ __('install.finish.rec_cron_tip') }}">
                         <i data-lucide="clock" class="w-3 h-3 text-gray-400 shrink-0"></i> {{ __('install.finish.rec_cron') }}
                     </div>
-                    <div class="flex items-center gap-1.5" data-tip="{{ __('install.finish.rec_perms_tip') }}">
+                    <div class="ins-facts__row" data-tip="{{ __('install.finish.rec_perms_tip') }}">
                         <i data-lucide="shield" class="w-3 h-3 text-gray-400 shrink-0"></i> {{ __('install.finish.rec_perms') }}
                     </div>
-                    <div class="flex items-center gap-1.5" data-tip="{{ __('install.finish.rec_theme_tip') }}">
+                    <div class="ins-facts__row" data-tip="{{ __('install.finish.rec_theme_tip') }}">
                         <i data-lucide="palette" class="w-3 h-3 text-gray-400 shrink-0"></i> {{ __('install.finish.rec_theme') }}
                     </div>
                 </div>
             </div>
 
-            <p class="text-[10px] text-gray-400 text-center flex items-center justify-center gap-1">
+            <p class="ins-locked">
                 <i data-lucide="lock" class="w-3 h-3"></i>
                 {!! __('install.finish.locked') !!}
             </p>
         </div>
 
         {{-- Кнопки --}}
-        <div class="px-6 sm:px-8 py-4 shrink-0 border-t border-gray-100 mt-3">
-            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2">
-                <a href="{{ route('admin.dashboard') }}"
-                   class="ui-btn ui-btn-primary inline-flex items-center justify-center gap-2 bg-gray-900 hover:bg-black text-white px-5 py-2.5 rounded-xl text-sm font-semibold">
+        <div class="ins-foot shrink-0">
+            <div class="flex flex-wrap items-center justify-end gap-2">
+                <a href="{{ route('admin.dashboard') }}" class="ins-act">
                     <i data-lucide="layout-dashboard" class="w-4 h-4"></i> {{ __('install.finish.to_admin') }}
                 </a>
-                <a href="/"
-                   class="ui-btn inline-flex items-center justify-center gap-2 bg-white/70 hover:bg-white text-gray-900 px-5 py-2.5 rounded-xl text-sm font-semibold border border-white/70">
+                <a href="/" class="ins-act ins-act--go">
                     <i data-lucide="home" class="w-4 h-4"></i> {{ __('install.finish.to_site') }}
                 </a>
                 <button type="button"
@@ -108,7 +130,7 @@
                         data-copy-label="{{ __('install.finish.copy_url') }}"
                         data-copied-label="{{ __('install.finish.copied') }}"
                         data-tip="{{ __('install.finish.copy_tip') }}"
-                        class="ui-btn inline-flex items-center justify-center gap-2 bg-black/5 hover:bg-black/10 text-gray-600 px-5 py-2.5 rounded-xl text-sm font-semibold border border-white/50">
+                        class="ins-act ins-act--dim">
                     <i data-lucide="clipboard" class="w-4 h-4"></i> {{ __('install.finish.copy_url') }}
                 </button>
             </div>

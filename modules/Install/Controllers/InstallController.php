@@ -536,7 +536,32 @@ class InstallController extends Controller
      */
     private function isDeveloperMode(): bool
     {
-        return env('DEVELOPER_MODE', false) === true || env('DEVELOPER_MODE') === 'true';
+        // Читаем сам .env, а не env(): переменные окружения разбираются
+        // один раз на буте и переживают перезапись файла — мастер как раз
+        // переписывает .env на шаге базы данных. Пропади оттуда ключ,
+        // env() продолжал бы отдавать прежнее значение, и кнопка обхода
+        // лицензии осталась бы видна в клиентской копии.
+        $path = base_path('.env');
+
+        if (!is_readable($path)) {
+            return false;
+        }
+
+        foreach (file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [] as $line) {
+            $line = trim($line);
+
+            if ($line === '' || str_starts_with($line, '#')) {
+                continue;
+            }
+
+            if (!preg_match('~^DEVELOPER_MODE\s*=\s*(.*)$~i', $line, $m)) {
+                continue;
+            }
+
+            return in_array(strtolower(trim($m[1], " \t\"'")), ['1', 'true', 'on', 'yes'], true);
+        }
+
+        return false;
     }
 
     /** 🔑 Ввод лицензионного ключа или промокода */
@@ -651,8 +676,6 @@ class InstallController extends Controller
             $this->seedRolesAndPermissions();
             $this->hardenPublicStorage();
 
-            File::put(storage_path('install.lock'), 'Installed at ' . now()->toDateTimeString());
-
             // Чистка кешей — ПОСЛЕ ответа и по одной команде в своей
             // защите: содержимое уже создано, и падение чистки не должно
             // отнимать у владельца финальный экран.
@@ -688,9 +711,45 @@ class InstallController extends Controller
             Log::warning('Install auto-login failed', ['error' => $e->getMessage()]);
         }
 
-        return view('Install::finish', [
+        // Итог кладём в сессию и уходим коротким редиректом. Отдавать саму
+        // страницу этим же запросом нельзя: он длинный, и любой обрыв на
+        // последних байтах стоил бы владельцу финального экрана.
+        //
+        // Порядок здесь несущий. Сводку записываем на диск ЯВНО и только
+        // потом создаём файл-замок: пока замка нет, мастер остаётся
+        // открытым и повторный заход просто пройдёт шаг заново (сидеры
+        // идемпотентны). А раз замок появился — значит сводка уже
+        // сохранена, и любой следующий запрос найдёт итог.
+        session(['install.summary' => [
             'warnings' => $warnings,
-            'selectedCountry' => self::COUNTRY_PRESETS[$countryCode] ?? null,
+            'country' => $countryCode,
+        ]]);
+        session()->save();
+
+        File::put(storage_path('install.lock'), 'Installed at ' . now()->toDateTimeString());
+
+        return redirect()->route('install.done');
+    }
+
+    /**
+     * 🎉 Итог установки — отдельным лёгким запросом.
+     *
+     * Сюда попадают и по редиректу с /install/finish, и обновлением
+     * страницы после обрыва связи. Сводки в сессии нет (чужой браузер,
+     * закладка, истёкшая сессия) — уводим на главную страницу сайта:
+     * установка уже позади, показывать нечего.
+     */
+    public function done()
+    {
+        $summary = session('install.summary');
+
+        if (!is_array($summary)) {
+            return redirect('/');
+        }
+
+        return view('Install::finish', [
+            'warnings' => $summary['warnings'] ?? [],
+            'selectedCountry' => self::COUNTRY_PRESETS[$summary['country'] ?? 'RU'] ?? null,
         ]);
     }
 

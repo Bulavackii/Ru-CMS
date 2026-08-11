@@ -216,6 +216,34 @@
 
         .ins-foot{ padding:1rem 1.5rem; border-top:1px solid var(--surface-bd,#e3e6ee) }
 
+        /* ── Финальный шаг ── */
+        .ins-countdown{ display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:.45rem;
+            padding:.5rem .7rem; font-size:.76rem; color:#4b5563;
+            background:var(--surface-2,#f7f8fc); border:1px solid var(--surface-bd,#e3e6ee) }
+        .ins-countdown i{ color:var(--accent) }
+        .ins-countdown b{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace; color:#111827 }
+        .ins-countdown__stay{ font-weight:700; color:var(--accent); text-decoration:underline; cursor:pointer }
+
+        /* Факты и рекомендации финального шага: две колонки строками. */
+        .ins-facts{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:.15rem .75rem }
+        @media (max-width:640px){ .ins-facts{ grid-template-columns:1fr } }
+        .ins-facts--wide{ gap:.25rem .75rem }
+        .ins-facts__row{ display:flex; align-items:center; gap:.4rem; min-width:0;
+            font-size:.75rem; color:#4b5563 }
+        .ins-facts__row i{ flex:none; color:var(--accent) }
+        .ins-facts__row .font-mono{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace }
+
+        .ins-warn-list{ display:grid; gap:.2rem; margin:0; padding-left:1.1rem;
+            font-size:.75rem; line-height:1.45; color:#4b5563; list-style:disc }
+
+        /* Строка со значком — обычным потоком, а не flex: внутри есть
+           разметка (<span class="font-mono">путь</span>), и во flex-контейнере
+           она стала бы отдельным элементом со своим зазором — перед
+           закрывающей скобкой появлялся лишний пробел. */
+        .ins-locked{ margin:0; text-align:center; font-size:.7rem; line-height:1.5; color:#6b7280 }
+        .ins-locked i{ display:inline-block; vertical-align:-2px; margin-right:.3rem; color:var(--accent) }
+        .ins-locked .font-mono, .ins-locked code{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace }
+
         /* Действия шага: главное — залито акцентом, остальные тихие. */
         .ins-act{ display:inline-flex; align-items:center; justify-content:center; gap:.5rem;
             padding:.7rem 1.2rem; font-size:.85rem; font-weight:700; cursor:pointer;
@@ -234,12 +262,75 @@
         .ins-act--dev{ width:100%; border-style:dashed; border-color:#9ca3af; color:#374151;
             background:transparent }
         .ins-act--dev:hover{ border-color:var(--accent); color:#111827; background:var(--surface,#fff) }
-        .ins-dev-note{ margin:.35rem 0 0; text-align:center; font-size:.68rem; color:#6b7280 }
-        .ins-dev-note .font-mono, .ins-dev-note code{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace }
         .ins-act:disabled{ opacity:.6; cursor:not-allowed }
 
         /* Возврат на предыдущий шаг — ссылкой, а не кнопкой: это не
            действие шага, а отмена. */
+        /* ── Три факта о мастере ──────────────────────────────────────────
+           Карточка со значком на акцентной плитке слева и подписями справа:
+           раньше это были три одинаковых серых прямоугольника со значком по
+           центру, которые взгляд проскакивал не читая. */
+        .ins-feats{ display:grid; gap:.5rem; grid-template-columns:1fr }
+        @media (min-width:640px){ .ins-feats{ grid-template-columns:repeat(3, minmax(0,1fr)) } }
+
+        .ins-feat{ display:flex; align-items:center; gap:.6rem; padding:.6rem .7rem; min-width:0;
+            background:var(--surface,#fff); border:1px solid var(--surface-bd,#e3e6ee);
+            border-left:3px solid color-mix(in srgb, var(--accent) 55%, transparent);
+            transition:border-color .15s ease, box-shadow .15s ease }
+        .ins-feat:hover{ border-left-color:var(--accent);
+            box-shadow:0 6px 18px -12px color-mix(in srgb, var(--accent) 60%, transparent) }
+
+        .ins-feat__ico{ display:grid; place-items:center; flex:none; width:1.9rem; height:1.9rem;
+            color:var(--accent); background:color-mix(in srgb, var(--accent) 12%, transparent) }
+
+        .ins-feat__title{ display:block; font-size:.76rem; font-weight:700; color:#111827 }
+        .ins-feat__sub{ display:block; margin-top:.05rem;
+            font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+            font-size:.58rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+            color:#6b7280 }
+
+        /* Вариант с описанием — для отдельной страницы «Возможности»:
+           значок сверху, под ним название и два-три предложения. */
+        .ins-feats--cards{ grid-template-columns:repeat(auto-fill, minmax(15rem, 1fr)) }
+        .ins-feat--card{ position:relative; flex-direction:column; align-items:flex-start;
+            gap:.4rem; padding:.8rem .85rem }
+        .ins-feat--card .ins-feat__ico{ width:2.1rem; height:2.1rem }
+        .ins-feat--card .ins-feat__title{ font-size:.82rem }
+        .ins-feat__text{ margin:0; font-size:.72rem; line-height:1.5; color:#6b7280 }
+        /* Ключевая возможность: грань в акценте и звёздочка в углу. */
+        .ins-feat--key{ border-left-color:var(--accent) }
+        .ins-feat__star{ position:absolute; top:.5rem; right:.55rem; color:var(--accent) }
+
+        /* ── Требования ──────────────────────────────────────────────────
+           Названия требований — технические идентификаторы, поэтому
+           моноширинным. Состояние читается гранью слева, а не бейджем. */
+        .ins-reqs{ display:grid; gap:.4rem; grid-template-columns:1fr }
+        @media (min-width:640px){ .ins-reqs{ grid-template-columns:repeat(2, minmax(0,1fr)) } }
+        .ins-req{ display:flex; align-items:center; gap:.55rem; padding:.5rem .65rem; min-width:0;
+            background:var(--surface,#fff); border:1px solid var(--surface-bd,#e3e6ee);
+            border-left:3px solid #9ca3af }
+        .ins-req.is-ok{ border-left-color:#16a34a }
+        .ins-req.is-bad{ border-left-color:#dc2626; background:#fef2f2 }
+        .ins-req i{ flex:none }
+        .ins-req.is-ok i{ color:#16a34a }
+        .ins-req.is-bad i{ color:#dc2626 }
+        .ins-req__name{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+            font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+            font-size:.72rem; font-weight:600; color:#374151 }
+        .ins-req__state{ flex:none; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+            font-size:.56rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase }
+        .ins-req.is-ok .ins-req__state{ color:#15803d }
+        .ins-req.is-bad .ins-req__state{ color:#b91c1c }
+
+        /* Счёт проверок над списком — как сводка над списками в панели. */
+        .ins-score{ display:flex; align-items:center; gap:.5rem; margin-bottom:.5rem;
+            font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+            font-size:.6rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+            color:#4b5563 }
+        .ins-score__bar{ flex:1; height:3px; background:var(--surface-bd,#e3e6ee) }
+        .ins-score__bar span{ display:block; height:100%; background:#16a34a }
+        .ins-score__bar.is-bad span{ background:#dc2626 }
+
         .ins-back{ display:inline-flex; align-items:center; gap:.4rem; font-size:.82rem;
             font-weight:600; color:#6b7280; transition:color .15s ease }
         .ins-back:hover{ color:var(--accent) }

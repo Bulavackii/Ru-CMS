@@ -114,16 +114,14 @@
                 <form method="POST" action="{{ route('install.license') }}">
                     @csrf
                     <input type="hidden" name="developer_skip" value="1">
-                    {{-- Обход лицензии виден только в режиме разработчика.
-                         Пунктирная рамка и подпись под кнопкой прямо говорят,
-                         откуда она взялась: иначе кнопка «пропустить» рядом с
-                         обязательным шагом выглядит как ошибка. --}}
-                    <button type="submit" class="ins-act ins-act--dev"
-                            data-tip="{{ __('install.license.dev_skip_tip') }}">
+                    {{-- Обход лицензии виден, только если ключ действительно
+                         прописан в .env — проверяет сам файл, а не env().
+                         Пояснений под кнопкой нет намеренно: её видит один
+                         разработчик, и объяснять ему нечего. --}}
+                    <button type="submit" class="ins-act ins-act--dev">
                         <i data-lucide="terminal" class="w-4 h-4"></i>
                         <span>{{ __('install.license.dev_skip') }}</span>
                     </button>
-                    <p class="ins-dev-note">{!! __('install.license.dev_note') !!}</p>
                 </form>
             @endif
         </div>

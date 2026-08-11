@@ -20,3 +20,18 @@ Route::middleware(['web', 'skip.install.db', 'block.if.installed'])->prefix('ins
     Route::match(['get', 'post'], '/license', [InstallController::class, 'license'])->name('install.license');
     Route::get('/finish', [InstallController::class, 'finish'])->name('install.finish');
 });
+
+/**
+ * Итог установки живёт ОТДЕЛЬНО и намеренно без `block.if.installed`.
+ *
+ * К моменту показа файл-замок уже создан, и внутри группы выше эта
+ * страница была бы недостижима: middleware увёл бы на форму входа, а
+ * та — вошедшего админа в личный кабинет. Именно так финальный экран и
+ * терялся, если тяжёлый запрос /install/finish обрывался.
+ *
+ * Доступ ограничен не замком, а сводкой в сессии: показать итог можно
+ * только тому браузеру, который эту установку и проводил.
+ */
+Route::middleware(['web', 'skip.install.db'])->prefix('install')->group(function () {
+    Route::get('/done', [InstallController::class, 'done'])->name('install.done');
+});

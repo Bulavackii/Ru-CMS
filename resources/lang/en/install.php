@@ -78,6 +78,8 @@ return [
         'subtitle'      => 'The environment is checked automatically every time this page opens',
         'ok'            => 'OK',
         'fail'          => 'NO',
+        'passed' => 'Passed',
+        'failed' => 'Failed',
         'tip_php'       => 'PHP 8.5 is required (Laravel 12). Current version: :version',
         'tip_pgsql'     => 'Extension required to work with PostgreSQL',
         'tip_fileinfo'  => 'Detects the type of uploaded files',
@@ -247,8 +249,6 @@ return [
         'hint'              => 'A key or a promo code is required for activation. No key? Contact the CMS developer.',
         'hint_cap' => 'Where to get a key',
         'dev_skip'          => 'Skip — I am a developer',
-        'dev_skip_tip'      => 'Available only when DEVELOPER_MODE=true in .env',
-        'dev_note'          => 'The button is only visible when <span class="font-mono">DEVELOPER_MODE=true</span> in <span class="font-mono">.env</span>',
         'submit'            => 'Activate',
     ],
 
@@ -273,8 +273,9 @@ return [
     'finish' => [
         'title'         => 'Installation complete!',
         'subtitle'      => 'Ru CMS is ready — you are already signed in as administrator',
-        'redirect_pre'  => 'Opening the control panel in',
+        'redirect_pre'  => 'Opening the site home page in',
         'redirect_post' => 's…',
+        'redirect_now' => 'Opening the site home page…',
         'stay'          => 'Stay here',
         'warnings'      => 'Installation finished, but a few things are worth checking',
         'localization'  => 'Localization applied: :country',
@@ -316,6 +317,7 @@ return [
         'optional_tables'    => 'Some optional modules did not create their tables: :tables. That is expected if those modules are disabled.',
         'storage_link'       => 'Could not create the public/storage link — uploaded files and images will not open. Run it manually: php artisan storage:link (some hosts disallow symlinks — contact support).',
         'step_order'         => 'Please complete the previous installation step first.',
+        'already_installed'  => 'The installation is already complete. The wizard is no longer available — sign in to the control panel.',
     ],
 
     'attributes' => [

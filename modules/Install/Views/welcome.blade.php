@@ -206,29 +206,6 @@
 
     .ins-note{ font-size:.7rem; line-height:1.5; color:#4b5563 }
 
-    /* ── Три факта о мастере ──────────────────────────────────────────
-       Карточка со значком на акцентной плитке слева и подписями справа:
-       раньше это были три одинаковых серых прямоугольника со значком по
-       центру, которые взгляд проскакивал не читая. */
-    .ins-feats{ display:grid; gap:.5rem; grid-template-columns:1fr }
-    @media (min-width:640px){ .ins-feats{ grid-template-columns:repeat(3, minmax(0,1fr)) } }
-
-    .ins-feat{ display:flex; align-items:center; gap:.6rem; padding:.6rem .7rem; min-width:0;
-        background:var(--surface,#fff); border:1px solid var(--surface-bd,#e3e6ee);
-        border-left:3px solid color-mix(in srgb, var(--accent) 55%, transparent);
-        transition:border-color .15s ease, box-shadow .15s ease }
-    .ins-feat:hover{ border-left-color:var(--accent);
-        box-shadow:0 6px 18px -12px color-mix(in srgb, var(--accent) 60%, transparent) }
-
-    .ins-feat__ico{ display:grid; place-items:center; flex:none; width:1.9rem; height:1.9rem;
-        color:var(--accent); background:color-mix(in srgb, var(--accent) 12%, transparent) }
-
-    .ins-feat__title{ display:block; font-size:.76rem; font-weight:700; color:#111827 }
-    .ins-feat__sub{ display:block; margin-top:.05rem;
-        font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
-        font-size:.58rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
-        color:#6b7280 }
-
     .country-select-btn { transition: transform .15s ease, box-shadow .2s ease, border-color .2s ease; }
     .country-select-btn:hover { transform: translateY(-3px); }
     .country-select-btn:active { transform: translateY(0); }

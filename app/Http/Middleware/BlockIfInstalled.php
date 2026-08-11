@@ -21,10 +21,15 @@ class BlockIfInstalled
         // реально есть смысл оказаться, гораздо дружелюбнее и не теряет
         // саму защиту (повторно пройти мастер всё равно нельзя).
         if (file_exists(storage_path('install.lock'))) {
-            return redirect()->route('login')->with(
-                'status',
-                'Установка уже завершена. Мастер установки больше недоступен — войдите в панель управления.'
-            );
+            // Тот, кто только что закончил установку, возвращается сюда
+            // сам: браузер переспрашивает оборванный GET /install/finish.
+            // Отправлять его на форму входа нельзя — он уже вошёл, и
+            // форма увела бы его в личный кабинет вместо итога.
+            if (is_array($request->session()->get('install.summary'))) {
+                return redirect()->route('install.done');
+            }
+
+            return redirect()->route('login')->with('status', __('install.errors.already_installed'));
         }
 
         return $next($request);
