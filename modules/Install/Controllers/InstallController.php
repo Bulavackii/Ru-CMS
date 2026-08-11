@@ -611,6 +611,17 @@ class InstallController extends Controller
             return $redirect;
         }
 
+        // ⚠️ Шаг ставит ВСЁ содержимое за один запрос: меню, страницы,
+        // демо-новости, слайдшоу, файлы, темы, формы, каптчу, фрагменты,
+        // категории, переводы содержимого, SEO-записи и права. На типовом
+        // хостинге max_execution_time — 30 секунд, и запрос обрывался на
+        // середине: браузер показывал ERR_CONNECTION_RESET, а по нему
+        // понять причину невозможно. Лимиты снимаем только здесь и только
+        // если хостинг это разрешает (на многих ini_set запрещён —
+        // тогда вызов просто ничего не делает).
+        @set_time_limit(0);
+        @ini_set('memory_limit', '512M');
+
         try {
             $this->createSubscriptionFromInstall();
             $this->applyLocalizationSettings();
@@ -642,8 +653,18 @@ class InstallController extends Controller
 
             File::put(storage_path('install.lock'), 'Installed at ' . now()->toDateTimeString());
 
-            Artisan::call('config:clear');
-            Artisan::call('cache:clear');
+            // Чистка кешей — ПОСЛЕ ответа и по одной команде в своей
+            // защите: содержимое уже создано, и падение чистки не должно
+            // отнимать у владельца финальный экран.
+            after_response(function () {
+                foreach (['config:clear', 'cache:clear'] as $command) {
+                    try {
+                        Artisan::call($command);
+                    } catch (\Throwable $e) {
+                        Log::warning('Install: не удалось выполнить ' . $command, ['error' => $e->getMessage()]);
+                    }
+                }
+            });
         } catch (\Throwable $e) {
             Log::warning('Install finish error', ['error' => $e->getMessage()]);
             $this->pushInstallWarning(__('install.errors.finish_partial', ['error' => $e->getMessage()]));

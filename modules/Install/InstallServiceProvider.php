@@ -20,7 +20,9 @@ class InstallServiceProvider extends ServiceProvider
         if (file_exists($base . '/Routes/web.php')) {
             try {
                 $this->loadRoutesFrom($base . '/Routes/web.php');
-                Log::info('InstallServiceProvider: Routes loaded successfully');
+                // Раньше здесь была запись в лог на КАЖДЫЙ запрос: файл
+                // вырос до 29 МБ и полезные записи в нём терялись. Успешная
+                // загрузка маршрутов — не событие.
             } catch (\Throwable $e) {
                 Log::error('InstallServiceProvider: Failed to load routes', [
                     'error' => $e->getMessage(),
