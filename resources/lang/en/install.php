@@ -245,6 +245,7 @@ return [
         'promo_tip'         => 'A promo code can only be used once',
         'promo_note'        => 'A promo code can only be used once.',
         'hint'              => 'A key or a promo code is required for activation. No key? Contact the CMS developer.',
+        'hint_cap' => 'Where to get a key',
         'dev_skip'          => 'Skip — I am a developer',
         'dev_skip_tip'      => 'Available only when DEVELOPER_MODE=true in .env',
         'dev_note'          => 'The button is only visible when <span class="font-mono">DEVELOPER_MODE=true</span> in <span class="font-mono">.env</span>',

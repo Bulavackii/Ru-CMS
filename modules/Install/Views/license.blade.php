@@ -6,19 +6,24 @@
 <div class="w-full max-w-xl max-h-full flex flex-col">
     <div class="install-card rounded-3xl flex flex-col max-h-full overflow-hidden">
 
-        {{-- Шапка --}}
-        <div class="px-6 sm:px-8 pt-5 pb-3 shrink-0 space-y-3">
-            @include('Install::partials.steps', ['current' => 'license'])
-            <div class="text-center">
-                <div class="accent-badge mx-auto w-10 h-10 rounded-xl text-white grid place-items-center mb-2">
-                    <i data-lucide="key-round" class="w-5 h-5"></i>
-                </div>
-                <h1 class="text-lg font-bold text-gray-900">{{ __('install.license.title') }}</h1>
-                <p class="text-gray-500 text-xs">{{ __('install.license.subtitle') }}</p>
+        {{-- Шапка шага — полосой, как на остальных шагах. --}}
+        <div class="ins-head shrink-0">
+            <div class="accent-badge ins-head__badge grid place-items-center text-white">
+                <i data-lucide="key-round" class="w-5 h-5"></i>
+            </div>
+
+            <div class="min-w-0">
+                <p class="ins-eyebrow">{{ __('install.steps.step') }} 06 · {{ __('install.welcome.suffix') }}</p>
+                <h1 class="ins-title break-words">{{ __('install.license.title') }}</h1>
+                <p class="ins-head__about">{{ __('install.about.license') }}</p>
             </div>
         </div>
 
-        <div class="px-6 sm:px-8 overflow-y-auto install-scroll min-h-0 space-y-4">
+        <div class="px-5 sm:px-6 pt-4 shrink-0">
+            @include('Install::partials.steps', ['current' => 'license'])
+        </div>
+
+        <div class="px-5 sm:px-6 py-4 overflow-y-auto install-scroll min-h-0 space-y-4">
             <form method="POST" action="{{ route('install.license') }}"
                   x-data="{ type: 'license', submitting: false }"
                   x-on:submit="submitting=true"
@@ -64,7 +69,7 @@
                 </div>
 
                 <div x-show="type === 'license'" x-cloak>
-                    <label for="license_key" class="mb-1 text-xs font-medium text-gray-700 flex items-center gap-1">
+                    <label for="license_key" class="ins-label">
                         <i data-lucide="key" class="w-3 h-3 text-gray-400"></i> {{ __('install.license.key_label') }}
                     </label>
                     <input type="text"
@@ -72,15 +77,16 @@
                            value="{{ old('license_key') }}"
                            placeholder="XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX"
                            title="{{ __('install.license.key_tip') }}"
-                           class="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-gray-900/20 focus:border-gray-900 text-gray-900 font-mono text-xs"
+                           class="ins-input font-mono"
                            autocomplete="off">
-                    <p class="mt-1 text-[11px] text-gray-400 flex items-center gap-1">
-                        <i data-lucide="info" class="w-3 h-3"></i> {{ __('install.license.key_note') }}
+                    <p class="ins-callout">
+                        <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                        <span>{{ __('install.license.key_note') }}</span>
                     </p>
                 </div>
 
                 <div x-show="type === 'promo'" x-cloak>
-                    <label for="promo_code" class="mb-1 text-xs font-medium text-gray-700 flex items-center gap-1">
+                    <label for="promo_code" class="ins-label">
                         <i data-lucide="ticket" class="w-3 h-3 text-gray-400"></i> {{ __('install.license.promo_label') }}
                     </label>
                     <input type="text"
@@ -88,16 +94,19 @@
                            value="{{ old('promo_code') }}"
                            placeholder="{{ __('install.license.promo_placeholder') }}"
                            title="{{ __('install.license.promo_tip') }}"
-                           class="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-gray-900/20 focus:border-gray-900 text-gray-900 font-mono text-xs uppercase"
+                           class="ins-input font-mono uppercase"
                            autocomplete="off">
-                    <p class="mt-1 text-[11px] text-gray-400 flex items-center gap-1">
-                        <i data-lucide="info" class="w-3 h-3"></i> {{ __('install.license.promo_note') }}
+                    <p class="ins-callout">
+                        <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                        <span>{{ __('install.license.promo_note') }}</span>
                     </p>
                 </div>
 
-                <div class="hint rounded-xl px-3 py-2 text-[11px] text-gray-500 flex items-start gap-1.5">
-                    <i data-lucide="badge-info" class="w-3.5 h-3.5 mt-0.5 shrink-0 hint-ico"></i>
-                    <span>{{ __('install.license.hint') }}</span>
+                <div class="ins-help">
+                    <span class="ins-help__cap">
+                        <i data-lucide="badge-info" class="w-3.5 h-3.5"></i> {{ __('install.license.hint_cap') }}
+                    </span>
+                    <span class="ins-help__text">{{ __('install.license.hint') }}</span>
                 </div>
             </form>
 
@@ -105,27 +114,27 @@
                 <form method="POST" action="{{ route('install.license') }}">
                     @csrf
                     <input type="hidden" name="developer_skip" value="1">
-                    <button type="submit"
-                            class="ui-btn w-full inline-flex items-center justify-center gap-2 bg-white/70 hover:bg-white text-gray-900 px-5 py-2.5 rounded-xl text-sm font-semibold border-2 border-dashed border-gray-400"
+                    {{-- Обход лицензии виден только в режиме разработчика.
+                         Пунктирная рамка и подпись под кнопкой прямо говорят,
+                         откуда она взялась: иначе кнопка «пропустить» рядом с
+                         обязательным шагом выглядит как ошибка. --}}
+                    <button type="submit" class="ins-act ins-act--dev"
                             data-tip="{{ __('install.license.dev_skip_tip') }}">
                         <i data-lucide="terminal" class="w-4 h-4"></i>
                         <span>{{ __('install.license.dev_skip') }}</span>
                     </button>
-                    <p class="mt-1.5 text-center text-[10px] text-gray-400 flex items-center justify-center gap-1">
-                        <i data-lucide="eye" class="w-3 h-3"></i>
-                        {!! __('install.license.dev_note') !!}
-                    </p>
+                    <p class="ins-dev-note">{!! __('install.license.dev_note') !!}</p>
                 </form>
             @endif
         </div>
 
         {{-- Кнопки --}}
-        <div class="px-6 sm:px-8 py-4 shrink-0 border-t border-gray-100 mt-3 flex items-center justify-between">
-            <a href="{{ route('install.smtp') }}" class="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-600 transition-colors">
+        <div class="ins-foot shrink-0 flex items-center justify-between">
+            <a href="{{ route('install.smtp') }}" class="ins-back">
                 <i data-lucide="arrow-left" class="w-4 h-4"></i> {{ __('install.common.back') }}
             </a>
             <button type="submit" form="license-form"
-                    class="ui-btn ui-btn-primary inline-flex items-center gap-2 bg-gray-900 hover:bg-black disabled:opacity-60 text-white px-6 py-2.5 rounded-xl text-sm font-semibold">
+                    class="ins-act ins-act--go">
                 <i data-lucide="badge-check" class="w-4 h-4"></i>
                 <span>{{ __('install.license.submit') }}</span>
             </button>

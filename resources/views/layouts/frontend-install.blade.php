@@ -229,6 +229,13 @@
         .ins-act--go:hover{ color:#fff; filter:brightness(1.08);
             background:linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 62%, #8b5cf6)) }
         .ins-act--dim{ color:#6b7280 }
+        /* Обход шага в режиме разработчика: пунктир говорит, что кнопка
+           не из обычного пути установки. */
+        .ins-act--dev{ width:100%; border-style:dashed; border-color:#9ca3af; color:#374151;
+            background:transparent }
+        .ins-act--dev:hover{ border-color:var(--accent); color:#111827; background:var(--surface,#fff) }
+        .ins-dev-note{ margin:.35rem 0 0; text-align:center; font-size:.68rem; color:#6b7280 }
+        .ins-dev-note .font-mono, .ins-dev-note code{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace }
         .ins-act:disabled{ opacity:.6; cursor:not-allowed }
 
         /* Возврат на предыдущий шаг — ссылкой, а не кнопкой: это не

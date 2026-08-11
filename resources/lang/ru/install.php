@@ -245,6 +245,7 @@ return [
         'promo_tip'         => 'Промокод можно использовать только один раз',
         'promo_note'        => 'Промокод можно использовать только один раз.',
         'hint'              => 'Ключ или промокод обязательны для активации. Нет ключа — обратитесь к разработчику CMS.',
+        'hint_cap' => 'Откуда взять ключ',
         'dev_skip'          => 'Пропустить — я разработчик',
         'dev_skip_tip'      => 'Доступно только при DEVELOPER_MODE=true в .env',
         'dev_note'          => 'Кнопка видна только при <span class="font-mono">DEVELOPER_MODE=true</span> в <span class="font-mono">.env</span>',
