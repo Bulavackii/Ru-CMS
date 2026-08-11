@@ -24,8 +24,12 @@
   <text x="100" y="330" font-family="Inter, Segoe UI, system-ui, sans-serif" font-size="40" font-weight="500" fill="#e0e7ff">Модульная система управления сайтом</text>
   <text x="100" y="392" font-family="Inter, Segoe UI, system-ui, sans-serif" font-size="26" fill="#c7d2fe">Новости, страницы, меню, категории и SEO — из коробки</text>
 
+  <!-- Кнопка ведёт туда же, куда сам слайд, — на страницу «О проекте»
+       (см. link в SeedDefaultSlideshowsCommand). Раньше здесь было
+       «Открыть админку»: баннер на главной видит любой посетитель, и
+       звать его в панель управления незачем. -->
   <g transform="translate(100, 452)">
-    <rect width="230" height="56" fill="#ffffff"/>
-    <text x="115" y="36" text-anchor="middle" font-family="Inter, Segoe UI, system-ui, sans-serif" font-size="22" font-weight="600" fill="#4f46e5">Открыть админку</text>
+    <rect width="278" height="56" fill="#ffffff"/>
+    <text x="139" y="36" text-anchor="middle" font-family="Inter, Segoe UI, system-ui, sans-serif" font-size="22" font-weight="600" fill="#4f46e5">Подробнее о проекте</text>
   </g>
 </svg>

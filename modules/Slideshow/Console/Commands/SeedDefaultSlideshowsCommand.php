@@ -115,12 +115,23 @@ class SeedDefaultSlideshowsCommand extends Command
                 foreach ($def['slides'] as $i => $slide) {
                     $relative = self::TARGET_DIR . '/' . $slide['file'];
 
-                    // Копируем баннер на публичный диск, если его там ещё нет
-                    // (или принудительно при --reset).
-                    if ($reset || ! Storage::disk('public')->exists($relative)) {
-                        $file = $source . DIRECTORY_SEPARATOR . $slide['file'];
-                        if (File::exists($file)) {
-                            Storage::disk('public')->put($relative, File::get($file));
+                    // Копируем баннер на публичный диск, если его там ещё нет,
+                    // принудительно при --reset — и когда содержимое разошлось
+                    // с тем, что лежит в модуле.
+                    //
+                    // Последнее нужно, чтобы правка демо-баннера доезжала до
+                    // уже установленных сайтов: каталог slideshow/defaults —
+                    // это ровно то, что кладёт сюда сидер, свои картинки
+                    // владелец загружает отдельными файлами через раздел.
+                    $file = $source . DIRECTORY_SEPARATOR . $slide['file'];
+
+                    if (File::exists($file)) {
+                        $contents = File::get($file);
+                        $stale = ! Storage::disk('public')->exists($relative)
+                            || Storage::disk('public')->get($relative) !== $contents;
+
+                        if ($reset || $stale) {
+                            Storage::disk('public')->put($relative, $contents);
                         }
                     }
 
