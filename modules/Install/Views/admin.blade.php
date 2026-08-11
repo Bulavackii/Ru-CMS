@@ -10,23 +10,25 @@
           x-on:submit="submitting=true">
         @csrf
 
-        {{-- Шапка --}}
-        <div class="px-6 sm:px-8 pt-5 pb-3 shrink-0 space-y-3">
-            @include('Install::partials.steps', ['current' => 'admin'])
-            <div class="text-center">
-                <div class="accent-badge mx-auto w-10 h-10 rounded-xl text-white grid place-items-center mb-2">
-                    <i data-lucide="user-round" class="w-5 h-5"></i>
-                </div>
-                <h2 class="text-lg font-bold text-gray-900">{{ __('install.admin.title') }}</h2>
-                <p class="text-gray-500 text-xs flex items-center justify-center gap-1">
-                    <i data-lucide="crown" class="w-3.5 h-3.5"></i>
-                    {{ __('install.admin.subtitle') }}
-                </p>
+        {{-- Шапка шага — полосой, как на остальных шагах. --}}
+        <div class="ins-head shrink-0">
+            <div class="accent-badge ins-head__badge grid place-items-center text-white">
+                <i data-lucide="user-round" class="w-5 h-5"></i>
+            </div>
+
+            <div class="min-w-0">
+                <p class="ins-eyebrow">{{ __('install.steps.step') }} 04 · {{ __('install.welcome.suffix') }}</p>
+                <h1 class="ins-title break-words">{{ __('install.admin.title') }}</h1>
+                <p class="ins-head__about">{{ __('install.admin.subtitle') }}</p>
             </div>
         </div>
 
+        <div class="px-5 sm:px-6 pt-4 shrink-0">
+            @include('Install::partials.steps', ['current' => 'admin'])
+        </div>
+
         {{-- Поля --}}
-        <div class="px-6 sm:px-8 overflow-y-auto install-scroll min-h-0 space-y-3">
+        <div class="px-5 sm:px-6 py-4 overflow-y-auto install-scroll min-h-0 space-y-3">
             @if ($errors->any())
                 <div class="bg-gray-900 text-white text-xs rounded-2xl p-3">
                     <div class="flex items-center gap-1.5 font-semibold mb-1"><i data-lucide="octagon-alert" class="w-3.5 h-3.5"></i> {{ __('install.common.error_title') }}</div>
@@ -43,7 +45,7 @@
 
             <div class="grid grid-cols-2 gap-2.5">
                 <div>
-                    <label for="name" class="mb-1 text-xs font-medium text-gray-700 flex items-center gap-1">
+                    <label for="name" class="ins-label">
                         <i data-lucide="user" class="w-3 h-3 text-gray-400"></i> {{ __('install.admin.name') }}
                     </label>
                     <input type="text"
@@ -52,11 +54,11 @@
                            value="{{ old('name', __('install.admin.name_placeholder')) }}"
                            autocomplete="name"
                            title="{{ __('install.admin.name_tip') }}"
-                           class="w-full px-3 py-2 rounded-xl border border-gray-300 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-gray-900/20 focus:border-gray-900"
+                           class="ins-input"
                            required autofocus>
                 </div>
                 <div>
-                    <label for="email" class="mb-1 text-xs font-medium text-gray-700 flex items-center gap-1">
+                    <label for="email" class="ins-label">
                         <i data-lucide="mail" class="w-3 h-3 text-gray-400"></i> {{ __('install.admin.email') }}
                     </label>
                     <input type="email"
@@ -66,14 +68,14 @@
                            autocomplete="email"
                            inputmode="email"
                            title="{{ __('install.admin.email_tip') }}"
-                           class="w-full px-3 py-2 rounded-xl border border-gray-300 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-gray-900/20 focus:border-gray-900"
+                           class="ins-input"
                            required>
                 </div>
             </div>
 
             {{-- Пароль + индикатор --}}
             <div>
-                <label for="password" class="mb-1 text-xs font-medium text-gray-700 flex items-center gap-1">
+                <label for="password" class="ins-label">
                     <i data-lucide="lock" class="w-3 h-3 text-gray-400"></i> {{ __('install.admin.password') }}
                 </label>
                 <div class="relative">
@@ -81,7 +83,7 @@
                            name="password" id="password"
                            placeholder="●●●●●●"
                            autocomplete="new-password"
-                           class="w-full pr-10 px-3 py-2 rounded-xl border border-gray-300 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-gray-900/20 focus:border-gray-900"
+                           class="ins-input pr-10"
                            required
                            x-on:input="
                                 const v = $event.target.value || '';
@@ -128,20 +130,24 @@
                 </div>
             </div>
 
-            <div class="hint rounded-xl px-3 py-2 text-[11px] text-gray-500 flex items-start gap-1.5">
-                <i data-lucide="life-buoy" class="w-3.5 h-3.5 mt-0.5 shrink-0 hint-ico"></i>
-                <span>{!! __('install.admin.help', ['url' => route('install.requirements')]) !!}</span>
+            {{-- Что делать, если шаг не прошёл: отдельная заметка с
+                 подписью, а не бледная сноска того же веса, что подписи
+                 полей. На этом шаге накатываются миграции, и заминка
+                 здесь — самая дорогая. --}}
+            <div class="ins-help">
+                <span class="ins-help__cap">
+                    <i data-lucide="life-buoy" class="w-3.5 h-3.5"></i> {{ __('install.admin.help_cap') }}
+                </span>
+                <span class="ins-help__text">{!! __('install.admin.help', ['url' => route('install.requirements')]) !!}</span>
             </div>
         </div>
 
         {{-- Кнопки --}}
-        <div class="px-6 sm:px-8 py-4 shrink-0 border-t border-gray-100 mt-3 flex items-center justify-between">
-            <a href="{{ route('install.database') }}" class="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-600 transition-colors">
+        <div class="ins-foot shrink-0 flex items-center justify-between">
+            <a href="{{ route('install.database') }}" class="ins-back">
                 <i data-lucide="arrow-left" class="w-4 h-4"></i> {{ __('install.common.back') }}
             </a>
-            <button type="submit"
-                    class="ui-btn ui-btn-primary inline-flex items-center gap-2 bg-gray-900 hover:bg-black disabled:opacity-60 disabled:cursor-not-allowed text-white px-6 py-2.5 rounded-xl text-sm font-semibold"
-                    :disabled="submitting">
+            <button type="submit" class="ins-act ins-act--go" :disabled="submitting">
                 <svg x-show="submitting" x-cloak viewBox="0 0 24 24" class="animate-spin h-4 w-4">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" fill="none" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4A4 4 0 008 12H4z"></path>

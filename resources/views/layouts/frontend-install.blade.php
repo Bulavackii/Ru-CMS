@@ -144,6 +144,84 @@
         }
         /* Свечение убрано из-под карточки: слева теперь цветная колонка,
            и второе пятно справа делало страницу пёстрой. */
+
+        /* ───────────────────────── Общие части шага ─────────────────────────
+           Один набор на все семь шагов: шапка полосой, подписи полей,
+           поля, заметки и действия. Раньше каждый шаг держал свою копию. */
+        .ins-eyebrow{ margin:0 0 .1rem; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+            font-size:.6rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase;
+            color:var(--accent,#6366f1) }
+        .ins-title{ margin:0; font-size:1.5rem; font-weight:800; letter-spacing:-.03em;
+            line-height:1.05; color:#111827 }
+
+        .ins-head{ display:flex; align-items:center; gap:.85rem; padding:1.1rem 1.5rem;
+            border-bottom:1px solid var(--surface-bd,#e3e6ee) }
+        .ins-head__badge{ width:2.6rem; height:2.6rem; flex:none }
+        .ins-head__about{ margin:.2rem 0 0; font-size:.78rem; line-height:1.45; color:#4b5563 }
+        @media (max-width:640px){ .ins-head{ padding:1rem 1.1rem } }
+
+        /* Значок рядом с названием шага (СУБД, режим и т. п.). */
+        .ins-tag{ display:inline-flex; align-items:center; gap:.25rem; vertical-align:middle;
+            margin-left:.4rem; padding:.1rem .4rem;
+            font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+            font-size:.58rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+            color:#fff; background:var(--accent) }
+
+        .ins-label{ display:flex; align-items:center; gap:.35rem; margin-bottom:.3rem;
+            font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+            font-size:.62rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+            color:#4b5563 }
+        .ins-label i{ color:var(--accent) }
+
+        .ins-input{ width:100%; padding:.5rem .75rem; font-size:.875rem; color:#111827;
+            background:var(--surface,#fff); border:1px solid var(--surface-bd,#d1d5db);
+            transition:border-color .15s ease, box-shadow .15s ease }
+        .ins-input:focus{ outline:none; border-color:var(--accent);
+            box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent) }
+
+        /* Указание, без которого шаг не пройти. */
+        .ins-callout{ display:flex; align-items:flex-start; gap:.5rem; margin:.4rem 0 0;
+            padding:.5rem .6rem; font-size:.73rem; line-height:1.45; color:#374151;
+            background:color-mix(in srgb, var(--accent) 7%, transparent);
+            border-left:3px solid var(--accent) }
+        .ins-callout i{ margin-top:.1rem; flex:none; color:var(--accent) }
+        .ins-callout code, .ins-callout .font-mono{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+            font-size:.72rem }
+
+        /* Ответ на частую заминку шага. */
+        .ins-help{ display:block; padding:.65rem .8rem;
+            background:var(--surface-2,#f7f8fc); border:1px solid var(--surface-bd,#e3e6ee) }
+        .ins-help__cap{ display:inline-flex; align-items:center; gap:.35rem; margin-bottom:.25rem;
+            font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+            font-size:.58rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+            color:#4b5563 }
+        .ins-help__cap i{ color:var(--accent) }
+        .ins-help__text{ display:block; font-size:.74rem; line-height:1.5; color:#4b5563 }
+        .ins-help__text a{ color:var(--accent); text-decoration:underline }
+
+        .ins-foot{ padding:1rem 1.5rem; border-top:1px solid var(--surface-bd,#e3e6ee) }
+
+        /* Действия шага: главное — залито акцентом, остальные тихие. */
+        .ins-act{ display:inline-flex; align-items:center; justify-content:center; gap:.5rem;
+            padding:.7rem 1.2rem; font-size:.85rem; font-weight:700; cursor:pointer;
+            color:#374151; background:var(--surface-2,#f7f8fc);
+            border:1px solid var(--surface-bd,#e3e6ee);
+            transition:border-color .15s ease, background .15s ease, color .15s ease }
+        .ins-act:hover{ border-color:color-mix(in srgb, var(--accent) 55%, var(--surface-bd,#e3e6ee));
+            background:#fff; color:#111827 }
+        .ins-act--go{ color:#fff; border-color:transparent;
+            background:linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 62%, #8b5cf6)) }
+        .ins-act--go:hover{ color:#fff; filter:brightness(1.08);
+            background:linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 62%, #8b5cf6)) }
+        .ins-act--dim{ color:#6b7280 }
+        .ins-act:disabled{ opacity:.6; cursor:not-allowed }
+
+        /* Возврат на предыдущий шаг — ссылкой, а не кнопкой: это не
+           действие шага, а отмена. */
+        .ins-back{ display:inline-flex; align-items:center; gap:.4rem; font-size:.82rem;
+            font-weight:600; color:#6b7280; transition:color .15s ease }
+        .ins-back:hover{ color:var(--accent) }
+
         /* ───────────────────────── Стеклянная карточка ─────────────────────── */
         .install-card {
             position: relative;

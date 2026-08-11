@@ -158,49 +158,6 @@
 
 @push('styles')
 <style>
-    /* ── Типографика мастера ──────────────────────────────────────────
-       Тот же язык, что в панели и на страницах входа: моноширинный
-       надзаголовок капсом с крупным просветом, заголовок с плотным
-       трекингом, мелкие подписи — не светлее контраста 4.5. Прежде
-       подписи набирались 10-м кеглем цветом #9ca3af (контраст 2.5) —
-       на шаге установки, где решают реквизиты базы, это плохо. */
-    .ins-eyebrow{ margin:0 0 .1rem; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
-        font-size:.6rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase;
-        color:var(--accent,#6366f1) }
-    .ins-title{ margin:0; font-size:1.5rem; font-weight:800; letter-spacing:-.03em;
-        line-height:1.05; color:#111827 }
-
-    /* Шапка карточки — одна полоса с разделителем снизу. */
-    .ins-head{ display:flex; align-items:center; gap:.85rem; padding:1.1rem 1.5rem;
-        border-bottom:1px solid var(--surface-bd,#e3e6ee) }
-    .ins-head__badge{ width:2.6rem; height:2.6rem; flex:none }
-    .ins-head__about{ margin:.2rem 0 0; font-size:.78rem; line-height:1.45; color:#4b5563 }
-    @media (max-width:640px){ .ins-head{ padding:1rem 1.1rem } }
-
-    /* ── Полосы действий ──────────────────────────────────────────────
-       Первая — акцентная и во всю оставшуюся ширину, остальные ужимаются
-       по содержимому. Прямые края и заливка цветом шага: тот же язык, что
-       у карточек «Оплаты» и «Доставки». */
-    /* Кнопки по содержимому и прижаты вправо: растянутая во всю ширину
-       главная кнопка читалась как полоса-заглушка, а не как действие. */
-    .ins-actions{ display:flex; flex-wrap:wrap; gap:.5rem; justify-content:flex-end }
-    @media (max-width:640px){ .ins-actions .ins-act{ flex:1 1 100% } }
-
-    .ins-act{ display:inline-flex; align-items:center; justify-content:center; gap:.5rem;
-        padding:.75rem 1.1rem; font-size:.85rem; font-weight:700;
-        color:#374151; background:var(--surface-2,#f7f8fc);
-        border:1px solid var(--surface-bd,#e3e6ee);
-        transition:border-color .15s ease, background .15s ease, color .15s ease }
-    .ins-act:hover{ border-color:color-mix(in srgb, var(--accent) 55%, var(--surface-bd,#e3e6ee));
-        background:#fff; color:#111827 }
-
-    .ins-act--go{ color:#fff; border-color:transparent;
-        background:linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 62%, #8b5cf6)) }
-    .ins-act--go:hover{ color:#fff; filter:brightness(1.08);
-        background:linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 62%, #8b5cf6)) }
-    .ins-act__go{ opacity:.85 }
-
-    .ins-act--dim{ color:#6b7280 }
     .ins-tagline{ margin:.15rem 0 0; font-size:.72rem; color:#4b5563 }
 
     .ins-group-title{ display:flex; flex-wrap:wrap; align-items:center; justify-content:center;
@@ -271,11 +228,6 @@
         font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
         font-size:.58rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
         color:#6b7280 }
-
-    /* Подвал карточки — линия того же цвета, что и шапка: белая
-       полупрозрачная грань осталась от стеклянного оформления и на
-       сплошной поверхности была не видна. */
-    .ins-foot{ padding:1rem 1.5rem; border-top:1px solid var(--surface-bd,#e3e6ee) }
 
     .country-select-btn { transition: transform .15s ease, box-shadow .2s ease, border-color .2s ease; }
     .country-select-btn:hover { transform: translateY(-3px); }

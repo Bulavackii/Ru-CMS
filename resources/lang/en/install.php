@@ -190,6 +190,7 @@ return [
         'tip_dictionary'   => 'Avoid dictionary words and personal details.',
         'tip_manager'      => 'Best option — generate it with a password manager.',
         'help'             => 'If the installation fails during migrations, check database access and write permissions on <span class="font-mono">storage/</span>, then go back to the <a href=":url" class="underline hover:text-gray-800">requirements check</a>.',
+        'help_cap' => 'If something goes wrong',
         'submit'           => 'Create and continue',
         'submitting'       => 'Creating and running migrations…',
     ],
