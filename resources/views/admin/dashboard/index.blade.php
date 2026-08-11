@@ -6,13 +6,13 @@
 <div class="dash space-y-6" x-data="dashGreeting()">
 
     {{-- ═══════════════════════ Приветственный блок ═══════════════════════ --}}
-    <div class="dash-hero rounded-3xl px-6 py-7 sm:px-9 sm:py-8">
+    <div class="dash-hero rounded-3xl px-5 py-4 sm:px-6 sm:py-4">
         <span class="dash-aurora dash-aurora--a" aria-hidden="true"></span>
         <span class="dash-aurora dash-aurora--b" aria-hidden="true"></span>
 
         <div class="relative z-10 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div class="min-w-0">
-                <h1 class="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white break-words">
+                <h1 class="text-lg sm:text-xl font-extrabold text-gray-900 dark:text-white break-words">
                     <span x-text="greeting">{{ __('admin.dashboard.welcome') }}</span>,
                     {{ auth()->user()->name }} <span aria-hidden="true">👋</span>
                 </h1>
@@ -41,7 +41,7 @@
             <div class="flex flex-wrap items-center gap-2">
                 @foreach($quickActions as $i => $action)
                     <a href="{{ $action['url'] }}"
-                       class="dash-pill {{ $i === 0 ? 'dash-pill--primary' : 'dash-pill--' . $action['color'] }} inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold">
+                       class="dash-pill {{ $i === 0 ? 'dash-pill--primary' : 'dash-pill--' . $action['color'] }} inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold">
                         <i class="fas fa-{{ $action['icon'] }}"></i>
                         <span class="{{ $i === 0 ? '' : 'hidden xl:inline' }}">{{ $action['title'] }}</span>
                     </a>
@@ -56,12 +56,12 @@
         <a href="{{ route('admin.news.index') }}" class="dash-stat dash-stat--blue group">
             <div class="flex items-start justify-between">
                 <div class="min-w-0">
-                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('admin.sections.news') }}</p>
-                    <p class="dash-counter mt-1 text-3xl font-extrabold text-gray-900 dark:text-white" data-target="{{ $stats['content']['news']['total'] }}">0</p>
+                    <p class="dash-stat__label">{{ __('admin.sections.news') }}</p>
+                    <p class="dash-counter mt-0.5 text-2xl font-extrabold text-gray-900 dark:text-white" data-target="{{ $stats['content']['news']['total'] }}">0</p>
                 </div>
                 <span class="dash-badge dash-badge--blue"><i class="fas fa-newspaper"></i></span>
             </div>
-            <div class="mt-4 flex items-center justify-between text-xs">
+            <div class="mt-2 flex items-center justify-between text-xs">
                 <span class="dash-chip dash-chip--blue">+{{ $stats['content']['news']['this_week'] }} {{ __('admin.dashboard.per_week') }}</span>
                 <span class="text-gray-400 transition group-hover:translate-x-0.5 group-hover:text-gray-600 dark:group-hover:text-gray-300">
                     {{ $stats['content']['news']['published'] }} {{ __('admin.dashboard.pub_short') }} <i class="fas fa-arrow-right ml-0.5"></i>
@@ -72,12 +72,12 @@
         <a href="{{ route('admin.pages.index') }}" class="dash-stat dash-stat--green group">
             <div class="flex items-start justify-between">
                 <div class="min-w-0">
-                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('admin.sections.pages') }}</p>
-                    <p class="dash-counter mt-1 text-3xl font-extrabold text-gray-900 dark:text-white" data-target="{{ $stats['content']['pages']['total'] }}">0</p>
+                    <p class="dash-stat__label">{{ __('admin.sections.pages') }}</p>
+                    <p class="dash-counter mt-0.5 text-2xl font-extrabold text-gray-900 dark:text-white" data-target="{{ $stats['content']['pages']['total'] }}">0</p>
                 </div>
                 <span class="dash-badge dash-badge--green"><i class="fas fa-file-lines"></i></span>
             </div>
-            <div class="mt-4 flex items-center justify-between text-xs">
+            <div class="mt-2 flex items-center justify-between text-xs">
                 <span class="dash-chip dash-chip--green">{{ $stats['content']['pages']['published'] }} {{ __('admin.dashboard.published_word') }}</span>
                 <span class="text-gray-400 transition group-hover:translate-x-0.5 group-hover:text-gray-600 dark:group-hover:text-gray-300">
                     {{ __('admin.dashboard.all_pages') }} <i class="fas fa-arrow-right ml-0.5"></i>
@@ -88,12 +88,12 @@
         <a href="{{ route('admin.users.index') }}" class="dash-stat dash-stat--purple group">
             <div class="flex items-start justify-between">
                 <div class="min-w-0">
-                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('admin.sections.users') }}</p>
-                    <p class="dash-counter mt-1 text-3xl font-extrabold text-gray-900 dark:text-white" data-target="{{ $stats['users']['total'] }}">0</p>
+                    <p class="dash-stat__label">{{ __('admin.sections.users') }}</p>
+                    <p class="dash-counter mt-0.5 text-2xl font-extrabold text-gray-900 dark:text-white" data-target="{{ $stats['users']['total'] }}">0</p>
                 </div>
                 <span class="dash-badge dash-badge--purple"><i class="fas fa-users"></i></span>
             </div>
-            <div class="mt-4 flex items-center justify-between text-xs">
+            <div class="mt-2 flex items-center justify-between text-xs">
                 <span class="dash-chip dash-chip--purple">+{{ $stats['users']['this_week'] }} {{ __('admin.dashboard.per_week') }}</span>
                 <span class="text-gray-400 transition group-hover:translate-x-0.5 group-hover:text-gray-600 dark:group-hover:text-gray-300">
                     {{ $stats['users']['admins'] }} {{ __('admin.dashboard.admins_short') }} <i class="fas fa-arrow-right ml-0.5"></i>
@@ -105,12 +105,12 @@
             <a href="{{ route('admin.orders.index') }}" class="dash-stat dash-stat--orange group">
                 <div class="flex items-start justify-between">
                     <div class="min-w-0">
-                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('admin.sections.orders') }}</p>
-                        <p class="dash-counter mt-1 text-3xl font-extrabold text-gray-900 dark:text-white" data-target="{{ $stats['orders']['total'] }}">0</p>
+                        <p class="dash-stat__label">{{ __('admin.sections.orders') }}</p>
+                        <p class="dash-counter mt-0.5 text-2xl font-extrabold text-gray-900 dark:text-white" data-target="{{ $stats['orders']['total'] }}">0</p>
                     </div>
                     <span class="dash-badge dash-badge--orange"><i class="fas fa-cart-shopping"></i></span>
                 </div>
-                <div class="mt-4 flex items-center justify-between text-xs">
+                <div class="mt-2 flex items-center justify-between text-xs">
                     <span class="dash-chip dash-chip--orange">{{ $stats['orders']['pending'] }} {{ __('admin.dashboard.pending') }}</span>
                     <span class="text-gray-400 transition group-hover:translate-x-0.5 group-hover:text-gray-600 dark:group-hover:text-gray-300">
                         {{ number_format($stats['orders']['revenue'], 0, ',', ' ') }} {{ __('admin.dashboard.per_month') }} <i class="fas fa-arrow-right ml-0.5"></i>
@@ -129,7 +129,7 @@
                 <p class="text-xs text-gray-500 dark:text-gray-400">{{ __('admin.dashboard.chart_sub') }}</p>
             </div>
         </div>
-        <div class="h-72">
+        <div class="dash-chart">
             <canvas id="activityChart"></canvas>
         </div>
     </div>
@@ -195,19 +195,27 @@
                     <i class="fas fa-grip-vertical"></i>
                 </div>
             </div>
-            <div class="space-y-1.5">
+            {{-- Лента: слева тонкая линия времени, у каждой записи своя
+                 точка в цвете типа. Раньше это был плоский список из
+                 десяти одинаковых строк — понять, что новое, а что
+                 недельной давности, можно было только вчитываясь. --}}
+            <div class="dash-feed">
                 @forelse($recentActivity as $activity)
-                    <a href="{{ $activity['url'] }}" class="dash-activity-row flex items-center gap-3 rounded-xl p-2.5">
-                        <span class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
-                            <i class="fas fa-{{ $activity['icon'] }}"></i>
+                    <a href="{{ $activity['url'] }}" class="dash-feed__row dash-feed__row--{{ $activity['type'] ?? 'other' }}">
+                        <span class="dash-feed__dot"><i class="fas fa-{{ $activity['icon'] }}"></i></span>
+
+                        <span class="dash-feed__body">
+                            <span class="dash-feed__title">{{ $activity['title'] }}</span>
+                            <span class="dash-feed__meta">
+                                <span class="dash-feed__who">{{ $activity['user'] }}</span>
+                                <span class="dash-feed__when">{{ $activity['time'] }}</span>
+                            </span>
                         </span>
-                        <div class="min-w-0 flex-1">
-                            <p class="truncate text-sm font-medium text-gray-900 dark:text-white">{{ $activity['title'] }}</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ $activity['user'] }} · {{ $activity['time'] }}</p>
-                        </div>
+
+                        <i class="fas fa-chevron-right dash-feed__go" aria-hidden="true"></i>
                     </a>
                 @empty
-                    <p class="py-10 text-center text-sm text-gray-400">{{ __('admin.dashboard.recent_empty') }}</p>
+                    <p class="dash-feed__empty">{{ __('admin.dashboard.recent_empty') }}</p>
                 @endforelse
             </div>
         </div>
@@ -221,7 +229,7 @@
 
              Пункты с нулём не показываются: список «всё по нулям» ничего не
              сообщает и лишь приучает его не читать. --}}
-        <div class="dash-card p-6" data-widget-id="attention">
+        <div class="dash-card dash-card--fit p-6" data-widget-id="attention">
             <div class="mb-4 flex items-center gap-3">
                 <span class="dash-badge dash-badge--sm" style="background:linear-gradient(135deg,#f59e0b,#f97316)">
                     <i class="fas fa-circle-exclamation"></i>
@@ -237,9 +245,12 @@
                     <i class="fas fa-chevron-right dash-att__go"></i>
                 </a>
             @empty
+                {{-- Пустой список — это хорошая новость, и выглядеть она
+                     должна так же: спокойный блок, а не пустая карточка на
+                     всю высоту соседа. --}}
                 <p class="dash-att__clear">
                     <i class="fas fa-circle-check"></i>
-                    Всё в порядке: черновиков, непрочитанных сообщений и пустых меню нет.
+                    <span>Всё в порядке: черновиков, непрочитанных сообщений и пустых меню нет.</span>
                 </p>
             @endforelse
         </div>
@@ -322,7 +333,7 @@
              нельзя (в базе только хеш), а «сайт не взломан» — утверждение,
              которое приложение о себе знать не может. Обещать такое на
              дашборде значило бы обманывать. --}}
-        <div class="dash-card p-6" data-widget-id="security">
+        <div class="dash-card dash-card--fit p-5" data-widget-id="security">
             <div class="mb-4 flex items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
                     <span class="dash-badge dash-badge--sm"
@@ -352,7 +363,7 @@
         {{-- ── Обновление ────────────────────────────────────────────────
              Проверка идёт на СВОЙ сервер, адрес которого задаёт владелец. По
              умолчанию он пуст, и запроса наружу нет вовсе. --}}
-        <div class="dash-card p-6" data-widget-id="updates">
+        <div class="dash-card dash-card--fit p-5" data-widget-id="updates">
             <div class="mb-4 flex items-center gap-3">
                 <span class="dash-badge dash-badge--sm"
                       style="background:linear-gradient(135deg,{{ $updates['available'] ? '#f59e0b,#f97316' : '#6366f1,#8b5cf6' }})">
@@ -378,7 +389,7 @@
             <p class="dash-upd__note">{{ $updates['note'] }}</p>
         </div>
 
-        <div class="dash-card p-6" data-widget-id="system">
+        <div class="dash-card dash-card--fit p-5" data-widget-id="system">
             <div class="mb-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <span class="dash-badge dash-badge--gray dash-badge--sm"><i class="fas fa-gear"></i></span>
@@ -388,22 +399,23 @@
                     <i class="fas fa-grip-vertical"></i>
                 </div>
             </div>
-            <div class="space-y-2">
+            {{-- Строки-состояния: подпись слева, значение справа. Прежде
+                 каждая была плиткой с крупным значком и занимала 56px —
+                 четыре состояния растягивали карточку вдвое. --}}
+            <div class="dash-sys">
                 @foreach($systemStatus as $key => $status)
                     @php
-                        $statusColor = match($status['status']) {
-                            'success' => 'green',
-                            'warning' => 'yellow',
-                            'info' => 'blue',
-                            default => 'gray',
+                        $tone = match($status['status']) {
+                            'success' => 'is-ok',
+                            'warning' => 'is-warn',
+                            'info' => 'is-info',
+                            default => '',
                         };
                     @endphp
-                    <div class="flex items-center gap-3 rounded-xl bg-gray-50 p-3 dark:bg-gray-800">
-                        <span class="dash-badge dash-badge--{{ $statusColor }} dash-badge--sm"><i class="fas fa-{{ $status['icon'] }}"></i></span>
-                        <div class="min-w-0 flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $systemLabels[$key] ?? ucfirst($key) }}</p>
-                            <p class="truncate text-xs text-gray-500 dark:text-gray-400">{{ $status['message'] }}</p>
-                        </div>
+                    <div class="dash-sys__row {{ $tone }}">
+                        <i class="fas fa-{{ $status['icon'] }}"></i>
+                        <span class="dash-sys__label">{{ $systemLabels[$key] ?? ucfirst($key) }}</span>
+                        <span class="dash-sys__value">{{ $status['message'] }}</span>
                     </div>
                 @endforeach
             </div>
@@ -442,7 +454,24 @@
         box-shadow: 0 18px 40px -22px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.04);
     }
     .dash-card, .dash-stat { border-radius: 1.25rem; }
+    /* Поле графика: фиксированная высота нужна Chart.js — при
+       maintainAspectRatio:false он растягивается по контейнеру, а без
+       высоты контейнер схлопывается в ноль. */
+    .dash-chart{ position:relative; height:17rem }
+    /* Пустая неделя: вместо трёх прямых по нижнему краю — одна фраза. */
+    .dash-chart__empty{ position:absolute; inset:0; display:flex; align-items:center;
+        justify-content:center; margin:0; padding:0 1rem; text-align:center;
+        font-size:.85rem; color:#6b7280 }
+    .dark .dash-chart__empty{ color:#9ca3af }
+    @media (max-width:640px){ .dash-chart{ height:13rem } }
     .dash-stat { display: block; transition: transform .25s cubic-bezier(.16,1,.3,1), box-shadow .25s ease; }
+    /* Подпись карточки — моноширинным капсом, как подписи в разделах
+       панели: так она не спорит с числом и занимает одну строку. */
+    .dash-stat__label{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+        font-size:.62rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+        color:#6b7280 }
+    .dark .dash-stat__label{ color:#9ca3af }
+    .dash-stat .dash-badge{ width:2.25rem; height:2.25rem; font-size:.9rem }
     .dash-stat:hover { transform: translateY(-4px); box-shadow: 0 26px 48px -22px rgba(15,23,42,.32); }
     .dark .dash-stat:hover { box-shadow: 0 26px 48px -22px rgba(0,0,0,.7); }
 
@@ -455,24 +484,71 @@
     .dash-stat--green::before  { background: linear-gradient(90deg, transparent, #10b981, transparent); }
     .dash-stat--purple::before { background: linear-gradient(90deg, transparent, #8b5cf6, transparent); }
     .dash-stat--orange::before { background: linear-gradient(90deg, transparent, #f97316, transparent); }
-    .dash-stat { padding: 1.5rem; }
+    .dash-stat { padding: .9rem 1rem; }
 
 /* ── Короткая сводка ────────────────────────────────────────────── */
 .dash-facts{ display:grid; gap:.75rem; grid-template-columns:repeat(auto-fit, minmax(13rem, 1fr)) }
-.dash-fact{ display:flex; align-items:center; gap:.7rem; padding:.7rem .85rem;
+.dash-fact{ display:flex; align-items:center; gap:.6rem; padding:.5rem .7rem;
     background:#fff; border:1px solid #eef2f7 }
 .dark .dash-fact{ background:#111827; border-color:#374151 }
 .dash-fact__ico{ display:flex; align-items:center; justify-content:center; flex:none;
+    font-size:.8rem;
     width:2.1rem; height:2.1rem; color:var(--admin-primary);
     background:color-mix(in srgb, var(--admin-primary) 12%, transparent) }
-.dash-fact__value{ display:block; font-size:1.35rem; font-weight:800; line-height:1.1; color:#111827 }
+.dash-fact__value{ display:block; font-size:1.1rem; font-weight:800; line-height:1.1; color:#111827;
+    font-variant-numeric:tabular-nums }
 .dark .dash-fact__value{ color:#f3f4f6 }
-.dash-fact__label{ display:block; font-size:.78rem; font-weight:600; color:#4b5563 }
+.dash-fact__label{ display:block; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:.6rem; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#4b5563 }
 .dark .dash-fact__label{ color:#d1d5db }
-.dash-fact__note{ display:block; font-size:.68rem; color:#9ca3af;
+.dash-fact__note{ display:block; font-size:.68rem;
+    color:color-mix(in srgb, var(--surface-ink,#111827) 60%, var(--surface,#fff));
     overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
 
 /* ── Требует внимания ───────────────────────────────────────────── */
+    /* Карточка не растягивается по высоте соседа: у «Требует внимания»
+       содержимого на пару строк, а рядом лента из десяти записей. */
+    .dash-card--fit{ align-self:start }
+
+    /* ── Лента последней активности ──────────────────────────────── */
+    .dash-feed{ position:relative; display:grid; gap:.1rem; padding-left:.1rem }
+    /* Линия времени: одна вертикаль на всю ленту, точки записей стоят
+       на ней. */
+    .dash-feed::before{ content:''; position:absolute; left:1.05rem; top:.9rem; bottom:.9rem;
+        width:1px; background:#e5e7eb }
+    .dark .dash-feed::before{ background:#374151 }
+
+    .dash-feed__row{ position:relative; display:flex; align-items:center; gap:.7rem;
+        padding:.45rem .5rem; transition:background .15s ease }
+    .dash-feed__row:hover{ background:#f9fafb }
+    .dark .dash-feed__row:hover{ background:#1f2937 }
+
+    .dash-feed__dot{ position:relative; z-index:1; display:grid; place-items:center; flex:none;
+        width:1.9rem; height:1.9rem; font-size:.7rem; color:#6b7280;
+        background:#f3f4f6; border:2px solid #fff }
+    .dark .dash-feed__dot{ color:#9ca3af; background:#1f2937; border-color:#111827 }
+    /* Цвет точки по типу записи — те же цвета, что у карточек статистики. */
+    .dash-feed__row--news .dash-feed__dot{ color:#1d4ed8; background:#dbeafe }
+    .dash-feed__row--page .dash-feed__dot{ color:#15803d; background:#dcfce7 }
+    .dash-feed__row--user .dash-feed__dot{ color:#6d28d9; background:#ede9fe }
+    .dash-feed__row--order .dash-feed__dot{ color:#c2410c; background:#ffedd5 }
+
+    .dash-feed__body{ display:flex; flex-direction:column; gap:.1rem; min-width:0; flex:1 }
+    .dash-feed__title{ font-size:.85rem; font-weight:600; color:#111827;
+        overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+    .dark .dash-feed__title{ color:#f3f4f6 }
+    .dash-feed__meta{ display:flex; align-items:center; gap:.4rem; font-size:.68rem;
+        color:color-mix(in srgb, var(--surface-ink,#111827) 62%, var(--surface,#fff)) }
+    .dash-feed__who{ font-weight:600 }
+    .dash-feed__when{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:.02em }
+    .dash-feed__when::before{ content:'·'; margin-right:.4rem }
+
+    .dash-feed__go{ font-size:.65rem; color:#d1d5db; opacity:0; transition:opacity .15s ease }
+    .dash-feed__row:hover .dash-feed__go{ opacity:1 }
+
+    .dash-feed__empty{ padding:2.5rem 0; text-align:center; font-size:.85rem;
+        color:color-mix(in srgb, var(--surface-ink,#111827) 62%, var(--surface,#fff)) }
+
     .dash-att{ display:flex; align-items:center; gap:.6rem; padding:.55rem .7rem;
         font-size:.85rem; text-decoration:none; color:#4b5563;
         border:1px solid #f0d9a8; background:#fffbeb; transition:border-color .15s }
@@ -494,7 +570,8 @@
     .dash-sec__row.is-ok > i{ color:#16a34a }
     .dash-sec__row.is-bad > i{ color:#dc2626 }
     .dash-sec__label{ display:block; font-weight:600; color:#111827 }
-    .dash-sec__note{ display:block; margin-top:.1rem; font-size:.75rem; line-height:1.4; color:#6b7280 }
+    .dash-sec__note{ display:block; margin-top:.1rem; font-size:.75rem; line-height:1.4;
+        color:color-mix(in srgb, var(--surface-ink,#111827) 68%, var(--surface,#fff)) }
     .dash-sec__flag{ font-size:.68rem; font-weight:700; padding:.15rem .45rem;
         color:#991b1b; background:#fee2e2; border:1px solid #fecaca; flex:none }
 
@@ -506,6 +583,30 @@
         text-transform:uppercase; color:#9ca3af }
     .dash-upd__ver{ display:block; margin-top:.15rem; font-size:1.05rem; font-weight:800; color:#111827 }
     .dash-upd__note{ margin-top:.6rem; font-size:.75rem; line-height:1.45; color:#6b7280 }
+
+    /* ── Статус системы ──────────────────────────────────────────────
+       Строка на состояние: значок, подпись, значение справа. Значения
+       выровнены по правому краю — так четыре строки читаются столбиком,
+       а не четырьмя разными абзацами. */
+    .dash-sys{ display:grid; gap:.15rem }
+    .dash-sys__row{ display:flex; align-items:center; gap:.55rem; padding:.45rem .1rem;
+        border-bottom:1px dashed #eef2f7 }
+    .dash-sys__row:last-child{ border-bottom:0 }
+    .dark .dash-sys__row{ border-bottom-color:#374151 }
+    .dash-sys__row > i{ width:1.1rem; text-align:center; flex:none; font-size:.78rem; color:#9ca3af }
+    .dash-sys__row.is-ok > i{ color:#16a34a }
+    .dash-sys__row.is-warn > i{ color:#d97706 }
+    .dash-sys__row.is-info > i{ color:#4f46e5 }
+    .dash-sys__label{ font-size:.82rem; font-weight:600; color:#111827 }
+    .dark .dash-sys__label{ color:#f3f4f6 }
+    .dash-sys__value{ margin-left:auto; text-align:right; font-size:.75rem;
+        overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+        color:color-mix(in srgb, var(--surface-ink,#111827) 62%, var(--surface,#fff)) }
+
+    /* Заголовки карточек нижнего ряда — вровень с остальной панелью. */
+    [data-widget-id="security"] h2,
+    [data-widget-id="updates"] h2,
+    [data-widget-id="system"] h2{ font-size:1rem }
 
     .dash-card--accent-red::before,
     .dash-card--accent-yellow::before,
@@ -610,6 +711,16 @@
 <script src="{{ local_js('sortable.min.js') }}"></script>
 <script>
     window.dashboardCharts = @json($stats['charts'] ?? []);
+
+    // Подписи графика — из словаря: сам скрипт лежит в public/ и русского
+    // текста содержать не должен, панель переводится.
+    window.dashboardChartStrings = {
+        news: @js(__('admin.sections.news')),
+        users: @js(__('admin.sections.users')),
+        orders: @js(__('admin.sections.orders')),
+        empty: @js(__('admin.dashboard.chart_empty')),
+        day_total: @js(__('admin.dashboard.chart_day_total')),
+    };
 </script>
 {{-- Обычный vanilla-скрипт: зависит от глобальных Chart и Sortable выше,
      поэтому лежит рядом с ними в public/assets/js, а не в сборке Vite. --}}

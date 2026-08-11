@@ -38,62 +38,43 @@
         }
         [x-cloak] { display: none !important; }
 
-        /* ───────────────────────── Фон: живая цветная аура ─────────────────── */
+        /* ───────────────────────── Подложка ─────────────────────────────────
+           Как на странице входа: спокойная сплошная поверхность из набора
+           темы плюс одно неподвижное акцентное свечение сверху. Прежде здесь
+           было «живое стекло» — два анимированных цветных пятна под
+           полупрозрачной карточкой: на шаге, где вводят реквизиты базы,
+           фон не должен шевелиться и тянуть на себя внимание. */
         .install-backdrop {
             position: relative;
             isolation: isolate;
-            background:
-                radial-gradient(120% 120% at 50% 0%, #ffffff 0%, #eef0f5 42%, #e7e9f1 100%);
-        }
-        /* Три мягких пятна: два — цвета акцента, одно нейтральное. Плавно
-           «дышат», создавая ощущение живого стекла под карточкой. */
-        .install-backdrop::before,
-        .install-backdrop::after {
-            content: "";
-            position: absolute;
-            z-index: -1;
-            border-radius: 50%;
-            filter: blur(80px);
-            pointer-events: none;
-            will-change: transform;
+            background: var(--color-bg, #f4f5fb);
         }
         .install-backdrop::before {
-            width: 46rem; height: 46rem;
-            top: -16rem; left: -12rem;
-            background: radial-gradient(circle at 35% 35%,
-                        color-mix(in srgb, var(--accent) 60%, transparent), transparent 68%);
-            opacity: .55;
-            animation: auroraA 20s ease-in-out infinite alternate;
-        }
-        .install-backdrop::after {
-            width: 42rem; height: 42rem;
-            bottom: -18rem; right: -10rem;
-            background: radial-gradient(circle at 60% 40%,
-                        color-mix(in srgb, var(--accent) 48%, transparent), transparent 66%);
-            opacity: .5;
-            animation: auroraB 26s ease-in-out infinite alternate;
-        }
-        @keyframes auroraA {
-            from { transform: translate3d(0,0,0) scale(1); }
-            to   { transform: translate3d(4rem,3rem,0) scale(1.12); }
-        }
-        @keyframes auroraB {
-            from { transform: translate3d(0,0,0) scale(1.05); }
-            to   { transform: translate3d(-4rem,-2rem,0) scale(1); }
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            background:
+                radial-gradient(760px 520px at 50% -12%,
+                    color-mix(in srgb, var(--accent) 22%, transparent), transparent 68%),
+                radial-gradient(520px 420px at 88% 108%,
+                    color-mix(in srgb, var(--accent) 12%, transparent), transparent 66%);
         }
 
         /* ───────────────────────── Стеклянная карточка ─────────────────────── */
         .install-card {
             position: relative;
-            background: rgba(255, 255, 255, 0.62) !important;
-            backdrop-filter: blur(26px) saturate(165%);
-            -webkit-backdrop-filter: blur(26px) saturate(165%);
-            border: 1px solid rgba(255, 255, 255, 0.65) !important;
+            background: var(--surface, #ffffff) !important;
+            border: 1px solid var(--surface-bd, #e3e6ee) !important;
             box-shadow:
-                0 28px 60px -26px rgba(20, 24, 45, 0.42),
-                0 8px 24px -14px rgba(20, 24, 45, 0.22),
-                inset 0 1px 0 rgba(255, 255, 255, 0.85) !important;
+                0 1px 2px rgba(17, 24, 39, .04),
+                0 18px 44px rgba(17, 24, 39, .10) !important;
         }
+        /* Прямые края — тем же рубильником, что у карточки входа
+           (body.au .au-card) и в панели (body.admin-sharp): перечислять
+           скругления по вьюхам пришлось бы в каждом шаге мастера. */
+        .install-card, .install-card * { border-radius: 0 !important }
         /* Тонкая акцентная полоска по верхней кромке карточки. */
         .install-card::before {
             content: "";
@@ -103,9 +84,9 @@
             border-top-left-radius: inherit;
             border-top-right-radius: inherit;
             background: linear-gradient(90deg,
-                        transparent,
-                        color-mix(in srgb, var(--accent) 85%, transparent),
-                        transparent);
+                        var(--accent),
+                        color-mix(in srgb, var(--accent) 55%, #ffffff),
+                        var(--accent));
             z-index: 2;
         }
 
@@ -121,34 +102,24 @@
         }
 
         /* ───────────────────────── Подсказки-«сноски» ──────────────────────── */
-        /* Стеклянная плашка-сноска: лёгкий акцентный оттенок стекла, выразительная
-           акцентная левая грань, иконка в цвете шага. Острые углы задаёт общее
-           правило выше. При наведении — чуть глубже тень. */
+        /* Сноска — как на странице входа: вторая поверхность темы, тонкая
+           линия, акцент только в значке. Прежде это была стеклянная плашка
+           с блюром, свечением и жирной акцентной гранью — три подряд такие
+           сноски перетягивали внимание с того, что на шаге надо сделать. */
         .hint {
             position: relative;
-            background:
-                linear-gradient(180deg,
-                    color-mix(in srgb, var(--accent) 8%, rgba(255,255,255,.66)),
-                    color-mix(in srgb, var(--accent) 4%, rgba(255,255,255,.56)));
-            border: 1px solid color-mix(in srgb, var(--accent) 16%, rgba(255,255,255,.7));
-            border-left: 3px solid var(--accent);
-            box-shadow:
-                inset 0 1px 0 rgba(255,255,255,.75),
-                0 10px 24px -16px color-mix(in srgb, var(--accent) 45%, rgba(20,24,45,.4));
-            backdrop-filter: blur(12px) saturate(155%);
-            -webkit-backdrop-filter: blur(12px) saturate(155%);
-            transition: box-shadow .2s ease, border-color .2s ease;
+            background: var(--surface-2, #f7f8fc);
+            border: 1px solid var(--surface-bd, #e3e6ee);
+            transition: border-color .2s ease, background .2s ease;
         }
         .hint:hover {
-            box-shadow:
-                inset 0 1px 0 rgba(255,255,255,.75),
-                0 14px 30px -16px color-mix(in srgb, var(--accent) 55%, rgba(20,24,45,.4));
+            border-color: color-mix(in srgb, var(--accent) 45%, var(--surface-bd, #e3e6ee));
         }
         /* Иконка-акцент: везде — в цвете шага. */
         .hint-ico { color: var(--accent); }
         /* Внутри плашки-сноски — ещё и в квадратном акцентном бейдже. */
         .hint .hint-ico {
-            background: color-mix(in srgb, var(--accent) 15%, transparent);
+            background: transparent;
             padding: 3px;
             box-sizing: content-box;
         }

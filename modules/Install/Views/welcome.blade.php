@@ -17,10 +17,9 @@
                     <i data-lucide="layers" class="w-6 h-6"></i>
                 </div>
                 <div class="text-left min-w-0">
-                    <h1 class="text-2xl font-bold tracking-tight text-gray-900 break-words">
-                        Ru&nbsp;CMS <span class="text-gray-400 font-semibold">· {{ __('install.welcome.suffix') }}</span>
-                    </h1>
-                    <p class="text-xs text-gray-500 break-words">{{ __('install.welcome.tagline') }}</p>
+                    <p class="ins-eyebrow">{{ __('install.welcome.suffix') }}</p>
+                    <h1 class="ins-title break-words">Ru&nbsp;CMS</h1>
+                    <p class="ins-tagline break-words">{{ __('install.welcome.tagline') }}</p>
                 </div>
             </div>
         </div>
@@ -33,10 +32,10 @@
                  style="box-shadow: inset 0 1px 0 rgba(255,255,255,.6)">
                 {{-- flex-wrap: в разных языках подпись заметно разной длины,
                      без переноса строка распирала бы карточку по ширине. --}}
-                <div class="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm font-semibold text-gray-800 mb-3 text-center">
-                    <i data-lucide="languages" class="w-4 h-4 shrink-0 hint-ico"></i>
-                    {{ __('install.welcome.lang_title') }}
-                    <span class="text-gray-400 font-normal">{{ __('install.welcome.lang_change') }}</span>
+                <div class="ins-group-title">
+                    <i data-lucide="languages" class="w-3.5 h-3.5 shrink-0"></i>
+                    <span>{{ __('install.welcome.lang_title') }}</span>
+                    <span class="ins-group-note">{{ __('install.welcome.lang_change') }}</span>
                 </div>
                 @php
                     // Инлайн-SVG флаги: Windows не отображает эмодзи флагов вообще
@@ -65,20 +64,19 @@
                                         ? 'border-color:var(--accent); box-shadow:0 12px 26px -12px color-mix(in srgb, var(--accent) 60%, transparent), inset 0 1px 0 rgba(255,255,255,.7)'
                                         : 'border-color:rgba(0,0,0,.08)' }}">
                                 <div class="flex justify-center mb-2">{!! $flagSvg[$code] ?? '<span class="text-2xl leading-none">🌍</span>' !!}</div>
-                                <div class="text-[13px] font-bold break-words {{ $isSel ? 'text-gray-900' : 'text-gray-700' }}">{{ $country['lang'] ?? $country['name'] ?? $code }}</div>
+                                <div class="ins-lang__name break-words {{ $isSel ? 'is-sel' : '' }}">{{ $country['lang'] ?? $country['name'] ?? $code }}</div>
                                 {{-- Страна — на её собственном языке: под флагом это читается
                                      естественно на любой локали интерфейса. --}}
-                                <div class="text-[10px] text-gray-400 break-words">{{ $country['native_name'] ?? $country['name'] ?? $code }}</div>
+                                <div class="ins-lang__native break-words">{{ $country['native_name'] ?? $country['name'] ?? $code }}</div>
                                 @if ($isSel)
-                                    <div class="mt-1.5 inline-flex items-center justify-center gap-0.5 text-[10px] font-semibold"
-                                         style="color:var(--accent)">
+                                    <div class="ins-lang__mark" style="color:var(--accent)">
                                         <i data-lucide="check" class="w-3 h-3"></i> {{ __('install.welcome.selected') }}
                                     </div>
                                 @endif
                             </button>
                         @endforeach
                     </div>
-                    <p class="text-[11px] text-gray-400 mt-2.5 text-center flex flex-wrap items-center justify-center gap-x-1 gap-y-0.5">
+                    <p class="ins-note mt-2.5 text-center flex flex-wrap items-center justify-center gap-x-1 gap-y-0.5">
                         <i data-lucide="info" class="w-3 h-3 shrink-0"></i>
                         {{ __('install.welcome.lang_note') }}
                     </p>
@@ -95,23 +93,23 @@
                      Без этого min-content колонки распирал бы сетку. --}}
                 <div class="hint rounded-2xl p-3 text-center min-w-0" data-tip="{{ __('install.welcome.f_easy_tip') }}">
                     <i data-lucide="gauge" class="w-4 h-4 mx-auto mb-1 hint-ico"></i>
-                    <div class="text-xs font-semibold text-gray-900 break-words">{{ __('install.welcome.f_easy') }}</div>
-                    <div class="text-[10px] text-gray-400 hidden sm:block break-words">{{ __('install.welcome.f_easy_sub') }}</div>
+                    <div class="ins-feat__title break-words">{{ __('install.welcome.f_easy') }}</div>
+                    <div class="ins-feat__sub hidden sm:block break-words">{{ __('install.welcome.f_easy_sub') }}</div>
                 </div>
                 <div class="hint rounded-2xl p-3 text-center min-w-0" data-tip="{{ __('install.welcome.f_secure_tip') }}">
                     <i data-lucide="shield-check" class="w-4 h-4 mx-auto mb-1 hint-ico"></i>
-                    <div class="text-xs font-semibold text-gray-900 break-words">{{ __('install.welcome.f_secure') }}</div>
-                    <div class="text-[10px] text-gray-400 hidden sm:block break-words">{{ __('install.welcome.f_secure_sub') }}</div>
+                    <div class="ins-feat__title break-words">{{ __('install.welcome.f_secure') }}</div>
+                    <div class="ins-feat__sub hidden sm:block break-words">{{ __('install.welcome.f_secure_sub') }}</div>
                 </div>
                 <div class="hint rounded-2xl p-3 text-center min-w-0" data-tip="{{ __('install.welcome.f_nocdn_tip') }}">
                     <i data-lucide="hard-drive" class="w-4 h-4 mx-auto mb-1 hint-ico"></i>
-                    <div class="text-xs font-semibold text-gray-900 break-words">{{ __('install.welcome.f_nocdn') }}</div>
-                    <div class="text-[10px] text-gray-400 hidden sm:block break-words">{{ __('install.welcome.f_nocdn_sub') }}</div>
+                    <div class="ins-feat__title break-words">{{ __('install.welcome.f_nocdn') }}</div>
+                    <div class="ins-feat__sub hidden sm:block break-words">{{ __('install.welcome.f_nocdn_sub') }}</div>
                 </div>
             </div>
 
             {{-- Подсказка про реквизиты БД --}}
-            <div class="hint rounded-2xl px-3 py-2 text-[11px] text-gray-600 flex items-center justify-center gap-2">
+            <div class="hint rounded-2xl px-3 py-2 ins-note flex items-center justify-center gap-2">
                 <i data-lucide="database" class="w-3.5 h-3.5 shrink-0 hint-ico"></i>
                 <span class="min-w-0 break-words">{{ __('install.welcome.db_hint') }}</span>
             </div>
@@ -142,6 +140,39 @@
 
 @push('styles')
 <style>
+    /* ── Типографика мастера ──────────────────────────────────────────
+       Тот же язык, что в панели и на страницах входа: моноширинный
+       надзаголовок капсом с крупным просветом, заголовок с плотным
+       трекингом, мелкие подписи — не светлее контраста 4.5. Прежде
+       подписи набирались 10-м кеглем цветом #9ca3af (контраст 2.5) —
+       на шаге установки, где решают реквизиты базы, это плохо. */
+    .ins-eyebrow{ margin:0 0 .1rem; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+        font-size:.6rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase;
+        color:var(--accent,#6366f1) }
+    .ins-title{ margin:0; font-size:1.6rem; font-weight:800; letter-spacing:-.03em;
+        line-height:1.05; color:#111827 }
+    .ins-tagline{ margin:.15rem 0 0; font-size:.72rem; color:#4b5563 }
+
+    .ins-group-title{ display:flex; flex-wrap:wrap; align-items:center; justify-content:center;
+        gap:.4rem; margin-bottom:.75rem; text-align:center;
+        font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+        font-size:.64rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+        color:#374151 }
+    .ins-group-title i{ color:var(--accent,#6366f1) }
+    .ins-group-note{ font-weight:600; letter-spacing:.04em; text-transform:none; color:#6b7280 }
+
+    .ins-lang__name{ font-size:.82rem; font-weight:700; color:#374151 }
+    .ins-lang__name.is-sel{ color:#111827 }
+    .ins-lang__native{ font-size:.68rem; color:#6b7280 }
+    .ins-lang__mark{ display:inline-flex; align-items:center; justify-content:center; gap:.15rem;
+        margin-top:.35rem; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+        font-size:.6rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase }
+
+    .ins-note{ font-size:.7rem; line-height:1.5; color:#4b5563 }
+
+    .ins-feat__title{ font-size:.72rem; font-weight:700; color:#111827 }
+    .ins-feat__sub{ margin-top:.1rem; font-size:.64rem; color:#6b7280 }
+
     .country-select-btn { transition: transform .15s ease, box-shadow .2s ease, border-color .2s ease; }
     .country-select-btn:hover { transform: translateY(-3px); }
     .country-select-btn:active { transform: translateY(0); }

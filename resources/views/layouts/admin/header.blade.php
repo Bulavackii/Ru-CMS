@@ -114,17 +114,10 @@
         .ahd-group .ahd-btn--wide span{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
             font-size:.66rem;font-weight:700;letter-spacing:.08em}
 
-        /* Текущий раздел — плашкой на подложке, как надзаголовки в
-           разделах панели: раньше подпись висела в воздухе и на тёмном
-           фоне читалась как часть ленты кнопок. */
-        .ahd-section{display:inline-flex;align-items:center;gap:.4rem;height:2rem;padding:0 .6rem;
-            font-size:.65rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
-            color:#fff;white-space:nowrap;background:rgba(255,255,255,.06);border:1px solid #374151;
-            font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-        a.ahd-section:hover{border-color:color-mix(in srgb, var(--admin-primary,#6366f1) 60%, #374151);
-            background:rgba(255,255,255,.1);color:#fff}
-        .ahd-section-dot{width:.4rem;height:.4rem;background:var(--admin-primary,#6366f1);flex:none;
-            box-shadow:0 0 0 3px var(--admin-primary-soft,color-mix(in srgb, var(--admin-primary, #6366f1) 25%, transparent))}
+        /* Переход на сайт оформлен как соседняя «Создать»: обе — действия
+           одного веса, и разнобой в полосе не нужен. Значок чуть мельче
+           подписи, чтобы кнопки не выглядели тяжелее, чем они есть. */
+        .ahd-action--primary i{font-size:.72rem}
 
         /* Кнопка-действие с подписью (Создать / На сайт) */
         .ahd-action{display:inline-flex;align-items:center;gap:.4rem;height:2rem;padding:0 .7rem;
@@ -187,25 +180,6 @@
     </style>
 
     @php
-        // Текущий раздел. Список общий с сайдбаром и поиском
-        // (App\Support\AdminSections) — раньше здесь была своя третья копия.
-        $route = request()->route()?->getName() ?? '';
-        $section = null;
-        $sectionUrl = null;
-        foreach (\App\Support\AdminSections::all() as $item) {
-            $match = $item['is_route']
-                ? ($route !== '' && request()->routeIs($item['pattern']))
-                : request()->is($item['pattern']);
-
-            if ($match) {
-                $section = $item['label'];
-                // Адрес раздела: с формы создания или правки подпись
-                // возвращает к списку — раньше это была мёртвая надпись.
-                $sectionUrl = $item['url'] ?? null;
-                break;
-            }
-        }
-
         // Счётчики берём из общего источника (App\Support\AdminCounters):
         // те же числа показывает сайдбар, и считаются они один раз за запрос,
         // а не отдельно в каждом шаблоне.
@@ -253,59 +227,31 @@
 
         {{-- ══ Слева: где я и что могу сделать ══ --}}
         <div class="flex items-center gap-2 flex-wrap flex-none">
-            @if($sectionUrl)
-                <a href="{{ $sectionUrl }}" class="ahd-section" aria-label="{{ __('admin.header.section') }}">
-                    <span class="ahd-section-dot" aria-hidden="true"></span>
-                    {{ $section }}
-                </a>
-            @else
-                <span class="ahd-section" aria-label="{{ __('admin.header.section') }}">
-                    <span class="ahd-section-dot" aria-hidden="true"></span>
-                    {{ $section ?? __('admin.header.overview') }}
-                </span>
-            @endif
+            {{-- ⚠️ Здесь была подпись текущего раздела. Убрана: раздел
+                 назван заголовком страницы и подсвечен в меню слева —
+                 третья копия занимала место в полосе и ничего не
+                 добавляла. Освободившееся место отдано переходу на сайт. --}}
 
-            <div x-data="{open:false}" class="relative">
-                <button type="button" @click="open=!open" @click.outside="open=false"
-                        @keydown.escape.window="open=false"
-                        class="ahd-action ahd-action--primary admin-clip-corner" :aria-expanded="open.toString()">
-                    @themeIcon('plus') <span>{{ __('admin.header.create') }}</span>
-                </button>
-                <div x-cloak x-show="open" x-transition.opacity.duration.120ms class="ahd-menu ahd-menu--left">
-                    @if(Route::has('admin.news.create'))
-                        <a class="ahd-menu-item" href="{{ route('admin.news.create') }}">
-                            @themeIcon('file-text','w-4 text-center') {{ __('admin.header.create_news') }}</a>
-                    @endif
-                    @if(Route::has('admin.pages.create'))
-                        <a class="ahd-menu-item" href="{{ route('admin.pages.create') }}">
-                            @themeIcon('file-text','w-4 text-center') {{ __('admin.header.create_page') }}</a>
-                    @endif
-                    @if(Route::has('admin.categories.create'))
-                        <a class="ahd-menu-item" href="{{ route('admin.categories.create') }}">
-                            @themeIcon('folder','w-4 text-center') {{ __('admin.header.create_category') }}</a>
-                    @endif
-                    @if(Route::has('admin.slideshow.create'))
-                        <a class="ahd-menu-item" href="{{ route('admin.slideshow.create') }}">
-                            @themeIcon('image','w-4 text-center') {{ __('admin.header.create_slideshow') }}</a>
-                    @endif
-                    @if(Route::has('admin.visual.fragments.create'))
-                        <a class="ahd-menu-item" href="{{ route('admin.visual.fragments.create') }}">
-                            @themeIcon('puzzle','w-4 text-center') {{ __('admin.header.create_fragment') }}</a>
-                    @endif
-                </div>
-            </div>
-
-            {{-- Переход на сайт: самостоятельное действие, в новой вкладке --}}
+            {{-- Переход на сайт: первое действие в полосе, в новой вкладке.
+                 Стоит отдельной кнопкой с акцентной рамкой — это выход из
+                 панели, а не ещё один её раздел. --}}
             <a href="{{ url('/') }}" target="_blank" rel="noopener"
-               class="ahd-action ahd-action--ghost" title="{{ __('admin.header.site_title') }}">
+               class="ahd-action ahd-action--primary admin-clip-corner" title="{{ __('admin.header.site_title') }}">
                 <i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i>
-                <span class="hidden md:inline">{{ __('admin.header.site') }}</span>
+                <span>{{ __('admin.header.site') }}</span>
             </a>
+
+            {{-- ⚠️ Здесь была кнопка «Создать» с меню из пяти ссылок.
+                 Убрана: создание живёт в самих разделах — на каждой
+                 странице списка своя кнопка «Добавить», ведущая туда же.
+                 В шапке это было четвёртое место с теми же ссылками. --}}
         </div>
 
         {{-- ══ Центр: поиск. Занимает всё, что осталось между краями ══ --}}
-        <div class="order-last w-full sm:order-none sm:w-auto sm:flex-1 sm:min-w-0 sm:max-w-2xl">
-            @include('components.admin.global-search')
+        <div class="order-last w-full sm:order-none sm:w-auto sm:flex-1 sm:min-w-0 flex sm:justify-center">
+            <div class="w-full sm:max-w-2xl">
+                @include('components.admin.global-search')
+            </div>
         </div>
 
         {{-- ══ Справа: работа → инструменты → личное ══ --}}

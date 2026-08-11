@@ -209,18 +209,29 @@ class AdminHeaderTest extends TestCase
         }
     }
 
-    public function test_current_section_is_shown_instead_of_the_panel_crumb(): void
+    public function test_header_has_no_breadcrumb_and_opens_the_site(): void
     {
-        $response = $this->actingAs($this->admin())
+        // Хлебной крошки «Панель /» нет с 26.07.2026: она называлась
+        // «Панель», а вела на /admin/news. Подпись текущего раздела и кнопка
+        // «Создать» убраны 11.08.2026: раздел назван заголовком страницы и
+        // подсвечен в меню слева, а создание живёт в самих разделах — на
+        // каждой странице списка своя кнопка «Добавить». Единственное
+        // действие в левой части полосы — переход на сайт.
+        $html = $this->actingAs($this->admin())
             ->withSession(['app_locale' => 'ru'])
-            ->get(route('admin.news.index'));
+            ->get(route('admin.news.index'))
+            ->assertStatus(200)
+            ->getContent();
 
-        $response->assertStatus(200);
-        // Название раздела на месте, а хлебной крошки «Панель /» больше нет:
-        // она называлась «Панель», но вела на /admin/news
-        $response->assertSee('ahd-section', false);
-        $response->assertSee(__('admin.sections.news'), false);
-        $response->assertDontSee('>Панель<', false);
+        $this->assertStringNotContainsString('>Панель<', $html);
+        $this->assertStringNotContainsString('ahd-section', $html);
+
+        // Переход на сайт: новая вкладка и без утечки реферера.
+        $this->assertMatchesRegularExpression(
+            '~target="_blank" rel="noopener"\s+class="ahd-action ahd-action--primary~u',
+            $html,
+            'В шапке нет кнопки перехода на сайт'
+        );
     }
 
     // ── Язык интерфейса ───────────────────────────────────────────────────

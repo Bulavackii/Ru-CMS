@@ -895,6 +895,8 @@ return [
         'all_pages' => 'All pages',
         'chart_title' => 'Activity over the last 7 days',
         'chart_sub' => 'News, users and orders day by day',
+        'chart_empty' => 'Nothing happened on these days — no posts, sign-ups or orders.',
+        'chart_day_total' => 'Total for the day',
         'recent' => 'Recent activity',
         'recent_empty' => 'No activity yet',
         'license' => 'License',
