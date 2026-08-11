@@ -15,10 +15,10 @@
                     Модульная система управления контентом для России и СНГ
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="{{ route('admin.dashboard') }}"
+                    <a href="{{ route('login') }}"
                        class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-lg font-semibold">
                         <i class="fas fa-gauge-high mr-2"></i>
-                        Перейти в админ-панель
+                        Войти в панель управления
                     </a>
                     <a href="{{ route('login') }}"
                        class="inline-flex items-center px-6 py-3 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 transition text-lg font-semibold">
@@ -158,11 +158,11 @@
                         <div class="text-sm text-gray-600">Swagger документация REST API</div>
                     </div>
                 </a>
-                <a href="{{ route('admin.dashboard') }}" class="flex items-center p-4 bg-white rounded-lg hover:shadow-md transition border border-gray-200">
+                <a href="{{ route('login') }}" class="flex items-center p-4 bg-white rounded-lg hover:shadow-md transition border border-gray-200">
                     <i class="fas fa-gauge-high text-2xl text-blue-600 mr-4"></i>
                     <div>
-                        <div class="font-semibold text-gray-900">Админ-панель</div>
-                        <div class="text-sm text-gray-600">Управление контентом и настройками</div>
+                        <div class="font-semibold text-gray-900">Вход в панель</div>
+                        <div class="text-sm text-gray-600">Управление содержимым и настройками</div>
                     </div>
                 </a>
                 <a href="https://github.com/#" target="_blank" class="flex items-center p-4 bg-white rounded-lg hover:shadow-md transition border border-gray-200">
@@ -174,24 +174,6 @@
                 </a>
             </div>
 
-            {{-- Быстрые ссылки на модули в админке --}}
-            <div class="mt-6 pt-6 border-t border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">🚀 Быстрый старт в админ-панели:</h3>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                    <a href="{{ route('admin.modules.index') }}" class="text-blue-600 hover:text-blue-800 hover:underline">
-                        📦 Модули
-                    </a>
-                    <a href="{{ route('admin.news.index') }}" class="text-blue-600 hover:text-blue-800 hover:underline">
-                        📰 Новости
-                    </a>
-                    <a href="{{ route('admin.categories.index') }}" class="text-blue-600 hover:text-blue-800 hover:underline">
-                        🏷️ Категории
-                    </a>
-                    <a href="{{ route('admin.files.index') }}" class="text-blue-600 hover:text-blue-800 hover:underline">
-                        📁 Файлы
-                    </a>
-                </div>
-            </div>
         </div>
     </div>
 

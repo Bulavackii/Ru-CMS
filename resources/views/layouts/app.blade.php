@@ -44,7 +44,11 @@
                            color:            var(--color-header-text, var(--colors-header-text, #111827));">
                 <div class="max-w-screen-2xl mx-auto py-3 sm:py-4 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 flex justify-between items-center">
                     <div class="font-semibold"> {{ config('app.name') }} </div>
-                    <a href="{{ route('admin.search.index') }}" class="text-sm underline">Поиск</a>
+                    {{-- Ссылка ведёт в поиск ПАНЕЛИ, поэтому её видит только
+                         администратор: обычный посетитель упирался бы в отказ. --}}
+                    @if (auth()->user()?->is_admin)
+                        <a href="{{ route('admin.search.index') }}" class="text-sm underline">{{ __('frontend.search.title') }}</a>
+                    @endif
                 </div>
             </header>
         @endif

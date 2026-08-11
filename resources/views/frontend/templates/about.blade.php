@@ -116,7 +116,7 @@
             <p class="text-sm opacity-75">
               Импортируйте ленты и выгружайте контент пакетно (CSV/JSON/фиды). Идеально для миграций и интеграций.
             </p>
-            @if(Route::has('admin.newsio.index'))
+            @if(auth()->user()?->is_admin && Route::has('admin.newsio.index'))
               <a href="{{ route('admin.newsio.index') }}"
                  class="inline-block mt-3 px-3 py-1.5 rounded text-white text-sm"
                  style="background: var(--color-primary,#2563eb)">
@@ -140,12 +140,12 @@
               Визуально меняйте цвета, шрифты, иконки и скругления; конструктор фрагментов на TinyMCE с предпросмотром.
             </p>
             <div class="flex flex-wrap gap-2 mt-3">
-              @if(Route::has('admin.visual.themes.index'))
+              @if(auth()->user()?->is_admin && Route::has('admin.visual.themes.index'))
                 <a href="{{ route('admin.visual.themes.index') }}"
                    class="inline-block px-3 py-1.5 rounded text-white text-sm"
                    style="background: var(--color-primary,#2563eb)">Темы</a>
               @endif
-              @if(Route::has('admin.visual.fragments.index'))
+              @if(auth()->user()?->is_admin && Route::has('admin.visual.fragments.index'))
                 <a href="{{ route('admin.visual.fragments.index') }}"
                    class="inline-block px-3 py-1.5 rounded text-white text-sm"
                    style="background: var(--color-accent,#10b981)">Фрагменты</a>

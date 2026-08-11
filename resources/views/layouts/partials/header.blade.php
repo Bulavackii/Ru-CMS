@@ -1,5 +1,9 @@
-@props(['user' => auth()->user()])
-
+{{-- Шапка сайта. Подключается через @include из layouts.frontend, а не как
+     компонент, поэтому props-объявления здесь нет: переменные надо брать
+     явно. Раньше стояло @props(['user' => auth()->user()]), и признак
+     администратора читался из $user — то есть из переменной, которую могла
+     подставить и страница-родитель (у @include видимость данных общая).
+     Кнопка «Админка» зависела бы от того, чей $user попал во вьюху. --}}
 @php
   use Illuminate\Support\Str;
   use Illuminate\Support\Facades\Storage;
@@ -144,7 +148,10 @@
             <svg class="hdr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.6 20a7.4 7.4 0 0 1 14.8 0"/></svg><span class="hidden md:inline">{{ __('frontend.header.account') }}</span>
           </a>
 
-          @if (($user->is_admin ?? false))
+          {{-- Кнопка панели — только тем, кого туда действительно пустят.
+               Признак берём тот же, что проверяет AdminMiddleware, и у
+               ВОШЕДШЕГО пользователя, а не у переменной из вьюхи. --}}
+          @if (auth()->user()?->is_admin)
             <a href="{{ route('admin.dashboard') }}" class="hdr-pill hdr-pill--accent" title="{{ __('frontend.header.admin_title') }}">
               <svg class="hdr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg><span class="hidden md:inline">{{ __('frontend.header.admin') }}</span>
             </a>
