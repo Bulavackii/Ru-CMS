@@ -635,15 +635,24 @@ document.addEventListener('DOMContentLoaded', function () {
             grid-template-areas:
                 "name name name"
                 "qty  sum  del";
-            row-gap:.6rem; column-gap:.6rem; align-items:center;
+            row-gap:.4rem; column-gap:.6rem; align-items:center;
+            padding:.6rem .75rem;
         }
+        /* Цена за штуку встаёт в строку с названием, а не под ним: это
+           экономит целую строку в каждой карточке, а вместе они и
+           читаются как одно целое — «что» и «почём». */
+        .crt-item__main{ display:flex; align-items:baseline; flex-wrap:wrap; gap:.15rem .5rem }
+        /* Счётчик был 42 в высоту — на два пикселя ниже порога нажатия. */
+        .crt-item__qty{ min-height:44px }
+        .crt-item__qty button, .crt-item__qty input{ min-height:44px }
+        .crt-item__price{ margin:0 }
         .crt-item__main{ grid-area:name }
         .crt-item__qty{ grid-area:qty }
         .crt-item__sum{ grid-area:sum; text-align:right }
         .crt-item__del{ grid-area:del; width:44px; height:44px }
 
-        .crt-item__title{ font-size:.95rem }
-        .crt-item__price{ margin-top:.1rem; font-size:.78rem }
+        .crt-item__title{ font-size:.95rem; line-height:1.25 }
+        .crt-item__price{ font-size:.76rem }
 
         /* Шапка страницы — одной строкой. Три этажа (надзаголовок,
            крупное название, счётчик) занимали 130 пикселей первого экрана
