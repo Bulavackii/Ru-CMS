@@ -522,13 +522,32 @@
       /* Раскрытое меню — списком, а не строчками у левого края: строка на
          всю ширину, высотой 44, с тонкой линией между пунктами. Так видно,
          куда нажимать, и пункты не сливаются друг с другом. */
+      /* Меню-панель: строка во всю ширину, содержимое по центру, тонкая
+         линия между пунктами. Так это выглядит привычным мобильным меню, а
+         не текстом, прижатым к краю карточки. */
+      .hdr-row2 .header-nav{ width:100%; }
+
       .hdr-row2 .header-nav .menu-link--root{
-        min-height:44px; padding:.55rem .35rem;
+        justify-content:center; gap:.55rem;
+        min-height:48px; padding:.6rem .75rem;
         border-bottom:1px solid var(--surface-bd,#eef0f5);
+        letter-spacing:.04em;
       }
       .hdr-row2 .header-nav > .menu-item--root:last-child > .menu-link--root{ border-bottom:0; }
+
+      /* Нажатый пункт подсвечивается целиком: на телефоне палец закрывает
+         подпись, и отклик должен быть виден по всей строке. */
+      .hdr-row2 .header-nav .menu-link--root:active{
+        background:color-mix(in srgb, var(--color-primary, #6366f1) 8%, transparent);
+      }
+
+      /* Вложенные уровни тоже по центру — левый отступ на узком экране
+         только увёл бы их в сторону от корневых пунктов. */
       .hdr-row2 .header-nav .menu-link--l2,
-      .hdr-row2 .header-nav .menu-link--l3{ min-height:40px; }
+      .hdr-row2 .header-nav .menu-link--l3{
+        justify-content:center; min-height:42px; padding-left:.75rem; padding-right:.75rem;
+      }
+      .hdr-row2 .header-nav .submenu{ background:color-mix(in srgb, var(--color-primary, #6366f1) 4%, transparent); }
 
       /* Список языков перекрывал пункты меню — теперь он и меню друг друга
          закрывают (см. разметку), но на всякий случай поднимаем его выше. */
