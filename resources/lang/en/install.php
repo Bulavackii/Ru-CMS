@@ -270,6 +270,12 @@ return [
         'submit'         => 'Finish installation',
     ],
 
+    'waiting' => [
+        'title' => 'Installing the content',
+        'about' => 'Setting up menus, pages, materials, categories and appearance. This usually takes a few seconds.',
+        'note' => 'Keep this tab open — the page moves on to the summary by itself.',
+    ],
+
     'finish' => [
         'title'         => 'Installation complete!',
         'subtitle'      => 'Ru CMS is ready — you are already signed in as administrator',

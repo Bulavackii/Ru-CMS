@@ -636,6 +636,27 @@ class InstallController extends Controller
             return $redirect;
         }
 
+        // ⚠️ Пропускаем перезапуск сервера разработки, иначе он убьёт этот
+        // запрос на середине.
+        //
+        // `php artisan serve` каждые 500 мс сверяет mtime файла .env и при
+        // изменении делает `$process->stop(5)` — гасит PHP-сервер ВМЕСТЕ с
+        // запросом, который в этот момент выполняется (ServeCommand::handle).
+        // Предыдущий шаг, «Лицензия», пишет в .env ключ и сразу ведёт сюда,
+        // а этот шаг самый длинный — под нож попадал именно он. В браузере
+        // это выглядит как ERR_CONNECTION_RESET на ровном месте, причём
+        // содержимое к тому моменту уже записано.
+        //
+        // Замерено у владельца: .env изменён в 16:14:57.47, сервер поднят
+        // заново в 16:14:58, установка прошла со второй попытки в 16:15:04.
+        //
+        // Отдаём мгновенную страницу ожидания; она сама вернётся сюда, когда
+        // сервер уже перезапустился. На боевом хостинге такого сторожа нет —
+        // там задержки не будет вовсе.
+        if ($delay = $this->devServerRestartDelay()) {
+            return view('Install::waiting', ['delay' => $delay]);
+        }
+
         // ⚠️ Шаг ставит ВСЁ содержимое за один запрос: меню, страницы,
         // демо-новости, слайдшоу, файлы, темы, формы, каптчу, фрагменты,
         // категории, переводы содержимого, SEO-записи и права. На типовом
@@ -729,6 +750,35 @@ class InstallController extends Controller
         File::put(storage_path('install.lock'), 'Installed at ' . now()->toDateTimeString());
 
         return redirect()->route('install.done');
+    }
+
+    /**
+     * Сколько миллисекунд ждать, чтобы не попасть под перезапуск сервера
+     * разработки. Ноль — ждать не нужно.
+     *
+     * Сторож живёт только во встроенном сервере PHP (`php artisan serve`),
+     * поэтому под nginx/php-fpm метод сразу отдаёт ноль. Запас поверх шага
+     * опроса — на остановку старого процесса и старт нового.
+     */
+    private function devServerRestartDelay(): int
+    {
+        if (PHP_SAPI !== 'cli-server') {
+            return 0;
+        }
+
+        $envPath = base_path('.env');
+
+        if (!File::exists($envPath)) {
+            return 0;
+        }
+
+        clearstatcache(false, $envPath);
+
+        // 500 мс — шаг опроса ServeCommand, остальное — на перезапуск.
+        $settleMs = 2000;
+        $ageMs = (int) round((microtime(true) - filemtime($envPath)) * 1000);
+
+        return max(0, $settleMs - $ageMs);
     }
 
     /**
