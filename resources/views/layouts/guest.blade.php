@@ -421,6 +421,18 @@
                отдельная строка нажатия, а не подчёркнутый текст в 19 пикселей. */
             .au-link { display: inline-flex; align-items: center; min-height: 44px }
             .au-label { font-size: .8rem }
+
+            /* Кнопка «показать пароль» была 34 в ширину при высоте 44 —
+               попасть в такую полоску пальцем тяжело. */
+            .au-eye { width: 44px }
+
+            /* Поле каптчи живёт в своём модуле и мимо .au-input: было 38 в
+               высоту и 13px шрифтом — тот самый случай, когда Safari на iOS
+               увеличивает страницу при фокусе. */
+            .captcha-input { min-height: 44px; font-size: 16px }
+
+            /* Возврат к предыдущему шагу — тоже цель нажатия. */
+            .au-back { display: inline-flex; align-items: center; min-height: 44px }
         }
     </style>
 

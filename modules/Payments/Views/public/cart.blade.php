@@ -26,10 +26,15 @@
 @endphp
 
 <section class="crt">
+    {{-- Только значок и название. Надзаголовок «Оформление заказа» и
+         счётчик товаров отсюда убраны: строкой ниже стоит заголовок раздела
+         «01 · Товары в корзине» с тем же числом, то есть счётчик дублировал
+         сам себя, а шапка занимала три этажа на первом экране. --}}
     <header class="crt__head">
-        <p class="crt__eyebrow">{{ __('frontend.cart.eyebrow') }}</p>
-        <h1 class="crt__title">{{ __('frontend.cart.title') }}</h1>
-        <p class="crt__sub">{{ __('frontend.cart.subtitle', ['count' => count($cart)]) }}</p>
+        <span class="crt__ico" aria-hidden="true"><i class="fas fa-cart-shopping"></i></span>
+        {{-- Заголовком стоит «Оформление заказа»: «Ваша корзина» повторяло
+             название вкладки, а счётчик — заголовок раздела строкой ниже. --}}
+        <h1 class="crt__title">{{ __('frontend.cart.eyebrow') }}</h1>
     </header>
 
     @if (count($cart))
@@ -422,17 +427,32 @@ document.addEventListener('DOMContentLoaded', function () {
     /* Подложка обязательна: у тем есть фоновая картинка, и текст без
        плашки на ней читается через силу. Плашка обнимает содержимое
        (inline-block), а не растягивается на всю ширину. */
-    .crt__head{ display:inline-block; margin-bottom:1.5rem; padding:.85rem 1.25rem 1rem;
+    /* Шапка одной строкой во ВСЕХ режимах. Три этажа (надзаголовок,
+       название кеглем до 2.15rem, счётчик) занимали до 130 пикселей ради
+       одной содержательной фразы — на первом экране это дорого и на
+       десктопе тоже. Теперь всё стоит в строку и переносится только если
+       не помещается. */
+    .crt__head{ display:flex; align-items:center; gap:.7rem;
+        width:max-content; max-width:100%;
+        margin-bottom:1rem; padding:.5rem 1.1rem .5rem .75rem;
         background:var(--surface,#fff); border:1px solid var(--surface-bd,#eef2f7);
+        border-left:3px solid var(--color-primary,#6366f1);
         box-shadow:0 2px 12px rgba(15,23,42,.06) }
     /* Цвет темы, подмешанный к тексту: чистый акцент у оранжевых тем даёт
        контраст 3.67, а это мелкий текст — нужно от 4.5. */
-    .crt__eyebrow{ margin:0 0 .35rem; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    /* Плитка значка — тем же градиентом, что кнопки и бейджи сайта. */
+    .crt__ico{ display:inline-flex; align-items:center; justify-content:center;
+        flex:0 0 auto; width:2.4rem; height:2.4rem;
+        color:#fff; font-size:1.05rem;
+        background:var(--fx-grad, linear-gradient(135deg, var(--color-primary,#6366f1), var(--color-accent,#8b5cf6)));
+        box-shadow:0 8px 18px -10px color-mix(in srgb, var(--color-primary,#6366f1) 75%, transparent) }
+
+    .crt__eyebrow{ margin:0; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
         font-size:.66rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase;
         color:color-mix(in srgb, var(--color-primary,#6366f1) 72%, var(--surface-ink,#111827)) }
-    .crt__title{ margin:0; font-size:clamp(1.6rem, 4vw, 2.15rem); font-weight:800;
-        letter-spacing:-.03em; line-height:1.1; color:var(--surface-ink,#111827) }
-    .crt__sub{ margin:.35rem 0 0; font-size:.85rem; color:var(--surface-mute,#6b7280) }
+    .crt__title{ margin:0; font-size:clamp(1.15rem, 2.1vw, 1.45rem); font-weight:800;
+        letter-spacing:-.025em; line-height:1.1; color:var(--surface-ink,#111827) }
+    .crt__sub{ margin:0; font-size:.8rem; color:var(--surface-mute,#6b7280) }
 
     .crt-grid{ display:grid; grid-template-columns:minmax(0,1fr) 21rem; gap:1.25rem; align-items:start }
 
@@ -476,7 +496,16 @@ document.addEventListener('DOMContentLoaded', function () {
         justify-content:center; color:#cbd5e1; background:transparent; border:0; cursor:pointer }
     .crt-item__del:hover{ color:#dc2626 }
 
-    .crt-back{ display:inline-flex; align-items:center; gap:.45rem; margin-top:.6rem;
+    /* Ссылка стоит у правого края во всех режимах: она вторична рядом с
+       «Оформить заказ», и слева под списком товаров смотрелась как ещё
+       один пункт списка. `margin-left:auto` работает и во flex-, и в
+       grid-родителе, поэтому режим раскладки тут не важен. */
+    /* ⚠️ display:flex, а НЕ inline-flex. У строчного элемента `margin-left:auto`
+       не сдвигает ничего — авто-поля работают только у блочных боксов, и
+       ссылка оставалась у левого края. Ширина по содержимому, чтобы кнопка
+       не растянулась во всю строку. */
+    .crt-back{ display:flex; width:max-content; align-items:center; gap:.45rem; margin-top:.6rem;
+        margin-left:auto; justify-self:end;
         padding:.45rem .8rem; font-size:.85rem; font-weight:600;
         background:var(--surface,#fff); border:1px solid var(--surface-bd,#eef2f7);
         color:color-mix(in srgb, var(--color-primary,#6366f1) 72%, var(--surface-ink,#111827));
@@ -585,5 +614,43 @@ document.addEventListener('DOMContentLoaded', function () {
        сайта задаёт оформление (переменные --surface-*), и корзина уже
        следует ей; настройка ОС к ней отношения не имеет и только
        перекрашивала карточки в тёмные посреди светлой страницы. */
+
+    /* ═════════ Телефоны и планшеты ═════════
+       Шапка занимала 130 пикселей ради трёх строк: надзаголовок, крупное
+       название и счётчик. На экране в 896 это заметная доля первого
+       экрана, а полезного в ней — одна строка. Ужимаем отступы и кегль,
+       смысл сохраняем. */
+    @media (max-width: 1023px){
+        /* ── Карточка товара ───────────────────────────────────────────
+           Было две колонки на два ряда: название с ценой и счётчик сверху,
+           сумма и корзина снизу. Между ними зияла пустота, а кнопка
+           удаления висела сама по себе у правого края.
+
+           Теперь название занимает всю ширину (ему и нужна вся ширина —
+           это самое длинное в карточке), а под ним одной строкой идут
+           счётчик, сумма и удаление: слева то, чем управляют, справа —
+           итог и действие. */
+        .crt-item{
+            grid-template-columns:auto minmax(0,1fr) auto;
+            grid-template-areas:
+                "name name name"
+                "qty  sum  del";
+            row-gap:.6rem; column-gap:.6rem; align-items:center;
+        }
+        .crt-item__main{ grid-area:name }
+        .crt-item__qty{ grid-area:qty }
+        .crt-item__sum{ grid-area:sum; text-align:right }
+        .crt-item__del{ grid-area:del; width:44px; height:44px }
+
+        .crt-item__title{ font-size:.95rem }
+        .crt-item__price{ margin-top:.1rem; font-size:.78rem }
+
+        /* Шапка страницы — одной строкой. Три этажа (надзаголовок,
+           крупное название, счётчик) занимали 130 пикселей первого экрана
+           ради одной содержательной строки. Надзаголовок на телефоне
+           убираем совсем: он повторяет то, что и так ясно из названия. */
+        .crt__head{ margin-bottom:.75rem; padding:.4rem .85rem .4rem .6rem; gap:.55rem }
+        .crt__ico{ width:2.1rem; height:2.1rem; font-size:.95rem }
+    }
 </style>
 @endpush
