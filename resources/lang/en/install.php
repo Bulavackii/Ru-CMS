@@ -118,7 +118,7 @@ return [
             ],
             'i18n' => [
                 'title' => 'Multilingual',
-                'desc'  => 'Russian, Belarusian, Kazakh and English. Automatic language detection, currency and date formatting for Russia and the CIS.',
+                'desc'  => 'Russian and English, switched on the fly. Translations are edited right in the panel, and new locales are created there too. Date, number and currency formats follow the selected country.',
             ],
             'backups' => [
                 'title' => 'Automatic backups',

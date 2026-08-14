@@ -58,6 +58,16 @@ class InstallController extends Controller
     private SecurityService $securityService;
     private SubscriptionService $subscriptionService;
 
+    /**
+     * Ключи `.env`, которые финальный шаг запишет ОДНИМ разом в самом конце.
+     *
+     * Запись в `.env` посреди шага стоит запроса целиком: `php artisan serve`
+     * следит за mtime этого файла и при изменении гасит серверный процесс
+     * вместе с тем, что он сейчас выполняет. Поэтому всё, что финал хочет
+     * записать, копится здесь и уходит на диск после работы.
+     */
+    private array $pendingEnv = [];
+
     public function __construct(SecurityService $securityService, SubscriptionService $subscriptionService)
     {
         $this->securityService = $securityService;
@@ -654,7 +664,7 @@ class InstallController extends Controller
         // сервер уже перезапустился. На боевом хостинге такого сторожа нет —
         // там задержки не будет вовсе.
         if ($delay = $this->devServerRestartDelay()) {
-            return view('Install::waiting', ['delay' => $delay]);
+            return view('Install::waiting', ['delay' => $delay, 'target' => route('install.finish')]);
         }
 
         // ⚠️ Шаг ставит ВСЁ содержимое за один запрос: меню, страницы,
@@ -732,6 +742,18 @@ class InstallController extends Controller
             Log::warning('Install auto-login failed', ['error' => $e->getMessage()]);
         }
 
+        // Накопленные ключи пишем ОДНИМ разом и только теперь, когда всё
+        // содержимое уже создано: под сервером разработки эта запись
+        // перезапускает сервер, и пусть это случится после работы, а не
+        // посреди неё. writeEnv() при совпадении содержимого не пишет вовсе.
+        if ($this->pendingEnv !== []) {
+            try {
+                $this->writeEnv($this->pendingEnv);
+            } catch (\Throwable $e) {
+                Log::warning('Install: не удалось дописать .env', ['error' => $e->getMessage()]);
+            }
+        }
+
         // Итог кладём в сессию и уходим коротким редиректом. Отдавать саму
         // страницу этим же запросом нельзя: он длинный, и любой обрыв на
         // последних байтах стоил бы владельцу финального экрана.
@@ -748,6 +770,14 @@ class InstallController extends Controller
         session()->save();
 
         File::put(storage_path('install.lock'), 'Installed at ' . now()->toDateTimeString());
+
+        // Если ключи всё-таки записались, сервер разработки сейчас
+        // перезапускается — обычный редирект увёл бы браузер на итог ровно в
+        // ту секунду, когда порт ещё не поднялся. Отдаём ту же страницу
+        // ожидания: она переждёт перезапуск и откроет итог на живом сервере.
+        if ($delay = $this->devServerRestartDelay()) {
+            return view('Install::waiting', ['delay' => $delay, 'target' => route('install.done')]);
+        }
 
         return redirect()->route('install.done');
     }
@@ -979,6 +1009,18 @@ class InstallController extends Controller
             } else {
                 $content .= PHP_EOL . $line;
             }
+        }
+
+        // Ничего не изменилось — файл не трогаем ВООБЩЕ.
+        //
+        // Это не экономия записи, а защита от перезапуска сервера: под
+        // `php artisan serve` сторож каждые 500 мс сверяет mtime .env и при
+        // любом изменении гасит серверный процесс вместе с текущим запросом.
+        // Финальный шаг писал сюда LICENSE_KEY, который шаг лицензии уже
+        // записал минутой раньше, — значение то же, а перезапуск настоящий,
+        // и приходился он ровно на середину самой длинной работы мастера.
+        if ($content === File::get($envPath)) {
+            return;
         }
 
         @File::copy($envPath, $envPath . '.bak');
@@ -1700,6 +1742,12 @@ HTACCESS);
     /**
      * Применение настроек локализации после установки.
      * Возвращает предупреждение вместо тихого поглощения ошибки.
+     *
+     * ⚠️ Ключи для `.env` метод НЕ пишет сам, а складывает в
+     * `$this->pendingEnv`: под сервером разработки запись в `.env` роняет
+     * текущий запрос (сторож `artisan serve` гасит процесс), а этот метод
+     * вызывается В НАЧАЛЕ финального шага — до двух десятков сидеров.
+     * Пишет их `finish()` в самом конце, когда работа уже сделана.
      */
     private function applyLocalizationSettings(): void
     {
@@ -1777,11 +1825,11 @@ HTACCESS);
                 }
             }
 
-            $this->writeEnv([
+            $this->pendingEnv += [
                 'LOCALIZATION_DEFAULT_COUNTRY' => $countryCode,
                 'APP_LOCALE' => $countryData['locale'],
                 'APP_TIMEZONE' => $countryData['timezone'],
-            ]);
+            ];
         } catch (\Throwable $e) {
             Log::warning('Failed to apply localization settings', [
                 'error' => $e->getMessage(),

@@ -46,6 +46,43 @@ class InstallFinishTest extends TestCase
         config(['session.driver' => 'file']);
     }
 
+    public function test_env_is_not_rewritten_when_nothing_changes(): void
+    {
+        // Первопричина обрыва на финале. `php artisan serve` следит за mtime
+        // .env и при ЛЮБОМ изменении гасит сервер вместе с текущим запросом.
+        // Финальный шаг писал туда LICENSE_KEY, уже записанный шагом лицензии:
+        // значение то же, а перезапуск настоящий — ровно посреди сидеров.
+        $tmp = sys_get_temp_dir() . '/ru-cms-env-' . getmypid();
+        File::ensureDirectoryExists($tmp);
+        File::put($tmp . '/.env', "APP_ENV=local\nLICENSE_KEY=\"KEY-1\"\n");
+
+        $base = base_path();
+        $this->app->setBasePath($tmp);
+
+        try {
+            $controller = app(\Modules\Install\Controllers\InstallController::class);
+            $write = new \ReflectionMethod($controller, 'writeEnv');
+            $write->setAccessible(true);
+
+            // Состариваем файл на час: у filemtime на Windows точность около
+            // секунды, и запись «в ту же секунду» иначе неотличима от её
+            // отсутствия — тест проходил бы даже со снятой защитой.
+            $aged = time() - 3600;
+            touch($tmp . '/.env', $aged);
+            clearstatcache(true, $tmp . '/.env');
+
+            $write->invoke($controller, ['LICENSE_KEY' => 'KEY-1']);
+            clearstatcache(true, $tmp . '/.env');
+            $this->assertSame($aged, filemtime($tmp . '/.env'), 'файл не должен меняться при том же значении');
+
+            $write->invoke($controller, ['LICENSE_KEY' => 'KEY-2']);
+            $this->assertStringContainsString('KEY-2', File::get($tmp . '/.env'), 'новое значение обязано записаться');
+        } finally {
+            $this->app->setBasePath($base);
+            File::deleteDirectory($tmp);
+        }
+    }
+
     public function test_done_page_shows_the_summary_from_session(): void
     {
         $response = $this->withSession(['install.summary' => self::SUMMARY])

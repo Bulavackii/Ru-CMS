@@ -26,14 +26,15 @@
     </div>
 </div>
 
-{{-- Переход обратно на этот же шаг — уже после того, как сервер разработки
-     успел перезапуститься. Задержку считает контроллер. --}}
+{{-- Переход дальше — уже после того, как сервер разработки успел
+     перезапуститься. Задержку и адрес считает контроллер: до работы это тот
+     же шаг, после работы — страница итога. --}}
 <noscript>
-    <meta http-equiv="refresh" content="{{ max(1, (int) ceil($delay / 1000)) }};url={{ route('install.finish') }}">
+    <meta http-equiv="refresh" content="{{ max(1, (int) ceil($delay / 1000)) }};url={{ $target }}">
 </noscript>
 <script>
     setTimeout(function () {
-        window.location.replace(@js(route('install.finish')));
+        window.location.replace(@js($target));
     }, @js($delay));
 </script>
 

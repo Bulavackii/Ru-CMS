@@ -104,3 +104,17 @@ resources/lang/**/*.bak
 
 
 
+
+# Ruflo local secrets and runtime data
+.env
+.env.local
+.env.*.local
+# Копия .env, с которой начинается каждый цикл сквозной проверки установки
+# (docs/проверка-установки.md). Это такой же файл с секретами — в репозиторий
+# ему нельзя.
+.env.pristine
+.env.bak
+.env.tmp
+.claude-flow/data/
+.claude-flow/logs/
+.claude-flow/sessions/
