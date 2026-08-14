@@ -116,12 +116,11 @@
                                            data-commission="{{ $method->commission ?? 0 }}"
                                            data-commission-text="{{ $method->commission > 0 ? $method->formattedCommission : '' }}">
 
-                                    <span class="crt-opt__mark {{ $brand['logo'] ? 'has-logo' : '' }}">
-                                        @if($brand['logo'])
-                                            <img src="{{ $brand['logo'] }}" alt="{{ $method->title }}" loading="lazy">
-                                        @else
-                                            <i class="fas {{ $brand['icon'] }}"></i>
-                                        @endif
+                                    {{-- Знак, а не логотип. Логотипы служб нарисованы под
+                                         крупную плитку со своим фоном и в кружке 40 пикселей
+                                         превращаются в мутное пятно; знак читается всегда. --}}
+                                    <span class="crt-opt__mark">
+                                        <i class="fas {{ $brand['icon'] }}"></i>
                                     </span>
 
                                     <span class="crt-opt__body">
@@ -165,12 +164,11 @@
                                            data-description="{{ $method->description ?? '' }}"
                                            data-free-from="{{ $method->free_delivery_threshold ?? 0 }}">
 
-                                    <span class="crt-opt__mark {{ $brand['logo'] ? 'has-logo' : '' }}">
-                                        @if($brand['logo'])
-                                            <img src="{{ $brand['logo'] }}" alt="{{ $method->title }}" loading="lazy">
-                                        @else
-                                            <i class="fas {{ $brand['icon'] }}"></i>
-                                        @endif
+                                    {{-- Знак, а не логотип. Логотипы служб нарисованы под
+                                         крупную плитку со своим фоном и в кружке 40 пикселей
+                                         превращаются в мутное пятно; знак читается всегда. --}}
+                                    <span class="crt-opt__mark">
+                                        <i class="fas {{ $brand['icon'] }}"></i>
                                     </span>
 
                                     <span class="crt-opt__body">
@@ -521,12 +519,12 @@ document.addEventListener('DOMContentLoaded', function () {
     .crt-opt:focus-within{ outline:2px solid var(--color-primary,#6366f1); outline-offset:1px }
 
     .crt-opt__mark{ display:flex; align-items:center; justify-content:center;
-        width:2.5rem; height:2.5rem; overflow:hidden;
+        flex:0 0 auto; width:2.75rem; height:2.75rem; overflow:hidden;
         color:var(--pm-ink,#fff); background:var(--pm,#6366f1) }
-    /* С логотипом подложка светлая: знаки нарисованы под свой фон и
-       занимают плитку целиком. */
-    .crt-opt__mark.has-logo{ background:#fff }
-    .crt-opt__mark img{ width:100%; height:100%; object-fit:cover; display:block }
+    /* Значок занимает плитку осмысленной долей: при 16px в круге 40 он
+       выглядел потерянным. Ветка с логотипом-картинкой убрана — в корзине
+       рисуем только знаки (см. разметку). */
+    .crt-opt__mark i{ font-size:1.15rem; line-height:1 }
 
     .crt-opt__body{ display:flex; flex-direction:column; gap:.05rem; min-width:0 }
     .crt-opt__name{ font-size:.88rem; font-weight:700; color:var(--surface-ink,#111827);

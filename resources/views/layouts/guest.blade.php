@@ -399,6 +399,29 @@
             .au-note { margin-bottom: 9px; padding: 8px 10px }
             .au-foot { margin-top: 10px }
         }
+
+        /* ═════════ Телефоны и планшеты ═════════
+           Замер на iPhone XR: поля 41 пиксель, кнопка входа 43, галочка
+           «запомнить меня» — 14×14. Пальцем в такое не попасть.
+
+           ⚠️ Шрифт поля ровно 16px — это не про читаемость. Safari на iOS
+           автоматически увеличивает страницу, когда фокус уходит в поле с
+           текстом мельче 16, и после этого вёрстка «уезжает»: пользователь
+           видит форму в увеличенном виде и вручную отматывает обратно. */
+        @media (max-width: 1023px), (max-height: 500px) {
+            .au-input { min-height: 44px; font-size: 16px }
+            .au-btn { min-height: 44px }
+
+            /* Галочку растим сами и даём ей строку в 44 пикселя: попасть
+               надо в квадратик, а не в подпись рядом. */
+            .au-check { min-height: 44px; align-items: center; font-size: .85rem }
+            .au-check input { width: 20px; height: 20px; margin-top: 0 }
+
+            /* Ссылки-действия («забыли пароль», «зарегистрироваться») —
+               отдельная строка нажатия, а не подчёркнутый текст в 19 пикселей. */
+            .au-link { display: inline-flex; align-items: center; min-height: 44px }
+            .au-label { font-size: .8rem }
+        }
     </style>
 
     @stack('styles')

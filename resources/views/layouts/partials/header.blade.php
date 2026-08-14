@@ -116,8 +116,12 @@
           $langNames = ['ru'=>'Русский','en'=>'English','be'=>'Беларуская','kk'=>'Қазақша','de'=>'Deutsch','fr'=>'Français','it'=>'Italiano'];
           $curLocale = app()->getLocale();
         @endphp
-        <div x-data="{ open:false }" @click.outside="open=false" @keydown.escape.window="open=false" class="hdr-lang relative">
-          <button type="button" @click="open=!open" class="hdr-icon-btn" title="{{ __('frontend.header.language') }}" :aria-expanded="open.toString()">
+        {{-- Список языков и раскрытое меню — взаимоисключающие. На телефоне
+             список выпадает ровно поверх первых пунктов меню и прячет их;
+             поэтому открытие одного закрывает другое. --}}
+        <div x-data="{ open:false }" @click.outside="open=false" @keydown.escape.window="open=false"
+             @hdr-close-lang.window="open=false" class="hdr-lang relative">
+          <button type="button" @click="open=!open; if (open) navOpen = false" class="hdr-icon-btn" title="{{ __('frontend.header.language') }}" :aria-expanded="open.toString()">
             {!! locale_flag($curLocale) !!}
             <span class="hidden sm:inline">{{ strtoupper($curLocale) }}</span>
             <i class="fas fa-chevron-down" style="font-size:.58rem; opacity:.55"></i>
@@ -178,7 +182,7 @@
 
         {{-- Бургер: только на телефонах и планшетах в портрете. На широких
              экранах меню и поиск и так стоят отдельной строкой. --}}
-        <button type="button" class="hdr-burger" x-on:click="navOpen = !navOpen"
+        <button type="button" class="hdr-burger" x-on:click="navOpen = !navOpen; $dispatch('hdr-close-lang')"
                 :aria-expanded="navOpen ? 'true' : 'false'" aria-controls="hdr-nav-panel"
                 :aria-label="navOpen ? @js(__('frontend.header.menu_close')) : @js(__('frontend.header.menu_open'))">
           <span class="hdr-burger__box" :class="navOpen ? 'is-open' : ''" aria-hidden="true">
@@ -514,6 +518,28 @@
       /* Поиск в раскрытой панели — на всю ширину, кнопка не жмётся. */
       .hdr-search-input{ height:44px; }
       .hdr-search-go{ height:44px; }
+
+      /* Раскрытое меню — списком, а не строчками у левого края: строка на
+         всю ширину, высотой 44, с тонкой линией между пунктами. Так видно,
+         куда нажимать, и пункты не сливаются друг с другом. */
+      .hdr-row2 .header-nav .menu-link--root{
+        min-height:44px; padding:.55rem .35rem;
+        border-bottom:1px solid var(--surface-bd,#eef0f5);
+      }
+      .hdr-row2 .header-nav > .menu-item--root:last-child > .menu-link--root{ border-bottom:0; }
+      .hdr-row2 .header-nav .menu-link--l2,
+      .hdr-row2 .header-nav .menu-link--l3{ min-height:40px; }
+
+      /* Список языков перекрывал пункты меню — теперь он и меню друг друга
+         закрывают (см. разметку), но на всякий случай поднимаем его выше. */
+      .hdr-lang-menu{ z-index:1001; }
+
+      /* ⚠️ И раскрывается он ВПРАВО от кнопки, а не влево.
+         Базовое правило прибивает список правым краем к кнопке (`right:0`).
+         На широком экране кнопка стоит справа, и список уходит внутрь окна.
+         На телефоне она первая в ряду действий, то есть почти у левого
+         края, — и список шириной 11.5rem уезжал за левую границу экрана. */
+      .hdr-lang-menu{ left:0; right:auto; }
     }
 
     /* Совсем узкие (360 и меньше): ужимаем отступы, а не размеры нажатия. */

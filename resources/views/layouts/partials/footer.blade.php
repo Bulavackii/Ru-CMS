@@ -408,7 +408,17 @@
        строки внутри идут от левого края — значки встают в одну линию. */
     @media (max-width:767px){
         .footer-col{ text-align:center; }
-        .f-menu-list{ display:inline-grid; justify-items:start; text-align:left; }
+
+        /* ⚠️ Одна ширина на все блоки подвала.
+           Раньше каждый список центрировался по СВОЕЙ ширине: «Помощь»
+           начиналась в одном месте, «Контакты» — в другом, и колонки не
+           совпадали краями (замер давал значки на x = 125, 130 и 141).
+           Общая ширина ставит все строки на одну вертикаль. */
+        .f-menu-list, .f-contacts{
+            width:min(17rem, 100%); margin-left:auto; margin-right:auto;
+        }
+        .f-menu-list{ display:grid; justify-items:start; text-align:left; }
+        .f-contacts{ text-align:left; }
         .f-menu-link{ justify-content:flex-start; min-height:44px; padding:.5rem .35rem; }
         .f-menu-list--child{ margin-left:.9rem; }
         /* Заголовок колонки остаётся по центру над выровненным списком. */
@@ -573,9 +583,28 @@
        у одноклассовых селекторов одинаковая специфичность, и побеждает тот,
        что объявлен позже, — а базовые `.f-social` и `.f-meta-row` идут ниже.
        Замер показывал `padding-bottom: 0px` при живом правиле в стилях. */
+    /* Планшеты тоже сенсорные: строки меню и значки соцсетей должны быть
+       нажимаемы и там, хотя колонки на 768 уже раскладываются в две. */
+    @media (max-width: 1023px){
+        .f-menu-link{ min-height:44px; }
+        .f-contact{ min-height:44px; }
+        .f-socials .f-social{ width:44px; height:44px; font-size:1.05rem; }
+    }
+
     @media (max-width: 767px){
         /* Значки соцсетей были 25×25 — вдвое меньше пальца. */
         .f-socials .f-social{ width:44px; height:44px; font-size:1.05rem; }
+
+        /* Один и тот же короб под все блоки подвала: списки меню и контакты
+           центрируются по ОДНОЙ ширине, поэтому значки во всех колонках
+           стоят на одной вертикали. Правило живёт в конце файла осознанно —
+           базовые `.f-contacts` и `.f-menu-list` объявлены ниже своих
+           мобильных версий и при равной силе перебивали их (замер показывал
+           контакты у левого края, а меню — по центру). */
+        .footer-col .f-menu-list,
+        .footer-contacts .f-contacts{
+            width:min(17rem, 100%); margin-left:auto; margin-right:auto; text-align:left;
+        }
 
         /* Запас снизу под плавающие кнопки («Наверх», «Спецвозможности»)
            задан НЕ здесь, а в макете: `body{ padding-bottom }` в
