@@ -522,10 +522,18 @@
       /* Раскрытое меню — списком, а не строчками у левого края: строка на
          всю ширину, высотой 44, с тонкой линией между пунктами. Так видно,
          куда нажимать, и пункты не сливаются друг с другом. */
+      /* ⚠️ Панель складывается в колонку во всём компактном режиме.
+         Обёртка переключается на строку уже с 768 (`md:flex-row`), а
+         компактный режим тянется до 1023 — на планшете меню и поиск
+         вставали рядом, и пункты центрировались не по экрану, а по своей
+         половине (центр 282 при ширине 768). */
+      .hdr-row2 > div{ flex-direction:column; align-items:stretch; }
+
       /* Меню-панель: строка во всю ширину, содержимое по центру, тонкая
          линия между пунктами. Так это выглядит привычным мобильным меню, а
          не текстом, прижатым к краю карточки. */
       .hdr-row2 .header-nav{ width:100%; }
+      .hdr-row2 form{ margin-left:0; max-width:none; }
 
       .hdr-row2 .header-nav .menu-link--root{
         justify-content:center; gap:.55rem;
@@ -541,13 +549,29 @@
         background:color-mix(in srgb, var(--color-primary, #6366f1) 8%, transparent);
       }
 
-      /* Вложенные уровни тоже по центру — левый отступ на узком экране
-         только увёл бы их в сторону от корневых пунктов. */
+      /* Вложенные уровни тоже по центру, но подчинённость обязана читаться.
+         Левый отступ на узком экране увёл бы их вбок от центрированных
+         корневых пунктов, поэтому глубина показана иначе: подложкой на всю
+         ветку, более узкой строкой и более тихим начертанием. Без этого
+         второй и третий уровни выглядели такими же, как корневые. */
+      .hdr-row2 .header-nav .submenu{
+        background:color-mix(in srgb, var(--color-primary, #6366f1) 5%, transparent);
+      }
       .hdr-row2 .header-nav .menu-link--l2,
       .hdr-row2 .header-nav .menu-link--l3{
-        justify-content:center; min-height:42px; padding-left:.75rem; padding-right:.75rem;
+        justify-content:center; min-height:44px;
+        border-bottom:1px solid color-mix(in srgb, var(--color-primary, #6366f1) 8%, transparent);
       }
-      .hdr-row2 .header-nav .submenu{ background:color-mix(in srgb, var(--color-primary, #6366f1) 4%, transparent); }
+      .hdr-row2 .header-nav .menu-link--l2{
+        padding-left:2.25rem; padding-right:2.25rem;
+        font-size:.86rem; font-weight:500; text-transform:none;
+      }
+      .hdr-row2 .header-nav .menu-link--l3{
+        padding-left:3.25rem; padding-right:3.25rem;
+        font-size:.8rem; font-weight:400; opacity:.85; text-transform:none;
+      }
+      /* Последний пункт ветки без линии — иначе двойная черта с корневым. */
+      .hdr-row2 .header-nav .submenu > .menu-item:last-child > .menu-link{ border-bottom:0; }
 
       /* Список языков перекрывал пункты меню — теперь он и меню друг друга
          закрывают (см. разметку), но на всякий случай поднимаем его выше. */
