@@ -251,13 +251,17 @@ class NotificationsModuleTest extends TestCase
         $this->assertSame(SeedDefaultNotificationCommand::CONSENT_COOKIE, $consent->cookie_key);
 
         // Без ответа баннер показывается…
-        $this->get('/')->assertSee('notif-consent', false);
+        //
+        // ⚠️ Проверяем РАЗМЕТКУ, а не подстроку: имя класса встречается ещё и
+        // в стилях макета (там задан размер кнопок согласия на телефоне), и
+        // поиск по подстроке проходил бы даже при отсутствующем баннере.
+        $this->get('/')->assertSee('<div class="notif-consent">', false);
 
         // …а с ответом больше не отдаётся вовсе: разметка не ездит впустую и
         // показ не засчитывается тому, кто ничего не увидел.
         $this->withUnencryptedCookie(SeedDefaultNotificationCommand::CONSENT_COOKIE, '1')
             ->get('/')
-            ->assertDontSee('notif-consent', false);
+            ->assertDontSee('<div class="notif-consent">', false);
     }
 
     // ── Разведение с центром уведомлений админки ──────────────────────────
