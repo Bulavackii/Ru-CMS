@@ -477,7 +477,7 @@
        этом не дублируется — переключается только показ. */
     .hdr-burger{ display:none; }
 
-    @media (max-width: 1023px), (max-height: 500px){
+    @media (max-width: 1024px), (max-height: 500px){
       /* Панель меню закрыта, пока её не раскрыли кнопкой. */
       .hdr-row2{ display:none; }
       .hdr-row2.is-open{ display:block; }

@@ -62,7 +62,7 @@
                         <span class="f-brand-badge">RU</span>
                         <div class="min-w-0">
                             <h2 id="dev-info" class="text-base font-bold leading-tight text-gray-900 dark:text-white">RU CMS</h2>
-                            <div class="text-[11px] leading-tight text-gray-500 dark:text-gray-400">{{ __('frontend.common.cms_tagline') }} · Laravel {{ app()->version() }}</div>
+                            <div class="f-brand-sub leading-tight text-gray-500 dark:text-gray-400">{{ __('frontend.common.cms_tagline') }} · Laravel {{ app()->version() }}</div>
                         </div>
                     </div>
 
@@ -591,7 +591,11 @@
         .f-socials .f-social{ width:44px; height:44px; font-size:1.05rem; }
     }
 
-    @media (max-width: 767px){
+    /* ⚠️ Порог 1024, а не 767. Телефон в альбоме — 896×414 (шире 767), а
+       iPad в альбоме — ровно 1024×768. Оба сенсорные, и оба выпадали из
+       прежнего условия: замер показывал у них чипы подвала по 10.5px и
+       десятки зон нажатия мельче нормы. */
+    @media (max-width: 1024px), (max-height: 500px){
         /* Значки соцсетей были 25×25 — вдвое меньше пальца. */
         .f-socials .f-social{ width:44px; height:44px; font-size:1.05rem; }
 
@@ -605,6 +609,17 @@
         .footer-contacts .f-contacts{
             width:min(17rem, 100%); margin-left:auto; margin-right:auto; text-align:left;
         }
+
+        /* Кегль подписей: чипы стека были 10.56px — на телефоне это уже не
+           читается, а браузер предлагает увеличить страницу целиком.
+           Правило живёт здесь, а не в макете: стили подвала подключены
+           позже макетных и при равной силе побеждают их. */
+        .f-brand-chip{ font-size:12px; min-height:32px; display:inline-flex; align-items:center }
+        /* Класса text-[11px] в этой сборке Tailwind нет вовсе (произвольные
+           значения в неё не попали), поэтому размер приходил окольным путём.
+           Свой класс с честным значением — и подпись читается. */
+        .f-brand-sub{ font-size:12px }
+        .f-meta-copy, .f-meta-copy *{ font-size:12px }
 
         /* Запас снизу под плавающие кнопки («Наверх», «Спецвозможности»)
            задан НЕ здесь, а в макете: `body{ padding-bottom }` в

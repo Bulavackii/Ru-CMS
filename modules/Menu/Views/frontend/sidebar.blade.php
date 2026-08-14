@@ -88,7 +88,7 @@
        ⚠️ Если в боковое меню положат пункты, которых нет в шапке, они
        окажутся недоступны с телефона — тогда либо продублировать их в
        меню-шапке, либо вернуть язычок, подняв его из-под текста. */
-    @media (max-width: 1023px), (max-height: 500px){
+    @media (max-width: 1024px), (max-height: 500px){
         .fs-toggle{ display:none; }
     }
     .fs-overlay{ position:fixed; inset:0; z-index:70; background:rgba(15,23,42,.45); -webkit-backdrop-filter:blur(2px); backdrop-filter:blur(2px); }

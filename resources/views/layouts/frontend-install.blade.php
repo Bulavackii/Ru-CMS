@@ -510,7 +510,7 @@
            Поэтому на узких и низких экранах возвращаем обычную прокрутку
            страницы: оболочка растёт по содержимому, карточка не
            ограничена по высоте, внутренняя область прокрутки отключается. */
-        @media (max-width: 1023px), (max-height: 500px){
+        @media (max-width: 1024px), (max-height: 500px){
             .ins-shell{ height:auto; min-height:100dvh; overflow:visible }
             .ins-main{ overflow:visible; justify-content:flex-start; padding:1rem .75rem 2rem }
 

@@ -788,3 +788,19 @@ body.fx-theme-dark .page-content .pc-map__btn{ color:var(--color-bg) }
         --pc-rail: #2a303d;
     }
 }
+
+/* ═════════ Телефоны и планшеты ═════════
+   Подписи внутри блоков (часы работы, пометки в карточках контактов) шли
+   по 11.2px. На телефоне это уже за границей читаемого, а браузер в ответ
+   предлагает увеличить страницу целиком — и вёрстка уезжает. */
+@media (max-width: 1024px) {
+    /* ⚠️ Селектор обязан включать .page-content: базовые правила объявлены
+       именно так (`.page-content .pc-contacts li > span`), и мой короткий
+       вариант проигрывал им по силе — замер показывал прежние 11.2px. */
+    .page-content .pc-contacts li > span:not(.pc-ico),
+    .page-content .pc-contacts small,
+    .page-content .pc-now,
+    .page-content .pc-note small { font-size: 12px; }
+    /* Заголовки групп карты сайта были .72rem — 11.5 пикселя. */
+    .page-content .pc-sitemap__group h3 { font-size: 12px; }
+}
