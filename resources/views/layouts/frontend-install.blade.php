@@ -498,6 +498,62 @@
         .install-scroll::-webkit-scrollbar-thumb { background: #cbd0dc; border-radius: 999px; }
         .install-scroll::-webkit-scrollbar-track { background: transparent; }
 
+        /* ═════════ Телефоны и планшеты ═════════
+           Мастер собран как экран фиксированной высоты: оболочка ростом в
+           100dvh, карточка не выше окна, а содержимое шага прокручивается
+           ВНУТРИ неё. На большом экране это уместно — шаг всегда целиком
+           перед глазами. На телефоне нет: адресная строка браузера меняет
+           высоту окна на ходу, из-за чего внутренняя область то появляется,
+           то исчезает, а прокручивать содержимое внутри карточки, когда вся
+           страница неподвижна, непривычно и неудобно пальцем.
+
+           Поэтому на узких и низких экранах возвращаем обычную прокрутку
+           страницы: оболочка растёт по содержимому, карточка не
+           ограничена по высоте, внутренняя область прокрутки отключается. */
+        @media (max-width: 1023px), (max-height: 500px){
+            .ins-shell{ height:auto; min-height:100dvh; overflow:visible }
+            .ins-main{ overflow:visible; justify-content:flex-start; padding:1rem .75rem 2rem }
+
+            /* ⚠️ Фактуру убираем вместе с обрезкой. Она позиционируется за
+               правым краем (right:-10%) и держалась только на
+               `overflow:hidden` у колонки. Вернули странице обычную
+               прокрутку — и фактура сразу дала 41 пиксель прокрутки вбок.
+               Нельзя обрезать одну ось: если overflow-x:hidden, то
+               overflow-y перестаёт быть visible и внутренняя прокрутка
+               возвращается. Проще убрать украшение: на телефоне от него
+               всё равно виден один угол. */
+            .ins-main__pattern{ display:none }
+            .ins-main > div[class*="max-w-"]{ max-height:none }
+            .install-card{ max-height:none }
+            .install-scroll{ overflow:visible !important; min-height:0 }
+
+            /* ⚠️ Шрифт поля ровно 16px: Safari на iOS увеличивает страницу,
+               когда фокус уходит в поле мельче, и вёрстка уезжает. Поля были
+               39 пикселей высотой при 14px шрифта. */
+            .ins-input{ min-height:44px; font-size:16px }
+
+            /* Действия шага и возврат — полноразмерные цели нажатия. */
+            .ins-act{ min-height:44px }
+            .ins-back{ display:inline-flex; align-items:center; min-height:44px }
+            .ins-check{ min-height:44px }
+
+            /* Кнопка «показать пароль» лежит поверх поля и была 28×28. */
+            .install-card button.absolute{ width:44px; height:44px }
+
+            /* Прочие кнопки шага (например, «Подсказки» на шаге
+               администратора — она была 77×24). Ссылки внутри абзацев
+               намеренно не трогаем: для текстовых ссылок стандарт делает
+               исключение, а растянуть их значило бы разорвать абзац. */
+            .install-card button{ min-height:44px }
+
+            /* Шапка шага чуть тише: на узком экране её знак и надзаголовок
+               забирали место у самого содержимого. */
+            .ins-head{ padding:.85rem 1rem }
+            .ins-head__badge{ width:2.2rem; height:2.2rem }
+            .ins-title{ font-size:1.25rem }
+            .ins-foot{ padding:.85rem 1rem }
+        }
+
         @media (prefers-reduced-motion: reduce) {
             .install-backdrop::before,
             .install-backdrop::after,
