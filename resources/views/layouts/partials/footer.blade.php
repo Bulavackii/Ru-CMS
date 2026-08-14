@@ -399,11 +399,20 @@
         width:.72rem; height:.72rem; font-size:.72rem; }
     .f-menu-link--child .f-menu-text{ font-size:.78rem; }
 
-    /* На телефоне столбцы выравниваются по центру, как остальные блоки. */
+    /* На телефоне столбцы выравниваются по центру, как остальные блоки.
+       ⚠️ Центрируется СПИСОК целиком, а не каждая строка по отдельности.
+       Раньше стояло `.f-menu-link{ justify-content:center }`, и каждая
+       строка центрировалась сама по себе: подписи разной длины разносили
+       значки по разным местам, и колонка выглядела рваной. Теперь список
+       ужимается по содержимому (inline-grid) и центрируется целиком, а
+       строки внутри идут от левого края — значки встают в одну линию. */
     @media (max-width:767px){
         .footer-col{ text-align:center; }
-        .f-menu-link{ justify-content:center; }
-        .f-menu-list--child{ margin-left:0; }
+        .f-menu-list{ display:inline-grid; justify-items:start; text-align:left; }
+        .f-menu-link{ justify-content:flex-start; min-height:44px; padding:.5rem .35rem; }
+        .f-menu-list--child{ margin-left:.9rem; }
+        /* Заголовок колонки остаётся по центру над выровненным списком. */
+        .footer-col-title{ text-align:center; }
     }
 
     /* Блок разработчика.
@@ -448,8 +457,22 @@
     .f-contacts{ display:grid; gap:.15rem; margin:0; padding:0; list-style:none; }
     .f-contacts li{ margin:0; }
 
+    /* ⚠️ min-width:0 обязателен. У элемента внутри flex/grid значение по
+       умолчанию — auto, то есть «не уже своего содержимого». Адрес и почта
+       в контактах длинные, поэтому строка не ужималась и вылезала за свою
+       колонку: на планшете 1024×768 это давало горизонтальную прокрутку в
+       5 пикселей — глазами не видно, пальцем листается сразу.
+       Длинные слова (почта, адрес) переносим, а не растягиваем колонку. */
     .f-contact{ display:flex; align-items:center; gap:.65rem; padding:.45rem .3rem;
-        text-decoration:none; color:inherit; transition:color .15s ease; }
+        min-width:0; text-decoration:none; color:inherit; transition:color .15s ease; }
+    /* Ужимать надо и сам пункт списка: `ul.f-contacts` — это grid, а у его
+       элементов min-width по умолчанию auto, поэтому li оказывался шире
+       своего списка (263 против 238) и вытаскивал ссылку за колонку. */
+    .f-contacts, .f-contacts > li,
+    .f-menu-list, .f-menu-list > li{ min-width:0; }
+    .f-contact > *{ min-width:0; }
+    .f-contact .f-contact__val, .f-contact span{ overflow-wrap:anywhere; }
+    .footer-col{ min-width:0; }
 
     /* Значок в плитке цвета темы: он же связывает блок с карточками
        контактов на самой странице «Контакты». */
@@ -502,6 +525,7 @@
         .f-meta-row{ justify-content:center; }
         .f-meta-copy{ justify-content:center; width:100%; }
         .f-socials{ justify-content:center; width:100%; }
+        /* Значки соцсетей были 25×25 — пальцем в такой не попасть. */
     }
 
     /* Подпись стоит в строку со значками, а не над ними: в узкой полосе
@@ -542,4 +566,22 @@
 
     /* Ниже здесь лежали два набора свойств БЕЗ СЕЛЕКТОРА — разбирающий CSS
        их отбрасывает целиком. Мёртвый код, удалён. */
+
+    /* ═════════ Телефоны и планшеты в портрете ═════════
+       Блок стоит В САМОМ КОНЦЕ намеренно. Первые версии этих правил лежали
+       рядом со «своими» селекторами в середине файла и молча не работали:
+       у одноклассовых селекторов одинаковая специфичность, и побеждает тот,
+       что объявлен позже, — а базовые `.f-social` и `.f-meta-row` идут ниже.
+       Замер показывал `padding-bottom: 0px` при живом правиле в стилях. */
+    @media (max-width: 767px){
+        /* Значки соцсетей были 25×25 — вдвое меньше пальца. */
+        .f-socials .f-social{ width:44px; height:44px; font-size:1.05rem; }
+
+        /* Запас снизу под плавающие кнопки («Наверх», «Спецвозможности»)
+           задан НЕ здесь, а в макете: `body{ padding-bottom }` в
+           layouts/frontend.blade.php. Правило на .f-meta-row в этом блоке
+           не срабатывало — соседнее правило из того же блока применялось, а
+           это нет; разбираться дальше не стали, отступ на body решает задачу
+           для всех страниц сразу и проверяется геометрией. */
+    }
 </style>

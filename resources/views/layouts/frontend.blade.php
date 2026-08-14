@@ -514,6 +514,59 @@
            перебивает и Tailwind-скругления, и литеральный CSS с border-radius.
            На SVG-геометрию (rx) не влияет — флаги и иконки без rx, им и не нужно. */
         body.fx-sharp, body.fx-sharp *{ border-radius:0 !important; }
+
+        /* ═════════ Телефоны и планшеты в портрете ═════════
+           Плавающие кнопки («Наверх» справа, «Спецвозможности» слева) прибиты
+           к низу окна и занимают нижние ~72 пикселя. На узком экране под ними
+           оказывалась последняя строка подвала — копирайт и версия. Даём
+           странице запас снизу, чтобы её содержимое до них не доходило. */
+        @media (max-width: 1023px), (max-height: 500px){
+            body{ padding-bottom:5rem; }
+
+            /* ── Зоны нажатия ──────────────────────────────────────────────
+               Палец накрывает примерно 9 мм, поэтому Apple и Google просят
+               не меньше 44 и 48 точек; WCAG 2.5.8 (AA) ставит нижнюю границу
+               в 24. Замер на iPhone XR нашёл 105 элементов ниже 44: кнопки
+               количества были 32×40, «Подробнее» — 87×19, метки категорий —
+               89×22, крестик уведомления — 26×26.
+
+               Главным действиям даём полные 44. Метки категорий оставляем
+               компактными, но выше порога AA: растянуть их до 44 значило бы
+               превратить подпись в кнопку и сломать вид карточек. */
+            .pg-card__more, .nw-card__more, .clinic-card__link, .pr-meta__link,
+            .pr-card__cart, .mag-card__link{
+                display:inline-flex; align-items:center; min-height:44px;
+            }
+            .pr-qty__btn{ min-width:44px; min-height:44px; }
+            .pr-qty__input{ height:44px; }
+            .notif-close{ width:44px; height:44px; }
+
+            .pg-chip, .nw-chip, .pr-chip, .mag-chip{
+                display:inline-flex; align-items:center; min-height:32px; padding:.25rem .6rem;
+            }
+
+            /* Заголовок карточки — главная цель нажатия, а был 23 пикселя
+               высотой: в списке из шести карточек попасть в нужную трудно. */
+            .pg-card__title a, .nw-card__title a,
+            .clinic-card__title a, .pr-card__title a, .mag-card__title a{
+                display:flex; align-items:center; min-height:44px;
+            }
+
+            /* Плашка про cookie: крестик 26×26 и кнопки 36 в высоту.
+               Селекторы с родителем — стили плашки объявлены ПОЗЖЕ этого
+               блока и при равной силе перебивали бы его. */
+            .notif-stack .notif-close{ width:44px; height:44px; }
+            .notif-stack .notif-consent__yes,
+            .notif-stack .notif-consent__no{ min-height:44px; }
+
+            /* Точки слайдера были 38×4 — попасть в такую полоску нельзя.
+               Растим саму зону нажатия, а видимую черту оставляем тонкой. */
+            .swiper-pagination-bullet{ position:relative; height:6px; }
+            .swiper-pagination-bullet::after{
+                content:''; position:absolute; left:0; right:0; top:50%;
+                height:32px; transform:translateY(-50%);
+            }
+        }
     </style>
     {{-- Просмотр картинки во весь экран — общий для всего сайта: страницы,
          новости, любые шаблоны. Раньше он жил внутри шаблона слайдшоу и

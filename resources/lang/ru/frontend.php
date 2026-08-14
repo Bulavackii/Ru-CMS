@@ -3,6 +3,8 @@
 return [
 
     'header' => [
+        'menu_open' => 'Открыть меню',
+        'menu_close' => 'Закрыть меню',
         'theme_current' => 'применена',
         'theme_fallback' => 'по умолчанию',
         'menu' => 'Меню',

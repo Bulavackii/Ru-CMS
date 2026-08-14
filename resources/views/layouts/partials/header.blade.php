@@ -60,7 +60,11 @@
     из модуля Меню (@include('Menu::frontend.header')) НЕ менялись — только
     компоновка и оформление самой шапки.
 --}}
-<header class="fx-header relative text-sm z-10">
+{{-- x-data на всей шапке: на узких экранах меню и поиск живут в панели,
+     которую раскрывает кнопка-бургер. Разметка меню при этом ОДНА — на
+     широких экранах панель просто всегда показана (см. .hdr-row2). --}}
+<header class="fx-header relative text-sm z-10" x-data="{ navOpen: false }"
+        @keydown.escape.window="navOpen = false">
   {{-- Фоновая картинка сайта проступает в шапке. Слой рисуется ПОВЕРХ
        заливки стекла (см. .hdr-glass::before), иначе 82% непрозрачности
        стекла гасили узор почти полностью. --}}
@@ -68,7 +72,7 @@
   <div class="hdr-glass relative z-[999] transition-colors duration-200">
 
     {{-- ═══════════ Ряд 1: логотип + действия ═══════════ --}}
-    <div class="hdr-row1 max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
+    <div class="hdr-row1 max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-3 flex items-center justify-between gap-3 sm:gap-4">
 
       {{-- ЛОГОТИП
 
@@ -171,11 +175,22 @@
             <svg class="hdr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="8" r="3.4"/><path d="M3.5 20a6.5 6.5 0 0 1 13 0"/><path d="M18.5 8.5v5M21 11h-5"/></svg><span class="hidden md:inline">{{ __('frontend.header.register') }}</span>
           </a>
         @endauth
+
+        {{-- Бургер: только на телефонах и планшетах в портрете. На широких
+             экранах меню и поиск и так стоят отдельной строкой. --}}
+        <button type="button" class="hdr-burger" x-on:click="navOpen = !navOpen"
+                :aria-expanded="navOpen ? 'true' : 'false'" aria-controls="hdr-nav-panel"
+                :aria-label="navOpen ? @js(__('frontend.header.menu_close')) : @js(__('frontend.header.menu_open'))">
+          <span class="hdr-burger__box" :class="navOpen ? 'is-open' : ''" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </span>
+        </button>
       </div>
     </div>
 
     {{-- ═══════════ Ряд 2: навигация (модуль Меню) + поиск ═══════════ --}}
-    <div class="hdr-row2 border-t border-gray-200 dark:border-gray-700">
+    <div id="hdr-nav-panel" class="hdr-row2 border-t border-gray-200 dark:border-gray-700"
+         :class="navOpen ? 'is-open' : ''">
       <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16 py-2.5 sm:py-3 flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4">
 
         {{-- НАВИГАЦИЯ: меню из модуля Меню (позиция header). НЕ ТРОГАЕМ. --}}
@@ -450,5 +465,63 @@
         display:flex; align-items:center; justify-content:center; font-size:.68rem; line-height:1; color:#fff;
         background:var(--fx-a,#6366f1); border-radius:999px; box-shadow:0 0 0 2px #fff; }
     :root.dark .cart-ico__badge{ box-shadow:0 0 0 2px #0f172a; }
+
+    /* ═════════ Телефоны и планшеты в портрете ═════════
+       Шапка занимала до 520px высоты на экране в 896: логотип, действия,
+       пять пунктов меню и поиск вставали друг под друга. Теперь первая
+       строка одна, а меню с поиском раскрывает бургер. Разметка меню при
+       этом не дублируется — переключается только показ. */
+    .hdr-burger{ display:none; }
+
+    @media (max-width: 1023px), (max-height: 500px){
+      /* Панель меню закрыта, пока её не раскрыли кнопкой. */
+      .hdr-row2{ display:none; }
+      .hdr-row2.is-open{ display:block; }
+
+      .hdr-burger{
+        display:inline-flex; align-items:center; justify-content:center;
+        width:44px; height:44px; flex:0 0 auto; margin-left:.15rem;
+        border:1px solid var(--surface-bd,#e3e6ee); border-radius:12px;
+        background:var(--surface,#fff); color:var(--surface-ink,#111827); cursor:pointer;
+      }
+      .hdr-burger__box{ position:relative; display:block; width:20px; height:14px; }
+      .hdr-burger__box span{
+        position:absolute; left:0; width:100%; height:2px; border-radius:2px;
+        background:currentColor; transition:transform .2s ease, opacity .15s ease, top .2s ease;
+      }
+      .hdr-burger__box span:nth-child(1){ top:0; }
+      .hdr-burger__box span:nth-child(2){ top:6px; }
+      .hdr-burger__box span:nth-child(3){ top:12px; }
+      /* Раскрытое состояние — крестик: он честно говорит, что нажатие закроет. */
+      .hdr-burger__box.is-open span:nth-child(1){ top:6px; transform:rotate(45deg); }
+      .hdr-burger__box.is-open span:nth-child(2){ opacity:0; }
+      .hdr-burger__box.is-open span:nth-child(3){ top:6px; transform:rotate(-45deg); }
+
+      /* Логотип не должен выдавливать действия за край. */
+      .hdr-row1{ padding-top:.55rem; padding-bottom:.55rem; gap:.5rem; }
+      .hdr-logo{ min-width:0; flex:0 1 auto; min-height:44px; }
+      .hdr-logo-img{ max-height:2rem; }
+      .hdr-logo-sub{ display:none; }
+
+      /* Зоны нажатия — не меньше 44px по обеим сторонам: пальцем в кружок
+         33×30 не попасть, а именно такими пилюли и были. */
+      .hdr-actions{ flex-wrap:nowrap; gap:.1rem; }
+      .hdr-actions .hdr-pill,
+      .hdr-actions .hdr-icon-btn{ min-width:44px; min-height:44px; padding:0 .35rem; justify-content:center; }
+      .hdr-actions .hdr-pill::after,
+      .hdr-actions .hdr-icon-btn::after{ display:none; }
+
+      /* Поиск в раскрытой панели — на всю ширину, кнопка не жмётся. */
+      .hdr-search-input{ height:44px; }
+      .hdr-search-go{ height:44px; }
+    }
+
+    /* Совсем узкие (360 и меньше): ужимаем отступы, а не размеры нажатия. */
+    @media (max-width: 380px){
+      .hdr-row1{ padding-left:.6rem; padding-right:.6rem; }
+      .hdr-actions .hdr-pill,
+      .hdr-actions .hdr-icon-btn{ min-width:40px; padding:0 .2rem; }
+      .hdr-logo-name{ font-size:1rem; }
+    }
   </style>
 </header>

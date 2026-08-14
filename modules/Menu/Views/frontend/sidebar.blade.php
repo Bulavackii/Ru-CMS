@@ -79,6 +79,18 @@
         transition:background .15s, transform .15s;
     }
     .fs-toggle:hover{ transform:translateY(-50%) translateX(2px); }
+
+    /* На телефонах и планшетах в портрете язычок скрыт.
+       Он прибит к середине левого края поверх содержимого: на узком экране
+       это 38 пикселей, которые всегда лежат на тексте, — и попасть в них
+       пальцем всё равно тяжело (нужно 44). Навигация там живёт в бургере
+       шапки, где для неё есть место и привычное покупателю поведение.
+       ⚠️ Если в боковое меню положат пункты, которых нет в шапке, они
+       окажутся недоступны с телефона — тогда либо продублировать их в
+       меню-шапке, либо вернуть язычок, подняв его из-под текста. */
+    @media (max-width: 1023px), (max-height: 500px){
+        .fs-toggle{ display:none; }
+    }
     .fs-overlay{ position:fixed; inset:0; z-index:70; background:rgba(15,23,42,.45); -webkit-backdrop-filter:blur(2px); backdrop-filter:blur(2px); }
     .fs-panel{
         position:fixed; left:0; top:0; bottom:0; z-index:80;
