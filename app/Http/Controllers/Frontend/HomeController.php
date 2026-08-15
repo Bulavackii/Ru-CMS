@@ -106,8 +106,13 @@ class HomeController extends Controller
                 $query = News::with(['categories' => function ($q) {
                         $q->select('categories.id', 'categories.title', 'categories.slug');
                     }])
-                    ->select('id', 'title', 'slug', 'content', 'template', 'price', 'stock', 'is_promo', 'rating', 'created_at', 'updated_at')
+                    ->select('id', 'title', 'slug', 'content', 'template', 'price', 'stock', 'is_promo', 'rating',
+                             'show_on_homepage', 'homepage_order', 'created_at', 'updated_at')
                     ->where('published', true)
+                    // «Показать на главной» — как у страниц. Раньше сюда
+                    // попадали ВСЕ опубликованные материалы, и убрать один с
+                    // главной, оставив его в ленте новостей, было нечем.
+                    ->where('show_on_homepage', true)
                     ->where('template', $key);
 
                 // Фильтрация по категории
@@ -125,7 +130,16 @@ class HomeController extends Controller
                 // читатель. Замер на четырёх выпусках дал 1.2.0, 1.0.5, 1.0.0,
                 // 1.1.0 — то есть вразнобой. id остаётся вторым ключом, чтобы
                 // материалы одной даты шли устойчиво.
-                $allItems = $query->orderByDesc('created_at')->orderByDesc('id')->get();
+                // Закреплённые наверху идут первыми: у них проставлен
+                // «порядок на главной», у остальных он пуст. Пустые в конец —
+                // на PostgreSQL NULL по убыванию иначе всплыл бы вверх и
+                // закрепление работало бы наоборот.
+                $allItems = $query
+                    ->orderByRaw('homepage_order IS NULL')
+                    ->orderBy('homepage_order')
+                    ->orderByDesc('created_at')
+                    ->orderByDesc('id')
+                    ->get();
 
                 // Обновляем stock с учетом корзины
                 $allItems->transform(function ($item) use ($cart) {

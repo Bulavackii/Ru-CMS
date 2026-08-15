@@ -115,6 +115,16 @@ class NewsController extends Controller
             'content'          => $request->input('content'),
             'slug'             => $slug,
             'published'        => $request->boolean('published'),
+            // «Показать на главной» — как у страниц. Снятая галочка не
+            // приходит в запросе вовсе, поэтому boolean(), а не input():
+            // иначе поле молча сохраняло бы прежнее значение.
+            'show_on_homepage' => $request->boolean('show_on_homepage'),
+            // Пусто — обычный порядок по дате. Ноль здесь законное значение
+            // («самый верх»), поэтому проверяем именно на пустую строку.
+            'homepage_order'   => $request->input('homepage_order') === null
+                || $request->input('homepage_order') === ''
+                    ? null
+                    : (int) $request->input('homepage_order'),
             'template'         => $template,
             'meta_title'       => $request->input('meta_title'),
             'meta_description' => $request->input('meta_description'),
@@ -182,6 +192,16 @@ class NewsController extends Controller
             'title'            => $request->input('title'),
             'content'          => $request->input('content'),
             'published'        => $request->boolean('published'),
+            // «Показать на главной» — как у страниц. Снятая галочка не
+            // приходит в запросе вовсе, поэтому boolean(), а не input():
+            // иначе поле молча сохраняло бы прежнее значение.
+            'show_on_homepage' => $request->boolean('show_on_homepage'),
+            // Пусто — обычный порядок по дате. Ноль здесь законное значение
+            // («самый верх»), поэтому проверяем именно на пустую строку.
+            'homepage_order'   => $request->input('homepage_order') === null
+                || $request->input('homepage_order') === ''
+                    ? null
+                    : (int) $request->input('homepage_order'),
             'template'         => $template,
             'meta_title'       => $request->input('meta_title'),
             'meta_description' => $request->input('meta_description'),

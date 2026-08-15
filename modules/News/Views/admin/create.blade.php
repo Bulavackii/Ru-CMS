@@ -137,7 +137,7 @@
             {{-- ── Правая колонка ── --}}
             <div class="space-y-5">
 
-                <div class="admin-card p-5 space-y-4" x-data="{ live: true }">
+                <div class="admin-card p-5 space-y-4" x-data="{ live: true , home: {{ old('show_on_homepage', true) ? 'true' : 'false' }} }">
                     <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 flex items-center gap-2">
                         <i class="fas fa-circle-check text-indigo-500"></i> {{ __('admin.news.publish') }}
                     </h2>
@@ -159,6 +159,36 @@
                             <p class="text-xs text-gray-500 dark:text-gray-400"
                                x-text="live ? @js(__('admin.news.state_published_hint')) : @js(__('admin.news.state_draft_hint'))"></p>
                         </div>
+                    </div>
+
+                    {{-- «Показать на главной» — тот же переключатель, что у
+                         страниц: разделы должны вести себя одинаково.
+
+                         ⚠️ Новый материал приходит с ВКЛЮЧЁННЫМ переключателем,
+                         в отличие от страниц. Главная и есть витрина новостей:
+                         выключенное умолчание означало бы, что написанная
+                         новость нигде не появляется, пока автор не догадается
+                         щёлкнуть ещё один тумблер. --}}
+                    <div class="flex items-start gap-3">
+                        <label class="admin-toggle mt-0.5">
+                            <input type="checkbox" name="show_on_homepage" value="1" x-model="home"
+                                   {{ old('show_on_homepage', true) ? 'checked' : '' }}>
+                            <span class="track"></span>
+                            <span class="knob"></span>
+                        </label>
+
+                        <div class="min-w-0">
+                            <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ __('admin.common.show_on_home') }}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ __('admin.common.home_order_hint') }}</p>
+                        </div>
+                    </div>
+
+                    <div x-show="home" x-cloak class="flex items-center gap-3">
+                        <label for="homepage_order" class="text-sm text-gray-700 dark:text-gray-300 flex-none">{{ __('admin.common.home_order') }}</label>
+                        <input type="number" name="homepage_order" id="homepage_order" min="0"
+                               value="{{ old('homepage_order') }}"
+                               class="w-24 border border-gray-300 dark:border-gray-700 px-3 py-1.5 text-sm dark:bg-gray-800 dark:text-gray-100
+                                      focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
                     </div>
 
                     <div class="flex items-center gap-2 pt-1 border-t border-gray-100 dark:border-gray-800">

@@ -28,6 +28,8 @@ class News extends Model
         'content',
         'slug',
         'published',
+        'show_on_homepage',
+        'homepage_order',
         'template',
         'price',
         'rating',
@@ -43,6 +45,8 @@ class News extends Model
 
     protected $casts = [
         'published' => 'boolean',
+        'show_on_homepage' => 'boolean',
+        'homepage_order' => 'integer',
         'is_promo' => 'boolean',
         'price' => 'decimal:2',
         'stock' => 'integer',

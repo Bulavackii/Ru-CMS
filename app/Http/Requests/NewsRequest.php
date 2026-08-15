@@ -22,6 +22,8 @@ class NewsRequest extends FormRequest
             'categories' => 'nullable|array',
             'categories.*' => 'integer|exists:categories,id',
             'published' => 'nullable|boolean',
+            'show_on_homepage' => 'nullable|boolean',
+            'homepage_order' => 'nullable|integer|min:0|max:9999',
             // Список шаблонов — из общей константы, а не своей копией:
             // эта разошлась и не пропускала новые шаблоны («Выбран
             // недопустимый шаблон» при сохранении «Игр» и «Клиники»).

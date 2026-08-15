@@ -226,6 +226,12 @@ return [
         'reset_search' => 'Reset search',
         'loading' => 'Loading…',
         'on_home' => 'On the home page',
+        // Общие для «Страниц» и «Новостей»: переключатель одинаков в
+        // обоих разделах, и вторая копия строк разошлась бы с первой.
+        'show_on_home' => 'Show on home page',
+        'not_on_home' => 'Not on home',
+        'home_order' => 'Home page order',
+        'home_order_hint' => 'The lower the number, the higher in the list.',
         'f_title' => 'Title',
         'f_slug' => 'Slug (URL)',
         'f_template' => 'Template',

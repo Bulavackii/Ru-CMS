@@ -214,6 +214,18 @@
                                                 <i class="fas fa-clock"></i> {{ __('admin.common.draft') }}
                                             </span>
                                         @endif
+
+                                        {{-- «На главной» — та же плашка, что в списке страниц.
+                                             Материал бывает опубликован и при этом убран с
+                                             главной: без пометки это состояние не отличить от
+                                             обычного, и владелец ищет пропажу в шаблонах. --}}
+                                        @unless ($news->show_on_homepage)
+                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 mt-1 text-xs font-semibold whitespace-nowrap
+                                                         bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                                                  title="{{ __('admin.common.show_on_home') }}">
+                                                <i class="fas fa-house-circle-xmark"></i> {{ __('admin.common.not_on_home') }}
+                                            </span>
+                                        @endunless
                                     </td>
 
                                     <td class="px-4 py-3 align-top text-center">
