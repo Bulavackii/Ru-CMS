@@ -405,6 +405,17 @@ return [
         'more' => 'Details',
     ],
 
+    'release' => [
+        'subtitle' => 'What changed in the system and when',
+        'latest' => 'Latest',
+    ],
+    'ourworks' => [
+        'subtitle'   => 'What we take on so the site starts working',
+        'from'       => 'from',
+        'on_request' => 'On request',
+        'details'    => 'Details',
+    ],
+
     'faq' => [
         'subtitle' => 'Short answers to the most common questions',
     ],

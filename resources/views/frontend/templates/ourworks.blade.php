@@ -1,215 +1,246 @@
-@once
-@push('styles')
-<style>
-  /* Русские переносы + аккуратное распределение строк */
-  .card-title{
-    word-break: normal;          /* не ломаем слова где попало */
-    overflow-wrap: anywhere;     /* длинные куски всё-таки переносятся */
-    hyphens: auto;               /* переносы по слогам */
-    -webkit-hyphens: auto;
-    text-wrap: balance;          /* красивый баланс строк в заголовке */
-  }
-  .card-teaser{
-    word-break: normal;
-    hyphens: auto;
-    -webkit-hyphens: auto;
-  }
-</style>
-@endpush
-@endonce
+{{--
+    ╔══════════════════════════════════════════════════════════════════╗
+    ║  🧰 ШАБЛОН «НАШИ УСЛУГИ»                                         ║
+    ╠══════════════════════════════════════════════════════════════════╣
+    ║  Услугу выбирают по трём вещам: ЧТО делают, ЧТО входит в работу  ║
+    ║  и СКОЛЬКО это стоит. Всё три на виду в карточке, без перехода.  ║
+    ║                                                                  ║
+    ║  ГДЕ ПРАВИТЬ СОДЕРЖИМОЕ                                          ║
+    ║    Панель → Новости → материал → поле «Шаблон» = ourworks         ║
+    ║    Цена — поле «Цена» в той же форме (пусто = «по запросу»).      ║
+    ║                                                                  ║
+    ║  ЗНАЧОК                                                          ║
+    ║    Берётся из НАЧАЛА заголовка: «🚀 Установка» → значок 🚀, а в   ║
+    ║    строке остаётся «Установка». Так владелец меняет значок прямо  ║
+    ║    в заголовке, без отдельного поля и без правки шаблона.         ║
+    ║    Нет эмодзи — рисуется общий значок услуги.                     ║
+    ║                                                                  ║
+    ║  ЧТО ВХОДИТ                                                      ║
+    ║    Первые три пункта <li> из текста материала. Список в тексте    ║
+    ║    услуги пишут почти всегда — отдельного поля заводить не нужно. ║
+    ║                                                                  ║
+    ║  ⚠️ ОБЛОЖКИ ЗДЕСЬ НЕТ НАМЕРЕННО                                  ║
+    ║    Прежняя версия подставляла no-image.png каждой карточке: 192   ║
+    ║    пикселя пустой рамки на услугу, у которой снимка не бывает.    ║
+    ╚══════════════════════════════════════════════════════════════════╝
+--}}
 
-<div class="my-12 max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16">
-    {{-- Заголовок раздела с иконкой --}}
-    {{-- Плашка раздела — общая для всех шаблонов (см. макет сайта).
-         Раньше здесь стоял центрированный заголовок с зашитым
-         text-gray-800: на тёмных темах текст пропадал, а название
-         шло мимо словаря. --}}
+@php
+    // Сначала $newsList — его отдаёт контроллер, сгруппировав материалы по
+    // шаблонам. Остальные имена — из прежнего устройства главной.
+    $worksList = $newsList
+        ?? ($ourworksList ?? null)
+        ?? ($serviceList ?? null)
+        ?? ($templates['ourworks'] ?? collect());
+
+    // Эмодзи в начале заголовка → значок карточки.
+    // ⚠️ \X (графемный кластер) обязателен: флаги и значки с модификатором
+    // цвета кожи состоят из нескольких кодовых точек, и посимвольный разбор
+    // разрезал бы их пополам.
+    $splitIcon = function (string $title): array {
+        if (preg_match('~^(\X)\s+(\S.*)$~u', $title, $m)
+            && preg_match('~[\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}\x{2B00}-\x{2BFF}]~u', $m[1])) {
+            return ['icon' => $m[1], 'label' => $m[2]];
+        }
+
+        return ['icon' => null, 'label' => $title];
+    };
+
+    // Первые три пункта списка из текста услуги.
+    $itemsOf = function (?string $html, int $limit = 3): array {
+        if (! preg_match_all('~<li[^>]*>(.*?)</li>~su', (string) $html, $m)) {
+            return [];
+        }
+
+        return array_slice(array_filter(array_map(
+            fn ($s) => trim(preg_replace('~\s+~u', ' ', strip_tags($s))),
+            $m[1]
+        )), 0, $limit);
+    };
+@endphp
+
+@if ($worksList->count())
+<section class="sv">
     <div class="fx-section-head">
         <span class="fx-badge"><i class="fas fa-briefcase"></i></span>
         <div>
             <h2 class="fx-section-title">{{ $title ?? __('frontend.templates.ourworks') }}</h2>
+            <p class="fx-section-sub">{{ __('frontend.ourworks.subtitle') }}</p>
         </div>
     </div>
 
-    @php
-        /**
-         * Берём коллекцию элементов:
-         * - если передали $ourworksList/$serviceList, используем её,
-         * - иначе берём из $templates['ourworks'] (как на главной).
-         */
-        $newsList = $newsList
-            ?? ($ourworksList ?? null)
-            ?? ($serviceList ?? null)
-            ?? ($templates['ourworks'] ?? collect());
-    @endphp
+    <div class="sv-grid">
+        @foreach ($worksList as $work)
+            @php
+                $parts = $splitIcon((string) $work->title);
+                $items = $itemsOf($work->content);
+                $price = $work->price !== null && (float) $work->price > 0 ? (float) $work->price : null;
+            @endphp
 
-    @if ($newsList->count())
-        {{-- Сетка карточек --}}
-        <div class="flex flex-wrap justify-center gap-8">
-            @foreach ($newsList as $news)
-                @php
-                    // ==== утилиты ====
-                    $IMG_EXT = ['jpg','jpeg','png','gif','webp','bmp','svg','avif'];
-                    $VID_EXT = ['mp4','webm','ogg','ogv','mov','m4v','mkv','avi','3gp','3g2'];
-
-                    $extOf = function (?string $url): string {
-                        if (!$url) return '';
-                        $path = parse_url($url, PHP_URL_PATH) ?? '';
-                        return strtolower(pathinfo($path, PATHINFO_EXTENSION));
-                    };
-
-                    // cover абсолютным URL (для poster)
-                    $coverAbs = null;
-                    if (!empty($news->cover)) {
-                        $raw = (string) $news->cover;
-                        $isHttp = (bool) preg_match('~^https?://~i', $raw);
-                        $rel    = ltrim(preg_replace('~^storage/~','',$raw),'/');
-                        $exists = $isHttp ? true : \Illuminate\Support\Facades\Storage::disk('public')->exists($rel);
-                        if ($exists) $coverAbs = $isHttp ? $raw : asset('storage/'.$rel);
-                    }
-
-                    // достаём видео из контента
-                    $videoSrc = null;
-                    if (!$videoSrc && preg_match('~<video[^>]*\bsrc\s*=\s*[\'"]([^\'">]+)[\'"]~i', $news->content, $m)) {
-                        $videoSrc = $m[1];
-                    }
-                    if (!$videoSrc && preg_match_all('~<source[^>]*\bsrc\s*=\s*[\'"]([^\'">]+)[\'"][^>]*>~i', $news->content, $mm)) {
-                        foreach ($mm[0] as $i => $full) {
-                            $src = $mm[1][$i] ?? null; if (!$src) continue;
-                            $type = null;
-                            if (preg_match('~\btype\s*=\s*[\'"]([^\'">]+)[\'"]~i', $full, $tt)) $type = strtolower($tt[1] ?? '');
-                            if ($type ? str_starts_with($type, 'video/') : in_array($extOf($src), $VID_EXT, true)) { $videoSrc = $src; break; }
-                        }
-                    }
-                    if (!$videoSrc && preg_match('~https?://[^\s"\']+\.(mp4|webm|ogg|ogv|mov|m4v|mkv|avi|3gp|3g2)(\?.*)?~i', $news->content, $m)) {
-                        $videoSrc = $m[0];
-                    }
-                    if (!$videoSrc && $coverAbs && in_array($extOf($coverAbs), $VID_EXT, true)) {
-                        $videoSrc = $coverAbs;
-                    }
-
-                    // картинка (или заглушка)
-                    $imageSrc = null;
-                    if ($coverAbs && in_array($extOf($coverAbs), $IMG_EXT, true)) {
-                        $imageSrc = $coverAbs;
-                    } elseif (preg_match('~<img[^>]+src=[\'"]([^\'">]+)[\'"]~i', $news->content, $m)) {
-                        $imageSrc = $m[1];
-                    } else {
-                        $imageSrc = asset('images/no-image.png');
-                    }
-
-                    $isVideo = (bool) $videoSrc;
-
-                    // MIME для <source>
-                    $mimeMap = [
-                        'mp4'=>'video/mp4','m4v'=>'video/mp4',
-                        'webm'=>'video/webm',
-                        'ogg'=>'video/ogg','ogv'=>'video/ogg',
-                        'mov'=>'video/quicktime',
-                        'mkv'=>'video/x-matroska',
-                        'avi'=>'video/x-msvideo',
-                        '3gp'=>'video/3gpp','3g2'=>'video/3gpp2',
-                    ];
-                    $vExt  = $extOf($videoSrc);
-                    $vMime = $mimeMap[$vExt] ?? 'video/mp4';
-                @endphp
-
-                {{-- Карточка услуги --}}
-                <div class="news-card relative flex flex-col p-5 border border-gray-100 hover:border-gray-300 shadow-md hover:shadow-lg transition-all bg-white rounded-2xl max-w-xs w-full">
-                    {{-- 🧰 Бейдж "УСЛУГА" --}}
-                    <div class="absolute -top-3 right-3 z-10 bg-white border-2 border-blue-600 text-blue-600 text-xs font-bold px-3 py-1 rounded-full shadow-md select-none" title="Услуга">
-                        🧰 УСЛУГА
-                    </div>
-
-                    {{-- Категории --}}
-                    @if ($news->categories->count())
-                        <div class="absolute top-3 left-3 z-10 flex flex-wrap gap-1">
-                            @foreach ($news->categories as $category)
-                                <a href="{{ url('/?category_' . ($news->template ?? 'ourworks') . '=' . $category->id) }}"
-                                   class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full hover:underline select-none"
-                                   title="{{ $category->title }}">
-                                    {{ $category->title }}
-                                </a>
-                            @endforeach
-                        </div>
-                    @endif
-
-                    {{-- Обложка/видео --}}
-                    <div class="w-full h-48 overflow-hidden mb-4 rounded-xl border border-gray-200 pt-6 relative">
-                        @if ($isVideo)
-                            <video class="w-full h-full object-cover rounded-xl" muted autoplay loop playsinline controls
-                                   @if($coverAbs && in_array(pathinfo(parse_url($coverAbs, PHP_URL_PATH) ?? '', PATHINFO_EXTENSION), $IMG_EXT, true)) poster="{{ $coverAbs }}" @endif>
-                                <source src="{{ $videoSrc }}" type="{{ $vMime }}">
-                                Ваш браузер не поддерживает видео.
-                            </video>
+            <article class="sv-card">
+                <div class="sv-card__head">
+                    <span class="sv-card__icon" aria-hidden="true">
+                        @if ($parts['icon'])
+                            {{ $parts['icon'] }}
                         @else
-                            <img src="{{ $imageSrc }}" alt="{{ $news->title }}" class="w-full h-full object-cover rounded-xl" loading="lazy" />
+                            <i class="fas fa-screwdriver-wrench"></i>
                         @endif
-                    </div>
+                    </span>
 
-                    {{-- Заголовок --}}
-                    <h3 class="card-title text-xl font-semibold text-gray-900 mb-1 leading-tight break-words line-clamp-2">
-                        <a href="{{ route('news.show', $news->slug) }}" class="hover:text-blue-600 transition" title="{{ $news->title }}">
-                            {{ $news->title }}
-                        </a>
-                    </h3>
+                    {{-- Порядковый номер моноширинным: он даёт списку услуг
+                         структуру, по которой их называют в разговоре
+                         («вторая услуга»), и ничего не стоит по месту. --}}
+                    <span class="sv-card__num" aria-hidden="true">{{ sprintf('%02d', $loop->iteration) }}</span>
+                </div>
 
-                    {{-- Дата (оставим, если используете как новости-услуги) --}}
-                    <p class="text-sm text-gray-500 mb-2 flex items-center gap-1 select-none" title="Дата публикации">
-                        <i class="far fa-calendar-alt"></i> {{ $news->created_at->format('d.m.Y') }}
-                    </p>
+                <h3 class="sv-card__title">
+                    <a href="{{ route('news.show', $work->slug) }}">{{ $parts['label'] }}</a>
+                </h3>
 
-                    {{-- Краткое описание --}}
-                    <div class="card-teaser text-sm text-gray-600 mb-3 line-clamp-4 break-words" title="Кратко об услуге">
-                        💬 {!! Str::limit(strip_tags($news->content), 220) !!}
-                    </div>
+                <p class="sv-card__text">{{ content_excerpt($work->content, 150) }}</p>
 
-                    {{-- Кнопка --}}
-                    <a href="{{ route('news.show', $news->slug) }}"
-                       class="mt-auto block text-center text-sm bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition shadow select-none"
-                       aria-label="Подробнее об услуге {{ $news->title }}">
-                        Подробнее →
+                @if ($items)
+                    <ul class="sv-card__list">
+                        @foreach ($items as $item)
+                            <li><i class="fas fa-check" aria-hidden="true"></i><span>{{ $item }}</span></li>
+                        @endforeach
+                    </ul>
+                @endif
+
+                <div class="sv-card__foot">
+                    <span class="sv-card__price">
+                        @if ($price)
+                            {{-- «от»: у услуги цена зависит от объёма, и точное
+                                 число в карточке обещало бы больше, чем есть. --}}
+                            <small>{{ __('frontend.ourworks.from') }}</small>
+                            {{ number_format($price, 0, ',', ' ') }} ₽
+                        @else
+                            <b>{{ __('frontend.ourworks.on_request') }}</b>
+                        @endif
+                    </span>
+
+                    <a href="{{ route('news.show', $work->slug) }}" class="sv-card__more">
+                        {{ __('frontend.ourworks.details') }} →
                     </a>
                 </div>
-            @endforeach
-        </div>
+            </article>
+        @endforeach
+    </div>
 
-        {{-- Пагинация --}}
-        {{-- ⚠️ method_exists обязателен: на главной и в /news список приходит
-             обычной коллекцией (материалы уже сгруппированы по шаблонам),
-             и hasPages() там нет — страница падала с 500. Проявлялось
-             только когда в базе появлялся материал этого шаблона. --}}
-        @if (method_exists($newsList, 'hasPages') && $newsList->hasPages())
-            <div class="mt-10 w-full flex коло items-center justify-center gap-2 select-none" aria-label="Пагинация услуг">
-                <div class="text-sm text-gray-500">
-                    Показано с <span class="font-semibold">{{ $newsList->firstItem() }}</span>
-                    по <span class="font-semibold">{{ $newsList->lastItem() }}</span>
-                    из <span class="font-semibold">{{ $newsList->total() }}</span> записей
-                </div>
-                <nav class="flex items-center space-x-2 rtl:space-x-reverse" role="navigation" aria-label="Навигация по страницам">
-                    @if ($newsList->onFirstPage())
-                        <span class="px-3 py-1.5 bg-gray-200 text-gray-500 rounded-md text-sm cursor-not-allowed"> ← Назад </span>
-                    @else
-                        <a href="{{ $newsList->previousPageUrl() }}" class="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-md text-sm transition" rel="prev"> ← Назад </a>
-                    @endif
-
-                    @foreach ($newsList->getUrlRange(1, $newsList->lastPage()) as $page => $url)
-                        @if ($page == $newsList->currentPage())
-                            <span class="px-3 py-1.5 bg-blue-600 text-white rounded-md text-sm font-semibold shadow">{{ $page }}</span>
-                        @else
-                            <a href="{{ $url }}" class="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-md text-sm transition">{{ $page }}</a>
-                        @endif
-                    @endforeach
-
-                    @if ($newsList->hasMorePages())
-                        <a href="{{ $newsList->nextPageUrl() }}" class="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-md text-sm transition" rel="next"> Вперёд → </a>
-                    @else
-                        <span class="px-3 py-1.5 bg-gray-200 text-gray-500 rounded-md text-sm cursor-not-allowed"> Вперёд → </span>
-                    @endif
-                </nav>
-            </div>
-        @endif
-    @else
-        <p class="text-center text-gray-500 select-none">Пока нет опубликованных услуг.</p>
+    {{-- ⚠️ method_exists: на главной список приходит обычной коллекцией
+         (материалы уже сгруппированы по шаблонам), и hasPages() там нет —
+         страница падала с 500, как только в базе появлялась услуга.
+         Разметку постраничного вывода не пишем свою: общий компонент
+         рендерят все 28 списков проекта. --}}
+    @if (method_exists($worksList, 'hasPages') && $worksList->hasPages())
+        <div class="sv-pager">{{ $worksList->links() }}</div>
     @endif
-</div>
+</section>
+@endif
+
+@push('styles')
+<style>
+    /* Литеральный CSS: в собранном tailwind.min.css нет ни line-clamp, ни
+       произвольных значений, ни прозрачности через дробь. Прежняя версия
+       была собрана как раз из таких утилит, а цвета зашиты литералами
+       (text-gray-900, bg-blue-600) — на тёмных темах заголовок пропадал. */
+    .sv{ max-width:80rem; margin:2.5rem auto; padding:0 1rem }
+
+    /* Та же сетка, что у «Товаров» и «Отзывов»: разделы на одной странице
+       должны читаться одним набором, а не тремя разными.
+       min(100%, …) обязателен — иначе дорожка в 19rem не влезает в 360 с
+       полями и вся страница получает горизонтальную прокрутку. */
+    .sv-grid{ display:grid;
+        grid-template-columns:repeat(auto-fill, minmax(min(100%,19rem), 1fr));
+        gap:1rem }
+
+    .sv-card{ display:flex; flex-direction:column; gap:.6rem;
+        padding:1.15rem 1.2rem 1.05rem; background:var(--surface,#fff);
+        border:1px solid var(--surface-bd,#eef2f7);
+        transition:border-color .18s ease, transform .18s ease, box-shadow .18s ease }
+    .sv-card:hover{ border-color:color-mix(in srgb, var(--color-primary,#6366f1) 45%, var(--surface-bd,#eef2f7));
+        transform:translateY(-3px);
+        box-shadow:0 18px 40px -26px color-mix(in srgb, var(--color-primary,#6366f1) 60%, rgba(15,23,42,.5)) }
+    .sv-card :focus-visible{ outline:2px solid var(--color-primary,#6366f1); outline-offset:2px }
+
+    .sv-card__head{ display:flex; align-items:center; justify-content:space-between; gap:.75rem }
+
+    /* Значок услуги вместо обложки. Квадрат в цвете темы: он и опознаётся
+       быстрее фотографии, и не тянет за собой 192 пикселя пустой рамки. */
+    .sv-card__icon{ display:inline-flex; align-items:center; justify-content:center;
+        width:2.75rem; height:2.75rem; flex:none; font-size:1.35rem; line-height:1;
+        color:var(--on-accent,#fff);
+        background:linear-gradient(135deg, var(--color-primary,#6366f1), var(--color-accent,#8b5cf6)) }
+
+    .sv-card__num{ font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size:1.5rem; font-weight:800; line-height:1;
+        color:color-mix(in srgb, var(--color-primary,#6366f1) 22%, transparent) }
+
+    .sv-card__title{ margin:0; font-size:1.05rem; line-height:1.35; font-weight:700 }
+    .sv-card__title a{ color:var(--surface-ink,#111827); text-decoration:none;
+        display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden }
+    .sv-card__title a:hover{ color:var(--color-primary,#6366f1) }
+
+    .sv-card__text{ margin:0; font-size:.87rem; line-height:1.55;
+        color:var(--surface-mute,#64748b);
+        display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden }
+
+    /* Состав работ. Это и есть главный довод при выборе услуги, поэтому
+       он стоит в карточке, а не только на странице материала. */
+    .sv-card__list{ margin:.15rem 0 0; padding:0; list-style:none; flex:1;
+        display:flex; flex-direction:column; gap:.32rem }
+    .sv-card__list li{ display:flex; align-items:flex-start; gap:.45rem;
+        font-size:.82rem; line-height:1.45; color:var(--surface-ink,#334155) }
+    .sv-card__list i{ flex:none; margin-top:.25rem; font-size:.66rem;
+        color:color-mix(in srgb, #16a34a 82%, var(--surface-ink,#111827)) }
+
+    .sv-card__foot{ display:flex; align-items:baseline; justify-content:space-between;
+        gap:.6rem; flex-wrap:wrap; padding-top:.7rem;
+        border-top:1px solid var(--surface-bd,#f1f5f9) }
+
+    .sv-card__price{ font-size:1.15rem; font-weight:800; letter-spacing:-.02em;
+        color:var(--surface-ink,#111827); font-variant-numeric:tabular-nums;
+        white-space:nowrap }
+    /* «от» приглушено и мельче: это оговорка к числу, а не само число. */
+    .sv-card__price small{ font-size:.7rem; font-weight:600; margin-right:.15rem;
+        color:var(--surface-mute,#64748b) }
+    .sv-card__price b{ font-size:.92rem; font-weight:700;
+        color:var(--surface-mute,#64748b) }
+
+    /* ⚠️ Чистый акцент здесь брать нельзя: фирменный индиго #6366f1 на белом
+       даёт 4.47 при пороге 4.5, а 13-пиксельная строка под «крупный текст»
+       не подпадает даже полужирной. Подмешиваем цвет текста — оттенок
+       узнаётся, а читаемость выходит за порог. Доля 72% — та же, что
+       уже применена в корзине: подмешивается ЦВЕТ ТЕКСТА, поэтому правило
+       работает в обе стороны — на светлой теме темнит, на тёмной светлит. */
+    .sv-card__more{ font-size:.84rem; font-weight:700; white-space:nowrap;
+        color:color-mix(in srgb, var(--color-primary,#6366f1) 72%, var(--surface-ink,#111827)) }
+
+    .sv-pager{ margin-top:1.5rem; display:flex; justify-content:center }
+
+    /* Тёмная ТЕМА сайта — не то же, что тёмный режим системы. Блока
+       @media (prefers-color-scheme: dark) здесь нет намеренно: это
+       настройка ОС, и при тёмной системе со светлым сайтом раздел уезжал
+       бы в тёмный посреди светлой страницы (разбор — в CLAUDE.md). */
+    body.fx-theme-dark .sv-card{ background:var(--surface); border-color:var(--surface-bd) }
+    body.fx-theme-dark .sv-card__title a,
+    body.fx-theme-dark .sv-card__price{ color:var(--surface-ink) }
+    body.fx-theme-dark .sv-card__list li{ color:var(--surface-ink) }
+
+    @media (max-width: 1024px), (max-height: 500px){
+        .sv{ margin:1.5rem auto; padding:0 .75rem }
+        .sv-grid{ gap:.75rem }
+        .sv-card{ padding:1rem }
+        .sv-card__icon{ width:2.5rem; height:2.5rem; font-size:1.2rem }
+        .sv-card__list li{ font-size:12px }
+        /* Ссылка — зона нажатия, а не просто текст. */
+        .sv-card__more{ display:inline-flex; align-items:center; min-height:32px }
+    }
+
+    /* Движение отключается по настройке «уменьшить анимацию». */
+    @media (prefers-reduced-motion: reduce){
+        .sv-card{ transition:none }
+        .sv-card:hover{ transform:none }
+    }
+</style>
+@endpush
