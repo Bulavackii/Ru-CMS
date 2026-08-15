@@ -53,12 +53,18 @@ class SendOrderStatusChangedNotifications
             // Письмо уходит после ответа: покупатель и админ не должны
             // ждать почтовый сервер, а недоступный SMTP не должен ронять
             // страницу по лимиту времени выполнения.
+            // Тема письма говорит, что произошло. Отмена по сроку оплаты —
+            // не рядовое «обновление статуса»: покупатель должен понять суть
+            // из списка писем, не открывая его.
+            $subject = $order->cancel_reason === 'unpaid_timeout'
+                ? "Заказ #{$order->id} отменён: оплата не поступила"
+                : "Обновление статуса заказа #{$order->id}";
+
             after_response(fn () => Mail::send('emails.order_status', [
                 'order' => $order,
                 'oldStatus' => $oldStatus,
-            ], function ($message) use ($order, $email) {
-                $message->to($email)
-                        ->subject("Обновление статуса заказа #{$order->id}");
+            ], function ($message) use ($email, $subject) {
+                $message->to($email)->subject($subject);
             }), ['order_id' => $order->id, 'mail' => 'order_status']);
         } catch (\Exception $e) {
             Log::error('Failed to send order status email', [
@@ -94,7 +100,12 @@ class SendOrderStatusChangedNotifications
             'user_id' => null, // Для всех админов
             'type' => $type,
             'title' => "Заказ #{$order->id} обновлён",
-            'message' => "Статус изменён с '{$oldStatusText}' на '{$newStatusText}'",
+            // Причина важна владельцу не меньше, чем покупателю: по ней
+            // видно, отменил заказ человек или закрыл таймер оплаты.
+            'message' => "Статус изменён с '{$oldStatusText}' на '{$newStatusText}'"
+                . ($order->cancel_reason === 'unpaid_timeout'
+                    ? ' — оплата не поступила в срок, товар возвращён в продажу'
+                    : ''),
             'action_url' => route('admin.orders.show', $order->id),
             'action_text' => 'Просмотреть заказ',
         ]);

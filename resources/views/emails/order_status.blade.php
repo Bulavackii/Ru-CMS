@@ -2,15 +2,16 @@
 
 @section('content')
 @php
-    function getStatusText($status) {
-        $statuses = [
-            'pending' => 'В ожидании',
-            'processing' => 'В обработке',
-            'completed' => 'Завершён',
-            'cancelled' => 'Отменён',
-        ];
-        return $statuses[$status] ?? $status;
-    }
+    // ⚠️ ОБЫЧНУЮ функцию здесь объявлять нельзя. Скомпилированная вьюха —
+    // это подключаемый PHP-файл, и второй раз в одном процессе он падает с
+    // «Cannot redeclare function getStatusText()». В запросе письмо одно и
+    // беда не всплывала, а отмена по сроку шлёт письма пачкой в одном
+    // прогоне команды: второй заказ ронял весь разбор.
+    //
+    // Подписи берём у модели — тем же источником, что панель и уведомления.
+    // Своя копия набора здесь уже разошлась с общей: в ней не было статуса
+    // «Оплачен», и письмо показывало сырой код вместо подписи.
+    $подпись = fn ($статус) => \Modules\Payments\Models\Order::statusLabels()[$статус] ?? $статус;
 @endphp
 
 <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
@@ -26,11 +27,11 @@
         <table width="100%" cellpadding="5" cellspacing="0">
             <tr>
                 <td width="40%" style="font-weight: bold;">Предыдущий статус:</td>
-                <td width="60%" style="color: #e74c3c;">{{ getStatusText($oldStatus) }}</td>
+                <td width="60%" style="color: #e74c3c;">{{ $подпись($oldStatus) }}</td>
             </tr>
             <tr>
                 <td style="font-weight: bold;">Новый статус:</td>
-                <td style="color: #27ae60; font-weight: bold;">{{ getStatusText($order->status) }}</td>
+                <td style="color: #27ae60; font-weight: bold;">{{ $подпись($order->status) }}</td>
             </tr>
             <tr>
                 <td style="font-weight: bold;">Сумма заказа:</td>
@@ -47,6 +48,21 @@
     <div style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 5px; margin: 20px 0;">
         <strong>✅ Ваш заказ выполнен!</strong><br>
         Спасибо за покупку. Мы надеемся, что вы останетесь довольны.
+    </div>
+    @elseif($order->status === 'cancelled' && ($order->cancel_reason ?? null) === 'unpaid_timeout')
+    {{-- Отмена по сроку оплаты. Отдельный текст обязателен: покупателю
+         нужно понять, что это не отказ магазина и что заказ можно
+         оформить заново — товар снова в продаже. Общее «Ваш заказ
+         отменён» подталкивало бы звонить и разбираться. --}}
+    <div style="background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 5px; margin: 20px 0;">
+        <strong>⏳ Заказ отменён: оплата не поступила.</strong><br>
+        Мы держали товар за вами
+        {{ trans_choice('{1} :count минуту|[2,4] :count минуты|[5,*] :count минут',
+            (int) config('payments.unpaid_timeout', 10),
+            ['count' => (int) config('payments.unpaid_timeout', 10)]) }}
+        и вернули его в продажу, чтобы он не простаивал.<br><br>
+        Если вы всё ещё хотите его купить — просто оформите заказ заново.
+        Деньги с вас не списывались.
     </div>
     @elseif($order->status === 'cancelled')
     <div style="background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 5px; margin: 20px 0;">

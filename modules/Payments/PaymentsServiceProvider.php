@@ -27,6 +27,7 @@ class PaymentsServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \Modules\Payments\Console\Commands\SeedDefaultPaymentMethodsCommand::class,
+                \Modules\Payments\Console\Commands\CancelUnpaidOrdersCommand::class,
             ]);
         }
     }

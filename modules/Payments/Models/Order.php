@@ -36,6 +36,7 @@ class Order extends Model
         'customer_address',    // 🏠 Адрес доставки
         'comment',             // 💬 Комментарий к заказу
         'stock_returned_at',   // 🔄 Когда остатки по заказу вернули на склад
+        'cancel_reason',       // ❌ Почему отменён (напр. не оплачен в срок)
     ];
 
     /**
