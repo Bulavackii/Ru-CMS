@@ -769,7 +769,7 @@ class InstallController extends Controller
         ]]);
         session()->save();
 
-        File::put(storage_path('install.lock'), 'Installed at ' . now()->toDateTimeString());
+        File::put(install_lock_path(), 'Installed at ' . now()->toDateTimeString());
 
         // Если ключи всё-таки записались, сервер разработки сейчас
         // перезапускается — обычный редирект увёл бы браузер на итог ровно в

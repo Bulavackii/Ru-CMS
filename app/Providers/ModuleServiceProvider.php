@@ -45,7 +45,7 @@ class ModuleServiceProvider extends ServiceProvider
      */
     private function isInstalled(): bool
     {
-        if (!file_exists(storage_path('install.lock')) || !class_exists(Module::class)) {
+        if (!file_exists(install_lock_path()) || !class_exists(Module::class)) {
             return false;
         }
 

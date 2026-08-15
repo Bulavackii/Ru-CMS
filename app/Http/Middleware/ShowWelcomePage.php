@@ -23,7 +23,7 @@ class ShowWelcomePage
         // 4. Если нет контента на главной странице
         
         if ($request->is('/') && 
-            file_exists(storage_path('install.lock')) && 
+            file_exists(install_lock_path()) && 
             !auth()->check() &&
             $this->shouldShowWelcome()) {
             

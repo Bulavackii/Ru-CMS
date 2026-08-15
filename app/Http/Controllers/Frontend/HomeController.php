@@ -18,7 +18,7 @@ class HomeController extends Controller
     public function index(Request $request)
     {
         // Показать приветственную страницу, если установка завершена и нет контента
-        if (file_exists(storage_path('install.lock')) && 
+        if (file_exists(install_lock_path()) && 
             !auth()->check() && 
             !\Modules\News\Models\News::where('published', true)->exists() &&
             !\Modules\Menu\Models\Page::where('published', true)->where('show_on_homepage', true)->exists() &&

@@ -165,7 +165,7 @@ class DashboardController extends Controller
                 : 'Пуст: выполните php artisan key:generate.',
         ];
 
-        $locked = file_exists(storage_path('install.lock'));
+        $locked = file_exists(install_lock_path());
         $items[] = [
             'label' => 'Мастер установки закрыт',
             'ok'    => $locked,

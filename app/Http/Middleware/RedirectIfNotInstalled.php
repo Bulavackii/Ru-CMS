@@ -15,7 +15,7 @@ class RedirectIfNotInstalled
     public function handle(Request $request, Closure $next): Response
     {
         // Если система не установлена и это не маршрут установки
-        if (!File::exists(storage_path('install.lock')) && !$request->is('install*')) {
+        if (!File::exists(install_lock_path()) && !$request->is('install*')) {
             return redirect('/install');
         }
 

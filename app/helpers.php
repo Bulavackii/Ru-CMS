@@ -1,5 +1,19 @@
 <?php
 
+if (! function_exists('install_lock_path')) {
+    /**
+     * Путь к файлу-замку установки.
+     *
+     * Единственное место, где он вычисляется. Раньше install_lock_path()
+     * был вписан в одиннадцати файлах, и подменить его для тестов было нечем —
+     * прогон требовал настоящего файла в рабочем каталоге владельца.
+     */
+    function install_lock_path(): string
+    {
+        return storage_path((string) config('install.lock', 'install.lock'));
+    }
+}
+
 /**
  * 📚 LOCAL_FONTS — реестр самохостящихся шрифтов (latin + cyrillic).
  *
@@ -891,7 +905,7 @@ if (! function_exists('module_active_names')) {
             $names = null;
 
             try {
-                if (file_exists(storage_path('install.lock'))
+                if (file_exists(install_lock_path())
                     && class_exists(\Modules\System\Models\Module::class)
                     && \Illuminate\Support\Facades\Schema::hasTable('modules')) {
                     $names = \Modules\System\Models\Module::where('active', true)

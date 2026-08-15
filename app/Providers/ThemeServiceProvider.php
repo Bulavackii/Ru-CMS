@@ -161,7 +161,7 @@ class ThemeServiceProvider extends ServiceProvider
 
     private function isInstalled(): bool
     {
-        return file_exists(storage_path('install.lock'));
+        return file_exists(install_lock_path());
     }
 
     /**
@@ -191,7 +191,7 @@ class ThemeServiceProvider extends ServiceProvider
             return $theme;
         }
 
-        if (!file_exists(storage_path('install.lock'))) {
+        if (!file_exists(install_lock_path())) {
             return null;
         }
 

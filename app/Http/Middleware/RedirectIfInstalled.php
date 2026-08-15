@@ -10,7 +10,7 @@ class RedirectIfInstalled
 {
     public function handle(Request $request, Closure $next)
     {
-        if (File::exists(storage_path('install.lock'))) {
+        if (File::exists(install_lock_path())) {
             return redirect('/')->with('error', 'Система уже установлена.');
         }
 
