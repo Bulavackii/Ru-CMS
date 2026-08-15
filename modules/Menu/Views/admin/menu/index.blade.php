@@ -82,7 +82,9 @@
                           focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
         </div>
 
-        <div class="flex gap-2 text-xs">
+        {{-- flex-wrap: шесть кнопок отбора не помещаются в строку на телефоне
+             и давали 38 пикселей горизонтальной прокрутки всей странице. --}}
+        <div class="flex flex-wrap gap-2 text-xs">
             <button data-pos="all"     class="pos-filter is-active bg-indigo-600 text-white px-3 py-1.5 font-medium transition">{{ __('admin.common.all') }}</button>
             <button data-pos="header"  class="pos-filter bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-3 py-1.5 font-medium transition">Header</button>
             <button data-pos="footer"  class="pos-filter bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-3 py-1.5 font-medium transition">Footer</button>

@@ -592,6 +592,24 @@
             .f-brand-chip, .f-social-label, .pr-card__stock,
             .fx-chip, .pc-now, .pr-badge{ font-size:12px; }
 
+            /* Личный кабинет: подписи сводки и списков описаний шли по
+               9,9–10,9. Отбор по куску имени класса — тот же приём, что в
+               панели: подписи называются одинаково во всех вьюхах кабинета,
+               а перечисление поштучно устаревает с первой новой страницей. */
+            /* ⚠️ Префикс body обязателен: у вьюх кабинета есть свои правила
+               вида .acc-link .acc-state, и при равной силе побеждают они —
+               их <style> идёт ниже по документу. */
+            body .acc-sum__label, body .acc-socials__label,
+            body .acc-state, body .acc-link .acc-state,
+            body .acc-list dt, body .cart-ico__badge,
+            body [class*="acc-"] [class*="label"],
+            body [class*="eyebrow"]{ font-size:12px }
+
+            /* Ссылки внутри текста кабинета — почта в списке профиля и
+               «Заполнить» в подсказке: 18–19 пикселей в высоту. */
+            body .acc-list a, body .acc-fill-hint a{
+                display:inline-block; min-height:24px }
+
             /* Хлебные крошки — навигация, а не подпись: по ним возвращаются
                на раздел выше. Были 24 пикселя в высоту. */
             /* Селектор по aria-label, а не по классам: у крошек нет своего
