@@ -53,6 +53,8 @@ class NewsController extends Controller
                     'price', 'stock', 'is_promo', 'rating', 'created_at', 'updated_at')
                 ->published()
                 ->where(fn ($q) => $this->whereGroups($q, $onPage))
+                // По дате, потом по идентификатору — см. разбор в HomeController.
+                ->orderByDesc('created_at')
                 ->orderByDesc('id')
                 ->get();
 
