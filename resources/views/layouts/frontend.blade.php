@@ -494,6 +494,75 @@
         :root.dark .fx-section-title{ color:#f3f4f6; }
         .fx-section-sub{ font-size:.85rem; color:var(--surface-mute,#6b7280); }
         :root.dark .fx-section-sub{ color:#9ca3af; }
+        /* ── Плашка заголовка раздела: ОДИН вид на все шаблоны ──────────
+           Каждый шаблон объявлял её сам (.nw__head, .mag__head, .gm__head,
+           .clinic__head, .pr__head, .pg__head) — шесть почти одинаковых
+           копий, которые уже разъехались отступами и тенью. Здесь один
+           набор на всех; селектор с body, потому что копии в шаблонах
+           попадают в тот же стек стилей и при равной силе перебили бы.
+           (Название директивы стека здесь НЕ пишем: Blade выполняет
+           директивы даже внутри комментария — см. CLAUDE.md.)
+
+           Что изменилось по виду: слева акцентная полоса вместо ровной
+           рамки со всех сторон (тот же приём, что у карточек и в панели),
+           надзаголовок моноширинным капсом — как на страницах входа и в
+           корзине, — и подложка чуть плотнее, чтобы плашка читалась на
+           фоновой картинке темы. */
+        body .nw__head, body .mag__head, body .gm__head,
+        body .clinic__head, body .pr__head, body .pg__head,
+        body .fx-section-head{
+            display:inline-flex; align-items:center; gap:.85rem;
+            box-sizing:border-box; max-width:100%;
+            padding:.65rem 1.1rem .65rem .95rem;
+            background:var(--surface,#fff);
+            border:1px solid var(--surface-bd,rgba(17,24,39,.08));
+            border-left:3px solid var(--color-primary,#6366f1);
+            box-shadow:0 6px 20px -12px rgba(15,23,42,.35);
+            margin-bottom:1.35rem;
+        }
+        /* Название раздела и строка под ним. Название чуть меньше прежнего
+           (1.5rem на телефоне переносилось в две строки), строка под ним —
+           моноширинным капсом: она поясняющая, и так не спорит с названием. */
+        body .nw__title, body .mag__title, body .gm__title,
+        body .clinic__title, body .pr__title, body .pg__title{
+            margin:0; font-size:1.35rem; font-weight:700; line-height:1.2;
+            letter-spacing:-.015em; color:var(--surface-ink,#111827);
+        }
+        body .nw__sub, body .mag__sub, body .gm__sub,
+        body .clinic__sub, body .pr__sub, body .pg__sub{
+            margin:.15rem 0 0;
+            font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size:.68rem; letter-spacing:.06em; text-transform:uppercase;
+            color:var(--surface-mute,#6b7280);
+        }
+        /* Значок раздела — один размер у всех плашек. */
+        body .nw__head .fx-badge, body .mag__head .fx-badge,
+        body .gm__head .fx-badge, body .clinic__head .fx-badge,
+        body .pr__head .fx-badge, body .pg__head .fx-badge,
+        body .gm__badge{
+            width:2.35rem; height:2.35rem; flex:none;
+        }
+
+        @media (max-width: 1024px), (max-height: 500px){
+            /* inline-flex по содержимому на узком экране выглядел случайным
+               ярлыком у левого края, а длинная поясняющая строка распирала
+               плашку за край. Во всю ширину — и то и другое уходит. */
+            body .nw__head, body .mag__head, body .gm__head,
+            body .clinic__head, body .pr__head, body .pg__head,
+            body .fx-section-head{
+                display:flex; width:100%; padding:.6rem .85rem .6rem .7rem;
+                margin-bottom:1rem;
+            }
+            body .nw__title, body .mag__title, body .gm__title,
+            body .clinic__title, body .pr__title, body .pg__title{ font-size:1.15rem }
+            body .nw__sub, body .mag__sub, body .gm__sub,
+            body .clinic__sub, body .pr__sub, body .pg__sub{ font-size:12px }
+            body .nw__head .fx-badge, body .mag__head .fx-badge,
+            body .gm__head .fx-badge, body .clinic__head .fx-badge,
+            body .pr__head .fx-badge, body .pg__head .fx-badge,
+            body .gm__badge{ width:2.1rem; height:2.1rem }
+        }
+
         .fx-ico{ color:var(--fx-a); }
         /* Заглушка «Нет изображения» — в тон редизайну (мягкий indigo-градиент) */
         .fx-noimg{ width:100%; height:100%; display:flex; flex-direction:column; align-items:center;
