@@ -409,6 +409,10 @@ return [
         'subtitle' => 'What changed in the system and when',
         'latest' => 'Latest',
     ],
+    'lessons' => [
+        'subtitle' => 'Walkthroughs with code you can copy',
+        'examples' => 'Code examples',
+    ],
     'ourworks' => [
         'subtitle'   => 'What we take on so the site starts working',
         'from'       => 'from',
