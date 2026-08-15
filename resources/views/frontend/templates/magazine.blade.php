@@ -97,6 +97,14 @@
                     <div class="mag-card__body">
                         <h4 class="mag-card__title">{{ $item->title }}</h4>
                         <p class="mag-card__text">{{ $excerptOf($item, 110) }}</p>
+
+                        {{-- Ссылка «Читать целиком» была только у ведущего
+                             материала: у карточек сетки правый нижний угол
+                             пустовал, и куда нажимать — приходилось угадывать.
+                             Порядок тот же, что в шаблоне по умолчанию: анонс,
+                             ссылка у правого края, ниже дата и время. --}}
+                        <span class="mag-card__more">{{ __('frontend.news.read_full') }} →</span>
+
                         {{-- Дата и время чтения разведены по краям и отделены
                              линией: одной строкой они сливались с анонсом. --}}
                         <span class="mag-card__meta">
@@ -138,8 +146,13 @@
        object-fit становится неважен: картинка совпадает с рамкой.
        align-self:start обязателен — иначе ячейка сетки растянется по
        соседней колонке и пропорция не применится. */
+    /* align-self:center, а не start: рамка держит свою пропорцию, а ряд
+       сетки задаётся более высокой текстовой колонкой — при start обложка
+       прижималась к верху и под ней оставалась пустая белая полоса во всю
+       оставшуюся высоту. Растягивать её нельзя (пропорция сломается),
+       поэтому она центрируется по вертикали. */
     .mag-lead__media{ position:relative; width:100%; aspect-ratio:8 / 5;
-        align-self:start; display:flex; align-items:center;
+        align-self:center; display:flex; align-items:center;
         justify-content:center; overflow:hidden;
         background:linear-gradient(135deg,var(--color-primary,#6366f1),var(--color-accent,#8b5cf6)) }
     .mag-lead__media img{ width:100%; height:100%; object-fit:cover; display:block }
@@ -152,7 +165,12 @@
         margin-top:1.5rem; padding-top:.85rem; font-size:.82rem; color:var(--surface-dim,#94a3b8);
         border-top:1px solid #eef2f7 }
     .mag-lead__meta .mag-meta__time{ margin-right:auto }
-    .mag-lead__more{ font-weight:700; color:var(--color-primary,#6366f1) }
+    /* ⚠️ margin-left:auto, а не расчёт на соседний margin-right:auto у
+       времени чтения. Строка меты переносится (flex-wrap), и на узком
+       экране ссылка начинала НОВУЮ строку — то есть уезжала к левому краю,
+       хотя на широком стояла справа. Со своим auto она прижата вправо в
+       обоих случаях. */
+    .mag-lead__more{ margin-left:auto; font-weight:700; color:var(--color-primary,#6366f1) }
 
     .mag-chip{ align-self:flex-start; font-size:.7rem; font-weight:700; letter-spacing:.04em;
         padding:.2rem .6rem; color:var(--on-accent,#fff); background:var(--color-accent,#8b5cf6) }
@@ -175,6 +193,12 @@
     /* Нижняя строка карточки. Раньше это был обычный текст того же цвета,
        что и анонс, вплотную к нему — строка в тексте тонула. Теперь у неё
        своя полоса: линия сверху, лёгкая подложка, края разведены. */
+    /* Ссылка карточки: у правого края, над строкой даты. Ширина по
+       содержимому — растянутая на всю строку ловила бы нажатие на пустом
+       месте слева от подписи. */
+    .mag-card__more{ align-self:flex-end; font-size:.8rem; font-weight:700;
+        color:var(--color-primary,#6366f1) }
+
     .mag-card__meta{ display:flex; align-items:center; justify-content:space-between; gap:.75rem;
         margin:.65rem -1.1rem -1.15rem; padding:.55rem 1.1rem; font-size:.75rem;
         border-top:1px solid #eef2f7; background:var(--surface-2,#f8fafc) }
@@ -199,6 +223,12 @@
        баннером во всю ширину она заняла бы 519 пикселей, больше экрана.
        Порог 640 отсекает телефон в портрете: там ширины на две колонки
        нет, и работает одноколоночное правило выше. */
+    /* Зона нажатия у обеих ссылок: голая строка текста была 20 пикселей. */
+    @media (max-width: 1024px), (max-height: 500px){
+        .mag-lead__more, .mag-card__more{ display:inline-flex; align-items:center;
+            min-height:32px }
+    }
+
     @media (max-height: 500px) and (min-width: 640px){
         .mag-lead{ grid-template-columns:minmax(0,.85fr) minmax(0,1fr) }
         .mag-lead__body{ padding:1.1rem 1.25rem }
