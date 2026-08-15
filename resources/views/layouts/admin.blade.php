@@ -221,6 +221,18 @@
         body .pm-docs, body .dl-docs, body .seo-chip,
         body .loc-btn{ min-height:24px }
 
+        /* Ручка перетаскивания (дерево меню, плитки дашборда) была 24×24.
+           Для НАЖАТИЯ это нижняя граница, но перетаскивание — жест: палец
+           должен попасть и удержаться, иначе он уезжает в прокрутку
+           страницы вместо переноса пункта.
+           ⚠️ Только span и .widget-handle: в «Слайдшоу» класс cursor-move
+           висит на самой карточке-<li>, и display:inline-flex сломал бы ей
+           раскладку. */
+        body span.cursor-move, body .widget-handle{
+            min-width:36px; min-height:36px;
+            display:inline-flex; align-items:center; justify-content:center;
+        }
+
         /* Подсказка про Ctrl+K в поиске: на сенсорном экране сочетания
            клавиш нет, а подпись самая мелкая на странице. */
         body .ags-kbd{ display:none }

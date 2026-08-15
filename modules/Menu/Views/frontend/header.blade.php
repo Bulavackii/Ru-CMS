@@ -54,8 +54,14 @@
     .header-nav .menu-item--root:hover > .menu-link--root{ color:var(--nav-accent); }
     .header-nav .menu-link--root.active-link{ color:var(--nav-accent); }
 
-    /* ══════════ Десктоп (широкий экран, есть hover) ══════════ */
-    @media (min-width:1024px){
+    /* ══════════ Десктоп (широкий экран, есть hover) ══════════
+       Порог ровно обратный сенсорному ниже. Раньше здесь стояло
+       min-width:1024px, а в сенсорной ветке max-width:1023px — и iPad в
+       альбомной ориентации (ровно 1024) попадал СЮДА. Подменю тут скрыто
+       до наведения, а наведения на сенсорном экране нет вовсе: все
+       вложенные пункты были недоступны. Замер на трёхуровневом меню при
+       1024×768 показывал 13 невидимых пунктов из 13. */
+    @media (min-width:1025px) and (min-height:501px){
         .header-nav{ flex-direction:row; flex-wrap:wrap; }
 
         /* Панель 2-го уровня (выпадает под корневым пунктом) */
@@ -98,8 +104,11 @@
         .header-nav .menu-link--l3:hover .menu-ico{ opacity:.95; }
     }
 
-    /* ══════════ Маленькие/средние экраны (тач, hover недоступен) ══════════ */
-    @media (max-width:1023px){
+    /* ══════════ Маленькие/средние экраны (тач, hover недоступен) ══════════
+       Общий для проекта порог: 1024 ВКЛЮЧИТЕЛЬНО (iPad в альбомной ровно
+       такой и он сенсорный) плюс низкий экран — телефон в альбомной
+       широкий, но всего 414 в высоту. */
+    @media (max-width:1024px), (max-height:500px){
         .header-nav{ flex-direction:column; align-items:stretch; width:100%; gap:.05rem; }
         .header-nav .menu-item{ width:100%; }
         .header-nav .menu-link{ width:100%; }

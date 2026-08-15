@@ -649,6 +649,44 @@ class MenuModuleTest extends TestCase
         $this->assertTrue($links[2]['external']);
     }
 
+    /**
+     * iPad в альбомной ориентации — ровно 1024 пикселя в ширину, и он
+     * сенсорный. Пороги вьюхи стояли min-width:1024px (выпадашка по
+     * наведению) и max-width:1023px (дерево раскрыто сразу), поэтому такой
+     * планшет попадал в ветку НАВЕДЕНИЯ — а наведения на сенсорном экране
+     * нет вовсе. Замер на трёхуровневом меню показывал 13 недоступных
+     * пунктов из 13: подменю существовали в разметке и никогда не
+     * показывались.
+     *
+     * Проверяем сам порог, а не отрисовку: браузера в тестах нет, а
+     * ошибка была именно в границе — на единицу.
+     */
+    public function test_touch_breakpoint_covers_tablet_landscape(): void
+    {
+        // Вьюха молчит, пока в меню нет пунктов (гард isNotEmpty), поэтому
+        // одно живое меню завести обязательно — иначе тест проверял бы
+        // пустую строку и проходил при любых порогах.
+        $menu = Menu::create(['title' => 'Шапка', 'position' => 'header', 'active' => true]);
+        MenuItem::create([
+            'menu_id' => $menu->id, 'title' => 'Главная', 'url' => '/',
+            'type' => 'url', 'active' => true, 'order' => 0,
+        ]);
+        Menu::flushCache();
+
+        $css = view('Menu::frontend.header')->render();
+        $this->assertNotSame('', trim($css));
+
+        // Сенсорная ветка обязана включать 1024 и низкий экран.
+        $this->assertStringContainsString('(max-width:1024px), (max-height:500px)', $css);
+
+        // Ветка наведения начинается строго ЗА сенсорной.
+        $this->assertStringContainsString('(min-width:1025px) and (min-height:501px)', $css);
+
+        // Старых границ остаться не должно — они и были ошибкой.
+        $this->assertStringNotContainsString('(max-width:1023px)', $css);
+        $this->assertStringNotContainsString('@media (min-width:1024px)', $css);
+    }
+
     public function test_contacts_fall_back_while_the_menu_does_not_exist(): void
     {
         Menu::flushCache();
