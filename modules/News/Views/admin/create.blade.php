@@ -1,5 +1,15 @@
 @extends('layouts.admin')
 
+{{-- Какие поля какому шаблону — из констант контроллера, а не своей
+     копией списка: копий уже было четыре и они разошлись (цена у услуги
+     обнулялась при сохранении). --}}
+@php
+    $сЦеной    = \Modules\News\Controllers\Admin\NewsController::PRICE_TEMPLATES;
+    $сОстатком = \Modules\News\Controllers\Admin\NewsController::STOCK_TEMPLATES;
+    $сОценкой  = \Modules\News\Controllers\Admin\NewsController::RATING_TEMPLATES;
+@endphp
+
+
 @section('title', __('admin.news.page_create'))
 
 @section('content')
@@ -94,17 +104,27 @@
                     </div>
                 </div>
 
-                {{-- Поля шаблона «Товары» --}}
+                {{-- Цена. Носят «Товары» И «Услуги»: у услуги она стоит в
+                     карточке с оговоркой «от». Блок отделён от остатка —
+                     склада у услуги нет, а раньше поля шли вместе, и цена
+                     была доступна только товару. --}}
+                <div id="price-fields" class="admin-card p-5 hidden animate-fade-in">
+                    <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+                        <i class="fas fa-ruble-sign text-indigo-500"></i> {{ __('admin.news.price') }}
+                    </h2>
+                    <x-admin.input label="{{ __('admin.news.price') }}" name="price" type="number" step="0.01"
+                            hint="{{ __('admin.news.price_hint') }}" />
+                </div>
+
+                {{-- Остаток и распродажа — только товарные. --}}
                 <div id="product-fields" class="admin-card p-5 hidden animate-fade-in">
                     <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
                         <i class="fas fa-bag-shopping text-indigo-500"></i> {{ __('admin.news.product') }}
                     </h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <x-admin.input label="{{ __('admin.news.price') }}" name="price" type="number" step="0.01"
-                            hint="{{ __('admin.news.price_hint') }}" />
                         <x-admin.input label="{{ __('admin.news.stock') }}" name="stock" type="number"
                             hint="{{ __('admin.news.stock_hint') }}" />
-                        <label class="md:col-span-2 inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                        <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                             <input type="checkbox" name="is_promo" value="1" {{ old('is_promo') ? 'checked' : '' }}>
                             {{ __('admin.news.sale') }}
                         </label>
@@ -199,22 +219,19 @@
         document.addEventListener('DOMContentLoaded', function() {
             const templateSelect = document.getElementById('template');
             const productFields = document.getElementById('product-fields');
+            const priceFields = document.getElementById('price-fields');
             // Оценку показываем шаблонам, где она осмысленна: «Игры» и
             // «Отзывы». У остальных поле только путало бы редактора.
             const ratingFields = document.getElementById('rating-fields');
 
             const toggleFields = () => {
-                if (ratingFields) {
-                    // Оценка нужна и «Играм» (обзор), и «Отзывам» (мнение клиента).
-                    const сОценкой = ['gaming', 'reviews'];
-                    ratingFields.classList.toggle('hidden', !сОценкой.includes(templateSelect.value));
-                }
+                // Списки приходят с сервера из констант контроллера: своя
+                // копия здесь уже расходилась с серверной проверкой.
+                const т = templateSelect.value;
 
-                if (templateSelect.value === 'products') {
-                    productFields.classList.remove('hidden');
-                } else {
-                    productFields.classList.add('hidden');
-                }
+                if (ratingFields)  ratingFields.classList.toggle('hidden', !@js($сОценкой).includes(т));
+                if (priceFields)   priceFields.classList.toggle('hidden', !@js($сЦеной).includes(т));
+                if (productFields) productFields.classList.toggle('hidden', !@js($сОстатком).includes(т));
             };
             templateSelect.addEventListener('change', toggleFields);
             toggleFields();

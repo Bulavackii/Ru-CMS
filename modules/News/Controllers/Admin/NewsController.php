@@ -123,12 +123,20 @@ class NewsController extends Controller
             'created_by'       => auth()->id(),
         ];
 
-        if ($template === 'products') {
-            $data['price']    = $request->input('price');
+        // Цену носят «Товары» И «Услуги»: у услуги она показывается в
+        // карточке с оговоркой «от». Раньше проверка была на один шаблон, и
+        // сохранение услуги из панели МОЛЧА ОБНУЛЯЛО цену — владелец открывал
+        // материал, ничего не менял, нажимал «Сохранить», и карточка на сайте
+        // переключалась на «По запросу».
+        $data['price'] = in_array($template, self::PRICE_TEMPLATES, true)
+            ? $request->input('price')
+            : null;
+
+        // Остаток и «распродажа» — только товарные: у услуги склада нет.
+        if (in_array($template, self::STOCK_TEMPLATES, true)) {
             $data['stock']    = $request->input('stock');
             $data['is_promo'] = $request->boolean('is_promo');
         } else {
-            $data['price']    = null;
             $data['stock']    = null;
             $data['is_promo'] = false;
         }
@@ -139,7 +147,7 @@ class NewsController extends Controller
         // Оценку носят два шаблона: «Игры» (обзор) и «Отзывы» (мнение
         // клиента). Раньше только «Игры», поэтому у отзыва поле всегда
         // оставалось NULL и блок оценки не рисовался ВООБЩЕ.
-        $data['rating'] = in_array($template, ['gaming', 'reviews'], true)
+        $data['rating'] = in_array($template, self::RATING_TEMPLATES, true)
             ? ($request->filled('rating') ? (float) $request->input('rating') : null)
             : null;
 
@@ -181,12 +189,20 @@ class NewsController extends Controller
             'meta_header'      => $request->input('meta_header'),
         ];
 
-        if ($template === 'products') {
-            $data['price']    = $request->input('price');
+        // Цену носят «Товары» И «Услуги»: у услуги она показывается в
+        // карточке с оговоркой «от». Раньше проверка была на один шаблон, и
+        // сохранение услуги из панели МОЛЧА ОБНУЛЯЛО цену — владелец открывал
+        // материал, ничего не менял, нажимал «Сохранить», и карточка на сайте
+        // переключалась на «По запросу».
+        $data['price'] = in_array($template, self::PRICE_TEMPLATES, true)
+            ? $request->input('price')
+            : null;
+
+        // Остаток и «распродажа» — только товарные: у услуги склада нет.
+        if (in_array($template, self::STOCK_TEMPLATES, true)) {
             $data['stock']    = $request->input('stock');
             $data['is_promo'] = $request->boolean('is_promo');
         } else {
-            $data['price']    = null;
             $data['stock']    = null;
             $data['is_promo'] = false;
         }
@@ -197,7 +213,7 @@ class NewsController extends Controller
         // Оценку носят два шаблона: «Игры» (обзор) и «Отзывы» (мнение
         // клиента). Раньше только «Игры», поэтому у отзыва поле всегда
         // оставалось NULL и блок оценки не рисовался ВООБЩЕ.
-        $data['rating'] = in_array($template, ['gaming', 'reviews'], true)
+        $data['rating'] = in_array($template, self::RATING_TEMPLATES, true)
             ? ($request->filled('rating') ? (float) $request->input('rating') : null)
             : null;
 
@@ -323,6 +339,19 @@ class NewsController extends Controller
         'release'   => 'Релизы',
         'slideshow' => 'Слайдшоу',
     ];
+
+    /**
+     * Какой шаблон какое поле носит.
+     *
+     * ⚠️ Эти списки были размазаны по контроллеру (две копии — в store и в
+     * update) и по двум вьюхам формы (в JS-переключателе полей). Расхождение
+     * такого списка уже случалось: TEMPLATES и правило `in:` в NewsRequest
+     * разошлись, и «Игры» с «Клиникой» не сохранялись вовсе. Держим в одном
+     * месте, вьюхи берут отсюда же.
+     */
+    public const PRICE_TEMPLATES  = ['products', 'ourworks'];
+    public const STOCK_TEMPLATES  = ['products'];
+    public const RATING_TEMPLATES = ['gaming', 'reviews'];
 
     private function loadTemplates(): array
     {
