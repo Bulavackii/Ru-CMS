@@ -144,14 +144,31 @@
                             </div>
                         @endif
 
+                        {{-- Значок и подпись отдельными элементами: значок
+                             ничего не сообщает диктору и скрыт от него, а
+                             подпись остаётся текстом. --}}
                         @if ($isPromo)
-                            <span class="pr-badge pr-badge--sale">{{ __('frontend.products.sale') }}</span>
+                            <span class="pr-badge pr-badge--sale">
+                                <i class="fas fa-bolt" aria-hidden="true"></i>{{ __('frontend.products.sale') }}
+                            </span>
                         @elseif ($isNew)
-                            <span class="pr-badge pr-badge--new">{{ __('frontend.products.new') }}</span>
+                            <span class="pr-badge pr-badge--new">
+                                {{-- ⚠️ fa-sparkles в бесплатной сборке НЕТ (проверено грепом по
+                                     all.min.css) — значок просто не отрисовался бы.
+                                     Берём fa-star, она есть. --}}
+                                <i class="fas fa-star" aria-hidden="true"></i>{{ __('frontend.products.new') }}
+                            </span>
                         @endif
 
                         @if ($outOfStock)
-                            <span class="pr-card__out">{{ __('frontend.products.out_of_stock') }}</span>
+                            {{-- Раньше это была тёмная полоса по низу обложки: её
+                                 легко принять за подпись к картинке. Теперь весь
+                                 кадр уходит под матовую пелену, а сообщение стоит
+                                 в середине — не перепутать. --}}
+                            <span class="pr-card__out">
+                                <i class="fas fa-ban" aria-hidden="true"></i>
+                                {{ __('frontend.products.out_of_stock') }}
+                            </span>
                         @endif
 
                         {{-- Категории лежат НА обложке, а не первой строкой тела:
@@ -315,14 +332,67 @@
         gap:.4rem; height:100%; color:var(--surface-dim,#94a3b8); font-size:.75rem }
     .pr-card__noimg i{ font-size:1.6rem; opacity:.5 }
 
-    .pr-badge{ position:absolute; top:.7rem; right:.7rem; padding:.2rem .6rem; font-size:.68rem;
-        font-weight:800; letter-spacing:.03em; color:#fff; box-shadow:0 4px 14px rgba(15,23,42,.3) }
-    .pr-badge--sale{ background:#dc2626 }
-    .pr-badge--new{ background:var(--color-accent,#8b5cf6) }
+    /* ── Метки на обложке ────────────────────────────────────────────
+       Общая основа: одна форма, один кегль, один способ отбивки от кадра.
+       Раньше «Акция» и «Новинка» были просто прямоугольниками разного
+       цвета — они не читались как один язык с плашкой остатка. */
+    .pr-badge{ position:absolute; top:.6rem; right:.6rem; z-index:2;
+        display:inline-flex; align-items:center; gap:.3rem;
+        padding:.28rem .6rem; font-size:.68rem; font-weight:800;
+        letter-spacing:.04em; text-transform:uppercase; line-height:1;
+        color:#fff; border:1px solid rgba(255,255,255,.35);
+        box-shadow:0 6px 18px rgba(15,23,42,.4);
+        overflow:hidden }
+    .pr-badge i{ font-size:.85em }
 
-    /* Распроданный товар: карточка гаснет, поверх обложки — метка. */
-    .pr-card__out{ position:absolute; inset:auto 0 0 0; padding:.4rem; text-align:center;
-        font-size:.75rem; font-weight:700; color:#fff; background:rgba(15,23,42,.75) }
+    .pr-badge--sale{ background:linear-gradient(135deg,#ef4444,#b91c1c) }
+    .pr-badge--new{ background:linear-gradient(135deg,
+        var(--color-accent,#8b5cf6),
+        color-mix(in srgb, var(--color-primary,#6366f1) 70%, var(--color-accent,#8b5cf6))) }
+
+    /* Блик проходит по «Акции» раз в несколько секунд. Это метка выгоды —
+       ей полезно поймать взгляд, но не мельтешить: движение редкое, само
+       по себе короткое, и ничего не смещает (двигается только подсветка). */
+    .pr-badge--sale::after{
+        content:''; position:absolute; top:0; bottom:0; left:-60%; width:45%;
+        background:linear-gradient(100deg, transparent, rgba(255,255,255,.55), transparent);
+        transform:skewX(-18deg);
+        animation:pr-shine 4.5s ease-in-out infinite }
+    @keyframes pr-shine{
+        0%, 62% { left:-60% }
+        86%     { left:120% }
+        100%    { left:120% }
+    }
+
+    /* «Новинка» дышит подсветкой — тише, чем блик у акции: новизна не
+       требование к действию, а сообщение. */
+    .pr-badge--new{ animation:pr-glow 3.4s ease-in-out infinite }
+    @keyframes pr-glow{
+        0%, 100% { box-shadow:0 6px 18px rgba(15,23,42,.4) }
+        50%      { box-shadow:0 6px 18px rgba(15,23,42,.4),
+                               0 0 0 4px color-mix(in srgb, var(--color-accent,#8b5cf6) 22%, transparent) }
+    }
+
+    /* ⚠️ Движение отключается по настройке «уменьшить анимацию». Это не
+       вкусовая уступка: людям с вестибулярными нарушениями мигающие
+       элементы вредят, и браузер сообщает об этом настройкой системы. */
+    @media (prefers-reduced-motion: reduce){
+        .pr-badge--sale::after{ animation:none; display:none }
+        .pr-badge--new{ animation:none }
+        .pr-card__media img{ transition:none }
+        .pr-card{ transition:none }
+    }
+
+    /* Распроданный товар: раньше это была тёмная полоса по низу обложки —
+       её легко принять за подпись к картинке. Теперь весь кадр уходит под
+       матовую пелену, а сообщение стоит в середине. */
+    .pr-card__out{ position:absolute; inset:0; z-index:2;
+        display:flex; align-items:center; justify-content:center; gap:.4rem;
+        font-size:.78rem; font-weight:800; letter-spacing:.04em;
+        text-transform:uppercase; color:#fff;
+        background:rgba(15,23,42,.55);
+        backdrop-filter:blur(2px) saturate(.6);
+        -webkit-backdrop-filter:blur(2px) saturate(.6) }
 
     /* Нижней полосы больше нет, поэтому у тела появился нижний отступ. */
     .pr-card__body{ display:flex; flex-direction:column; gap:.4rem;
@@ -450,7 +520,11 @@
         .pr-grid{ gap:.75rem }
         /* 44 — нижняя граница зоны нажатия; ряд растёт целиком. */
         .pr-card__buy{ --pr-h:44px }
-        .pr-card__body{ padding:.85rem .9rem 0 }
+        {{-- Нижний отступ ненулевой: ноль остался с тех пор, когда снизу
+             стояла полоса с датой и давала запас сама. Полосу убрали, и
+             кнопка «В корзину» легла прямо на край карточки — зазор был 1
+             пиксель при боковых 15. --}}
+        .pr-card__body{ padding:.85rem .9rem .9rem }
         .pr-card__price{ font-size:1.2rem }
         .pr-card__stock, .pr-chip{ font-size:12px }
     }
