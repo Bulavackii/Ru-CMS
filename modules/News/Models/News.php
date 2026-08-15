@@ -135,7 +135,19 @@ class News extends Model
     protected static function booted(): void
     {
         // Любое изменение материала — новая версия ключа.
-        static::saved(fn () => self::bumpContentVersion());
+        //
+        // ⚠️ Слушать `saved` НЕДОСТАТОЧНО, и это стоило неверных остатков на
+        // сайте. `decrement()`/`increment()` — а именно ими списывается товар
+        // при покупке и возвращается при удалении заказа — событие `saved` НЕ
+        // поднимают: Eloquent в `incrementOrDecrement()` дёргает только
+        // `updating` и `updated` (проверено замером на этой версии). Версия
+        // ключа не менялась, блок главной жил своей жизнью ещё пять минут, и
+        // раскупленный товар всё это время показывался как «в наличии».
+        //
+        // `created` + `updated` покрывают ровно то же, что `saved`, плюс оба
+        // счётчика остатка.
+        static::created(fn () => self::bumpContentVersion());
+        static::updated(fn () => self::bumpContentVersion());
         static::deleted(fn () => self::bumpContentVersion());
     }
 }

@@ -141,6 +141,14 @@ class OrderController extends Controller
         $order->save();
         // Уведомления отправятся автоматически через событие OrderStatusChanged
 
+        // Отмена возвращает товар на склад. Раньше возврат жил ТОЛЬКО в
+        // удалении заказа: отменённый заказ списывал товар навсегда, и
+        // остаток на сайте занижался с каждой отменой. Метод разовый —
+        // отменить, а потом удалить, значит вернуть один раз, а не два.
+        if ($request->status === 'cancelled') {
+            $order->returnStockOnce();
+        }
+
         return redirect()
             ->back()
             ->with('success', __('admin.flash.order_status_changed', ['id' => $order->id, 'from' => $oldStatus, 'to' => $request->status]));
@@ -326,13 +334,10 @@ class OrderController extends Controller
      */
     public function destroy(Order $order)
     {
-        // 🔄 Восстанавливаем остатки товаров
-        foreach ($order->items as $item) {
-            $product = News::find($item->product_id);
-            if ($product && !is_null($product->stock)) {
-                $product->increment('stock', $item->qty);
-            }
-        }
+        // 🔄 Восстанавливаем остатки товаров — но только если их ещё не
+        // вернули. Отменённый заказ товар уже вернул, и повторный возврат
+        // при удалении нарастил бы склад из ниоткуда.
+        $order->returnStockOnce();
 
         $order->delete();
 

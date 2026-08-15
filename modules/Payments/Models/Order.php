@@ -35,6 +35,7 @@ class Order extends Model
         'customer_email',      // 📧 Email клиента
         'customer_address',    // 🏠 Адрес доставки
         'comment',             // 💬 Комментарий к заказу
+        'stock_returned_at',   // 🔄 Когда остатки по заказу вернули на склад
     ];
 
     /**
@@ -48,7 +49,42 @@ class Order extends Model
             'delivery_price' => 'decimal:2',
             'commission' => 'decimal:2',
             'is_new' => 'boolean',
+            'stock_returned_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Вернуть на склад товары этого заказа. Ровно ОДИН раз.
+     *
+     * Возврат жил только в удалении заказа: отменённый заказ списывал товар
+     * навсегда, и склад молча худел с каждой отменой. Теперь его зовут и
+     * отмена, и удаление — а отметка `stock_returned_at` не даёт вернуть
+     * дважды, когда заказ сначала отменили, а потом удалили.
+     *
+     * ⚠️ Остаток NULL — это «не считаем», а не «ноль»: у услуг и материалов
+     * без склада поле пустое, и наращивать там нечего.
+     *
+     * @return bool Возврат выполнен именно сейчас
+     */
+    public function returnStockOnce(): bool
+    {
+        if ($this->stock_returned_at !== null) {
+            return false;
+        }
+
+        foreach ($this->items as $item) {
+            $product = \Modules\News\Models\News::find($item->product_id);
+
+            if ($product && $product->stock !== null) {
+                $product->increment('stock', $item->qty);
+            }
+        }
+
+        // Отметка ставится даже когда возвращать было нечего: заказ обработан,
+        // и повторный проход по нему ничего изменить не должен.
+        $this->forceFill(['stock_returned_at' => now()])->save();
+
+        return true;
     }
 
     /**
