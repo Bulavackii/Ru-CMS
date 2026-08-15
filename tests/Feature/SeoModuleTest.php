@@ -26,10 +26,26 @@ class SeoModuleTest extends TestCase
         return User::factory()->create(['is_admin' => true]);
     }
 
+    /**
+     * SEO-запись для адреса.
+     *
+     * ⚠️ Именно firstOrNew, а не new: сохранение материала ЧЕРЕЗ МОДЕЛЬ само
+     * заводит для него SEO-запись — это и есть задуманное поведение (ради
+     * него же написана команда seo:seed-pages для материалов, вставленных
+     * запросом в обход событий). Тест поэтому дополняет уже существующую
+     * запись, а не пытается создать вторую с тем же адресом.
+     *
+     * Раньше `new SeoPage()` здесь проходил по случайности: слушатель сброса
+     * кеша у Page был стрелочной функцией и ВОЗВРАЩАЛ результат
+     * Cache::forget(). Ложь в ответе обрывала цепочку слушателей (диспетчер
+     * прекращает обход на первом false), и до синхронизации SEO дело просто
+     * не доходило. Разбор — в CLAUDE.md.
+     */
     private function seoPage(array $overrides = []): SeoPage
     {
-        $page = new SeoPage();
-        $page->slug = $overrides['slug'] ?? '/page/test';
+        $slug = $overrides['slug'] ?? '/page/test';
+        $page = SeoPage::firstOrNew(['slug' => $slug]);
+        $page->slug = $slug;
         $page->fill(array_merge([
             'title' => 'Заголовок',
             'description' => 'Описание',
@@ -229,9 +245,21 @@ class SeoModuleTest extends TestCase
         $response->assertSee('https://example.com/canonical', false);
     }
 
+    /**
+     * Страница БЕЗ SEO-записи берёт мета-данные из себя самой.
+     *
+     * ⚠️ Запись приходится удалять ЯВНО: сохранение через модель заводит её
+     * само. Состояние «SEO-записи нет» при этом никуда не делось и остаётся
+     * рабочим — материалы, вставленные запросом в обход событий (так делает
+     * мастер установки), приходят без неё, ради чего и написана команда
+     * seo:seed-pages.
+     *
+     * Раньше тест обходился без удаления, но лишь потому, что синхронизация
+     * SEO молча не срабатывала: слушатель сброса кеша у Page возвращал
+     * false и обрывал цепочку слушателей. Разбор — в CLAUDE.md.
+     */
     public function test_page_without_seo_record_keeps_previous_behaviour(): void
     {
-        // Страницы без SEO-записи должны вести себя как раньше
         Page::create([
             'title' => 'Без SEO',
             'slug' => 'bez-seo',
@@ -239,6 +267,8 @@ class SeoModuleTest extends TestCase
             'published' => true,
             'meta_title' => 'Мета-заголовок страницы',
         ]);
+
+        SeoPage::where('slug', '/page/bez-seo')->delete();
 
         $response = $this->get('/page/bez-seo');
 

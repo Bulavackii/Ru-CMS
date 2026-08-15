@@ -74,8 +74,8 @@ class Menu extends Model
                 ->active()
                 ->position($position)
                 ->with([
-                    'items' => fn($q) => $q->where('active', true)->whereNull('parent_id')->orderBy('order'),
-                    'items.activeChildren' => fn($q) => $q->where('active', true)->orderBy('order'),
+                    'items' => fn($q) => $q->where('active', true)->visible()->whereNull('parent_id')->orderBy('order'),
+                    'items.activeChildren' => fn($q) => $q->where('active', true)->visible()->orderBy('order'),
                     'items.linkedPage',
                 ])
                 ->get();

@@ -59,7 +59,15 @@ class Page extends Model
      */
     protected static function booted(): void
     {
-        $flush = fn() => \Illuminate\Support\Facades\Cache::forget('home_pages');
+        $flush = function () {
+            \Illuminate\Support\Facades\Cache::forget('home_pages');
+
+            // ⚠️ И кеш МЕНЮ тоже. Пункт типа «страница» показывается по
+            // связи с этой записью, а список пунктов лежит в кеше на час:
+            // удалённая страница продолжала висеть в меню до истечения
+            // срока, даже когда её самой в базе уже не было.
+            \Modules\Menu\Models\Menu::flushCache();
+        };
 
         static::saved($flush);
         static::deleted($flush);
