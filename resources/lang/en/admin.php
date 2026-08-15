@@ -59,6 +59,9 @@ return [
         'license_expires' => 'expires in',
         'report_bug' => 'Report a problem',
         'tools' => 'Service pages',
+        // Короткая подпись для выдвижного меню: в двух колонках
+        // полная не помещается и обрезается.
+        'tools_short' => 'Utilities',
         'geolocation' => 'My location and device',
         'system_info' => 'Server information',
         'language' => 'Interface language',

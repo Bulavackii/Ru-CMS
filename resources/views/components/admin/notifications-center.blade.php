@@ -2,7 +2,13 @@
 <div x-data="notificationsCenter()" class="relative">
     {{-- Кнопка --}}
     <button type="button" @click="toggle()"
-            class="relative flex items-center px-3 py-2 hover:bg-gray-800 transition"
+            {{-- ⚠️ Тот же класс, что у остальных кнопок шапки. Раньше здесь
+                 была своя пара отступов (px-3 py-2), и колокольчик выбивался
+                 из ряда: другой размер, другая высота, нет рамки — рядом с
+                 учётной записью это читалось как случайно вставленный
+                 элемент. Общий класс держит и размер, и зону нажатия на
+                 сенсорных (там он растёт до 40). --}}
+            class="ahd-btn ntf-trigger"
             :aria-expanded="open" aria-haspopup="true"
             :title="@js(__('admin.notif.title'))">
         <i class="fas fa-bell text-gray-300"></i>
@@ -234,6 +240,18 @@
 <style>
     /* Литеральный CSS: в статической сборке Tailwind нет ни произвольных
        значений, ни прозрачности через /NN, ни половины палитры. */
+    /* Размер кнопки-колокольчика. Вид (рамка и подложка) задаёт шапка:
+       кнопка лежит в «обойме» `.ahd-group`, а та НАМЕРЕННО снимает у
+       вложенных кнопок рамку и фон — рамку рисует сама обойма. Селектор
+       обоймы из двух классов сильнее одиночного, поэтому любые попытки
+       покрасить кнопку отсюда молча ничего не меняли. */
+    .ntf-trigger{ position:relative; display:grid; place-items:center;
+        width:2rem; height:2rem; padding:0; cursor:pointer }
+
+    @media (max-width: 1024px), (max-height: 500px){
+        .ntf-trigger{ width:2.5rem; height:2.5rem }
+    }
+
     .ntf-badge{ position:absolute; top:.15rem; right:.35rem; min-width:1.05rem; height:1.05rem; padding:0 .2rem;
                 display:flex; align-items:center; justify-content:center; background:#dc2626; color:#fff;
                 font-size:.65rem; font-weight:700; line-height:1 }

@@ -154,12 +154,12 @@
                     <span class="font-bold text-gray-900 dark:text-white">RU CMS</span>
                     <span class="adm-f-ver">{{ config('app.version', '1.0.0') }}</span>
                 </span>
-                <span class="block text-xs text-gray-500">{{ __('admin.footer.tagline') }}</span>
+                <span class="block text-xs text-gray-500 adm-f-touch-hide">{{ __('admin.footer.tagline') }}</span>
             </span>
         </div>
 
         {{-- Техника --}}
-        <div class="adm-f-set" role="group" aria-label="{{ __('admin.footer.tech') }}">
+        <div class="adm-f-set adm-f-touch-hide adm-f-touch-wide" role="group" aria-label="{{ __('admin.footer.tech') }}">
             @foreach($tech as $item)
                 <span class="adm-f-chip">
                     <span class="adm-f-key">{{ $item['label'] }}</span><b>{{ $item['value'] }}</b>
@@ -172,7 +172,7 @@
         </div>
 
         {{-- Содержимое --}}
-        <div class="adm-f-set" role="group" aria-label="{{ __('admin.footer.content') }}">
+        <div class="adm-f-set adm-f-touch-hide" role="group" aria-label="{{ __('admin.footer.content') }}">
             <span class="adm-f-chip"><i class="fas fa-cubes adm-f-ico"></i>
                 <span class="adm-f-key">{{ __('admin.footer.modules') }}</span><b>{{ $stats['modules'] ?? '—' }}</b></span>
             <span class="adm-f-chip"><i class="fas fa-users adm-f-ico"></i>
@@ -224,7 +224,7 @@
             </div>
 
             {{-- Про этот запрос --}}
-            <div class="adm-f-grp adm-f-mid">
+            <div class="adm-f-grp adm-f-mid adm-f-touch-hide">
                 <span class="adm-f-live" title="{{ __('admin.footer.server_time') }} · {{ __('admin.footer.timezone') }}: {{ config('app.timezone') }}">
                     <i class="fas fa-clock adm-f-ico"></i>
                     {{-- Часы идут: застывшее время отрисовки — ровно та подпись
@@ -257,7 +257,7 @@
 
             {{-- Сети --}}
             @if($socials)
-                <div class="adm-f-grp adm-f-end">
+                <div class="adm-f-grp adm-f-end adm-f-touch-hide">
                     <span class="adm-f-soc-label">{{ __('admin.footer.socials') }}</span>
                     @foreach($socials as $social)
                         <a href="{{ $social['href'] }}" target="_blank" rel="noopener"
@@ -301,6 +301,73 @@
         .adm-f-logo{display:grid;place-items:center;width:2rem;height:2rem;flex:none;
             color:var(--admin-on-primary,#fff);box-shadow:0 4px 10px -6px var(--admin-primary-glow,rgba(79,70,229,.5));
             background:linear-gradient(135deg,var(--admin-primary,#6366f1),var(--admin-accent,#a855f7))}
+        /* ── Подвал на телефоне и планшете ──────────────────────
+           На десктопе подвал в порядке и его правила не меняются. На
+           сенсорных экранах он показывал то, чего с телефона не читают и не
+           проверяют: версии PHP, Laravel, драйверов кеша и очереди, часовой
+           пояс, счётчики модулей/пользователей/новостей, объём медиатеки,
+           время отрисовки страницы и ссылки на соцсети — четыре набора чипов,
+           каждый мельче предыдущего.
+
+           Остаётся то, что действительно нужно и на телефоне: название
+           системы, версия, копирайт и предупреждение о включённой отладке
+           (его прячем в последнюю очередь — включённая отладка на боевом
+           сервере это не мелочь).
+
+           Ничего не потеряно: всё убранное живёт на странице «Система»,
+           ссылка на неё есть в выдвижном меню. */
+        @media (max-width: 1024px), (max-height: 500px){
+            .adm-f-touch-hide{ display:none !important }
+
+            /* Предупреждение об отладке остаётся видимым даже внутри
+               спрятанного набора: это единственный чип, ради которого в
+               подвал смотрят с телефона. */
+            .adm-f-set.adm-f-touch-hide{ display:flex !important }
+            .adm-f-set.adm-f-touch-hide .adm-f-chip:not(.is-warn){ display:none }
+            .adm-f-set.adm-f-touch-hide:not(:has(.is-warn)){ display:none !important }
+
+            /* Оставшаяся полоса — одной строкой по центру, без разделителей
+               между исчезнувшими блоками. */
+            .adm-f-meta{ justify-content:center; text-align:center }
+            .adm-f-grp{ flex-wrap:wrap; justify-content:center }
+
+            /* Поля ужимаются под то, что осталось: у подвала из двух строк
+               прежние отступы съедали больше места, чем сам текст. Замер:
+               149 пикселей до, 96 после — при экране 812 это заметно. */
+            footer .w-full.px-4{ padding-top:.5rem; padding-bottom:.5rem }
+            footer .adm-f-meta{ padding-top:.35rem; padding-bottom:.35rem }
+        }
+
+        /* ── Где ширина позволяет — возвращаем краткую техсводку ──
+           На телефоне в альбомной ориентации и на планшете в строке подвала
+           остаётся пустое место справа от названия системы. Возвращаем туда
+           первые три чипа: версия PHP, версия Laravel и база. Это то, что
+           спрашивают у владельца в первую очередь, когда что-то не работает.
+
+           Остальное (кеш, очередь, окружение, пояс, счётчики, объём
+           медиатеки) не возвращаем: оно нужно при разборе, а не при взгляде
+           на экран телефона, и живёт на странице «Система».
+
+           Два запроса вместо одного: в медиазапросах нельзя написать «and
+           (то или это)», а условие сенсорности у нас как раз из двух частей.
+
+           ⚠️ Показывать нужно ЯВНО, перечислением. Первая версия прятала
+           «всё после третьего» — и подвал остался пуст: правило выше уже
+           скрыло все чипы кроме предупреждения об отладке, а оно как раз
+           идёт последним и попало под «после третьего». Скрывающее правило
+           сильнее по весу, поэтому возвращаем видимость с !important и
+           отдельно оговариваем предупреждение. */
+        @media (min-width: 640px) and (max-width: 1024px){
+            .adm-f-touch-wide{ display:flex !important }
+            .adm-f-touch-wide .adm-f-chip:nth-child(-n+3),
+            .adm-f-touch-wide .adm-f-chip.is-warn{ display:inline-flex !important }
+        }
+        @media (min-width: 640px) and (max-height: 500px){
+            .adm-f-touch-wide{ display:flex !important }
+            .adm-f-touch-wide .adm-f-chip:nth-child(-n+3),
+            .adm-f-touch-wide .adm-f-chip.is-warn{ display:inline-flex !important }
+        }
+
         .adm-f-ver{padding:.05rem .3rem;font-size:.62rem;font-weight:700;letter-spacing:.03em;
             color:var(--admin-on-primary,#fff);background:var(--admin-primary,#6366f1)}
         /* flex:0 1 auto + min-width:0 — наборы чипов СЖИМАЮТСЯ и переносятся

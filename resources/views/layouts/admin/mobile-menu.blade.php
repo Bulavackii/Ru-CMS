@@ -89,7 +89,7 @@
             @if (module_enabled('Payments') && Route::has('admin.orders.index'))
                 <a href="{{ route('admin.orders.index') }}" class="amb-quick__item">
                     <i class="fas fa-cart-shopping" aria-hidden="true"></i>
-                    <span>{{ __('admin.header.orders') }}</span>
+                    <span>{{ __('admin.sections.orders') }}</span>
                 </a>
             @endif
 
@@ -103,14 +103,14 @@
             @if (Route::has('admin.system_info'))
                 <a href="{{ route('admin.system_info') }}" class="amb-quick__item">
                     <i class="fas fa-screwdriver-wrench" aria-hidden="true"></i>
-                    <span>{{ __('admin.header.tools') }}</span>
+                    <span>{{ __('admin.header.tools_short') }}</span>
                 </a>
             @endif
 
             @if (Route::has('admin.visual.themes.index'))
                 <a href="{{ route('admin.visual.themes.index') }}" class="amb-quick__item">
                     <i class="fas fa-palette" aria-hidden="true"></i>
-                    <span>{{ __('admin.header.theme') }}</span>
+                    <span>{{ __('admin.sections.themes') }}</span>
                 </a>
             @endif
         </div>
@@ -163,10 +163,18 @@
         .amb-brand.is-active .amb-logo{box-shadow:0 0 0 2px var(--admin-accent,#a855f7)}
         .amb-logo{display:grid;place-items:center;width:2rem;height:2rem;flex:none;color:var(--admin-on-primary,#fff);
             background:linear-gradient(135deg,var(--admin-primary,#6366f1),var(--admin-accent,#a855f7))}
-        /* Быстрые действия: две колонки — подпись помещается целиком, а
-           высота 44 это основное действие по стандарту Apple HIG. */
-        .amb-quick{display:grid;grid-template-columns:1fr 1fr;gap:.35rem;padding:.6rem .75rem 0}
-        .amb-quick__item{display:flex;align-items:center;gap:.45rem;min-height:44px;
+        /* Быстрые действия. Высота 44 — основное действие по стандарту
+           Apple HIG.
+
+           ⚠️ ОДНА колонка, а не две. В две подписи не помещались: панель 256
+           пикселей, за вычетом полей и зазора на колонку остаётся 113, а
+           «Служебные страницы» столько не занимают даже с усечением — элемент
+           сетки не сжимается ниже содержимого (min-width:auto) и вылезал за
+           край панели. Владелец прислал снимок с обрезанными подписями.
+           min-width:0 добавлен по той же причине — без него усечение
+           многоточием не включается вовсе. */
+        .amb-quick{display:grid;grid-template-columns:1fr;gap:.35rem;padding:.6rem .75rem 0}
+        .amb-quick__item{display:flex;align-items:center;gap:.45rem;min-height:44px;min-width:0;
             padding:.35rem .5rem;font-size:12px;font-weight:600;text-decoration:none;
             color:var(--surface-ink,#374151);background:var(--surface-2,#f8fafc);
             border:1px solid var(--surface-bd,#eef2f7)}
@@ -174,9 +182,31 @@
         .amb-quick__item i{flex:none;color:var(--admin-primary,#6366f1)}
         .amb-quick__item span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-        .amb-langs{display:flex;align-items:center;gap:.35rem;padding:.6rem .75rem 0}
-        .amb-langs__cap{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
-            color:var(--surface-dim,#9ca3af)}
+        /* ⚠️ В АЛЬБОМНОЙ ориентации телефона высота всего 414, и четыре
+           действия по 44 плюс строка языка съедали её так, что до самих
+           разделов приходилось прокручивать. Там же, где высоты мало, идём
+           в две колонки — подписи для этого укорочены до названий разделов
+           («Заказы», «Служебные», «Темы»), длинные в 113 пикселей не влезали
+           и обрезались. */
+        @media (max-height: 500px){
+            .amb-quick{grid-template-columns:1fr 1fr}
+            .amb-quick__item{min-height:36px}
+        }
+
+        /* ⚠️ Перенос обязателен на вырост. Сейчас языков ровно два и они
+           влезают в строку, но их список берётся из папки переводов: заведут
+           третий-четвёртый в «Локализации» — и без переноса ряд полез бы за
+           край панели шириной 256. Чипы по 44 пикселя укладываются по четыре
+           в ряд, подпись переезжает на свою строку. */
+        .amb-langs{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem;padding:.6rem .75rem 0}
+                /* Подпись — отдельной строкой. В одну строку с чипами она занимает
+           150 пикселей из 232, и второй язык уже переезжал на новую строку:
+           получалось «RU» рядом с подписью и «EN» под ними. Своей строкой
+           подпись отдаёт чипам всю ширину — их помещается по четыре, а
+           раскладка не зависит от того, сколько языков заведут потом. */
+        .amb-langs__cap{flex:0 0 100%;font-size:12px;font-weight:700;letter-spacing:.06em;
+            text-transform:uppercase;color:var(--surface-dim,#9ca3af);white-space:nowrap;
+            margin-bottom:.1rem}
         .amb-lang{display:inline-flex;align-items:center;justify-content:center;
             min-width:44px;min-height:32px;font-size:12px;font-weight:700;text-decoration:none;
             color:var(--surface-ink,#374151);border:1px solid var(--surface-bd,#e5e7eb)}
@@ -186,9 +216,14 @@
         /* Состояние — один класс на корне. Панель и затемнение видны
            только при нём, поэтому «открыто ли меню» проверяется взглядом в
            инспектор, а не раскопками во внутренностях фреймворка. */
-        #admin-drawer .amb-veil{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.5);
+        /* ⚠️ Выше шапки. При z-index 50 панель уходила ПОД шапку панели, и
+           её собственная верхушка — логотип, кнопка закрытия и первое
+           быстрое действие — оказывалась перекрыта: меню открывалось, а
+           закрыть его крестиком было нечем. Выдвижное меню на телефоне
+           перекрывает всё, это его обычное поведение. */
+        #admin-drawer .amb-veil{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.5);
             opacity:0;visibility:hidden;transition:opacity .2s ease,visibility .2s ease}
-        #admin-drawer .amb-panel{position:fixed;left:0;top:0;z-index:50;
+        #admin-drawer .amb-panel{position:fixed;left:0;top:0;z-index:1000;
             width:16rem;max-width:85vw;height:100%;overflow-y:auto;
             background:#fff;box-shadow:0 25px 50px -12px rgba(0,0,0,.25);
             transform:translateX(-100%);transition:transform .22s ease}

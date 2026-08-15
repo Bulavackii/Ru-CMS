@@ -27,7 +27,7 @@
                             ['url' => '/developers',   'icon' => 'code',          'text' => 'Разработчикам'],
                             ['url' => '/concept',      'icon' => 'lightbulb',     'text' => 'Концепция'],
                             ['url' => '/sitemap',      'icon' => 'sitemap',       'text' => 'Карта сайта'],
-                            ['url' => '/donate',       'icon' => 'donate',        'text' => 'Пожертвовать'],
+                            ['url' => '/donate',       'icon' => 'heart',        'text' => 'Пожертвовать'],
                         ];
                     @endphp
                     @foreach ($navLinks as $link)

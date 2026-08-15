@@ -71,7 +71,7 @@
                     @php
                         $typeCards = [
                             ['key'=>'url','title'=>__('admin.menu.type_url'),'desc'=>__('admin.menu.type_url_desc'),'icon'=>'link'],
-                            ['key'=>'page','title'=>__('admin.menu.type_page'),'desc'=>__('admin.menu.type_page_desc'),'icon'=>'file-alt'],
+                            ['key'=>'page','title'=>__('admin.menu.type_page'),'desc'=>__('admin.menu.type_page_desc'),'icon'=>'file-text'],
                             ['key'=>'category','title'=>__('admin.menu.type_category'),'desc'=>__('admin.menu.type_category_desc'),'icon'=>'tags'],
                         ];
                     @endphp

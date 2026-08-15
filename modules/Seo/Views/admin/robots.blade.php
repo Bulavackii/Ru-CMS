@@ -7,13 +7,13 @@
   $sitemapUrl = $base . '/sitemap.xml';
 @endphp
 
-<div class="flex items-center justify-between mb-4">
+<div class="flex flex-wrap items-center justify-between gap-2 mb-4">
   <div>
     <h1 class="text-2xl font-semibold">robots.txt</h1>
     <div class="text-sm text-gray-500">{{ __('admin.seo.robots_hint') }}</div>
   </div>
 
-  <div class="flex items-center gap-2">
+  <div class="flex flex-wrap items-center gap-2">
     <a href="{{ url('/robots.txt') }}" target="_blank" rel="noopener"
        class="inline-flex items-center px-3 py-2 rounded border border-gray-300 bg-white hover:bg-gray-50 transition"
        title="{{ __('admin.seo.open_current') }}">
