@@ -344,14 +344,21 @@ body.fx-theme-dark .page-content .pc-map__btn{ color:var(--color-bg) }
 
 
 /* ── Быстрые действия ───────────────────────────────────────────── */
-/* Крупные кнопки для главных действий: позвонить, написать, проложить
-   маршрут. На телефоне это основной способ связаться, поэтому они стоят
-   вверху и растягиваются на всю ширину. */
-.page-content .pc-actions{ display:flex; flex-wrap:wrap; gap:.6rem; margin:1.5rem 0;
-    padding:0; list-style:none }
-.page-content .pc-actions li{ margin:0; flex:1 1 12rem }
+/* Кнопки главных действий: позвонить, написать, проложить маршрут.
+   На телефоне это основной способ связаться, поэтому там они идут
+   столбиком во всю ширину — попасть пальцем проще всего.
+
+   ⚠️ Шире телефона они НЕ растягиваются. Раньше стояло flex:1 1 12rem, и
+   каждая кнопка раздувалась до трети строки — 348 пикселей при ширине
+   1087. Подписи разной длины при этом ломались на две строки и высоты
+   разъезжались (48/48/49), а ряд выглядел тремя плитами. Теперь ширина
+   по содержимому, перенос подписи запрещён. */
+.page-content .pc-actions{ display:flex; flex-wrap:wrap; align-items:stretch;
+    gap:.6rem; margin:1.5rem 0; padding:0; list-style:none }
+.page-content .pc-actions li{ margin:0; flex:0 1 auto }
 .page-content .pc-actions a{ display:flex; align-items:center; justify-content:center;
-    gap:.55rem; min-height:48px; padding:.7rem 1.2rem; font-size:.95rem; font-weight:700;
+    gap:.55rem; box-sizing:border-box; height:44px; padding:0 1.15rem;
+    font-size:.9rem; font-weight:700; white-space:nowrap; line-height:1;
     color:var(--on-accent,#fff); text-decoration:none;
     background:linear-gradient(135deg,var(--color-primary,#6366f1),var(--color-accent,#8b5cf6));
     transition:filter .15s, transform .15s }
@@ -366,6 +373,14 @@ body.fx-theme-dark .page-content .pc-map__btn{ color:var(--color-bg) }
     border-color:var(--color-primary,#6366f1); filter:none }
 :root.dark .page-content .pc-actions li.is-plain a{ color:#cbd5e1; background:#111827;
     border-color:var(--surface-ink,#1f2937) }
+
+/* Узкий телефон: в строку три подписи не помещаются, поэтому кнопки
+   берут ширину целиком и идут столбиком. Порог 640 — выше него (телефон
+   в альбомной, планшет) они спокойно встают в ряд по содержимому. */
+@media (max-width: 640px){
+    .page-content .pc-actions li{ flex:1 1 100% }
+    .page-content .pc-actions a{ height:48px }
+}
 
 /* ── Значок «сейчас открыто» ────────────────────────────────────── */
 /* Подпись ставит скрипт, разбирая расписание из атрибута карточки. */

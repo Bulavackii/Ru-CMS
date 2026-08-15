@@ -486,9 +486,13 @@
       .hdr-row2{ display:none; }
       .hdr-row2.is-open{ display:block; }
 
+      /* Тот же приём, что у пилюль рядом: рисуется на 36, нажимается на 44
+         (см. ::before ниже). Иначе бургер один остался бы крупнее всех и
+         тянул ряд вверх. */
       .hdr-burger{
+        position:relative;
         display:inline-flex; align-items:center; justify-content:center;
-        width:44px; height:44px; flex:0 0 auto; margin-left:.15rem;
+        width:36px; height:36px; flex:0 0 auto; margin-left:.15rem;
         border:1px solid var(--surface-bd,#e3e6ee); border-radius:12px;
         background:var(--surface,#fff); color:var(--surface-ink,#111827); cursor:pointer;
       }
@@ -512,12 +516,29 @@
       .hdr-logo-sub{ display:none; }
 
       /* Зоны нажатия — не меньше 44px по обеим сторонам: пальцем в кружок
-         33×30 не попасть, а именно такими пилюли и были. */
+         33×30 не попасть, а именно такими пилюли и были.
+
+         ⚠️ Но САМА кнопка при этом рисуется на 36. Пилюли в 44 по высоте
+         превращали ряд действий в полосу тяжёлых плиток — владелец
+         справедливо назвал их громоздкими. Недостающие пиксели добирает
+         прозрачный слой ::before: он выходит за края кнопки и ловит
+         нажатие. Так вид лёгкий, а палец попадает в те же 44.
+
+         ::after занят подчёркиванием при наведении (см. выше), поэтому
+         расширитель — именно ::before. */
       .hdr-actions{ flex-wrap:nowrap; gap:.1rem; }
       .hdr-actions .hdr-pill,
-      .hdr-actions .hdr-icon-btn{ min-width:44px; min-height:44px; padding:0 .35rem; justify-content:center; }
+      .hdr-actions .hdr-icon-btn{ min-width:36px; min-height:36px;
+          padding:0 .5rem; font-size:.78rem; justify-content:center; }
+      .hdr-actions .hdr-pill i, .hdr-actions .hdr-icon-btn i{ font-size:.9rem; }
+      .hdr-actions .hdr-ico{ width:.95rem; height:.95rem; }
+      .hdr-actions .hdr-pill::before,
+      .hdr-actions .hdr-icon-btn::before,
+      .hdr-burger::before{
+          content:''; position:absolute; inset:-4px; }
       .hdr-actions .hdr-pill::after,
       .hdr-actions .hdr-icon-btn::after{ display:none; }
+      .hdr-actions .hdr-pill--accent{ box-shadow:none; }
 
       /* Поиск в раскрытой панели — на всю ширину, кнопка не жмётся. */
       .hdr-search-input{ height:44px; }

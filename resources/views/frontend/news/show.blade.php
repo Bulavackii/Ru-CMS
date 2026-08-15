@@ -86,9 +86,17 @@
                      Цвета берём из общих переменных поверхностей. Зелёный у
                      цены и янтарный у остатка несут смысл, поэтому оттенок
                      сохраняется, а светлота подмешивается из темы. --}}
+                {{-- Плашка покупки — ОДНА строка, а не сетка из двух колонок.
+                     Сеткой цена оказывалась у левого края, а количество с
+                     кнопкой — у правого, между ними висела пустота во всю
+                     ширину карточки, и кнопка уезжала под шаговый
+                     переключатель, оставляя внизу пустую полосу. Теперь
+                     всё выстроено в ряд и переносится по мере надобности:
+                     на телефоне факты идут строкой, а действия — второй
+                     строкой во всю ширину. --}}
                 <div class="mt-8 buy-panel">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
-                        <div class="space-y-3">
+                    <div class="buy-row">
+                        <div class="buy-facts">
                             <div class="buy-chip buy-chip--price">
                                 <i class="fas fa-tag"></i> {{ number_format($news->price, 2, ',', ' ') }} ₽
                             </div>
@@ -99,18 +107,21 @@
                             @endif
                         </div>
 
-                        <div class="space-y-3 flex flex-col sm:items-end">
-                            <div class="flex items-center gap-2">
+                        <div class="buy-actions">
+                            <div class="buy-qty-wrap">
                                 <span class="text-sm font-medium buy-qty__label">{{ __('frontend.news.quantity') }}</span>
-                                <div class="flex items-center buy-qty">
-                                    <button type="button" class="buy-qty__btn decrement" data-id="{{ $news->id }}">−</button>
+                                {{-- ⚠️ Без утилит flex/items-center: они перебивали
+                                     align-items:stretch у самого класса, и кнопки
+                                     оставались 18 пикселей в рамке высотой 40. --}}
+                                <div class="buy-qty">
+                                    <button type="button" class="buy-qty__btn decrement" data-id="{{ $news->id }}" aria-label="{{ __('frontend.news.quantity') }} −">−</button>
                                     <input type="text" id="qty-{{ $news->id }}" value="1" readonly class="buy-qty__input qty-input" data-id="{{ $news->id }}">
-                                    <button type="button" class="buy-qty__btn increment" data-id="{{ $news->id }}" data-stock="{{ $news->stock }}">+</button>
+                                    <button type="button" class="buy-qty__btn increment" data-id="{{ $news->id }}" data-stock="{{ $news->stock }}" aria-label="{{ __('frontend.news.quantity') }} +">+</button>
                                 </div>
                             </div>
 
-                            <button type="button" class="fx-btn add-to-cart px-5 py-2.5 text-sm" data-id="{{ $news->id }}" data-title="{{ $news->t('title') }}" data-price="{{ $news->price }}" data-stock="{{ $news->stock }}">
-                                <i class="fas fa-cart-shopping"></i> В корзину
+                            <button type="button" class="fx-btn add-to-cart buy-add" data-id="{{ $news->id }}" data-title="{{ $news->t('title') }}" data-price="{{ $news->price }}" data-stock="{{ $news->stock }}">
+                                <i class="fas fa-cart-shopping"></i> {{ __('frontend.products.to_cart') }}
                             </button>
                         </div>
                     </div>
@@ -279,11 +290,66 @@
        tailwind.min.css этого проекта нет ни `dark:`-вариантов, ни
        прозрачности вида `/70`, и прежний набор классов на тёмной теме
        не давал ничего. */
-    .buy-panel{ padding:1.5rem; background:var(--surface-2,#f9fafb);
+    .buy-panel{ padding:1.15rem 1.25rem; background:var(--surface-2,#f9fafb);
         border:1px solid var(--surface-bd,#e5e7eb) }
 
+    /* Один ряд: слева факты о товаре, справа действия. Перенос разрешён —
+       при нехватке ширины действия уезжают на вторую строку целиком, а не
+       разваливаются по одному элементу.
+
+       ⚠️ Высота всех четырёх частей ряда задаётся ОДНОЙ переменной. Пока
+       каждая считала её сама из своих отступов, на одной строке стояли
+       чипы в 37, переключатель в 41 и кнопка в 40 — края не совпадали ни
+       сверху, ни снизу. Меняешь размер — меняй здесь, а не по месту. */
+    .buy-panel{ --buy-h:40px }
+    .buy-row{ display:flex; flex-wrap:wrap; align-items:center;
+        justify-content:space-between; gap:.85rem 1.25rem }
+    .buy-facts{ display:flex; flex-wrap:wrap; align-items:center; gap:.5rem }
+    .buy-actions{ display:flex; flex-wrap:wrap; align-items:center; gap:.75rem;
+        margin-left:auto }
+    .buy-qty-wrap{ display:flex; align-items:center; gap:.6rem }
+    /* Отступы у кнопки заданы здесь, а не утилитами в разметке: подпись
+       не переносится («В корзину» в две строки ломает ряд), а размер
+       обязан совпадать с шаговым переключателем рядом. */
+    .buy-add{ white-space:nowrap; padding:0 1.15rem; font-size:.875rem;
+        display:inline-flex; align-items:center; justify-content:center; gap:.5rem;
+        height:var(--buy-h,40px) }
+
+    /* Телефоны и планшеты: общий для проекта порог. Действия занимают всю
+       строку, кнопка растягивается — на узком экране её край иначе не
+       угадать пальцем. Шаговый переключатель поднимается до 44: он был
+       38×34, то есть ниже границы зоны нажатия. */
+    @media (max-width: 1024px), (max-height: 500px){
+        /* Одна переменная поднимает разом чипы, переключатель и кнопку:
+           44 — нижняя граница зоны нажатия по Apple HIG. */
+        .buy-panel{ --buy-h:44px; padding:1rem }
+        .buy-facts, .buy-actions{ width:100%; margin-left:0 }
+        .buy-actions{ justify-content:space-between }
+        .buy-add{ flex:1 1 10rem }
+    }
+
+    /* Узкий экран: переключатель и кнопка в строку не помещаются — замер
+       на 414 давал 309 при 300 доступных, и кнопка переносилась, оставляя
+       рядом с переключателем пустое место. Раз перенос всё равно нужен,
+       обе части берут строку целиком: минус и плюс разъезжаются по краям,
+       число между ними, кнопка под ними во всю ширину. Так два ряда
+       выглядят задуманными, а не следствием нехватки пары пикселей. */
+    @media (max-width: 640px){
+        .buy-qty-wrap{ width:100% }
+        .buy-qty{ width:100% }
+        .buy-qty__input{ flex:1; width:auto }
+        .buy-add{ width:100%; flex:0 0 auto }
+    }
+
+    /* Совсем узкий экран: подпись «Кол-во» рядом с переключателем места не
+       оставляет — она уходит, роль поля и так очевидна по знакам. */
+    @media (max-width: 420px){
+        .buy-qty__label{ display:none }
+        .buy-actions{ gap:.6rem }
+    }
+
     .buy-chip{ display:inline-flex; align-items:center; gap:.5rem;
-        padding:.5rem 1rem; font-size:.875rem; font-weight:600 }
+        min-height:var(--buy-h,40px); padding:0 1rem; font-size:.875rem; font-weight:600 }
 
     /* Зелёный у цены и янтарный у остатка несут смысл, поэтому оттенок
        остаётся, а светлота подмешивается из темы: на тёмной теме прежние
@@ -296,15 +362,29 @@
         background:color-mix(in srgb, #d97706 18%, var(--surface,#fef9c3)) }
 
     .buy-qty__label{ color:var(--surface-ink,#374151) }
-    .buy-qty{ border:1px solid var(--surface-bd,#d1d5db); overflow:hidden }
-    .buy-qty__btn{ padding:.375rem .75rem; font-size:1.125rem; font-weight:700;
-        color:var(--surface-ink,#374151); background:var(--surface-2,#f3f4f6);
-        border:0; cursor:pointer }
-    .buy-qty__btn:hover{ background:var(--surface-bd,#e5e7eb) }
-    .buy-qty__input{ width:3rem; padding:.375rem 0; text-align:center; font-size:.875rem;
+    /* Шаговый переключатель — квадратные кнопки по краям и поле между
+       ними, все одной высоты с остальным рядом. Оформление держим таким
+       же, как у корзины (.crt-item__qty): это один и тот же орган
+       управления на двух страницах, и разъезжаться им незачем. */
+    /* ⚠️ box-sizing задаём явно. Без него рамка в 1 пиксель считается
+       ПОВЕРХ заданной высоты, и переключатель выходил 44 там, где остальной
+       ряд стоял на 40 — единственная часть плашки, выбивавшаяся из линии. */
+    .buy-qty, .buy-qty__btn, .buy-qty__input, .buy-add, .buy-chip{ box-sizing:border-box }
+    .buy-qty{ display:inline-flex; align-items:stretch; height:var(--buy-h,40px);
+        border:1px solid var(--surface-bd,#e2e8f0); background:var(--surface,#fff);
+        overflow:hidden }
+    .buy-qty__btn{ display:flex; align-items:center; justify-content:center;
+        width:var(--buy-h,40px); height:100%; padding:0; line-height:1;
+        font-size:1rem; font-weight:700;
+        color:var(--surface-ink,#334155); background:var(--surface-2,#f8fafc);
+        border:0; cursor:pointer; transition:background .15s, color .15s }
+    .buy-qty__btn:hover{ background:color-mix(in srgb, var(--color-primary,#6366f1) 10%, var(--surface,#fff));
+        color:var(--color-primary,#6366f1) }
+    .buy-qty__input{ width:2.75rem; height:100%; padding:0; text-align:center;
+        font-size:.875rem; font-variant-numeric:tabular-nums;
         color:var(--surface-ink,#111827); background:var(--surface,#fff);
-        border:0; border-left:1px solid var(--surface-bd,#e5e7eb);
-        border-right:1px solid var(--surface-bd,#e5e7eb) }
+        border:0; border-left:1px solid var(--surface-bd,#e2e8f0);
+        border-right:1px solid var(--surface-bd,#e2e8f0) }
 
     /* Контент новости: читаемая ширина (карточка на всю ширину, текст — комфортной мерой) */
     .news-content{ word-break:break-word; overflow-wrap:anywhere; line-height:1.8; font-size:1.06rem;

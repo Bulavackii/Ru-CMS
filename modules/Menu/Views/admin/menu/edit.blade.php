@@ -493,7 +493,11 @@ function renderList(items, depth=0){
 
         li.innerHTML = `
           <div class="handle flex items-center justify-between px-3 py-2 ${hasChildren ? 'bg-indigo-50 dark:bg-indigo-900' : ''} ${item.active === false ? 'opacity-60' : ''}">
-            <div class="flex items-center gap-2 flex-1 min-w-0">
+            {{-- flex-wrap: у пункта третьего уровня к строке добавляется
+                 плашка «макс. уровень», и на узком экране она вылезала за
+                 край — замер на 360 давал 46 пикселей прокрутки всей
+                 странице. Видно это только на дереве с вложенностью. --}}
+            <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
               <input type="checkbox" class="item-checkbox" data-item-id="${item.id}" title="{{ __('admin.menu.pick_for_bulk') }}">
               <span class="text-gray-400 cursor-move">@themeIcon('grip-vertical')</span>
               <button type="button" class="toggle-btn ${hasChildren ? '' : 'invisible'} text-gray-500 hover:text-gray-700 dark:hover:text-gray-200" aria-label="{{ __('admin.menu.toggle_children') }}">
@@ -545,6 +549,9 @@ function renderList(items, depth=0){
 }
 
 const rootTree = renderList(menuData);
+// Идентификатор переносим на новый список: старый узел заменяется целиком,
+// и без этой строки за дерево нечем зацепиться ни стилями, ни отладкой.
+rootTree.id = 'menu-tree';
 document.getElementById('menu-tree').replaceWith(rootTree);
 refreshThemeIcons(); // отрисовать lucide-иконки только что построенного дерева
 
@@ -1303,5 +1310,20 @@ $('#bulk-delete').addEventListener('click', () => bulkAction('delete'));
     .mi-extra__grid{ display:grid; gap:.7rem; padding:0 .7rem .7rem }
     @media (min-width:640px){ .mi-extra__grid{ grid-template-columns:1fr 1fr } }
     .mi-extra__grid > .sm\:col-span-2{ grid-column:1 / -1 }
+
+    /* ── Вложенность на телефонах и планшетах ─────────────────────────
+       Шаг отступа — pl-4, то есть 16 пикселей. На широком экране рядом
+       ещё и поля пункта, подчинённость видно и так; на телефоне карточки
+       занимают всю ширину, и шаг в 16 на их фоне почти не читается —
+       замер давал уровни на 41, 58 и 75 при ширине окна 414.
+       Шаг крупнее плюс направляющая линия: она показывает ветку целиком,
+       а не только сдвиг одной строки. */
+    @media (max-width: 1024px), (max-height: 500px){
+        #menu-tree ul.pl-4{
+            padding-left:1.5rem;
+            margin-left:.65rem;
+            border-left:2px solid color-mix(in srgb, var(--admin-primary, #6366f1) 30%, transparent);
+        }
+    }
 </style>
 @endpush

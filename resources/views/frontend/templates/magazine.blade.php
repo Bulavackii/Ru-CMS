@@ -132,7 +132,13 @@
     .mag-lead:hover{ border-color:var(--color-primary,#6366f1); transform:translateY(-2px) }
     .mag-lead__media{ position:relative; min-height:22rem; display:flex; align-items:center;
         justify-content:center; background:linear-gradient(135deg,var(--color-primary,#6366f1),var(--color-accent,#8b5cf6)) }
-    .mag-lead__media img{ width:100%; height:100%; object-fit:cover; display:block }
+    /* ⚠️ contain, а не cover. Рамка ведущего материала тянется по высоте
+       текстовой колонки, и при узком экране выходит почти квадрат (замер на
+       896×414: 356×352), тогда как обложка — 8:5. `cover` масштабирует по
+       большей стороне и срезал 207 пикселей по бокам: у значка пропадала
+       ручка и часть кольца. `contain` показывает картинку целиком, а поля
+       закрывает фирменный градиент самой рамки — он и так под ней. */
+    .mag-lead__media img{ width:100%; height:100%; object-fit:contain; display:block; padding:1rem }
     .mag-lead__letter{ font-size:7rem; font-weight:800; color:#fff; opacity:.9; line-height:1 }
     .mag-lead__body{ padding:2rem 2.25rem; display:flex; flex-direction:column; justify-content:center }
     .mag-lead__title{ margin:.75rem 0 .6rem; font-size:1.75rem; line-height:1.25; font-weight:700; color:var(--surface-ink,#111827) }
@@ -155,7 +161,9 @@
     /* Высота под пропорцию 8:5: при 9.5rem обложка срезалась почти вдвое */
     .mag-card__media{ height:13rem; display:flex; align-items:center; justify-content:center;
         background:linear-gradient(135deg,var(--color-primary,#6366f1),var(--color-accent,#8b5cf6)) }
-    .mag-card__media img{ width:100%; height:100%; object-fit:cover; display:block }
+    /* Та же причина, что у ведущего: рамка 13rem по высоте, ширина ячейки
+       сетки плавает, и при любом расхождении с 8:5 обложка срезалась. */
+    .mag-card__media img{ width:100%; height:100%; object-fit:contain; display:block; padding:.75rem }
     .mag-card__letter{ font-size:3rem; font-weight:800; color:#fff; opacity:.9; line-height:1 }
     .mag-card__body{ padding:1rem 1.1rem 1.15rem; display:flex; flex-direction:column; gap:.4rem; flex:1 }
     .mag-card__title{ margin:0; font-size:1rem; line-height:1.35; font-weight:700; color:var(--surface-ink,#111827) }
@@ -171,13 +179,27 @@
     .mag-meta__time{ color:var(--surface-ink,#475569); font-weight:600; white-space:nowrap }
     .mag-meta__time::before{ content:'⏱'; margin-right:.3rem; opacity:.75 }
 
-    @media (max-width: 860px){
+    @media (max-width: 860px), (max-height: 500px){
         .mag-lead{ grid-template-columns:1fr }
-        .mag-lead__media{ min-height:13rem }
+        /* В одну колонку рамка больше ничем не растягивается — задаём ей
+           пропорцию самой обложки, тогда полей не остаётся вовсе. */
+        .mag-lead__media{ min-height:0; aspect-ratio:8 / 5; max-height:16rem }
         .mag-lead__body{ padding:1.35rem }
         .mag-lead__title{ font-size:1.35rem }
     }
 
+
+    /* Телефон в альбомной: экран 414 в высоту, а рамка обложки заявлена
+       на 22rem (352) — ведущий материал занимал его целиком, и до текста
+       приходилось листать. Порог общий для проекта. */
+    @media (max-height: 500px){
+        /* Правило идёт ПОСЛЕ одноколоночного блока и перебивает его
+           пропорцию намеренно: 8:5 при ширине 830 дало бы полосу в 519
+           пикселей — больше самого экрана. Здесь высота задаётся прямо, а
+           обложка вписывается в неё целиком (object-fit:contain выше). */
+        .mag-lead__media{ min-height:0; aspect-ratio:auto; height:11rem; max-height:11rem }
+        .mag-card__media{ height:10rem }
+    }
 
     /* Тёмная ТЕМА сайта — не то же, что тёмный режим системы ниже.
        Цвета берутся из общих переменных поверхностей в макете. */
