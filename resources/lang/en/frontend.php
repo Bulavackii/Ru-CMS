@@ -405,6 +405,10 @@ return [
         'more' => 'Details',
     ],
 
+    'faq' => [
+        'subtitle' => 'Short answers to the most common questions',
+    ],
+
     'templates' => [
         'faq' => 'FAQ',
         'release' => 'Releases',
