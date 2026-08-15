@@ -44,8 +44,11 @@
     <div class="mag__head">
         <span class="mag__badge">📖</span>
         <div>
-            <h2 class="mag__title">{{ $title ?? 'Журнал' }}</h2>
-            <p class="mag__sub">Большие материалы: обзоры, интервью, разборы</p>
+            {{-- ⚠️ Строки были ЗАШИТЫ по-русски — единственный шаблон, где
+                 подписи шли мимо словаря: на английской локали раздел
+                 оставался русским. --}}
+            <h2 class="mag__title">{{ $title ?? __('frontend.magazine.title') }}</h2>
+            <p class="mag__sub">{{ __('frontend.magazine.subtitle') }}</p>
         </div>
     </div>
 
@@ -64,13 +67,21 @@
             </div>
 
             <div class="mag-lead__body">
-                <span class="mag-chip">🔥 Главное</span>
+                <span class="mag-chip">
+                    <i class="fas fa-bolt" aria-hidden="true"></i>{{ __('frontend.magazine.lead') }}
+                </span>
                 <h3 class="mag-lead__title">{{ $lead->title }}</h3>
                 <p class="mag-lead__text">{{ $excerptOf($lead, 260) }}</p>
 
+                {{-- В журнале решение «читать или нет» принимают по ЦЕНЕ
+                     чтения, а не по дате. Поэтому время вынесено в плашку со
+                     значком, а дата осталась тихой подписью рядом. Раньше они
+                     стояли рядом одинаковыми и не различались. --}}
                 <span class="mag-lead__meta">
+                    <span class="mag-time">
+                        <i class="fas fa-clock" aria-hidden="true"></i>{{ __('frontend.news.reading_time', ['min' => reading_time($lead->content)]) }}
+                    </span>
                     <span class="mag-meta__date">{{ $lead->created_at?->format('d.m.Y') }}</span>
-                    <span class="mag-meta__time">{{ __('frontend.news.reading_time', ['min' => reading_time($lead->content)]) }}</span>
                     <span class="mag-lead__more">{{ __('frontend.news.read_full') }} →</span>
                 </span>
             </div>
@@ -93,6 +104,13 @@
                     </div>
 
                     <div class="mag-card__body">
+                        {{-- Рубрика над заголовком: в журнале раздел — это
+                             обещание темы, и читатель ищет его первым. Категории
+                             у материалов были, но шаблон их не показывал вовсе. --}}
+                        @if ($item->categories->count())
+                            <span class="mag-rubric">{{ $item->categories->first()->title }}</span>
+                        @endif
+
                         <h4 class="mag-card__title">{{ $item->title }}</h4>
                         <p class="mag-card__text">{{ $excerptOf($item, 110) }}</p>
 
@@ -106,8 +124,10 @@
                         {{-- Дата и время чтения разведены по краям и отделены
                              линией: одной строкой они сливались с анонсом. --}}
                         <span class="mag-card__meta">
+                            <span class="mag-time">
+                                <i class="fas fa-clock" aria-hidden="true"></i>{{ __('frontend.news.reading_time', ['min' => reading_time($item->content)]) }}
+                            </span>
                             <span class="mag-meta__date">{{ $item->created_at?->format('d.m.Y') }}</span>
-                            <span class="mag-meta__time">{{ __('frontend.news.reading_time', ['min' => reading_time($item->content)]) }}</span>
                         </span>
                     </div>
                 </a>
@@ -154,7 +174,10 @@
         justify-content:center; overflow:hidden;
         background:linear-gradient(135deg,var(--color-primary,#6366f1),var(--color-accent,#8b5cf6)) }
     .mag-lead__media img{ width:100%; height:100%; object-fit:cover; display:block }
-    .mag-lead__letter{ font-size:7rem; font-weight:800; color:#fff; opacity:.9; line-height:1 }
+    /* Буквица вместо отсутствующей обложки: смещена и приглушена, чтобы
+       читалась как оформление, а не как «картинка не загрузилась». */
+    .mag-lead__letter{ font-size:9rem; font-weight:800; color:#fff; opacity:.22;
+        line-height:1; transform:translateY(.06em) }
     .mag-lead__body{ padding:2rem 2.25rem; display:flex; flex-direction:column; justify-content:center }
     .mag-lead__title{ margin:.75rem 0 .6rem; font-size:1.75rem; line-height:1.25; font-weight:700; color:var(--surface-ink,#111827) }
     .mag-lead__text{ margin:0; font-size:1rem; line-height:1.6; color:var(--surface-ink,#475569) }
@@ -170,8 +193,35 @@
        обоих случаях. */
     .mag-lead__more{ margin-left:auto; font-weight:700; color:var(--color-primary,#6366f1) }
 
-    .mag-chip{ align-self:flex-start; font-size:.7rem; font-weight:700; letter-spacing:.04em;
-        padding:.2rem .6rem; color:var(--on-accent,#fff); background:var(--color-accent,#8b5cf6) }
+    /* Метка ведущего материала — тот же язык, что у меток витрины: значок,
+       капс, светлая обводка. Раньше это был эмодзи в цветном прямоугольнике,
+       и с остальными метками сайта он не рифмовался. */
+    .mag-chip{ align-self:flex-start; display:inline-flex; align-items:center; gap:.35rem;
+        padding:.28rem .6rem; font-size:.68rem; font-weight:800;
+        letter-spacing:.05em; text-transform:uppercase; line-height:1;
+        color:var(--on-accent,#fff);
+        background:linear-gradient(135deg, var(--color-accent,#8b5cf6),
+            color-mix(in srgb, var(--color-primary,#6366f1) 70%, var(--color-accent,#8b5cf6)));
+        border:1px solid rgba(255,255,255,.32) }
+    .mag-chip i{ font-size:.85em }
+
+    /* Рубрика: тихая надстрочная подпись, а не ещё одна цветная плашка —
+       иначе она спорила бы с меткой «Главное» и с заголовком. */
+    .mag-rubric{ font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size:.66rem; letter-spacing:.08em; text-transform:uppercase;
+        color:color-mix(in srgb, var(--color-primary,#6366f1) 78%, var(--surface-ink,#111827)) }
+
+    /* Цена чтения. В журнале по ней принимают решение открывать материал,
+       поэтому она заметнее даты: плашка со значком против тихой подписи. */
+    /* Кегль не мельче даты: замер показал 11.5 против 13.1 — время читалось
+       вторым, хотя решение принимают по нему. Различают их плашка, значок и
+       начертание, а не размер «поменьше». */
+    .mag-time{ display:inline-flex; align-items:center; gap:.3rem;
+        padding:.16rem .5rem; font-size:.82rem; font-weight:700; line-height:1.35;
+        color:color-mix(in srgb, var(--color-primary,#6366f1) 80%, var(--surface-ink,#111827));
+        background:color-mix(in srgb, var(--color-primary,#6366f1) 10%, var(--surface,#fff));
+        border:1px solid color-mix(in srgb, var(--color-primary,#6366f1) 22%, var(--surface-bd,#e2e8f0)) }
+    .mag-time i{ font-size:.85em; opacity:.8 }
 
     /* ── Сетка остальных ── */
     .mag-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(17rem,1fr)); gap:1rem }
@@ -202,8 +252,8 @@
         border-top:1px solid #eef2f7; background:var(--surface-2,#f8fafc) }
     .mag-meta__date{ color:var(--surface-dim,#94a3b8); font-variant-numeric:tabular-nums }
     .mag-meta__date::before{ content:'🗓'; margin-right:.35rem; opacity:.75 }
-    .mag-meta__time{ color:var(--surface-ink,#475569); font-weight:600; white-space:nowrap }
-    .mag-meta__time::before{ content:'⏱'; margin-right:.3rem; opacity:.75 }
+    /* .mag-meta__time больше не используется: цена чтения переехала в
+       .mag-time со значком. Дата осталась тихой подписью. */
 
     @media (max-width: 860px), (max-height: 500px){
         .mag-lead{ grid-template-columns:1fr }

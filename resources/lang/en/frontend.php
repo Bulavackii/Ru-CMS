@@ -405,6 +405,13 @@ return [
         'more' => 'Details',
     ],
 
+    'magazine' => [
+        'title' => 'Magazine',
+        'subtitle' => 'Long reads: reviews, interviews, deep dives',
+        'lead' => 'Featured',
+        'rubric' => 'Section',
+    ],
+
     'gaming' => [
         'score' => 'Rating: :score out of 10',
         'title' => 'Games',
