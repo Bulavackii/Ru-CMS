@@ -108,7 +108,10 @@
         // Корзина, если используется шаблон products
         $cart       = session('cart', []);
         $cartCount  = array_sum(array_column($cart, 'qty'));
-        $hasProducts = \Modules\News\Models\News::where('template', 'products')->exists();
+        // Признак один на весь проект (см. site_has_products): здесь и во
+        // фрагменте оформления он считался по-своему и без проверки
+        // публикации — черновик товара зажигал корзину.
+        $hasProducts = site_has_products();
       @endphp
 
       {{-- ДЕЙСТВИЯ --}}

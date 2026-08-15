@@ -25,7 +25,7 @@
                 use Modules\News\Models\News;
                 $cart = session('cart', []);
                 $cartCount = array_sum(array_column($cart, 'qty'));
-                $hasProducts = News::where('template', 'products')->exists();
+                $hasProducts = site_has_products();
             @endphp
 
             <div class="flex flex-wrap justify-center sm:justify-end items-center gap-3 text-sm">
