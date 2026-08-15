@@ -1,5 +1,34 @@
 <?php
 
+if (! function_exists('content_excerpt')) {
+    /**
+     * Краткое изложение материала для карточки.
+     *
+     * ⚠️ Обычный strip_tags СКЛЕИВАЕТ слова: он убирает `</p><p>` не
+     * оставляя ничего на их месте, и конец абзаца прирастает к началу
+     * следующего — «…отвечаем на вопросы в чате.Запись остаётся в архиве».
+     * Владелец поймал это на карточке шаблона «Игры». Поэтому блочные теги
+     * и переводы строк сначала превращаются в пробел, и только потом
+     * снимается разметка.
+     *
+     * Шорткоды убираются тоже: `[captcha preset="x"]` в анонсе — мусор.
+     */
+    function content_excerpt(?string $html, int $limit = 130): string
+    {
+        $text = (string) $html;
+
+        // Блочные границы — это пробел, а не пустое место.
+        $text = preg_replace('~<\s*(br|/p|/div|/li|/h[1-6]|/tr|/td|/blockquote)[^>]*>~i', ' ', $text);
+
+        $text = strip_tags($text);
+        $text = function_exists('strip_shortcodes') ? strip_shortcodes($text) : $text;
+        $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $text = trim(preg_replace('~\s+~u', ' ', $text));
+
+        return \Illuminate\Support\Str::limit($text, $limit);
+    }
+}
+
 if (! function_exists('install_lock_path')) {
     /**
      * Путь к файлу-замку установки.

@@ -145,7 +145,7 @@
                             <a href="{{ route('news.show', $news->slug) }}">{{ $news->title }}</a>
                         </h3>
 
-                        <p class="nw-card__text">{{ Str::limit(trim(preg_replace('~\s+~u', ' ', strip_tags($news->content))), 180) }}</p>
+                        <p class="nw-card__text">{{ content_excerpt($news->content, 180) }}</p>
 
                         <a href="{{ route('news.show', $news->slug) }}" class="nw-card__more">
                             {{ __('frontend.news.read_more') }} <i class="fas fa-arrow-right"></i>

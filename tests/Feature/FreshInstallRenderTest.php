@@ -22,7 +22,11 @@ class FreshInstallRenderTest extends TestCase
         $html = $this->get('/')->assertOk()->getContent();
 
         // Оценки: плашка у каждого игрового материала, всегда с точкой.
-        preg_match_all('~gm-card__score">([^<]+)~u', $html, $scores);
+        // Разметка плашки изменилась осознанно: у неё появились ступень цвета
+        // в классе (is-high/is-mid/is-low) и звезда отдельным элементом, чтобы
+        // приглушить её и не читать диктору. Поэтому число берётся ПОСЛЕ
+        // звезды, а не сразу за именем класса.
+        preg_match_all('~gm-card__star"[^>]*>★</span>([\d.]+)<~u', $html, $scores);
 
         $this->assertCount(
             News::where('template', 'gaming')->count(),
@@ -65,7 +69,7 @@ class FreshInstallRenderTest extends TestCase
 
         // Выборка перечисляет колонки поимённо: без rating плашка оценки
         // не появлялась, без price — цена у товаров.
-        preg_match_all('~gm-card__score">([^<]+)~u', $all, $scores);
+        preg_match_all('~gm-card__star"[^>]*>★</span>([\d.]+)<~u', $all, $scores);
         $this->assertNotEmpty($scores[1], 'Ни на одной странице новостей нет оценок у игровых карточек');
 
         foreach ($scores[1] as $score) {

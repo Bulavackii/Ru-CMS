@@ -406,6 +406,7 @@ return [
     ],
 
     'gaming' => [
+        'score' => 'Rating: :score out of 10',
         'title' => 'Games',
         'subtitle' => 'Announcements, reviews and patch notes',
     ],

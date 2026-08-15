@@ -82,15 +82,18 @@
         @endforeach
     </div>
 
-    {{-- Полоса записи: у медицинского сайта это главное целевое действие,
-         поэтому она стоит сразу под перечнем услуг, а не в подвале. --}}
-    <div class="clinic-cta">
-        <div>
-            <strong class="clinic-cta__title">📞 Записаться на приём</strong>
-            <span class="clinic-cta__text">Перезвоним и подберём удобное время</span>
-        </div>
-        <a href="{{ url('/contacts') }}" class="clinic-cta__btn">Оставить заявку</a>
-    </div>
+    {{-- ⚠️ Полосы «Записаться на приём» здесь больше нет — удалена по
+         просьбе владельца 15.08.2026.
+
+         Она была ЗАШИТА в шаблон: заголовок, подпись и адрес ссылки лежали
+         литералами прямо здесь, в админке не правились и даже не были
+         переведены (единственные русские строки в файле мимо словаря).
+         Владелец такой блок держать не хочет: либо содержимое правится в
+         редакторе, либо его нет.
+
+         Понадобится снова — заводить не литералом, а блоком содержимого
+         (`pc-cta` из content-blocks.css): он вставляется в материал кнопкой
+         «Блоки» и правится там же, где остальной текст. --}}
 </section>
 @endif
 
@@ -130,14 +133,6 @@
     .clinic-card__price{ font-size:1.05rem; font-weight:700; color:var(--surface-ink,#111827) }
     .clinic-card__link{ font-size:.9rem; font-weight:700; color:var(--color-primary,#6366f1) }
 
-    .clinic-cta{ display:flex; align-items:center; justify-content:space-between; gap:1rem;
-        flex-wrap:wrap; margin-top:1rem; padding:1.35rem 1.6rem; color:var(--on-accent,#fff);
-        background:linear-gradient(135deg,var(--color-primary,#6366f1),var(--color-accent,#8b5cf6)) }
-    .clinic-cta__title{ display:block; font-size:1.15rem }
-    .clinic-cta__text{ display:block; font-size:.9rem; opacity:.9 }
-    .clinic-cta__btn{ flex:none; padding:.75rem 1.5rem; font-size:.95rem; font-weight:700;
-        color:var(--surface-ink,#111827); background:var(--surface,#fff) }
-    .clinic-cta__btn:hover{ color:var(--color-primary,#6366f1) }
 
 
     /* Тёмная ТЕМА сайта — не то же, что тёмный режим системы ниже.

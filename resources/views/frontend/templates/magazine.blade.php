@@ -29,11 +29,9 @@
     };
 
     // Короткая выжимка: теги вырезаны, пробелы схлопнуты.
-    $excerptOf = function ($item, int $limit) {
-        $text = trim(preg_replace('~\s+~u', ' ', strip_tags((string) $item->content)));
-
-        return \Illuminate\Support\Str::limit($text, $limit);
-    };
+    // Через content_excerpt: strip_tags убирает `</p><p>` не оставляя
+    // пробела, и конец абзаца прирастал к началу следующего.
+    $excerptOf = fn ($item, int $limit) => content_excerpt($item->content, $limit);
 
     $items = $newsList ?? collect();
     $lead = $items->first();
