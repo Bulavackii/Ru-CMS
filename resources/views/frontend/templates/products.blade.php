@@ -120,8 +120,15 @@
                 @endphp
 
                 <article class="pr-card {{ $outOfStock ? 'is-out' : '' }}">
-                    {{-- ── Обложка ── --}}
+                    {{-- ── Обложка ──
+                         Кликабельна целиком: в каталоге по картинке жмут чаще,
+                         чем по заголовку, а ссылкой был только он. Для видео
+                         ссылку не вешаем — там свои органы управления. --}}
                     <div class="pr-card__media">
+                        @unless ($isVideo)
+                            <a href="{{ route('news.show', $news->slug) }}"
+                               class="pr-card__cover-link" tabindex="-1" aria-hidden="true"></a>
+                        @endunless
                         @if ($isVideo)
                             <video muted autoplay loop playsinline controls
                                    @if($coverAbs && in_array($extOf($coverAbs), $IMG_EXT, true)) poster="{{ $coverAbs }}" @endif>
@@ -163,7 +170,9 @@
                             <a href="{{ route('news.show', $news->slug) }}">{{ $news->title }}</a>
                         </h3>
 
-                        <p class="pr-card__text">{{ \Illuminate\Support\Str::limit(trim(preg_replace('~\s+~u', ' ', strip_tags($news->content))), 110) }}</p>
+                        {{-- content_excerpt: strip_tags склеивал конец абзаца с началом
+                             следующего («…в чате.Запись остаётся»). --}}
+                        <p class="pr-card__text">{{ content_excerpt($news->content, 110) }}</p>
 
                         {{-- ── Цена и остаток ── --}}
                         <div class="pr-card__price-row">
@@ -172,7 +181,11 @@
                             @endif
 
                             @if (!is_null($stock))
-                                <span class="pr-card__stock stock-display" data-id="{{ $news->id }}">
+                                {{-- Малый остаток выделяется цветом: «осталось 2»
+                                     и «осталось 200» — разные сообщения покупателю,
+                                     а выглядели одинаково. --}}
+                                <span class="pr-card__stock stock-display {{ $stock > 0 && $stock <= 3 ? 'is-low' : '' }}"
+                                      data-id="{{ $news->id }}">
                                     {{ __('frontend.products.left') }} <span>{{ $stock }}</span>
                                 </span>
                             @endif
@@ -194,13 +207,20 @@
                                             aria-label="{{ __('frontend.products.more') }}">+</button>
                                 </div>
 
-                                <a href="#" class="pr-card__cart add-to-cart"
-                                   data-id="{{ $news->id }}"
-                                   data-title="{{ $news->title }}"
-                                   data-price="{{ $price }}"
-                                   data-stock="{{ $stock }}">
-                                    <i class="fas fa-cart-shopping"></i> {{ __('frontend.products.to_cart') }}
-                                </a>
+                                {{-- ⚠️ button, а не <a href="#">. Ссылка на решётку
+                                     без JS прыгала в начало страницы, а с точки
+                                     зрения разметки это не переход, а действие.
+                                     aria-label с названием: диктор иначе слышал
+                                     подряд шесть одинаковых «В корзину». --}}
+                                <button type="button" class="pr-card__cart add-to-cart"
+                                        data-id="{{ $news->id }}"
+                                        data-title="{{ $news->title }}"
+                                        data-price="{{ $price }}"
+                                        data-stock="{{ $stock }}"
+                                        aria-label="{{ __('frontend.products.to_cart') }} — {{ $news->title }}">
+                                    <i class="fas fa-cart-shopping" aria-hidden="true"></i>
+                                    <span class="pr-cart__label">{{ __('frontend.products.to_cart') }}</span>
+                                </button>
                             </div>
                         @endunless
 
@@ -236,15 +256,39 @@
     .pr__title{ margin:0; font-size:1.5rem; font-weight:700; color:var(--surface-ink,#111827); line-height:1.2 }
     .pr__sub{ margin:.1rem 0 0; font-size:.82rem; color:var(--surface-mute,#6b7280) }
 
-    .pr-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(18rem,1fr)); gap:1rem }
+    /* min(100%,...) — иначе ячейка в 18rem не влезает в 360 с полями и
+       вся страница получает горизонтальную прокрутку. */
+    .pr-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr)); gap:1rem }
 
     .pr-card{ display:flex; flex-direction:column; background:var(--surface,#fff); border:1px solid var(--surface-bd,#eef2f7);
         overflow:hidden; transition:border-color .15s, transform .15s }
     .pr-card:hover{ border-color:var(--color-primary,#6366f1); transform:translateY(-2px) }
-    .pr-card.is-out{ opacity:.72 }
+    /* Распроданное не прячем, но и не выдаём за доступное: обложка
+       обесцвечивается, карточка приглушается. */
+    .pr-card.is-out{ opacity:.8 }
+    .pr-card.is-out .pr-card__media img,
+    .pr-card.is-out .pr-card__media video{ filter:grayscale(.85) }
 
-    .pr-card__media{ position:relative; height:12.5rem; background:var(--surface-2,#f1f5f9) }
-    .pr-card__media img, .pr-card__media video{ width:100%; height:100%; object-fit:cover; display:block }
+    /* ⚠️ Пропорция, а не фиксированная высота: ширина ячейки сетки плавает,
+       и при 12.5rem обложка совпадала с кадром только на одной ширине, на
+       остальных её срезало.
+
+       Кадр КВАДРАТНЫЙ, а не 8:5 как в «Журнале» и «Играх»: снимок товара
+       по своей природе квадратный (демо-обложки — 200×200), и в широком
+       кадре у него срезало по 125 пикселей сверху и снизу — замер это и
+       показал. Витрине квадрат привычнее: так товар занимает кадр целиком. */
+    .pr-card__media{ position:relative; width:100%; aspect-ratio:1 / 1;
+        overflow:hidden; background:var(--surface-2,#f1f5f9) }
+    .pr-card__media img, .pr-card__media video{ width:100%; height:100%; object-fit:cover; display:block;
+        transition:transform .35s ease }
+    /* Лёгкое приближение при наведении — привычный отклик витрины. На
+       сенсорных наведения нет, поэтому там правило не работает и не мешает. */
+    .pr-card:hover .pr-card__media img{ transform:scale(1.04) }
+    /* Ссылка поверх обложки: сама картинка остаётся картинкой, а нажатие
+       по всему кадру ведёт на товар. Значки акции и «нет в наличии» лежат
+       выше по слою, чтобы не перекрывались ею. */
+    .pr-card__cover-link{ position:absolute; inset:0; z-index:1 }
+    .pr-badge, .pr-card__out{ z-index:2 }
     .pr-card__noimg{ display:flex; flex-direction:column; align-items:center; justify-content:center;
         gap:.4rem; height:100%; color:var(--surface-dim,#94a3b8); font-size:.75rem }
     .pr-card__noimg i{ font-size:1.6rem; opacity:.5 }
@@ -274,27 +318,58 @@
 
     .pr-card__price-row{ display:flex; align-items:baseline; justify-content:space-between;
         gap:.75rem; margin-top:.2rem }
-    .pr-card__price{ font-size:1.3rem; font-weight:800; color:var(--surface-ink,#111827); white-space:nowrap }
+    /* Табличные цифры: иначе «850» и «2 790» пляшут по разрядам и колонка
+       цен в сетке выглядит неровной. */
+    .pr-card__price{ font-size:1.3rem; font-weight:800; letter-spacing:-.02em;
+        font-variant-numeric:tabular-nums; color:var(--surface-ink,#111827); white-space:nowrap }
     .pr-card__stock{ font-size:.74rem; color:var(--surface-mute,#64748b); white-space:nowrap }
+    /* Заканчивается — это другое сообщение, чем «есть на складе». */
+    .pr-card__stock.is-low{ font-weight:700;
+        color:color-mix(in srgb, #d97706 70%, var(--surface-ink,#111827)) }
 
-    .pr-card__buy{ display:flex; align-items:stretch; gap:.5rem; margin-top:.55rem }
+    /* ⚠️ Высота ряда покупки задаётся ОДНОЙ переменной, а не наследуется
+       от отступов кнопки. Раньше стояло align-items:stretch: переключатель
+       тянулся по «В корзину» и выходил под 48 пикселей — ряд получался
+       тяжёлым, а сам переключатель непропорционально высоким.
 
-    .pr-qty{ display:flex; align-items:stretch; border:1px solid var(--surface-bd,#e2e8f0); flex:none }
-    .pr-qty__btn{ width:2rem; background:var(--surface-2,#f8fafc); color:var(--surface-ink,#334155); font-size:1rem; font-weight:700;
-        border:0; cursor:pointer; line-height:1 }
+       Это ТРЕТЬЯ копия одного органа управления (ещё .buy-qty на странице
+       товара и .crt-item__qty в корзине). Размеры и вид держим общими: они
+       уже однажды разъехались. */
+    .pr-card__buy{ --pr-h:36px; display:flex; align-items:center; gap:.5rem; margin-top:.55rem }
+
+    .pr-qty, .pr-qty__btn, .pr-qty__input{ box-sizing:border-box }
+    .pr-qty{ display:inline-flex; align-items:stretch; flex:none;
+        height:var(--pr-h); background:var(--surface,#fff);
+        border:1px solid var(--surface-bd,#e2e8f0); overflow:hidden }
+    /* Кнопки квадратные: ширина равна высоте ряда. */
+    .pr-qty__btn{ display:flex; align-items:center; justify-content:center;
+        width:var(--pr-h); height:100%; padding:0; line-height:1;
+        font-size:1rem; font-weight:700;
+        color:var(--surface-ink,#334155); background:var(--surface-2,#f8fafc);
+        border:0; cursor:pointer; transition:background .15s, color .15s }
     .pr-qty__btn:hover{ background:color-mix(in srgb, var(--color-primary,#6366f1) 12%, var(--surface,#eef2ff)); color:var(--color-primary,#6366f1) }
     /* Стрелки у number-поля крадут ширину и выглядят чужеродно. */
-    .pr-qty__input{ width:2.6rem; text-align:center; border:0; border-left:1px solid #e2e8f0;
-        border-right:1px solid #e2e8f0; font-size:.85rem; color:var(--surface-ink,#111827); background:var(--surface,#fff);
+    .pr-qty__input{ width:2.5rem; height:100%; padding:0; text-align:center; border:0;
+        border-left:1px solid var(--surface-bd,#e2e8f0);
+        border-right:1px solid var(--surface-bd,#e2e8f0);
+        font-size:.85rem; font-variant-numeric:tabular-nums;
+        color:var(--surface-ink,#111827); background:var(--surface,#fff);
         -moz-appearance:textfield }
     .pr-qty__input::-webkit-outer-spin-button,
     .pr-qty__input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0 }
 
     .pr-card__cart{ flex:1; display:inline-flex; align-items:center; justify-content:center; gap:.4rem;
-        padding:.55rem .75rem; font-size:.85rem; font-weight:700; color:var(--on-accent,#fff); white-space:nowrap;
+        box-sizing:border-box; height:var(--pr-h); padding:0 .75rem;
+        font-size:.85rem; font-weight:700; color:var(--on-accent,#fff); white-space:nowrap;
         background:linear-gradient(135deg,var(--color-primary,#6366f1),var(--color-accent,#8b5cf6));
         transition:filter .15s }
     .pr-card__cart:hover{ filter:brightness(1.08); color:#fff }
+    .pr-card__cart:active{ transform:translateY(1px) }
+    /* Подтверждение прямо на кнопке. Всплывающее сообщение показывается в
+       углу экрана — на телефоне его можно не заметить вовсе, а нажатие
+       должно отвечать там, где нажали. */
+    .pr-card__cart.is-done{ background:linear-gradient(135deg,#16a34a,#22c55e) }
+    .pr-card__cart[disabled]{ opacity:.75; cursor:default }
 
     .pr-card__meta{ display:flex; align-items:center; justify-content:space-between; gap:.75rem;
         margin:.8rem -1.1rem 0; padding:.55rem 1.1rem; font-size:.75rem;
@@ -314,13 +389,36 @@
     body.fx-theme-dark .pr-card{ background:var(--surface); border-color:var(--surface-bd) }
     body.fx-theme-dark .pr-card__meta{ background:var(--surface-2); border-color:var(--surface-bd) }
     body.fx-theme-dark .pr__title, body.fx-theme-dark .pr-card__title a, body.fx-theme-dark .pr-card__price{ color:var(--surface-ink) }
-    @media (prefers-color-scheme: dark){
-        .pr__head, .pr-card{ background:#111827; border-color:#1f2937 }
-        .pr__title, .pr-card__title a, .pr-card__price{ color:#f3f4f6 }
-        .pr-card__media, .pr-qty__btn{ background:#1f2937; color:#cbd5e1 }
-        .pr-qty__input{ background:#111827; color:#f3f4f6; border-color:#1f2937 }
-        .pr-card__meta{ background:#0b1220; border-color:#1f2937 }
-        .pr-chip{ background:#1e1b4b; border-color:#312e81; color:#c7d2fe }
+    /* Телефоны и планшеты: 44 — нижняя граница зоны нажатия. Растёт ряд
+       целиком, переключатель и кнопка следуют за переменной. */
+    @media (max-width: 1024px), (max-height: 500px){
+        .pr-card__buy{ --pr-h:44px }
+    }
+
+    /* ⚠️ Блока @media (prefers-color-scheme: dark) здесь больше нет.
+       Это настройка ОПЕРАЦИОННОЙ СИСТЕМЫ, а не тема сайта: при тёмной
+       системе и светлом сайте витрина уезжала в тёмный посреди светлой
+       страницы. Тему сайта задаёт body.fx-theme-dark (правила выше).
+       Разбор — в CLAUDE.md. */
+
+    /* ── Телефоны и планшеты ─────────────────────────────────────── */
+    @media (max-width: 1024px), (max-height: 500px){
+        .pr{ margin:1.5rem auto; padding:0 .75rem }
+        .pr-grid{ gap:.75rem }
+        /* 44 — нижняя граница зоны нажатия; ряд растёт целиком. */
+        .pr-card__buy{ --pr-h:44px }
+        .pr-card__body{ padding:.85rem .9rem 0 }
+        .pr-card__price{ font-size:1.2rem }
+        .pr-card__stock, .pr-meta__date, .pr-meta__link, .pr-chip{ font-size:12px }
+        .pr-meta__link{ display:inline-flex; align-items:center; min-height:32px }
+    }
+
+    /* Совсем узкий экран: подпись кнопки съедает место у переключателя,
+       а значок корзины и так однозначен. */
+    @media (max-width: 380px){
+        .pr-cart__label{ position:absolute; width:1px; height:1px; overflow:hidden;
+            clip-path:inset(50%); white-space:nowrap }
+        .pr-card__cart{ flex:none; width:var(--pr-h) }
     }
 </style>
 @endpush
@@ -396,6 +494,13 @@
                 return;
             }
 
+            // Пока запрос в пути — кнопка занята. Иначе нетерпеливое двойное
+            // нажатие клало товар в корзину дважды.
+            this.disabled = true;
+            const кнопка = this;
+            const подпись = кнопка.querySelector('.pr-cart__label');
+            const былаПодпись = подпись ? подпись.textContent : '';
+
             fetch("{{ route('cart.add') }}", {
                 method: 'POST',
                 headers: {
@@ -415,9 +520,20 @@
                 showToast(data.message || 'Добавлено в корзину!', 'success');
                 updateCartCount();
                 updateServerStock(id);
+
+                // Подтверждение ПРЯМО НА КНОПКЕ: всплывающее сообщение висит в
+                // углу экрана, на телефоне его можно не заметить вовсе.
+                кнопка.classList.add('is-done');
+                if (подпись) { подпись.textContent = @js(__('frontend.products.added')); }
+                setTimeout(() => {
+                    кнопка.classList.remove('is-done');
+                    if (подпись) { подпись.textContent = былаПодпись; }
+                    кнопка.disabled = false;
+                }, 1600);
             }).catch(async error => {
                 const msg = await error.json().then(e => e.message ?? 'Ошибка запроса').catch(() => 'Ошибка');
                 showToast(msg, 'error');
+                кнопка.disabled = false;
             });
         });
     });

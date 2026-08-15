@@ -412,6 +412,7 @@ return [
     ],
 
     'products' => [
+        'added' => 'Added',
         'title' => 'Products',
         'subtitle' => 'Catalogue with prices and availability',
         'sale' => 'SALE',
