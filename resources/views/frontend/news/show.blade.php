@@ -3,6 +3,7 @@
 @section('title', $news->t('title'))
 
 @section('content')
+@includeIf('frontend.templates.skins.' . ($template ?? 'default'))
     @php
         // Обложка → баннер (только если это картинка)
         $IMG = ['jpg','jpeg','png','gif','webp','bmp','svg','avif'];
@@ -20,7 +21,13 @@
         $readMins = reading_time($news->t('content'));
     @endphp
 
-    <article class="w-full max-w-screen-2xl mx-auto">
+    {{-- Класс шаблона на самой статье. Оформление ПОД шаблон живёт в
+         «шкурке» — необязательном партиале frontend/templates/skins/<шаблон>.
+         Нет шкурки — страница выглядит ровно как раньше, поэтому добавление
+         нового шаблона ничего не ломает. Копировать show.blade.php под каждый
+         шаблон нельзя: крошки, плашка покупки и «поделиться» разъехались бы по
+         восьми копиям на первой же правке. --}}
+    <article class="w-full max-w-screen-2xl mx-auto news--{{ $template ?? 'default' }}">
 
         {{-- ===== Шапка новости ===== --}}
         <header class="fx-card p-6 sm:p-8 md:p-10 mb-6">

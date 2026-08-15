@@ -141,8 +141,16 @@ class NewsController extends Controller
         // Отслеживание просмотра
         $this->analytics->trackView($news, auth()->id());
 
+        // Шаблон материала нужен и на самой странице новости, а не только в
+        // списках. Раньше он читался лишь при группировке на главной: карточки
+        // выглядели по-разному, а открытая новость — одинаково у всех.
+        // Пустое значение и NULL — это тот же «default» (три состояния одной
+        // группы, как в постраничном выводе ленты).
+        $template = trim((string) $news->template) ?: 'default';
+
         return view('frontend.news.show', [
             'news' => $news,
+            'template' => $template,
             'meta_title' => $news->meta_title ?? $news->title,
             'meta_description' => $news->meta_description,
             'meta_keywords' => $news->meta_keywords,

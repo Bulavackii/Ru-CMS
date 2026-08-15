@@ -7,7 +7,9 @@
 
     @php
         // Получаем коллекцию отзывов из шаблонов (если есть)
-        $reviewsList = $templates['reviews'] ?? collect();
+        // Сначала $newsList (см. разбор в faq.blade.php): $templates['reviews']
+        // — переменная из прежнего устройства главной, её больше нет.
+        $reviewsList = $newsList ?? ($templates['reviews'] ?? collect());
     @endphp
 
     @if ($reviewsList->count())
@@ -95,7 +97,9 @@
         </div>
 
         {{-- 📄 Пагинация --}}
-        @if ($reviewsList->hasPages())
+        {{-- ⚠️ method_exists: на главной список приходит обычной коллекцией
+             (материалы уже сгруппированы), и hasPages() там нет. --}}
+        @if (method_exists($reviewsList, 'hasPages') && $reviewsList->hasPages())
             <div class="mt-10 w-full flex flex-col items-center justify-center gap-2 select-none">
                 <div class="text-sm text-gray-500 dark:text-gray-400">
                     Показано с <span class="font-semibold">{{ $reviewsList->firstItem() }}</span>

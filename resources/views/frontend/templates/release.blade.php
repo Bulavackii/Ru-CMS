@@ -8,9 +8,13 @@
     </h2>
 
     @php
-        // Берём коллекцию релизов (как в FAQ-шаблоне — из $templates['release'])
-        $releaseList = $releaseList
-            ?? ($templates['release'] ?? collect());
+        // Сначала $newsList — именно его отдаёт контроллер, сгруппировав
+        // материалы по шаблонам. $templates['release'] — переменная из
+        // прежнего устройства главной, её давно нет: список выходил пустым, и
+        // раздел не выводился ВООБЩЕ (не замечали, потому что материалов с
+        // этим шаблоном не было).
+        $releaseList = $newsList
+            ?? ($releaseList ?? ($templates['release'] ?? collect()));
     @endphp
 
     @if ($releaseList->count())
@@ -101,7 +105,9 @@
         </div>
 
         {{-- Пагинация --}}
-        @if ($releaseList->hasPages())
+        {{-- ⚠️ method_exists: на главной список приходит обычной коллекцией
+             (материалы уже сгруппированы), и hasPages() там нет. --}}
+        @if (method_exists($releaseList, 'hasPages') && $releaseList->hasPages())
             <div class="mt-10 w-full flex flex-col items-center justify-center gap-2 select-none" aria-label="Пагинация релизов">
                 <div class="text-sm text-gray-500">
                     Показано с <span class="font-semibold">{{ $releaseList->firstItem() }}</span>

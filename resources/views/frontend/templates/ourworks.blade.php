@@ -169,7 +169,11 @@
         </div>
 
         {{-- Пагинация --}}
-        @if ($newsList->hasPages())
+        {{-- ⚠️ method_exists обязателен: на главной и в /news список приходит
+             обычной коллекцией (материалы уже сгруппированы по шаблонам),
+             и hasPages() там нет — страница падала с 500. Проявлялось
+             только когда в базе появлялся материал этого шаблона. --}}
+        @if (method_exists($newsList, 'hasPages') && $newsList->hasPages())
             <div class="mt-10 w-full flex коло items-center justify-center gap-2 select-none" aria-label="Пагинация услуг">
                 <div class="text-sm text-gray-500">
                     Показано с <span class="font-semibold">{{ $newsList->firstItem() }}</span>

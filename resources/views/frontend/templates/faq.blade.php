@@ -7,7 +7,12 @@
 
     @php
         // Получаем коллекцию FAQ из шаблонов (если есть)
-        $faqList = $templates['faq'] ?? collect();
+        // ⚠️ Сначала $newsList — именно его отдаёт контроллер, сгруппировав
+        // материалы по шаблонам. Раньше здесь был только $templates['faq'] —
+        // переменная из прежнего устройства главной, которой давно нет: список
+        // всегда выходил пустым, и раздел не выводился ВООБЩЕ. Не замечали
+        // только потому, что ни один материал этот шаблон не использовал.
+        $faqList = $newsList ?? ($templates['faq'] ?? collect());
     @endphp
 
     @if ($faqList->count())
@@ -94,7 +99,9 @@
         </div>
 
         {{-- 📄 Пагинация --}}
-        @if ($faqList->hasPages())
+        {{-- ⚠️ method_exists: на главной список приходит обычной коллекцией
+             (материалы уже сгруппированы), и hasPages() там нет. --}}
+        @if (method_exists($faqList, 'hasPages') && $faqList->hasPages())
             <div class="mt-10 w-full flex flex-col items-center justify-center gap-2 select-none">
                 {{-- Текст пагинации --}}
                 <div class="text-sm text-gray-500 dark:text-gray-400">
