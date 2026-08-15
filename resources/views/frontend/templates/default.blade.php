@@ -230,7 +230,20 @@
     .nw-card__text{ margin:0; font-size:.85rem; line-height:1.55; color:var(--surface-mute,#64748b); flex:1;
         display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden }
 
-    .nw-card__more{ font-size:.85rem; font-weight:700; color:var(--color-primary,#6366f1) }
+    /* Ссылка прижата к ПРАВОМУ краю карточки: движение вперёд там же, где
+       оно у остальных карточек сайта, и на одной вертикали со временем
+       чтения в строке ниже. Тело карточки — flex-колонка, поэтому хватает
+       align-self; ширина при этом остаётся по содержимому, а не во всю
+       строку (иначе нажималось бы пустое место слева от подписи).
+       inline-flex — чтобы стрелка стояла на одной линии с текстом. */
+    .nw-card__more{ align-self:flex-end; display:inline-flex; align-items:center;
+        gap:.35rem; font-size:.85rem; font-weight:700; color:var(--color-primary,#6366f1) }
+
+    /* На телефонах и планшетах ссылке нужна высота зоны нажатия: голая
+       строка текста была 20 пикселей. Порог общий для проекта. */
+    @media (max-width: 1024px), (max-height: 500px){
+        .nw-card__more{ min-height:32px }
+    }
 
     .nw-pager{ margin-top:1.5rem; display:flex; justify-content:center }
 
