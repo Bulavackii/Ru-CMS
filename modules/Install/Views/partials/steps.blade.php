@@ -68,7 +68,7 @@
                     $__tip .= ' · ' . __('install.smtp.optional');
                 }
             @endphp
-            <li class="group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all
+            <li class="group ins-chip inline-flex items-center justify-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all
                 {{ $__isCurrent ? 'text-white' : ($__isDone ? '' : 'text-gray-400') }}"
                 @if ($__isCurrent)
                     style="background-color:var(--accent);box-shadow:0 8px 18px -6px color-mix(in srgb, var(--accent) 60%, transparent)"
@@ -84,7 +84,18 @@
                 @else
                     <i data-lucide="{{ $__step['icon'] }}" class="w-3 h-3"></i>
                 @endif
-                <span class="hidden md:inline">{{ $__step['label'] }}</span>
+                {{-- ⚠️ Подпись только у ТЕКУЩЕГО шага.
+                     Этот блок и так виден лишь до 1024 (lg:hidden), а
+                     подписи показывались с 768 — то есть ровно в той
+                     полосе, где семь чипов с названиями в строку не
+                     помещаются: «Готово» переносилось вниз и висело по
+                     центру отдельной строкой (замер на 896×414).
+                     Название шага и без того стоит строкой выше
+                     («ШАГ 2 ИЗ 7 · Требования»), а у остальных чипов оно
+                     есть в подсказке. --}}
+                @if ($__isCurrent)
+                    <span class="hidden sm:inline">{{ $__step['label'] }}</span>
+                @endif
                 @if ($__isOptional)
                     {{-- Точка-маркер: шаг можно пропустить. Расшифровка — в тултипе. --}}
                     <span class="w-1 h-1 rounded-full shrink-0 {{ $__isCurrent ? 'bg-white/70' : 'bg-gray-300' }}"></span>

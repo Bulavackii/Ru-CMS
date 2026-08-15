@@ -44,26 +44,26 @@
 
                 {{-- Выбор типа --}}
                 <div class="grid grid-cols-2 gap-2.5">
-                    <label class="flex items-center gap-2.5 p-3 border-2 rounded-2xl cursor-pointer transition-all bg-white/60"
-                           :class="type === 'license' ? '' : 'border-gray-200 hover:border-gray-400'"
+                    <label class="ins-mode"
+                           :class="type === 'license' ? '' : 'border-gray-200'"
                            :style="type === 'license' ? 'border-color:var(--accent); box-shadow:0 10px 22px -14px color-mix(in srgb, var(--accent) 55%, transparent)' : ''"
                            data-tip="{{ __('install.license.type_license_tip') }}">
                         <input type="radio" name="activation_type" value="license" x-model="type" class="sr-only">
                         <i data-lucide="key-round" class="w-4 h-4 shrink-0" :class="type === 'license' ? '' : 'text-gray-400'" :style="type === 'license' ? 'color:var(--accent)' : ''"></i>
                         <div>
-                            <div class="font-semibold text-xs text-gray-900">{{ __('install.license.type_license') }}</div>
-                            <div class="text-[10px] text-gray-400">{{ __('install.license.type_license_sub') }}</div>
+                            <div class="ins-mode__t">{{ __('install.license.type_license') }}</div>
+                            <div class="ins-mode__s">{{ __('install.license.type_license_sub') }}</div>
                         </div>
                     </label>
-                    <label class="flex items-center gap-2.5 p-3 border-2 rounded-2xl cursor-pointer transition-all bg-white/60"
-                           :class="type === 'promo' ? '' : 'border-gray-200 hover:border-gray-400'"
+                    <label class="ins-mode"
+                           :class="type === 'promo' ? '' : 'border-gray-200'"
                            :style="type === 'promo' ? 'border-color:var(--accent); box-shadow:0 10px 22px -14px color-mix(in srgb, var(--accent) 55%, transparent)' : ''"
                            data-tip="{{ __('install.license.type_promo_tip') }}">
                         <input type="radio" name="activation_type" value="promo" x-model="type" class="sr-only">
                         <i data-lucide="ticket-percent" class="w-4 h-4 shrink-0" :class="type === 'promo' ? '' : 'text-gray-400'" :style="type === 'promo' ? 'color:var(--accent)' : ''"></i>
                         <div>
-                            <div class="font-semibold text-xs text-gray-900">{{ __('install.license.type_promo') }}</div>
-                            <div class="text-[10px] text-gray-400">{{ __('install.license.type_promo_sub') }}</div>
+                            <div class="ins-mode__t">{{ __('install.license.type_promo') }}</div>
+                            <div class="ins-mode__s">{{ __('install.license.type_promo_sub') }}</div>
                         </div>
                     </label>
                 </div>

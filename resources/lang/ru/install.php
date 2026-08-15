@@ -226,7 +226,7 @@ return [
         'help_with_email'  => 'Реквизиты сохранятся в <span class="font-mono">.env</span> (<span class="font-mono">MAIL_*</span>) и будут использоваться для писем восстановления доступа — ссылку на сброс пароля можно будет получить на <span class="font-mono">:email</span>.',
         'skip'             => 'Пропустить',
         'skip_tip'         => 'Настроить почту позже в .env или админке',
-        'submit'           => 'Сохранить и продолжить',
+        'submit'           => 'Продолжить',
         'submitting'       => 'Проверяем и сохраняем…',
     ],
 

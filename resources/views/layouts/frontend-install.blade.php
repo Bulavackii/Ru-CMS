@@ -244,8 +244,15 @@
         .ins-locked i{ display:inline-block; vertical-align:-2px; margin-right:.3rem; color:var(--accent) }
         .ins-locked .font-mono, .ins-locked code{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace }
 
-        /* Действия шага: главное — залито акцентом, остальные тихие. */
+        /* Действия шага: главное — залито акцентом, остальные тихие.
+
+           ⚠️ white-space:nowrap обязателен. Кнопки в подвале стоят в одном
+           flex-ряду и сжимаются: «Проверить снова» получала 138 пикселей
+           при нужных 150 и ломала подпись на ТРИ строки — высота 65 против
+           44 у соседей. По ширине ряд при этом помещался (363 из 388), то
+           есть переносить было незачем. */
         .ins-act{ display:inline-flex; align-items:center; justify-content:center; gap:.5rem;
+            box-sizing:border-box; flex:none; white-space:nowrap;
             padding:.7rem 1.2rem; font-size:.85rem; font-weight:700; cursor:pointer;
             color:#374151; background:var(--surface-2,#f7f8fc);
             border:1px solid var(--surface-bd,#e3e6ee);
@@ -263,6 +270,22 @@
             background:transparent }
         .ins-act--dev:hover{ border-color:var(--accent); color:#111827; background:var(--surface,#fff) }
         .ins-act:disabled{ opacity:.6; cursor:not-allowed }
+
+        /* ── Плитка выбора режима (шаг «Лицензия») ────────────────────────
+           ⚠️ Была собрана утилитами, из которых ДВЕ в этой сборке Tailwind
+           не существуют: text-[10px] (произвольное значение) и bg-white/60
+           (прозрачность через дробь). Подпись поэтому рисовалась
+           унаследованным кеглем и распирала плитку по высоте, а подложки
+           не было вовсе. Здесь всё литеральным CSS. */
+        .ins-mode{ display:flex; align-items:center; gap:.6rem;
+            box-sizing:border-box; padding:.55rem .7rem; cursor:pointer;
+            border:2px solid var(--surface-bd,#e5e7eb); border-radius:14px;
+            background:rgba(255,255,255,.6);
+            transition:border-color .15s ease, box-shadow .15s ease }
+        .ins-mode:hover{ border-color:#9ca3af }
+        .ins-mode__t{ font-size:.76rem; font-weight:600; line-height:1.2;
+            color:#111827 }
+        .ins-mode__s{ font-size:.66rem; line-height:1.25; color:#9ca3af }
 
         /* Возврат на предыдущий шаг — ссылкой, а не кнопкой: это не
            действие шага, а отмена. */
@@ -533,8 +556,49 @@
             .ins-input{ min-height:44px; font-size:16px }
 
             /* Действия шага и возврат — полноразмерные цели нажатия. */
-            .ins-act{ min-height:44px }
-            .ins-back{ display:inline-flex; align-items:center; min-height:44px }
+            /* Одна высота на все кнопки подвала: «Назад» — ссылка, а не
+               кнопка, и без общего размера ряд стоял на 44/45/65. */
+            .ins-act, .ins-back{ height:44px; min-height:44px }
+            /* Если ряд не вмещается (на 414 нужно 405 при 388) — переносим
+               его целиком, а не сжимаем кнопки. Перенос сделан осознанным:
+               «Назад» занимает свою строку сверху, действия делят вторую
+               поровну. Иначе обе строки жались к левому краю и выглядели
+               обрывком, а не раскладкой. */
+            .ins-foot{ flex-wrap:wrap; row-gap:.6rem }
+
+            /* Чип шага: размер литеральным CSS. Произвольных значений
+               (min-h-[28px]) в собранном tailwind.min.css нет — класс
+               просто не существует, и чипы оставались по 20 в высоту.
+               Высота ЖЁСТКАЯ, а не минимальная: у чипа с подписью своя
+               строка текста, и он выходил на 32 против 28 у соседей —
+               ряд стоял на двух разных уровнях. */
+            .ins-chip{ height:28px; min-width:28px }
+            .ins-back{ display:inline-flex; align-items:center; white-space:nowrap }
+        }
+
+        /* Узкий телефон: три кнопки в строку не встают (нужно 405 при 388).
+           Перенос делаем осознанным — «Назад» своей строкой сверху, два
+           действия делят вторую поровну. Шире этого порога ряд помещается
+           как есть, и растягивать кнопки на пол-экрана незачем: на 896 они
+           раздувались до 422 и 393. */
+        @media (max-width: 560px){
+            .ins-foot > .ins-back{ width:100% }
+            /* ⚠️ flex-wrap у ГРУППЫ действий обязателен. Подписи не
+               переносятся (white-space:nowrap), поэтому кнопки не могут
+               ужаться: на 360 пара «Пропустить» + «Сохранить и продолжить»
+               требовала 346 при 302 доступных, и основная кнопка вылезала
+               за край карточки на 52 пикселя — прокрутки при этом не было,
+               карточка её просто обрезала. С переносом каждая берёт свою
+               строку целиком. */
+            .ins-foot > div{ width:100%; flex-wrap:wrap; justify-content:flex-end }
+            .ins-foot > div .ins-act{ flex:1 1 auto; min-width:0 }
+
+            /* На части шагов действие лежит ПРЯМЫМ потомком подвала, без
+               обёртки (лицензия, база данных). После переноса «Назад» на
+               свою строку такая кнопка прижималась к левому краю под
+               ссылкой возврата — движение вперёд логичнее держать справа,
+               там же, где оно стоит на широком экране. */
+            .ins-foot > .ins-act{ margin-left:auto }
             .ins-check{ min-height:44px }
 
             /* Кнопка «показать пароль» лежит поверх поля и была 28×28. */
