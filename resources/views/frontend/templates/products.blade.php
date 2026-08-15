@@ -153,10 +153,10 @@
                         @if ($outOfStock)
                             <span class="pr-card__out">{{ __('frontend.products.out_of_stock') }}</span>
                         @endif
-                    </div>
 
-                    {{-- ── Текст ── --}}
-                    <div class="pr-card__body">
+                        {{-- Категории лежат НА обложке, а не первой строкой тела:
+                             в каталоге первым читают название товара, а раздел
+                             отжимал его вниз в каждой карточке. --}}
                         @if ($news->categories->count())
                             <div class="pr-card__cats">
                                 @foreach ($news->categories->take(2) as $category)
@@ -165,7 +165,10 @@
                                 @endforeach
                             </div>
                         @endif
+                    </div>
 
+                    {{-- ── Текст ── --}}
+                    <div class="pr-card__body">
                         <h3 class="pr-card__title">
                             <a href="{{ route('news.show', $news->slug) }}">{{ $news->title }}</a>
                         </h3>
@@ -191,8 +194,20 @@
                             @endif
                         </div>
 
-                        {{-- ── Количество и корзина ── --}}
-                        @unless ($outOfStock)
+                        {{-- ── Количество и корзина ──
+                             У распроданного товара ряд НЕ исчезает: раньше
+                             карточка становилась ниже соседних и сетка шла
+                             ступеньками. Вместо этого кнопка гаснет и говорит,
+                             что товара нет. --}}
+                        @if ($outOfStock)
+                            <div class="pr-card__buy">
+                                <button type="button" class="pr-card__cart is-out" disabled
+                                        aria-label="{{ __('frontend.products.out_of_stock') }} — {{ $news->title }}">
+                                    <i class="fas fa-ban" aria-hidden="true"></i>
+                                    <span class="pr-cart__label">{{ __('frontend.products.out_of_stock') }}</span>
+                                </button>
+                            </div>
+                        @else
                             <div class="pr-card__buy">
                                 <div class="pr-qty">
                                     <button type="button" class="pr-qty__btn decrement" data-id="{{ $news->id }}"
@@ -222,15 +237,14 @@
                                     <span class="pr-cart__label">{{ __('frontend.products.to_cart') }}</span>
                                 </button>
                             </div>
-                        @endunless
+                        @endif
 
-                        {{-- Нижняя полоса — как в остальных шаблонах --}}
-                        <div class="pr-card__meta">
-                            <span class="pr-meta__date">{{ $news->created_at?->format('d.m.Y') }}</span>
-                            <a href="{{ route('news.show', $news->slug) }}" class="pr-meta__link">
-                                {{ __('frontend.products.details') }} →
-                            </a>
-                        </div>
+                        {{-- ⚠️ Нижней полосы «дата + Подробнее» здесь больше нет.
+                             Она занимала 44 пикселя в КАЖДОЙ карточке и не несла
+                             ничего: дата публикации у ценника бессмысленна, а
+                             «Подробнее» было ТРЕТЬЕЙ ссылкой на тот же товар —
+                             обложка и название уже ведут туда. Место отдано
+                             цене и кнопке, то есть тому, за чем сюда приходят. --}}
                     </div>
                 </article>
             @endforeach
@@ -260,9 +274,17 @@
        вся страница получает горизонтальную прокрутку. */
     .pr-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr)); gap:1rem }
 
-    .pr-card{ display:flex; flex-direction:column; background:var(--surface,#fff); border:1px solid var(--surface-bd,#eef2f7);
-        overflow:hidden; transition:border-color .15s, transform .15s }
-    .pr-card:hover{ border-color:var(--color-primary,#6366f1); transform:translateY(-2px) }
+    .pr-card{ display:flex; flex-direction:column; background:var(--surface,#fff);
+        border:1px solid var(--surface-bd,#eef2f7); overflow:hidden;
+        transition:border-color .18s ease, transform .18s ease, box-shadow .18s ease }
+    /* Подъём с тенью, а не один сдвиг: без тени карточка «прыгала» на месте,
+       и было непонятно, что она приподнялась. */
+    .pr-card:hover{ border-color:color-mix(in srgb, var(--color-primary,#6366f1) 45%, var(--surface-bd,#eef2f7));
+        transform:translateY(-3px);
+        box-shadow:0 18px 40px -24px color-mix(in srgb, var(--color-primary,#6366f1) 60%, rgba(15,23,42,.5)) }
+    /* Видимый фокус с клавиатуры: по витрине нельзя было пройти табом —
+       ни один орган управления не показывал, где находится курсор. */
+    .pr-card :focus-visible{ outline:2px solid var(--color-primary,#6366f1); outline-offset:2px }
     /* Распроданное не прячем, но и не выдаём за доступное: обложка
        обесцвечивается, карточка приглушается. */
     .pr-card.is-out{ opacity:.8 }
@@ -302,11 +324,20 @@
     .pr-card__out{ position:absolute; inset:auto 0 0 0; padding:.4rem; text-align:center;
         font-size:.75rem; font-weight:700; color:#fff; background:rgba(15,23,42,.75) }
 
-    .pr-card__body{ display:flex; flex-direction:column; gap:.45rem; padding:1rem 1.1rem 0; flex:1 }
+    /* Нижней полосы больше нет, поэтому у тела появился нижний отступ. */
+    .pr-card__body{ display:flex; flex-direction:column; gap:.4rem;
+        padding:.9rem 1.1rem 1rem; flex:1 }
 
-    .pr-card__cats{ display:flex; flex-wrap:wrap; gap:.3rem }
-    .pr-chip{ font-size:.68rem; font-weight:700; padding:.12rem .45rem; color:var(--color-primary, #4f46e5);
-        background:color-mix(in srgb, var(--color-primary,#6366f1) 12%, var(--surface,#eef2ff)); border:1px solid color-mix(in srgb, var(--color-primary,#6366f1) 26%, var(--surface,#e0e7ff)) }
+    /* Категории лежат на обложке слева снизу — там, где у карточки самое
+       спокойное место, и не отжимают название вниз. Слой выше ссылки-обложки,
+       иначе по ним нельзя было бы нажать. */
+    .pr-card__cats{ position:absolute; left:.6rem; bottom:.6rem; z-index:3;
+        display:flex; flex-wrap:wrap; gap:.3rem; max-width:calc(100% - 1.2rem) }
+    .pr-chip{ font-size:.68rem; font-weight:700; padding:.18rem .5rem; line-height:1.25;
+        color:#fff; background:rgba(15,23,42,.62);
+        border:1px solid rgba(255,255,255,.28);
+        backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px) }
+    .pr-chip:hover{ background:color-mix(in srgb, var(--color-primary,#6366f1) 82%, rgba(15,23,42,.62)); color:#fff }
 
     .pr-card__title{ margin:0; font-size:1rem; line-height:1.35; font-weight:700 }
     .pr-card__title a{ color:var(--surface-ink,#111827); display:-webkit-box; -webkit-line-clamp:2;
@@ -316,16 +347,22 @@
     .pr-card__text{ margin:0; font-size:.82rem; line-height:1.5; color:var(--surface-mute,#64748b); flex:1;
         display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden }
 
-    .pr-card__price-row{ display:flex; align-items:baseline; justify-content:space-between;
-        gap:.75rem; margin-top:.2rem }
+    /* Цена и остаток стоят РЯДОМ, а не по разным краям: раньше остаток
+       улетал к правому краю и читался как отдельная, ничья строка. */
+    .pr-card__price-row{ display:flex; align-items:baseline; flex-wrap:wrap;
+        gap:.35rem .6rem; margin-top:auto; padding-top:.35rem }
     /* Табличные цифры: иначе «850» и «2 790» пляшут по разрядам и колонка
        цен в сетке выглядит неровной. */
     .pr-card__price{ font-size:1.3rem; font-weight:800; letter-spacing:-.02em;
         font-variant-numeric:tabular-nums; color:var(--surface-ink,#111827); white-space:nowrap }
-    .pr-card__stock{ font-size:.74rem; color:var(--surface-mute,#64748b); white-space:nowrap }
+    .pr-card__stock{ font-size:.72rem; padding:.1rem .45rem; white-space:nowrap;
+        color:var(--surface-mute,#64748b); background:var(--surface-2,#f1f5f9);
+        border:1px solid var(--surface-bd,#e2e8f0) }
     /* Заканчивается — это другое сообщение, чем «есть на складе». */
     .pr-card__stock.is-low{ font-weight:700;
-        color:color-mix(in srgb, #d97706 70%, var(--surface-ink,#111827)) }
+        color:color-mix(in srgb, #b45309 78%, var(--surface-ink,#111827));
+        background:color-mix(in srgb, #f59e0b 16%, var(--surface,#fffbeb));
+        border-color:color-mix(in srgb, #f59e0b 38%, var(--surface-bd,#fde68a)) }
 
     /* ⚠️ Высота ряда покупки задаётся ОДНОЙ переменной, а не наследуется
        от отступов кнопки. Раньше стояло align-items:stretch: переключатель
@@ -341,15 +378,22 @@
     .pr-qty{ display:inline-flex; align-items:stretch; flex:none;
         height:var(--pr-h); background:var(--surface,#fff);
         border:1px solid var(--surface-bd,#e2e8f0); overflow:hidden }
-    /* Кнопки квадратные: ширина равна высоте ряда. */
+    /* ⚠️ Кнопки квадратные ПО-НАСТОЯЩЕМУ: aspect-ratio, а не width от высоты
+       ряда. Рамка контейнера съедает по пикселю сверху и снизу, поэтому при
+       width:var(--pr-h) выходило 36×34 — почти квадрат, и глаз это ловил.
+       Теперь ширина следует за собственной высотой кнопки. */
     .pr-qty__btn{ display:flex; align-items:center; justify-content:center;
-        width:var(--pr-h); height:100%; padding:0; line-height:1;
-        font-size:1rem; font-weight:700;
+        height:100%; aspect-ratio:1 / 1; width:auto; padding:0;
+        font-size:1.15rem; font-weight:600; line-height:1;
         color:var(--surface-ink,#334155); background:var(--surface-2,#f8fafc);
         border:0; cursor:pointer; transition:background .15s, color .15s }
+    .pr-qty__btn:disabled{ opacity:.45; cursor:default }
     .pr-qty__btn:hover{ background:color-mix(in srgb, var(--color-primary,#6366f1) 12%, var(--surface,#eef2ff)); color:var(--color-primary,#6366f1) }
     /* Стрелки у number-поля крадут ширину и выглядят чужеродно. */
-    .pr-qty__input{ width:2.5rem; height:100%; padding:0; text-align:center; border:0;
+    /* Поле шире кнопки в полтора раза, и ширина считается ОТ ВЫСОТЫ ряда,
+       а не задана в rem: при постоянной ширине пропорция плавала — 1.5 к
+       кнопке на десктопе и 1.16 на сенсорных, где кнопка вырастает до 44. */
+    .pr-qty__input{ width:calc(var(--pr-h) * 1.5); height:100%; padding:0; text-align:center; border:0;
         border-left:1px solid var(--surface-bd,#e2e8f0);
         border-right:1px solid var(--surface-bd,#e2e8f0);
         font-size:.85rem; font-variant-numeric:tabular-nums;
@@ -370,13 +414,13 @@
        должно отвечать там, где нажали. */
     .pr-card__cart.is-done{ background:linear-gradient(135deg,#16a34a,#22c55e) }
     .pr-card__cart[disabled]{ opacity:.75; cursor:default }
+    /* Нет в наличии: кнопка на месте (иначе карточка ниже соседних), но
+       нейтральная — не зовёт нажать. */
+    .pr-card__cart.is-out{ background:var(--surface-2,#f1f5f9);
+        color:var(--surface-mute,#64748b);
+        border:1px solid var(--surface-bd,#e2e8f0); filter:none }
+    .pr-card__cart.is-out:hover{ filter:none; color:var(--surface-mute,#64748b) }
 
-    .pr-card__meta{ display:flex; align-items:center; justify-content:space-between; gap:.75rem;
-        margin:.8rem -1.1rem 0; padding:.55rem 1.1rem; font-size:.75rem;
-        border-top:1px solid #eef2f7; background:var(--surface-2,#f8fafc) }
-    .pr-meta__date{ color:var(--surface-dim,#94a3b8); font-variant-numeric:tabular-nums }
-    .pr-meta__date::before{ content:'🗓'; margin-right:.35rem; opacity:.75 }
-    .pr-meta__link{ font-weight:700; color:var(--color-primary,#6366f1); white-space:nowrap }
 
     .pr-empty{ padding:3rem 1rem; text-align:center; color:var(--surface-dim,#94a3b8) }
     .pr-empty i{ font-size:2rem; display:block; margin-bottom:.75rem; opacity:.5 }
@@ -387,7 +431,6 @@
        в макете: один набор на все шаблоны. */
     body.fx-theme-dark .pr__head,
     body.fx-theme-dark .pr-card{ background:var(--surface); border-color:var(--surface-bd) }
-    body.fx-theme-dark .pr-card__meta{ background:var(--surface-2); border-color:var(--surface-bd) }
     body.fx-theme-dark .pr__title, body.fx-theme-dark .pr-card__title a, body.fx-theme-dark .pr-card__price{ color:var(--surface-ink) }
     /* Телефоны и планшеты: 44 — нижняя граница зоны нажатия. Растёт ряд
        целиком, переключатель и кнопка следуют за переменной. */
@@ -409,8 +452,7 @@
         .pr-card__buy{ --pr-h:44px }
         .pr-card__body{ padding:.85rem .9rem 0 }
         .pr-card__price{ font-size:1.2rem }
-        .pr-card__stock, .pr-meta__date, .pr-meta__link, .pr-chip{ font-size:12px }
-        .pr-meta__link{ display:inline-flex; align-items:center; min-height:32px }
+        .pr-card__stock, .pr-chip{ font-size:12px }
     }
 
     /* Совсем узкий экран: подпись кнопки съедает место у переключателя,
