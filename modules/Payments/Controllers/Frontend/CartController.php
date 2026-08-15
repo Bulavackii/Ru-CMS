@@ -129,9 +129,15 @@ class CartController extends Controller
 
     public function checkout(Request $request)
     {
+        // Согласие проверяется НА СЕРВЕРЕ. Отметка в браузере — только
+        // подсказка покупателю: атрибут required снимается из инструментов
+        // разработчика за секунду, а хранить нужно подтверждённую волю.
         $request->validate([
             'payment_method_id'  => 'required|exists:payment_methods,id',
             'delivery_method_id' => 'required|exists:delivery_methods,id',
+            'terms_agree'        => 'accepted',
+        ], [
+            'terms_agree.accepted' => __('frontend.cart.consent_required'),
         ]);
 
         $items = $request->input('items', []);

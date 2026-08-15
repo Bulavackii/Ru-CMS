@@ -238,11 +238,33 @@
                         <b><span id="grand-total">{{ number_format($goodsTotal, 2, ',', ' ') }}</span> ₽</b>
                     </div>
 
-                    <button type="submit" class="crt-submit">
+                    {{-- Согласие ставится РУКОЙ, а не выводится из нажатия
+                         кнопки. Раньше под кнопкой стояла строка «Нажимая
+                         кнопку, вы соглашаетесь…» — это не согласие, а
+                         уведомление: покупатель ничего не отмечал, и
+                         подтвердить его волю было нечем.
+
+                         Формулировка и ссылки те же, что на регистрации
+                         (frontend.auth.terms) — заводить вторую значило бы
+                         разойтись при первой же правке. Обе страницы
+                         правятся в редакторе панели: /terms → «Соглашение»,
+                         /privacy → «Конфиденциальность». Открываются в
+                         новой вкладке, чтобы не потерять корзину. --}}
+                    <label class="crt-consent">
+                        <input type="checkbox" name="terms_agree" value="1" required
+                               id="cart-consent" {{ old('terms_agree') ? 'checked' : '' }}>
+                        <span>
+                            {!! __('frontend.auth.terms', [
+                                'terms'   => '<a href="' . url('/terms') . '" target="_blank" rel="noopener">' . __('frontend.auth.terms_link') . '</a>',
+                                'privacy' => '<a href="' . url('/privacy') . '" target="_blank" rel="noopener">' . __('frontend.auth.privacy_link') . '</a>',
+                            ]) !!}
+                        </span>
+                    </label>
+                    @error('terms_agree')<p class="crt-consent__err">{{ $message }}</p>@enderror
+
+                    <button type="submit" class="crt-submit" id="cart-submit">
                         <i class="fas fa-check"></i> {{ __('frontend.cart.checkout') }}
                     </button>
-
-                    <p class="crt-note">{{ __('frontend.cart.note') }}</p>
                 </div>
             </aside>
         </form>
@@ -408,6 +430,18 @@ document.addEventListener('DOMContentLoaded', function () {
         b.addEventListener('click', function () { changeQty(b.dataset.id, -1); });
     });
 
+    // Согласие: пока не отмечено — кнопка погашена. Это подсказка, а не
+    // защита (её обходит любой, кто снимет атрибут), поэтому настоящая
+    // проверка живёт в CartController::checkout. Без JS остаётся родной
+    // required у поля — форма всё равно не отправится.
+    var consent = document.getElementById('cart-consent');
+    var submit  = document.getElementById('cart-submit');
+    if (consent && submit) {
+        var syncConsent = function () { submit.disabled = !consent.checked; };
+        consent.addEventListener('change', syncConsent);
+        syncConsent();
+    }
+
     recalc();
 });
 </script>
@@ -482,12 +516,23 @@ document.addEventListener('DOMContentLoaded', function () {
     .crt-item__price{ margin:.15rem 0 0; font-size:.82rem; color:var(--surface-mute,#64748b) }
     .crt-item__per{ opacity:.7 }
 
-    .crt-item__qty{ display:flex; align-items:stretch; border:1px solid var(--surface-bd,#e2e8f0) }
-    .crt-qty__btn{ width:2rem; background:var(--surface-2,#f8fafc); color:var(--surface-ink,#334155); font-size:1rem; font-weight:700;
-        border:0; cursor:pointer; line-height:1 }
-    .crt-qty__btn:hover{ background:#eef2ff; color:var(--color-primary,#6366f1) }
-    .crt-qty__input{ width:2.6rem; text-align:center; border:0; border-left:1px solid #e2e8f0;
-        border-right:1px solid #e2e8f0; font-size:.85rem; color:var(--surface-ink,#111827); background:var(--surface,#fff) }
+    /* Тот же переключатель, что на странице товара (.buy-qty): высота
+       одной переменной, кнопки квадратные, поле между ними. */
+    /* box-sizing явно: рамка в 1 пиксель иначе считается поверх высоты. */
+    .crt-item__qty, .crt-qty__btn, .crt-qty__input{ box-sizing:border-box }
+    .crt-item__qty{ --qty-h:36px; display:inline-flex; align-items:stretch; height:var(--qty-h);
+        border:1px solid var(--surface-bd,#e2e8f0); background:var(--surface,#fff); overflow:hidden }
+    .crt-qty__btn{ display:flex; align-items:center; justify-content:center;
+        width:var(--qty-h); height:100%; padding:0; line-height:1;
+        background:var(--surface-2,#f8fafc); color:var(--surface-ink,#334155);
+        font-size:1rem; font-weight:700; border:0; cursor:pointer;
+        transition:background .15s, color .15s }
+    .crt-qty__btn:hover{ background:color-mix(in srgb, var(--color-primary,#6366f1) 10%, var(--surface,#fff));
+        color:var(--color-primary,#6366f1) }
+    .crt-qty__input{ width:2.75rem; height:100%; padding:0; text-align:center; border:0;
+        border-left:1px solid var(--surface-bd,#e2e8f0); border-right:1px solid var(--surface-bd,#e2e8f0);
+        font-size:.85rem; font-variant-numeric:tabular-nums;
+        color:var(--surface-ink,#111827); background:var(--surface,#fff) }
 
     .crt-item__sum{ font-size:1.05rem; font-weight:800; color:var(--surface-ink,#111827); white-space:nowrap;
         min-width:7rem; text-align:right; font-variant-numeric:tabular-nums }
@@ -586,7 +631,19 @@ document.addEventListener('DOMContentLoaded', function () {
     .crt-submit:hover{ filter:brightness(1.08); color:#fff }
     .crt-submit--inline{ width:auto; display:inline-flex; margin-top:1.25rem; padding:.7rem 1.5rem }
 
-    .crt-note{ margin:.6rem 0 0; font-size:.72rem; line-height:1.45; color:var(--surface-dim,#94a3b8); text-align:center }
+
+    /* Согласие на обработку данных. Строка кликабельна целиком (label), а
+       не только сама отметка: попасть в квадрат 18×18 пальцем тяжело. */
+    .crt-consent{ display:flex; align-items:flex-start; gap:.6rem; margin:.85rem 0 .75rem;
+        font-size:.78rem; line-height:1.45; color:var(--surface-ink,#334155); cursor:pointer }
+    .crt-consent input{ flex:none; width:18px; height:18px; margin-top:.1rem; cursor:pointer;
+        accent-color:var(--color-primary,#6366f1) }
+    .crt-consent a{ color:color-mix(in srgb, var(--color-primary,#6366f1) 72%, var(--surface-ink,#111827));
+        text-decoration:underline; text-underline-offset:2px }
+    .crt-consent__err{ margin:0 0 .6rem; font-size:.75rem; color:#dc2626 }
+    /* Кнопка при неотмеченном согласии гасится — видно, что шаг не пройден.
+       Это подсказка, а НЕ защита: настоящая проверка на сервере. */
+    .crt-submit:disabled{ opacity:.5; cursor:not-allowed; filter:grayscale(.35) }
 
     /* ── Пусто ── */
     .crt-empty{ padding:3.5rem 1rem; text-align:center; background:var(--surface,#fff); border:1px solid var(--surface-bd,#eef2f7) }
@@ -642,9 +699,9 @@ document.addEventListener('DOMContentLoaded', function () {
            экономит целую строку в каждой карточке, а вместе они и
            читаются как одно целое — «что» и «почём». */
         .crt-item__main{ display:flex; align-items:baseline; flex-wrap:wrap; gap:.15rem .5rem }
-        /* Счётчик был 42 в высоту — на два пикселя ниже порога нажатия. */
-        .crt-item__qty{ min-height:44px }
-        .crt-item__qty button, .crt-item__qty input{ min-height:44px }
+        /* Счётчик был 42 в высоту — на два пикселя ниже порога нажатия.
+           Высоту двигаем ОДНОЙ переменной: кнопки и поле следуют за ней. */
+        .crt-item__qty{ --qty-h:44px }
         .crt-item__price{ margin:0 }
         .crt-item__main{ grid-area:name }
         .crt-item__qty{ grid-area:qty }
@@ -659,7 +716,10 @@ document.addEventListener('DOMContentLoaded', function () {
            ради одной содержательной строки. Надзаголовок на телефоне
            убираем совсем: он повторяет то, что и так ясно из названия. */
         /* Подписи шагов и пояснения способов были 10.9–11.5px. */
-        .crt-step__title, .crt-opt__note, .crt-box__title, .crt-note{ font-size:12px }
+        .crt-step__title, .crt-opt__note, .crt-box__title{ font-size:12px }
+        /* Отметка согласия крупнее, и вся строка не ниже зоны нажатия. */
+        .crt-consent{ min-height:44px; align-items:center; font-size:12px }
+        .crt-consent input{ width:24px; height:24px; margin-top:0 }
 
         .crt__head{ margin-bottom:.75rem; padding:.4rem .85rem .4rem .6rem; gap:.55rem }
         .crt__ico{ width:2.1rem; height:2.1rem; font-size:.95rem }

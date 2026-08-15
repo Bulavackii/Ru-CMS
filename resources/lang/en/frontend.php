@@ -344,7 +344,7 @@ return [
         'goods' => 'Goods',
         'delivery' => 'Delivery',
         'checkout' => 'Place the order',
-        'note' => 'By clicking the button you agree to the data processing terms.',
+        'consent_required' => 'Please tick the consent to personal data processing — the order cannot be placed without it.',
         'empty_hint' => 'Add something from the catalogue — items will appear here.',
         'to_catalogue' => 'To the catalogue',
         'update_error' => 'The quantity could not be changed.',
