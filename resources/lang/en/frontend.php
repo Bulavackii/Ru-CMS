@@ -412,6 +412,7 @@ return [
     'lessons' => [
         'subtitle' => 'Walkthroughs with code you can copy',
         'examples' => 'Code examples',
+        'open' => 'Open lesson',
     ],
     'ourworks' => [
         'subtitle'   => 'What we take on so the site starts working',

@@ -46,6 +46,9 @@
         return ['icon' => null, 'label' => $title];
     };
 
+    // Сквозные номера услуг — свойство материала, а не позиция в списке.
+    $numbers = template_numbers('ourworks');
+
     // Первые три пункта списка из текста услуги.
     $itemsOf = function (?string $html, int $limit = 3): array {
         if (! preg_match_all('~<li[^>]*>(.*?)</li>~su', (string) $html, $m)) {
@@ -89,8 +92,12 @@
 
                     {{-- Порядковый номер моноширинным: он даёт списку услуг
                          структуру, по которой их называют в разговоре
-                         («вторая услуга»), и ничего не стоит по месту. --}}
-                    <span class="sv-card__num" aria-hidden="true">{{ sprintf('%02d', $loop->iteration) }}</span>
+                         («вторая услуга»), и ничего не стоит по месту.
+
+                         СКВОЗНОЙ: заведена пятой — значит пятая. Раньше номер
+                         был позицией в списке, поэтому добавленная услуга
+                         получала 01 и сдвигала нумерацию всем остальным. --}}
+                    <span class="sv-card__num" aria-hidden="true">{{ sprintf('%02d', $numbers[$work->id] ?? $loop->iteration) }}</span>
                 </div>
 
                 <h3 class="sv-card__title">

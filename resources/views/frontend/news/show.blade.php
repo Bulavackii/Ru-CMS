@@ -399,8 +399,10 @@
     .news-content *{ max-width:100% !important; box-sizing:border-box; }
     .news-content img, .news-content video, .news-content iframe, .news-content embed, .news-content object{
         max-width:100%; height:auto; display:block; margin:1.75rem auto; box-shadow:0 10px 28px -14px rgba(17,24,39,.4); }
-    .news-content pre{ white-space:pre-wrap; word-break:break-word; background:#0f172a; color:#e5e7eb;
-        padding:1rem 1.15rem; overflow-x:auto; font-size:.9rem; }
+    /* Оформление блока кода переехало в content-blocks.css — тот же файл
+       подключает в свою рамку редактор. Пока правило жило здесь, автор в
+       визуальном режиме видел голый текст вместо тёмного блока, то есть
+       редактор показывал не то, что увидит посетитель. */
     .news-content a{ color:var(--color-primary,#6366f1); text-decoration:underline; text-underline-offset:2px; }
     .news-content table{ width:100%; display:block; overflow-x:auto; }
     .news-content h2, .news-content h3{ color:var(--surface-ink,#111827); }
