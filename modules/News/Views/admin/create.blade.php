@@ -199,13 +199,15 @@
         document.addEventListener('DOMContentLoaded', function() {
             const templateSelect = document.getElementById('template');
             const productFields = document.getElementById('product-fields');
-            // Оценка показывается только у шаблона «Игры»: у остальных
-            // материалов это поле бессмысленно и только путало бы редактора.
+            // Оценку показываем шаблонам, где она осмысленна: «Игры» и
+            // «Отзывы». У остальных поле только путало бы редактора.
             const ratingFields = document.getElementById('rating-fields');
 
             const toggleFields = () => {
                 if (ratingFields) {
-                    ratingFields.classList.toggle('hidden', templateSelect.value !== 'gaming');
+                    // Оценка нужна и «Играм» (обзор), и «Отзывам» (мнение клиента).
+                    const сОценкой = ['gaming', 'reviews'];
+                    ratingFields.classList.toggle('hidden', !сОценкой.includes(templateSelect.value));
                 }
 
                 if (templateSelect.value === 'products') {

@@ -405,6 +405,12 @@ return [
         'more' => 'Details',
     ],
 
+    'reviews' => [
+        'title' => 'Reviews',
+        'subtitle' => 'What previous clients say',
+        'score' => 'Rating: :score out of 10',
+    ],
+
     'clinic' => [
         'title' => 'Services',
         'subtitle' => 'By appointment · Consultation before treatment',

@@ -263,7 +263,9 @@
 
             function toggleProductFields() {
                 if (ratingFields) {
-                    ratingFields.classList.toggle('hidden', templateSelect.value !== 'gaming');
+                    // Оценка нужна и «Играм» (обзор), и «Отзывам» (мнение клиента).
+                    const сОценкой = ['gaming', 'reviews'];
+                    ratingFields.classList.toggle('hidden', !сОценкой.includes(templateSelect.value));
                 }
 
                 if (templateSelect.value === 'products') {
