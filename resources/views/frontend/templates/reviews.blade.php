@@ -46,11 +46,13 @@
 
 @if ($reviewsList->count())
 <section class="rv">
-    <div class="rv__head">
+    {{-- Общая плашка раздела: свой класс .rv__head в набор макета не входил,
+         и заголовок оставался вообще без оформления. --}}
+    <div class="fx-section-head">
         <span class="fx-badge"><i class="fas fa-comments"></i></span>
         <div>
-            <h2 class="rv__title">{{ $title ?? __('frontend.reviews.title') }}</h2>
-            <p class="rv__sub">{{ __('frontend.reviews.subtitle') }}</p>
+            <h2 class="fx-section-title">{{ $title ?? __('frontend.reviews.title') }}</h2>
+            <p class="fx-section-sub">{{ __('frontend.reviews.subtitle') }}</p>
         </div>
     </div>
 
@@ -124,12 +126,15 @@
        animate-pulse дёргался без остановки. */
     .rv{ max-width:80rem; margin:2.5rem auto; padding:0 1rem }
 
-    .rv__title{ margin:0; font-size:1.5rem; font-weight:700; color:var(--surface-ink,#111827); line-height:1.2 }
-    .rv__sub{ margin:.1rem 0 0; font-size:.82rem; color:var(--surface-mute,#6b7280) }
+    /* Заполнение — как в «Товарах»: те же гибкие дорожки, тот же минимум,
+       карточки занимают строку целиком. Так два раздела на одной странице
+       выглядят одним набором, а не двумя разными сетками.
 
-    /* Сетка, а не flex-wrap с центрированием: прежний ряд оставлял последнюю
-       карточку висеть по центру, и колонки не совпадали краями. */
-    .rv-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,19rem),1fr)); gap:1rem }
+       min(100%, …) обязателен: без него дорожка в 19rem не влезает в 360 с
+       полями и вся страница получает горизонтальную прокрутку. */
+    .rv-grid{ display:grid;
+        grid-template-columns:repeat(auto-fill, minmax(min(100%,19rem), 1fr));
+        gap:1rem }
 
     .rv-card{ position:relative; display:flex; flex-direction:column; gap:.55rem;
         padding:1.6rem 1.35rem 1.15rem; background:var(--surface,#fff);

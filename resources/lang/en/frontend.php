@@ -405,6 +405,17 @@ return [
         'more' => 'Details',
     ],
 
+    'templates' => [
+        'faq' => 'FAQ',
+        'release' => 'Releases',
+        'ourworks' => 'Our services',
+        'slideshow' => 'Slideshow',
+        'css' => 'CSS lessons',
+        'html' => 'HTML lessons',
+        'js' => 'JavaScript lessons',
+        'php' => 'PHP lessons',
+    ],
+
     'reviews' => [
         'title' => 'Reviews',
         'subtitle' => 'What previous clients say',

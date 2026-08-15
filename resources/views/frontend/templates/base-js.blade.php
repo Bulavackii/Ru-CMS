@@ -1,10 +1,15 @@
 <div class="my-12 max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-16">
     {{-- Заголовок с иконкой --}}
-    <h2
-        class="text-3xl font-extrabold text-center mb-10 text-gray-800 tracking-tight flex items-center justify-center gap-2 select-none">
-        <i class="fab fa-js text-yellow-500"></i>
-        {{ $title ?? 'Уроки по JavaScript' }}
-    </h2>
+    {{-- Плашка раздела — общая для всех шаблонов (см. макет сайта).
+         Раньше здесь стоял центрированный заголовок с зашитым
+         text-gray-800: на тёмных темах текст пропадал, а название
+         шло мимо словаря. --}}
+    <div class="fx-section-head">
+        <span class="fx-badge"><i class="fab fa-js"></i></span>
+        <div>
+            <h2 class="fx-section-title">{{ $title ?? __('frontend.templates.js') }}</h2>
+        </div>
+    </div>
 
     @if ($newsList->count())
         {{-- Карточки: до 3 в ряд, максимум 12 на странице --}}

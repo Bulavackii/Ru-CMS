@@ -524,12 +524,14 @@
            (1.5rem на телефоне переносилось в две строки), строка под ним —
            моноширинным капсом: она поясняющая, и так не спорит с названием. */
         body .nw__title, body .mag__title, body .gm__title,
-        body .clinic__title, body .pr__title, body .pg__title{
+        body .clinic__title, body .pr__title, body .pg__title,
+        body .fx-section-head .fx-section-title{
             margin:0; font-size:1.35rem; font-weight:700; line-height:1.2;
             letter-spacing:-.015em; color:var(--surface-ink,#111827);
         }
         body .nw__sub, body .mag__sub, body .gm__sub,
-        body .clinic__sub, body .pr__sub, body .pg__sub{
+        body .clinic__sub, body .pr__sub, body .pg__sub,
+        body .fx-section-head .fx-section-sub{
             margin:.15rem 0 0;
             font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
             font-size:.68rem; letter-spacing:.06em; text-transform:uppercase;
@@ -539,7 +541,8 @@
         body .nw__head .fx-badge, body .mag__head .fx-badge,
         body .gm__head .fx-badge, body .clinic__head .fx-badge,
         body .pr__head .fx-badge, body .pg__head .fx-badge,
-        body .gm__badge{
+        body .fx-section-head .fx-badge,
+        body .gm__badge, body .clinic__badge, body .mag__badge{
             width:2.35rem; height:2.35rem; flex:none;
         }
 
@@ -554,13 +557,15 @@
                 margin-bottom:1rem;
             }
             body .nw__title, body .mag__title, body .gm__title,
-            body .clinic__title, body .pr__title, body .pg__title{ font-size:1.15rem }
+            body .clinic__title, body .pr__title, body .pg__title,
+            body .fx-section-head .fx-section-title{ font-size:1.15rem }
             body .nw__sub, body .mag__sub, body .gm__sub,
             body .clinic__sub, body .pr__sub, body .pg__sub{ font-size:12px }
             body .nw__head .fx-badge, body .mag__head .fx-badge,
             body .gm__head .fx-badge, body .clinic__head .fx-badge,
             body .pr__head .fx-badge, body .pg__head .fx-badge,
-            body .gm__badge{ width:2.1rem; height:2.1rem }
+            body .fx-section-head .fx-badge,
+            body .gm__badge, body .clinic__badge, body .mag__badge{ width:2.1rem; height:2.1rem }
         }
 
         .fx-ico{ color:var(--fx-a); }
