@@ -405,6 +405,13 @@ return [
         'more' => 'Details',
     ],
 
+    'clinic' => [
+        'title' => 'Services',
+        'subtitle' => 'By appointment · Consultation before treatment',
+        'from' => 'from',
+        'book' => 'Book a visit',
+    ],
+
     'magazine' => [
         'title' => 'Magazine',
         'subtitle' => 'Long reads: reviews, interviews, deep dives',

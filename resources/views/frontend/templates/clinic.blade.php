@@ -34,11 +34,9 @@
         return ['icon' => '🩺', 'text' => $title];
     };
 
-    $excerptOf = function ($item, int $limit = 150) {
-        $text = trim(preg_replace('~\s+~u', ' ', strip_tags((string) $item->content)));
-
-        return \Illuminate\Support\Str::limit($text, $limit);
-    };
+    // Через content_excerpt: strip_tags склеивал конец абзаца с началом
+    // следующего (см. хелпер).
+    $excerptOf = fn ($item, int $limit = 150) => content_excerpt($item->content, $limit);
 
     $items = $newsList ?? collect();
 @endphp
@@ -48,8 +46,10 @@
     <div class="clinic__head">
         <span class="clinic__badge">🏥</span>
         <div>
-            <h2 class="clinic__title">{{ $title ?? 'Услуги и направления' }}</h2>
-            <p class="clinic__sub">Приём по записи · Консультация перед лечением</p>
+            {{-- ⚠️ Подписи были ЗАШИТЫ по-русски и шли мимо словаря: на
+                 английской локали раздел оставался русским. --}}
+            <h2 class="clinic__title">{{ $title ?? __('frontend.clinic.title') }}</h2>
+            <p class="clinic__sub">{{ __('frontend.clinic.subtitle') }}</p>
         </div>
     </div>
 
@@ -58,9 +58,12 @@
             @php $parts = $splitIcon($item->title); @endphp
 
             <article class="clinic-card">
+                {{-- ⚠️ Даты публикации здесь больше нет. Услуга — не новость:
+                     когда её описание завели в панель, пациенту всё равно, а
+                     стояла она на самом видном месте, рядом со значком. Место
+                     отдано названию услуги. --}}
                 <div class="clinic-card__top">
-                    <span class="clinic-card__icon">{{ $parts['icon'] }}</span>
-                    <span class="clinic-card__date">{{ $item->created_at?->format('d.m.Y') }}</span>
+                    <span class="clinic-card__icon" aria-hidden="true">{{ $parts['icon'] }}</span>
                 </div>
 
                 <h3 class="clinic-card__title">
@@ -69,14 +72,22 @@
 
                 <p class="clinic-card__text">{{ $excerptOf($item) }}</p>
 
+                {{-- Цена и действие. «Подробнее» заменено на «Записаться»:
+                     раздел существует ради записи на приём, а текстовая ссылка
+                     не читается как действие. Ведёт на страницу услуги — там
+                     полное описание и плашка записи. --}}
                 <div class="clinic-card__foot">
                     @if (!is_null($item->price) && $item->price > 0)
                         <span class="clinic-card__price">
-                            от {{ number_format((float) $item->price, 0, ',', ' ') }} ₽
+                            {{-- Пробел настоящий, а не только отступ в стилях: иначе цена
+                                 копируется и читается диктором как «от2 000 ₽». --}}
+                            <span class="clinic-card__from">{{ __('frontend.clinic.from') }}</span> {{ number_format((float) $item->price, 0, ',', ' ') }} ₽
                         </span>
                     @endif
 
-                    <a href="{{ url('/news/' . $item->slug) }}" class="clinic-card__link">Подробнее →</a>
+                    <a href="{{ url('/news/' . $item->slug) }}" class="clinic-card__book">
+                        {{ __('frontend.clinic.book') }}
+                    </a>
                 </div>
             </article>
         @endforeach
@@ -113,16 +124,26 @@
 
     .clinic-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(19rem,1fr)); gap:1rem }
 
-    .clinic-card{ display:flex; flex-direction:column; gap:.6rem; padding:1.4rem 1.5rem;
-        background:var(--surface,#fff); border:1px solid var(--surface-bd,#eef2f7); transition:border-color .15s, transform .15s }
-    .clinic-card:hover{ border-color:var(--color-primary,#6366f1); transform:translateY(-2px) }
-    /* Значок и дата в одной строке: низ карточки занят ценой и ссылкой,
-       поэтому дата ушла в правый верхний угол. */
-    .clinic-card__top{ display:flex; align-items:center; justify-content:space-between; gap:.75rem }
-    .clinic-card__icon{ font-size:1.9rem; line-height:1 }
-    .clinic-card__date{ font-size:.75rem; color:var(--surface-dim,#94a3b8); font-variant-numeric:tabular-nums;
-        white-space:nowrap }
-    .clinic-card__date::before{ content:'🗓'; margin-right:.3rem; opacity:.75 }
+    /* Полоса цвета темы сверху: набор карточек читается как перечень услуг,
+       а не как лента заметок. Одна деталь, которая отличает медицинский
+       раздел от новостного при том же строении карточки. */
+    .clinic-card{ position:relative; display:flex; flex-direction:column; gap:.6rem;
+        padding:1.4rem 1.5rem; background:var(--surface,#fff);
+        border:1px solid var(--surface-bd,#eef2f7);
+        border-top:3px solid color-mix(in srgb, var(--color-primary,#6366f1) 70%, var(--surface-bd,#eef2f7));
+        transition:border-color .18s ease, transform .18s ease, box-shadow .18s ease }
+    .clinic-card:hover{ border-top-color:var(--color-primary,#6366f1);
+        transform:translateY(-3px);
+        box-shadow:0 18px 40px -26px color-mix(in srgb, var(--color-primary,#6366f1) 60%, rgba(15,23,42,.5)) }
+    .clinic-card :focus-visible{ outline:2px solid var(--color-primary,#6366f1); outline-offset:2px }
+
+    /* Значок услуги — плашкой в цвете темы: эмодзи «в воздухе» выглядел
+       случайным, а рядом с ним стояла дата, которой здесь не место. */
+    .clinic-card__top{ display:flex; align-items:center; gap:.75rem }
+    .clinic-card__icon{ display:inline-flex; align-items:center; justify-content:center;
+        width:2.6rem; height:2.6rem; flex:none; font-size:1.4rem; line-height:1;
+        background:color-mix(in srgb, var(--color-primary,#6366f1) 12%, var(--surface,#eef2ff));
+        border:1px solid color-mix(in srgb, var(--color-primary,#6366f1) 22%, var(--surface-bd,#e0e7ff)) }
     /* Шрифт крупнее обычного: сайт читают в том числе пожилые пациенты. */
     .clinic-card__title{ margin:0; font-size:1.15rem; line-height:1.35; font-weight:700 }
     .clinic-card__title a{ color:var(--surface-ink,#111827); text-decoration:none }
@@ -130,8 +151,31 @@
     .clinic-card__text{ margin:0; font-size:.95rem; line-height:1.6; color:var(--surface-ink,#475569); flex:1 }
     .clinic-card__foot{ display:flex; align-items:center; justify-content:space-between;
         gap:1rem; flex-wrap:wrap; padding-top:.7rem; border-top:1px solid #f1f5f9 }
-    .clinic-card__price{ font-size:1.05rem; font-weight:700; color:var(--surface-ink,#111827) }
-    .clinic-card__link{ font-size:.9rem; font-weight:700; color:var(--color-primary,#6366f1) }
+    /* Цена: «от» тихой приставкой, число крупным и табличными цифрами —
+       в перечне услуг колонка цен читается сверху вниз. */
+    .clinic-card__price{ font-size:1.2rem; font-weight:800; letter-spacing:-.015em;
+        font-variant-numeric:tabular-nums; color:var(--surface-ink,#111827); white-space:nowrap }
+    .clinic-card__from{ margin-right:.3rem; font-size:.75rem; font-weight:600;
+        color:var(--surface-mute,#64748b) }
+
+    /* «Записаться» — настоящая кнопка, а не текстовая ссылка: раздел
+       существует ради записи, а ссылка «Подробнее →» не читалась как
+       действие и терялась рядом с ценой. */
+    .clinic-card__book{ display:inline-flex; align-items:center; justify-content:center;
+        box-sizing:border-box; min-height:38px; padding:0 1.1rem;
+        font-size:.88rem; font-weight:700; white-space:nowrap;
+        color:var(--on-accent,#fff); text-decoration:none;
+        background:linear-gradient(135deg, var(--color-primary,#6366f1), var(--color-accent,#8b5cf6));
+        transition:filter .15s ease }
+    .clinic-card__book:hover{ filter:brightness(1.08); color:#fff }
+
+    /* Телефоны и планшеты: 44 — нижняя граница зоны нажатия. */
+    @media (max-width: 1024px), (max-height: 500px){
+        .clinic-grid{ grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr)); gap:.75rem }
+        .clinic-card{ padding:1.1rem 1.15rem }
+        .clinic-card__book{ min-height:44px; flex:1 1 auto }
+        .clinic-card__foot{ gap:.6rem }
+    }
 
 
 
