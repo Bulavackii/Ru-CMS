@@ -170,7 +170,7 @@
     .dark .pm-sum b{ color:#f3f4f6 }
 
     .pm-grid{ display:grid; gap:1rem;
-        grid-template-columns:repeat(auto-fill, minmax(20rem, 1fr)) }
+        grid-template-columns:repeat(auto-fill, minmax(min(100%, 20rem), 1fr)) }
 
     .pm-card{ display:flex; flex-direction:column; gap:.7rem; padding:0 0 .9rem;
         background:#fff; border:1px solid #e5e7eb;

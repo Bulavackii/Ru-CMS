@@ -166,7 +166,7 @@
     @media (min-width:1024px){
         /* Слева суть обращения, справа вложение и отправка. Правая колонка
            уже: там короткие блоки, а текст письма должен быть просторным. */
-        .er-cols{ grid-template-columns:minmax(0,1.75fr) minmax(17rem,1fr); gap:1.75rem }
+        .er-cols{ grid-template-columns:minmax(0,1.75fr) minmax(min(100%, 17rem), 1fr); gap:1.75rem }
     }
 
     .er-col--side{ display:flex; flex-direction:column; gap:1rem }

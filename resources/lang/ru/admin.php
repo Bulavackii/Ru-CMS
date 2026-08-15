@@ -10,6 +10,7 @@ return [
     'error' => 'Произошла ошибка',
 
     'header' => [
+        'menu' => 'Меню',
         'section' => 'Раздел',
         'overview' => 'Обзор',
         'create' => 'Создать',

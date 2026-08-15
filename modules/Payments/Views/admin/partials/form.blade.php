@@ -316,7 +316,7 @@
     .pm-form .pm-field-label{ font-size:.66rem; font-weight:700;
         letter-spacing:.1em; text-transform:uppercase }
 
-    .pm-types { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .5rem }
+    .pm-types { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)); gap: .5rem }
 
     /* Место под знак системы: если файл положен — логотип, если нет —
        значок способа оплаты. Размер один и тот же, чтобы ряд карточек не

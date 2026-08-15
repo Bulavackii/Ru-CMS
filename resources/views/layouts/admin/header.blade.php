@@ -119,6 +119,30 @@
            подписи, чтобы кнопки не выглядели тяжелее, чем они есть. */
         .ahd-action--primary i{font-size:.72rem}
 
+        /* ── Шапка на телефоне и планшете ───────────────────────
+           На десктопе шапка в порядке и её правила не меняются. На сенсорных
+           экранах она разрасталась на ТРИ ряда: строка с «На сайт», лента из
+           семи значков подряд и поиск во всю ширину — 150 пикселей из 896 у
+           телефона, причём значки без подписей стояли вплотную и читались как
+           сплошная полоса.
+
+           Оставляем то, ради чего в шапку смотрят с телефона: меню, выход на
+           сайт, поиск, уведомления и учётная запись. Заказы, сообщения,
+           инструменты, язык и оформление уезжают в выдвижное меню — оно и
+           есть навигация на этих экранах, и там у каждого пункта подпись. */
+        @media (max-width: 1024px), (max-height: 500px){
+            .ahd-touch-hide{ display:none !important }
+        }
+
+        /* Кнопка выдвижного меню. Размер 40 — основное действие по
+           стандарту Apple HIG; она первое, что нажимают на телефоне. */
+        .ahd-burger{display:inline-flex;align-items:center;justify-content:center;
+            width:2.5rem;height:2.5rem;flex:none;font-size:1rem;
+            color:var(--admin-on-primary,#fff);
+            background:linear-gradient(135deg,var(--admin-primary,#6366f1),var(--admin-accent,#a855f7));
+            border:0;cursor:pointer}
+        .ahd-burger:hover{filter:brightness(1.12)}
+
         /* Кнопка-действие с подписью (Создать / На сайт) */
         .ahd-action{display:inline-flex;align-items:center;gap:.4rem;height:2rem;padding:0 .7rem;
             font-size:.76rem;font-weight:600;white-space:nowrap;transition:filter .15s ease,background .15s ease,color .15s ease}
@@ -235,6 +259,36 @@
             {{-- Переход на сайт: первое действие в полосе, в новой вкладке.
                  Стоит отдельной кнопкой с акцентной рамкой — это выход из
                  панели, а не ещё один её раздел. --}}
+            {{-- 🔴 КНОПКА МЕНЮ. Раньше её здесь не было: выдвижное меню
+                 открывалось плавающей кнопкой `position:fixed; top:4; left:4`,
+                 то есть ровно ПОД шапкой — шапка тоже прибита к верху и
+                 перекрывала её целиком. На телефоне и планшете меню панели
+                 было недостижимо ВООБЩЕ: ни одного способа открыть разделы.
+                 Владелец так и сообщил — «нет меню в админке, вообще».
+
+                 Место кнопки — первое в шапке, как принято: она не может
+                 оказаться под чем-то ещё, потому что находится внутри того
+                 самого слоя, который всё перекрывал.
+
+                 Состояние выдвижного меню живёт в своём партиале, поэтому
+                 связь через событие окна, а не через общий x-data: партиалы
+                 подключаются независимо и знать друг о друге не обязаны. --}}
+            {{-- ⚠️ ОБЫЧНЫЙ onclick, а не @click. Alpine разбирает свои
+                 директивы только ВНУТРИ компонента: если у элемента нет
+                 предка с x-data, `@click` не срабатывает вовсе — молча, без
+                 ошибки в консоли. Кнопка стоит в обычной разметке шапки, и
+                 первая версия именно так и не работала: кнопка появилась,
+                 нажималась, меню не открывалось.
+
+                 Событие окна ловит выдвижное меню — оно живёт в своём
+                 партиале и своим x-data. --}}
+            <button type="button" class="ahd-burger lg:hidden"
+                    onclick="window.dispatchEvent(new CustomEvent('admin-menu-open'))"
+                    aria-label="{{ __('admin.header.menu') }}"
+                    title="{{ __('admin.header.menu') }}">
+                <i class="fas fa-bars" aria-hidden="true"></i>
+            </button>
+
             <a href="{{ url('/') }}" target="_blank" rel="noopener"
                class="ahd-action ahd-action--primary admin-clip-corner" title="{{ __('admin.header.site_title') }}">
                 <i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i>
@@ -267,7 +321,7 @@
                      администратора больше нет. Остальные кнопки обоймы ведут в
                      ядро и есть всегда. --}}
                 @if(module_enabled('Payments'))
-                    <a href="{{ route('admin.orders.index') }}" class="ahd-btn" title="{{ __('admin.header.orders') }}"
+                    <a href="{{ route('admin.orders.index') }}" class="ahd-btn ahd-touch-hide" title="{{ __('admin.header.orders') }}"
                        aria-label="{{ __('admin.header.orders') }}">
                         @themeIcon('shopping-cart')
                         @if($newOrders>0)<span class="ahd-badge bg-green-600">{{ $newOrders }}</span>@endif
@@ -275,7 +329,7 @@
                 @endif
 
                 @if(module_enabled('Messages'))
-                    <a href="{{ route('admin.messages.index') }}" class="ahd-btn" title="{{ __('admin.header.messages') }}"
+                    <a href="{{ route('admin.messages.index') }}" class="ahd-btn ahd-touch-hide" title="{{ __('admin.header.messages') }}"
                        aria-label="{{ __('admin.header.messages') }}">
                         @themeIcon('message')
                         @if($unreadMessages>0)<span class="ahd-badge bg-indigo-500">{{ $unreadMessages }}</span>@endif
@@ -301,7 +355,7 @@
                  недостижимы из шапки вовсе. Подписи уточнены: «глобус»
                  показывает геолокацию и устройство ТЕКУЩЕГО администратора,
                  а не пользователей сайта. --}}
-            <div x-data="{open:false}" class="relative">
+            <div x-data="{open:false}" class="relative ahd-touch-hide">
                 <button type="button" @click="open=!open" @click.outside="open=false"
                         @keydown.escape.window="open=false"
                         class="ahd-btn" title="{{ __('admin.header.tools') }}"
@@ -325,7 +379,7 @@
             </div>
 
             {{-- Обойма 3: личное — язык и оформление --}}
-            <div class="ahd-group">
+            <div class="ahd-group ahd-touch-hide">
             <div x-data="{open:false}" class="relative">
                 <button type="button" @click="open=!open" @click.outside="open=false"
                         @keydown.escape.window="open=false"

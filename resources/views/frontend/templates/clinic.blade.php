@@ -122,7 +122,7 @@
     .clinic__title{ margin:0; font-size:1.5rem; font-weight:700; color:var(--surface-ink,#111827); line-height:1.2 }
     .clinic__sub{ margin:.1rem 0 0; font-size:.85rem; color:var(--surface-mute,#6b7280) }
 
-    .clinic-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(19rem,1fr)); gap:1rem }
+    .clinic-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%, 19rem), 1fr)); gap:1rem }
 
     /* Полоса цвета темы сверху: набор карточек читается как перечень услуг,
        а не как лента заметок. Одна деталь, которая отличает медицинский

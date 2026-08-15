@@ -517,7 +517,7 @@
     .pc-toc__title{ margin:0 0 .6rem; font-size:.75rem; font-weight:700;
         letter-spacing:.08em; text-transform:uppercase; color:var(--surface-dim,#94a3b8) }
     .pc-toc__list{ margin:0; padding:0; list-style:none; display:grid;
-        grid-template-columns:repeat(auto-fit,minmax(15rem,1fr)); gap:.4rem 1.5rem;
+        grid-template-columns:repeat(auto-fit,minmax(min(100%, 15rem), 1fr)); gap:.4rem 1.5rem;
         counter-reset:pc-toc }
     .pc-toc__list li{ counter-increment:pc-toc }
     .pc-toc__list a{ display:inline-flex; gap:.5rem; font-size:.9rem; color:var(--surface-ink,#334155);

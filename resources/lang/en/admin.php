@@ -10,6 +10,7 @@ return [
     'error' => 'An error occurred',
 
     'header' => [
+        'menu' => 'Menu',
         'section' => 'Section',
         'overview' => 'Overview',
         'create' => 'Create',

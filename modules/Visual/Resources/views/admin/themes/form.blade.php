@@ -559,7 +559,13 @@
       font-size:13px; font-weight:700; color:var(--on-accent,#fff); background:var(--color-primary,#2563eb);
   }
   .thm-preview__name{ font-weight:700; font-size:14px; }
-  .thm-preview__nav{ display:flex; gap:10px; margin-left:auto; font-size:12px; opacity:.75; }
+  /* ⚠️ Перенос обязателен: это макет сайта в миниатюре, и на планшете в
+     альбомной ориентации ряд ссылок не влезал в узкую колонку предпросмотра —
+     17 пикселей прокрутки получала ВСЯ страница настроек темы. Уменьшать
+     кегль здесь нельзя (он и так 12, а это образец шрифта темы), поэтому
+     переносим. */
+  .thm-preview__nav{ display:flex; flex-wrap:wrap; gap:10px; margin-left:auto;
+      font-size:12px; opacity:.75; }
   .thm-preview__h{ font-size:17px; font-weight:700; margin-bottom:6px; }
   .thm-preview__p{ font-size:13px; opacity:.8; margin-bottom:12px; }
   .thm-preview__btns{ display:flex; flex-wrap:wrap; gap:8px; }

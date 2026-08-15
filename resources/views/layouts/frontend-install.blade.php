@@ -314,7 +314,7 @@
 
         /* Вариант с описанием — для отдельной страницы «Возможности»:
            значок сверху, под ним название и два-три предложения. */
-        .ins-feats--cards{ grid-template-columns:repeat(auto-fill, minmax(15rem, 1fr)) }
+        .ins-feats--cards{ grid-template-columns:repeat(auto-fill, minmax(min(100%, 15rem), 1fr)) }
         .ins-feat--card{ position:relative; flex-direction:column; align-items:flex-start;
             gap:.4rem; padding:.8rem .85rem }
         .ins-feat--card .ins-feat__ico{ width:2.1rem; height:2.1rem }

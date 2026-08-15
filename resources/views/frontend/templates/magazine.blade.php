@@ -224,7 +224,7 @@
     .mag-time i{ font-size:.85em; opacity:.8 }
 
     /* ── Сетка остальных ── */
-    .mag-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(17rem,1fr)); gap:1rem }
+    .mag-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%, 17rem), 1fr)); gap:1rem }
     .mag-card{ display:flex; flex-direction:column; background:var(--surface,#fff); border:1px solid var(--surface-bd,#eef2f7);
         overflow:hidden; transition:border-color .15s, transform .15s }
     .mag-card:hover{ border-color:var(--color-primary,#6366f1); transform:translateY(-2px) }

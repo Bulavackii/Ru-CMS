@@ -115,7 +115,7 @@
     .pg__title{ margin:0; font-size:1.5rem; font-weight:700; color:var(--surface-ink,#111827); line-height:1.2 }
     .pg__sub{ margin:.1rem 0 0; font-size:.82rem; color:var(--surface-mute,#6b7280) }
 
-    .pg-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(18rem,1fr)); gap:1rem }
+    .pg-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%, 18rem), 1fr)); gap:1rem }
 
     .pg-card{ display:flex; flex-direction:column; gap:.55rem; padding:1.3rem 1.4rem;
         background:var(--surface,#fff); border:1px solid var(--surface-bd,#eef2f7); transition:border-color .15s, transform .15s }

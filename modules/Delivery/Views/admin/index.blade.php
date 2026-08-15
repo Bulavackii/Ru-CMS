@@ -186,7 +186,7 @@
     .dark .dl-sum b{ color:#f3f4f6 }
 
     .dl-grid{ display:grid; gap:1rem;
-        grid-template-columns:repeat(auto-fill, minmax(20rem, 1fr)) }
+        grid-template-columns:repeat(auto-fill, minmax(min(100%, 20rem), 1fr)) }
 
     .dl-card{ display:flex; flex-direction:column; gap:.6rem; padding:0 0 .8rem;
         background:#fff; border:1px solid #e5e7eb;

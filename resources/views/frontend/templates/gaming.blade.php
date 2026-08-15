@@ -133,7 +133,7 @@
     .gm__title{ margin:0; font-size:1.5rem; font-weight:700; color:var(--surface-ink,#111827); line-height:1.2 }
     .gm__sub{ margin:.1rem 0 0; font-size:.82rem; color:var(--surface-mute,#6b7280) }
 
-    .gm-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(17.5rem,1fr)); gap:1rem }
+    .gm-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%, 17.5rem), 1fr)); gap:1rem }
 
     /* Карточка тёмная независимо от темы: так выглядят игровые витрины.
        Читаемость обеспечена собственным светлым текстом на своём фоне,

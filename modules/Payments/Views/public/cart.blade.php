@@ -577,7 +577,7 @@ document.addEventListener('DOMContentLoaded', function () {
        Фирменный цвет приходит переменной --pm со стороны разметки:
        способов столько же, сколько цветов, и перечислять их правилами
        пришлось бы дважды — в CSS и в модели. */
-    .crt-pick{ display:grid; gap:.5rem; grid-template-columns:repeat(auto-fill, minmax(19rem, 1fr)) }
+    .crt-pick{ display:grid; gap:.5rem; grid-template-columns:repeat(auto-fill, minmax(min(100%, 19rem), 1fr)) }
 
     .crt-opt{ display:grid; grid-template-columns:2.5rem minmax(0,1fr) auto auto;
         align-items:center; gap:.7rem; padding:.65rem .75rem; cursor:pointer;

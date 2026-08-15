@@ -106,7 +106,7 @@
     /* ── Список слайдов ── */
     .sl-dragnote{ display:flex; align-items:center; gap:.4rem; margin:0 0 .75rem }
     .sl-grid{ display:grid; gap:1rem; margin:0; padding:0; list-style:none;
-        grid-template-columns:repeat(auto-fill, minmax(15rem, 1fr)) }
+        grid-template-columns:repeat(auto-fill, minmax(min(100%, 15rem), 1fr)) }
 
     .sl-slide{ display:flex; flex-direction:column; overflow:hidden;
         background:#fff; border:1px solid #e5e7eb; transition:border-color .15s }

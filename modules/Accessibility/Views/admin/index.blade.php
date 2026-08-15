@@ -199,7 +199,7 @@
     .a11y-group-count{ margin-left:auto; font-size:.7rem; font-weight:700; color:#6b7280;
         background:#f1f5f9; padding:.1rem .45rem; letter-spacing:0 }
 
-    .a11y-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(24rem, 1fr)); gap:.35rem 2rem }
+    .a11y-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); gap:.35rem 2rem }
 
     .a11y-row{ display:flex; align-items:flex-start; gap:.85rem; padding:.7rem .1rem }
     .a11y-row + .a11y-row{ border-top:1px solid #f8fafc }

@@ -242,7 +242,7 @@
     .dark .tr-note{ background:#0f172a; border-color:#374151 }
 
     .tr-grid{ display:grid; gap:1rem;
-        grid-template-columns:repeat(auto-fill, minmax(18rem, 1fr)) }
+        grid-template-columns:repeat(auto-fill, minmax(min(100%, 18rem), 1fr)) }
 
     .tr-card{ display:flex; flex-direction:column; gap:.6rem; padding:1rem;
         background:var(--surface,#fff); border:1px solid var(--surface-bd,#e5e7eb);

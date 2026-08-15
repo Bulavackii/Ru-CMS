@@ -369,7 +369,7 @@
                  background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff;
                  font-weight:800; font-size:1.15rem }
 
-    .acc-stats{ display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
+    .acc-stats{ display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 150px), 1fr));
                 gap:.6rem; margin-bottom:1rem }
     .acc-stat{ display:flex; align-items:center; gap:.75rem;
                border:1px solid var(--surface-bd,#eef2f7); background:var(--surface,#fff); padding:.7rem .9rem }

@@ -773,7 +773,7 @@
     .fm-picker-arrow { font-size:9px; color:#9ca3af }
 
     .fm-picker-drop { position:absolute; z-index:30; top:calc(100% + 3px); left:0; right:0;
-                      display:grid; grid-template-columns:repeat(auto-fill, minmax(32px, 1fr)); gap:4px;
+                      display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, 32px), 1fr)); gap:4px;
                       max-height:11rem; overflow-y:auto; padding:6px;
                       background:#fff; border:1px solid #d1d5db; box-shadow:0 10px 26px rgba(17,24,39,.12) }
     .fm-ico-btn { display:inline-flex; align-items:center; justify-content:center; height:30px;

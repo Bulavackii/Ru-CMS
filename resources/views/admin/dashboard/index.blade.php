@@ -487,7 +487,7 @@
     .dash-stat { padding: .9rem 1rem; }
 
 /* ── Короткая сводка ────────────────────────────────────────────── */
-.dash-facts{ display:grid; gap:.75rem; grid-template-columns:repeat(auto-fit, minmax(13rem, 1fr)) }
+.dash-facts{ display:grid; gap:.75rem; grid-template-columns:repeat(auto-fit, minmax(min(100%, 13rem), 1fr)) }
 .dash-fact{ display:flex; align-items:center; gap:.6rem; padding:.5rem .7rem;
     background:#fff; border:1px solid #eef2f7 }
 .dark .dash-fact{ background:#111827; border-color:#374151 }
@@ -533,6 +533,13 @@
     .dash-feed__row--user .dash-feed__dot{ color:#6d28d9; background:#ede9fe }
     .dash-feed__row--order .dash-feed__dot{ color:#c2410c; background:#ffedd5 }
 
+    /* ⚠️ min-width:0 нужен и САМОЙ строке, а не только её телу. Лента —
+       это grid, а элемент сетки по умолчанию не сжимается ниже содержимого
+       (min-width:auto): длинный заголовок материала распирал строку до 389
+       пикселей при экране 375, и вся страница ехала вбок. Усечение
+       заголовка при этом не срабатывало — усекать было нечего, блок рос
+       под текст. */
+    .dash-feed__row{ min-width:0 }
     .dash-feed__body{ display:flex; flex-direction:column; gap:.1rem; min-width:0; flex:1 }
     .dash-feed__title{ font-size:.85rem; font-weight:600; color:#111827;
         overflow:hidden; text-overflow:ellipsis; white-space:nowrap }

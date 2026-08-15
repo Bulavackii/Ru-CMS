@@ -190,7 +190,7 @@
     .nw__title{ margin:0; font-size:1.5rem; font-weight:700; color:var(--surface-ink,#111827); line-height:1.2 }
     .nw__sub{ margin:.1rem 0 0; font-size:.82rem; color:var(--surface-mute,#6b7280) }
 
-    .nw-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(18rem,1fr)); gap:1rem }
+    .nw-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%, 18rem), 1fr)); gap:1rem }
 
     .nw-card{ display:flex; flex-direction:column; background:var(--surface,#fff); border:1px solid var(--surface-bd,#eef2f7);
         overflow:hidden; transition:border-color .15s, transform .15s }

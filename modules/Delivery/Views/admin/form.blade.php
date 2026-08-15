@@ -440,7 +440,7 @@
     .dm-form .dm-field-label{ font-size:.66rem; font-weight:700;
         letter-spacing:.1em; text-transform:uppercase }
 
-    .dm-types { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:.5rem }
+    .dm-types { display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, 150px), 1fr)); gap:.5rem }
 
     .dm-type { display:block; padding:.75rem; cursor:pointer; text-align:center;
         border:1px solid #e5e7eb; background:#fff; transition:border-color .15s, box-shadow .15s }

@@ -36,7 +36,7 @@
                 .footer-grid{ grid-template-columns:1fr 1fr; }
                 /* Столбцы меню держатся рядом: шаг внутри группы заметно
                    меньше, чем между блоками подвала. */
-                .footer-menus{ grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); }
+                .footer-menus{ grid-template-columns:repeat(auto-fit, minmax(min(100%, 140px), 1fr)); }
 
                 /* На планшете группа занимает всю ширину сетки: зажатая в
                    половину, она ломала три столбца на две строки (замер на
@@ -57,7 +57,7 @@
             @media (min-width:1024px){
                 /* Бренду и контактам нужно больше места: там адрес, почта и
                    телефон. Меню — списки коротких ссылок, им хватает меньше. */
-                .footer-grid{ grid-template-columns:minmax(230px,1fr) minmax(0,1.5fr) minmax(230px,1fr); }
+                .footer-grid{ grid-template-columns:minmax(min(100%, 230px), 1fr) minmax(0,1.5fr) minmax(min(100%, 230px), 1fr); }
                 /* На широком экране группа снова в своей ячейке, между
                    брендом и контактами, а явная раскладка снимается. */
                 .footer-menus{ grid-column:auto; grid-row:auto; }

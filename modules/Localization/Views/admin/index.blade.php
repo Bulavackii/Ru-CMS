@@ -255,7 +255,7 @@
         color:color-mix(in srgb, var(--surface-ink,#111827) 62%, var(--surface,#fff)) }
 
     .loc-grid{ display:grid; gap:1rem;
-        grid-template-columns:repeat(auto-fill, minmax(20rem, 1fr)) }
+        grid-template-columns:repeat(auto-fill, minmax(min(100%, 20rem), 1fr)) }
 
     .loc-card{ display:flex; flex-direction:column; gap:.7rem; padding:0 0 .8rem;
         background:var(--surface,#fff); border:1px solid var(--surface-bd,#e5e7eb);
