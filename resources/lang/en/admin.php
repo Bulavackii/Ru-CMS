@@ -331,6 +331,7 @@ return [
         'order_status_changed' => 'The status of order no. :id has been changed: :from → :to',
         'order_deleted' => 'Order no. :id has been deleted, stock has been restored',
         'order_created' => 'Order no. :id has been created',
+        'payment_already_closed' => 'Payment for this order is already closed — there is nothing to start again.',
         'review_approved' => 'The review has been approved',
         'review_rejected' => 'The review has been rejected',
         'review_removed' => 'The review has been deleted',

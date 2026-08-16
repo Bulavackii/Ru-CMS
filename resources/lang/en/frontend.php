@@ -363,6 +363,18 @@ return [
         'payment_cancelled' => 'The payment has been cancelled.',
         'payment_pending' => 'We are waiting for the payment to be confirmed. The order status will update as soon as the bank replies.',
         'payment_start_failed' => 'The payment could not be started. The order has been created — we will contact you.',
+        'contents_refreshed' => 'The cart has been updated: some items changed in price or availability.',
+
+        // The “Buyer” step. Without it there is nobody to deliver the order to.
+        'buyer' => 'Buyer',
+        'buyer_hint' => 'Needed to deliver the order and to reach you if anything needs clarifying.',
+        'f_name' => 'Name',
+        'f_phone' => 'Phone',
+        'f_email' => 'E-mail',
+        'f_email_note' => 'We will send the order confirmation and status updates here.',
+        'f_address' => 'Delivery address',
+        'f_address_ph' => 'City, street, building, apartment',
+        'f_comment' => 'Order comment',
         'no_payment' => 'No payment methods have been set up yet — please contact us.',
         'choose_delivery' => 'Choose a delivery method…',
         'choose_payment' => 'Choose a payment method…',

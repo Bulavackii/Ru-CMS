@@ -94,27 +94,32 @@ class RobokassaGateway extends AbstractPaymentGateway
     public function handleWebhook(array $data): bool
     {
         $password2 = $this->getConfig('password_2');
-        
-        if (!$password2) {
-            $this->logError('Password #2 not configured');
-            return false;
-        }
 
         $outSum = $data['OutSum'] ?? '';
         $invId = $data['InvId'] ?? '';
         $signature = $data['SignatureValue'] ?? '';
 
-        // Проверка подписи
-        $signatureString = "{$outSum}:{$invId}:{$password2}";
-        $expectedSignature = strtoupper(md5($signatureString));
-
-        if (strtoupper($signature) !== $expectedSignature) {
-            $this->logError('Invalid webhook signature', ['data' => $data]);
+        // Проверка подписи. Пустой пароль закрывает приём уведомлений: без
+        // него подпись считается по известным всем данным и подделывается.
+        // md5 здесь — не наш выбор, а протокол Робокассы.
+        if (! $this->signatureMatches(
+            $password2,
+            strtoupper(md5("{$outSum}:{$invId}:{$password2}")),
+            strtoupper((string) $signature),
+        )) {
             return false;
         }
 
         $order = Order::find($invId);
-        
+
+        // 🔴 Подпись Робокассы покрывает сумму, но это сумма, КОТОРУЮ РЕАЛЬНО
+        // заплатили, а не та, что мы выставили. Ссылка на оплату содержит
+        // OutSum параметром: покупатель менял его на рубль, Робокасса честно
+        // подписывала уведомление о рубле, и заказ уходил в «Оплачен».
+        if (! $this->amountMatches($order, (float) $outSum)) {
+            return false;
+        }
+
         if ($order && $order->status !== 'completed') {
             $order->status = 'completed';
             $order->payment_id = $invId;

@@ -58,6 +58,12 @@ class CartConsentTest extends TestCase
         return [
             'payment_method_id'  => $оплата->id,
             'delivery_method_id' => $доставка->id,
+            // Контакты покупателя стали обязательными: без них заказ некому
+            // доставить (см. CartIntegrityTest). Тест про согласие, поэтому
+            // здесь они просто заполнены — иначе проверялось бы не то.
+            'customer_name'      => 'Иван Иванов',
+            'customer_phone'     => '+7 900 000-00-00',
+            'customer_address'   => 'Курск, ул. Ленина, 1',
             'items' => [[
                 'id' => $товар->id, 'title' => $товар->title,
                 'price' => $товар->price, 'qty' => 1,

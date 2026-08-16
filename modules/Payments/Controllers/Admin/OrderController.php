@@ -201,13 +201,10 @@ class OrderController extends Controller
         $order->save();
         // Уведомления отправятся автоматически через событие OrderStatusChanged
 
-        // Отмена возвращает товар на склад. Раньше возврат жил ТОЛЬКО в
-        // удалении заказа: отменённый заказ списывал товар навсегда, и
-        // остаток на сайте занижался с каждой отменой. Метод разовый —
-        // отменить, а потом удалить, значит вернуть один раз, а не два.
-        if ($request->status === 'cancelled') {
-            $order->returnStockOnce();
-        }
+        // Склад двигает сама модель (событие `updated`): отмена возвращает
+        // товар, оживление забирает обратно. Здесь звать отдельно не нужно —
+        // возврат привязан к факту смены статуса, а не к тому, из какого места
+        // кода она пришла.
 
         return redirect()
             ->back()
@@ -229,16 +226,32 @@ class OrderController extends Controller
             abort(403);
         }
 
+        // Начинать оплату у закрытого заказа нечего. Раньше запрет отсутствовал,
+        // и повторный заход по ссылке сбрасывал в «Ожидает оплаты» даже
+        // выполненный заказ — вместе с письмом покупателю о смене статуса.
+        if (in_array($order->status, ['completed', 'paid', 'cancelled'], true)) {
+            return redirect()->back()->with('error', __('admin.flash.payment_already_closed'));
+        }
+
         $paymentMethod = PaymentMethod::findOrFail($order->payment_method_id);
-        
+
         try {
             $gatewayService = app(\Modules\Payments\Services\PaymentGatewayService::class);
             $result = $gatewayService->createPayment($order, $paymentMethod);
 
             if ($result['success']) {
-                // Сохраняем payment_id в заказе
+                // 🔴 Статус здесь НЕ меняется, и это важно.
+                //
+                // Раньше ставилось `pending` — а именно этот статус забирает
+                // автоотмена по сроку. Владелец договаривался с покупателем по
+                // телефону, заводил заказ (статус «Новый»), отправлял ссылку на
+                // оплату — и через десять минут система отменяла заказ и
+                // возвращала товар в продажу.
+                //
+                // Начало оплаты вообще не меняет состояние заказа: его меняет
+                // уведомление платёжной системы, когда деньги действительно
+                // пришли.
                 $order->payment_id = $result['payment_id'] ?? null;
-                $order->status = 'pending';
                 $order->save();
 
                 // Редирект на страницу оплаты
@@ -295,11 +308,17 @@ class OrderController extends Controller
 
     public function webhook(Request $request, string $gateway)
     {
-        // 📋 Логирование webhook
+        // 📋 Журнал уведомления.
+        //
+        // ⚠️ Заголовки ЦЕЛИКОМ сюда писать нельзя: платёжные системы кладут в
+        // них подпись и ключ доступа, а файл журнала попадает в бэкапы, в
+        // выгрузки для поддержки и в чужие руки заметно легче, чем база.
+        // Оставлены только те, по которым разбирают доставку уведомления.
         Log::info('Payment webhook received', [
             'gateway' => $gateway,
             'data' => $request->all(),
-            'headers' => $request->headers->all(),
+            'ip' => $request->ip(),
+            'content_type' => $request->header('Content-Type'),
         ]);
 
         try {
@@ -394,11 +413,9 @@ class OrderController extends Controller
      */
     public function destroy(Order $order)
     {
-        // 🔄 Восстанавливаем остатки товаров — но только если их ещё не
-        // вернули. Отменённый заказ товар уже вернул, и повторный возврат
-        // при удалении нарастил бы склад из ниоткуда.
-        $order->returnStockOnce();
-
+        // Остатки возвращает сама модель (событие `deleting`) — здесь звать
+        // отдельно не нужно и не надо: возврат привязан к факту удаления, а
+        // не к тому, из какого места кода оно пришло.
         $order->delete();
 
         return redirect()

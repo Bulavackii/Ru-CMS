@@ -822,7 +822,34 @@
            поэтому отбор по имени класса самого элемента их не ловил. */
         body.admin-sharp .cap-stats,
         body.admin-sharp .cap-stats *,
-        body.admin-sharp .sl-keys__title{ font-size:12px }
+        body.admin-sharp .sl-keys__title,
+        /* Третий заход замера, раздел «Заказы»: имена этих классов не
+           содержат ни «label», ни «chip», ни «count», поэтому отбор по куску
+           имени их не ловил, а объявлены они в стилях вьюхи селектором из
+           двух классов. Подпись кнопки меню в шапке — 9.9 пикселя. */
+        body.admin-sharp .ahd-menu-title,
+        body.admin-sharp .ord-status,
+        body.admin-sharp .ord-way,
+        body.admin-sharp .ord-way *,
+        /* Строка сведений о заказе — это ДАННЫЕ (имя покупателя, телефон,
+           состав, дата), а не подпись, и читать их приходится в первую
+           очередь. Кегль объявлен на контейнере, поэтому отбор по имени
+           класса самих `span` их не ловил. */
+        body.admin-sharp .ord-meta,
+        body.admin-sharp .ord-meta *,
+        body.admin-sharp main dt{ font-size:12px }
+
+        /* ⚠️ Полям ввода нужно РОВНО 16, и это не то же самое, что пол в 12.
+           Safari на iPhone сам приближает страницу при фокусе в поле мельче
+           16 и обратно её не отпускает. Правило общее: под сенсорным порогом
+           поля панели набираются шестнадцатым — в списке заказов так «прыгал»
+           выбор статуса (14 пикселей).
+
+           `user-scalable=no` тут не помощник: он ломает доступность, и Safari
+           его всё равно игнорирует. */
+        body.admin-sharp input:not([type=checkbox]):not([type=radio]):not([type=range]),
+        body.admin-sharp select,
+        body.admin-sharp textarea{ font-size:16px }
 
         /* Исключения из пола — их кегль осмыслен именно таким:
            • стрелка выпадающего списка редактора — значок, а не текст;

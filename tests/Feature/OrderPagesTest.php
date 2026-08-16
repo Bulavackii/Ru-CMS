@@ -123,6 +123,12 @@ class OrderPagesTest extends TestCase
         // отдаётся вьюхе со всеми связями.
         $order = $this->order();
 
+        // ⚠️ Страница больше не показывает ЛЮБОЙ заказ по номеру: посторонний
+        // перебирал адреса и читал всю историю продаж (см. CartIntegrityTest::
+        // test_confirmation_page_hides_other_peoples_orders). Гостю доступ
+        // даёт сессия — туда номер кладётся при оформлении.
+        session(['my_orders' => [$order->id]]);
+
         $data = app(\Modules\Payments\Controllers\Frontend\CartController::class)
             ->confirm($order->id)
             ->getData();

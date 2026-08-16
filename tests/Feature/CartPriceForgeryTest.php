@@ -61,6 +61,9 @@ class CartPriceForgeryTest extends TestCase
             'payment_method_id' => $оплата->id,
             'delivery_method_id' => $доставка->id,
             'terms_agree' => 1,
+            'customer_name' => 'Иван Иванов',
+            'customer_phone' => '+7 900 000-00-00',
+            'customer_address' => 'Курск, ул. Ленина, 1',
             'items' => [
                 ['id' => $товар->id, 'title' => 'Дорогой товар', 'price' => 1, 'qty' => 1],
             ],
@@ -97,6 +100,9 @@ class CartPriceForgeryTest extends TestCase
             'payment_method_id' => $оплата->id,
             'delivery_method_id' => $доставка->id,
             'terms_agree' => 1,
+            'customer_name' => 'Иван Иванов',
+            'customer_phone' => '+7 900 000-00-00',
+            'customer_address' => 'Курск, ул. Ленина, 1',
             'items' => [
                 ['id' => $товар->id, 'title' => '<img src=x onerror=alert(1)>', 'price' => 100000, 'qty' => 1],
             ],
@@ -123,6 +129,9 @@ class CartPriceForgeryTest extends TestCase
             'payment_method_id' => $оплата->id,
             'delivery_method_id' => $доставка->id,
             'terms_agree' => 1,
+            'customer_name' => 'Иван Иванов',
+            'customer_phone' => '+7 900 000-00-00',
+            'customer_address' => 'Курск, ул. Ленина, 1',
             'items' => [['id' => $товар->id, 'price' => 100000, 'qty' => 1]],
         ]);
 
@@ -141,6 +150,9 @@ class CartPriceForgeryTest extends TestCase
             'payment_method_id' => $оплата->id,
             'delivery_method_id' => $доставка->id,
             'terms_agree' => 1,
+            'customer_name' => 'Иван Иванов',
+            'customer_phone' => '+7 900 000-00-00',
+            'customer_address' => 'Курск, ул. Ленина, 1',
             'items' => [['id' => $товар->id, 'price' => 100000, 'qty' => -5]],
         ]);
 

@@ -167,7 +167,9 @@
                                            data-price="{{ $method->price }}"
                                            data-days="{{ $method->delivery_days }}"
                                            data-description="{{ $method->description ?? '' }}"
-                                           data-free-from="{{ $method->free_delivery_threshold ?? 0 }}">
+                                           data-free-from="{{ $method->free_delivery_threshold ?? 0 }}"
+                                           {{-- Самовывозу адрес не нужен: покупатель приходит сам. --}}
+                                           data-needs-address="{{ $method->type === 'pickup' ? '0' : '1' }}">
 
                                     {{-- Знак, а не логотип. Логотипы служб нарисованы под
                                          крупную плитку со своим фоном и в кружке 40 пикселей
@@ -198,6 +200,79 @@
                     @else
                         <p class="crt-hint">{{ __('frontend.cart.no_delivery') }}</p>
                     @endif
+                </section>
+
+                {{-- ── 04. Покупатель ──
+
+                     🔴 Этого шага не было ВООБЩЕ. Форма спрашивала только
+                     способ оплаты, способ доставки и согласие — и заказ
+                     приходил владельцу без имени, телефона и адреса.
+                     То есть магазин принимал заказы, которые физически
+                     некому доставить и не с кем уточнить.
+
+                     Полям даны настоящие `autocomplete`: браузер подставляет
+                     их сам, и это единственный способ сделать длинную форму
+                     терпимой на телефоне. --}}
+                <section class="crt-step">
+                    <h2 class="crt-step__title">
+                        <span class="crt-step__num">04</span>
+                        {{ __('frontend.cart.buyer') }}
+                    </h2>
+
+                    <p class="crt-hint">{{ __('frontend.cart.buyer_hint') }}</p>
+
+                    <div class="crt-fields">
+                        <label class="crt-field">
+                            <span class="crt-field__label">
+                                {{ __('frontend.cart.f_name') }} <b aria-hidden="true">*</b>
+                            </span>
+                            <input type="text" name="customer_name" required maxlength="255"
+                                   autocomplete="name" class="crt-input"
+                                   value="{{ old('customer_name', auth()->user()->name ?? '') }}">
+                            @error('customer_name')<span class="crt-field__err">{{ $message }}</span>@enderror
+                        </label>
+
+                        <label class="crt-field">
+                            <span class="crt-field__label">
+                                {{ __('frontend.cart.f_phone') }} <b aria-hidden="true">*</b>
+                            </span>
+                            <input type="tel" name="customer_phone" required maxlength="64"
+                                   autocomplete="tel" inputmode="tel" class="crt-input"
+                                   placeholder="+7 900 000-00-00"
+                                   value="{{ old('customer_phone', auth()->user()->phone ?? '') }}">
+                            @error('customer_phone')<span class="crt-field__err">{{ $message }}</span>@enderror
+                        </label>
+
+                        <label class="crt-field">
+                            <span class="crt-field__label">{{ __('frontend.cart.f_email') }}</span>
+                            <input type="email" name="customer_email" maxlength="255"
+                                   autocomplete="email" inputmode="email" class="crt-input"
+                                   value="{{ old('customer_email', auth()->user()->email ?? '') }}">
+                            <span class="crt-field__note">{{ __('frontend.cart.f_email_note') }}</span>
+                            @error('customer_email')<span class="crt-field__err">{{ $message }}</span>@enderror
+                        </label>
+
+                        {{-- Адрес спрашивается не всегда: самовывозу и цифровому
+                             товару он не нужен, а лишнее обязательное поле —
+                             это брошенная корзина. Показом управляет скрипт по
+                             типу выбранной службы. --}}
+                        <label class="crt-field crt-field--wide" id="crt-address-field">
+                            <span class="crt-field__label">
+                                {{ __('frontend.cart.f_address') }} <b aria-hidden="true">*</b>
+                            </span>
+                            <input type="text" name="customer_address" maxlength="500"
+                                   autocomplete="street-address" class="crt-input"
+                                   placeholder="{{ __('frontend.cart.f_address_ph') }}"
+                                   value="{{ old('customer_address', auth()->user()->address ?? '') }}">
+                            @error('customer_address')<span class="crt-field__err">{{ $message }}</span>@enderror
+                        </label>
+
+                        <label class="crt-field crt-field--wide">
+                            <span class="crt-field__label">{{ __('frontend.cart.f_comment') }}</span>
+                            <textarea name="comment" rows="2" maxlength="2000"
+                                      class="crt-input">{{ old('comment') }}</textarea>
+                        </label>
+                    </div>
                 </section>
             </div>
 
@@ -376,16 +451,34 @@ document.addEventListener('DOMContentLoaded', function () {
         if (chosen) box.querySelector('.crt-chosen__value').textContent = chosen.dataset.title || '';
     }
 
+    // Адрес нужен не всякой доставке: самовывозу его спрашивать незачем, а
+    // лишнее обязательное поле — это брошенная корзина. Обязательность
+    // снимается ВМЕСТЕ со скрытием: `required` на скрытом поле не даёт
+    // отправить форму, и браузер молча ругается на невидимый элемент.
+    function syncAddress() {
+        const поле = document.getElementById('crt-address-field');
+        if (!поле) return;
+
+        const выбрана = picked('delivery_method_id');
+        const нужен = !выбрана || выбрана.dataset.needsAddress !== '0';
+
+        поле.hidden = !нужен;
+        поле.querySelector('input').required = нужен;
+    }
+
     ['payment_method_id', 'delivery_method_id'].forEach(function (name) {
         document.querySelectorAll('input[name="' + name + '"]').forEach(function (input) {
             input.addEventListener('change', function () {
                 markPicked(name);
                 recalc();
+                if (name === 'delivery_method_id') syncAddress();
             });
         });
 
         markPicked(name);
     });
+
+    syncAddress();
 
     // ── Количество ──
     function changeQty(id, delta) {
@@ -613,6 +706,31 @@ document.addEventListener('DOMContentLoaded', function () {
     .crt-opt.is-picked .crt-opt__tick{ color:var(--pm,#6366f1) }
     .crt-hint{ margin:.5rem 0 0; font-size:.78rem; line-height:1.5; color:var(--surface-mute,#64748b) }
 
+    /* ── Шаг «Покупатель» ──
+       Сетка в две колонки: имя и телефон встают парой, адрес и комментарий
+       занимают строку целиком. `minmax(min(100%, …))` вместо голого числа —
+       иначе на 360 колонка не сжимается и распирает страницу вбок. */
+    .crt-fields{ display:grid; gap:.7rem; margin-top:.6rem;
+        grid-template-columns:repeat(auto-fit, minmax(min(100%, 14rem), 1fr)) }
+    .crt-field{ display:flex; flex-direction:column; gap:.3rem; min-width:0 }
+    .crt-field--wide{ grid-column:1 / -1 }
+    .crt-field[hidden]{ display:none }
+
+    /* Подписи — тем же моноширинным капсом, что на страницах входа и в
+       панели: второй «шрифт» уже есть в проекте и ничего не догружает. */
+    .crt-field__label{ font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size:.64rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+        color:var(--surface-mute,#64748b) }
+    .crt-field__label b{ color:#dc2626 }
+    .crt-field__note{ font-size:.72rem; color:var(--surface-mute,#94a3b8) }
+    .crt-field__err{ font-size:.74rem; color:#dc2626 }
+
+    .crt-input{ width:100%; box-sizing:border-box; font:inherit; font-size:.88rem;
+        padding:.6rem .7rem; color:var(--surface-ink,#111827);
+        background:var(--surface,#fff); border:1px solid var(--surface-bd,#e2e8f0) }
+    .crt-input:focus{ outline:none; border-color:var(--color-primary,#6366f1) }
+    textarea.crt-input{ resize:vertical; min-height:3.2rem }
+
     .crt-total__row{ display:flex; align-items:baseline; justify-content:space-between; gap:1rem;
         padding:.35rem 0; font-size:.88rem; color:var(--surface-mute,#475569) }
     .crt-total__row b{ color:var(--surface-ink,#111827); white-space:nowrap;
@@ -677,6 +795,33 @@ document.addEventListener('DOMContentLoaded', function () {
        название и счётчик. На экране в 896 это заметная доля первого
        экрана, а полезного в ней — одна строка. Ужимаем отступы и кегль,
        смысл сохраняем. */
+    @media (max-width: 1024px), (max-height: 500px){
+        /* ── Шаг «Покупатель» на сенсорных ───────────────────────────
+           Кегль подписей поднимается до 12: ниже браузер на телефоне
+           предлагает увеличить страницу целиком и ломает вёрстку (общее
+           правило проекта).
+
+           ⚠️ А полям ввода нужно ровно 16 пикселей, и это не то же самое.
+           Safari на iPhone САМ приближает страницу при фокусе в поле мельче
+           16 — в форме оформления это выглядит как прыжок вёрстки на каждом
+           поле, и обратно она уже не отъезжает. Обойти это можно только
+           кеглем: `user-scalable=no` ломает доступность и Safari его всё
+           равно игнорирует. */
+        .crt-field__label{ font-size:.75rem }
+        .crt-field__note{ font-size:.75rem }
+
+        /* Кегль ниже порога был и у соседних подписей корзины — замер по всем
+           ширинам показал 11.2, 10.9 и 9.6. Правим заодно: это тот же экран. */
+        .crt-step__num{ font-size:.75rem }
+        .crt-step__count{ font-size:.75rem }
+        .crt-chosen__label{ font-size:.75rem }
+
+        /* 16 — не круглое число, а порог Safari (см. пояснение выше).
+           Счётчику количества он нужен ровно так же, как полям покупателя. */
+        .crt-input,
+        .crt-qty__input{ font-size:16px }
+    }
+
     @media (max-width: 1024px){
         /* ── Карточка товара ───────────────────────────────────────────
            Было две колонки на два ряда: название с ценой и счётчик сверху,

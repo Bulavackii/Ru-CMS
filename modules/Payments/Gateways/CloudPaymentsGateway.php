@@ -91,14 +91,16 @@ class CloudPaymentsGateway extends AbstractPaymentGateway
     public function handleWebhook(array $data): bool
     {
         $apiSecret = $this->getConfig('api_secret');
-        
-        // Проверка подписи
-        $content = json_encode($data, JSON_UNESCAPED_UNICODE);
-        $signature = base64_encode(hash_hmac('sha256', $content, $apiSecret, true));
-        $receivedSignature = $_SERVER['HTTP_CONTENT_HMAC'] ?? '';
 
-        if ($signature !== $receivedSignature) {
-            $this->logError('Invalid webhook signature', ['data' => $data]);
+        // Подпись считается по СЫРОМУ телу запроса — именно его подписывает
+        // CloudPayments. Раньше здесь стоял `json_encode()` от разобранного
+        // массива: другой порядок ключей и экранирование, подпись не совпадала
+        // никогда, и ни одно уведомление не проходило.
+        if (! $this->signatureMatches(
+            $apiSecret,
+            base64_encode(hash_hmac('sha256', $this->rawBody(), (string) $apiSecret, true)),
+            $this->requestHeader('Content-HMAC'),
+        )) {
             return false;
         }
 
@@ -107,7 +109,12 @@ class CloudPaymentsGateway extends AbstractPaymentGateway
 
         if ($status === 'Completed' || $status === 'Authorized') {
             $order = Order::find($orderId);
-            
+
+            // Подпись подтверждает отправителя, но не сумму.
+            if (! $this->amountMatches($order, (float) ($data['Amount'] ?? 0))) {
+                return false;
+            }
+
             if ($order && $order->status !== 'completed') {
                 $order->status = 'completed';
                 $order->payment_id = $data['TransactionId'] ?? null;

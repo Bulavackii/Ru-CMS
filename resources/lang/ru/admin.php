@@ -331,6 +331,7 @@ return [
         'order_status_changed' => 'Статус заказа №:id изменён: :from → :to',
         'order_deleted' => 'Заказ №:id удалён, остатки восстановлены',
         'order_created' => 'Заказ №:id заведён',
+        'payment_already_closed' => 'По этому заказу оплата уже закрыта — начинать её заново нечего.',
         'review_approved' => 'Отзыв одобрен',
         'review_rejected' => 'Отзыв отклонён',
         'review_removed' => 'Отзыв удалён',

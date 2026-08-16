@@ -151,6 +151,47 @@ class OrderNewStatusTest extends TestCase
         $ответ->assertViewHas('товары', fn ($список) => $список->contains('title', 'Товар для формы'));
     }
 
+    /**
+     * 🔴 Запуск оплаты НЕ переводит заказ из панели под автоотмену.
+     *
+     * Раньше `initiatePayment()` безусловно ставил `pending` — а именно этот
+     * статус забирает таймер. Владелец договаривался по телефону, заводил
+     * заказ, отправлял ссылку на оплату, и через десять минут система его
+     * отменяла вместе с возвратом товара в продажу.
+     */
+    public function test_starting_a_payment_keeps_the_manual_status(): void
+    {
+        Event::fake([\Modules\Payments\Events\OrderStatusChanged::class]);
+
+        $онлайн = $this->способОплаты('online');
+        $заказ = $this->заказ('new', $онлайн);
+
+        $this->actingAs(User::factory()->create(['is_admin' => true]));
+
+        // Драйвера у этого кода нет — оплата не начнётся, но нам важно
+        // ровно одно: статус остался прежним.
+        $this->post(route('orders.payment.initiate', $заказ->id));
+
+        $this->assertSame('new', $заказ->fresh()->status, 'Заказ из панели уехал под автоотмену');
+
+        $подОтмену = CancelUnpaidOrdersCommand::просроченные()->pluck('id')->all();
+        $this->assertNotContains($заказ->id, $подОтмену);
+    }
+
+    /** Оплату закрытого заказа заново не начинают. */
+    public function test_closed_order_cannot_start_a_payment(): void
+    {
+        Event::fake([\Modules\Payments\Events\OrderStatusChanged::class]);
+
+        $заказ = $this->заказ('completed');
+
+        $this->actingAs(User::factory()->create(['is_admin' => true]));
+
+        $this->post(route('orders.payment.initiate', $заказ->id));
+
+        $this->assertSame('completed', $заказ->fresh()->status, 'Выполненный заказ сбросили в ожидание оплаты');
+    }
+
     /** Заказ, заведённый в панели, действительно получает этот статус. */
     public function test_panel_creates_order_with_new_status(): void
     {

@@ -128,14 +128,13 @@ class QiwiGateway extends AbstractPaymentGateway
     public function handleWebhook(array $data): bool
     {
         $secretKey = $this->getConfig('secret_key');
-        
-        // Проверка подписи
-        $signature = $_SERVER['HTTP_X_API_SIGNATURE_SHA256'] ?? '';
-        $body = json_encode($data, JSON_UNESCAPED_UNICODE);
-        $expectedSignature = base64_encode(hash_hmac('sha256', $body, $secretKey, true));
 
-        if ($signature !== $expectedSignature) {
-            $this->logError('Invalid webhook signature', ['data' => $data]);
+        // По сырому телу, а не по пересобранному JSON (см. AbstractPaymentGateway).
+        if (! $this->signatureMatches(
+            $secretKey,
+            base64_encode(hash_hmac('sha256', $this->rawBody(), (string) $secretKey, true)),
+            $this->requestHeader('X-Api-Signature-SHA256'),
+        )) {
             return false;
         }
 
@@ -145,7 +144,12 @@ class QiwiGateway extends AbstractPaymentGateway
 
         if ($status === 'PAID') {
             $order = Order::find($orderId);
-            
+
+            // Подпись подтверждает отправителя, но не сумму.
+            if (! $this->amountMatches($order, (float) ($bill['amount']['value'] ?? 0))) {
+                return false;
+            }
+
             if ($order && $order->status !== 'completed') {
                 $order->status = 'completed';
                 $order->payment_id = $bill['billId'] ?? null;

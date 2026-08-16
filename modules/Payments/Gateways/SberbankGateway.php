@@ -187,7 +187,13 @@ class SberbankGateway extends AbstractPaymentGateway
 
         if ($status == 2) { // Оплачен
             $order = Order::find($orderId);
-            
+
+            // Банк подтвердил, что платёж прошёл, но не то, что заплатили
+            // СТОЛЬКО. Сумма у Сбербанка приходит в копейках.
+            if (! $this->amountMatches($order, ((float) ($confirmed['amount'] ?? 0)) / 100)) {
+                return false;
+            }
+
             if ($order && $order->status !== 'completed') {
                 $order->status = 'completed';
                 $order->payment_id = $data['orderId'] ?? null;

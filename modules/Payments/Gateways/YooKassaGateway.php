@@ -30,9 +30,10 @@ class YooKassaGateway extends AbstractPaymentGateway
             throw new \Exception('ЮKassa: не настроены shop_id или secret_key');
         }
 
-        $baseUrl = $this->isTestMode() 
-            ? 'https://api.yookassa.ru/v3/payments' 
-            : 'https://api.yookassa.ru/v3/payments';
+        // Адрес один на оба режима — это не упущение. У ЮKassa тестовый режим
+        // определяется парой shop_id/секрет (тестовый магазин), а не отдельным
+        // хостом. Не «чините» это, подставив несуществующий тестовый домен.
+        $baseUrl = 'https://api.yookassa.ru/v3/payments';
 
         $amount = $order->total;
         $description = "Заказ #{$order->id}";
@@ -55,12 +56,20 @@ class YooKassaGateway extends AbstractPaymentGateway
         ];
 
         try {
-            $response = Http::timeout(20)->withBasicAuth($shopId, $secretKey)
+            // 🔴 Ключ идемпотентности обязателен, и его не было.
+            //
+            // Он выводится ИЗ ЗАКАЗА, а не случайный: покупатель, нажавший
+            // «оплатить» дважды или обновивший страницу, иначе получал два
+            // платежа на один заказ — и мог заплатить дважды. С этим ключом
+            // ЮKassa на повтор возвращает тот же платёж.
+            $response = Http::timeout(20)
+                ->withBasicAuth($shopId, $secretKey)
+                ->withHeaders(['Idempotence-Key' => 'order-' . $order->id . '-' . md5((string) $amount)])
                 ->post($baseUrl, $paymentData);
 
             if ($response->successful()) {
                 $data = $response->json();
-                
+
                 $this->log('Payment created', [
                     'order_id' => $order->id,
                     'payment_id' => $data['id'] ?? null,
@@ -166,15 +175,7 @@ class YooKassaGateway extends AbstractPaymentGateway
                 $order = Order::find($orderId);
 
                 // Сумма из ответа API, а не из тела уведомления.
-                $paidAmount = (float) ($payment['amount']['value'] ?? 0);
-
-                if ($order && abs($paidAmount - (float) $order->total) > 0.01) {
-                    $this->log('Webhook amount mismatch', [
-                        'order_id' => $orderId,
-                        'expected' => (float) $order->total,
-                        'paid' => $paidAmount,
-                    ]);
-
+                if (! $this->amountMatches($order, (float) ($payment['amount']['value'] ?? 0))) {
                     return false;
                 }
 
@@ -219,7 +220,12 @@ class YooKassaGateway extends AbstractPaymentGateway
         $shopId = $this->getConfig('shop_id');
         $secretKey = $this->getConfig('secret_key');
 
+        // ⚠️ `payment_id` — ОБЯЗАТЕЛЬНОЕ поле возврата, и его здесь не было
+        // вовсе: параметр принимался и не использовался. ЮKassa отвечала
+        // «invalid_request», то есть возврат денег не работал НИКОГДА, а
+        // владелец видел только «Ошибка возврата» без причины.
         $refundData = [
+            'payment_id' => $paymentId,
             'amount' => [
                 'value' => number_format($amount, 2, '.', ''),
                 'currency' => 'RUB',
@@ -231,7 +237,12 @@ class YooKassaGateway extends AbstractPaymentGateway
         }
 
         try {
-            $response = Http::timeout(20)->withBasicAuth($shopId, $secretKey)
+            // Ключ идемпотентности обязателен для POST в ЮKassa: без него
+            // повторная отправка (сеть моргнула, владелец нажал дважды)
+            // создаёт ВТОРОЙ возврат и деньги уходят покупателю дважды.
+            $response = Http::timeout(20)
+                ->withBasicAuth($shopId, $secretKey)
+                ->withHeaders(['Idempotence-Key' => (string) \Illuminate\Support\Str::uuid()])
                 ->post("https://api.yookassa.ru/v3/refunds", $refundData);
 
             if ($response->successful()) {

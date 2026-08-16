@@ -105,6 +105,9 @@ class QaCommerceFlowTest extends TestCase
             // ⚠️ Без согласия на обработку данных заказ не оформляется —
             // это требование закона, а не прихоть формы.
             'terms_agree' => 1,
+            'customer_name' => 'Иван Иванов',
+            'customer_phone' => '+7 900 000-00-00',
+            'customer_address' => 'Курск, ул. Ленина, 1',
         ]);
 
         $ответ->assertSessionHasNoErrors();
@@ -130,6 +133,9 @@ class QaCommerceFlowTest extends TestCase
             'customer_email' => 'ivan@example.com', 'customer_address' => 'Адрес',
             'payment_method_id' => $оплата->id, 'delivery_method_id' => $доставка->id,
             'terms_agree' => 1,
+            'customer_name' => 'Иван Иванов',
+            'customer_phone' => '+7 900 000-00-00',
+            'customer_address' => 'Курск, ул. Ленина, 1',
         ]);
 
         $заказ = Order::latest('id')->first();
@@ -160,6 +166,9 @@ class QaCommerceFlowTest extends TestCase
             'customer_email' => 'ivan@example.com', 'customer_address' => 'Адрес',
             'payment_method_id' => $оплата->id, 'delivery_method_id' => $доставка->id,
             'terms_agree' => 1,
+            'customer_name' => 'Иван Иванов',
+            'customer_phone' => '+7 900 000-00-00',
+            'customer_address' => 'Курск, ул. Ленина, 1',
         ]);
 
         $остаток = $товар->fresh()->stock;

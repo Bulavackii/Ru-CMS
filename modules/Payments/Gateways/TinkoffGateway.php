@@ -170,15 +170,16 @@ class TinkoffGateway extends AbstractPaymentGateway
     public function handleWebhook(array $data): bool
     {
         $secretKey = $this->getConfig('secret_key');
-        $token = $data['Token'] ?? '';
 
-        // Проверка подписи
         $checkData = $data;
         unset($checkData['Token']);
-        $expectedToken = $this->generateToken($checkData, $secretKey);
 
-        if ($token !== $expectedToken) {
-            $this->logError('Invalid webhook signature', ['data' => $data]);
+        // Пустой ключ закрывает приём: без него подпись считает кто угодно.
+        if (! $this->signatureMatches(
+            $secretKey,
+            (string) $this->generateToken($checkData, (string) $secretKey),
+            (string) ($data['Token'] ?? ''),
+        )) {
             return false;
         }
 
@@ -191,17 +192,10 @@ class TinkoffGateway extends AbstractPaymentGateway
 
             // Подпись подтверждает, что уведомление от банка, но не то,
             // что заплатили нужную сумму. Amount приходит в копейках.
-            $paid = ((float) ($data['Amount'] ?? 0)) / 100;
-
-            if ($order && abs($paid - (float) $order->total) > 0.01) {
-                $this->logError('Т-Банк: сумма платежа не совпадает с заказом', [
-                    'order_id' => $orderId,
-                    'expected' => (float) $order->total,
-                    'paid' => $paid,
-                ]);
-
+            if (! $this->amountMatches($order, ((float) ($data['Amount'] ?? 0)) / 100)) {
                 return false;
             }
+
             if ($order && $order->status !== 'completed') {
                 $order->status = 'completed';
                 $order->payment_id = $data['PaymentId'] ?? null;

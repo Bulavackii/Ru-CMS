@@ -16,19 +16,100 @@ class CartController extends Controller
 {
     public function index(Request $request)
     {
-        $cart = session('cart', []);
+        $cart = $this->освежитьКорзину(session('cart', []));
+
         $paymentMethods = PaymentMethod::where('active', true)->orderBy('sort_order')->orderBy('id')->get();
         $deliveryMethods = DeliveryMethod::where('active', true)->orderBy('sort_order')->orderBy('id')->get();
 
         return view('Payments::public.cart', compact('cart', 'paymentMethods', 'deliveryMethods'));
     }
 
+    /**
+     * Сверить содержимое корзины с базой перед показом.
+     *
+     * Корзина живёт в сессии два часа, а за это время цена меняется, товар
+     * снимают с публикации или удаляют совсем. Раньше покупатель видел то, что
+     * положил, а на оформлении получал другую сумму либо ошибку «товар больше
+     * не продаётся» — без объяснения, какой именно.
+     *
+     * Здесь корзина приводится к правде: цена и название обновляются, исчезнувшее
+     * убирается, количество подрезается по остатку. Оформление всё равно
+     * перечитывает цены само (форме верить нельзя), но покупатель теперь видит
+     * ровно ту сумму, которую с него спросят.
+     */
+    private function освежитьКорзину(array $cart): array
+    {
+        if ($cart === []) {
+            return $cart;
+        }
+
+        $товары = News::whereIn('id', array_keys($cart))->get()->keyBy('id');
+        $свежая = [];
+        $изменилось = false;
+
+        foreach ($cart as $id => $строка) {
+            $товар = $товары->get((int) $id);
+
+            if (! $товар || ! $товар->published || $товар->price === null) {
+                $изменилось = true;
+                continue;
+            }
+
+            $количество = max(1, (int) ($строка['qty'] ?? 1));
+
+            if ($товар->stock !== null && $количество > $товар->stock) {
+                $количество = (int) $товар->stock;
+                $изменилось = true;
+            }
+
+            if ($количество < 1) {          // остаток кончился совсем
+                $изменилось = true;
+                continue;
+            }
+
+            $изменилось = $изменилось
+                || (float) ($строка['price'] ?? 0) !== (float) $товар->price
+                || ($строка['title'] ?? null) !== $товар->title;
+
+            $свежая[$id] = [
+                'id' => (int) $id,
+                'title' => $товар->title,
+                'price' => (float) $товар->price,
+                'qty' => $количество,
+            ];
+        }
+
+        if ($изменилось) {
+            session(['cart' => $свежая]);
+            session()->flash('info', __('frontend.cart.contents_refreshed'));
+        }
+
+        return $свежая;
+    }
+
     public function add(Request $request)
     {
-        $id = $request->input('id');
-        $qty = intval($request->input('qty'));
+        // Количество раньше не проверялось вовсе: `intval(null)` давал ноль, а
+        // отрицательное число УМЕНЬШАЛО уже лежащее в корзине.
+        $request->validate([
+            'id'  => 'required|integer|exists:news,id',
+            'qty' => 'nullable|integer|min:1|max:1000',
+        ]);
 
-        $product = News::findOrFail($id);
+        $id = (int) $request->input('id');
+        $qty = max(1, (int) $request->input('qty', 1));
+
+        $product = News::find($id);
+
+        // ⚠️ В корзину кладётся только то, что продаётся.
+        //
+        // Раньше туда уходил ЛЮБОЙ материал по идентификатору — статья,
+        // страница урока, что угодно. Цена у него пустая, значит `(float) null`
+        // давал ноль, и заказ оформлялся на 0 ₽: мусор в панели, письма
+        // покупателю и списание доставки за ничто.
+        if (! $product || ! $product->published || $product->price === null) {
+            return response()->json(['message' => 'Этот товар недоступен для заказа'], 400);
+        }
 
         if (!is_null($product->stock) && $product->stock < $qty) {
             return response()->json([
@@ -47,13 +128,18 @@ class CartController extends Controller
                 ], 400);
             }
         } else {
-            $cart[$id] = [
-                'id'    => $id,
-                'title' => $request->input('title'),
-                'price' => floatval($request->input('price')),
-                'qty'   => $qty,
-            ];
+            $cart[$id] = ['id' => $id, 'qty' => $qty];
         }
+
+        // ⚠️ Название и цена берутся ИЗ БАЗЫ, а не из запроса.
+        //
+        // Прежде они приходили полями формы и оседали в сессии. Подделать
+        // сумму заказа этим уже нельзя (оформление перечитывает цены), но
+        // корзина показывала присланное число — то есть покупателю можно было
+        // подсунуть чужую цену, а после правки цены в панели он до конца
+        // сеанса видел старую и удивлялся счёту.
+        $cart[$id]['title'] = $product->title;
+        $cart[$id]['price'] = (float) $product->price;
 
         session(['cart' => $cart]);
 
@@ -132,10 +218,27 @@ class CartController extends Controller
         // Согласие проверяется НА СЕРВЕРЕ. Отметка в браузере — только
         // подсказка покупателю: атрибут required снимается из инструментов
         // разработчика за секунду, а хранить нужно подтверждённую волю.
-        $request->validate([
+        // 🔴 Покупателя спрашиваем ОБЯЗАТЕЛЬНО.
+        //
+        // Раньше форма собирала только способ оплаты, способ доставки и
+        // согласие — и заказ приходил владельцу без имени, телефона и адреса.
+        // Магазин принимал заказы, которые физически некому доставить и не с
+        // кем уточнить; письмо покупателю тоже уходило в никуда.
+        //
+        // Адрес требуется, только если доставка его подразумевает: у
+        // самовывоза его нет по смыслу. Проверяется это на сервере, а не
+        // доверием к скрытому в браузере полю.
+        $самовывоз = DeliveryMethod::find($request->input('delivery_method_id'))?->type === 'pickup';
+
+        $проверено = $request->validate([
             'payment_method_id'  => 'required|exists:payment_methods,id',
             'delivery_method_id' => 'required|exists:delivery_methods,id',
             'terms_agree'        => 'accepted',
+            'customer_name'      => 'required|string|max:255',
+            'customer_phone'     => 'required|string|max:64',
+            'customer_email'     => 'nullable|email|max:255',
+            'customer_address'   => ($самовывоз ? 'nullable' : 'required') . '|string|max:500',
+            'comment'            => 'nullable|string|max:2000',
         ], [
             'terms_agree.accepted' => __('frontend.cart.consent_required'),
         ]);
@@ -201,16 +304,16 @@ class CartController extends Controller
         // Расчет общей суммы товаров
         $itemsTotal = collect($items)->sum(fn($item) => $item['qty'] * $item['price']);
 
-        // Проверка ограничений сумм для платежной системы
-        if ($paymentMethod->min_amount && $itemsTotal < $paymentMethod->min_amount) {
-            return redirect()->route('cart.index')->with('error',
-                "Минимальная сумма заказа для {$paymentMethod->title}: {$paymentMethod->min_amount} ₽");
-        }
-
-        if ($paymentMethod->max_amount && $itemsTotal > $paymentMethod->max_amount) {
-            return redirect()->route('cart.index')->with('error',
-                "Максимальная сумма заказа для {$paymentMethod->title}: {$paymentMethod->max_amount} ₽");
-        }
+        // 🔴 Доставка считается ТЕМ ЖЕ правилом, что показано покупателю.
+        //
+        // Раньше сервер брал `$deliveryMethod->price` как есть, а порог
+        // бесплатной доставки (`free_delivery_threshold`) применялся ТОЛЬКО в
+        // браузере. Покупатель видел «доставка бесплатно, к оплате 5000», а
+        // заказ создавался на 5300 — и ровно столько запрашивалось у
+        // платёжной системы. Обещание в корзине и счёт расходились.
+        $deliveryPrice = $deliveryMethod->isFreeDeliveryAvailable($itemsTotal)
+            ? 0.0
+            : (float) $deliveryMethod->price;
 
         // Расчет комиссии
         $commissionAmount = 0;
@@ -219,27 +322,67 @@ class CartController extends Controller
         }
 
         // Итоговая сумма с доставкой и комиссией
-        $total = $itemsTotal + $deliveryMethod->price + $commissionAmount;
+        $total = $itemsTotal + $deliveryPrice + $commissionAmount;
+
+        // ⚠️ Пределы платёжной системы проверяются по СПИСЫВАЕМОЙ сумме, а не
+        // по сумме товаров: система увидит именно её, вместе с доставкой и
+        // комиссией. Раньше заказ на 950 ₽ товаров с доставкой 300 уходил в
+        // систему с потолком 1000 ₽ и отбивался уже на её стороне —
+        // покупатель получал невнятную ошибку вместо понятной.
+        if ($paymentMethod->min_amount && $total < $paymentMethod->min_amount) {
+            return redirect()->route('cart.index')->with('error',
+                "Минимальная сумма заказа для {$paymentMethod->title}: {$paymentMethod->min_amount} ₽");
+        }
+
+        if ($paymentMethod->max_amount && $total > $paymentMethod->max_amount) {
+            return redirect()->route('cart.index')->with('error',
+                "Максимальная сумма заказа для {$paymentMethod->title}: {$paymentMethod->max_amount} ₽");
+        }
 
         try {
             $order = null;
 
             // Создаем заказ вне транзакции, чтобы избежать проблем с областью видимости
-            DB::transaction(function () use ($request, $items, $paymentMethod, $deliveryMethod, $itemsTotal, $commissionAmount, $total) {
+            DB::transaction(function () use ($request, $items, $paymentMethod, $deliveryMethod, $itemsTotal, $commissionAmount, $total, $deliveryPrice, $проверено) {
                 $order = Order::create([
                     'user_id'            => Auth::check() ? Auth::id() : null,
                     'payment_method_id'  => $request->payment_method_id,
                     'delivery_method_id' => $request->delivery_method_id,
                     'total'              => $total,
                     'items_total'        => $itemsTotal,
-                    'delivery_price'     => $deliveryMethod->price,
+                    'delivery_price'     => $deliveryPrice,
                     'commission'         => $commissionAmount,
                     'status'             => 'pending',
                     'is_new'             => true,
+
+                    // Контакты покупателя. Почта запасным путём берётся из
+                    // учётной записи: вошедший покупатель мог оставить поле
+                    // пустым, а письмо о заказе ему всё равно нужно.
+                    'customer_name'      => $проверено['customer_name'],
+                    'customer_phone'     => $проверено['customer_phone'],
+                    'customer_email'     => $проверено['customer_email'] ?? (Auth::user()->email ?? null),
+                    'customer_address'   => $проверено['customer_address'] ?? null,
+                    'comment'            => $проверено['comment'] ?? null,
                 ]);
 
                 foreach ($items as $item) {
-                    $product = News::findOrFail($item['id']);
+                    // 🔴 Строка товара БЛОКИРУЕТСЯ до конца транзакции.
+                    //
+                    // Без блокировки двое покупателей на последний экземпляр
+                    // проходили проверку остатка одновременно: каждый видел
+                    // «1 шт. есть», оба создавали заказ, и склад уходил в
+                    // минус — товар продан дважды, а есть он один. На витрине
+                    // это невидимо и всплывает только при отгрузке.
+                    //
+                    // `lockForUpdate()` заставляет второго покупателя ждать
+                    // конца первой транзакции и читать УЖЕ уменьшенный
+                    // остаток. На SQLite (тесты) блокировка вырождается в
+                    // обычную выборку — там гонки и нет, запись одна.
+                    $product = News::whereKey($item['id'])->lockForUpdate()->first();
+
+                    if (! $product) {
+                        throw new \Exception('Товар из корзины больше не продаётся');
+                    }
 
                     if (!is_null($product->stock) && $product->stock < $item['qty']) {
                         throw new \Exception('Недостаточно товара на складе: ' . $product->title);
@@ -265,6 +408,12 @@ class CartController extends Controller
             $orderId = session('last_order_id');
             session()->forget(['cart', 'last_order_id']);
 
+            // Свои заказы помним в сессии — по ним гостю открывается страница
+            // подтверждения. Держим последние 20: список нужен на один заход в
+            // магазин, а не навсегда.
+            $мои = array_slice(array_merge((array) session('my_orders', []), [(int) $orderId]), -20);
+            session(['my_orders' => $мои]);
+
             // Онлайн-метод: создаём платёж и уводим покупателя на оплату.
             // Офлайн-методы (наличные, счёт) платежа не создают — для них
             // подтверждение заказа и есть конец пути.
@@ -284,11 +433,40 @@ class CartController extends Controller
     {
         $order = Order::with(['paymentMethod', 'deliveryMethod', 'items'])->findOrFail($id);
 
+        // 🔴 Чужой заказ по этому адресу не показывается.
+        //
+        // Раньше страница отдавала ЛЮБОЙ заказ по номеру в адресе: посторонний
+        // перебирал /cart/confirm/1, /2, /3 и читал, что и на какую сумму
+        // купили — то есть всю историю продаж магазина, включая объёмы.
+        //
+        // Гостю доступ даёт сессия: номера своих заказов складываются в неё
+        // при оформлении. Это тот же браузер, в котором покупали, поэтому
+        // возврат с платёжной страницы работает как прежде.
+        if (! $this->свойЗаказ($order)) {
+            abort(404);
+        }
+
         return view('Payments::public.confirm', [
             'paymentMethod'  => $order->paymentMethod,
             'deliveryMethod' => $order->deliveryMethod,
             'order'          => $order,
         ]);
+    }
+
+    /**
+     * Этот заказ принадлежит тому, кто сейчас смотрит?
+     *
+     * ⚠️ Отдаём 404, а не 403: «нет доступа» подтверждает, что заказ с таким
+     * номером существует, и по этому признаку перебором вычисляется число
+     * продаж.
+     */
+    private function свойЗаказ(Order $order): bool
+    {
+        if (Auth::check() && (Auth::user()->is_admin || $order->user_id === Auth::id())) {
+            return true;
+        }
+
+        return in_array((int) $order->id, array_map('intval', (array) session('my_orders', [])), true);
     }
 
     /**
