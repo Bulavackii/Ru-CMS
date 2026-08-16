@@ -13,9 +13,15 @@
                 <h1 class="text-xl font-bold text-gray-900 dark:text-white truncate">
                     {{ $menu->title }}
                 </h1>
-                <div class="flex flex-wrap items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
-                    <span>📍 {{ __('admin.menu.position_label') }} <b>{{ $menu->position }}</b></span>
-                    <span class="inline-flex items-center gap-1">
+                {{-- ⚠️ Каждый факт — НЕРАЗРЫВНОЙ группой (`mi-fact`). Строка
+                     переносится по любому месту, и на телефоне подпись
+                     «Статус:» оставалась в одной строке, а её значение
+                     «Включено» уезжало в следующую: фраза разрывалась
+                     посередине. Переносить нужно между фактами, а не внутри
+                     них. --}}
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-500 dark:text-gray-400">
+                    <span class="mi-fact">📍 {{ __('admin.menu.position_label') }} <b>{{ $menu->position }}</b></span>
+                    <span class="mi-fact inline-flex items-center gap-1">
                         {{ __('admin.menu.status_label') }}
                         @if($menu->active)
                             <span class="inline-flex items-center gap-1 text-green-600">
@@ -41,7 +47,7 @@
     <div class="admin-note mb-6 p-4 text-sm">
         @themeIcon('lightbulb')
         {{ __('admin.menu.drag_hint_1') }}
-        <kbd class="px-1.5 py-0.5 border border-indigo-300 bg-white dark:bg-gray-800">Ctrl</kbd> + <kbd class="px-1.5 py-0.5 border border-indigo-300 bg-white dark:bg-gray-800">S</kbd> {{ __('admin.menu.drag_hint_2') }}
+        <span class="mi-hotkey"><kbd class="px-1.5 py-0.5 border border-indigo-300 bg-white dark:bg-gray-800">Ctrl</kbd> + <kbd class="px-1.5 py-0.5 border border-indigo-300 bg-white dark:bg-gray-800">S</kbd> {{ __('admin.menu.drag_hint_2') }}</span>
     </div>
 
     {{-- ─────────────────── Add Item Form ─────────────────── --}}
@@ -339,7 +345,11 @@
              было перетащить. Теперь статична, под списком: drag-and-drop работает
              по всей высоте, а быстрое сохранение — по Ctrl+S из любого места. --}}
         <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div class="text-xs text-gray-500 dark:text-gray-400">
+            {{-- ⚠️ Подсказка про сочетание клавиш прячется на сенсорных: там
+                 клавиатуры нет, и строка про Ctrl+S занимает место, ничего не
+                 сообщая. Тот же приём уже применён к подписи Ctrl+K у поиска
+                 в шапке. --}}
+            <div class="mi-hotkey text-xs text-gray-500 dark:text-gray-400">
                 @themeIcon('keyboard') {{ __('admin.menu.hotkey') }} <b>Ctrl + S</b> {{ __('admin.menu.hotkey_order') }}
             </div>
             <button id="save-order"
@@ -1225,6 +1235,14 @@ $('#bulk-delete').addEventListener('click', () => bulkAction('delete'));
 
 @push('styles')
 <style>
+    /* Факт в строке состояния не разрывается посередине. */
+    .mi-fact{ white-space:nowrap }
+
+    /* Сочетания клавиш — только там, где есть клавиатура. */
+    @media (max-width: 1024px), (max-height: 500px){
+        .mi-hotkey{ display:none }
+    }
+
     /* Строка пункта: название и его пометки. */
     .mi-meta{ display:inline-flex; align-items:center; gap:.35rem; flex:none }
 
