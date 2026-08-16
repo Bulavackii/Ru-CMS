@@ -1,403 +1,307 @@
 <div align="center">
 
+<br>
+
 # 💎 RU CMS
 
-### Модульная CMS для России и СНГ на Laravel 12
+### Модульная CMS на Laravel 12 — для тех, кто хочет владеть своим сайтом
 
-<sub>HMVC-архитектура · Локальные ассеты, без CDN · PostgreSQL · Встроенная безопасность</sub>
+<sub>**HMVC** · всё локально, без CDN · **PostgreSQL** · панель, которая работает и с телефона</sub>
 
 <br>
 
 <img src="https://img.shields.io/badge/PHP-8.5-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP 8.5">
 <img src="https://img.shields.io/badge/Laravel-12-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel 12">
 <img src="https://img.shields.io/badge/PostgreSQL-only-336791?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL">
-<img src="https://img.shields.io/badge/License-MIT-10b981?style=for-the-badge" alt="MIT License">
+<img src="https://img.shields.io/badge/Tests-747%20passing-10b981?style=for-the-badge&logo=checkmarx&logoColor=white" alt="747 тестов">
+<img src="https://img.shields.io/badge/Модулей-22-6366f1?style=for-the-badge" alt="22 модуля">
 
 <br><br>
 
-[Возможности](#-возможности) · [Модули](#-модули) · [Установка](#-установка) · [Команды](#-командная-строка) · [Структура](#-структура-проекта) · [FAQ](#-частые-проблемы)
+**[📚 Документация](docs/README.md)** ·
+[👤 Пользователю](docs/пользователю/README.md) ·
+[🛠️ Разработчику](docs/разработчику/README.md) ·
+[🚀 Установка](#-установка) ·
+[🧩 Модули](#-модули)
+
+<br>
 
 </div>
 
-<br>
+---
 
-> [!NOTE]
-> **Философия проекта:** всё работает локально и офлайн-дружелюбно. Шрифты, иконки, JS-библиотеки, Swagger UI — всё вендорено в `public/assets/`, ни одного обращения к внешним CDN на публичных страницах[^1]. Единственная поддерживаемая СУБД — **PostgreSQL**[^2].
+<div align="center">
 
-<br>
+### Три вещи, которыми эта CMS отличается
 
-## 🧭 Что это
-
-**RU CMS** — модульная система управления сайтом на архитектуре **HMVC**: каждая функция (новости, платежи, меню, SEO...) — независимый модуль в `modules/`. Модули можно свободно включать, отключать и создавать свои — командой [`make:module`](#-командная-строка).
+</div>
 
 <table>
 <tr>
-<td width="25%" align="center">📰<br><b>Блоги и новости</b></td>
-<td width="25%" align="center">💼<br><b>Сайты компаний</b></td>
-<td width="25%" align="center">🛒<br><b>Витрины и магазины</b></td>
-<td width="25%" align="center">🛡<br><b>Комьюнити-порталы</b></td>
+<td width="33%" valign="top">
+
+### 🔌 Ничего наружу
+
+Шрифты, значки, библиотеки, документация API — **всё лежит на вашем сервере**.
+Ни одного обращения к чужому CDN на публичных страницах.
+
+Рубильник `APP_STANDALONE=true` закрывает исходящие запросы целиком — заслон
+стоит на HTTP-клиенте, а не в двадцати службах по отдельности.
+
+</td>
+<td width="33%" valign="top">
+
+### 🧩 Собрано из модулей
+
+**22 модуля**, каждый включается и выключается из панели. Не нужен магазин —
+выключили «Оплату» и «Доставку», разделы исчезли, сайт стал легче.
+
+Свой модуль — это папка, `module.json` и провайдер.
+
+</td>
+<td width="33%" valign="top">
+
+### 📱 Панель в кармане
+
+Все **58 страниц** панели проверены замером на четырёх ширинах: ни одной
+горизонтальной прокрутки, кегль не ниже 12 px, зоны нажатия по WCAG.
+
+Меню, перетаскивание, редактор — работают пальцем.
+
+</td>
 </tr>
 </table>
 
-<br>
+---
 
-## ✨ Возможности
+## ✨ Что умеет
 
-<details open>
-<summary><b>🔒 Безопасность</b></summary>
-<br>
+<table>
+<tr><td width="50%" valign="top">
 
-| | |
-|---|---|
-| 🔐 | 2FA-аутентификация (Google Authenticator) |
-| 🚦 | Rate limiting и защита от брутфорса |
-| 🚫 | Автоблокировка подозрительных IP |
-| 🧪 | Защита от SQL-инъекций и XSS |
-| 🛡️ | Content Security Policy (CSP), HSTS и другие security-заголовки |
-| 🔑 | Валидация сложности паролей |
-| 📋 | Аудит-лог событий безопасности |
-| ⏱️ | Rate limiting для API |
-| 📡 | Мониторинг ошибок с уведомлениями в Telegram |
+**📝 Содержимое**
+- Материалы **15 шаблонов**: новости, товары, услуги, уроки, вопросы, релизы
+- Страницы с красивыми адресами (`/about`, `/contacts`)
+- Свой редактор — без чужих лицензий и баннеров
+- Готовые блоки вёрстки: карточки, цифры, шаги, призыв, контакты
+- Медиатека с категориями, общая с редактором
+- Меню трёх позиций, вложенность до 3 уровней, перетаскивание
 
-</details>
+</td><td width="50%" valign="top">
 
-<details>
-<summary><b>⚡ Производительность</b></summary>
-<br>
+**🛒 Продажи**
+- Корзина, заказы, склад с возвратом остатков
+- Шесть способов оплаты (ЮKassa, СБП, SberPay, Т-Банк, наличные, перевод)
+- Шесть служб доставки с фирменными знаками
+- Автоотмена неоплаченных заказов и возврат товара в продажу
+- Письма покупателю **с причиной** изменения статуса
 
-- Составные индексы БД под частые запросы
-- Тегированное кэширование с автоинвалидацией
-- Устранение N+1 через eager loading
-- Lazy loading изображений, автоматические thumbnails и WebP
-- Gzip-сжатие ответов
+</td></tr>
+<tr><td width="50%" valign="top">
 
-</details>
+**🛡️ Безопасность**
+- Вход в два шага (TOTP) — работает с Яндекс Ключом
+- Свой генератор QR — без единой зависимости
+- Каптча четырёх типов с конструктором сборок
+- Белый список типов файлов, запрет SVG, защита `storage`
+- Проверка платёжных уведомлений: перезапрос статуса и сверка суммы
 
-<details>
-<summary><b>💾 Бэкапы и обновления</b></summary>
-<br>
+</td><td width="50%" valign="top">
 
-- Ежедневный бэкап БД, еженедельный — файлов (`php artisan backup:run`)
-- Автосжатие и очистка старых копий, выгрузка в облако (S3 / Yandex Object Storage)
-- Централизованная проверка обновлений с откатом при ошибке
+**⚙️ Управление**
+- Темы: цвета, шрифт, логотип, значки, скругления
+- Фрагменты — свои блоки в готовых местах страницы
+- SEO: мета, карта сайта, robots, перенаправления
+- Локализация: два языка, редактор переводов прямо в панели
+- Конструктор форм: 17 типов полей, заявки копятся в панели
+- Виджет спецвозможностей: 12 режимов
 
-</details>
+</td></tr>
+</table>
 
-<details>
-<summary><b>💳 Платежи и подписки (РФ/СНГ)</b></summary>
-<br>
+---
 
-- ЮKassa, СБП (QR-коды), Тинькофф, Сбербанк — единый интерфейс гейтвеев
-- Обработка возвратов
-- Тарифы Basic / Pro / Enterprise, промокоды, лицензионные ключи
+## 🚀 Установка
 
-</details>
+### Требования
 
-<details>
-<summary><b>🌍 Локализация</b></summary>
-<br>
+| | Минимум |
+|:---|:---|
+| **PHP** | 8.5 · `pdo_pgsql`, `mbstring`, `gd` или `imagick`, `zip`, `intl` |
+| **База** | PostgreSQL 13+ |
+| **Прочее** | Composer, Node 18+, права на запись в `storage/` и `bootstrap/cache/` |
 
-- Русский и английский интерфейс
-- Пресеты для России, Беларуси, Казахстана, Украины
-- Автоопределение языка, форматирование валют/дат/чисел под страну
+### Три шага
 
-</details>
+```bash
+git clone https://github.com/Bulavackii/Ru-CMS.git && cd Ru-CMS
+composer install && npm install && npm run build
+php artisan serve
+```
 
-<details>
-<summary><b>🎨 Интерфейс</b></summary>
-<br>
+Дальше откройте `http://127.0.0.1:8000` — мастер установки проведёт по шагам:
 
-- Тёмная/светлая тема с автоопределением системной
-- Дашборд аналитики (посещаемость, популярный контент, интеграция с Яндекс.Метрикой)
-- Web Push-уведомления в браузере
-- Локально захостенные шрифты (латиница + кириллица) и иконки — ничего не подгружается с CDN[^1]
+```
+🌍 язык → ✅ требования → 🗄️ база → 👤 админ → ✉️ почта → 🔑 лицензия → 🎁 демо → 🎉 готово
+```
 
-</details>
+> 💡 **Совет**
+> Шаг **почты необязателен** — без него CMS работает, теряется только
+> восстановление пароля по e-mail. Подключить можно позже.
 
-<br>
+> ❗ **Важно**
+> После установки сайт **не пустой**: заводятся меню, страницы, категории,
+> материалы всех шаблонов, слайдшоу, формы, темы, способы оплаты и доставки,
+> демонстрационный заказ. Это осознанно — так видно, как всё выглядит в работе.
+
+Установка на боевой сервер (nginx, php-fpm, supervisor, cron) —
+**[docs/INSTALLATION.md](docs/INSTALLATION.md)**.
+
+---
 
 ## 🧩 Модули
 
 <div align="center">
 
-| | Модуль | Что делает |
-|:---:|---|---|
-| 📰 | **News** | CRUD новостей, фильтры, поиск, SEO-мета, категории, шаблоны |
-| 📢 | **NewsIO** | Массовый импорт/экспорт новостей |
-| 🗂️ | **Categories** | Категоризация контента и товаров |
-| 📊 | **Menu** | GUI-редактор меню до 3 уровней вложенности |
-| 🖼️ | **Slideshow** | Слайдшоу с позициями (header/footer) и оформлением |
-| 📁 | **Files** | Загрузка, скачивание, категории файлов |
-| 🔎 | **Search** | Глобальный поиск по всем модулям |
-| 💬 | **Notifications** | Цвет, иконка, тип, позиция, Web Push |
-| 💬 | **Comments** | Модерация, вложенные комментарии, интеграция с Captcha |
-| 📝 | **Reviews** | Отзывы и оценки с модерацией |
-| 📑 | **Messages** | Обращения и сообщения от пользователей |
-| 👨‍💻 | **Users** | Роли, права доступа, управление пользователями |
-| 💰 | **Payments** | Методы оплаты: ЮKassa, СБП, Тинькофф |
-| 🚚 | **Delivery** | Способы доставки (российские службы) |
-| 🎨 | **Visual** | Визуальный редактор тем и фрагментов |
-| 🛡️ | **Captcha** | Картинка, слайдер, математика, вопросы |
-| 🔍 | **Seo** | SEO-модуль (Yandex-first) для РФ/СНГ |
-| 🌍 | **Localization** | Переводы, форматы даты/времени/валюты |
-| ♿ | **Accessibility** | Настройки доступности |
-| 💻 | **System** | Управление модулями и их состоянием |
+| 📁 Содержимое | ⚙️ Система | 💰 Продажи |
+|:---|:---|:---|
+| 🧭 Меню | 🧩 Модули | 💳 Оплата |
+| 📰 Новости | 👥 Пользователи | 🧾 Заказы |
+| 📄 Страницы | 🔍 Поиск | 🚚 Доставка |
+| 🗂️ Категории | 🔔 Уведомления | |
+| 🖼️ Слайдшоу | 📈 SEO | |
+| 📁 Медиатека | 🎨 Темы | |
+| 📋 Формы | 🧱 Фрагменты | |
+| 🔄 Импорт/Экспорт | 🌍 Локализация | |
+| 💬 Комментарии | 🛡️ Каптча | |
+| ⭐ Отзывы | ♿ Спецвозможности | |
+| ✉️ Сообщения | | |
 
 </div>
 
-<br>
+Каждому разделу посвящён отдельный файл руководства —
+**[docs/пользователю/](docs/пользователю/README.md)**.
 
-## 📦 Установка
-
-> [!TIP]
-> Всё делается через графический мастер установки на `/install` — заполнять `.env` руками не нужно (кроме шага с клонированием и зависимостями).
-
-### 1 · Требования
-
-<table>
-<tr><td><b>PHP</b></td><td><code>8.5</code>[^3]</td></tr>
-<tr><td><b>СУБД</b></td><td>PostgreSQL[^2]</td></tr>
-<tr><td><b>Composer</b></td><td><code>2.0+</code></td></tr>
-<tr><td><b>Node.js</b></td><td><code>18+</code> и npm</td></tr>
-<tr><td><b>Веб-сервер</b></td><td>Nginx (рекомендуется)</td></tr>
-<tr><td><b>PHP-расширения</b></td><td><code>pdo_pgsql</code>, openssl, mbstring, tokenizer, xml, ctype, json, fileinfo, zip, gd/imagick</td></tr>
-<tr><td><b>Redis</b></td><td>рекомендуется для production (кэш/очередь/сессии)</td></tr>
-</table>
-
-### 2 · Клонирование и зависимости
-
-```bash
-git clone https://github.com/Bulavackii/Ru-CMS.git cms
-cd cms
-
-composer install
-npm install && npm run build
-```
-
-### 3 · Мастер установки
-
-Откройте `http://your-domain.com/install` в браузере — дальше всё делается кликами:
-
-```
-🌍 Приветствие (страна/язык)  →  ✅ Проверка требований  →  💾 База данных
-        →  👤 Администратор  →  🔑 Лицензия/промокод  →  📦 Демо-данные  →  🏁 Готово
-```
-
-На шаге «База данных» укажите хост/порт/имя базы/пользователя PostgreSQL — мастер сам протестирует соединение, сгенерирует `APP_KEY`, запишет `.env` и накатит все миграции[^4].
-
-<details>
-<summary><b>Что делать, если что-то пошло не так</b></summary>
-<br>
-
-```bash
-# Права на запись
-chmod -R 775 storage bootstrap/cache
-
-# Проверить версию PHP и расширения
-php -v
-php -m | grep -E "pdo_pgsql|openssl|mbstring|zip"
-
-# Сбросить кэш конфигурации
-php artisan config:clear
-php artisan cache:clear
-php artisan view:clear
-```
-
-</details>
-
-### 4 · После установки (production)
-
-Донастройте в `.env`:
-
-```env
-# Redis — рекомендуется вместо file/sync
-CACHE_STORE=redis
-QUEUE_CONNECTION=redis
-SESSION_DRIVER=redis
-
-# Бэкапы
-BACKUP_DATABASE_SCHEDULE=daily
-BACKUP_FILES_SCHEDULE=weekly
-BACKUP_RETENTION_DAYS=30
-BACKUP_CLOUD_DRIVER=s3
-
-# Web Push (см. `php artisan webpush:generate-keys`)
-VAPID_PUBLIC_KEY=
-VAPID_PRIVATE_KEY=
-VAPID_SUBJECT=https://your-domain.com
-
-# Платёжные системы
-YOOKASSA_SHOP_ID=
-YOOKASSA_SECRET_KEY=
-
-# Мониторинг ошибок (Telegram)
-MONITORING_TELEGRAM_BOT_TOKEN=
-MONITORING_TELEGRAM_CHAT_ID=
-```
-
-<br>
+---
 
 ## ⌨️ Командная строка
 
-<div align="center">
+```bash
+# Содержимое по умолчанию
+php artisan menu:seed-default            # меню трёх позиций
+php artisan pages:seed-default           # страницы сайта
+php artisan categories:seed-default      # категории + раскладка существующего
+php artisan forms:seed-default           # 13 готовых форм
+php artisan orders:seed-demo             # демонстрационный заказ
 
-| Команда | Что делает |
-|---|---|
-| `php artisan make:module {Name}` | Сгенерировать структуру нового модуля |
-| `php artisan modules:sync` | Синхронизировать метаданные модулей с БД |
-| `php artisan backup:run {all\|database\|files}` | Ручной запуск бэкапа |
-| `php artisan webpush:generate-keys` | Сгенерировать VAPID-ключи для Web Push |
-| `php artisan sitemap:generate` | Пересобрать `sitemap.xml` |
-| `php artisan robots:generate` | Пересобрать `robots.txt` |
-| `php artisan api:docs:generate` | Пересобрать Swagger-документацию API |
-| `php artisan license:generate` | Сгенерировать лицензионный ключ |
-| `php artisan cms:optimize` | Прогнать оптимизации (кэш конфигов/роутов/вью) |
+# Торговля
+php artisan orders:cancel-unpaid --dry-run   # кого зацепит автоотмена
 
-</div>
-
-<details>
-<summary><b>🧑‍💻 Примеры использования сервисов из кода</b></summary>
-<br>
-
-```php
-// 🔐 Безопасность — 2FA
-$secret = app('security')->generate2FASecret();
-app('security')->verify2FACode($secret, $code);
-
-// ⚡ Кэш с тегами
-app('cacheService')->rememberMenu('header', fn () => Menu::where('position', 'header')->get(), 3600);
-
-// 🖼️ Оптимизация изображений
-app('imageOptimizer')->optimize('path/to/image.jpg', [
-    'max_width' => 1920, 'quality' => 85, 'thumbnail' => true, 'webp' => true,
-]);
-
-// 💳 Платежи
-$gateway = app(\Modules\Payments\Services\PaymentGatewayService::class);
-$result = $gateway->createPayment($order, $paymentMethod);
-
-// 🌍 Локализация
-echo __t('welcome.message');
-echo format_currency(1000); // «1 000,00 ₽»
+# Служебное
+php artisan modules:sync                 # синхронизировать список модулей
+php artisan seo:seed-pages               # SEO-записи для всех материалов
+php artisan cache:clear && php artisan view:clear
 ```
 
-</details>
+---
 
-<details>
-<summary><b>🎨 Создание собственного шаблона новости</b></summary>
-<br>
+## 🗂️ Структура
 
-1. Создайте `resources/views/frontend/templates/your-template.blade.php`
-2. Добавьте ключ в `$templateKeys` в `app/Http/Controllers/Frontend/HomeController.php`
-3. Добавьте подпись в `$customLabels` в `modules/News/Controllers/Admin/NewsController.php`
-4. Выберите шаблон при создании новости в админке
-
-```blade
-{{-- resources/views/frontend/templates/release.blade.php --}}
-<div class="max-w-screen-xl mx-auto px-4 my-12">
-    <h2 class="text-3xl font-extrabold text-center mb-10">🚀 Релизы</h2>
-    {{-- вывод записей --}}
-</div>
 ```
-
-</details>
-
-<br>
-
-## 🗂 Структура проекта
-
-```text
 cms/
-├── app/                     Ядро приложения
-│   ├── Http/                Контроллеры, Middleware, Requests
-│   ├── Services/            Security, Update, Subscription, Monitoring, WebPush…
-│   ├── Models/               Eloquent-модели
-│   └── Providers/           Service Providers
-├── modules/                 Модули HMVC (Views/Routes/Controllers/Providers)
-│   ├── News/  Payments/  Menu/  Seo/  Localization/  …
-├── database/
-│   └── migrations/          Единое место ВСЕХ миграций — и ядра, и модулей[^4]
-├── resources/                Blade-шаблоны, CSS, JS
-├── public/assets/            Локальные шрифты, иконки, JS-библиотеки (без CDN)[^1]
-├── routes/                   web.php / api.php / console.php
-├── config/                   Конфигурация приложения
-└── docs/                     Подробная документация (см. ниже)
+├── app/                ядро: контроллеры, модели, посредники, helpers.php
+├── modules/            22 модуля — по папке на каждый
+├── database/migrations/  ВСЕ миграции, включая модульные
+├── resources/
+│   ├── views/            лейауты, шаблоны материалов, вьюхи панели
+│   └── lang/{ru,en}/     словари
+├── public/assets/      готовые css/js/шрифты/значки — без сборки
+├── tests/              747 тестов
+├── docs/               📚 документация
+└── CLAUDE.md           журнал сессий и разбор первопричин
 ```
 
-<br>
+---
+
+## 🧪 Тесты
+
+```bash
+php vendor/bin/phpunit --no-coverage
+```
+
+**747 проходят.** Тесты гоняются на SQLite ради скорости — поэтому все миграции
+драйвер-нейтральные (Schema Builder, а не сырой SQL).
+
+---
 
 ## 🩹 Частые проблемы
 
 <details>
-<summary><b>Инсталлятор не открывается / 500 при установке</b></summary>
-<br>
+<summary><b>Каждый запрос уводит на <code>/install</code></b></summary>
 
-```bash
-chmod -R 775 storage bootstrap/cache
-php -v   # должна быть 8.5
-php -m | grep pdo_pgsql
-```
-
+Нет файла `storage/install.lock` — признака «система установлена».
+Если установка действительно пройдена: `printf 'Installed' > storage/install.lock`.
 </details>
 
 <details>
-<summary><b>Ошибка подключения к PostgreSQL на шаге «База данных»</b></summary>
-<br>
+<summary><b>Правка вьюхи не применяется</b></summary>
 
-Проверьте, что база создана заранее и пользователь имеет права `SELECT/INSERT/UPDATE/DELETE/CREATE/ALTER`. Хост/порт по умолчанию — `127.0.0.1:5432`.
-
+`php artisan view:clear`. Блоки главной страницы вдобавок живут в кеше до 5 минут.
 </details>
 
 <details>
-<summary><b>Не применяются переводы/локаль</b></summary>
-<br>
+<summary><b><code>php artisan</code> падает с «could not find driver»</b></summary>
 
-```bash
-php artisan cache:clear
-php artisan config:clear
-```
-
+`.env` смотрит в недоступную базу. Разовый обход:
+`APP_ENV=testing DB_CONNECTION=sqlite DB_DATABASE=:memory: php artisan …`
 </details>
 
-<br>
+<details>
+<summary><b>Письма не уходят</b></summary>
+
+Чаще всего дело в порте: нужен `587` + STARTTLS, а не `465`.
+Таймаут почты — 5 секунд, письма отправляются после отдачи ответа.
+</details>
+
+<details>
+<summary><b><code>ERR_CONNECTION_RESET</code> на последнем шаге установки</b></summary>
+
+Это `php artisan serve`: он гасит сервер при изменении `.env`. Обход —
+`php artisan serve --no-reload`. На nginx/php-fpm такого нет.
+</details>
+
+---
 
 ## 📚 Документация
 
 <div align="center">
 
-| | |
-|---|---|
-| 📘 | [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md) — руководство разработчика |
-| 🚀 | [`docs/INSTALLATION.md`](docs/INSTALLATION.md) — установка на выделенный сервер |
-| 🔑 | [`docs/LICENSE_GENERATION_GUIDE.md`](docs/LICENSE_GENERATION_GUIDE.md) — генерация лицензий |
-| 🧩 | [`docs/modules/`](docs/modules/) — документация по каждому модулю |
+| | | |
+|:--:|:---|:---|
+| 📚 | **[Вся документация](docs/README.md)** | Точка входа |
+| 👤 | **[Руководство пользователя](docs/пользователю/README.md)** | По файлу на каждый раздел панели |
+| 🛠️ | **[Справочник разработчика](docs/разработчику/README.md)** | Архитектура, модули, данные, грабли |
+| 🚀 | [Установка на сервер](docs/INSTALLATION.md) | nginx, php-fpm, cron |
+| 🔑 | [Лицензии и промокоды](docs/LICENSE_GENERATION_GUIDE.md) | Генерация ключей |
+| 📱 | [Журнал адаптивности](docs/адаптивность-фронтенда.md) | Замеры и решения |
+| ✅ | [Проверка установки](docs/проверка-установки.md) | Сверка чистой установки с боевой |
 
 </div>
 
-<br>
+---
 
 ## 📄 Лицензия
 
-Проект распространяется по лицензии **MIT** — свободное использование и модификация.
-
-<br>
+Код проекта — **MIT**. Сторонние наборы значков и шрифты распространяются по
+своим лицензиям (все они допускают локальное размещение — именно поэтому
+выбраны).
 
 ---
 
-<br>
-
-### Примечания
-
-[^1]: **CDN-независимость.** Все шрифты (латиница + кириллица), Font Awesome/Lucide/Tabler-иконки, Alpine.js, Swagger UI вендорены локально в `public/assets/` через `local_css()`/`local_js()`/`local_font_css()` (`app/helpers.php`). Единственные внешние интеграции — опциональные и явно согласуемые пользователем (Яндекс.Карты открываются только по клику, Яндекс.Метрика включается через конфиг).
-
-[^2]: **Почему только PostgreSQL.** Мастер установки (`/install`) сознательно предлагает только PostgreSQL — открытую СУБД без вендор-лока. Миграции написаны через Laravel Schema Builder (не сырой SQL), поэтому корректно работают и на PostgreSQL в проде, и на SQLite при локальном тестировании.
-
-[^3]: **PHP 8.5.** Требование действительно строгое (не 8.2/8.3) — так зафиксировано в `composer.json` (`"php": "^8.5"`) и проверяется мастером установки на шаге «Требования».
-
-[^4]: **Миграции — в одном месте.** Все 70+ миграций (и ядра, и каждого модуля) лежат в `database/migrations/` и подхватываются Laravel автоматически — никакой ручной регистрации путей по модулям не требуется. Создавая миграцию для нового модуля, кладите её сразу туда: `php artisan make:migration create_your_table`.
-
-<br>
-
 <div align="center">
-<sub>Сделано с любовью к скорости, аккуратности и локальному хостингу 🇷🇺</sub>
+<sub>
+
+Сделано с вниманием к скорости, аккуратности и локальному хостингу 🇷🇺
+
+</sub>
 </div>

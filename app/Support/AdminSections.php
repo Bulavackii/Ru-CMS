@@ -37,6 +37,15 @@ class AdminSections
                 self::link('files', 'admin.files.index', 'folder', 'admin.files.*', module: 'Files'),
                 self::link('forms', 'admin.forms.index', 'clipboard', 'admin.forms.*', module: 'Forms'),
                 self::link('newsio', 'admin.newsio.index', 'arrow-up', 'admin.newsio.*', module: 'NewsIO'),
+
+                // ⚠️ Эти три раздела ГОДАМИ существовали и были недостижимы:
+                // страницы работают, маршруты объявлены, а в списке разделов
+                // их не было — значит, ни в боковом меню, ни в выдвижном
+                // меню телефона, ни в крошке, ни в глобальном поиске.
+                // Найдено при описи модулей для документации.
+                self::link('comments', 'admin.comments.index', 'message-circle', 'admin.comments.*', module: 'Comments'),
+                self::link('reviews', 'admin.reviews.index', 'star', 'admin.reviews.*', module: 'Reviews'),
+                self::link('messages', 'admin.messages.index', 'mail', 'admin.messages.*', 'messages', module: 'Messages'),
             ],
 
             __('admin.section_groups.system') => [
