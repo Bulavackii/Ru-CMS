@@ -332,6 +332,21 @@ class ThemeServiceProvider extends ServiceProvider
         return '<i class="fa-solid fa-' . e($fa) . ' ' . e($class) . '"></i>';
     }
 
+    /**
+     * Карта соответствий имён значков наборам.
+     *
+     * ⚠️ Публичная не «на всякий случай»: дерево пунктов меню рисует
+     * JAVASCRIPT и берёт имя значка прямо из базы. Мимо этой карты — значит
+     * мимо всех переводов: на странице правки меню в консоль сыпалось
+     * «icon name was not found» по разу на каждый пункт с названием сети.
+     * Отдать карту в браузер — единственный способ не заводить её вторую
+     * копию в скрипте.
+     */
+    public static function aliasesFor(string $набор): array
+    {
+        return self::getAliases()[$набор] ?? [];
+    }
+
     private static function getAliases(): array
     {
         return [
@@ -405,6 +420,14 @@ class ThemeServiceProvider extends ServiceProvider
                 // Поштучно такое не ловится: значок просто не рисуется, а
                 // предупреждение видно лишь в консоли той страницы, куда
                 // случайно зайдёшь.
+                // Имена, которые владелец может ввести В ПОЛЕ ЗНАЧКА пункта
+                // меню: он берёт их из Font Awesome, а набор у панели другой.
+                'file-alt' => 'file-text',
+                'address-book' => 'contact',
+                'donate' => 'heart',
+                'envelope' => 'mail',
+                'house' => 'home',
+
                 'circle-question' => 'help-circle',
                 'share-nodes' => 'share-2',
                 'window-maximize' => 'maximize-2',

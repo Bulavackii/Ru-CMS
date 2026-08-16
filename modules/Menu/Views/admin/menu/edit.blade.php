@@ -381,6 +381,11 @@ const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
 const menuData = @json($items);
 const iconMode = @json($iconMode);
 
+// Переводы имён значков — те же, что у @themeIcon на сервере. Без них
+// имя из базы («vk», «rutube») уходит в набор как есть, значок не
+// рисуется, а в консоли копятся предупреждения — по одному на пункт.
+const iconAliases = @json(\App\Providers\ThemeServiceProvider::aliasesFor($iconMode));
+
 /* ✅ Шаблоны URL (будем подставлять ID на клиенте) */
 const destroyUrlTmpl = @json(route('admin.menu_items.destroy', [$menu, '__ID__']));
 const updateUrlTmpl = @json(route('admin.menu_items.update', [$menu, '__ID__']));
@@ -405,7 +410,8 @@ function escapeHtml(str) {
 function iconMarkup(name, cls) {
     const n = String(name || '').trim();
     if (!n) return '';
-    const safeName = escapeHtml(n);
+    // Сперва перевод, потом экранирование: переводим ИМЯ, а не разметку.
+    const safeName = escapeHtml(iconAliases[n] || n);
     if (iconMode === 'lucide')    return `<i data-lucide="${safeName}" class="${cls}"></i>`;
     if (iconMode === 'bootstrap') return `<i class="bi bi-${safeName} ${cls}"></i>`;
     if (iconMode === 'remix')     return `<i class="ri-${safeName} ${cls}"></i>`;
