@@ -49,7 +49,6 @@
         editor.root.classList.toggle('is-tall', editor.fullscreen);
 
         if (editor.fullscreen) {
-            editor._heightBefore = editor.frame.style.height;
             fitFrame(editor);
 
             editor._fitFrame = function () { fitFrame(editor); };
@@ -70,7 +69,14 @@
             // за нижний край и полезная высота теряется.
             editor.root.scrollIntoView({ block: 'start', behavior: 'smooth' });
         } else {
-            editor.frame.style.height = editor._heightBefore || '420px';
+            // ⚠️ Инлайновую высоту СНИМАЕМ, а не возвращаем запомненное число.
+            //
+            // Высота задана переменной `--ru-ed-h` и подрезается медиазапросом
+            // на узких экранах. Прежний вариант запоминал `style.height` и
+            // возвращал его при сворачивании — а теперь там пусто, и в рамку
+            // прописывалось «420px»: высота из вьюхи (520, 560, 280) терялась
+            // навсегда, а предел для телефона переставал действовать.
+            editor.frame.style.removeProperty('height');
             resetWidth(editor);
 
             if (editor._fitFrame) {
@@ -389,24 +395,27 @@
     });
 
     function offerRestore(editor, key, saved) {
-        var bar = el('div', {
-            class: 'ru-ed-note',
-            style: 'display:flex;align-items:center;gap:10px;margin:0;border-left:0;border-right:0;border-top:0'
-        }, [
-            el('span', { text: t('autosave.found', 'Найден несохранённый черновик этой страницы.') })
+        // ⚠️ Оформление полосы вынесено в класс `.ru-ed-note--bar`, а не задано
+        // здесь строкой стиля. Инлайновый стиль перебивает таблицы стилей, и
+        // подогнать полосу под узкий экран было НЕЧЕМ: на 360 она стояла
+        // неразрывным флексом, кнопка «Удалить черновик» вылезала за край, и
+        // страница получала горизонтальную прокрутку.
+        var bar = el('div', { class: 'ru-ed-note ru-ed-note--bar' }, [
+            el('span', {
+                class: 'ru-ed-note__text',
+                text: t('autosave.found', 'Найден несохранённый черновик этой страницы.')
+            })
         ]);
 
         var restore = el('button', {
             type: 'button',
-            class: 'ru-ed-primary',
-            style: 'height:26px;padding:0 10px;font-size:12px',
+            class: 'ru-ed-primary ru-ed-note__act',
             text: t('autosave.restore', 'Восстановить')
         });
 
         var drop = el('button', {
             type: 'button',
-            class: 'ru-ed-ghost',
-            style: 'height:26px;padding:0 10px;font-size:12px',
+            class: 'ru-ed-ghost ru-ed-note__act',
             text: t('autosave.discard', 'Удалить черновик')
         });
 

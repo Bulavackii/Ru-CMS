@@ -201,10 +201,17 @@
             this.toolbar = el('div', { class: 'ru-ed-toolbar', role: 'toolbar', 'aria-label': t('toolbar', 'Панель инструментов') });
             this.shell = el('div', { class: 'ru-ed-shell' });
 
+            // ⚠️ Высота задаётся ПЕРЕМЕННОЙ, а не прямым `height`.
+            //
+            // Инлайновый стиль перебивает таблицы стилей, поэтому прежний
+            // `height:520px` нельзя было подрезать медиазапросом: на телефоне
+            // панель инструментов (217 пикселей) плюс рамка (520) занимали
+            // ровно весь экран, и до кнопки «Сохранить» приходилось долго
+            // крутить. Теперь предел для узких экранов живёт в CSS.
             this.frame = el('iframe', {
                 class: 'ru-ed-frame',
                 title: t('area', 'Область редактирования'),
-                style: 'height:' + (parseInt(opts.height, 10) || 420) + 'px'
+                style: '--ru-ed-h:' + (parseInt(opts.height, 10) || 420) + 'px'
             });
 
             this.code = el('textarea', { class: 'ru-ed-code', hidden: true, spellcheck: 'false' });
@@ -645,11 +652,21 @@
         _bindGrip: function () {
             var self = this;
 
-            this.grip.addEventListener('mousedown', function (event) {
+            // ⚠️ Указательные события, а не `mousedown`.
+            //
+            // Прежний обработчик слушал только мышь, поэтому на телефоне и
+            // планшете рамку нельзя было потянуть ВООБЩЕ: ручка рисовалась,
+            // отзывалась на нажатие видом и не делала ничего. Pointer-события
+            // — один путь для мыши, пальца и пера.
+            this.grip.addEventListener('pointerdown', function (event) {
                 event.preventDefault();
 
                 var startY = event.clientY;
                 var startHeight = self.frame.offsetHeight;
+
+                // Захват указателя: палец уезжает за пределы ручки в первые же
+                // миллиметры, и без захвата жест обрывается на границе.
+                try { self.grip.setPointerCapture(event.pointerId); } catch (error) {}
 
                 function move(moveEvent) {
                     var height = Math.max(160, startHeight + (moveEvent.clientY - startY));
@@ -657,12 +674,15 @@
                 }
 
                 function stop() {
-                    document.removeEventListener('mousemove', move);
-                    document.removeEventListener('mouseup', stop);
+                    self.grip.removeEventListener('pointermove', move);
+                    self.grip.removeEventListener('pointerup', stop);
+                    self.grip.removeEventListener('pointercancel', stop);
+                    try { self.grip.releasePointerCapture(event.pointerId); } catch (error) {}
                 }
 
-                document.addEventListener('mousemove', move);
-                document.addEventListener('mouseup', stop);
+                self.grip.addEventListener('pointermove', move);
+                self.grip.addEventListener('pointerup', stop);
+                self.grip.addEventListener('pointercancel', stop);
             });
         },
 
