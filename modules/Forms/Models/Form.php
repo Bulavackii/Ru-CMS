@@ -198,7 +198,14 @@ class Form extends Model
                 'hint'        => (string) ($field['hint'] ?? ''),
                 'value'       => (string) ($field['value'] ?? ''),
                 'required'    => (bool) ($field['required'] ?? false),
-                'width'       => in_array($field['width'] ?? 'full', ['full', 'half'], true) ? $field['width'] : 'full',
+                // ⚠️ Значение берём ОДИН раз. Прежняя запись
+                // `in_array($field['width'] ?? 'full', …) ? $field['width'] : 'full'`
+                // защищала только проверку: при отсутствующем ключе она
+                // проходила по умолчанию «full», а потом ветка «да» читала
+                // $field['width'] напрямую — и отправка формы падала с
+                // «Undefined array key». Ловится только формой, у поля
+                // которой ширина не задана (импорт, API, старая запись).
+                'width'       => in_array($ширина = ($field['width'] ?? 'full'), ['full', 'half'], true) ? $ширина : 'full',
                 'options'     => array_values(array_filter(
                     array_map('strval', (array) ($field['options'] ?? [])),
                     fn ($option) => $option !== ''

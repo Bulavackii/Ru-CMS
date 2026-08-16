@@ -435,6 +435,20 @@
     .acc-invite__go .acc-btn-ghost{ display:inline-flex; align-items:center; gap:.45rem;
         padding:.5rem 1rem; font-size:.82rem; font-weight:600; white-space:nowrap }
 
+    /* ⚠️ На узком экране приглашение выстраивается столбиком.
+       Две кнопки объявлены с запретом переноса внутри, а сам блок прижат
+       вправо через margin-left:auto — на 360 это давало 27 пикселей
+       прокрутки всей странице (замер). Кнопки во всю ширину, отступ снят. */
+    @media (max-width: 520px){
+        .acc-invite{ flex-direction:column; align-items:stretch }
+        .acc-invite__text{ min-width:0 }
+        .acc-invite__go{ margin-left:0; width:100%;
+            display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:.5rem }
+        .acc-invite__go .fx-btn,
+        .acc-invite__go .acc-btn-ghost{ width:100%; justify-content:center;
+            white-space:normal; min-height:44px }
+    }
+
     /* Сети в шапке отодвигаются вправо и переносятся на своём месте. */
     .acc-head__socials{ margin-left:auto; flex:none }
     @media (max-width:640px){ .acc-head__socials{ margin-left:0; width:100% } }
@@ -513,7 +527,12 @@
     /* `align-items:start` обязателен: без него «Профиль» растягивался до
        высоты «Действий», и под подсказкой висело восемьдесят пикселей
        пустой карточки. */
-    .acc-grid{ display:grid; grid-template-columns:1fr; gap:1rem; align-items:start }
+    /* ⚠️ `1fr` — это `minmax(auto, 1fr)`, а `auto` не даёт колонке стать уже
+       содержимого. На 360 внутри карточки нашлась строка шириной 347 пикселей,
+       и колонка растянулась вместе с ней: страница получала прокрутку вбок.
+       `minmax(0, 1fr)` разрешает колонке сжиматься, а содержимое переносится. */
+    .acc-grid{ display:grid; grid-template-columns:minmax(0, 1fr); gap:1rem; align-items:start }
+    .acc-grid > *{ min-width:0 }
     @media (min-width:900px){ .acc-grid{ grid-template-columns:1.35fr 1fr } }
 
     .acc-list{ display:grid; gap:.55rem; font-size:.92rem }

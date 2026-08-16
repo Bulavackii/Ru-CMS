@@ -145,4 +145,35 @@ class PageController extends BaseApiController
 
         return $this->success(null, 'Page deleted successfully', 204);
     }
+
+    /**
+     * Список для панели: включает неопубликованное.
+     *
+     * ⚠️ Маршрут `/api/v1/admin/pages` был объявлен, а метода не
+     * существовало — каждый заход отдавал 500 «Call to undefined method».
+     */
+    public function adminIndex(Request $request): JsonResponse
+    {
+        $записи = Page::query()
+            ->latest('id')
+            ->paginate(min((int) $request->input('per_page', 20), 100));
+
+        return $this->resourceCollection($записи, PageResource::class);
+    }
+
+    /**
+     * Запись по адресу (slug).
+     *
+     * ⚠️ Маршрут был объявлен, метода не существовало — 500 вместо ответа,
+     * причём и на несуществующем адресе тоже.
+     */
+    public function showBySlug(string $slug): JsonResponse
+    {
+        $запись = Page::query()
+            ->where('slug', $slug)
+            ->where('published', true)
+            ->firstOrFail();
+
+        return $this->resource($запись, PageResource::class);
+    }
 }

@@ -199,4 +199,35 @@ class NewsController extends BaseApiController
 
         return $this->success(null, 'News deleted successfully', 204);
     }
+
+    /**
+     * Список для панели: включает неопубликованное.
+     *
+     * ⚠️ Маршрут `/api/v1/admin/news` был объявлен, а метода не
+     * существовало — каждый заход отдавал 500 «Call to undefined method».
+     */
+    public function adminIndex(Request $request): JsonResponse
+    {
+        $записи = News::query()
+            ->latest('id')
+            ->paginate(min((int) $request->input('per_page', 20), 100));
+
+        return $this->resourceCollection($записи, NewsResource::class);
+    }
+
+    /**
+     * Запись по адресу (slug).
+     *
+     * ⚠️ Маршрут был объявлен, метода не существовало — 500 вместо ответа,
+     * причём и на несуществующем адресе тоже.
+     */
+    public function showBySlug(string $slug): JsonResponse
+    {
+        $запись = News::query()
+            ->where('slug', $slug)
+            ->where('published', true)
+            ->firstOrFail();
+
+        return $this->resource($запись, NewsResource::class);
+    }
 }

@@ -9,10 +9,14 @@ Route::prefix('admin/reviews')
     ->middleware(['web', 'auth', 'admin'])
     ->group(function () {
         Route::get('/', [AdminReviewController::class, 'index'])->name('admin.reviews.index');
+        // ⚠️ Статистика объявляется ДО маршрутов с {id}: иначе слово
+        // «stats» попадает в параметр, и страница падает запросом
+        // «неверный синтаксис для типа bigint» — кнопка «Статистика»
+        // в списке отзывов вела прямо в пятисотку.
+        Route::get('/stats', [AdminReviewController::class, 'stats'])->name('admin.reviews.stats');
         Route::get('/{id}', [AdminReviewController::class, 'show'])->name('admin.reviews.show');
         Route::post('/{id}/moderate', [AdminReviewController::class, 'moderate'])->name('admin.reviews.moderate');
         Route::post('/{id}/reply', [AdminReviewController::class, 'reply'])->name('admin.reviews.reply');
-        Route::get('/stats', [AdminReviewController::class, 'stats'])->name('admin.reviews.stats');
         Route::post('/bulk-moderate', [AdminReviewController::class, 'bulkModerate'])->name('admin.reviews.bulkModerate');
         Route::get('/export', [AdminReviewController::class, 'export'])->name('admin.reviews.export');
         Route::post('/import', [AdminReviewController::class, 'import'])->name('admin.reviews.import');

@@ -115,10 +115,14 @@ class WebPushController extends Controller
         $publicKey = config('webpush.vapid.public_key');
 
         if (empty($publicKey)) {
+            // ⚠️ 503, а не 500. «Не настроено» — это не сбой сервера:
+            // пятисотка попадает в мониторинг как авария и заставляет
+            // искать поломку там, где её нет. Ключи задаются командой
+            // `php artisan webpush:generate-keys`.
             return response()->json([
                 'success' => false,
-                'message' => 'VAPID ключи не настроены',
-            ], 500);
+                'message' => 'Ключи Web Push не настроены',
+            ], 503);
         }
 
         return response()->json([

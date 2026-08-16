@@ -282,22 +282,45 @@ class NewsController extends Controller
         }
 
         if ($request->action === 'delete') {
-            $newsItems = News::whereIn('id', $ids)->get();
-            foreach ($newsItems as $news) {
+            // ⚠️ Удаляем ПО ОДНОМУ через модель, а не запросом.
+            //
+            // `News::whereIn(...)->delete()` — это запрос построителя, и
+            // события модели он НЕ поднимает. Следствия были такие:
+            //   • SEO-записи удалённых материалов оставались, и раздел SEO
+            //     вместе с картой сайта копил мёртвые адреса (в базе
+            //     владельца нашлось три таких);
+            //   • версия кеша содержимого не менялась, и удалённые материалы
+            //     висели на главной ещё пять минут.
+            //
+            // Разница в цене: один запрос против N — на массовом удалении
+            // это несущественно, а расхождение данных существенно.
+            foreach (News::whereIn('id', $ids)->get() as $news) {
                 NewsDeleted::dispatch($news);
+                $news->delete();
             }
-            News::whereIn('id', $ids)->delete();
+
             return back()->with('success', __('admin.flash.news_bulk_deleted'));
         }
 
-        if ($request->action === 'publish') {
-            News::whereIn('id', $ids)->update(['published' => true, 'updated_by' => auth()->id()]);
-            return back()->with('success', __('admin.flash.news_bulk_published'));
-        }
+        // ⚠️ Массовая публикация тоже идёт ЧЕРЕЗ МОДЕЛЬ.
+        //
+        // `->update()` построителя не поднимает событие `updated`, а на нём
+        // держатся сброс версии кеша и синхронизация SEO. Пачка материалов
+        // «публиковалась», но на главной не появлялась до пяти минут — и
+        // наоборот, снятые с публикации ещё висели.
+        if (in_array($request->action, ['publish', 'unpublish'], true)) {
+            $публиковать = $request->action === 'publish';
 
-        if ($request->action === 'unpublish') {
-            News::whereIn('id', $ids)->update(['published' => false, 'updated_by' => auth()->id()]);
-            return back()->with('success', __('admin.flash.news_bulk_unpublished'));
+            foreach (News::whereIn('id', $ids)->get() as $news) {
+                $news->update([
+                    'published'  => $публиковать,
+                    'updated_by' => auth()->id(),
+                ]);
+            }
+
+            return back()->with('success', $публиковать
+                ? __('admin.flash.news_bulk_published')
+                : __('admin.flash.news_bulk_unpublished'));
         }
 
         if ($request->action === 'edit') {
@@ -309,8 +332,24 @@ class NewsController extends Controller
 
     public function bulkEdit(Request $request)
     {
-        $ids  = explode(',', $request->input('ids', ''));
+        // ⚠️ Пустой список — обычное дело: на страницу заходят по прямому
+        // адресу или возвращаются «назад» после сохранения. Раньше `explode`
+        // отдавал массив с одной пустой строкой, запрос уходил как
+        // `where id in ('')`, и база отвечала «неверный синтаксис для типа
+        // bigint» — то есть страница падала пятисоткой.
+        $ids = array_values(array_filter(
+            array_map('intval', explode(',', (string) $request->input('ids', ''))),
+            fn (int $id) => $id > 0
+        ));
+
+        if ($ids === []) {
+            return redirect()
+                ->route('admin.news.index')
+                ->with('error', __('admin.flash.pick_items'));
+        }
+
         $news = News::whereIn('id', $ids)->get();
+
         return view('News::admin.bulk-edit', compact('news'));
     }
 

@@ -4,23 +4,27 @@
 @section('content')
 {{-- ── Шапка страницы ── --}}
 <div class="admin-accent-bar mb-0"></div>
-<div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
-            flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-    <div class="flex items-center gap-3 min-w-0">
+{{-- Шапка в два ряда (.mh-*, общее определение в лейауте).
+     Прежняя разметка держала название и слаг в одну строку с запретом
+     переноса — на 360 это давало 59 пикселей прокрутки. --}}
+<div class="admin-glass mh border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-3 mb-6">
+    <div class="mh-row">
         <span class="admin-icon-badge"><i class="fas fa-clock-rotate-left"></i></span>
-        <div class="min-w-0">
-            <h1 class="text-xl font-bold text-gray-900 dark:text-white">История версий</h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400 truncate">
-                {{ $fragment->title }} · <span class="font-mono">{{ $fragment->slug }}</span>
-            </p>
-        </div>
+        <h1 class="mh-title text-xl font-bold text-gray-900 dark:text-white truncate">История версий</h1>
     </div>
 
-    <a href="{{ route('admin.visual.fragments.edit', $fragment) }}"
-       class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
-              hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition flex-shrink-0">
-        <i class="fas fa-arrow-left"></i> К фрагменту
-    </a>
+    <div class="mh-row mh-row--sub">
+        <p class="mh-facts text-sm text-gray-500 dark:text-gray-400 min-w-0">
+            <span class="truncate">{{ $fragment->title }}</span>
+            <span class="font-mono truncate">{{ $fragment->slug }}</span>
+        </p>
+
+        <a href="{{ route('admin.visual.fragments.edit', $fragment) }}"
+           class="mh-back inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+                  hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition">
+            <i class="fas fa-arrow-left"></i> К фрагменту
+        </a>
+    </div>
 </div>
 
 @includeIf('layouts.partials.flash')

@@ -3,6 +3,7 @@
 return [
 
     'header' => [
+        'home' => 'Home',
         'menu_open' => 'Open menu',
         'menu_close' => 'Close menu',
         'theme_current' => 'in use',
@@ -336,6 +337,11 @@ return [
     ],
 
     'cart' => [
+        'sbp_title' => 'SBP payment',
+        'sbp_order' => 'Order #:number',
+        'sbp_hint' => 'Scan the code with your banking app. The order status will update after payment.',
+        'sbp_not_ready' => 'The payment link has not arrived from the bank yet. Contact us and we will confirm the payment manually.',
+        'sbp_to_order' => 'To the order',
         'subtitle' => 'Items in the cart: :count',
         'per_item' => 'per item',
         'remove' => 'Remove from the cart',

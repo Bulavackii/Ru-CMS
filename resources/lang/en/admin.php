@@ -125,6 +125,7 @@ return [
         'slideshow' => 'Slideshow',
         'files' => 'Files',
         'forms' => 'Forms',
+            'subscriptions' => 'Subscription',
             'messages' => 'Messages',
             'reviews' => 'Reviews',
             'comments' => 'Comments',
@@ -281,6 +282,7 @@ return [
         'notif_deleted' => 'The notification has been deleted.',
         'saved' => 'The changes have been saved.',
         'pick_action' => 'Choose an action.',
+        'pick_items' => 'Select materials in the list first.',
         'unknown_action' => 'Unknown action.',
         'cache_cleared' => 'The cache has been cleared',
         'settings_updated' => 'The settings have been updated.',
@@ -792,6 +794,10 @@ return [
     ],
 
     'modules' => [
+        'available_title' => 'Available modules',
+        'available_hint' => 'What can be installed from the repository.',
+        'available_empty' => 'Nothing here',
+        'available_empty_hint' => 'The repository is unreachable or empty. In standalone mode the system makes no outbound calls.',
         'index_hint' => 'Enabling CMS sections, load order and installing new modules from an archive.',
         'install' => 'Install',
         'filter_status' => 'Status',
@@ -1539,6 +1545,13 @@ return [
     ],
 
     'reviews' => [
+        'stats_title' => 'Review statistics',
+        'stats_hint' => 'Average rating and distribution by stars.',
+        'stat_total' => 'Reviews total',
+        'stat_average' => 'Average rating',
+        'stat_pending' => 'Awaiting moderation',
+        'stats_spread' => 'Rating distribution',
+        'stats_empty' => 'No reviews yet',
         'categories_count' => 'Categories:',
         'title' => 'Review management',
         'all_statuses' => 'All statuses',
@@ -2605,4 +2618,45 @@ return [
         ],
     ],
 
+
+    'subscriptions' => [
+        'title' => 'Subscription and licence',
+        'hint' => 'Who has access and until when.',
+        'promo_codes' => 'Promo codes',
+        'promo_hint' => 'Discount codes and how often they were used.',
+        'owner' => 'Owner',
+        'plan' => 'Plan',
+        'until' => 'Until',
+        'unlimited' => 'Unlimited',
+        'active' => 'Active',
+        'expired' => 'Expired',
+        'empty' => 'No subscriptions yet',
+        'empty_hint' => 'Issued licences will show up here.',
+        'code' => 'Code',
+        'discount' => 'Discount',
+        'used' => 'Used',
+        'promo_empty' => 'No promo codes yet',
+        'promo_empty_hint' => 'Create a code to give a discount.',
+    ],
+
+    'updates' => [
+        'title' => 'Updates',
+        'hint' => 'System version and available releases.',
+        'current' => 'Current version',
+        'latest' => 'Available',
+        'available' => 'Update available',
+        'up_to_date' => 'You are on the latest version',
+        'check_failed' => 'Check failed',
+        'no_server' => 'No update server configured — the system makes no outbound calls. Set UPDATE_SERVER_URL.',
+        'changelog' => 'What changed',
+    ],
+
+    'notif_center' => [
+        'title' => 'Notification centre',
+        'hint' => 'Panel events: orders, messages, reviews.',
+        'unread' => 'Unread',
+        'no_title' => 'Untitled',
+        'empty' => 'No notifications',
+        'empty_hint' => 'Events that need attention will show up here.',
+    ],
 ];

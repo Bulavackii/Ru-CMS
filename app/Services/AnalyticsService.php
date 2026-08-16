@@ -2,6 +2,10 @@
 
 namespace App\Services;
 
+// ⚠️ Импорт обязателен: без него `ContentStatistics` внутри пространства
+// App\Services резолвится как App\Services\ContentStatistics — класса с
+// таким именем нет, и весь раздел «Аналитика» падал с «Class not found».
+use App\Models\ContentStatistics;
 use App\Models\ContentView;
 use App\Models\UniqueVisitor;
 use Illuminate\Support\Facades\Http;

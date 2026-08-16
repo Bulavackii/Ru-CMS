@@ -238,7 +238,7 @@
             #admin-drawer .amb-veil, #admin-drawer .amb-panel{transition:none}
         }
 
-        .amb-group{padding:0 .6rem;margin-bottom:.25rem;font-size:.68rem;font-weight:700;
+        .amb-group{padding:0 .6rem;margin-bottom:.25rem;font-size:12px;font-weight:700;
             letter-spacing:.06em;text-transform:uppercase;color:var(--surface-dim,#9ca3af)}
         .amb-item{display:flex;align-items:center;gap:.7rem;padding:.5rem .6rem;font-size:.875rem;
             color:var(--surface-ink,#374151);text-decoration:none;border-left:2px solid transparent;

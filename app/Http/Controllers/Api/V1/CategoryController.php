@@ -181,4 +181,19 @@ class CategoryController extends BaseApiController
 
         return $this->success(null, 'Category deleted successfully', 204);
     }
+
+    /**
+     * Список для панели: включает неопубликованное.
+     *
+     * ⚠️ Маршрут `/api/v1/admin/categories` был объявлен, а метода не
+     * существовало — каждый заход отдавал 500 «Call to undefined method».
+     */
+    public function adminIndex(Request $request): JsonResponse
+    {
+        $записи = Category::query()
+            ->latest('id')
+            ->paginate(min((int) $request->input('per_page', 20), 100));
+
+        return $this->resourceCollection($записи, CategoryResource::class);
+    }
 }
