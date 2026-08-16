@@ -25,6 +25,16 @@ Route::middleware(['web', 'auth', 'admin'])
     ->name('admin.orders.')
     ->group(function () {
         Route::get('/', [OrderController::class, 'index'])->name('index');           // 📄 Список заказов
+
+        // Заведение заказа руками (по телефону, в переписке). Метод store()
+        // существовал и раньше, но маршрута к нему не было вовсе — завести
+        // заказ из панели было НЕЧЕМ. Объявлены ДО `/{order}`: слово
+        // «create» иначе уехало бы в параметр (та же ловушка, что с
+        // `reviews/stats`), и хотя `whereNumber` тут прикрывает, порядок
+        // держим правильным.
+        Route::get('/create', [OrderController::class, 'create'])->name('create');   // ➕ Форма
+        Route::post('/', [OrderController::class, 'store'])->name('store');          // 💾 Сохранить
+
         Route::get('/{order}', [OrderController::class, 'show'])->whereNumber('order')->name('show');      // 🔍 Просмотр заказа
         Route::put('/{order}/status', [OrderController::class, 'updateStatus'])->whereNumber('order')->name('update.status'); // 🔄 Обновление статуса
         Route::delete('/{order}', [OrderController::class, 'destroy'])->whereNumber('order')->name('destroy'); // 🗑️ Удаление заказа

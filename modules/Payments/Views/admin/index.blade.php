@@ -112,6 +112,20 @@
                     <i class="fas fa-key"></i> {{ __('admin.payments.no_keys') }}
                 </span>
             @endif
+
+            {{-- Готовность драйвера. Заглушку включить нельзя вовсе (заслон
+                 стоит и в форме, и в самом создании платежа), у непроверенных
+                 — предупреждение: код полный, но живой приём денег требует
+                 мерчант-договора и пробного платежа. --}}
+            @if($method->isStub())
+                <span class="pm-chip is-bad" title="{{ __('admin.payments.ready_stub_hint') }}">
+                    <i class="fas fa-screwdriver-wrench"></i> {{ __('admin.payments.ready_stub') }}
+                </span>
+            @elseif($method->readiness() === 'untested')
+                <span class="pm-chip is-test" title="{{ __('admin.payments.ready_untested_hint') }}">
+                    <i class="fas fa-triangle-exclamation"></i> {{ __('admin.payments.ready_untested') }}
+                </span>
+            @endif
         </div>
 
         <div class="pm-card__foot">

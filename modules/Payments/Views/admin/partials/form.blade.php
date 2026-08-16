@@ -160,10 +160,28 @@
             </div>
         </div>
 
+        @php
+            // Готовность драйвера у УЖЕ заведённого способа. У новой записи
+            // тип выбирают на этой же странице, поэтому предупреждение там
+            // показывать не по чему — оно появится после сохранения.
+            $готовность = isset($method) && $method->exists ? $method->readiness() : 'ready';
+        @endphp
+
+        @if($готовность !== 'ready')
+            <div class="pm-ready pm-ready--{{ $готовность }} mt-4">
+                <i class="fas {{ $готовность === 'stub' ? 'fa-screwdriver-wrench' : 'fa-triangle-exclamation' }}"></i>
+                <span>
+                    <b>{{ $готовность === 'stub' ? __('admin.payments.ready_stub') : __('admin.payments.ready_untested') }}.</b>
+                    {{ $готовность === 'stub' ? __('admin.payments.ready_stub_hint') : __('admin.payments.ready_untested_hint') }}
+                </span>
+            </div>
+        @endif
+
         <div class="flex flex-wrap items-center gap-5 mt-4">
             <label class="flex items-center gap-2 cursor-pointer">
                 <input type="hidden" name="active" value="0">
                 <input type="checkbox" name="active" value="1" class="border-gray-400"
+                       @disabled($готовность === 'stub')
                        {{ old('active', $method->active ?? false) ? 'checked' : '' }}>
                 <span class="text-sm text-gray-700 dark:text-gray-300">{{ __('admin.payments.f_active') }}</span>
             </label>
@@ -315,6 +333,14 @@
     .pm-form h2{ font-size:.7rem; letter-spacing:.12em }
     .pm-form .pm-field-label{ font-size:.66rem; font-weight:700;
         letter-spacing:.1em; text-transform:uppercase }
+
+    /* Плашка о готовности драйвера. Литеральный CSS: в сборке нет ни
+       прозрачности через дробь, ни произвольных значений. */
+    .pm-ready{ display:flex; align-items:flex-start; gap:.6rem;
+        padding:.7rem .85rem; font-size:.82rem; line-height:1.45;
+        border-left:3px solid #f59e0b; background:#fffbeb; color:#78350f }
+    .pm-ready--stub{ border-left-color:#dc2626; background:#fef2f2; color:#7f1d1d }
+    .pm-ready i{ margin-top:.15rem; flex:0 0 auto }
 
     .pm-types { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)); gap: .5rem }
 

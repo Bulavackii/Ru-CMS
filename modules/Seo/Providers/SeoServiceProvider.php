@@ -45,6 +45,7 @@ class SeoServiceProvider extends ServiceProvider
 
             $this->commands([
                 \Modules\Seo\Console\Commands\SeedSeoPagesCommand::class,
+                \Modules\Seo\Console\Commands\CleanOrphanSeoPagesCommand::class,
             ]);
         }
 

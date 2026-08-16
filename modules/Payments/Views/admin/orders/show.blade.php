@@ -10,6 +10,7 @@
     $label = $statuses[$order->status] ?? __('admin.orders.st_unknown');
     $tone = match ($order->status) {
         'completed', 'paid' => 'ok',
+        'new' => 'wait',
         'cancelled', 'canceled' => 'bad',
         default => 'wait',
     };

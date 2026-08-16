@@ -50,8 +50,10 @@ class SberbankGateway extends AbstractPaymentGateway
         ];
 
         // Добавляем дополнительные параметры если есть
+        // ⚠️ В поле email уходил ТЕЛЕФОН — опечатка, из-за которой банк
+        // получал бессмысленный адрес и чек покупателю не приходил.
         if ($order->customer_email) {
-            $registerData['email'] = $order->customer_phone;
+            $registerData['email'] = $order->customer_email;
         }
         if ($order->customer_phone) {
             $registerData['phone'] = $order->customer_phone;

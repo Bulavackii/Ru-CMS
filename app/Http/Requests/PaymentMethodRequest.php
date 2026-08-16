@@ -134,6 +134,35 @@ class PaymentMethodRequest extends FormRequest
     }
 
     /**
+     * 🔴 Способ с драйвером-заглушкой включить нельзя.
+     *
+     * Форма — не последний рубеж (тот же отказ стоит в
+     * PaymentGatewayService::createPayment), но именно здесь владелец узнаёт
+     * причину. Иначе он включил бы СБП, увидел его на сайте и обнаружил
+     * поломку только после первого покупателя.
+     *
+     * Выключать и сохранять такой способ по-прежнему можно — иначе нельзя
+     * было бы поправить у него название или порядок.
+     */
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            if (! $this->boolean('active')) {
+                return;
+            }
+
+            $код = $this->input('code') ?: $this->input('type');
+
+            if ((\Modules\Payments\Models\PaymentMethod::READINESS[$код] ?? null) === 'stub') {
+                $validator->errors()->add(
+                    'active',
+                    __('admin.errors.payment_driver_stub')
+                );
+            }
+        });
+    }
+
+    /**
      * Получить сообщения об ошибках для определённых атрибутов валидации.
      */
     public function messages(): array

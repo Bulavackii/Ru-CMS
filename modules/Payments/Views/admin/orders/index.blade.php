@@ -24,11 +24,21 @@
         </div>
     </div>
 
-    <a href="{{ route('admin.orders.export', request()->query()) }}"
-       class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
-              hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition flex-shrink-0">
-        <i class="fas fa-file-csv"></i> {{ __('admin.orders.export') }}
-    </a>
+    <div class="flex items-center gap-2 flex-wrap">
+        <a href="{{ route('admin.orders.export', request()->query()) }}"
+           class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+                  hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition flex-shrink-0">
+            <i class="fas fa-file-csv"></i> {{ __('admin.orders.export') }}
+        </a>
+
+        {{-- Заказ по телефону — обычное дело, и завести его из панели раньше
+             было нечем: форма и маршрут отсутствовали вовсе. --}}
+        <a href="{{ route('admin.orders.create') }}"
+           class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white
+                  px-3 py-2 text-sm font-semibold transition flex-shrink-0">
+            <i class="fas fa-plus"></i> {{ __('admin.orders.create_button') }}
+        </a>
+    </div>
 </div>
 
 {{-- ── Сводка ──
@@ -124,6 +134,7 @@
     @php
         $tone = match ($order->status) {
             'completed', 'paid' => 'ok',
+            'new' => 'wait',
             'cancelled', 'canceled' => 'bad',
             default => 'wait',
         };

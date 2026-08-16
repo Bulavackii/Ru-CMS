@@ -71,58 +71,118 @@ class OrderController extends Controller
     }
 
     /**
-     * 📝 Создание нового заказа (из корзины или формы)
+     * Форма заведения заказа вручную.
+     *
+     * Заказ по телефону или в переписке — обычное дело, и раньше завести его
+     * было НЕЧЕМ: метод store() существовал, а маршрута и формы к нему не
+     * было вовсе.
+     */
+    public function create()
+    {
+        return view('Payments::admin.orders.create', [
+            'товары'   => News::query()
+                ->whereIn('template', \Modules\News\Controllers\Admin\NewsController::PRICE_TEMPLATES)
+                ->where('published', true)
+                ->orderBy('title')
+                ->get(['id', 'title', 'price', 'stock']),
+            'оплата'   => PaymentMethod::where('active', true)->orderBy('id')->get(),
+            'доставка' => \Modules\Delivery\Models\DeliveryMethod::where('active', true)->orderBy('id')->get(),
+        ]);
+    }
+
+    /**
+     * Заведение заказа вручную.
+     *
+     * ⚠️ Метод был недописан и никуда не подключён: он не сохранял покупателя,
+     * не считал ни суммы, ни доставку с комиссией (заказ выходил с нулём в
+     * итоге) и уводил администратора в КАБИНЕТ ПОКУПАТЕЛЯ. Дописан целиком.
+     *
+     * ⚠️ Цена берётся из базы, а не из формы — то же правило, что и в корзине
+     * покупателя (см. CartPriceForgeryTest).
      */
     public function store(Request $request)
     {
-        // ✅ Валидация данных
-        $request->validate([
-            'items'              => 'required|array',
+        $проверено = $request->validate([
+            'items'              => 'required|array|min:1',
             'items.*.id'         => 'required|integer|exists:news,id',
             'items.*.qty'        => 'required|integer|min:1',
             'payment_method_id'  => 'required|exists:payment_methods,id',
             'delivery_method_id' => 'nullable|exists:delivery_methods,id',
+            'customer_name'      => 'required|string|max:255',
+            'customer_phone'     => 'nullable|string|max:64',
+            'customer_email'     => 'nullable|email|max:255',
+            'customer_address'   => 'nullable|string|max:500',
+            'comment'            => 'nullable|string|max:2000',
         ]);
 
-        // 🔐 Транзакция: заказ и вычитание товаров
-        DB::transaction(function () use ($request) {
-            // 💾 Создаём заказ
-            $order = Order::create([
-                'user_id'           => auth()->check() ? auth()->id() : null,
-                'status'            => 'new',
-                'is_new'            => true,
-                'payment_method_id' => $request->payment_method_id,
-                'delivery_method_id'=> $request->delivery_method_id,
-            ]);
+        $оплата   = PaymentMethod::find($проверено['payment_method_id']);
+        $доставка = ! empty($проверено['delivery_method_id'])
+            ? \Modules\Delivery\Models\DeliveryMethod::find($проверено['delivery_method_id'])
+            : null;
 
-            // 🧾 Добавляем товары
-            foreach ($request->items as $item) {
-                $product = News::findOrFail($item['id']);
+        $заказ = null;
 
-                // ❗ Проверка доступного остатка
-                if (!is_null($product->stock) && $product->stock < $item['qty']) {
-                    throw new \Exception('Недостаточно товара на складе: ' . $product->title);
-                }
-
-                // 💽 Создание записи OrderItem
-                OrderItem::create([
-                    'order_id'   => $order->id,
-                    'product_id' => $product->id,
-                    'qty'        => $item['qty'],
-                    'price'      => $product->price,
+        try {
+            DB::transaction(function () use ($проверено, $оплата, $доставка, &$заказ) {
+                $заказ = Order::create([
+                    'user_id'            => null,   // заказ заводит администратор, а не покупатель
+                    'status'             => 'new',  // не `pending`: под автоотмену по сроку не подпадает
+                    'is_new'             => true,
+                    'payment_method_id'  => $оплата->id,
+                    'delivery_method_id' => $доставка?->id,
+                    'customer_name'      => $проверено['customer_name'],
+                    'customer_phone'     => $проверено['customer_phone'] ?? null,
+                    'customer_email'     => $проверено['customer_email'] ?? null,
+                    'customer_address'   => $проверено['customer_address'] ?? null,
+                    'comment'            => $проверено['comment'] ?? null,
+                    'items_total'        => 0,
+                    'delivery_price'     => (float) ($доставка->price ?? 0),
+                    'commission'         => 0,
+                    'total'              => 0,
                 ]);
 
-                // 🧮 Обновляем остаток товара
-                if (!is_null($product->stock)) {
-                    $product->decrement('stock', $item['qty']);
-                }
-            }
-        });
+                $суммаТоваров = 0.0;
 
-        // 🔁 Перенаправление с сообщением
+                foreach ($проверено['items'] as $строка) {
+                    $товар = News::findOrFail($строка['id']);
+
+                    if (! is_null($товар->stock) && $товар->stock < $строка['qty']) {
+                        throw new \RuntimeException(__('admin.errors.order_out_of_stock', ['title' => $товар->title]));
+                    }
+
+                    $суммаТоваров += (float) $товар->price * (int) $строка['qty'];
+
+                    OrderItem::create([
+                        'order_id'   => $заказ->id,
+                        'product_id' => $товар->id,
+                        'title'      => $товар->title,
+                        'qty'        => (int) $строка['qty'],
+                        'price'      => $товар->price,
+                    ]);
+
+                    if (! is_null($товар->stock)) {
+                        $товар->decrement('stock', (int) $строка['qty']);
+                    }
+                }
+
+                // Суммы — ПОСЛЕ строк: до них считать нечего.
+                $комиссия = $оплата->commission
+                    ? $суммаТоваров * ((float) $оплата->commission / 100)
+                    : 0.0;
+
+                $заказ->forceFill([
+                    'items_total' => $суммаТоваров,
+                    'commission'  => $комиссия,
+                    'total'       => $суммаТоваров + (float) ($доставка->price ?? 0) + $комиссия,
+                ])->saveQuietly();
+            });
+        } catch (\Throwable $e) {
+            return back()->withInput()->with('error', $e->getMessage());
+        }
+
         return redirect()
-            ->route('dashboard.orders')
-            ->with('success', __('admin.flash.order_placed'));
+            ->route('admin.orders.show', $заказ->id)
+            ->with('success', __('admin.flash.order_created'));
     }
 
     /**
