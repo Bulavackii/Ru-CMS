@@ -56,25 +56,26 @@
 
 @section('content')
 <div class="admin-accent-bar mb-0"></div>
-<div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
-            flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-  <div class="flex items-center gap-3 min-w-0">
+{{-- Шапка в два ряда (.mh-*, общее определение в лейауте). --}}
+<div class="admin-glass mh border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-3 mb-6">
+  <div class="mh-row">
     <span class="admin-icon-badge"><i class="fas fa-palette"></i></span>
-    <div class="min-w-0">
-      <h1 class="text-xl font-bold text-gray-900 dark:text-white">
-        {{ $theme->exists ? 'Редактировать тему' : 'Новая тема' }}
-      </h1>
-      <p class="text-sm text-gray-500 dark:text-gray-400 truncate">
-        {{ $theme->exists ? $theme->title . ' · ' . $theme->slug : 'Цвета, шрифт, иконки и оформление сайта' }}
-      </p>
-    </div>
+    <h1 class="mh-title text-xl font-bold text-gray-900 dark:text-white truncate">
+      {{ $theme->exists ? 'Редактировать тему' : 'Новая тема' }}
+    </h1>
   </div>
 
-  <a href="{{ route('admin.visual.themes.index') }}"
-     class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
-            hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition flex-shrink-0">
-    <i class="fas fa-arrow-left"></i> К списку
-  </a>
+  <div class="mh-row mh-row--sub">
+    <p class="mh-facts text-sm text-gray-500 dark:text-gray-400 truncate">
+      {{ $theme->exists ? $theme->title . ' · ' . $theme->slug : 'Цвета, шрифт, иконки и оформление сайта' }}
+    </p>
+
+    <a href="{{ route('admin.visual.themes.index') }}"
+       class="mh-back inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+              hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition">
+      <i class="fas fa-arrow-left"></i> К списку
+    </a>
+  </div>
 </div>
 
 @if ($errors->any())
@@ -505,6 +506,7 @@
       background-repeat:repeat; background-size:48px 48px; background-color:#fff; }
   .dark .thm-asset__tile{ border-color:#374151; }
 
+
   /* Ассеты других тем */
   .thm-borrow{ margin-top:.75rem; border:1px solid #e5e7eb; background:#fafbfc; }
   .dark .thm-borrow{ border-color:#374151; background:#111827; }
@@ -575,6 +577,40 @@
   }
   .thm-preview__btn--accent{ background:var(--color-accent,#10b981); }
   .thm-preview__foot{ margin-top:14px; padding:8px 10px; font-size:12px; background:var(--color-footer,#fff); }
+
+  /* ── Узкий экран ───────────────────────────────────────────────
+     Картинка, путь и три кнопки в одну строку не помещаются: кнопки
+     «Скачать», «Убрать» и «Вернуть» уезжали за правый край карточки и
+     обрезались (замер: ряд шире карточки на 37 пикселей при 360).
+     Сверху остаётся картинка с путём, снизу — кнопки по две в ряд.
+
+     ⚠️ Блок стоит В КОНЦЕ файла намеренно: правила выше объявлены с
+     той же силой, а при равной силе побеждает последнее. */
+  @media (max-width: 720px){
+      .thm-asset{ display:grid; grid-template-columns:minmax(0,auto) minmax(0,1fr);
+          gap:8px 10px; }
+      /* Широкий знак иначе забирает себе больше половины строки. */
+      .thm-asset img{ max-width:40%; }
+      .thm-asset__path{ align-self:center }
+
+      /* Не `auto-fit`: подписи с запретом переноса не дают колонке
+         сжаться, и три кнопки в ряд снова вылезали бы за край. */
+      .thm-asset__actions{ grid-column:1 / -1; display:grid;
+          grid-template-columns:repeat(2, minmax(0, 1fr)); gap:6px; }
+      .thm-asset__actions .thm-btn{ width:100%; justify-content:center; min-height:40px;
+          white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+      /* Оглавление примера прижато вправо через margin-left:auto — на
+         узком экране этот отступ выталкивает его за край. */
+      .thm-preview__nav{ margin-left:0; width:100%; }
+
+      /* Пример темы — макет сайта в миниатюре, и подписи в нём
+         намеренно мелкие (кегль там поднимать нельзя, это масштабная
+         модель). На 360 его собственная шапка всё равно шире места,
+         поэтому пример просто подрезается по своей рамке, а не
+         выпускает содержимое наружу. */
+      .thm-preview{ overflow:hidden }
+  }
 </style>
 @endpush
 

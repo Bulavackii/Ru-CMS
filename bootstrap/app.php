@@ -152,6 +152,10 @@ return Application::configure(basePath: dirname(__DIR__))
     // денег, поэтому её место здесь.
     ->withCommands([
         \Modules\Payments\Console\Commands\CancelUnpaidOrdersCommand::class,
+        // Демо-заказ зовётся из мастера установки и руками; регистрация
+        // здесь по той же причине, что и у отмены по сроку — модульные
+        // провайдеры поднимаются только у активных модулей.
+        \Modules\Payments\Console\Commands\SeedDemoOrderCommand::class,
     ])
 
     // 📅 Расписание задач (schedule)

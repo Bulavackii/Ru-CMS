@@ -173,8 +173,8 @@
           <input type="checkbox" id="select-all" class="h-4 w-4" title="{{ __('admin.slideshow.select_all_title') }}">
         </th>
         <th class="px-4 py-3 text-left font-semibold">{{ __('admin.slideshow.name_short') }}</th>
-        <th class="px-4 py-3 text-left font-semibold">{{ __('admin.slideshow.position_short') }}</th>
-        <th class="px-4 py-3 text-center font-semibold">{{ __('admin.slideshow.slides_count') }}</th>
+        <th class="px-4 py-3 text-left font-semibold col-extra">{{ __('admin.slideshow.position_short') }}</th>
+        <th class="px-4 py-3 text-center font-semibold col-narrow">{{ __('admin.slideshow.slides_count') }}</th>
         <th class="px-4 py-3 text-center font-semibold">{{ __('admin.common.status') }}</th>
         <th class="px-4 py-3 text-left font-semibold hidden xl:table-cell">{{ __('admin.slideshow.shortcode') }}</th>
         <th class="px-4 py-3 text-center font-semibold w-24">{{ __('admin.common.actions') }}</th>
@@ -203,7 +203,7 @@
               {{ $s->title }}
             </a>
             @if(!empty($s->description))
-              <div class="text-xs text-gray-500 dark:text-gray-400 line-clamp-1 mt-0.5">{{ $s->description }}</div>
+              <div class="only-wide text-xs text-gray-500 dark:text-gray-400 line-clamp-1 mt-0.5">{{ $s->description }}</div>
             @endif
             <div class="mt-1 flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500">
               <span class="font-mono">ID {{ $s->id }}</span>
@@ -211,13 +211,13 @@
             </div>
           </td>
 
-          <td class="px-4 py-3 align-top">
+          <td class="px-4 py-3 align-top col-extra">
             <span class="inline-flex items-center gap-1.5 px-2 py-0.5 {{ $c['badge'] }} text-xs font-semibold whitespace-nowrap">
               <i class="fas {{ $c['icon'] }}"></i> {{ $c['label'] }}
             </span>
           </td>
 
-          <td class="px-4 py-3 align-top text-center">
+          <td class="px-4 py-3 align-top text-center col-narrow">
             <span class="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium
                          bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300">
               <i class="fa-regular fa-images"></i> {{ $s->items->count() }}
@@ -230,12 +230,12 @@
               @method('PATCH')
               <button type="submit"
                       title="{{ $s->published ? __('admin.slideshow.hide_it') : __('admin.slideshow.publish_it') }}"
-                      class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold whitespace-nowrap transition
+                      class="st-chip {{ $s->published ? 'st-on' : 'st-off' }} inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold whitespace-nowrap transition
                              {{ $s->published
                                 ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 hover:brightness-95'
                                 : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300 hover:brightness-95' }}">
                 <i class="fa-regular {{ $s->published ? 'fa-eye' : 'fa-eye-slash' }}"></i>
-                {{ $s->published ? __('admin.slideshow.published') : __('admin.slideshow.hidden') }}
+                <span class="st-text">{{ $s->published ? __('admin.slideshow.published') : __('admin.slideshow.hidden') }}</span>
               </button>
             </form>
           </td>

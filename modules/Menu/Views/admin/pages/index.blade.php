@@ -170,9 +170,9 @@
           <th class="px-4 py-3 text-left font-semibold" data-sort="title">{{ __('admin.news.title') }}</th>
           <th class="px-4 py-3 text-left font-semibold hidden md:table-cell" data-sort="slug">Slug</th>
           <th class="px-4 py-3 text-left font-semibold hidden md:table-cell" data-sort="cats">{{ __('admin.common.categories') }}</th>
-          <th class="px-4 py-3 text-center font-semibold hidden sm:table-cell" data-sort="pub">{{ __('admin.common.status') }}</th>
-          <th class="px-4 py-3 text-center font-semibold hidden sm:table-cell" data-sort="home">{{ __('admin.common.on_home') }}</th>
-          <th class="px-4 py-3 text-center font-semibold">{{ __('admin.common.preview') }}</th>
+          <th class="px-4 py-3 text-center font-semibold" data-sort="pub">{{ __('admin.common.status') }}</th>
+          <th class="px-4 py-3 text-center font-semibold col-narrow" data-sort="home">{{ __('admin.common.on_home') }}</th>
+          <th class="px-4 py-3 text-center font-semibold col-extra">{{ __('admin.common.preview') }}</th>
           <th class="px-4 py-3 text-center font-semibold w-24">{{ __('admin.common.actions') }}</th>
         </tr>
       </thead>
@@ -218,22 +218,22 @@
             </td>
 
             {{-- Статус публикации --}}
-            <td class="px-4 py-3 align-top text-center hidden sm:table-cell">
+            <td class="px-4 py-3 align-top text-center">
               @if($page->published)
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold whitespace-nowrap
-                             bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300" title="{{ __('admin.common.visible') }}">
-                  <i class="fa-solid fa-circle-check"></i> {{ __('admin.common.published') }}
+                <span class="st-chip st-on inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold whitespace-nowrap
+                             bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300" title="{{ __('admin.common.published') }}">
+                  <i class="fa-solid fa-circle-check"></i> <span class="st-text">{{ __('admin.common.published') }}</span>
                 </span>
               @else
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold whitespace-nowrap
-                             bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300" title="{{ __('admin.common.hidden') }}">
-                  <i class="fa-solid fa-clock"></i> {{ __('admin.common.draft') }}
+                <span class="st-chip st-off inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold whitespace-nowrap
+                             bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300" title="{{ __('admin.common.draft') }}">
+                  <i class="fa-solid fa-clock"></i> <span class="st-text">{{ __('admin.common.draft') }}</span>
                 </span>
               @endif
             </td>
 
             {{-- На главной --}}
-            <td class="px-4 py-3 align-top text-center hidden sm:table-cell">
+            <td class="px-4 py-3 align-top text-center col-narrow">
               @if($page->show_on_homepage)
                 <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold whitespace-nowrap
                              bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">
@@ -245,7 +245,7 @@
             </td>
 
             {{-- Превью --}}
-            <td class="px-4 py-3 align-top text-center">
+            <td class="px-4 py-3 align-top text-center col-extra">
               <button type="button"
                 onclick="toggleContent({{ $page->id }}, this)"
                 class="inline-flex items-center gap-1.5 border border-gray-300 dark:border-gray-700 px-2.5 py-1 text-xs

@@ -366,6 +366,7 @@ class NewsController extends Controller
         'base-css'  => 'Уроки: CSS',
         'base-js'   => 'Уроки: JavaScript',
         'base-php'  => 'Уроки: PHP',
+        'base-git'  => 'Уроки: Git',
     ];
 
     /**

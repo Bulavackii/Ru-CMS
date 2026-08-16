@@ -143,26 +143,26 @@
 @endphp
 
 <div class="admin-accent-bar mb-0"></div>
-<div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
-            flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-  <div class="flex items-center gap-3 min-w-0">
+{{-- Шапка в два ряда (.mh-*, общее определение в лейауте). --}}
+<div class="admin-glass mh border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-3 mb-6">
+  <div class="mh-row">
     <span class="admin-icon-badge"><i class="fas fa-puzzle-piece"></i></span>
-    <div class="min-w-0">
-      <h1 class="text-xl font-bold text-gray-900 dark:text-white">
-        {{ $fragment->exists ? 'Редактировать фрагмент' : 'Новый фрагмент' }}
-      </h1>
-      <p class="text-sm text-gray-500 dark:text-gray-400 truncate">
-        {{ $fragment->exists ? $fragment->title . ' · ' . $fragment->zoneLabel() : 'Блок, который выводится в выбранной зоне страницы' }}
-      </p>
-    </div>
+    <h1 class="mh-title text-xl font-bold text-gray-900 dark:text-white truncate">
+      {{ $fragment->exists ? 'Редактировать фрагмент' : 'Новый фрагмент' }}
+    </h1>
   </div>
 
-  {{-- Кнопка сохранения переехала сюда из самого низа страницы. Там она
+  <div class="mh-row mh-row--sub">
+    <p class="mh-facts text-sm text-gray-500 dark:text-gray-400 truncate">
+      {{ $fragment->exists ? $fragment->title . ' · ' . $fragment->zoneLabel() : 'Блок, который выводится в выбранной зоне страницы' }}
+    </p>
+
+    {{-- Кнопка сохранения переехала сюда из самого низа страницы. Там она
        стояла ПОСЛЕ предпросмотра и полей JSON, то есть чтобы сохранить
        правку, надо было проматывать всю страницу вниз — а выше по дороге
        попадалась кнопка «Сохранить» у черновика, которая сохраняет совсем
        другое. Атрибут form= позволяет держать её вне тега формы. --}}
-  <div class="flex items-center gap-2 flex-shrink-0">
+  <div class="mh-back flex items-center gap-2">
     @if ($fragment->exists)
       <a href="{{ route('admin.visual.fragments.history', $fragment) }}" class="frg-btn" title="История версий">
         <i class="fas fa-clock-rotate-left"></i>
@@ -184,6 +184,7 @@
       <i class="fas fa-floppy-disk"></i>
       {{ $fragment->exists ? 'Сохранить' : 'Создать' }}
     </button>
+    </div>
   </div>
 </div>
 

@@ -15,20 +15,22 @@
 @section('content')
     {{-- ── Шапка страницы ── --}}
     <div class="admin-accent-bar mb-0"></div>
-    <div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
-                flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div class="flex items-center gap-3 min-w-0">
+    {{-- Та же шапка в два ряда, что у правки: ряд 1 — название,
+         ряд 2 — пояснение и возврат. --}}
+    <div class="admin-glass mh border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-3 mb-6">
+        <div class="mh-row">
             <span class="admin-icon-badge"><i class="fas fa-plus"></i></span>
-            <div class="min-w-0">
-                <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('admin.news.create') }}</h1>
-                <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('admin.news.create_hint') }}</p>
-            </div>
+            <h1 class="mh-title text-xl font-bold text-gray-900 dark:text-white truncate">{{ __('admin.news.create') }}</h1>
         </div>
 
-        <a href="{{ route('admin.news.index') }}"
-           class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition shrink-0">
-            <i class="fas fa-arrow-left"></i> {{ __('admin.news.back') }}
-        </a>
+        <div class="mh-row mh-row--sub">
+            <p class="mh-facts text-sm text-gray-500 dark:text-gray-400">{{ __('admin.news.create_hint') }}</p>
+
+            <a href="{{ route('admin.news.index') }}"
+               class="mh-back inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition">
+                <i class="fas fa-arrow-left"></i> {{ __('admin.news.back') }}
+            </a>
+        </div>
     </div>
 
     @if ($errors->any())

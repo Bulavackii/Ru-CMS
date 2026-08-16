@@ -24,32 +24,33 @@
 
 {{-- ── Шапка страницы ── --}}
 <div class="admin-accent-bar mb-0"></div>
-<div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
-            flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-  <div class="flex items-center gap-3 min-w-0">
+{{-- Шапка в два ряда (.mh-*, общее определение в лейауте). --}}
+<div class="admin-glass mh border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-3 mb-6">
+  <div class="mh-row">
     <span class="admin-icon-badge"><i class="fas fa-magnifying-glass-chart"></i></span>
-    <div class="min-w-0">
-      <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('admin.seo.title') }}</h1>
-      <p class="text-sm text-gray-500 dark:text-gray-400">
-        {{ __('admin.seo.index_hint') }}
-      </p>
-    </div>
+    <h1 class="mh-title text-xl font-bold text-gray-900 dark:text-white truncate">{{ __('admin.seo.title') }}</h1>
   </div>
 
-  <div class="flex items-center gap-2 flex-shrink-0">
-    <form action="{{ route('seo.pages.sync') }}" method="post" class="inline">
-      @csrf
-      <button class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
-                     hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition"
-              title="{{ __('admin.seo.collect') }}">
-        <i class="fas fa-rotate"></i> {{ __('admin.seo.sync') }}
-      </button>
-    </form>
+  <div class="mh-row mh-row--sub">
+    <p class="mh-facts text-sm text-gray-500 dark:text-gray-400">
+      {{ __('admin.seo.index_hint') }}
+    </p>
 
-    <a href="{{ route('seo.pages.create') }}"
-       class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition">
-      <i class="fas fa-plus"></i> {{ __('admin.seo.add_url') }}
-    </a>
+    <div class="mh-back flex items-center gap-2">
+      <form action="{{ route('seo.pages.sync') }}" method="post" class="inline">
+        @csrf
+        <button class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+                       hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition"
+                title="{{ __('admin.seo.collect') }}">
+          <i class="fas fa-rotate"></i> {{ __('admin.seo.sync') }}
+        </button>
+      </form>
+
+      <a href="{{ route('seo.pages.create') }}"
+         class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition">
+        <i class="fas fa-plus"></i> {{ __('admin.seo.add_url') }}
+      </a>
+    </div>
   </div>
 </div>
 
@@ -286,8 +287,8 @@
           <th class="px-4 py-3 text-center w-10"><input type="checkbox" id="seoSelectAll" class="border-gray-400"></th>
           <th class="px-4 py-3 text-left font-semibold">{{ __('admin.seo.url') }}</th>
           <th class="px-4 py-3 text-left font-semibold">{{ __('admin.seo.title_desc') }}</th>
-          <th class="px-4 py-3 text-left font-semibold">{{ __('admin.seo.indexing') }}</th>
-          <th class="px-4 py-3 text-left font-semibold">{{ __('admin.seo.meta') }}</th>
+          <th class="col-extra px-4 py-3 text-left font-semibold">{{ __('admin.seo.indexing') }}</th>
+          <th class="col-narrow px-4 py-3 text-left font-semibold">{{ __('admin.seo.meta') }}</th>
           <th class="px-4 py-3 text-center font-semibold">{{ __('admin.common.actions') }}</th>
         </tr>
       </thead>
@@ -356,7 +357,7 @@
             </div>
           </td>
 
-          <td class="px-4 py-3 align-top whitespace-nowrap">
+          <td class="col-extra px-4 py-3 align-top whitespace-nowrap">
             <span class="inline-block text-xs px-2 py-0.5 text-white {{ $p->robots_index ? 'bg-green-600' : 'bg-gray-500' }}">
               {{ $p->robots_index ? 'index' : 'noindex' }}
             </span>
@@ -365,7 +366,7 @@
             </span>
           </td>
 
-          <td class="px-4 py-3 align-top">
+          <td class="col-narrow px-4 py-3 align-top">
             <div class="flex flex-wrap gap-1">
               @if($hasCanonical)<span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5">canonical</span>@endif
               @if($hasOg)<span class="text-xs bg-purple-100 text-purple-800 px-2 py-0.5">og</span>@endif

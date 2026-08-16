@@ -21,46 +21,62 @@
 
     {{-- ── Шапка страницы ── --}}
     <div class="admin-accent-bar mb-0"></div>
-    <div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
-                flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div class="flex items-center gap-3 min-w-0">
+    {{-- Шапка в два ряда (.mh-*, общее определение в лейауте): ряд 1 —
+         название и состояние, ряд 2 — сведения и переходы. Прежняя
+         компоновка на телефоне разваливалась на четыре строки разной
+         длины без общего правого края. --}}
+    <div class="admin-glass mh border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-3 mb-6">
+
+        {{-- Ряд 1: название и состояние --}}
+        <div class="mh-row">
             <span class="admin-icon-badge"><i class="fas fa-pen"></i></span>
-            <div class="min-w-0 space-y-1">
-                <h1 class="text-xl font-bold text-gray-900 dark:text-white truncate">{{ $news->title }}</h1>
-                <div class="flex flex-wrap items-center gap-2 text-xs">
-                    @if ($news->published)
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 font-semibold bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
-                            <i class="fas fa-circle-check"></i> {{ __('admin.common.published') }}
-                        </span>
-                    @else
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 font-semibold bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">
-                            <i class="fas fa-clock"></i> {{ __('admin.common.draft') }}
-                        </span>
-                    @endif
-                    <span class="inline-flex items-center gap-1 px-2 py-0.5 font-medium bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
-                        ID {{ $news->id }}
-                    </span>
-                    @if ($news->slug)
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 font-medium bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300 font-mono">
-                            /news/{{ $news->slug }}
-                        </span>
-                    @endif
-                </div>
-            </div>
+
+            <h1 class="mh-title text-xl font-bold text-gray-900 dark:text-white truncate">{{ $news->title }}</h1>
+
+            {{-- Состояние: на узких экранах остаётся один значок (подпись
+                 прячется общим правилом .st-text), цвет и подсказка несут
+                 тот же смысл. --}}
+            @if ($news->published)
+                <span class="mh-status st-chip st-on inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+                      title="{{ __('admin.common.published') }}">
+                    <i class="fas fa-circle-check"></i> <span class="st-text">{{ __('admin.common.published') }}</span>
+                </span>
+            @else
+                <span class="mh-status st-chip st-off inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300"
+                      title="{{ __('admin.common.draft') }}">
+                    <i class="fas fa-clock"></i> <span class="st-text">{{ __('admin.common.draft') }}</span>
+                </span>
+            @endif
         </div>
 
-        <div class="flex items-center gap-3 shrink-0">
-            @if ($news->slug && $news->published)
-                <a href="{{ url('/news/' . $news->slug) }}" target="_blank" rel="noopener"
-                   class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
-                   title="{{ __('admin.common.open_on_site') }}">
-                    <i class="fas fa-arrow-up-right-from-square"></i> {{ __('admin.common.on_site') }}
+        {{-- Ряд 2: сведения слева, переходы справа --}}
+        <div class="mh-row mh-row--sub">
+            <div class="mh-facts text-xs">
+                <span class="mh-fact inline-flex items-center gap-1 px-2 py-0.5 font-medium bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                    ID {{ $news->id }}
+                </span>
+
+                @if ($news->slug)
+                    <span class="mh-fact inline-flex items-center gap-1 px-2 py-0.5 font-medium font-mono bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300 truncate">
+                        /news/{{ $news->slug }}
+                    </span>
+                @endif
+            </div>
+
+            <div class="mh-back flex items-center gap-3">
+                @if ($news->slug && $news->published)
+                    <a href="{{ url('/news/' . $news->slug) }}" target="_blank" rel="noopener"
+                       class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
+                       title="{{ __('admin.common.open_on_site') }}">
+                        <i class="fas fa-arrow-up-right-from-square"></i> {{ __('admin.common.on_site') }}
+                    </a>
+                @endif
+
+                <a href="{{ route('admin.news.index') }}"
+                   class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition">
+                    <i class="fas fa-arrow-left"></i> {{ __('admin.common.back_to_list') }}
                 </a>
-            @endif
-            <a href="{{ route('admin.news.index') }}"
-               class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition">
-                <i class="fas fa-arrow-left"></i> {{ __('admin.common.back_to_list') }}
-            </a>
+            </div>
         </div>
     </div>
 

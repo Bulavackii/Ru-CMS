@@ -122,9 +122,14 @@ class CaptchaService
         return [
             'type' => 'image',
             'id'   => $id,
+            // Ширину отдаём наружу: по ней render() выравнивает поле ответа
+            // ровно под картинку. Без этого поле жило своей жизнью
+            // (width:100% при max-width:220), и две плашки — с кодом и для
+            // ответа — стояли разной ширины при любом размере окна.
+            'width' => $width,
             'html' => '<img src="data:image/png;base64,' . base64_encode($imageData) . '"'
                 . ' alt="Проверочный код" class="captcha-image"'
-                . ' style="border:1px solid #ccc;max-width:100%;height:auto;display:block">',
+                . ' style="border:1px solid #ccc;box-sizing:border-box;width:100%;max-width:100%;height:auto;display:block">',
         ];
     }
 
@@ -164,7 +169,7 @@ class CaptchaService
 </div>
 HTML;
 
-        return ['type' => 'slider', 'id' => $id, 'html' => $html];
+        return ['type' => 'slider', 'id' => $id, 'width' => $width, 'html' => $html];
     }
 
     /**
@@ -374,8 +379,17 @@ HTML;
         $captcha = $this->generate($type, $options);
         $inputId = 'captcha-' . $captcha['id'];
 
+        // Обёртке задаётся ширина самой каптчи, если та её знает
+        // (картинка, ползунок). Тогда поле ответа с width:100% получает
+        // ровно ту же ширину — плашки становятся одинаковыми на любом
+        // экране, а не только на узком. У вопроса и примера ширины нет:
+        // там ширину задаёт текст, и поле остаётся с прежним пределом.
+        $ширина = $captcha['width'] ?? null;
+        $стильОбёртки = 'display:inline-block;max-width:100%'
+            . ($ширина ? ';width:' . (int) $ширина . 'px' : '');
+
         $html = '<div class="captcha-wrapper" data-captcha-type="' . e($captcha['type']) . '"'
-            . ' data-captcha-id="' . e($captcha['id']) . '" style="display:inline-block;max-width:100%">';
+            . ' data-captcha-id="' . e($captcha['id']) . '" style="' . $стильОбёртки . '">';
         $html .= $captcha['html'];
 
         // Идентификатор экземпляра: по нему сервер понимает, какой именно
@@ -386,9 +400,13 @@ HTML;
             // Значение подставляет перетаскивание; пустое поле = не тащили
             $html .= '<input type="hidden" name="captcha" value="">';
         } else {
+            // ⚠️ box-sizing обязателен: у поля свои отступы и рамка, и без
+            // него width:100% даёт на два пикселя рамки шире картинки.
             $html .= '<input type="text" name="captcha" id="' . e($inputId) . '" required autocomplete="off"'
                 . ' placeholder="Ваш ответ" class="captcha-input"'
-                . ' style="margin-top:8px;padding:6px 8px;width:100%;max-width:220px;border:1px solid #cbd5e1">';
+                . ' style="margin-top:8px;padding:6px 8px;width:100%;box-sizing:border-box'
+                . ($ширина ? '' : ';max-width:220px')
+                . ';border:1px solid #cbd5e1">';
         }
 
         $html .= '</div>';

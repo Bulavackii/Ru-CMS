@@ -5,22 +5,21 @@
 @section('content')
     {{-- ── Шапка страницы ── --}}
     <div class="admin-accent-bar mb-0"></div>
-    <div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
-                flex items-center justify-between gap-4">
-        <div class="flex items-center gap-3 min-w-0">
+    {{-- Шапка в два ряда — как у правки меню и у материалов. --}}
+    <div class="admin-glass mh border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-3 mb-6">
+        <div class="mh-row">
             <span class="admin-icon-badge">@themeIcon('plus')</span>
-            <div class="min-w-0">
-                <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('admin.menu.page_create') }}</h1>
-                <p class="text-sm text-gray-500 dark:text-gray-400">
-                    {{ __('admin.menu.create_hint') }}
-                </p>
-            </div>
+            <h1 class="mh-title text-xl font-bold text-gray-900 dark:text-white truncate">{{ __('admin.menu.page_create') }}</h1>
         </div>
 
-        <a href="{{ route('admin.menus.index') }}"
-           class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 shrink-0">
-            @themeIcon('arrow-left') {{ __('admin.menu.back') }}
-        </a>
+        <div class="mh-row mh-row--sub">
+            <p class="mh-facts text-sm text-gray-500 dark:text-gray-400">{{ __('admin.menu.create_hint') }}</p>
+
+            <a href="{{ route('admin.menus.index') }}"
+               class="mh-back inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400">
+                @themeIcon('arrow-left') {{ __('admin.menu.back') }}
+            </a>
+        </div>
     </div>
 
     {{-- Ошибки валидации --}}

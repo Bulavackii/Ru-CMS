@@ -197,7 +197,7 @@
                 {{ __('admin.categories.cancel') }}
             </a>
 
-            <span class="text-xs text-gray-500 dark:text-gray-400 sm:ml-auto">
+            <span class="only-keyboard text-xs text-gray-500 dark:text-gray-400 sm:ml-auto">
                 {{ __('admin.categories.hotkeys') }} <b>Ctrl + S</b> {{ __('admin.categories.hotkeys_save') }} <b>Esc</b> {{ __('admin.categories.hotkeys_back') }}
             </span>
         </div>

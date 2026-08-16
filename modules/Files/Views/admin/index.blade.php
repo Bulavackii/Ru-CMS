@@ -89,7 +89,7 @@
 {{-- ── Подсказка ── --}}
 <div class="admin-note px-4 py-3 mb-5 text-sm">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-        <div class="flex items-center gap-2 font-medium">
+        <div class="only-wide flex items-center gap-2 font-medium">
             <i class="fas fa-lightbulb"></i>
             <span>{{ __('admin.files.note') }}</span>
         </div>
@@ -320,6 +320,39 @@
                   border:1px solid #e5e7eb; cursor:pointer }
     .file-action:hover{ color:#111827; background:#fff }
     .file-action--danger:hover{ color:#fff; background:#dc2626; border-color:#dc2626 }
+
+    @media (max-width: 1024px), (max-height: 500px){
+        /* Наведения на сенсорном экране нет: и отметка, и действия
+           показываются всегда. Кнопки растут до 32 пикселей — 26 это
+           меньше нижней границы WCAG для зоны нажатия. */
+        /* Отметка получает такую же плашку, как кнопки: голый флажок был
+           24 пикселя против 32 у соседей, и верхний ряд плитки выглядел
+           разнокалиберным. Размер задаёт плашка, флажок внутри — 18. */
+        /* ⚠️ Размер задаётся с префиксом body: в лейауте у `.file-action`
+           стоит `min-height:36px` (общее правило зон нажатия), и без
+           префикса кнопка удаления оставалась 36 против 32 у соседей —
+           верхний ряд плитки выглядел разнокалиберным. Сводим все три к
+           36: это и есть принятый в панели размер плотных кнопок. */
+        body .file-pick{ opacity:1; width:36px; height:36px; display:inline-flex;
+                    align-items:center; justify-content:center;
+                    background:rgba(255,255,255,.94); border:1px solid #e5e7eb }
+        body .file-pick input{ width:18px; height:18px; margin:0 }
+        body .file-actions{ opacity:1; gap:6px }
+        body .file-action{ width:36px; height:36px; min-height:36px; font-size:13px }
+
+        /* ── Карточка файла ────────────────────────────────────────
+           Поле ссылки и список категорий занимали строку вместе с
+           кнопкой: на 414 от адреса оставалось «http://127.0.0.1:8»,
+           а «Удалить» с ml-auto стояла одна справа под двумя другими.
+           Теперь поле на всю ширину, кнопки — равными долями. */
+        #fileModalContent input[type="text"],
+        #fileModalContent select{ flex:1 1 100%; min-width:0 }
+        #fileModalContent .flex.gap-2{ flex-wrap:wrap }
+        #fileModalContent .flex.gap-2 > a,
+        #fileModalContent .flex.gap-2 > button{ flex:1 1 0; justify-content:center; min-height:40px }
+        #fileModalContent .flex.flex-wrap.gap-2 > *{ flex:1 1 0; justify-content:center;
+            min-height:40px; margin-left:0 !important }
+    }
 
     .file-item.is-picked{ outline:2px solid var(--admin-primary); outline-offset:-2px }
 

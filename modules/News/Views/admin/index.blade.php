@@ -130,13 +130,13 @@
                         <tr>
                             <th class="px-4 py-3 w-10 text-left"><input type="checkbox" id="check-all" title="{{ __('admin.common.select_all') }}"></th>
                             <th class="px-4 py-3 text-left font-semibold">{{ __('admin.news.title') }}</th>
-                            <th class="px-4 py-3 text-left font-semibold">{{ __('admin.common.categories') }}</th>
-                            <th class="px-4 py-3 text-left font-semibold">Meta Title</th>
-                            <th class="px-4 py-3 text-left font-semibold">{{ __('admin.news.keywords') }}</th>
-                            <th class="px-4 py-3 text-left font-semibold">Meta Description</th>
-                            <th class="px-4 py-3 text-left font-semibold">{{ __('admin.news.product') }}</th>
+                            <th class="px-4 py-3 text-left font-semibold col-extra">{{ __('admin.common.categories') }}</th>
+                            <th class="px-4 py-3 text-left font-semibold col-extra">Meta Title</th>
+                            <th class="px-4 py-3 text-left font-semibold col-extra">{{ __('admin.news.keywords') }}</th>
+                            <th class="px-4 py-3 text-left font-semibold col-extra">Meta Description</th>
+                            <th class="px-4 py-3 text-left font-semibold col-extra">{{ __('admin.news.product') }}</th>
                             <th class="px-4 py-3 text-center font-semibold">{{ __('admin.common.status') }}</th>
-                            <th class="px-4 py-3 text-center font-semibold">{{ __('admin.common.template') }}</th>
+                            <th class="px-4 py-3 text-center font-semibold col-narrow">{{ __('admin.common.template') }}</th>
                             <th class="px-4 py-3 text-center font-semibold w-16">{{ __('admin.common.actions') }}</th>
                         </tr>
                     </thead>
@@ -159,7 +159,7 @@
                                         <div class="mt-1 text-xs text-gray-400 dark:text-gray-500 font-mono">ID {{ $news->id }}</div>
                                     </td>
 
-                                    <td class="px-4 py-3 align-top max-w-xs break-words">
+                                    <td class="px-4 py-3 align-top max-w-xs break-words col-extra">
                                         @forelse ($news->categories as $cat)
                                             <span class="inline-flex items-center gap-1 px-2 py-0.5 mr-1 mb-1 text-xs font-medium
                                                          bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">
@@ -170,19 +170,19 @@
                                         @endforelse
                                     </td>
 
-                                    <td class="px-4 py-3 align-top text-gray-700 dark:text-gray-300 break-words max-w-xs">
+                                    <td class="px-4 py-3 align-top text-gray-700 dark:text-gray-300 break-words max-w-xs col-extra">
                                         {{ \Illuminate\Support\Str::limit($news->meta_title, 60) ?: '—' }}
                                     </td>
 
-                                    <td class="px-4 py-3 align-top text-gray-500 dark:text-gray-400 break-words max-w-sm">
+                                    <td class="px-4 py-3 align-top text-gray-500 dark:text-gray-400 break-words max-w-sm col-extra">
                                         {{ \Illuminate\Support\Str::limit($news->meta_keywords, 60) ?: '—' }}
                                     </td>
 
-                                    <td class="px-4 py-3 align-top text-gray-500 dark:text-gray-400 break-words max-w-md">
+                                    <td class="px-4 py-3 align-top text-gray-500 dark:text-gray-400 break-words max-w-md col-extra">
                                         {{ \Illuminate\Support\Str::limit($news->meta_description, 100) ?: '—' }}
                                     </td>
 
-                                    <td class="px-4 py-3 align-top whitespace-nowrap">
+                                    <td class="px-4 py-3 align-top whitespace-nowrap col-extra">
                                         @if ($news->template === 'products')
                                             <div class="font-semibold text-gray-900 dark:text-white">
                                                 {{ number_format($news->price, 2, ',', ' ') }} ₽
@@ -202,16 +202,16 @@
 
                                     <td class="px-4 py-3 align-top text-center">
                                         @if ($news->published)
-                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold whitespace-nowrap
+                                            <span class="st-chip st-on inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold whitespace-nowrap
                                                          bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
-                                                  title="{{ __('admin.common.visible') }}">
-                                                <i class="fas fa-circle-check"></i> {{ __('admin.common.published') }}
+                                                  title="{{ __('admin.common.published') }}">
+                                                <i class="fas fa-circle-check"></i> <span class="st-text">{{ __('admin.common.published') }}</span>
                                             </span>
                                         @else
-                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold whitespace-nowrap
+                                            <span class="st-chip st-off inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold whitespace-nowrap
                                                          bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300"
-                                                  title="{{ __('admin.common.hidden') }}">
-                                                <i class="fas fa-clock"></i> {{ __('admin.common.draft') }}
+                                                  title="{{ __('admin.common.draft') }}">
+                                                <i class="fas fa-clock"></i> <span class="st-text">{{ __('admin.common.draft') }}</span>
                                             </span>
                                         @endif
 
@@ -223,12 +223,12 @@
                                             <span class="inline-flex items-center gap-1 px-2 py-0.5 mt-1 text-xs font-semibold whitespace-nowrap
                                                          bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300"
                                                   title="{{ __('admin.common.show_on_home') }}">
-                                                <i class="fas fa-house-circle-xmark"></i> {{ __('admin.common.not_on_home') }}
+                                                <i class="fas fa-house-circle-xmark"></i> <span class="st-text">{{ __('admin.common.not_on_home') }}</span>
                                             </span>
                                         @endunless
                                     </td>
 
-                                    <td class="px-4 py-3 align-top text-center">
+                                    <td class="px-4 py-3 align-top text-center col-narrow">
                                         <span class="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium whitespace-nowrap
                                                      bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300"
                                               title="{{ __('admin.common.f_template') }}: {{ $templates[$news->template] ?? $news->template }}">

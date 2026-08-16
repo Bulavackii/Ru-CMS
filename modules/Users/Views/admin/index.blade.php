@@ -214,7 +214,7 @@
     {{-- ── Таблица ── --}}
     <div class="admin-card overflow-hidden">
      <div class="overflow-x-auto">
-        <table id="usersTable" class="min-w-full text-sm text-left">
+        <table id="usersTable" class="tbl-2rows min-w-full text-sm text-left">
             <thead class="bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 uppercase text-xs tracking-wide">
                 <tr>
                     <th class="px-4 py-3 w-10">
@@ -222,7 +222,7 @@
                     </th>
                     <th class="px-4 py-3 font-semibold">{{ __('admin.users.user') }}</th>
                     <th class="px-4 py-3 font-semibold hidden lg:table-cell">{{ __('admin.users.phone') }}</th>
-                    <th class="px-4 py-3 font-semibold">{{ __('admin.users.role') }}</th>
+                    <th class="col-narrow px-4 py-3 font-semibold">{{ __('admin.users.role') }}</th>
                     <th class="px-4 py-3 font-semibold hidden xl:table-cell">{{ __('admin.users.registered') }}</th>
                     <th class="px-4 py-3 font-semibold hidden md:table-cell">{{ __('admin.users.last_login') }}</th>
                     <th class="px-4 py-3 text-center font-semibold w-36">Действия</th>
@@ -258,7 +258,7 @@
                             {{ $user->formatted_phone ?? '—' }}
                         </td>
 
-                        <td class="px-4 py-3 align-top">
+                        <td class="col-narrow px-4 py-3 align-top">
                             @if ($user->is_admin)
                                 <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold whitespace-nowrap
                                              bg-indigo-600 text-white">

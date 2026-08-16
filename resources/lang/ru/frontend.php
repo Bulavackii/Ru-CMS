@@ -434,6 +434,7 @@ return [
         'html' => 'Уроки по HTML',
         'js' => 'Уроки по JavaScript',
         'php' => 'Уроки по PHP',
+        'git' => 'Уроки по Git',
     ],
 
     'reviews' => [

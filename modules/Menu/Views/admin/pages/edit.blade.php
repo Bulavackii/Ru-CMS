@@ -5,46 +5,58 @@
 @section('content')
     {{-- ── Шапка страницы ── --}}
     <div class="admin-accent-bar mb-0"></div>
-    <div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
-                flex items-center justify-between gap-4">
-        <div class="flex items-center gap-3 min-w-0">
+    {{-- Шапка в два ряда (.mh-*, общее определение в лейауте): ряд 1 —
+         название и состояние, ряд 2 — сведения и переходы. --}}
+    <div class="admin-glass mh border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-3 mb-6">
+
+        <div class="mh-row">
             <span class="admin-icon-badge"><i class="fa-solid fa-pen-to-square"></i></span>
-            <div class="min-w-0 space-y-1">
-                <h1 class="text-xl font-bold text-gray-900 dark:text-white truncate">{{ $page->title }}</h1>
-                <div class="flex flex-wrap items-center gap-2 text-xs">
-                    @if ($page->published)
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 font-semibold bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
-                            <i class="fa-solid fa-circle-check"></i> {{ __('admin.common.published') }}
-                        </span>
-                    @else
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 font-semibold bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">
-                            <i class="fa-solid fa-clock"></i> {{ __('admin.common.draft') }}
-                        </span>
-                    @endif
-                    @if ($page->show_on_homepage)
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 font-semibold bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">
-                            <i class="fa-solid fa-house"></i> {{ __('admin.common.on_home') }}
-                        </span>
-                    @endif
-                    <span class="inline-flex items-center gap-1 px-2 py-0.5 font-medium bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
-                        ID {{ $page->id }}
-                    </span>
-                    <span class="inline-flex items-center gap-1 px-2 py-0.5 font-mono bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">
-                        /{{ $page->slug }}
-                    </span>
-                </div>
-            </div>
+
+            <h1 class="mh-title text-xl font-bold text-gray-900 dark:text-white truncate">{{ $page->title }}</h1>
+
+            @if ($page->published)
+                <span class="mh-status st-chip st-on inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+                      title="{{ __('admin.common.published') }}">
+                    <i class="fa-solid fa-circle-check"></i> <span class="st-text">{{ __('admin.common.published') }}</span>
+                </span>
+            @else
+                <span class="mh-status st-chip st-off inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300"
+                      title="{{ __('admin.common.draft') }}">
+                    <i class="fa-solid fa-clock"></i> <span class="st-text">{{ __('admin.common.draft') }}</span>
+                </span>
+            @endif
         </div>
-        <div class="flex items-center gap-4 shrink-0">
-            <a href="{{ route('frontend.pages.show', $page->slug) }}" target="_blank"
-               class="hidden sm:inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400"
-               title="{{ __('admin.common.open_on_site') }}">
-                <i class="fa-solid fa-arrow-up-right-from-square"></i> {{ __('admin.common.on_site') }}
-            </a>
-            <a href="{{ route('admin.pages.index') }}"
-               class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400">
-                <i class="fa-solid fa-arrow-left"></i> {{ __('admin.common.back_to_list') }}
-            </a>
+
+        <div class="mh-row mh-row--sub">
+            <div class="mh-facts text-xs">
+                @if ($page->show_on_homepage)
+                    <span class="mh-fact inline-flex items-center gap-1 px-2 py-0.5 font-semibold bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300"
+                          title="{{ __('admin.common.on_home') }}">
+                        <i class="fa-solid fa-house"></i> <span class="st-text">{{ __('admin.common.on_home') }}</span>
+                    </span>
+                @endif
+
+                <span class="mh-fact inline-flex items-center gap-1 px-2 py-0.5 font-medium bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                    ID {{ $page->id }}
+                </span>
+
+                <span class="mh-fact inline-flex items-center gap-1 px-2 py-0.5 font-mono bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300 truncate">
+                    /{{ $page->slug }}
+                </span>
+            </div>
+
+            <div class="mh-back flex items-center gap-3">
+                <a href="{{ route('frontend.pages.show', $page->slug) }}" target="_blank"
+                   class="hidden sm:inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400"
+                   title="{{ __('admin.common.open_on_site') }}">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> {{ __('admin.common.on_site') }}
+                </a>
+
+                <a href="{{ route('admin.pages.index') }}"
+                   class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400">
+                    <i class="fa-solid fa-arrow-left"></i> {{ __('admin.common.back_to_list') }}
+                </a>
+            </div>
         </div>
     </div>
 

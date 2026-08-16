@@ -17,33 +17,37 @@
 
 {{-- ── Шапка ── --}}
 <div class="admin-accent-bar mb-0"></div>
-<div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
-            flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-    <div class="flex items-center gap-3 min-w-0">
+{{-- Шапка в два ряда (.mh-*, общее определение в лейауте): ряд 1 —
+     номер заказа и состояние, ряд 2 — дата и переходы. --}}
+<div class="admin-glass mh border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-3 mb-6">
+    <div class="mh-row">
         <span class="admin-icon-badge"><i class="fas fa-box"></i></span>
-        <div class="min-w-0">
-            <h1 class="text-xl font-bold text-gray-900 dark:text-white">
-                {{ __('admin.orders.card_title') }} #{{ $order->id }}
-                <span class="ord-status ord-status--{{ $tone }} align-middle ml-1">{{ $label }}</span>
-            </h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400">
-                {{ __('admin.orders.f_created') }}: {{ $order->created_at->format('d.m.Y H:i') }}
-            </p>
-        </div>
+
+        <h1 class="mh-title text-xl font-bold text-gray-900 dark:text-white truncate">
+            {{ __('admin.orders.card_title') }} #{{ $order->id }}
+        </h1>
+
+        <span class="mh-status ord-status ord-status--{{ $tone }}">{{ $label }}</span>
     </div>
 
-    <div class="flex items-center gap-2 flex-shrink-0">
-        <button type="button" onclick="window.print()"
-                class="ord-print inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
-                       hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition">
-            <i class="fas fa-print"></i> {{ __('admin.orders.print') }}
-        </button>
+    <div class="mh-row mh-row--sub">
+        <p class="mh-facts text-sm text-gray-500 dark:text-gray-400">
+            {{ __('admin.orders.f_created') }}: {{ $order->created_at->format('d.m.Y H:i') }}
+        </p>
 
-        <a href="{{ route('admin.orders.index') }}"
-           class="ord-print inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
-                  hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition">
-            <i class="fas fa-arrow-left"></i> {{ __('admin.orders.back') }}
-        </a>
+        <div class="mh-back flex items-center gap-2">
+            <button type="button" onclick="window.print()"
+                    class="ord-print inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+                           hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition">
+                <i class="fas fa-print"></i> {{ __('admin.orders.print') }}
+            </button>
+
+            <a href="{{ route('admin.orders.index') }}"
+               class="ord-print inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200
+                      hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-2 text-sm font-semibold transition">
+                <i class="fas fa-arrow-left"></i> {{ __('admin.orders.back') }}
+            </a>
+        </div>
     </div>
 </div>
 
@@ -142,7 +146,7 @@
         {{-- Смена статуса прямо в карточке: раньше ради этого приходилось
              искать отдельную форму. --}}
         <form action="{{ route('admin.orders.update.status', $order->id) }}" method="POST"
-              class="ord-print flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              class="ord-status-form ord-print flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
             @csrf
             @method('PUT')
 
@@ -186,21 +190,30 @@
         </div>
     @else
     <div class="overflow-x-auto">
-        <table class="w-full text-sm">
+        <table class="ord-items w-full text-sm">
             <thead>
                 <tr class="text-left text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
                     <th class="py-2 pr-3 font-semibold">{{ __('admin.orders.t_product') }}</th>
-                    <th class="py-2 px-3 font-semibold text-right">{{ __('admin.orders.t_price') }}</th>
-                    <th class="py-2 px-3 font-semibold text-right">{{ __('admin.orders.t_qty') }}</th>
+                    <th class="col-narrow py-2 px-3 font-semibold text-right">{{ __('admin.orders.t_price') }}</th>
+                    <th class="col-narrow py-2 px-3 font-semibold text-right">{{ __('admin.orders.t_qty') }}</th>
                     <th class="py-2 pl-3 font-semibold text-right">{{ __('admin.orders.t_sum') }}</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($order->items as $item)
                     <tr class="border-b border-gray-100 dark:border-gray-800">
-                        <td class="py-2 pr-3 text-gray-900 dark:text-white">{{ $item->title }}</td>
-                        <td class="py-2 px-3 text-right">{{ number_format((float) $item->price, 2, ',', ' ') }} ₽</td>
-                        <td class="py-2 px-3 text-right">{{ $item->qty }}</td>
+                        <td class="py-2 pr-3 text-gray-900 dark:text-white">
+                            {{ $item->title }}
+                            {{-- На узком экране цена и количество прячутся
+                                 отдельными колонками (иначе четыре столбца
+                                 не помещаются и таблица едет вбок) и
+                                 показываются строкой под названием. --}}
+                            <span class="ord-item__mul only-narrow">
+                                {{ number_format((float) $item->price, 2, ',', ' ') }} ₽ × {{ $item->qty }}
+                            </span>
+                        </td>
+                        <td class="col-narrow py-2 px-3 text-right">{{ number_format((float) $item->price, 2, ',', ' ') }} ₽</td>
+                        <td class="col-narrow py-2 px-3 text-right">{{ $item->qty }}</td>
                         <td class="py-2 pl-3 text-right font-semibold text-gray-900 dark:text-white">
                             {{ number_format((float) $item->price * $item->qty, 2, ',', ' ') }} ₽
                         </td>
@@ -209,6 +222,9 @@
             </tbody>
             <tfoot>
                 <tr>
+                    {{-- colspan остаётся 3: скрытые колонки места в строке
+                         не занимают, и подпись всё равно встаёт слева от
+                         суммы. --}}
                     <td colspan="3" class="py-3 pr-3 text-right font-semibold">{{ __('admin.orders.total') }}</td>
                     <td class="py-3 pl-3 text-right ord-total">
                         {{ number_format((float) $order->total, 2, ',', ' ') }} ₽
@@ -220,6 +236,34 @@
     @endif
 </section>
 @endsection
+
+@push('styles')
+<style>
+    /* ── Товары в заказе на узком экране ───────────────────────────
+       Колонки «Цена» и «Кол-во» скрыты (их заменяет строка под
+       названием), но подпись «Итого» объявлена через colspan=3 — и
+       таблица продолжала считать четыре колонки, отчего вылезала за
+       карточку на 52 пикселя. Строка-сетка решает это разом: скрытые
+       ячейки места не занимают, а colspan в сетке роли не играет. */
+    /* ── Смена статуса на сенсорных ────────────────────────────────
+       Подпись, список и кнопка стояли в ряду с переносом: подпись и
+       список делили строку, кнопка уезжала вниз своей ширины — три
+       разных края подряд. Ставим их столбиком во всю ширину. */
+    @media (max-width: 1024px), (max-height: 500px){
+        body .ord-status-form{ display:grid; grid-template-columns:1fr; gap:.5rem }
+        body .ord-status-form label{ margin:0 }
+        body .ord-status-form select,
+        body .ord-status-form button{ width:100%; min-height:44px; justify-content:center }
+    }
+
+    @media (max-width: 520px){
+        body .ord-items tbody tr,
+        body .ord-items tfoot tr{ display:grid; grid-template-columns:minmax(0,1fr) auto;
+            align-items:baseline; column-gap:.5rem }
+        body .ord-items thead{ display:none }
+    }
+</style>
+@endpush
 
 @push('styles')
 <style>

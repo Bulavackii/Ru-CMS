@@ -170,11 +170,11 @@
          запрещает, поэтому кнопки строк отправляли не свою форму. --}}
     <form method="POST" action="{{ route('admin.notifications.bulk') }}" id="bulkForm" class="admin-card p-4 mb-4">
         @csrf
-        <div class="flex flex-wrap items-center gap-2">
-            <span class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">С отмеченными:</span>
+        <div class="bulk-bar flex flex-wrap items-center gap-2">
+            <span class="bulk-bar__cap text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">С отмеченными:</span>
 
             <select name="action"
-                    class="border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
+                    class="bulk-bar__pick border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-3 py-2 text-sm
                            focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
                 <option value="">Выберите действие</option>
                 <option value="enable">Включить</option>
@@ -183,7 +183,7 @@
             </select>
 
             <button type="submit"
-                    class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition"
+                    class="bulk-bar__go inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition"
                     onclick="return confirm('Применить действие к отмеченным уведомлениям?')">
                 <i class="fas fa-bolt"></i> Применить
             </button>
@@ -194,16 +194,16 @@
 
     {{-- ── Таблица ── --}}
     <div class="admin-card overflow-x-auto">
-        <table class="min-w-full text-sm">
+        <table class="tbl-2rows min-w-full text-sm">
             <thead class="bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
                 <tr>
                     <th class="px-4 py-3 text-center w-10">
                         <input type="checkbox" id="selectAll" class="border-gray-400">
                     </th>
                     <th class="px-4 py-3 text-left font-semibold">Уведомление</th>
-                    <th class="px-4 py-3 text-left font-semibold">Кому и где</th>
-                    <th class="px-4 py-3 text-left font-semibold">Показ</th>
-                    <th class="px-4 py-3 text-center font-semibold">Показов</th>
+                    <th class="col-extra px-4 py-3 text-left font-semibold">Кому и где</th>
+                    <th class="col-extra px-4 py-3 text-left font-semibold">Показ</th>
+                    <th class="col-narrow px-4 py-3 text-center font-semibold">Показов</th>
                     <th class="px-4 py-3 text-center font-semibold">Вкл.</th>
                     <th class="px-4 py-3 text-center font-semibold">Действия</th>
                 </tr>
@@ -222,7 +222,7 @@
                                    form="bulkForm" class="bulk-checkbox border-gray-400">
                         </td>
 
-                        <td class="px-4 py-3 align-top">
+                        <td class="col-grow px-4 py-3 align-top">
                             <div class="flex items-start gap-2">
                                 @if($notification->icon)
                                     <span class="text-base leading-5">
@@ -237,7 +237,7 @@
                                     <div class="font-semibold text-gray-900 dark:text-white break-words">
                                         {{ $notification->title }}
                                     </div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 break-words">
+                                    <div class="only-wide text-xs text-gray-500 dark:text-gray-400 mt-0.5 break-words">
                                         {{ \Illuminate\Support\Str::limit(trim(strip_tags($notification->message)), 90) }}
                                     </div>
                                     <span class="inline-block text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 px-2 py-0.5 mt-1">
@@ -247,7 +247,7 @@
                             </div>
                         </td>
 
-                        <td class="px-4 py-3 align-top text-gray-600 dark:text-gray-300">
+                        <td class="col-extra px-4 py-3 align-top text-gray-600 dark:text-gray-300">
                             <div class="flex items-center gap-1">
                                 <i class="fas fa-users text-gray-400 w-4"></i>
                                 {{ $targetLabels[$notification->target] ?? $notification->target }}
@@ -262,7 +262,7 @@
                             </div>
                         </td>
 
-                        <td class="px-4 py-3 align-top text-gray-600 dark:text-gray-300">
+                        <td class="col-extra px-4 py-3 align-top text-gray-600 dark:text-gray-300">
                             <div>{{ $notification->duration ? $notification->duration . ' сек' : 'до закрытия' }}</div>
 
                             @if($notification->starts_at || $notification->ends_at)
@@ -286,7 +286,7 @@
                             @endif
                         </td>
 
-                        <td class="px-4 py-3 text-center align-top text-gray-700 dark:text-gray-300">
+                        <td class="col-narrow px-4 py-3 text-center align-top text-gray-700 dark:text-gray-300">
                             {{ $notification->views_count }}
                         </td>
 
@@ -345,6 +345,8 @@
 
 @push('styles')
 <style>
+    /* Строка списка в два ряда — общий приём .tbl-2rows, объявлен в лейауте. */
+
     /* Переключатель строки: peer-checked в этой сборке Tailwind отсутствует */
     .admin-toggle-btn{ width:2.5rem; height:1.4rem; border:1px solid #d1d5db; background:#e5e7eb;
         position:relative; cursor:pointer; padding:0; transition:background-color .15s, border-color .15s; }

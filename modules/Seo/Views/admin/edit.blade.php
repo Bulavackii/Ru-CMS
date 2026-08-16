@@ -278,8 +278,8 @@
                 </div>
 
                 {{-- Кнопка Сохранить --}}
-                <div class="flex flex-wrap items-center gap-3">
-                    <button class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition">Сохранить</button>
+                <div class="seo-acts flex flex-wrap items-center gap-3">
+                    <button class="seo-acts__main inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold shadow-sm transition">Сохранить</button>
                     <a href="{{ $viewUrl }}" target="_blank" rel="noopener"
                         class="px-4 py-2 border rounded hover:bg-gray-50">Открыть страницу</a>
                     <button type="button" class="px-4 py-2 border rounded hover:bg-gray-50"
@@ -291,7 +291,7 @@
             </form>
 
             {{-- ВНЕ основной формы: отдельные действия, чтобы не было вложенных форм --}}
-            <div class="flex flex-wrap items-center gap-3">
+            <div class="seo-acts flex flex-wrap items-center gap-3">
                 {{-- Пересинхронизация одной записи --}}
                 <form method="post" action="{{ route('seo.pages.refresh', $item->id) }}"
                     onsubmit="return confirm('Пересинхронизировать страницу из источника без перезаписи ваших ручных правок?');">
@@ -401,6 +401,31 @@
 
 @push('styles')
 <style>
+    /* ── Ряд действий на сенсорных ─────────────────────────────────
+       Шесть кнопок разной длины («Сохранить», «Открыть страницу»,
+       «Копировать URL», «Пересинхронизировать», «Удалить», «К списку»)
+       переносились как придётся: в ряду то две, то одна, ступеньками.
+
+       Раскладка в две равные доли: подписи разной длины больше не
+       задают ширину, ряды выходят ровными. Главная кнопка занимает
+       строку целиком — её ищут первой. */
+    @media (max-width: 720px){
+        /* ⚠️ `1fr` — это `minmax(auto, 1fr)`, то есть колонка не сожмётся
+           уже своего содержимого: длинная подпись «Пересинхронизировать»
+           растягивала свою половину до 221 против 138 у соседней. Ровные
+           доли даёт только `minmax(0, 1fr)`. */
+        body.admin-sharp .seo-acts{ display:grid;
+            grid-template-columns:repeat(2, minmax(0, 1fr)); gap:.5rem }
+        body.admin-sharp .seo-acts > *{ margin:0 }
+        body.admin-sharp .seo-acts form{ display:contents }
+        body.admin-sharp .seo-acts button,
+        body.admin-sharp .seo-acts a{
+            display:inline-flex; align-items:center; justify-content:center;
+            width:100%; min-height:44px; text-align:center;
+        }
+        body.admin-sharp .seo-acts__main{ grid-column:1 / -1 }
+    }
+
     /* ── Раздел SEO: поля ─────────────────────────────────────────────
        Литеральный CSS: в сборке проекта нет ни прозрачности через дробь,
        ни произвольных значений; скругления сняты общим рубильником

@@ -180,7 +180,7 @@
                     <th class="px-4 py-3 text-left font-semibold hidden md:table-cell">{{ __('admin.modules.version') }}</th>
                     <th class="px-4 py-3 text-center font-semibold">{{ __('admin.modules.filter_status') }}</th>
                     <th class="px-4 py-3 text-center font-semibold hidden lg:table-cell">{{ __('admin.modules.files') }}</th>
-                    <th class="px-4 py-3 text-center font-semibold w-28">{{ __('admin.modules.priority') }}</th>
+                    <th class="col-narrow px-4 py-3 text-center font-semibold w-28">{{ __('admin.modules.priority') }}</th>
                     <th class="px-4 py-3 text-center font-semibold w-32">{{ __('admin.common.actions') }}</th>
                 </tr>
             </thead>
@@ -206,14 +206,14 @@
                                 <span class="mod-name__meta">
                                     <span class="mod-name__slug">{{ $module->name }}</span>
                             @if ($module->is_protected)
-                                <span class="inline-flex items-center gap-1 px-2 py-0.5 font-semibold
+                                <span class="only-wide inline-flex items-center gap-1 px-2 py-0.5 font-semibold
                                              bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300"
                                       title="{{ __('admin.modules.system_title') }}">
                                     <i class="fas fa-shield-halved"></i> {{ __('admin.modules.system') }}
                                 </span>
                             @endif
                             @if ($module->is_signed)
-                                <span class="inline-flex items-center gap-1 px-2 py-0.5 font-semibold
+                                <span class="only-wide inline-flex items-center gap-1 px-2 py-0.5 font-semibold
                                              bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
                                       title="{{ __('admin.modules.signed_title') }}">
                                     <i class="fas fa-certificate"></i> {{ __('admin.modules.signed') }}
@@ -235,14 +235,16 @@
                     {{-- Статус --}}
                     <td class="px-4 py-3 align-top text-center">
                         @if ($module->active)
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold whitespace-nowrap
-                                         bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
-                                <i class="fas fa-circle-check"></i> {{ __('admin.modules.is_active') }}
+                            <span class="st-chip st-on inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold whitespace-nowrap
+                                         bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+                                  title="{{ __('admin.modules.is_active') }}">
+                                <i class="fas fa-circle-check"></i> <span class="st-text">{{ __('admin.modules.is_active') }}</span>
                             </span>
                         @else
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold whitespace-nowrap
-                                         bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400">
-                                <i class="fas fa-circle-minus"></i> {{ __('admin.modules.is_off') }}
+                            <span class="st-chip st-off inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold whitespace-nowrap
+                                         bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
+                                  title="{{ __('admin.modules.is_off') }}">
+                                <i class="fas fa-circle-minus"></i> <span class="st-text">{{ __('admin.modules.is_off') }}</span>
                             </span>
                         @endif
                     </td>
@@ -265,7 +267,7 @@
                     </td>
 
                     {{-- Приоритет (перетаскивание) --}}
-                    <td class="px-4 py-3 align-top text-center cursor-move handle" data-id="{{ $module->id }}"
+                    <td class="col-narrow px-4 py-3 align-top text-center cursor-move handle" data-id="{{ $module->id }}"
                         title="{{ __('admin.modules.drag_title') }}">
                         <span class="inline-flex items-center gap-1.5 text-gray-600 dark:text-gray-300">
                             <i class="fas fa-grip-vertical text-gray-400"></i> {{ $module->priority ?? 0 }}
@@ -296,7 +298,7 @@
                                 </span>
                             @endif
 
-                            <form method="POST" action="{{ route('admin.modules.archive', $module->id) }}" class="inline">
+                            <form method="POST" action="{{ route('admin.modules.archive', $module->id) }}" class="only-wide inline">
                                 @csrf @method('PATCH')
                                 <button type="submit" class="mod-icon" title="{{ __('admin.modules.archive') }}">
                                     <i class="fas fa-box-archive"></i>
@@ -306,7 +308,7 @@
                             @php $archivePath = base_path("modules/archives/{$module->name}.zip"); @endphp
                             @if (file_exists($archivePath))
                                 <a href="{{ route('admin.modules.downloadArchive', ['name' => $module->name]) }}"
-                                   class="mod-icon" title="{{ __('admin.modules.download') }}">
+                                   class="only-wide mod-icon" title="{{ __('admin.modules.download') }}">
                                     <i class="fas fa-download"></i>
                                 </a>
                             @endif

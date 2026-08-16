@@ -24,8 +24,8 @@
                 <tr>
                     <th class="px-4 py-3">📅 Дата и время</th>
                     <th class="px-4 py-3">🌐 IP адрес</th>
-                    <th class="px-4 py-3">🖥️ User Agent</th>
-                    <th class="px-4 py-3">📍 Местоположение</th>
+                    <th class="col-extra px-4 py-3">🖥️ User Agent</th>
+                    <th class="col-narrow px-4 py-3">📍 Местоположение</th>
                     <th class="px-4 py-3">✅ Статус</th>
                 </tr>
             </thead>
@@ -40,10 +40,10 @@
                         <td class="px-4 py-3 font-mono text-gray-700 dark:text-gray-300">
                             {{ $entry->ip_address ?? '—' }}
                         </td>
-                        <td class="px-4 py-3 text-gray-600 dark:text-gray-400 text-xs max-w-md truncate">
+                        <td class="col-extra px-4 py-3 text-gray-600 dark:text-gray-400 text-xs max-w-md truncate">
                             {{ $entry->user_agent ?? '—' }}
                         </td>
-                        <td class="px-4 py-3 text-gray-600 dark:text-gray-400 text-xs">
+                        <td class="col-narrow px-4 py-3 text-gray-600 dark:text-gray-400 text-xs">
                             @if($entry->country)
                                 {{ $entry->country }}
                                 @if($entry->city)

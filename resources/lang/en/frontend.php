@@ -434,6 +434,7 @@ return [
         'html' => 'HTML lessons',
         'js' => 'JavaScript lessons',
         'php' => 'PHP lessons',
+        'git' => 'Git lessons',
     ],
 
     'reviews' => [

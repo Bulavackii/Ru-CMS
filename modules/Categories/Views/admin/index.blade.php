@@ -151,7 +151,7 @@
     {{-- ── Подсказка ── --}}
     <div class="admin-note px-4 py-3 mb-5 text-sm">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-            <div class="flex items-center gap-2 font-medium">
+            <div class="only-keyboard flex items-center gap-2 font-medium">
                 <i class="fas fa-lightbulb"></i>
                 <span>{{ __('admin.categories.hint_keys') }} <kbd class="px-1.5 py-0.5 border border-indigo-300 bg-white dark:bg-gray-800">Ctrl</kbd> +
                       <kbd class="px-1.5 py-0.5 border border-indigo-300 bg-white dark:bg-gray-800">F</kbd> {{ __('admin.categories.hint_keys_2') }}</span>
