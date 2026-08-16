@@ -5,42 +5,50 @@
 @section('content')
     {{-- ───────────────────────── Header ───────────────────────── --}}
     <div class="admin-accent-bar mb-0"></div>
-    <div class="admin-glass border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-4 mb-6
-                flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
-        <div class="flex items-center gap-3 min-w-0">
+    {{-- Шапка раздела в ДВА РЯДА (просьба владельца, разобранная по
+         снимкам): сверху — название меню и его состояние, снизу — позиция и
+         возврат к списку. Прежняя раскладка складывала название, позицию и
+         состояние в один блок, а ссылка «Назад к списку» уезжала третьей
+         строкой, оставляя половину ширины пустой. --}}
+    <div class="admin-glass mh border border-t-0 border-gray-200 dark:border-gray-700 px-5 py-3 mb-6">
+
+        {{-- Ряд 1: название + состояние --}}
+        <div class="mh-row">
             <span class="admin-icon-badge">@themeIcon('bars')</span>
-            <div class="min-w-0 space-y-1">
-                <h1 class="text-xl font-bold text-gray-900 dark:text-white truncate">
-                    {{ $menu->title }}
-                </h1>
-                {{-- ⚠️ Каждый факт — НЕРАЗРЫВНОЙ группой (`mi-fact`). Строка
-                     переносится по любому месту, и на телефоне подпись
-                     «Статус:» оставалась в одной строке, а её значение
-                     «Включено» уезжало в следующую: фраза разрывалась
-                     посередине. Переносить нужно между фактами, а не внутри
-                     них. --}}
-                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-500 dark:text-gray-400">
-                    <span class="mi-fact">📍 {{ __('admin.menu.position_label') }} <b>{{ $menu->position }}</b></span>
-                    <span class="mi-fact inline-flex items-center gap-1">
-                        {{ __('admin.menu.status_label') }}
-                        @if($menu->active)
-                            <span class="inline-flex items-center gap-1 text-green-600">
-                                <span class="h-2 w-2 rounded-full bg-green-500 inline-block"></span> {{ __('admin.menu.enabled') }}
-                            </span>
-                        @else
-                            <span class="inline-flex items-center gap-1 text-gray-500">
-                                <span class="h-2 w-2 rounded-full bg-gray-400 inline-block"></span> {{ __('admin.menu.disabled') }}
-                            </span>
-                        @endif
+
+            <h1 class="mh-title text-xl font-bold text-gray-900 dark:text-white truncate">
+                {{ $menu->title }}
+            </h1>
+
+            {{-- ⚠️ Факт — НЕРАЗРЫВНАЯ группа. Строка переносится по любому
+                 месту, и на телефоне подпись «Статус:» оставалась в одной
+                 строке, а значение «Включено» уезжало в следующую: фраза
+                 разрывалась пополам. Переносим между фактами, не внутри. --}}
+            <span class="mi-fact mh-status inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
+                {{ __('admin.menu.status_label') }}
+                @if($menu->active)
+                    <span class="inline-flex items-center gap-1 text-green-600">
+                        <span class="h-2 w-2 rounded-full bg-green-500 inline-block"></span> {{ __('admin.menu.enabled') }}
                     </span>
-                </div>
-            </div>
+                @else
+                    <span class="inline-flex items-center gap-1 text-gray-500">
+                        <span class="h-2 w-2 rounded-full bg-gray-400 inline-block"></span> {{ __('admin.menu.disabled') }}
+                    </span>
+                @endif
+            </span>
         </div>
 
-        <a href="{{ route('admin.menus.index') }}"
-           class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 shrink-0">
-            @themeIcon('arrow-left') {{ __('admin.menu.back_to_list') }}
-        </a>
+        {{-- Ряд 2: позиция + возврат --}}
+        <div class="mh-row mh-row--sub">
+            <span class="mi-fact text-sm text-gray-500 dark:text-gray-400">
+                📍 {{ __('admin.menu.position_label') }} <b>{{ $menu->position }}</b>
+            </span>
+
+            <a href="{{ route('admin.menus.index') }}"
+               class="mh-back inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400">
+                @themeIcon('arrow-left') {{ __('admin.menu.back_to_list') }}
+            </a>
+        </div>
     </div>
 
     {{-- ───────────────────── Help block ───────────────────── --}}
@@ -1235,6 +1243,30 @@ $('#bulk-delete').addEventListener('click', () => bulkAction('delete'));
 
 @push('styles')
 <style>
+    /* ── Шапка раздела: два ряда ──────────────────────────────
+       Ряд 1 — название и состояние, ряд 2 — позиция и возврат. Значок
+       стоит слева от названия, состояние прижато к правому краю: так у
+       обоих рядов один правый край и шапка читается таблицей, а не
+       набором строк. */
+    /* ⚠️ Селектор усилен намеренно. Общее правило панели делает шапку
+       раздела строкой с переносом (`body main .admin-glass`, сила 0-2-2) —
+       оно сильнее одиночного класса, и два ряда вставали в одну строку на
+       широком экране. Здесь ряды заданы явно, поэтому перенос не нужен. */
+    body main .admin-glass.mh{ display:flex; flex-direction:column;
+        flex-wrap:nowrap; align-items:stretch; gap:.4rem }
+    .mh-row{ display:flex; align-items:center; gap:.6rem; min-width:0 }
+    /* Базис ноль, иначе длинное название не сжимается, а выталкивает
+       состояние на следующую строку (та же ловушка, что в списке пунктов). */
+    .mh-title{ flex:1 1 0; min-width:0 }
+    .mh-status{ flex:none }
+    .mh-row--sub{ justify-content:space-between; padding-left:2.9rem }
+    .mh-back{ flex:none }
+
+    @media (max-width: 480px){
+        /* На узком экране отступ под значок съедает место у позиции. */
+        .mh-row--sub{ padding-left:0 }
+    }
+
     /* Факт в строке состояния не разрывается посередине. */
     .mi-fact{ white-space:nowrap }
 
