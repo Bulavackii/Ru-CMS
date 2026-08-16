@@ -325,11 +325,22 @@
 
            Ужимаем поля, значок и кегль заголовка. Само содержимое остаётся:
            прятать описание раздела нельзя — по нему понимают, куда попали. */
-        body main .admin-glass{ padding:.7rem .85rem }
+        body main .admin-glass{ padding:.7rem .85rem; gap:.5rem; margin-bottom:1rem }
         body main .admin-icon-badge{ width:2rem; height:2rem; font-size:.8rem }
         body main h1{ font-size:1.05rem; line-height:1.3 }
         body main .admin-note{ padding:.6rem .75rem; margin-bottom:1rem }
         body main .admin-accent-bar{ height:2px }
+
+        /* Строки внутри шапки жмутся друг к другу: заголовок, строка
+           состояния и ссылка «назад» — это одна мысль, а не три блока.
+           Вертикальные зазоры между ними съедали больше места, чем сам
+           текст. */
+        body main .admin-glass .space-y-1 > * + *{ margin-top:.1rem }
+        body main .admin-glass .gap-3{ gap:.5rem }
+
+        /* Ссылка «Назад к списку» прижимается к левому краю и не растягивается
+           на всю строку: во всю ширину она читалась как кнопка действия. */
+        body main .admin-glass > a:last-child{ align-self:flex-start }
 
         /* Кнопка действия в шапке раздела — на всю ширину под заголовком:
            рядом с ним она сжимала текст до двух-трёх слов в строке. */

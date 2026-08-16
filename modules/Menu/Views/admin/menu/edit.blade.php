@@ -504,10 +504,19 @@ function renderList(items, depth=0){
                 @themeIcon('chevron-down')
               </button>
               ${iconDisplay}
-              <span class="font-medium truncate">${escapeHtml(item.title)}</span>
-              <span class="text-xs text-gray-500">(${item.type})</span>
-              ${activeBadge}
-              ${depth >= 2 ? '<span class="text-xs px-1.5 py-0.5 bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">' + @js(__('admin.menu.max_level')) + '</span>' : ''}
+              <span class="mi-name font-medium truncate">${escapeHtml(item.title)}</span>
+              {{-- Тип, состояние и пометка уровня — ОДНОЙ группой. Раньше они
+                   лежали в строке по отдельности, и на узком экране перенос
+                   заставал их в разных местах: у пункта с коротким названием
+                   плашка оставалась в строке, у длинного уезжала вниз, а у
+                   третьего вниз уезжала только пометка уровня. Список из
+                   четырёх пунктов выглядел собранным из четырёх разных
+                   вёрсток. Группа переносится целиком — вид один. --}}
+              <span class="mi-meta">
+                <span class="text-xs text-gray-500">(${item.type})</span>
+                ${activeBadge}
+                ${depth >= 2 ? '<span class="text-xs px-1.5 py-0.5 bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">' + @js(__('admin.menu.max_level')) + '</span>' : ''}
+              </span>
             </div>
 
             <div class="flex items-center gap-1">
@@ -1210,6 +1219,17 @@ $('#bulk-delete').addEventListener('click', () => bulkAction('delete'));
 
 @push('styles')
 <style>
+    /* Строка пункта: название и его пометки. */
+    .mi-meta{ display:inline-flex; align-items:center; gap:.35rem; flex:none }
+
+    @media (max-width: 1024px), (max-height: 500px){
+        /* Пометки — своей строкой под названием, с отступом под значок
+           перетаскивания: так все пункты выглядят одинаково независимо от
+           длины названия. */
+        .mi-meta{ flex:0 0 100%; padding-left:4.3rem }
+        .mi-name{ flex:1 1 auto; min-width:0 }
+    }
+
     .dragging {
         opacity: 0.5;
         transform: rotate(2deg);
