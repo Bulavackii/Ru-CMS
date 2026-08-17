@@ -28,11 +28,11 @@
 
 .EXAMPLE
     # Запуск из каталога проекта, в консоли «от имени администратора»:
-    pwsh -ExecutionPolicy Bypass -File scripts/переименовать-базу.ps1
+    pwsh -ExecutionPolicy Bypass -File scripts/rename-database.ps1
 
 .EXAMPLE
     # Со своими именами
-    pwsh -File scripts/переименовать-базу.ps1 -OldName rucms_dev -NewName nexum_core
+    pwsh -File scripts/rename-database.ps1 -OldName rucms_dev -NewName nexum_core
 #>
 
 [CmdletBinding()]

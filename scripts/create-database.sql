@@ -7,7 +7,7 @@
 --
 --  Запускать ПОД СУПЕРПОЛЬЗОВАТЕЛЕМ postgres:
 --
---    "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -h 127.0.0.1 -d postgres -f scripts/создать-базу.sql
+--    "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -h 127.0.0.1 -d postgres -f scripts/create-database.sql
 --
 --  ⚠️ Пароль в строке ниже ЗАМЕНИТЕ на тот, что стоит в DB_PASSWORD в .env.
 --     Они обязаны совпадать, иначе приложение не подключится.

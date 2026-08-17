@@ -5,11 +5,11 @@
 
 | Скрипт | Когда нужен |
 |:---|:---|
-| [`переименовать-базу.sql`](переименовать-базу.sql) | у базы и роли осталось старое имя (`rucms_dev`), надо привести к тому, что в `.env` |
-| [`создать-базу.sql`](создать-базу.sql) | базы нет вовсе, поднимаем с нуля |
+| [`rename-database.sql`](rename-database.sql) | у базы и роли осталось старое имя (`rucms_dev`), надо привести к тому, что в `.env` |
+| [`create-database.sql`](create-database.sql) | базы нет вовсе, поднимаем с нуля |
 
 ```bash
-"C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -h 127.0.0.1 -d postgres -f scripts/переименовать-базу.sql
+"C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -h 127.0.0.1 -d postgres -f scripts/rename-database.sql
 ```
 
 ---
@@ -22,7 +22,7 @@
 пароля, переименовывает роль и базу и **сам возвращает настройки обратно**.
 
 ```powershell
-pwsh -ExecutionPolicy Bypass -File scripts/переименовать-базу.ps1
+pwsh -ExecutionPolicy Bypass -File scripts/rename-database.ps1
 ```
 
 Запускать в консоли **«от имени администратора»**, предварительно закрыв

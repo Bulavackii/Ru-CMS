@@ -6,7 +6,7 @@
 --
 --  Запускать ПОД СУПЕРПОЛЬЗОВАТЕЛЕМ postgres, подключившись к базе postgres:
 --
---    "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -h 127.0.0.1 -d postgres -f scripts/переименовать-базу.sql
+--    "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -h 127.0.0.1 -d postgres -f scripts/rename-database.sql
 --
 --  psql спросит пароль postgres сам — он нигде не сохраняется.
 --
