@@ -30,7 +30,7 @@ class AccountSettingsController extends Controller
         // 👤 Получаем текущего авторизованного пользователя
         $user = Auth::user();
 
-        // 🛢️ Получаем версию используемой базы данных (например, MySQL 8.0.x)
+        // 🛢️ Версия базы данных (например, «PostgreSQL 18.4 on x86_64-…»)
         $dbVersion = DB::selectOne('select version() as version')->version ?? 'N/A';
 
         // 📄 Отображаем представление 'admin.account.settings' с переданными данными
