@@ -44,6 +44,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->guardOutboundRequests();
+        $this->guardDatabaseDriver();
 
         // Проверка установки обрабатывается через middleware RedirectIfInstalled
         // Не нужно делать редирект здесь, так как это нарушает жизненный цикл Laravel
@@ -85,6 +86,42 @@ class AppServiceProvider extends ServiceProvider
      * в закрытой сети или собственный сервер обновлений во внутреннем контуре
      * работают как обычно.
      */
+    /**
+     * 🔴 База данных — только PostgreSQL.
+     *
+     * Это железное правило проекта: мастер установки не предлагает другие
+     * драйверы, а запросы и обслуживание (бэкап через `pg_dump`, `VACUUM
+     * ANALYZE`) рассчитаны на него.
+     *
+     * ⚠️ Убрать чужой драйвер из `config/database.php` НЕЛЬЗЯ: Laravel 11+
+     * сливает `database.connections` со своими значениями по умолчанию
+     * (`LoadConfiguration::mergeableOptions()`), и mysql с mariadb вернутся
+     * оттуда, сколько их из файла ни удаляй. Проверено. Поэтому заслон —
+     * здесь, на выбранном соединении.
+     *
+     * ⚠️ Падаем ЯВНО, а не молча переключаемся на pgsql: подмена драйвера за
+     * спиной у владельца привела бы к попытке работать с чужой базой по
+     * чужим реквизитам, и разбираться в этом было бы куда хуже, чем прочитать
+     * внятную ошибку при запуске.
+     *
+     * `sqlite` разрешён единственным исключением — на нём гоняются тесты.
+     */
+    private function guardDatabaseDriver(): void
+    {
+        $соединение = (string) config('database.default');
+        $драйвер = (string) config("database.connections.{$соединение}.driver");
+
+        if (in_array($драйвер, ['pgsql', 'sqlite'], true)) {
+            return;
+        }
+
+        throw new \RuntimeException(
+            "Nexum Core работает только на PostgreSQL, а в DB_CONNECTION задано «{$соединение}» "
+            . "(драйвер «{$драйвер}»). Поставьте DB_CONNECTION=pgsql в .env. "
+            . 'Как создать роль и базу — scripts/README-база.md.'
+        );
+    }
+
     private function guardOutboundRequests(): void
     {
         \Illuminate\Support\Facades\Http::globalRequestMiddleware(function ($request) {

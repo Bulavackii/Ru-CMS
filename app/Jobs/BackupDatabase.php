@@ -68,9 +68,10 @@ class BackupDatabase implements ShouldQueue
         
         $backupPath = $backupDir . '/' . $filename;
         
+        // Проект работает только на PostgreSQL; sqlite остаётся ради тестов.
+        // Ветка mysql убрана: она была мёртвой и вдобавок передавала пароль
+        // аргументом командной строки (-p), а аргументы видны в `ps aux`.
         switch ($driver) {
-            case 'mysql':
-                return $this->backupMySQL($database, $backupPath);
             case 'pgsql':
                 return $this->backupPostgreSQL($database, $backupPath);
             case 'sqlite':
@@ -79,40 +80,6 @@ class BackupDatabase implements ShouldQueue
                 Log::warning("Unsupported database driver: {$driver}");
                 return null;
         }
-    }
-
-    /**
-     * Бэкап MySQL
-     */
-    private function backupMySQL(string $database, string $backupPath): ?string
-    {
-        $host = config('database.connections.mysql.host');
-        $port = config('database.connections.mysql.port', 3306);
-        $username = config('database.connections.mysql.username');
-        $password = config('database.connections.mysql.password');
-        
-        $command = sprintf(
-            'mysqldump -h %s -P %s -u %s -p%s %s > %s 2>&1',
-            escapeshellarg($host),
-            escapeshellarg($port),
-            escapeshellarg($username),
-            escapeshellarg($password),
-            escapeshellarg($database),
-            escapeshellarg($backupPath)
-        );
-        
-        exec($command, $output, $returnCode);
-        
-        if ($returnCode === 0 && file_exists($backupPath)) {
-            // Сжатие
-            $compressedPath = $backupPath . '.gz';
-            exec("gzip -c {$backupPath} > {$compressedPath}");
-            unlink($backupPath);
-            
-            return $compressedPath;
-        }
-        
-        return null;
     }
 
     /**

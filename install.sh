@@ -3,13 +3,18 @@
 # ═══════════════════════════════════════════════════════════════
 # 🚀 Автоматический скрипт установки Nexum Core для Ubuntu 24.04.3 LTS
 # ═══════════════════════════════════════════════════════════════
-# 
+#
+# 🔴 База данных — ТОЛЬКО PostgreSQL. Это железное правило проекта: в мастере
+#    установки других драйверов нет, миграции и запросы рассчитаны на него.
+#    Скрипт ставит и настраивает именно PostgreSQL. Раньше он поднимал MySQL —
+#    и установка по нему падала на первом же обращении к базе.
+#
 # Использование: sudo ./install.sh
-# 
+#
 # Этот скрипт автоматически:
-# - Устанавливает необходимые пакеты (PHP 8.5, MySQL, Nginx, Composer, Node.js)
+# - Устанавливает необходимые пакеты (PHP 8.5, PostgreSQL, Nginx, Composer, Node.js)
 # - Настраивает веб-сервер (Nginx)
-# - Создает базу данных MySQL (опционально)
+# - Создаёт роль и базу PostgreSQL (опционально)
 # - Устанавливает зависимости проекта
 # - Настраивает SSL сертификат (опционально)
 # - Настраивает права доступа
@@ -29,15 +34,15 @@
 #    🔧 Директория проекта (по умолчанию: "/var/www/cms")
 #    Пример: PROJECT_DIR="/var/www/myproject"
 #
-# 3. DEFAULT_DB_NAME (строка после установки MySQL, см. раздел "Создание БД")
+# 3. DEFAULT_DB_NAME (см. раздел "Создание БД")
 #    🔧 Имя базы данных по умолчанию (по умолчанию: "nexum_core")
 #    Пример: DEFAULT_DB_NAME="mycms_db"
 #
-# 4. DEFAULT_DB_USER (строка после установки MySQL, см. раздел "Создание БД")
-#    🔧 Имя пользователя БД по умолчанию (по умолчанию: "root")
+# 4. DEFAULT_DB_USER (см. раздел "Создание БД")
+#    🔧 Имя роли PostgreSQL по умолчанию (по умолчанию: "nexum_core")
 #    Пример: DEFAULT_DB_USER="cms_user"
 #
-# 5. DEFAULT_DB_PASSWORD (строка после установки MySQL, см. раздел "Создание БД")
+# 5. DEFAULT_DB_PASSWORD (см. раздел "Создание БД")
 #    🔧 Пароль пользователя БД по умолчанию (по умолчанию: пусто = автогенерация)
 #    Пример: DEFAULT_DB_PASSWORD="мой_безопасный_пароль"
 #    Или оставьте пустым "" для автоматической генерации пароля
@@ -106,7 +111,7 @@ apt install -y php${PHP_VERSION} \
     php${PHP_VERSION}-fpm \
     php${PHP_VERSION}-cli \
     php${PHP_VERSION}-common \
-    php${PHP_VERSION}-mysql \
+    php${PHP_VERSION}-pgsql \
     php${PHP_VERSION}-zip \
     php${PHP_VERSION}-gd \
     php${PHP_VERSION}-mbstring \
@@ -118,154 +123,100 @@ apt install -y php${PHP_VERSION} \
     php${PHP_VERSION}-redis \
     php${PHP_VERSION}-imagick
 
-# Шаг 4: Установка MySQL
-echo -e "${GREEN}📦 Шаг 4: Установка MySQL...${NC}"
+# Шаг 4: Установка PostgreSQL
+echo -e "${GREEN}📦 Шаг 4: Установка PostgreSQL...${NC}"
 
-# Проверяем установлен ли MySQL
-if ! dpkg -l | grep -q "^ii.*mysql-server" && ! command -v mysql &> /dev/null; then
-    apt install -y mysql-server
-    systemctl enable mysql
-    echo -e "${GREEN}✓ MySQL установлен${NC}"
-elif ! systemctl is-active --quiet mysql 2>/dev/null; then
-    systemctl start mysql
-    systemctl enable mysql
-    echo -e "${GREEN}✓ MySQL запущен${NC}"
+if ! command -v psql &> /dev/null; then
+    apt install -y postgresql postgresql-contrib
+    echo -e "${GREEN}✓ PostgreSQL установлен${NC}"
 else
-    echo -e "${GREEN}✓ MySQL уже установлен и запущен${NC}"
+    echo -e "${GREEN}✓ PostgreSQL уже установлен${NC}"
 fi
 
-systemctl start mysql 2>/dev/null || true
-systemctl enable mysql 2>/dev/null || true
+systemctl start postgresql 2>/dev/null || true
+systemctl enable postgresql 2>/dev/null || true
 
-# ═══════════════════════════════════════════════════════════════
-# 🔧 НАСТРОЙКА ПАРАМЕТРОВ БАЗЫ ДАННЫХ - ИЗМЕНИТЕ ЗДЕСЬ
-# ═══════════════════════════════════════════════════════════════
-# 💡 Эти значения будут использоваться для создания БД и записи в .env
-# Если вы оставите DEFAULT_DB_PASSWORD пустым (""), пароль будет сгенерирован автоматически
-# ═══════════════════════════════════════════════════════════════
-
-DEFAULT_DB_NAME="nexum_core"              # 🔧 ИЗМЕНИТЕ: имя базы данных (DB_DATABASE в .env)
-DEFAULT_DB_USER="root"                # 🔧 ИЗМЕНИТЕ: имя пользователя (DB_USERNAME в .env)
-DEFAULT_DB_PASSWORD=""                # 🔧 ИЗМЕНИТЕ: пароль (DB_PASSWORD в .env)
-                                      #    Оставьте "" для автогенерации, или укажите конкретный пароль
-
-# Предлагаем создать базу данных автоматически
 echo ""
-read -p "Создать базу данных MySQL автоматически? (y/n) " -n 1 -r
+
+# ═══════════════════════════════════════════════════════════════
+# 🔧 ПАРАМЕТРЫ БАЗЫ ДАННЫХ — ИЗМЕНИТЕ ЗДЕСЬ
+# ═══════════════════════════════════════════════════════════════
+DEFAULT_DB_NAME="nexum_core"          # 🔧 имя базы (DB_DATABASE в .env)
+DEFAULT_DB_USER="nexum_core"          # 🔧 имя роли (DB_USERNAME в .env)
+DEFAULT_DB_PASSWORD=""                # 🔧 пароль (DB_PASSWORD); "" — сгенерировать
+
+# Предлагаем создать роль и базу автоматически
+read -p "Создать роль и базу PostgreSQL автоматически? (y/n) " -n 1 -r
 echo ""
-MYSQL_DB_CREATED=false
+DB_CREATED=false
 
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo -e "${GREEN}📦 Шаг 4.1: Создание базы данных MySQL...${NC}"
-    
-    # Запрашиваем параметры (можно просто нажать Enter для значений по умолчанию)
-    read -p "Имя базы данных [${DEFAULT_DB_NAME}]: " DB_NAME
-    DB_NAME=${DB_NAME:-${DEFAULT_DB_NAME}}
-    
-    read -p "Имя пользователя [${DEFAULT_DB_USER}]: " DB_USER
-    DB_USER=${DB_USER:-${DEFAULT_DB_USER}}
-    
-    # Запрашиваем пароль
-    if [ -n "${DEFAULT_DB_PASSWORD}" ]; then
-        read -sp "Пароль пользователя [используется значение по умолчанию]: " DB_PASSWORD
-        echo ""
-        DB_PASSWORD=${DB_PASSWORD:-${DEFAULT_DB_PASSWORD}}
-    else
-        read -sp "Пароль пользователя (Enter для автогенерации): " DB_PASSWORD
-        echo ""
-        if [ -z "$DB_PASSWORD" ]; then
-            DB_PASSWORD=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
-            echo -e "${YELLOW}✓ Пароль сгенерирован автоматически${NC}"
-        fi
+    echo -e "${GREEN}📦 Шаг 4.1: Создание роли и базы PostgreSQL...${NC}"
+
+    read -p "Имя базы [$DEFAULT_DB_NAME]: " DB_NAME
+    DB_NAME=${DB_NAME:-$DEFAULT_DB_NAME}
+
+    read -p "Имя роли [$DEFAULT_DB_USER]: " DB_USER
+    DB_USER=${DB_USER:-$DEFAULT_DB_USER}
+
+    read -s -p "Пароль роли (Enter — сгенерировать): " DB_PASSWORD
+    echo ""
+
+    if [ -z "$DB_PASSWORD" ]; then
+        # 24 байта из /dev/urandom, только безопасные для .env символы
+        DB_PASSWORD=$(tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 24)
+        echo -e "${YELLOW}Пароль сгенерирован — он будет показан в конце установки.${NC}"
     fi
-    
-    echo ""
-    echo -e "${YELLOW}⚠️  Будет выполнен сброс пароля MySQL root через безопасный режим.${NC}"
-    read -p "Продолжить? (y/n) " -n 1 -r
-    echo ""
-    
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        # Создаем временный systemd override для MySQL
-        MYSQL_SERVICE_DIR="/etc/systemd/system/mysql.service.d"
-        mkdir -p $MYSQL_SERVICE_DIR
-        
-        # Создаем override файл для запуска MySQL с --skip-grant-tables
-        cat > $MYSQL_SERVICE_DIR/reset-root-password.conf <<EOF
-[Service]
-ExecStart=
-ExecStart=/usr/sbin/mysqld --skip-grant-tables --user=mysql
-EOF
-        
-        # Останавливаем MySQL
-        systemctl stop mysql
-        sleep 2
-        
-        # Перезагружаем systemd и запускаем MySQL в безопасном режиме
-        systemctl daemon-reload
-        systemctl start mysql
-        
-        # Ждем, пока MySQL запустится (до 20 секунд)
-        echo -e "${YELLOW}Ожидание запуска MySQL в безопасном режиме...${NC}"
-        MYSQL_READY=false
-        for i in {1..20}; do
-            if systemctl is-active --quiet mysql; then
-                if mysql -u root -e "SELECT 1;" >/dev/null 2>&1 || mysql -u root -h 127.0.0.1 -e "SELECT 1;" >/dev/null 2>&1; then
-                    MYSQL_READY=true
-                    break
-                fi
-            fi
-            sleep 1
-        done
-        
-        if [ "$MYSQL_READY" = true ]; then
-            # Подключаемся и создаем БД и пользователя
-            if mysql -u root -e "SELECT 1;" >/dev/null 2>&1; then
-                mysql -u root <<EOF
-USE mysql;
-FLUSH PRIVILEGES;
-ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '';
-FLUSH PRIVILEGES;
-CREATE DATABASE IF NOT EXISTS ${DB_NAME} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';
-GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'localhost';
-FLUSH PRIVILEGES;
-EOF
-            else
-                mysql -u root -h 127.0.0.1 <<EOF
-USE mysql;
-FLUSH PRIVILEGES;
-ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '';
-FLUSH PRIVILEGES;
-CREATE DATABASE IF NOT EXISTS ${DB_NAME} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';
-GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'localhost';
-FLUSH PRIVILEGES;
-EOF
-            fi
-            
-            # Восстанавливаем нормальный режим MySQL
-            systemctl stop mysql
-            rm -f $MYSQL_SERVICE_DIR/reset-root-password.conf
-            systemctl daemon-reload
-            systemctl start mysql
-            sleep 2
-            
-            if systemctl is-active --quiet mysql; then
-                echo -e "${GREEN}✓ База данных и пользователь созданы успешно${NC}"
-                MYSQL_DB_CREATED=true
-                MYSQL_DB_NAME=$DB_NAME
-                MYSQL_USER=$DB_USER
-                MYSQL_USER_PASSWORD=$DB_PASSWORD
-            else
-                echo -e "${YELLOW}⚠️  База данных создана, но MySQL не запустился автоматически${NC}"
-                systemctl start mysql
-            fi
-        else
-            echo -e "${YELLOW}⚠️  Не удалось запустить MySQL в безопасном режиме. Пропускаем создание БД.${NC}"
-            rm -f $MYSQL_SERVICE_DIR/reset-root-password.conf
-            systemctl daemon-reload
-            systemctl start mysql
-        fi
+
+    # ⚠️ Пароль роли передаётся ЧЕРЕЗ STDIN (heredoc), а не аргументом `-c`:
+    #    аргументы командной строки видны любому пользователю сервера в
+    #    `ps aux`, и пароль базы утёк бы в момент установки.
+    #
+    # ⚠️ Работаем через `sudo -u postgres psql`: на Ubuntu для локального
+    #    подключения суперпользователя действует peer-аутентификация, то есть
+    #    пароль postgres не нужен вовсе. Прежняя версия скрипта вместо этого
+    #    останавливала сервер, поднимала его с --skip-grant-tables и сбрасывала
+    #    пароль root — на живом сервере это опасная затея.
+    if sudo -u postgres psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='$DB_USER'" | grep -q 1; then
+        echo -e "${YELLOW}Роль $DB_USER уже есть — обновляю пароль${NC}"
+        sudo -u postgres psql -v ON_ERROR_STOP=1 >/dev/null <<SQLEOF
+ALTER ROLE "$DB_USER" WITH LOGIN CREATEDB PASSWORD '$DB_PASSWORD';
+SQLEOF
+    else
+        sudo -u postgres psql -v ON_ERROR_STOP=1 >/dev/null <<SQLEOF
+CREATE ROLE "$DB_USER" WITH LOGIN CREATEDB PASSWORD '$DB_PASSWORD';
+SQLEOF
+        echo -e "${GREEN}✓ Роль $DB_USER создана${NC}"
+    fi
+
+    if sudo -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname='$DB_NAME'" | grep -q 1; then
+        echo -e "${YELLOW}База $DB_NAME уже есть — создавать не нужно${NC}"
+    else
+        # Кодировка и правила сортировки заданы явно: иначе берётся системная
+        # локаль сервера, и русские тексты получают другой порядок сортировки.
+        sudo -u postgres psql -v ON_ERROR_STOP=1 -c \
+            "CREATE DATABASE \"$DB_NAME\" WITH OWNER = \"$DB_USER\" ENCODING = 'UTF8' TEMPLATE = template0;" >/dev/null
+        echo -e "${GREEN}✓ База $DB_NAME создана${NC}"
+    fi
+
+    # ⚠️ С PostgreSQL 15 обычная роль больше НЕ может создавать таблицы в
+    #    схеме public по умолчанию. Без этих двух строк `php artisan migrate`
+    #    падает с «permission denied for schema public» — самая частая заминка
+    #    на свежей установке.
+    sudo -u postgres psql -v ON_ERROR_STOP=1 -d "$DB_NAME" \
+        -c "GRANT ALL ON SCHEMA public TO \"$DB_USER\";" \
+        -c "ALTER SCHEMA public OWNER TO \"$DB_USER\";" >/dev/null
+
+    sudo -u postgres psql -v ON_ERROR_STOP=1 \
+        -c "GRANT ALL PRIVILEGES ON DATABASE \"$DB_NAME\" TO \"$DB_USER\";" >/dev/null
+
+    # Проверяем, что роль действительно может войти и работать
+    if PGPASSWORD="$DB_PASSWORD" psql -h 127.0.0.1 -U "$DB_USER" -d "$DB_NAME" -tAc "SELECT 1" >/dev/null 2>&1; then
+        echo -e "${GREEN}✓ Подключение под ролью $DB_USER проверено${NC}"
+        DB_CREATED=true
+    else
+        echo -e "${RED}✗ Роль создана, но подключиться не удалось.${NC}"
+        echo -e "${YELLOW}  Проверьте pg_hba.conf: для host 127.0.0.1 нужен scram-sha-256 или md5.${NC}"
     fi
 fi
 
@@ -475,15 +426,23 @@ LOG_CHANNEL=stack
 LOG_DEPRECATIONS_CHANNEL=null
 LOG_LEVEL=debug
 
-DB_CONNECTION=mysql
+# ТОЛЬКО PostgreSQL: в мастере установки других драйверов нет, миграции и
+# запросы рассчитаны на него. Раньше здесь стоял mysql на порту 3306 — то
+# есть запасной .env противоречил самому продукту, и установка по нему
+# падала на первом же обращении к базе.
+DB_CONNECTION=pgsql
 DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=
-DB_USERNAME=
+DB_PORT=5432
+DB_DATABASE=${DEFAULT_DB_NAME}
+DB_USERNAME=${DEFAULT_DB_USER}
 DB_PASSWORD=
 
-BROADCAST_DRIVER=log
-CACHE_DRIVER=file
+# Пять секунд, а не бесконечность: недоступный SMTP иначе роняет запрос по
+# лимиту времени PHP (так падала смена статуса заказа).
+MAIL_TIMEOUT=5
+
+BROADCAST_CONNECTION=log
+CACHE_STORE=file
 FILESYSTEM_DISK=local
 QUEUE_CONNECTION=sync
 SESSION_DRIVER=file
@@ -509,49 +468,57 @@ ENVEOF
 fi
 
 # Заполнение данных БД в .env (если БД была создана автоматически)
-if [ "$MYSQL_DB_CREATED" = true ]; then
+if [ "$DB_CREATED" = true ]; then
     # Обновляем или добавляем строки с данными БД
     if grep -q "^DB_DATABASE=" .env; then
-        sed -i "s|^DB_DATABASE=.*|DB_DATABASE=${MYSQL_DB_NAME}|" .env
+        sed -i "s|^DB_DATABASE=.*|DB_DATABASE=${DB_NAME}|" .env
     else
-        echo "DB_DATABASE=${MYSQL_DB_NAME}" >> .env
+        echo "DB_DATABASE=${DB_NAME}" >> .env
     fi
     
     if grep -q "^DB_USERNAME=" .env; then
-        sed -i "s|^DB_USERNAME=.*|DB_USERNAME=${MYSQL_USER}|" .env
+        sed -i "s|^DB_USERNAME=.*|DB_USERNAME=${DB_USER}|" .env
     else
-        echo "DB_USERNAME=${MYSQL_USER}" >> .env
+        echo "DB_USERNAME=${DB_USER}" >> .env
     fi
     
     if grep -q "^DB_PASSWORD=" .env; then
-        sed -i "s|^DB_PASSWORD=.*|DB_PASSWORD=${MYSQL_USER_PASSWORD}|" .env
+        sed -i "s|^DB_PASSWORD=.*|DB_PASSWORD=${DB_PASSWORD}|" .env
     else
-        echo "DB_PASSWORD=${MYSQL_USER_PASSWORD}" >> .env
+        echo "DB_PASSWORD=${DB_PASSWORD}" >> .env
     fi
     
-    # Убеждаемся, что используется MySQL
+    # Драйвер и порт — только PostgreSQL (железное правило проекта)
     if grep -q "^DB_CONNECTION=" .env; then
-        sed -i "s|^DB_CONNECTION=.*|DB_CONNECTION=mysql|" .env
+        sed -i "s|^DB_CONNECTION=.*|DB_CONNECTION=pgsql|" .env
     else
-        echo "DB_CONNECTION=mysql" >> .env
+        echo "DB_CONNECTION=pgsql" >> .env
+    fi
+
+    if grep -q "^DB_PORT=" .env; then
+        sed -i "s|^DB_PORT=.*|DB_PORT=5432|" .env
+    else
+        echo "DB_PORT=5432" >> .env
     fi
     
     echo -e "${GREEN}✓ Настроены данные БД в .env${NC}"
     
-    # Сохраняем пароли MySQL в файл для безопасности
-    MYSQL_CREDENTIALS_FILE="${PROJECT_DIR}/mysql_credentials.txt"
-    cat > $MYSQL_CREDENTIALS_FILE <<CREDEOF
+    # Реквизиты — в файл с правами 600: пароль мог быть сгенерирован, и
+    # без записи владелец его больше нигде не увидит.
+    DB_CREDENTIALS_FILE="${PROJECT_DIR}/postgres_credentials.txt"
+    cat > $DB_CREDENTIALS_FILE <<CREDEOF
 ╔═══════════════════════════════════════════════════════════════╗
-║           ДАННЫЕ ДОСТУПА К MYSQL (СОХРАНИТЕ!)                ║
+║        ДАННЫЕ ДОСТУПА К POSTGRESQL (СОХРАНИТЕ!)               ║
 ╚═══════════════════════════════════════════════════════════════╝
-База данных: ${MYSQL_DB_NAME}
-Пользователь: ${MYSQL_USER}
-Пароль пользователя: ${MYSQL_USER_PASSWORD}
-Хост: localhost
-Порт: 3306
+База данных: ${DB_NAME}
+Роль:        ${DB_USER}
+Пароль:      ${DB_PASSWORD}
+Хост:        127.0.0.1
+Порт:        5432
 CREDEOF
-    chmod 600 $MYSQL_CREDENTIALS_FILE
-    echo -e "${YELLOW}⚠️  Данные MySQL сохранены в: ${MYSQL_CREDENTIALS_FILE}${NC}"
+    chmod 600 $DB_CREDENTIALS_FILE
+    echo -e "${YELLOW}⚠️  Реквизиты сохранены в: ${DB_CREDENTIALS_FILE}${NC}"
+    echo -e "${YELLOW}   Перенесите их в надёжное место и удалите файл.${NC}"
 else
     echo -e "${YELLOW}ℹ️  Данные базы данных будут настроены через веб-установщик${NC}"
 fi
@@ -622,14 +589,13 @@ if [ "$SSL_INSTALLED" = true ]; then
 else
     echo "1. Откройте в браузере: http://${DOMAIN}/install"
 fi
-if [ "$MYSQL_DB_CREATED" = false ]; then
-    echo "2. Создайте базу данных MySQL (если ещё не создана):"
-    echo "   Используйте скрипт: sudo ./create-database-simple.sh"
-    echo "   Или вручную:"
-    echo "   sudo mysql -e \"CREATE DATABASE nexum_core CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\""
-    echo "   sudo mysql -e \"CREATE USER 'nexum_core_user'@'localhost' IDENTIFIED BY 'ваш_пароль';\""
-    echo "   sudo mysql -e \"GRANT ALL PRIVILEGES ON nexum_core.* TO 'nexum_core_user'@'localhost';\""
-    echo "   sudo mysql -e \"FLUSH PRIVILEGES;\""
+if [ "$DB_CREATED" = false ]; then
+    echo "2. Создайте роль и базу PostgreSQL (если ещё не созданы):"
+    echo "   sudo -u postgres psql -c \"CREATE ROLE nexum_core WITH LOGIN CREATEDB PASSWORD 'ваш_пароль';\""
+    echo "   sudo -u postgres psql -c \"CREATE DATABASE nexum_core WITH OWNER = nexum_core ENCODING = 'UTF8' TEMPLATE = template0;\""
+    echo "   # С PostgreSQL 15 без этих двух строк миграции падают на схеме public:"
+    echo "   sudo -u postgres psql -d nexum_core -c \"GRANT ALL ON SCHEMA public TO nexum_core;\""
+    echo "   sudo -u postgres psql -d nexum_core -c \"ALTER SCHEMA public OWNER TO nexum_core;\""
     echo "3. Завершите установку через веб-интерфейс (настройка БД, создание администратора)"
 else
     echo "2. Завершите установку через веб-интерфейс (создание администратора)"

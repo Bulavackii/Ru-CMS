@@ -16,7 +16,7 @@
 
 ### Программное обеспечение:
 - **PHP 8.5** (обязательно)
-- **MySQL 8.0+** или MariaDB 10.6+
+- **PostgreSQL 14+** — единственная поддерживаемая база (железное правило проекта)
 - **Nginx**
 - **Composer 2.0+**
 - **Node.js 18+** и npm
@@ -61,8 +61,8 @@ sudo ./install.sh
 Скрипт установки автоматически:
 - ✅ Обновит систему
 - ✅ Установит PHP 8.5 и все необходимые расширения
-- ✅ Установит MySQL
-- ✅ (Опционально) Создаст базу данных и пользователя MySQL автоматически
+- ✅ Установит PostgreSQL
+- ✅ (Опционально) Создаст роль и базу PostgreSQL автоматически
 - ✅ Установит Nginx и настроит конфигурацию
 - ✅ Установит Composer
 - ✅ Установит Node.js 18+
@@ -75,7 +75,7 @@ sudo ./install.sh
 - ✅ (Опционально) Установит SSL сертификат (Let's Encrypt)
 
 Во время установки скрипт попросит вас:
-1. **Создать базу данных MySQL автоматически?** (y/n) - рекомендуется ответить "y"
+1. **Создать роль и базу PostgreSQL автоматически?** (y/n) — рекомендуется ответить «y»
    - Если вы ответите "y", скрипт попросит ввести:
      - Имя базы данных (по умолчанию: `nexum_core`)
      - Имя пользователя (по умолчанию: `root`)
@@ -139,7 +139,7 @@ https://your-domain-or-ip/install
 2. **Статус сервисов:**
    ```bash
    sudo systemctl status nginx
-   sudo systemctl status mysql
+   sudo systemctl status postgresql
    sudo systemctl status php8.5-fpm
    ```
 
@@ -167,7 +167,7 @@ ls /etc/php/
 # Если PHP 8.5 не установлен:
 sudo add-apt-repository ppa:ondrej/php -y
 sudo apt update
-sudo apt install php8.5 php8.5-fpm php8.5-cli php8.5-mysql php8.5-mbstring php8.5-xml php8.5-curl php8.5-zip php8.5-gd
+sudo apt install php8.5 php8.5-fpm php8.5-cli php8.5-pgsql php8.5-mbstring php8.5-xml php8.5-curl php8.5-zip php8.5-gd
 
 # Обновите конфигурацию Nginx, чтобы использовать PHP 8.5
 sudo nano /etc/nginx/sites-available/nexum_core
@@ -230,7 +230,7 @@ sudo chmod -R 775 storage bootstrap/cache
    composer install --no-dev --optimize-autoloader
    ```
 
-### Проблема: Не могу создать базу данных MySQL
+### Проблема: Не могу создать базу данных PostgreSQL
 
 **Решение:**
 
@@ -243,36 +243,29 @@ sudo ./create-database-simple.sh
 ```
 
 Этот скрипт автоматически:
-- Проверит и установит MySQL, если его нет
+- Проверит и установит PostgreSQL, если его нет
 - Создаст базу данных и пользователя
-- Сохранит данные в файл `mysql_credentials.txt`
+- Сохранит данные в файл `postgres_credentials.txt`
 
-**Альтернативный способ - создание вручную:**
+**Альтернативный способ — создание вручную:**
 
-Если `sudo mysql` не работает (требует пароль), используйте скрипт выше или сбросьте пароль:
+На Ubuntu для локального подключения суперпользователя действует
+peer-аутентификация: `sudo -u postgres` работает без пароля, сбрасывать ничего
+не нужно.
 
 ```bash
-# Остановите MySQL
-sudo systemctl stop mysql
+sudo -u postgres psql -c "CREATE ROLE nexum_core WITH LOGIN CREATEDB PASSWORD 'ваш_пароль';"
+sudo -u postgres psql -c "CREATE DATABASE nexum_core WITH OWNER = nexum_core ENCODING = 'UTF8' TEMPLATE = template0;"
+```
 
-# Запустите MySQL в безопасном режиме
-sudo mysqld_safe --skip-grant-tables --skip-networking &
-sleep 3
+> ⚠️ **Осторожно**
+> С PostgreSQL 15 обычная роль больше **не может** создавать таблицы в схеме
+> `public`. Без двух строк ниже `php artisan migrate` падает с «permission
+> denied for schema public» — это самая частая заминка на свежей установке.
 
-# Подключитесь без пароля
-mysql -u root <<EOF
-USE mysql;
-FLUSH PRIVILEGES;
-ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'новый_пароль';
-FLUSH PRIVILEGES;
-EOF
-
-# Остановите безопасный режим
-pkill mysqld_safe
-sleep 2
-
-# Запустите MySQL
-sudo systemctl start mysql
+```bash
+sudo -u postgres psql -d nexum_core -c "GRANT ALL ON SCHEMA public TO nexum_core;"
+sudo -u postgres psql -d nexum_core -c "ALTER SCHEMA public OWNER TO nexum_core;"
 ```
 
 ### Проблема: Ошибка доступа к базе данных в веб-установщике
@@ -280,12 +273,12 @@ sudo systemctl start mysql
 **Решение:**
 1. Проверьте, что база данных создана:
    ```bash
-   sudo mysql -e "SHOW DATABASES;"
+   sudo -u postgres psql -c "\l"
    ```
 
 2. Проверьте права пользователя:
    ```bash
-   sudo mysql -e "SHOW GRANTS FOR 'nexum_core_user'@'localhost';"
+   sudo -u postgres psql -c "\du"
    ```
 
 3. Проверьте данные в `.env`:

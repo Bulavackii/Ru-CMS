@@ -12,10 +12,28 @@ return [
     | Определяет, какая база данных будет использоваться по умолчанию
     | во всех Eloquent-запросах и миграциях.
     |
-    | Возможные значения: sqlite, mysql, mariadb, pgsql, sqlsrv и др.
+    | 🔴 Поддерживается ТОЛЬКО PostgreSQL (`pgsql`). Это железное правило
+    | проекта: в мастере установки других драйверов нет, а запросы и миграции
+    | рассчитаны на него.
+    |
+    | `sqlite` — единственное исключение: на нём гоняются тесты (phpunit.xml),
+    | поэтому миграции обязаны быть драйвер-нейтральными (Schema Builder, а не
+    | сырой SQL).
+    |
+    | Описания mysql, mariadb и sqlsrv отсюда убраны, чтобы не выглядели
+    | поддерживаемым выбором.
+    |
+    | ⚠️ НО ИЗ РАБОТАЮЩЕГО ПРИЛОЖЕНИЯ ОНИ НЕ ИСЧЕЗАЮТ. Laravel 11+ сливает
+    | `database.connections` со своими значениями по умолчанию
+    | (`LoadConfiguration::mergeableOptions()`), поэтому
+    | `config('database.connections')` по-прежнему отдаёт все пять. Удалением
+    | из этого файла драйвер не отключить — проверено.
+    |
+    | Настоящий заслон стоит в `AppServiceProvider`: он падает с внятной
+    | ошибкой, если `DB_CONNECTION` не pgsql и не sqlite.
     |
     */
-    'default' => env('DB_CONNECTION', 'sqlite'),
+    'default' => env('DB_CONNECTION', 'pgsql'),
 
     /*
     |--------------------------------------------------------------------------
@@ -40,48 +58,6 @@ return [
             'synchronous' => null,
         ],
 
-        // 🟡 MySQL — основной вариант для продакшена
-        'mysql' => [
-            'driver' => 'mysql',
-            'url' => env('DB_URL'),
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'laravel'),
-            'username' => env('DB_USERNAME', 'root'),
-            'password' => env('DB_PASSWORD', ''), // СЮДА ВСТАВИТЬ ПАРОЛЬ БАЗЫ ДАННЫХ
-            'unix_socket' => env('DB_SOCKET', ''),
-            'charset' => env('DB_CHARSET', 'utf8mb4'),
-            'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
-            'prefix' => '',
-            'prefix_indexes' => true,
-            'strict' => true,
-            'engine' => null,
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
-        ],
-
-        // 🟢 MariaDB — альтернатива MySQL, также широко используется
-        'mariadb' => [
-            'driver' => 'mariadb',
-            'url' => env('DB_URL'),
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'laravel'),
-            'username' => env('DB_USERNAME', 'root'),
-            'password' => env('DB_PASSWORD', ''), // СЮДА ВСТАВИТЬ ПАРОЛЬ БАЗЫ ДАННЫХ
-            'unix_socket' => env('DB_SOCKET', ''),
-            'charset' => env('DB_CHARSET', 'utf8mb4'),
-            'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
-            'prefix' => '',
-            'prefix_indexes' => true,
-            'strict' => true,
-            'engine' => null,
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
-        ],
-
         // 🔵 PostgreSQL (pgsql)
         'pgsql' => [
             'driver' => 'pgsql',
@@ -96,22 +72,6 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => 'prefer',
-        ],
-
-        // 🟥 SQL Server (Windows-сервера)
-        'sqlsrv' => [
-            'driver' => 'sqlsrv',
-            'url' => env('DB_URL'),
-            'host' => env('DB_HOST', 'localhost'),
-            'port' => env('DB_PORT', '1433'),
-            'database' => env('DB_DATABASE', 'laravel'),
-            'username' => env('DB_USERNAME', 'root'),
-            'password' => env('DB_PASSWORD', ''), // СЮДА ВСТАВИТЬ ПАРОЛЬ БАЗЫ ДАННЫХ
-            'charset' => env('DB_CHARSET', 'utf8'),
-            'prefix' => '',
-            'prefix_indexes' => true,
-            // 'encrypt' => env('DB_ENCRYPT', 'yes'),
-            // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
     ],
 

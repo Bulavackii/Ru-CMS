@@ -48,15 +48,35 @@ class OptimizePerformance extends Command
         // DB::table('logs')->where('created_at', '<', now()->subDays(90))->delete();
     }
 
+    /**
+     * Обслуживание таблиц.
+     *
+     * ⚠️ Раньше здесь стояла MySQL-овая перестройка таблиц под условием «если
+     * драйвер mysql» — то есть на этом проекте ветка не выполнялась НИКОГДА, и
+     * команда молча ничего не оптимизировала.
+     *
+     * У PostgreSQL за это отвечает VACUUM ANALYZE: пересобирает статистику
+     * планировщика и освобождает место от удалённых строк.
+     *
+     * ⚠️ `VACUUM` нельзя выполнять внутри транзакции, поэтому вызывается
+     * через unprepared() — иначе PDO обернёт его и получим «VACUUM cannot
+     * run inside a transaction block».
+     */
     private function optimizeDatabase()
     {
-        // Оптимизация таблиц (для MySQL)
-        if (DB::getDriverName() === 'mysql') {
-            $tables = DB::select('SHOW TABLES');
-            foreach ($tables as $table) {
-                $tableName = array_values((array)$table)[0];
-                DB::statement("OPTIMIZE TABLE `{$tableName}`");
-            }
+        if (DB::getDriverName() !== 'pgsql') {
+            $this->warn('Обслуживание таблиц поддержано только для PostgreSQL — пропускаю.');
+
+            return;
+        }
+
+        try {
+            DB::connection()->unprepared('VACUUM ANALYZE');
+            $this->info('Таблицы обслужены: VACUUM ANALYZE выполнен.');
+        } catch (\Throwable $e) {
+            // Не роняем всю команду: остальные шаги оптимизации полезны и без
+            // этого, а прав на VACUUM может не быть у роли приложения.
+            $this->warn('VACUUM ANALYZE не выполнен: ' . $e->getMessage());
         }
     }
 }
