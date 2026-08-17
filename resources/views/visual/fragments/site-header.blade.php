@@ -15,8 +15,8 @@
                 <a href="/" class="flex items-center gap-2 text-2xl font-extrabold hover:opacity-90 transition"
                    style="color:var(--color-primary,#2563eb)">
                     <div class="text-white font-bold w-8 h-8 flex items-center justify-center shadow-inner text-sm tracking-wide rounded"
-                         style="background:var(--color-primary,#2563eb)">{{ __('RU') }}</div>
-                    <span class="hidden sm:inline">CMS</span>
+                         style="background:var(--color-primary,#2563eb)">NC</div>
+                    <span class="hidden sm:inline">Nexum Core</span>
                 </a>
                 <span class="text-xs opacity-70 hidden sm:inline">Контент & Управление</span>
             </div>

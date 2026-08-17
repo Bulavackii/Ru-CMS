@@ -6,7 +6,7 @@ function App() {
   return (
     <div className="container mx-auto text-center">
       <h1 className="text-2xl font-bold text-blue-600">
-        Добро пожаловать в RuShop CMS!
+        Добро пожаловать в Nexum Core!
       </h1>
     </div>
   );

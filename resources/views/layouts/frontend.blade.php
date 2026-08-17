@@ -17,7 +17,7 @@
         $seoDescription = $seoMeta['description'] ?? null;
         $seoKeywords = $seoMeta['keywords'] ?? null;
 
-        $pageTitle = $seoTitle ?: ($meta_title ?? ($title ?? 'RU CMS'));
+        $pageTitle = $seoTitle ?: ($meta_title ?? ($title ?? 'Nexum Core'));
         $pageDescription = $seoDescription ?: ($meta_description ?? null);
         $pageKeywords = $seoKeywords ?: ($meta_keywords ?? null);
         $pageCanonical = $seoMeta['canonical'] ?? null ?: url()->current();

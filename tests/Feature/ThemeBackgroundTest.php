@@ -175,7 +175,7 @@ class ThemeBackgroundTest extends TestCase
 
         // Индиго остаётся на прежней КАРТИНКЕ ФОНА: после обновления сайт
         // должен выглядеть так же, как до него. Знак у него свой, в том же
-        // строении, что у остальных, но с прежней надписью «RU CMS» —
+        // строении, что у остальных, но с прежней надписью «Nexum Core» —
         // марка темы по умолчанию должна остаться узнаваемой.
         $this->assertSame('/images/theme-default-bg.png', data_get($indigo->config, 'background_url'));
         $this->assertSame('/images/themes/logos/indigo.svg', data_get($indigo->config, 'logo_url'));

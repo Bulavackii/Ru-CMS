@@ -52,7 +52,7 @@
                 <i class="fas fa-layer-group text-sm"></i>
             </span>
             <span class="min-w-0 leading-tight">
-                <span class="block text-sm font-bold text-gray-900 dark:text-white tracking-tight truncate">RU CMS</span>
+                <span class="block text-sm font-bold text-gray-900 dark:text-white tracking-tight truncate">Nexum Core</span>
                 <span class="block text-xs text-gray-400 dark:text-gray-500 truncate">Dashboard</span>
             </span>
         </a>

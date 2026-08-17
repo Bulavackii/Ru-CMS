@@ -98,7 +98,7 @@ class DefaultCategoriesTest extends TestCase
     public function test_pages_and_files_get_categories_too(): void
     {
         $page = $this->page('o-proekte');
-        $logo = $this->file('ru-cms-logo.svg');
+        $logo = $this->file('nexum-core-logo.svg');
         $clip = $this->file('sample-5s.mp4');
 
         Categories::seed();

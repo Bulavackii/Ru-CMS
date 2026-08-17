@@ -10,8 +10,8 @@
             <div>
                 <div class="flex items-center gap-2 mb-2">
                     <div class="text-white font-bold w-8 h-8 flex items-center justify-center shadow-inner text-sm tracking-wide rounded"
-                         style="background:var(--color-primary,#2563eb)">RU</div>
-                    <h3 class="text-lg font-bold" style="color:var(--color-text,#111827)">CMS</h3>
+                         style="background:var(--color-primary,#2563eb)">NC</div>
+                    <h3 class="text-lg font-bold" style="color:var(--color-text,#111827)">Nexum Core</h3>
                 </div>
                 <p class="text-xs opacity-80">Разработчик — Булавацкий Д.О.</p>
                 <p class="text-xs opacity-70 mt-2">Laravel {{ app()->version() }}</p>

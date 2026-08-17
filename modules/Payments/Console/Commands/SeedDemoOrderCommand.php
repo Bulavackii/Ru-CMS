@@ -73,7 +73,10 @@ class SeedDemoOrderCommand extends Command
             ->where('published', true)
             ->orderBy('id')
             ->limit(2)
-            ->get(['id', 'title', 'price']);
+            // ⚠️ Вес обязателен в выборке: без него `$товар->weight` даёт
+            // «Undefined property» и сидер падает посреди заказа — заказ уже
+            // создан, а суммы ещё нулевые. Поймано пробой чистой установки.
+            ->get(['id', 'title', 'price', 'weight']);
 
         if ($товары->isEmpty()) {
             return null;

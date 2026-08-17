@@ -22,7 +22,7 @@ class HomeController extends Controller
             !auth()->check() && 
             !\Modules\News\Models\News::where('published', true)->exists() &&
             !\Modules\Menu\Models\Page::where('published', true)->where('show_on_homepage', true)->exists() &&
-            !$request->cookie('rucms_welcome_hidden')) {
+            !$request->cookie('nexum_core_welcome_hidden')) {
             return view('frontend.welcome');
         }
 

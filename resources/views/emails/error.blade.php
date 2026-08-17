@@ -79,7 +79,7 @@
 <body>
     <div class="container">
         <div class="header">
-            🚨 Ошибка в CMS - {{ config('app.name', 'RU CMS') }}
+            🚨 Ошибка в CMS - {{ config('app.name', 'Nexum Core') }}
         </div>
 
         <div class="content">

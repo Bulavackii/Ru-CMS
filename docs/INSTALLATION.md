@@ -1,4 +1,4 @@
-# 🚀 Установка RU CMS
+# 🚀 Установка Nexum Core
 
 **Версия:** 2.0  
 **Для:** Ubuntu 24.04.3 LTS  
@@ -77,7 +77,7 @@ sudo ./install.sh
 Во время установки скрипт попросит вас:
 1. **Создать базу данных MySQL автоматически?** (y/n) - рекомендуется ответить "y"
    - Если вы ответите "y", скрипт попросит ввести:
-     - Имя базы данных (по умолчанию: `rucms`)
+     - Имя базы данных (по умолчанию: `nexum_core`)
      - Имя пользователя (по умолчанию: `root`)
      - Пароль пользователя (можно оставить пустым для автогенерации)
    - Скрипт автоматически создаст базу данных и пользователя, а также запишет данные в `.env`
@@ -170,7 +170,7 @@ sudo apt update
 sudo apt install php8.5 php8.5-fpm php8.5-cli php8.5-mysql php8.5-mbstring php8.5-xml php8.5-curl php8.5-zip php8.5-gd
 
 # Обновите конфигурацию Nginx, чтобы использовать PHP 8.5
-sudo nano /etc/nginx/sites-available/rucms
+sudo nano /etc/nginx/sites-available/nexum_core
 # Измените строку fastcgi_pass на:
 # fastcgi_pass unix:/var/run/php/php8.5-fpm.sock;
 
@@ -198,7 +198,7 @@ sudo chmod -R 775 storage bootstrap/cache
 
 2. Проверьте путь к сокету в конфигурации Nginx:
    ```bash
-   sudo nano /etc/nginx/sites-available/rucms
+   sudo nano /etc/nginx/sites-available/nexum_core
    # Убедитесь, что указан правильный путь:
    # fastcgi_pass unix:/var/run/php/php8.5-fpm.sock;
    ```
@@ -285,7 +285,7 @@ sudo systemctl start mysql
 
 2. Проверьте права пользователя:
    ```bash
-   sudo mysql -e "SHOW GRANTS FOR 'rucms_user'@'localhost';"
+   sudo mysql -e "SHOW GRANTS FOR 'nexum_core_user'@'localhost';"
    ```
 
 3. Проверьте данные в `.env`:

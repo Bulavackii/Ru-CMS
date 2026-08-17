@@ -454,7 +454,7 @@ class InstallController extends Controller
                     'username'     => env('MAIL_USERNAME', ''),
                     'encryption'   => $this->currentMailEncryption(),
                     'from_address' => env('MAIL_FROM_ADDRESS', ''),
-                    'from_name'    => env('MAIL_FROM_NAME', config('app.name', 'RU CMS')),
+                    'from_name'    => env('MAIL_FROM_NAME', config('app.name', 'Nexum Core')),
                 ],
                 'adminEmail' => optional(User::where('is_admin', true)->first())->email,
             ]);
@@ -495,7 +495,7 @@ class InstallController extends Controller
         $password   = $request->input('mail_password');
         $encryption = (string) $request->input('mail_encryption'); // tls|ssl|none
         $fromAddr   = (string) $request->input('mail_from_address');
-        $fromName   = (string) ($request->input('mail_from_name') ?: config('app.name', 'RU CMS'));
+        $fromName   = (string) ($request->input('mail_from_name') ?: config('app.name', 'Nexum Core'));
 
         // Проверка подключения к SMTP (можно отключить галочкой) — чтобы не
         // записать в .env заведомо нерабочие реквизиты.
@@ -984,7 +984,7 @@ class InstallController extends Controller
             if (File::exists($envExamplePath)) {
                 File::copy($envExamplePath, $envPath);
             } else {
-                File::put($envPath, "APP_NAME=\"RU CMS\"\nAPP_ENV=local\nAPP_KEY=\nAPP_DEBUG=true\n");
+                File::put($envPath, "APP_NAME=\"Nexum Core\"\nAPP_ENV=local\nAPP_KEY=\nAPP_DEBUG=true\n");
             }
         }
 
@@ -1103,7 +1103,7 @@ class InstallController extends Controller
         // Демо-новости
         $newsItems = [
             [
-                'title' => 'Добро пожаловать в RU CMS',
+                'title' => 'Добро пожаловать в Nexum Core',
                 'content' => '<p class="lead">Сайт установлен и уже наполнен: меню, страницы, новости и оформление настроены. Эта заметка — короткая карта, чтобы вы поняли, где что лежит.</p>
 
 <h2>🚀 С чего начать</h2>
@@ -1128,7 +1128,7 @@ class InstallController extends Controller
 
 <h2>🧩 Модули</h2>
 <p>Разделы панели — это модули, их можно включать и выключать. Не нужен магазин — выключите «Оплату», «Заказы» и «Доставку», и они пропадут из меню.</p>',
-                'slug' => 'welcome-to-ru-cms',
+                'slug' => 'welcome-to-nexum-core',
                 'published' => true,
                 'template' => 'default',
             ],
@@ -1504,7 +1504,7 @@ class InstallController extends Controller
             ['template' => 'ourworks', 'slug' => 'usluga-ustanovka', 'title' => '🚀 Установка и настройка', 'price' => 9000,
              'content' => '<p>Ставим систему на ваш хостинг и доводим до рабочего состояния: база, почта, адрес сайта, права на каталоги. Вы получаете готовую панель и учётную запись администратора.</p><ul><li>Проверка хостинга до начала работ</li><li>Настройка почты и проверка отправки писем</li><li>Резервная копия сразу после установки</li><li>Короткая видеозапись с разбором панели</li></ul>'],
 
-            ['template' => 'ourworks', 'slug' => 'usluga-perenos', 'title' => '📦 Перенос сайта на RU CMS', 'price' => 24000,
+            ['template' => 'ourworks', 'slug' => 'usluga-perenos', 'title' => '📦 Перенос сайта на Nexum Core', 'price' => 24000,
              'content' => '<p>Переносим действующий сайт: материалы, страницы, категории, изображения и адреса. Старые ссылки продолжают работать — для них настраиваются переадресации, чтобы не потерять позиции в поиске.</p><ul><li>Перенос материалов с сохранением дат</li><li>Переадресация старых адресов на новые</li><li>Проверка карты сайта и файла robots</li><li>Переключение в согласованное время, без простоя</li></ul>'],
 
             ['template' => 'ourworks', 'slug' => 'usluga-dorabotka', 'title' => '🧩 Доработка под задачу', 'price' => 3500,

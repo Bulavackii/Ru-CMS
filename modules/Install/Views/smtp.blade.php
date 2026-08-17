@@ -157,7 +157,7 @@
                     </label>
                     <input type="text" name="mail_from_name" id="mail_from_name"
                            value="{{ old('mail_from_name', $mail['from_name']) }}"
-                           placeholder="RU CMS"
+                           placeholder="Nexum Core"
                            autocomplete="off"
                            title="{{ __('install.smtp.from_name_tip') }}"
                            class="ins-input">

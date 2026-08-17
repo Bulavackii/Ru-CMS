@@ -7,11 +7,11 @@ use Illuminate\Http\Request;
 
 /**
  * @OA\Info(
- *     title="RU CMS API",
+ *     title="Nexum Core API",
  *     version="1.0.0",
- *     description="API документация для RU CMS - модульной CMS для России и СНГ",
+ *     description="API документация для Nexum Core - модульной CMS для России и СНГ",
  *     @OA\Contact(
- *         email="support@rucms.ru"
+ *         email="support@nexum-core.ru"
  *     )
  * )
  *

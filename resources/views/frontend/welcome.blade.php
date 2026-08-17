@@ -1,6 +1,6 @@
 @extends('layouts.frontend')
 
-@section('title', 'Добро пожаловать в RU CMS')
+@section('title', 'Добро пожаловать в Nexum Core')
 
 @section('content')
 <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -9,7 +9,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
             <div class="text-center">
                 <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-                    🎉 Добро пожаловать в <span class="text-blue-600">RU CMS</span>!
+                    🎉 Добро пожаловать в <span class="text-blue-600">Nexum Core</span>!
                 </h1>
                 <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
                     Модульная система управления контентом для России и СНГ
@@ -188,7 +188,7 @@
 
 <script>
 function hideWelcome() {
-    localStorage.setItem('rucms_welcome_hidden', 'true');
+    localStorage.setItem('nexum_core_welcome_hidden', 'true');
     window.location.href = '/';
 }
 </script>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RU CMS API Documentation</title>
+    <title>Nexum Core API Documentation</title>
     <link rel="stylesheet" type="text/css" href="{{ local_css('swagger-ui/swagger-ui.css') }}" />
     <style>
         html {

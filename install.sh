@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ═══════════════════════════════════════════════════════════════
-# 🚀 Автоматический скрипт установки RU CMS для Ubuntu 24.04.3 LTS
+# 🚀 Автоматический скрипт установки Nexum Core для Ubuntu 24.04.3 LTS
 # ═══════════════════════════════════════════════════════════════
 # 
 # Использование: sudo ./install.sh
@@ -30,7 +30,7 @@
 #    Пример: PROJECT_DIR="/var/www/myproject"
 #
 # 3. DEFAULT_DB_NAME (строка после установки MySQL, см. раздел "Создание БД")
-#    🔧 Имя базы данных по умолчанию (по умолчанию: "rucms")
+#    🔧 Имя базы данных по умолчанию (по умолчанию: "nexum_core")
 #    Пример: DEFAULT_DB_NAME="mycms_db"
 #
 # 4. DEFAULT_DB_USER (строка после установки MySQL, см. раздел "Создание БД")
@@ -55,7 +55,7 @@
 
 set -e
 
-echo "🚀 Начало установки RU CMS..."
+echo "🚀 Начало установки Nexum Core..."
 echo ""
 
 # Цвета для вывода
@@ -144,7 +144,7 @@ systemctl enable mysql 2>/dev/null || true
 # Если вы оставите DEFAULT_DB_PASSWORD пустым (""), пароль будет сгенерирован автоматически
 # ═══════════════════════════════════════════════════════════════
 
-DEFAULT_DB_NAME="rucms"              # 🔧 ИЗМЕНИТЕ: имя базы данных (DB_DATABASE в .env)
+DEFAULT_DB_NAME="nexum_core"              # 🔧 ИЗМЕНИТЕ: имя базы данных (DB_DATABASE в .env)
 DEFAULT_DB_USER="root"                # 🔧 ИЗМЕНИТЕ: имя пользователя (DB_USERNAME в .env)
 DEFAULT_DB_PASSWORD=""                # 🔧 ИЗМЕНИТЕ: пароль (DB_PASSWORD в .env)
                                       #    Оставьте "" для автогенерации, или укажите конкретный пароль
@@ -335,7 +335,7 @@ read -p "Введите ваш домен (или IP, без www): " DOMAIN
 DOMAIN=$(echo $DOMAIN | sed 's/^www\.//')
 DOMAIN_WWW="www.${DOMAIN}"
 
-NGINX_CONFIG="/etc/nginx/sites-available/rucms"
+NGINX_CONFIG="/etc/nginx/sites-available/nexum_core"
 cat > $NGINX_CONFIG <<EOF
 server {
     listen 80;
@@ -377,7 +377,7 @@ server {
 EOF
 
 # Активация конфигурации
-ln -sf $NGINX_CONFIG /etc/nginx/sites-enabled/rucms
+ln -sf $NGINX_CONFIG /etc/nginx/sites-enabled/nexum_core
 rm -f /etc/nginx/sites-enabled/default
 
 # Проверка конфигурации
@@ -465,7 +465,7 @@ if [ ! -f ".env" ]; then
     else
         # Создаём минимальный .env файл
         cat > .env <<ENVEOF
-APP_NAME="RU CMS"
+APP_NAME="Nexum Core"
 APP_ENV=production
 APP_KEY=
 APP_DEBUG=false
@@ -626,9 +626,9 @@ if [ "$MYSQL_DB_CREATED" = false ]; then
     echo "2. Создайте базу данных MySQL (если ещё не создана):"
     echo "   Используйте скрипт: sudo ./create-database-simple.sh"
     echo "   Или вручную:"
-    echo "   sudo mysql -e \"CREATE DATABASE rucms CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\""
-    echo "   sudo mysql -e \"CREATE USER 'rucms_user'@'localhost' IDENTIFIED BY 'ваш_пароль';\""
-    echo "   sudo mysql -e \"GRANT ALL PRIVILEGES ON rucms.* TO 'rucms_user'@'localhost';\""
+    echo "   sudo mysql -e \"CREATE DATABASE nexum_core CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\""
+    echo "   sudo mysql -e \"CREATE USER 'nexum_core_user'@'localhost' IDENTIFIED BY 'ваш_пароль';\""
+    echo "   sudo mysql -e \"GRANT ALL PRIVILEGES ON nexum_core.* TO 'nexum_core_user'@'localhost';\""
     echo "   sudo mysql -e \"FLUSH PRIVILEGES;\""
     echo "3. Завершите установку через веб-интерфейс (настройка БД, создание администратора)"
 else

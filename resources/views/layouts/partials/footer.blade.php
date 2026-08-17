@@ -70,9 +70,9 @@
             <section aria-labelledby="dev-info" class="footer-brand">
                 <div class="f-brand-card">
                     <div class="flex items-center gap-2.5 mb-2">
-                        <span class="f-brand-badge">RU</span>
+                        <span class="f-brand-badge">NC</span>
                         <div class="min-w-0">
-                            <h2 id="dev-info" class="text-base font-bold leading-tight text-gray-900 dark:text-white">RU CMS</h2>
+                            <h2 id="dev-info" class="text-base font-bold leading-tight text-gray-900 dark:text-white">Nexum Core</h2>
                             <div class="f-brand-sub leading-tight text-gray-500 dark:text-gray-400">{{ __('frontend.common.cms_tagline') }} · Laravel {{ app()->version() }}</div>
                         </div>
                     </div>
@@ -235,7 +235,7 @@
                 @endif
 
                 <div class="f-meta-copy">
-                    <span>© {{ date('Y') }} <b class="text-gray-700 dark:text-gray-300 font-medium">RU CMS</b> — {{ __('frontend.footer.rights') }}</span>
+                    <span>© {{ date('Y') }} <b class="text-gray-700 dark:text-gray-300 font-medium">Nexum Core</b> — {{ __('frontend.footer.rights') }}</span>
                     <span class="f-meta-chip">PHP {{ PHP_VERSION }}</span>
                     <span class="f-meta-chip">Laravel {{ app()->version() }}</span>
                 </div>

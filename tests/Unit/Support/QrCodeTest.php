@@ -21,7 +21,7 @@ class QrCodeTest extends TestCase
     #[Test]
     public function свг_имеет_ожидаемый_размер_и_разбирается_обратно_в_матрицу(): void
     {
-        $text = 'RU CMS';
+        $text = 'Nexum Core';
         $matrix = QrCode::matrix($text);
         $size = count($matrix);
         $scale = 6;
@@ -57,11 +57,11 @@ class QrCodeTest extends TestCase
     #[Test]
     public function дата_адрес_содержит_тот_же_свг(): void
     {
-        $uri = QrCode::dataUri('RU CMS');
+        $uri = QrCode::dataUri('Nexum Core');
 
         $this->assertStringStartsWith('data:image/svg+xml;base64,', $uri);
         $this->assertSame(
-            QrCode::svg('RU CMS'),
+            QrCode::svg('Nexum Core'),
             base64_decode(substr($uri, strlen('data:image/svg+xml;base64,')))
         );
     }
@@ -78,7 +78,7 @@ class QrCodeTest extends TestCase
     {
         $cases = [
             'A',
-            'RU CMS',
+            'Nexum Core',
             'otpauth://totp/RU%20CMS:admin%40example.com?secret=DWYG22KAMXDEXKV3&issuer=RU%20CMS&algorithm=SHA1&digits=6&period=30',
             'https://example.com/страница/с/кириллицей?x=1',
         ];

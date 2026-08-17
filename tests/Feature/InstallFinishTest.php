@@ -51,7 +51,7 @@ class InstallFinishTest extends TestCase
         // .env и при ЛЮБОМ изменении гасит сервер вместе с текущим запросом.
         // Финальный шаг писал туда LICENSE_KEY, уже записанный шагом лицензии:
         // значение то же, а перезапуск настоящий — ровно посреди сидеров.
-        $tmp = sys_get_temp_dir() . '/ru-cms-env-' . getmypid();
+        $tmp = sys_get_temp_dir() . '/nexum-core-env-' . getmypid();
         File::ensureDirectoryExists($tmp);
         File::put($tmp . '/.env', "APP_ENV=local\nLICENSE_KEY=\"KEY-1\"\n");
 

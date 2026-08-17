@@ -49,7 +49,7 @@ class TwoFactorSetupController extends Controller implements HasMiddleware
             $qrCodeUrl = $this->securityService->getQRCodeUrl(
                 $user->email,
                 $secret,
-                config('app.name', 'RU CMS')
+                config('app.name', 'Nexum Core')
             );
             
             // Сохраняем временный секрет в сессии (до подтверждения)

@@ -48,7 +48,7 @@ return [
     'welcome' => [
         'suffix'       => 'Installation',
         'tagline'      => 'Quick start · Minimal steps · Production ready',
-        'logo_tip'     => 'RU CMS — a modular CMS built on Laravel',
+        'logo_tip'     => 'Nexum Core — a modular CMS built on Laravel',
         'lang_title'   => 'Interface language',
         'lang_change'  => '— can be changed later',
         'selected'     => 'Selected',
@@ -96,7 +96,7 @@ return [
     ],
 
     'features' => [
-        'title'    => 'RU CMS features',
+        'title'    => 'Nexum Core features',
         'subtitle' => 'A modern modular CMS for Russia and the CIS',
         'key_tip'  => 'Key feature',
         'hint'     => 'After installation modules can be enabled and disabled freely in the admin panel — each one works independently.',

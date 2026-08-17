@@ -48,7 +48,7 @@ class AdminFooterTest extends TestCase
             ->get(route('admin.dashboard'));
 
         $response->assertStatus(200);
-        $response->assertSee('RU CMS', false);
+        $response->assertSee('Nexum Core', false);
         $response->assertSee('9.9.9', false);
     }
 

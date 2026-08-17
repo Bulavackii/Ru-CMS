@@ -11,7 +11,7 @@ export default function Sidebar() {
     return (
         <aside className="w-64 bg-white dark:bg-gray-800 shadow-md fixed left-0 top-0 h-full transition-colors duration-200">
             <div className="p-6 font-bold text-lg text-gray-800 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700">
-                RuShop Admin
+                Nexum Core
             </div>
             <nav className="mt-6">
                 {menuItems.map((item) => {

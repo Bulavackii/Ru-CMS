@@ -12,7 +12,7 @@ if (!file_exists($envPath)) {
         copy($envExamplePath, $envPath);
     } else {
         // Создаем минимальный .env файл если .env.example отсутствует
-        $minimalEnv = "APP_NAME=\"RU CMS\"\nAPP_ENV=local\nAPP_KEY=\nAPP_DEBUG=true\n";
+        $minimalEnv = "APP_NAME=\"Nexum Core\"\nAPP_ENV=local\nAPP_KEY=\nAPP_DEBUG=true\n";
         file_put_contents($envPath, $minimalEnv);
     }
 }

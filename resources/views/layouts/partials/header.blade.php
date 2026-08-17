@@ -96,9 +96,9 @@
         @endif
 
         <span class="hdr-logo-mark" @if($logoAbs) hidden @endif>
-          <span class="hdr-logo-badge" aria-hidden="true">RU</span>
+          <span class="hdr-logo-badge" aria-hidden="true">NC</span>
           <span class="hdr-logo-text">
-            <span class="hdr-logo-name">CMS</span>
+            <span class="hdr-logo-name">Nexum Core</span>
             <span class="hdr-logo-sub">{{ __('frontend.header.tagline') }}</span>
           </span>
         </span>

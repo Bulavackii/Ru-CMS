@@ -151,7 +151,7 @@
             </span>
             <span class="leading-tight">
                 <span class="flex items-baseline gap-1.5">
-                    <span class="font-bold text-gray-900 dark:text-white">RU CMS</span>
+                    <span class="font-bold text-gray-900 dark:text-white">Nexum Core</span>
                     <span class="adm-f-ver">{{ config('app.version', '1.0.0') }}</span>
                 </span>
                 <span class="block text-xs text-gray-500 adm-f-touch-hide">{{ __('admin.footer.tagline') }}</span>
@@ -203,7 +203,7 @@
 
             {{-- Про систему --}}
             <div class="adm-f-grp">
-                <span>© {{ date('Y') }} RU CMS</span>
+                <span>© {{ date('Y') }} Nexum Core</span>
 
                 <span class="adm-f-dot" aria-hidden="true">·</span>
                 <span>

@@ -46,8 +46,8 @@ class SeedDefaultSlideshowsCommand extends Command
                 'slides' => [
                     [
                         'file' => 'top-1.svg',
-                        'caption' => 'RU CMS — модульная система управления сайтом',
-                        'alt_text' => 'RU CMS — модульная CMS на Laravel',
+                        'caption' => 'Nexum Core — модульная система управления сайтом',
+                        'alt_text' => 'Nexum Core — модульная CMS на Laravel',
                         'link' => '/page/o-proekte',
                     ],
                     [
@@ -68,7 +68,7 @@ class SeedDefaultSlideshowsCommand extends Command
                     [
                         'file' => 'bottom-1.svg',
                         'caption' => 'Модульная архитектура: подключайте только нужное',
-                        'alt_text' => 'Модульная архитектура RU CMS',
+                        'alt_text' => 'Модульная архитектура Nexum Core',
                         'link' => '/page/vozmozhnosti',
                     ],
                     [

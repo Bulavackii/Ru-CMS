@@ -21,7 +21,7 @@ class TranslationFileServiceTest extends TestCase
     {
         parent::setUp();
 
-        $this->langPath = sys_get_temp_dir() . '/rucms-lang-' . uniqid();
+        $this->langPath = sys_get_temp_dir() . '/nexum_core-lang-' . uniqid();
         mkdir($this->langPath . '/ru', 0775, true);
         mkdir($this->langPath . '/en', 0775, true);
 

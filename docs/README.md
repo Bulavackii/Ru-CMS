@@ -1,6 +1,6 @@
 <div align="center">
 
-# 📚 Документация RU CMS
+# 📚 Документация Nexum Core
 
 **Две книги под одной обложкой.**
 Слева — для того, кто ведёт сайт. Справа — для того, кто его дорабатывает.
@@ -65,7 +65,7 @@ docs/
 
 <div align="center">
 
-**RU CMS** · модульная CMS на Laravel 12 · PHP 8.5 · PostgreSQL
+**Nexum Core** · модульная CMS на Laravel 12 · PHP 8.5 · PostgreSQL
 
 [← В корень проекта](../README.md)
 

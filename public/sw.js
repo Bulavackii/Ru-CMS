@@ -1,5 +1,5 @@
 // Service Worker для Web Push уведомлений
-const CACHE_NAME = 'ru-cms-v1';
+const CACHE_NAME = 'nexum-core-v1';
 const VAPID_PUBLIC_KEY = '{{VAPID_PUBLIC_KEY}}'; // Заменится при генерации
 
 // Установка Service Worker

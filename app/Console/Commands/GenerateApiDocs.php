@@ -18,11 +18,11 @@ class GenerateApiDocs extends Command
         $docs = [
             'openapi' => '3.0.0',
             'info' => [
-                'title' => 'RU CMS API',
+                'title' => 'Nexum Core API',
                 'version' => '1.0.0',
-                'description' => 'API документация для RU CMS - модульной CMS для России и СНГ',
+                'description' => 'API документация для Nexum Core - модульной CMS для России и СНГ',
                 'contact' => [
-                    'email' => 'support@rucms.ru',
+                    'email' => 'support@nexum-core.ru',
                 ],
             ],
             'servers' => [

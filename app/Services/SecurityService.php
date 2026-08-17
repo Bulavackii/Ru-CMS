@@ -54,7 +54,7 @@ class SecurityService
     /**
      * 📱 Получить QR код для Google Authenticator
      */
-    public function getQRCodeUrl(string $email, string $secret, string $company = 'RU CMS'): string
+    public function getQRCodeUrl(string $email, string $secret, string $company = 'Nexum Core'): string
     {
         return $this->google2fa->getQRCodeUrl($company, $email, $secret);
     }

@@ -53,7 +53,7 @@ class SeedContentTranslationsCommand extends Command
 
             'pages' => [
                 'o-proekte' => [
-                    'en' => ['title' => 'About the project', 'content' => '<p><strong>RU CMS</strong> is a modular content management system built on Laravel. It is designed so that everyday editorial tasks — publishing news, building menus, managing pages — can be done without a developer.</p>'],
+                    'en' => ['title' => 'About the project', 'content' => '<p><strong>Nexum Core</strong> is a modular content management system built on Laravel. It is designed so that everyday editorial tasks — publishing news, building menus, managing pages — can be done without a developer.</p>'],
                     'de' => ['title' => 'Über das Projekt'],
                     'fr' => ['title' => 'À propos du projet'],
                     'it' => ['title' => 'Il progetto'],
@@ -79,16 +79,16 @@ class SeedContentTranslationsCommand extends Command
             ],
 
             'news' => [
-                'welcome-to-ru-cms' => [
-                    'en' => ['title' => 'Welcome to RU CMS!', 'content' => '<p>This is your first news item. You can edit it in the admin panel.</p>'],
-                    'de' => ['title' => 'Willkommen bei RU CMS!'],
-                    'fr' => ['title' => 'Bienvenue sur RU CMS !'],
-                    'it' => ['title' => 'Benvenuto in RU CMS!'],
-                    'be' => ['title' => 'Сардэчна запрашаем у RU CMS!'],
-                    'kk' => ['title' => 'RU CMS-ке қош келдіңіз!'],
+                'welcome-to-nexum-core' => [
+                    'en' => ['title' => 'Welcome to Nexum Core!', 'content' => '<p>This is your first news item. You can edit it in the admin panel.</p>'],
+                    'de' => ['title' => 'Willkommen bei Nexum Core!'],
+                    'fr' => ['title' => 'Bienvenue sur Nexum Core !'],
+                    'it' => ['title' => 'Benvenuto in Nexum Core!'],
+                    'be' => ['title' => 'Сардэчна запрашаем у Nexum Core!'],
+                    'kk' => ['title' => 'Nexum Core-ке қош келдіңіз!'],
                 ],
                 'modular-architecture' => [
-                    'en' => ['title' => 'Modular architecture', 'content' => '<p>RU CMS is built on a modular architecture. Modules can be enabled and disabled in one click.</p>'],
+                    'en' => ['title' => 'Modular architecture', 'content' => '<p>Nexum Core is built on a modular architecture. Modules can be enabled and disabled in one click.</p>'],
                     'de' => ['title' => 'Modulare Architektur'],
                     'fr' => ['title' => 'Architecture modulaire'],
                     'it' => ['title' => 'Architettura modulare'],

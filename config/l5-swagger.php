@@ -5,9 +5,9 @@ return [
     'documentations' => [
         'default' => [
             'api' => [
-                'title' => 'RU CMS API Documentation',
+                'title' => 'Nexum Core API Documentation',
                 'version' => '1.0.0',
-                'description' => 'API документация для RU CMS - модульной CMS для России и СНГ',
+                'description' => 'API документация для Nexum Core - модульной CMS для России и СНГ',
             ],
             'routes' => [
                 'api' => 'api/documentation',
@@ -48,11 +48,11 @@ return [
         'swagger' => [
             'swagger' => '2.0',
             'info' => [
-                'description' => 'API документация для RU CMS',
-                'title' => 'RU CMS API',
+                'description' => 'API документация для Nexum Core',
+                'title' => 'Nexum Core API',
                 'version' => '1.0.0',
                 'contact' => [
-                    'email' => 'support@rucms.ru',
+                    'email' => 'support@nexum-core.ru',
                 ],
             ],
             'host' => env('APP_URL', 'http://localhost'),

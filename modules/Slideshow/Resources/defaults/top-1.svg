@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 600" width="1600" height="600" role="img" aria-label="RU CMS — модульная CMS на Laravel">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 600" width="1600" height="600" role="img" aria-label="Nexum Core — модульная CMS на Laravel">
   <defs>
     <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#4f46e5"/>
@@ -20,7 +20,7 @@
     <rect x="1215" y="255" width="150" height="150" transform="rotate(14 1290 330)"/>
   </g>
 
-  <text x="100" y="250" font-family="Inter, Segoe UI, system-ui, sans-serif" font-size="76" font-weight="700" fill="#ffffff">RU CMS</text>
+  <text x="100" y="250" font-family="Inter, Segoe UI, system-ui, sans-serif" font-size="76" font-weight="700" fill="#ffffff">Nexum Core</text>
   <text x="100" y="330" font-family="Inter, Segoe UI, system-ui, sans-serif" font-size="40" font-weight="500" fill="#e0e7ff">Модульная система управления сайтом</text>
   <text x="100" y="392" font-family="Inter, Segoe UI, system-ui, sans-serif" font-size="26" fill="#c7d2fe">Новости, страницы, меню, категории и SEO — из коробки</text>
 

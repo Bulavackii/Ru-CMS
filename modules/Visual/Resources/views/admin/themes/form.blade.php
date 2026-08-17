@@ -381,7 +381,7 @@
             <img id="pvLogo" src="{{ $logoUrl }}" alt="Логотип"
                  style="display: {{ $logoUrl ? 'block' : 'none' }};">
             <div class="thm-preview__mark">R</div>
-            <div class="thm-preview__name">RU CMS</div>
+            <div class="thm-preview__name">Nexum Core</div>
             <nav class="thm-preview__nav"><span>Главная</span><span>О нас</span><span>Контакты</span></nav>
           </div>
 

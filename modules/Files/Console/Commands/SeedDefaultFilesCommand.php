@@ -33,11 +33,11 @@ class SeedDefaultFilesCommand extends Command
     {
         return [
             [
-                'file'        => 'ru-cms-logo.svg',
-                'name'        => 'Логотип RU CMS',
+                'file'        => 'nexum-core-logo.svg',
+                'name'        => 'Логотип Nexum Core',
                 'width'       => 512,
                 'height'      => 512,
-                'alt_text'    => 'Логотип RU CMS',
+                'alt_text'    => 'Логотип Nexum Core',
                 'description' => 'Квадратный логотип для шапки сайта и favicon.',
             ],
             [

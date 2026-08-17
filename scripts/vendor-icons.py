@@ -59,7 +59,7 @@ SETS = [
 
 
 def fetch(url):
-    request = urllib.request.Request(url, headers={'User-Agent': 'ru-cms-vendor'})
+    request = urllib.request.Request(url, headers={'User-Agent': 'nexum-core-vendor'})
 
     with urllib.request.urlopen(request, timeout=60) as response:
         return response.read()
