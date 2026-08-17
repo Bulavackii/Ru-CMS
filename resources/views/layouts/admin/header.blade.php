@@ -38,7 +38,9 @@
         $config   = $activeTheme->config ?? [];
         $fontBase = data_get($tokens, 'font.base', '-apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif');
         $iconMode = data_get($config, 'icon_mode', 'lucide');
-        $fontProvider = data_get($config,'font_provider');
+        // Тот же хелпер, что и на сайте: в автономном режиме — только
+        // локальный шрифт (см. пояснение в theme_font_provider).
+        $fontProvider = theme_font_provider($config);
         $fontName     = trim((string) data_get($config,'font_name',''));
 
         $localFontSlug = null;

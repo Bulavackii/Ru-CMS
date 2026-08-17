@@ -370,6 +370,36 @@ if (!function_exists('local_font')) {
  * @param string $slug Идентификатор шрифта (например: 'inter', 'roboto')
  * @return string URL к CSS файлу шрифта или '' если такого шрифта нет локально
  */
+/**
+ * Какой поставщик шрифта применять на самом деле.
+ *
+ * 🔴 В автономном режиме — ВСЕГДА локальный, что бы ни стояло в теме.
+ *
+ * ⚠️ Тут была настоящая дыра в обещании автономности. `APP_STANDALONE` держит
+ * заслон на HTTP-клиенте СЕРВЕРА (`Http::globalRequestMiddleware`), а шрифт
+ * подключается тегом `<link>` — его запрашивает БРАУЗЕР ПОСЕТИТЕЛЯ, и никакой
+ * серверный middleware этого не видит. То есть с включённым автономным режимом
+ * тема с провайдером `google` продолжала бы отдавать адреса посетителей в
+ * Google при каждом заходе.
+ *
+ * Решение одно на обе вьюхи (сайт и панель): вторая копия условия рано или
+ * поздно разошлась бы, и одна из половин снова начала бы ходить наружу.
+ *
+ * @param mixed $config Конфигурация темы
+ */
+if (!function_exists('theme_font_provider')) {
+    function theme_font_provider($config): ?string
+    {
+        $провайдер = data_get($config, 'font_provider');
+
+        if (config('app.standalone') && in_array($провайдер, ['google', 'bunny'], true)) {
+            return 'local';
+        }
+
+        return $провайдер;
+    }
+}
+
 if (!function_exists('local_font_css')) {
     function local_font_css(string $slug): string
     {

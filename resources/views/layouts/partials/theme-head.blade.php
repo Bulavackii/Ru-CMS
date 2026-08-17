@@ -33,7 +33,9 @@
 
     $iconMode = data_get($config, 'icon_mode', 'lucide');
 
-    $fontProvider = data_get($config, 'font_provider'); // 'local' | 'google' | 'bunny' | null
+    // В автономном режиме хелпер принудительно вернёт 'local': тег <link>
+    // запрашивает БРАУЗЕР, и серверный заслон APP_STANDALONE его не видит.
+    $fontProvider = theme_font_provider($config); // 'local' | 'google' | 'bunny' | null
     $fontName = trim((string) data_get($config, 'font_name', ''));
 
     $localFontSlug = null;
