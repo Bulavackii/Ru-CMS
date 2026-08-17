@@ -198,7 +198,7 @@
                 {{-- Адреса приходят из social_links() (app/helpers.php) — один
                      список на подвал сайта и подвал панели. Записанные в обоих
                      шаблонах, они уже разошлись: здесь стоял vk.com/example,
-                     в панели vk.com/ru_cms. --}}
+                     в панели vk.com/<старое-имя>. --}}
                 @if($socialLinks = social_links())
                     <div class="f-socials">
                         <span class="f-social-label">{{ __('frontend.footer.socials') }}</span>

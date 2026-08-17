@@ -19,7 +19,7 @@
 
 return [
 
-    'title' => 'Ru CMS Installation',
+    'title' => 'Nexum Core Installation',
 
     'common' => [
         'back'          => 'Back',
@@ -278,7 +278,7 @@ return [
 
     'finish' => [
         'title'         => 'Installation complete!',
-        'subtitle'      => 'Ru CMS is ready — you are already signed in as administrator',
+        'subtitle'      => 'Nexum Core is ready — you are already signed in as administrator',
         'redirect_pre'  => 'Opening the site home page in',
         'redirect_post' => 's…',
         'redirect_now' => 'Opening the site home page…',

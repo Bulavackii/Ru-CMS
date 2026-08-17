@@ -181,10 +181,52 @@ if ($LASTEXITCODE -eq 0) {
     Write-Host 'Проверено: без пароля вход не проходит.' -ForegroundColor Green
 }
 
+# ── 7. Правим .env ─────────────────────────────────────────────────────
+#
+# ⚠️ Только ПОСЛЕ проверки, что под новым именем реально можно подключиться.
+#    Записать новое имя в .env, не убедившись в этом, — ровно тот способ
+#    положить сайт, с которого начались все хлопоты.
+#
+# DB_PASSWORD не трогаем: пароль пережил переименование (scram-sha-256).
+
+$envPath = Join-Path (Split-Path $PSScriptRoot -Parent) '.env'
+
+if (-not (Test-Path $envPath)) {
+    Write-Warning "Файл .env не найден ($envPath) — поправьте DB_DATABASE и DB_USERNAME вручную."
+    return
+}
+
+# Пароль читаем из самого .env, чтобы нигде его не показывать
+$пароль = (Select-String -Path $envPath -Pattern '^DB_PASSWORD="?([^"]*)"?$').Matches.Groups[1].Value
+
+$env:PGPASSWORD = $пароль
+& $psql -U $NewName -h 127.0.0.1 -d $NewName -tAc 'select 1' 2>&1 | Out-Null
+$подключение = ($LASTEXITCODE -eq 0)
+$env:PGPASSWORD = $null
+
+if (-not $подключение) {
+    Write-Warning 'Под новым именем подключиться не удалось — .env НЕ тронут.'
+    Write-Host   'Приложение продолжит работать со старым именем. Разберитесь и запустите скрипт снова.'
+    return
+}
+
 Write-Host ''
-Write-Host 'Готово. Осталось поправить в .env:' -ForegroundColor Green
-Write-Host "    DB_DATABASE=`"$NewName`""
-Write-Host "    DB_USERNAME=`"$NewName`""
-Write-Host '    DB_PASSWORD — НЕ меняется: пароль пережил переименование (scram-sha-256).'
+Write-Host "Подключение под ролью $NewName проверено — правлю .env" -ForegroundColor Cyan
+
+# Копия рядом: возврат на случай, если что-то не так
+Copy-Item $envPath "$envPath.backup-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+
+$строки = Get-Content $envPath
+$строки = $строки `
+    -replace '^DB_DATABASE=.*', "DB_DATABASE=`"$NewName`"" `
+    -replace '^DB_USERNAME=.*', "DB_USERNAME=`"$NewName`""
+
+[System.IO.File]::WriteAllLines($envPath, $строки, (New-Object System.Text.UTF8Encoding($false)))
+
 Write-Host ''
-Write-Host 'Затем: php artisan config:clear && php artisan migrate --force'
+Write-Host 'Готово полностью:' -ForegroundColor Green
+Write-Host "  база и роль    -> $NewName"
+Write-Host '  .env           -> обновлён (пароль не менялся)'
+Write-Host '  pg_hba.conf    -> возвращён, вход только по паролю'
+Write-Host ''
+Write-Host 'Осталось: php artisan config:clear   и запустить сервер.'
