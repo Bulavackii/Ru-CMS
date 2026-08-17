@@ -108,6 +108,7 @@ class QaCommerceFlowTest extends TestCase
             'customer_name' => 'Иван Иванов',
             'customer_phone' => '+7 900 000-00-00',
             'customer_address' => 'Курск, ул. Ленина, 1',
+            'customer_city' => 'Курск',
         ]);
 
         $ответ->assertSessionHasNoErrors();
@@ -136,6 +137,7 @@ class QaCommerceFlowTest extends TestCase
             'customer_name' => 'Иван Иванов',
             'customer_phone' => '+7 900 000-00-00',
             'customer_address' => 'Курск, ул. Ленина, 1',
+            'customer_city' => 'Курск',
         ]);
 
         $заказ = Order::latest('id')->first();
@@ -169,6 +171,7 @@ class QaCommerceFlowTest extends TestCase
             'customer_name' => 'Иван Иванов',
             'customer_phone' => '+7 900 000-00-00',
             'customer_address' => 'Курск, ул. Ленина, 1',
+            'customer_city' => 'Курск',
         ]);
 
         $остаток = $товар->fresh()->stock;

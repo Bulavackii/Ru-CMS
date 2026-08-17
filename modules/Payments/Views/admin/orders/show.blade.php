@@ -70,8 +70,20 @@
             <div><dt>{{ __('admin.orders.c_email') }}</dt>
                 <dd>@if($order->customer_email)<a href="mailto:{{ $order->customer_email }}">{{ $order->customer_email }}</a>@else{{ __('admin.orders.c_none') }}@endif</dd></div>
 
+            @if($order->customer_city)
+                <div><dt>{{ __('admin.orders.c_city') }}</dt>
+                    <dd>{{ $order->customer_city }}</dd></div>
+            @endif
+
             <div><dt>{{ __('admin.orders.c_address') }}</dt>
                 <dd>{{ $order->customer_address ?: __('admin.orders.c_none') }}</dd></div>
+
+            {{-- Вес показываем, только если его считали: пусто значит «не
+                 взвешивали» (заказ из услуг), а не «ноль килограммов». --}}
+            @if($order->total_weight !== null)
+                <div><dt>{{ __('admin.orders.c_weight') }}</dt>
+                    <dd>{{ rtrim(rtrim(number_format((float) $order->total_weight, 3, ',', ' '), '0'), ',') }} {{ __('admin.orders.kg') }}</dd></div>
+            @endif
 
             <div><dt>{{ __('admin.orders.f_user') }}</dt>
                 <dd>{{ $order->user->name ?? __('admin.orders.guest') }}</dd></div>

@@ -33,6 +33,10 @@ class NewsRequest extends FormRequest
             'rating' => 'nullable|numeric|min:0|max:10',
             'price' => 'nullable|numeric|min:0',
             'stock' => 'nullable|integer|min:0',
+            // Вес в килограммах. Пустое поле — «не взвешиваем», поэтому
+            // nullable; потолок в тонну отсекает опечатку вроде «5000» вместо
+            // «5», а не ограничивает торговлю.
+            'weight' => 'nullable|numeric|min:0|max:1000',
             'is_promo' => 'nullable|boolean',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:500',
@@ -64,6 +68,7 @@ class NewsRequest extends FormRequest
             'template' => 'шаблон',
             'price' => 'цена',
             'stock' => 'остаток',
+            'weight' => 'вес',
         ];
     }
 }

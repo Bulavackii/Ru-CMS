@@ -95,7 +95,10 @@ class SeedDemoOrderCommand extends Command
             'customer_name'      => 'Иван Петров',
             'customer_phone'     => '+7 900 000-00-00',
             'customer_email'     => 'ivan@example.com',
-            'customer_address'   => 'г. Курск, ул. Ленина, д. 1, кв. 2',
+            'customer_address'   => 'ул. Ленина, д. 1, кв. 2',
+            // Город отдельной строкой: по нему служба доставки решает, возит
+            // ли она туда. В адресе он больше не дублируется.
+            'customer_city'      => 'Курск',
             'comment'            => self::МЕТКА,
             'items_total'        => 0,
             'delivery_price'     => $ценаДоставки,
@@ -116,10 +119,19 @@ class SeedDemoOrderCommand extends Command
             ]);
         }
 
-        // Суммы проставляем ПОСЛЕ строк: до них считать нечего.
+        // Суммы и вес проставляем ПОСЛЕ строк: до них считать нечего.
+        $вес = null;
+
+        foreach ($товары as $номер => $товар) {
+            if ($товар->weight !== null) {
+                $вес = ($вес ?? 0.0) + (float) $товар->weight * ($номер === 0 ? 2 : 1);
+            }
+        }
+
         $заказ->forceFill([
-            'items_total' => $суммаТоваров,
-            'total'       => $суммаТоваров + $ценаДоставки,
+            'items_total'  => $суммаТоваров,
+            'total'        => $суммаТоваров + $ценаДоставки,
+            'total_weight' => $вес,
         ])->saveQuietly();
 
         return $заказ->fresh();

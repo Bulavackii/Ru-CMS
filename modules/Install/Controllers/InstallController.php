@@ -1289,6 +1289,9 @@ class InstallController extends Controller
                 'slug' => 'tovar-naushniki',
                 'price' => 4990,
                 'stock' => 12,
+                // Вес нужен службам доставки: по нему считается цена
+                // и отбиваются заказы сверх лимита.
+                'weight' => 0.290,
                 'content' => "<p><img src=\"/images/products/naushniki.svg\" alt=\"Беспроводные наушники\" style=\"width:100%;max-width:420px;height:auto\"></p>\n<p>Накладные наушники с шумоподавлением и автономностью до 30 часов. Складная конструкция, чехол в комплекте.</p>",
             ],
             [
@@ -1296,6 +1299,9 @@ class InstallController extends Controller
                 'slug' => 'tovar-chasy',
                 'price' => 8900,
                 'stock' => 7,
+                // Вес нужен службам доставки: по нему считается цена
+                // и отбиваются заказы сверх лимита.
+                'weight' => 0.055,
                 'content' => "<p><img src=\"/images/products/chasy.svg\" alt=\"Умные часы\" style=\"width:100%;max-width:420px;height:auto\"></p>\n<p>Пульс, шаги, сон и уведомления с телефона. Влагозащита, экран читается на солнце, зарядки хватает на неделю.</p>",
             ],
             [
@@ -1303,6 +1309,9 @@ class InstallController extends Controller
                 'slug' => 'tovar-ryukzak',
                 'price' => 3450,
                 'stock' => 20,
+                // Вес нужен службам доставки: по нему считается цена
+                // и отбиваются заказы сверх лимита.
+                'weight' => 0.750,
                 'content' => "<p><img src=\"/images/products/ryukzak.svg\" alt=\"Городской рюкзак\" style=\"width:100%;max-width:420px;height:auto\"></p>\n<p>Отделение под ноутбук до 15\", влагостойкая ткань, потайной карман на спинке. Объём 22 литра.</p>",
             ],
             [
@@ -1310,6 +1319,9 @@ class InstallController extends Controller
                 'slug' => 'tovar-kruzhka',
                 'price' => 690,
                 'stock' => 48,
+                // Вес нужен службам доставки: по нему считается цена
+                // и отбиваются заказы сверх лимита.
+                'weight' => 0.380,
                 'content' => "<p><img src=\"/images/products/kruzhka.svg\" alt=\"Керамическая кружка\" style=\"width:100%;max-width:420px;height:auto\"></p>\n<p>Объём 350 мл, подходит для посудомоечной машины и микроволновки. Плотные стенки дольше держат тепло.</p>",
             ],
             [
@@ -1343,6 +1355,10 @@ class InstallController extends Controller
                 'slug' => $item['slug'],
                 'price' => $item['price'],
                 'stock' => $item['stock'],
+                // Вес демо-товаров задан правдоподобно: без него владелец не
+                // увидит, как работают ограничения службы доставки, а правило
+                // проекта требует, чтобы чистая установка совпадала с боевой.
+                'weight' => $item['weight'] ?? null,
                 'published' => true,
                 'template' => 'products',
                 'created_at' => now(),

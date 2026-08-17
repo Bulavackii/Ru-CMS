@@ -199,18 +199,18 @@ class StockLifecycleTest extends TestCase
             base_path('modules/Payments/Controllers/Frontend/CartController.php')
         );
 
-        $начало = strpos($исходник, 'DB::transaction');
-        $этот = substr($исходник, $начало, 2600);
-
+        // ⚠️ Ищем ТОЧНОЕ выражение по всему файлу, а не в окне от
+        // `DB::transaction`. Окно уже дважды ломалось от роста списка
+        // переменных в замыкании — проверка падала, хотя блокировка на месте.
         $this->assertStringContainsString(
-            'lockForUpdate()',
-            $этот,
+            "News::whereKey(\$item['id'])->lockForUpdate()",
+            $исходник,
             'Товар выбирается без блокировки — двое покупателей купят последний экземпляр'
         );
 
         $this->assertStringNotContainsString(
             'News::findOrFail($item[\'id\'])',
-            $этот,
+            $исходник,
             'Вернулась выборка без блокировки'
         );
     }

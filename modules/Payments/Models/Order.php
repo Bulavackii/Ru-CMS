@@ -34,6 +34,8 @@ class Order extends Model
         'customer_phone',      // 📞 Телефон клиента
         'customer_email',      // 📧 Email клиента
         'customer_address',    // 🏠 Адрес доставки
+        'customer_city',       // 🏙️ Город — по нему служба решает, возит ли туда
+        'total_weight',        // ⚖️ Вес заказа, кг (пусто = не взвешивали)
         'comment',             // 💬 Комментарий к заказу
         'stock_returned_at',   // 🔄 Когда остатки по заказу вернули на склад
         'cancel_reason',       // ❌ Почему отменён (напр. не оплачен в срок)

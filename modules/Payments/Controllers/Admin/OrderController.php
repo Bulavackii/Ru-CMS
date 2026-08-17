@@ -112,6 +112,7 @@ class OrderController extends Controller
             'customer_phone'     => 'nullable|string|max:64',
             'customer_email'     => 'nullable|email|max:255',
             'customer_address'   => 'nullable|string|max:500',
+            'customer_city'      => 'nullable|string|max:190',
             'comment'            => 'nullable|string|max:2000',
         ]);
 
@@ -134,6 +135,7 @@ class OrderController extends Controller
                     'customer_phone'     => $проверено['customer_phone'] ?? null,
                     'customer_email'     => $проверено['customer_email'] ?? null,
                     'customer_address'   => $проверено['customer_address'] ?? null,
+                    'customer_city'      => $проверено['customer_city'] ?? null,
                     'comment'            => $проверено['comment'] ?? null,
                     'items_total'        => 0,
                     'delivery_price'     => (float) ($доставка->price ?? 0),

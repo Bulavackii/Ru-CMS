@@ -64,6 +64,7 @@ class CartConsentTest extends TestCase
             'customer_name'      => 'Иван Иванов',
             'customer_phone'     => '+7 900 000-00-00',
             'customer_address'   => 'Курск, ул. Ленина, 1',
+            'customer_city'      => 'Курск',
             'items' => [[
                 'id' => $товар->id, 'title' => $товар->title,
                 'price' => $товар->price, 'qty' => 1,

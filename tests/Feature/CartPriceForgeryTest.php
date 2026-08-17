@@ -64,6 +64,7 @@ class CartPriceForgeryTest extends TestCase
             'customer_name' => 'Иван Иванов',
             'customer_phone' => '+7 900 000-00-00',
             'customer_address' => 'Курск, ул. Ленина, 1',
+            'customer_city' => 'Курск',
             'items' => [
                 ['id' => $товар->id, 'title' => 'Дорогой товар', 'price' => 1, 'qty' => 1],
             ],
@@ -103,6 +104,7 @@ class CartPriceForgeryTest extends TestCase
             'customer_name' => 'Иван Иванов',
             'customer_phone' => '+7 900 000-00-00',
             'customer_address' => 'Курск, ул. Ленина, 1',
+            'customer_city' => 'Курск',
             'items' => [
                 ['id' => $товар->id, 'title' => '<img src=x onerror=alert(1)>', 'price' => 100000, 'qty' => 1],
             ],
@@ -132,6 +134,7 @@ class CartPriceForgeryTest extends TestCase
             'customer_name' => 'Иван Иванов',
             'customer_phone' => '+7 900 000-00-00',
             'customer_address' => 'Курск, ул. Ленина, 1',
+            'customer_city' => 'Курск',
             'items' => [['id' => $товар->id, 'price' => 100000, 'qty' => 1]],
         ]);
 
@@ -153,6 +156,7 @@ class CartPriceForgeryTest extends TestCase
             'customer_name' => 'Иван Иванов',
             'customer_phone' => '+7 900 000-00-00',
             'customer_address' => 'Курск, ул. Ленина, 1',
+            'customer_city' => 'Курск',
             'items' => [['id' => $товар->id, 'price' => 100000, 'qty' => -5]],
         ]);
 

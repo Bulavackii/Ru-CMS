@@ -16,8 +16,18 @@ class DeliveryCalculatorService
      * Рассчитать стоимость доставки для метода
      *
      * @param DeliveryMethod $method Метод доставки
-     * @param array $params Параметры: address, city, region, weight, volume, order_total
+     * @param array $params Параметры: address, city, region, weight, volume,
+     *                      order_total, skip_api
      * @return array
+     *
+     * ⚠️ `skip_api => true` — для оформления заказа.
+     *
+     * Расчёт через API службы уходит наружу с таймаутом 15–20 секунд. В
+     * корзине это означает, что покупатель полминуты смотрит на замершую
+     * кнопку, а недоступная служба и вовсе рвёт оформление. Правила
+     * (вес, регион, порог бесплатной доставки) проверяются ДО этой ветки и
+     * работают всегда — наружу не ходит только цена, вместо неё берётся
+     * фиксированная.
      */
     public function calculate(DeliveryMethod $method, array $params): array
     {
@@ -32,9 +42,13 @@ class DeliveryCalculatorService
             }
         }
 
-        // Проверка ограничения по весу
-        if ($method->weight_limit && isset($params['weight'])) {
-            if ($params['weight'] > $method->weight_limit) {
+        // Проверка ограничения по весу.
+        //
+        // ⚠️ Вес сравнивается, только если он ИЗВЕСТЕН. Пустой вес значит «не
+        // взвешиваем» (заказ из услуг), а не ноль: иначе такой заказ формально
+        // проходил бы любой лимит и создавал ложное чувство проверки.
+        if ($method->weight_limit && isset($params['weight']) && $params['weight'] !== null) {
+            if ((float) $params['weight'] > (float) $method->weight_limit) {
                 return [
                     'price' => 0,
                     'days' => 0,
@@ -43,10 +57,13 @@ class DeliveryCalculatorService
             }
         }
 
-        // Проверка доступности в регионе
-        if ($method->regions && !empty($method->regions)) {
+        // Проверка доступности в регионе. Сверку ведёт САМА МОДЕЛЬ
+        // (`isAvailableInRegion`) — второй список условий здесь рано или поздно
+        // разошёлся бы с тем, что показывает панель.
+        if (! empty($method->regions)) {
             $region = $params['region'] ?? $params['city'] ?? '';
-            if (!in_array($region, $method->regions, true) && !in_array(DeliveryMethod::ALL_REGIONS, $method->regions, true)) {
+
+            if (! $method->isAvailableInRegion($region)) {
                 return [
                     'price' => 0,
                     'days' => 0,
@@ -55,8 +72,9 @@ class DeliveryCalculatorService
             }
         }
 
-        // Если включена API интеграция, используем соответствующий сервис
-        if ($method->api_enabled && $method->api_settings) {
+        // Если включена API интеграция, используем соответствующий сервис.
+        // При оформлении заказа наружу не ходим — см. пояснение к методу.
+        if ($method->api_enabled && $method->api_settings && empty($params['skip_api'])) {
             return $this->calculateViaApi($method, $params);
         }
 
@@ -94,8 +112,11 @@ class DeliveryCalculatorService
 
         $result = $service->calculatePrice($apiParams);
 
-        // Если API вернуло ошибку, используем фиксированную цену как fallback
-        if ($result['error']) {
+        // Если API вернуло ошибку, используем фиксированную цену как fallback.
+        // ⚠️ Ключ читаем через `??`: свой драйвер службы может его не положить,
+        // и прямое обращение дало бы «Undefined array key» — то есть 500 при
+        // расчёте доставки вместо запасной фиксированной цены.
+        if (! empty($result['error'])) {
             return [
                 'price' => $method->price,
                 'days' => $method->min_days ?? 0,

@@ -126,6 +126,13 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <x-admin.input label="{{ __('admin.news.stock') }}" name="stock" type="number"
                             hint="{{ __('admin.news.stock_hint') }}" />
+
+                        {{-- Вес нужен службам доставки: у них есть ограничение по
+                             весу, и без него заказ нельзя ни отбить, ни рассчитать.
+                             Пустое поле значит «не взвешиваем». --}}
+                        <x-admin.input label="{{ __('admin.news.weight') }}" name="weight" type="number" step="0.001"
+                            hint="{{ __('admin.news.weight_hint') }}" />
+
                         <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                             <input type="checkbox" name="is_promo" value="1" {{ old('is_promo') ? 'checked' : '' }}>
                             {{ __('admin.news.sale') }}

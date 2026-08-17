@@ -238,6 +238,11 @@ class CartController extends Controller
             'customer_phone'     => 'required|string|max:64',
             'customer_email'     => 'nullable|email|max:255',
             'customer_address'   => ($самовывоз ? 'nullable' : 'required') . '|string|max:500',
+            // Город отдельной строкой, а не внутри адреса. Из свободного текста
+            // регион не выделить, а по нему служба решает, возит ли она туда:
+            // до этого ограничение `regions` при оформлении не применялось
+            // вовсе, хотя в панели его можно было задать.
+            'customer_city'      => ($самовывоз ? 'nullable' : 'required') . '|string|max:190',
             'comment'            => 'nullable|string|max:2000',
         ], [
             'terms_agree.accepted' => __('frontend.cart.consent_required'),
@@ -278,10 +283,13 @@ class CartController extends Controller
             }
 
             $items[] = [
-                'id'    => $товар->id,
-                'title' => $товар->title,
-                'price' => (float) $товар->price,
-                'qty'   => $количество,
+                'id'     => $товар->id,
+                'title'  => $товар->title,
+                'price'  => (float) $товар->price,
+                'qty'    => $количество,
+                // Вес нужен ограничению службы доставки. Пустой — «не
+                // взвешиваем» (услуга), и в сумму он не идёт вовсе.
+                'weight' => $товар->weight === null ? null : (float) $товар->weight,
             ];
         }
 
@@ -304,16 +312,45 @@ class CartController extends Controller
         // Расчет общей суммы товаров
         $itemsTotal = collect($items)->sum(fn($item) => $item['qty'] * $item['price']);
 
-        // 🔴 Доставка считается ТЕМ ЖЕ правилом, что показано покупателю.
+        // Вес заказа. Складываем ТОЛЬКО известные веса: если ни у одного
+        // товара веса нет, вес заказа остаётся пустым — «не взвешиваем», и
+        // ограничение по весу к такому заказу не применяется.
+        $весЗаказа = null;
+
+        foreach ($items as $строка) {
+            if ($строка['weight'] !== null) {
+                $весЗаказа = ($весЗаказа ?? 0.0) + $строка['weight'] * $строка['qty'];
+            }
+        }
+
+        // 🔴 Правила доставки считает РАСЧЁТЧИК, а не корзина.
         //
-        // Раньше сервер брал `$deliveryMethod->price` как есть, а порог
-        // бесплатной доставки (`free_delivery_threshold`) применялся ТОЛЬКО в
-        // браузере. Покупатель видел «доставка бесплатно, к оплате 5000», а
-        // заказ создавался на 5300 — и ровно столько запрашивалось у
-        // платёжной системы. Обещание в корзине и счёт расходились.
-        $deliveryPrice = $deliveryMethod->isFreeDeliveryAvailable($itemsTotal)
-            ? 0.0
-            : (float) $deliveryMethod->price;
+        // Он умеет всё сразу: порог бесплатной доставки, ограничение по весу и
+        // список регионов. Раньше корзина брала `$deliveryMethod->price` как
+        // есть, поэтому:
+        //   • порог бесплатной доставки применялся только в браузере —
+        //     покупатель видел «к оплате 5000», а заказ создавался на 5300;
+        //   • вес и регион не проверялись при оформлении ВООБЩЕ, хотя в панели
+        //     их можно задать: служба, которая не возит в этот город, спокойно
+        //     принимала заказ.
+        //
+        // ⚠️ `skip_api` — наружу при оформлении не ходим: расчёт через API
+        // службы имеет таймаут 15–20 секунд, и недоступная служба рвала бы
+        // покупку. Правила проверяются до этой ветки и работают всегда.
+        $расчёт = app(\Modules\Delivery\Services\DeliveryCalculatorService::class)->calculate($deliveryMethod, [
+            'city'        => $проверено['customer_city'] ?? null,
+            'region'      => $проверено['customer_city'] ?? null,
+            'address'     => $проверено['customer_address'] ?? null,
+            'weight'      => $весЗаказа,
+            'order_total' => $itemsTotal,
+            'skip_api'    => true,
+        ]);
+
+        if (! empty($расчёт['error'])) {
+            return redirect()->route('cart.index')->with('error', $расчёт['error']);
+        }
+
+        $deliveryPrice = (float) ($расчёт['price'] ?? $deliveryMethod->price);
 
         // Расчет комиссии
         $commissionAmount = 0;
@@ -343,7 +380,7 @@ class CartController extends Controller
             $order = null;
 
             // Создаем заказ вне транзакции, чтобы избежать проблем с областью видимости
-            DB::transaction(function () use ($request, $items, $paymentMethod, $deliveryMethod, $itemsTotal, $commissionAmount, $total, $deliveryPrice, $проверено) {
+            DB::transaction(function () use ($request, $items, $paymentMethod, $deliveryMethod, $itemsTotal, $commissionAmount, $total, $deliveryPrice, $проверено, $весЗаказа) {
                 $order = Order::create([
                     'user_id'            => Auth::check() ? Auth::id() : null,
                     'payment_method_id'  => $request->payment_method_id,
@@ -362,7 +399,13 @@ class CartController extends Controller
                     'customer_phone'     => $проверено['customer_phone'],
                     'customer_email'     => $проверено['customer_email'] ?? (Auth::user()->email ?? null),
                     'customer_address'   => $проверено['customer_address'] ?? null,
+                    'customer_city'      => $проверено['customer_city'] ?? null,
                     'comment'            => $проверено['comment'] ?? null,
+
+                    // Вес сохраняем, а не пересчитываем задним числом: товар
+                    // могли изменить после заказа, а по этому числу владелец
+                    // объясняется со службой доставки.
+                    'total_weight'       => $весЗаказа,
                 ]);
 
                 foreach ($items as $item) {

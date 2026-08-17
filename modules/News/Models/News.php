@@ -34,6 +34,9 @@ class News extends Model
         'price',
         'rating',
         'stock',
+        // Вес в килограммах. Нужен службам доставки: у них есть ограничение
+        // `weight_limit`, и без веса товара его не применить.
+        'weight',
         'is_promo',
         'meta_title',
         'meta_description',
@@ -50,6 +53,9 @@ class News extends Model
         'is_promo' => 'boolean',
         'price' => 'decimal:2',
         'stock' => 'integer',
+        // ⚠️ Пустой вес — это «не взвешиваем» (услуга, цифровой товар), а не
+        // ноль. Заказ из одних услуг ограничение по весу проходить не должен.
+        'weight' => 'decimal:3',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',

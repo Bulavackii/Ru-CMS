@@ -151,6 +151,15 @@ class NewsController extends Controller
             $data['is_promo'] = false;
         }
 
+        // Вес — только у физических товаров, и пустое поле значит «не
+        // взвешиваем», а не ноль: иначе служба доставки отбивала бы заказ из
+        // одних услуг по ограничению веса.
+        $вес = $request->input('weight');
+
+        $data['weight'] = in_array($template, self::WEIGHT_TEMPLATES, true) && $вес !== null && $вес !== ''
+            ? $вес
+            : null;
+
         // Оценка — только у шаблона «Игры». У остальных обнуляем: иначе
         // значение осталось бы висеть после смены шаблона и всплыло бы,
         // когда материал снова станет игровым.
@@ -226,6 +235,15 @@ class NewsController extends Controller
             $data['stock']    = null;
             $data['is_promo'] = false;
         }
+
+        // Вес — только у физических товаров, и пустое поле значит «не
+        // взвешиваем», а не ноль: иначе служба доставки отбивала бы заказ из
+        // одних услуг по ограничению веса.
+        $вес = $request->input('weight');
+
+        $data['weight'] = in_array($template, self::WEIGHT_TEMPLATES, true) && $вес !== null && $вес !== ''
+            ? $вес
+            : null;
 
         // Оценка — только у шаблона «Игры». У остальных обнуляем: иначе
         // значение осталось бы висеть после смены шаблона и всплыло бы,
@@ -420,6 +438,15 @@ class NewsController extends Controller
     public const PRICE_TEMPLATES  = ['products', 'ourworks'];
     public const STOCK_TEMPLATES  = ['products'];
     public const RATING_TEMPLATES = ['gaming', 'reviews'];
+
+    /**
+     * Вес носят только физические товары.
+     *
+     * Он нужен службам доставки: у них есть ограничение `weight_limit`, и без
+     * веса товара применить его нечем. У услуги веса нет по смыслу — оставлять
+     * ей поле значило бы предлагать взвесить консультацию.
+     */
+    public const WEIGHT_TEMPLATES = ['products'];
 
     private function loadTemplates(): array
     {

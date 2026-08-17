@@ -252,6 +252,22 @@
                             @error('customer_email')<span class="crt-field__err">{{ $message }}</span>@enderror
                         </label>
 
+                        {{-- Город — ОТДЕЛЬНОЙ строкой, а не внутри адреса.
+                             Из свободного текста регион не выделить, а по нему
+                             служба решает, возит ли она туда: до этого
+                             ограничение «Регионы» при оформлении не применялось
+                             вовсе, хотя в панели его можно задать. --}}
+                        <label class="crt-field" id="crt-city-field">
+                            <span class="crt-field__label">
+                                {{ __('frontend.cart.f_city') }} <b aria-hidden="true">*</b>
+                            </span>
+                            <input type="text" name="customer_city" maxlength="190"
+                                   autocomplete="address-level2" class="crt-input"
+                                   placeholder="{{ __('frontend.cart.f_city_ph') }}"
+                                   value="{{ old('customer_city', auth()->user()->city ?? '') }}">
+                            @error('customer_city')<span class="crt-field__err">{{ $message }}</span>@enderror
+                        </label>
+
                         {{-- Адрес спрашивается не всегда: самовывозу и цифровому
                              товару он не нужен, а лишнее обязательное поле —
                              это брошенная корзина. Показом управляет скрипт по
@@ -456,14 +472,17 @@ document.addEventListener('DOMContentLoaded', function () {
     // снимается ВМЕСТЕ со скрытием: `required` на скрытом поле не даёт
     // отправить форму, и браузер молча ругается на невидимый элемент.
     function syncAddress() {
-        const поле = document.getElementById('crt-address-field');
-        if (!поле) return;
-
         const выбрана = picked('delivery_method_id');
         const нужен = !выбрана || выбрана.dataset.needsAddress !== '0';
 
-        поле.hidden = !нужен;
-        поле.querySelector('input').required = нужен;
+        // Город и адрес идут парой: самовывозу не нужны оба.
+        ['crt-city-field', 'crt-address-field'].forEach(function (id) {
+            const поле = document.getElementById(id);
+            if (!поле) return;
+
+            поле.hidden = !нужен;
+            поле.querySelector('input').required = нужен;
+        });
     }
 
     ['payment_method_id', 'delivery_method_id'].forEach(function (name) {

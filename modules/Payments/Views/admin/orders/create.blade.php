@@ -82,6 +82,10 @@
                 <input id="ocMail" name="customer_email" value="{{ old('customer_email') }}" type="email"
                        class="oc-input" maxlength="255">
 
+                <label class="oc-label" for="ocCity">{{ __('admin.orders.c_city') }}</label>
+                <input id="ocCity" name="customer_city" value="{{ old('customer_city') }}"
+                       class="oc-input" maxlength="190">
+
                 <label class="oc-label" for="ocAddr">{{ __('admin.orders.c_address') }}</label>
                 <input id="ocAddr" name="customer_address" value="{{ old('customer_address') }}"
                        class="oc-input" maxlength="500">
