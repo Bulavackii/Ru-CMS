@@ -57,7 +57,7 @@
     <div style="background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 5px; margin: 20px 0;">
         <strong>⏳ Заказ отменён: оплата не поступила.</strong><br>
         Мы держали товар за вами
-        {{ trans_choice('{1} :count минуту|[2,4] :count минуты|[5,*] :count минут',
+        {{ trans_choice(':count минуту|:count минуты|:count минут',
             (int) config('payments.unpaid_timeout', 10),
             ['count' => (int) config('payments.unpaid_timeout', 10)]) }}
         и вернули его в продажу, чтобы он не простаивал.<br><br>

@@ -212,6 +212,25 @@ class ThemeServiceProvider extends ServiceProvider
         $aliases = self::getAliases();
         $pools = self::getPools();
 
+        // 🔴 Tabler отдаём ФАЙЛАМИ, а не шрифтом — даже если в теме записан
+        // старый режим `tabler`.
+        //
+        // Шрифтовая сборка Tabler рисуется сплошными силуэтами: доля заливки
+        // при показе в 16 пикселях 0.81 против 0.51 у Bootstrap, середина
+        // закрашена у всех значков подряд — `ti-circle` выходит диском, а не
+        // кольцом. Проверено в полной изоляции, со своим объявлением шрифта и
+        // без стилей проекта. Файл при этом ОФИЦИАЛЬНЫЙ: побайтово совпал со
+        // скачанным с unpkg (3.36.0), и коды в CSS сошлись с официальными до
+        // единого — все 6040 имён. Те же значки в виде SVG рисуются верно.
+        //
+        // Из списка в панели режим убран, но у существующих тем он мог
+        // остаться записанным — тогда без этой ветки они молча рисовали бы
+        // пятна. Каталога нет (набор не выкачали) — работает как раньше.
+        if ($mode === 'tabler' && is_dir(public_path('assets/icons/tabler'))) {
+            $mode = 'svg';
+            $cfg['icons_path'] = '/assets/icons/tabler';
+        }
+
         // SVG mode
         if ($mode === 'svg') {
             $result = self::renderSvgIcon($name, $class, $cfg, $pools);
@@ -384,6 +403,7 @@ class ThemeServiceProvider extends ServiceProvider
                 'box' => 'archive-2-line', 'bug' => 'bug-line', 'calendar' => 'calendar-line', 'check' => 'check-line',
                 'chevron-down' => 'arrow-down-s-line', 'chevron-left' => 'arrow-left-s-line', 'chevron-right' => 'arrow-right-s-line',
                 'code' => 'code-s-slash-line', 'cogs' => 'settings-3-line', 'credit-card' => 'bank-card-line',
+                'clock' => 'time-line',
                 'dashboard' => 'dashboard-2-line', 'edit' => 'edit-line', 'exclamation-triangle' => 'error-warning-line',
                 'eye' => 'eye-line', 'file-text' => 'file-text-line', 'files' => 'file-copy-line',
                 'folder' => 'folder-3-line', 'github' => 'github-line', 'globe' => 'earth-line',
@@ -543,6 +563,7 @@ class ThemeServiceProvider extends ServiceProvider
                 'alert-triangle' => 'error', 'arrow-left' => 'left-arrow-alt', 'arrow-up' => 'up-arrow-alt',
                 'arrow-up-right-from-square' => 'link-external', 'bars' => 'menu', 'bell' => 'bell',
                 'box' => 'package', 'bug' => 'bug', 'calendar' => 'calendar', 'check' => 'check',
+                'clock' => 'time',
                 'chevron-down' => 'chevron-down', 'chevron-left' => 'chevron-left', 'chevron-right' => 'chevron-right',
                 'code' => 'code-alt', 'cogs' => 'cog', 'credit-card' => 'credit-card', 'dashboard' => 'grid-alt',
                 'edit' => 'edit', 'exclamation-triangle' => 'error', 'external-link' => 'link-external',

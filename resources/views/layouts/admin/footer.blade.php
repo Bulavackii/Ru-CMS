@@ -218,7 +218,9 @@
                     <span>
                         {{ __('admin.footer.installed') }}
                         <span class="font-mono">{{ $installedAt->translatedFormat('d.m.Y') }}</span>
-                        <span class="adm-f-mut">({{ trans_choice('admin.footer.uptime_days', $uptimeDays, ['count' => $uptimeDays]) }})</span>
+                        <span class="adm-f-mut">({{ $uptimeDays === 0
+                                ? __('admin.footer.uptime_less_day')
+                                : trans_choice('admin.footer.uptime_days', $uptimeDays, ['count' => $uptimeDays]) }})</span>
                     </span>
                 @endif
             </div>

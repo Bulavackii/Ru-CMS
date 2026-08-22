@@ -29,7 +29,6 @@ class IconSetsCoverageTest extends TestCase
     private const НАБОРЫ = [
         'bootstrap' => ['public/assets/css/bootstrap-icons.css',   '~\.bi-([a-z0-9-]+)::?before~'],
         'remix'     => ['public/assets/css/remixicon.css',         '~\.ri-([a-z0-9-]+):before~'],
-        'tabler'    => ['public/assets/css/tabler-icons.min.css',  '~\.ti-([a-z0-9-]+):+before~'],
         'boxicons'  => ['public/assets/css/boxicons.css',          '~\.bx-([a-z0-9-]+):before~'],
         'phosphor'  => ['public/assets/css/phosphor-icons.css',    '~\.ph-([a-z0-9-]+):before~'],
     ];
@@ -37,12 +36,17 @@ class IconSetsCoverageTest extends TestCase
     /**
      * Свой набор — обычные файлы, список имён это список файлов.
      *
-     * Начертание ОДНО. «Плотный» (обводка 2.7) был убран: при показе в
-     * 14–16 пикселей просветы между линиями смыкались, и значки читались
-     * глухими пятнами — ровно то, за что справедливо ругали Font Awesome
-     * и Tabler (доля заливки 0.80 и 0.81 против 0.51 у Bootstrap).
+     * Начертание у «Нексума» ОДНО. «Плотное» (обводка 2.7) убрано: при показе
+     * в 14–16 пикселей просветы между линиями смыкались, и значки читались
+     * глухими пятнами.
+     *
+     * 🔴 Tabler здесь ТОЖЕ файловый, а не шрифтовой. Шрифтовая сборка рисуется
+     * силуэтами: доля заливки при 16 пикселях 0.81 против 0.51 у Bootstrap, и
+     * середина закрашена у всех значков подряд. Файл при этом официальный, и
+     * коды в CSS совпали с официальными до единого — чинится только заменой
+     * шрифта на файлы SVG.
      */
-    private const СВОИ = ['nexum-line'];
+    private const СВОИ = ['nexum-line', 'tabler'];
 
     /**
      * Имена, которые проект просит у набора.

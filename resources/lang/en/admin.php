@@ -111,6 +111,7 @@ return [
 
         'memory_hint' => 'Peak memory used by this request',
 
+        'uptime_less_day' => 'less than a day',
         'uptime_days' => '{0}less than a day|{1}:count day|[2,*]:count days',
 
         'socials' => 'Find us',

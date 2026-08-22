@@ -111,7 +111,8 @@ return [
 
         'memory_hint' => 'Пиковое потребление памяти этим запросом',
 
-        'uptime_days' => '{0}меньше суток|{1}:count день|[2,4]:count дня|[5,*]:count дней',
+        'uptime_less_day' => 'меньше суток',
+        'uptime_days' => ':count день|:count дня|:count дней',
 
         'socials' => 'Мы в сетях',
     ],
@@ -673,7 +674,7 @@ return [
         'delete_title' => 'Безвозвратное удаление меню и всех его пунктов',
         'empty' => 'Пока нет ни одного меню.',
         'create_first' => 'Создать первое меню',
-        'items_plural' => '{0} :count пунктов|{1} :count пункт|[2,4] :count пункта|[5,*] :count пунктов',
+        'items_plural' => ':count пункт|:count пункта|:count пунктов',
     ],
 
         'account' => [
@@ -796,7 +797,7 @@ return [
         'password_change' => 'Изменение пароля',
         'admins_on_page' => 'Админов на странице:',
         'no_description' => 'Описание не задано.',
-        'rights_plural' => '{0} :count прав|{1} :count право|[2,4] :count права|[5,*] :count прав',
+        'rights_plural' => ':count право|:count права|:count прав',
     ],
 
     'modules' => [
@@ -1700,7 +1701,7 @@ return [
         'import' => 'Импорт стран',
         'clear_cache' => 'Очистить кеш',
         'available_presets' => 'Доступно для импорта:',
-        'countries_plural' => '{1} :count страна|[2,4] :count страны|[5,*] :count стран',
+        'countries_plural' => ':count страна|:count страны|:count стран',
         'import_hint' => 'Готовые наборы: валюта, локаль и форматы уже заполнены.',
         'already_added' => 'уже добавлена',
         'no_presets' => 'Готовых наборов нет — проверьте настройку preset_countries.',

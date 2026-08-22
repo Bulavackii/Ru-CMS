@@ -337,19 +337,68 @@
                Список наборов собирается по каталогам с файлами, а не пишется
                руками: положат рядом ещё один — он появится сам. --}}
           @php
+            // ⚠️ Tabler тоже лежит файлами, но он ЧУЖОЙ набор — его место в
+            // «готовых», рядом с Bootstrap и Remix. Здесь только наши.
+            $чужиеФайловые = ['tabler'];
+
             $своиНаборы = [];
+            $файловые   = [];
+
             foreach (glob(public_path('assets/icons/*'), GLOB_ONLYDIR) as $каталог) {
                 if (! glob($каталог . '/*.svg')) continue;          // это не набор
                 $имя = basename($каталог);
-                $своиНаборы['svg:/assets/icons/' . $имя] = [
-                    'подпись' => match ($имя) {
-                        'nexum-line'  => 'Нексум тонкий',
-                        'nexum-solid' => 'Нексум плотный',
-                        default       => $имя,
+                $запись = [
+                    'значение' => 'svg:/assets/icons/' . $имя,
+                    'подпись'  => match ($имя) {
+                        'nexum-line' => 'Nexum Core',
+                        'tabler'     => 'Tabler Icons',
+                        default      => $имя,
                     },
-                    'сколько' => count(glob($каталог . '/*.svg')),
+                    'сколько'  => count(glob($каталог . '/*.svg')),
                 ];
+
+                $файловые[$запись['значение']] = $запись;
+
+                if (! in_array($имя, $чужиеФайловые, true)) {
+                    $своиНаборы[$запись['значение']] = $запись;
+                }
             }
+
+            // 🔴 Названия наборов — ОДНОГО вида: «Имя (сколько значков)».
+            // Был разнобой: у одних приписка «тонкие линии», у других число, у
+            // третьих ничего — и сравнить их между собой было нельзя.
+            //
+            // Число считается ИЗ САМОГО НАБОРА, а не вписывается руками: у
+            // шрифтовых — по именам в их CSS, у файловых — по числу файлов.
+            // Вписанное руками разошлось бы с набором при первом обновлении, а
+            // здесь это ровно то, из чего значок и берётся.
+            //
+            // Разбор CSS кешируется по времени правки файла: он весит сотни
+            // килобайт, а форма открывается часто.
+            $считатьГлифы = function (string $файл, string $правило): int {
+                $путь = public_path($файл);
+                if (! is_file($путь)) {
+                    return 0;
+                }
+
+                return \Illuminate\Support\Facades\Cache::remember(
+                    'иконки.счёт.' . md5($файл) . '.' . filemtime($путь),
+                    now()->addDays(30),
+                    function () use ($путь, $правило) {
+                        preg_match_all($правило, (string) file_get_contents($путь), $m);
+                        return count(array_unique($m[1]));
+                    }
+                );
+            };
+
+            $готовые = [
+                'lucide'    => ['Lucide',         $считатьГлифы('assets/js/lucide.min.js',        "~[,{\"\\']([A-Z][A-Za-z0-9]*)\\s*:~")],
+                'fa'        => ['Font Awesome',   $считатьГлифы('assets/css/font-awesome/all.min.css', '~\.fa-([a-z0-9-]+):before~')],
+                'bootstrap' => ['Bootstrap Icons', $считатьГлифы('assets/css/bootstrap-icons.css', '~\.bi-([a-z0-9-]+)::?before~')],
+                'remix'     => ['Remix Icons',    $считатьГлифы('assets/css/remixicon.css',       '~\.ri-([a-z0-9-]+):before~')],
+                'phosphor'  => ['Phosphor',       $считатьГлифы('assets/css/phosphor-icons.css',  '~\.ph-([a-z0-9-]+):before~')],
+                'boxicons'  => ['Boxicons',       $считатьГлифы('assets/css/boxicons.css',        '~\.bx-([a-z0-9-]+):before~')],
+            ];
 
             $текущийПуть = old('config.icons_path', data_get($cfg, 'icons_path', ''));
             $выбрано = $iconMode === 'svg' && $текущийПуть
@@ -359,7 +408,7 @@
 
           <label class="thm-label">Набор значков</label>
           <select name="config[icon_mode]" class="admin-field">
-            <optgroup label="Собственные">
+            <optgroup label="Свои наборы">
               @foreach($своиНаборы as $значение => $набор)
                 <option value="{{ $значение }}" @selected($выбрано === $значение)>
                   {{ $набор['подпись'] }} ({{ $набор['сколько'] }})
@@ -367,23 +416,32 @@
               @endforeach
             </optgroup>
             <optgroup label="Готовые наборы">
-              <option value="lucide"    @selected($выбрано==='lucide')>Lucide — тонкие линии</option>
-              <option value="fa"        @selected($выбрано==='fa')>Font Awesome — сплошные</option>
-              <option value="bootstrap" @selected($выбрано==='bootstrap')>Bootstrap Icons</option>
-              <option value="remix"     @selected($выбрано==='remix')>Remix Icons</option>
-              <option value="phosphor"  @selected($выбрано==='phosphor')>Phosphor — тонкие, 1530 значков</option>
-              <option value="boxicons"  @selected($выбрано==='boxicons')>Boxicons — 1634 значка</option>
-              {{-- Подписи «сплошные» у Font Awesome и Tabler — не оценка, а
-                   замер: доля заливки значка при показе в 16 пикселей.
-                   Bootstrap 0.51, Phosphor 0.55, Remix 0.60, Boxicons 0.61,
-                   а Font Awesome 0.80 и Tabler 0.81 — вдвое плотнее. В мелкой
-                   плитке они читаются глухими пятнами, и владелец принял их
-                   за незагрузившиеся. Из списка не убираем: у Font Awesome
-                   это его собственный стиль (Solid), а Tabler заработает,
-                   если подменить файл шрифта на контурный. --}}
-              <option value="tabler"    @selected($выбрано==='tabler')>Tabler Icons — рисуется заливкой</option>
+              @foreach($готовые as $ключ => [$подпись, $сколько])
+                <option value="{{ $ключ }}" @selected($выбрано === $ключ)>
+                  {{ $подпись }}{{ $сколько ? ' (' . $сколько . ')' : '' }}
+                </option>
+              @endforeach
+              @if($набор = ($файловые['svg:/assets/icons/tabler'] ?? null))
+                <option value="{{ $набор['значение'] }}" @selected($выбрано === $набор['значение'])>
+                  {{ $набор['подпись'] }} ({{ $набор['сколько'] }})
+                </option>
+              @endif
+              {{-- 🔴 Tabler отдан ФАЙЛАМИ SVG, а не шрифтом.
+                   Шрифтовая сборка Tabler рисуется сплошными силуэтами: замер
+                   доли заливки при 16 пикселях даёт 0.81 против 0.51 у
+                   Bootstrap, и середина закрашена у всех значков подряд —
+                   `ti-circle` выходит диском, а не кольцом. Проверено в полной
+                   изоляции, со своим объявлением шрифта и без стилей проекта,
+                   так что дело не в нашем CSS. Файл при этом официальный: он
+                   побайтово совпал со скачанным с unpkg (3.36.0), а коды в CSS
+                   сошлись с официальными до единого — все 6040 имён.
+                   В виде SVG те же значки рисуются правильным контуром,
+                   поэтому набор берётся оттуда. Шрифтовой режим `tabler` из
+                   списка убран: он выглядел рабочим и рабочим не был.
+                   Подпись «сплошные» у Font Awesome — тоже замер, а не оценка:
+                   0.80. Но это его собственный стиль (Solid), а не поломка. --}}
             </optgroup>
-            @if($iconMode === 'svg' && $текущийПуть && ! array_key_exists('svg:' . $текущийПуть, $своиНаборы))
+            @if($iconMode === 'svg' && $текущийПуть && ! array_key_exists('svg:' . $текущийПуть, $файловые))
               <optgroup label="Загружено архивом">
                 <option value="svg" selected>{{ $текущийПуть }}</option>
               </optgroup>
