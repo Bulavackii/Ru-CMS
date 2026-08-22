@@ -173,12 +173,41 @@ class ThemeBackgroundTest extends TestCase
 
         $indigo = Theme::where('slug', 'indigo')->first();
 
-        // Индиго остаётся на прежней КАРТИНКЕ ФОНА: после обновления сайт
-        // должен выглядеть так же, как до него. Знак у него свой, в том же
-        // строении, что у остальных, но с прежней надписью «Nexum Core» —
-        // марка темы по умолчанию должна остаться узнаваемой.
-        $this->assertSame('/images/theme-default-bg.png', data_get($indigo->config, 'background_url'));
+        // ⚠️ Здесь стояло `/images/theme-default-bg.png` с пояснением, что
+        // Индиго намеренно остаётся на прежней картинке. Договор ИЗМЕНИЛСЯ по
+        // существу, а не «сломался»: владелец попросил убрать светящиеся узлы
+        // во ВСЕХ темах, включая Индиго, а из растра их не вынуть — фон Индиго
+        // собран тем же генератором, что и остальные. Знак у него свой, в том
+        // же строении, но с прежней надписью «Nexum Core»: марка темы по
+        // умолчанию должна остаться узнаваемой.
+        $this->assertSame('/images/themes/backgrounds/indigo.svg', data_get($indigo->config, 'background_url'));
         $this->assertSame('/images/themes/logos/indigo.svg', data_get($indigo->config, 'logo_url'));
+    }
+
+    /**
+     * Светящихся узлов не должно быть ни у одной темы.
+     *
+     * Блики были главной приметой прежнего Индиго: на светлом фоне они читаются
+     * как засветка от вспышки и спорят с текстом карточек. Владелец попросил
+     * убрать их везде — и это легко вернуть по недосмотру, потому что рисунок
+     * собирается генератором, а не правится руками.
+     */
+    public function test_theme_backgrounds_have_no_glowing_nodes(): void
+    {
+        $каталог = public_path('images/themes/backgrounds');
+        $файлы = glob($каталог . '/*.svg') ?: [];
+
+        $this->assertNotEmpty($файлы, 'Фоны тем не найдены.');
+
+        foreach ($файлы as $файл) {
+            $svg = (string) file_get_contents($файл);
+
+            // Свечение рисовалось радиальным градиентом с белым ядром. Ищем и
+            // сам градиент, и его применение — одного имени мало: градиент
+            // могли бы переименовать.
+            $this->assertStringNotContainsString('id="glow"', $svg, basename($файл) . ': вернулось свечение узлов.');
+            $this->assertStringNotContainsString('url(#glow)', $svg, basename($файл) . ': вернулось свечение узлов.');
+        }
     }
 
     public function test_seeder_reset_restores_the_asset_it_defines(): void

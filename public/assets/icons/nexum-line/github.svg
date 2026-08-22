@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em"
+     fill="none" stroke="currentColor" stroke-width="1.574"
+     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+     focusable="false">
+  <!-- Нексум · github. Собран scripts/art/nexum-icons.py — руками не правят. -->
+  <g transform="translate(-0.960 -0.960) scale(1.0800)">
+  <path d="M9 20 C5 21 5 17.5 3 17"/>
+  <path d="M15 21.5 V18 C15 16.8 14.6 16.2 14 15.6 C17.5 15.2 20.5 14 20.5 9.2 C20.5 7.8 20 6.6 19.1 5.6 C19.5 4.4 19.4 3.2 19 2.2 C19 2.2 17.8 1.9 15.2 3.6 A13 13 0 0 0 8.8 3.6 C6.2 1.9 5 2.2 5 2.2 C4.6 3.2 4.5 4.4 4.9 5.6 C4 6.6 3.5 7.8 3.5 9.2 C3.5 14 6.5 15.2 10 15.6 C9.4 16.2 9 17 9 18 V21.5"/>
+  </g>
+</svg>

@@ -350,28 +350,96 @@ class ThemeServiceProvider extends ServiceProvider
     private static function getAliases(): array
     {
         return [
+            // ⚠️ Каждое имя СВЕРЕНО с самим набором
+            // (public/assets/css/bootstrap-icons.css): промах молчаливый —
+            // имя уходит в набор как есть, значок не рисуется, и видно это
+            // только на той странице, куда случайно зайдёшь.
             'bootstrap' => [
-                'bell' => 'bell', 'shopping-cart' => 'cart', 'message' => 'chat-dots',
-                'search' => 'search', 'plus' => 'plus-lg', 'folder' => 'folder',
-                'image' => 'image', 'file-text' => 'file-text', 'puzzle' => 'puzzle',
-                'home' => 'house', 'user' => 'person', 'logout' => 'box-arrow-right',
-                'login' => 'box-arrow-in-right', 'mail' => 'envelope', 'dashboard' => 'grid',
-                'globe' => 'globe',
+                'alert-triangle' => 'exclamation-triangle', 'arrow-left' => 'arrow-left', 'arrow-up' => 'arrow-up',
+                'arrow-up-right-from-square' => 'box-arrow-up-right', 'bars' => 'list', 'bell' => 'bell',
+                'box' => 'box', 'bug' => 'bug', 'calendar' => 'calendar', 'check' => 'check-lg',
+                'chevron-down' => 'chevron-down', 'chevron-left' => 'chevron-left', 'chevron-right' => 'chevron-right',
+                'code' => 'code-slash', 'cogs' => 'gear', 'credit-card' => 'credit-card', 'dashboard' => 'grid',
+                'edit' => 'pencil', 'exclamation-triangle' => 'exclamation-triangle', 'eye' => 'eye',
+                'file-text' => 'file-text', 'files' => 'files', 'folder' => 'folder', 'github' => 'github',
+                'globe' => 'globe', 'grip-vertical' => 'grip-vertical', 'heart' => 'heart', 'help-circle' => 'question-circle',
+                'home' => 'house', 'image' => 'image', 'info' => 'info-circle', 'keyboard' => 'keyboard',
+                'lightbulb' => 'lightbulb', 'link' => 'link-45deg', 'list' => 'list', 'lock' => 'lock',
+                'login' => 'box-arrow-in-right', 'logout' => 'box-arrow-right', 'mail' => 'envelope',
+                'map' => 'map', 'map-pin' => 'geo-alt', 'message' => 'chat-dots', 'newspaper' => 'newspaper',
+                'palette' => 'palette', 'phone' => 'telephone', 'plus' => 'plus-lg', 'puzzle' => 'puzzle',
+                'save' => 'save', 'search' => 'search', 'send' => 'send', 'settings' => 'gear',
+                'share-nodes' => 'share', 'shield' => 'shield', 'shopping-cart' => 'cart', 'sign-in-alt' => 'box-arrow-in-right',
+                'sign-out-alt' => 'box-arrow-right', 'star' => 'star', 'tag' => 'tag', 'times' => 'x-lg',
+                'trash' => 'trash', 'trash-alt' => 'trash', 'truck' => 'truck', 'unlock' => 'unlock',
+                'user' => 'person', 'user-plus' => 'person-plus', 'users' => 'people', 'youtube' => 'youtube',
+                // Брендовых глифов VK, MAX и Rutube в наборе нет — подменяем
+                // по СМЫСЛУ (сеть общения — облако разговора, видеосервис —
+                // значок воспроизведения), как это уже сделано в Lucide.
+                'vk' => 'chat-dots', 'max' => 'chat-square-dots', 'rutube' => 'play-btn',
             ],
             'remix' => [
-                'bell' => 'notification-3-line', 'shopping-cart' => 'shopping-cart-2-line',
-                'message' => 'message-3-line', 'search' => 'search-line', 'plus' => 'add-line',
-                'folder' => 'folder-3-line', 'image' => 'image-line', 'file-text' => 'file-text-line',
-                'puzzle' => 'puzzle-2-line', 'home' => 'home-2-line', 'user' => 'user-3-line',
-                'logout' => 'logout-box-r-line', 'login' => 'login-box-line', 'mail' => 'mail-line',
-                'dashboard' => 'dashboard-2-line', 'globe' => 'earth-line',
+                'alert-triangle' => 'error-warning-line', 'arrow-left' => 'arrow-left-line', 'arrow-up' => 'arrow-up-line',
+                'arrow-up-right-from-square' => 'external-link-line', 'bars' => 'menu-line', 'bell' => 'notification-3-line',
+                'box' => 'archive-2-line', 'bug' => 'bug-line', 'calendar' => 'calendar-line', 'check' => 'check-line',
+                'chevron-down' => 'arrow-down-s-line', 'chevron-left' => 'arrow-left-s-line', 'chevron-right' => 'arrow-right-s-line',
+                'code' => 'code-s-slash-line', 'cogs' => 'settings-3-line', 'credit-card' => 'bank-card-line',
+                'dashboard' => 'dashboard-2-line', 'edit' => 'edit-line', 'exclamation-triangle' => 'error-warning-line',
+                'eye' => 'eye-line', 'file-text' => 'file-text-line', 'files' => 'file-copy-line',
+                'folder' => 'folder-3-line', 'github' => 'github-line', 'globe' => 'earth-line',
+                'grip-vertical' => 'draggable', 'heart' => 'heart-line', 'help-circle' => 'question-line',
+                'home' => 'home-2-line', 'image' => 'image-line', 'info' => 'information-line',
+                'keyboard' => 'keyboard-line', 'lightbulb' => 'lightbulb-line', 'link' => 'links-line',
+                'list' => 'menu-line', 'lock' => 'lock-line', 'login' => 'login-box-line', 'logout' => 'logout-box-r-line',
+                'mail' => 'mail-line', 'map' => 'map-2-line', 'map-pin' => 'map-pin-line', 'message' => 'message-3-line',
+                'newspaper' => 'newspaper-line', 'palette' => 'palette-line', 'phone' => 'phone-line',
+                'plus' => 'add-line', 'puzzle' => 'puzzle-2-line', 'save' => 'save-line', 'search' => 'search-line',
+                'send' => 'send-plane-line', 'settings' => 'settings-3-line', 'share-nodes' => 'share-line',
+                'shield' => 'shield-line', 'shopping-cart' => 'shopping-cart-2-line', 'sign-in-alt' => 'login-box-line',
+                'sign-out-alt' => 'logout-box-r-line', 'star' => 'star-line', 'tag' => 'price-tag-3-line',
+                'times' => 'close-line', 'trash' => 'delete-bin-line', 'trash-alt' => 'delete-bin-line',
+                'truck' => 'truck-line', 'unlock' => 'lock-unlock-line', 'user' => 'user-3-line',
+                'user-plus' => 'user-add-line', 'users' => 'team-line', 'youtube' => 'youtube-line',
+                // См. пояснение у bootstrap: брендовых глифов нет.
+                'vk' => 'message-3-line', 'max' => 'chat-3-line', 'rutube' => 'play-circle-line',
             ],
+            // 🔴 TABLER НЕ НАЗНАЧАЕТСЯ ТЕМАМ: в проекте лежит ЗАЛИТЫЙ вариант
+            // шрифта вместо контурного.
+            //
+            // Внешне это выглядело как «значки не дорисовались»: на теме «Алый»
+            // в шапке и подвале стояли глухие кружки и квадраты. Разобрано
+            // замером — глиф рисуется на холсте, и проверяется его СЕРЕДИНА:
+            // у `ti-circle` она закрашена, у `bi-circle` и `ri-...-line` пуста.
+            // Точек чернил у Tabler вдвое больше, чем у соседей, и одинаково
+            // много у всех значков подряд — верный признак силуэтов.
+            //
+            // Карта оставлена: подменят файл шрифта на контурный — набор
+            // заработает без единой правки. Проверять так:
+            //   grep -c 'filled' public/assets/css/tabler-icons.min.css
+            // и обязательно замером середины глифа, потому что по имени файла
+            // отличить залитый набор от контурного нельзя.
             'tabler' => [
-                'bell' => 'bell', 'shopping-cart' => 'shopping-cart', 'message' => 'message',
-                'search' => 'search', 'plus' => 'plus', 'folder' => 'folder', 'image' => 'photo',
-                'file-text' => 'file-text', 'puzzle' => 'puzzle', 'home' => 'home', 'user' => 'user',
-                'logout' => 'logout', 'login' => 'login', 'mail' => 'mail', 'dashboard' => 'layout-dashboard',
-                'globe' => 'world',
+                'alert-triangle' => 'alert-triangle', 'arrow-left' => 'arrow-left', 'arrow-up' => 'arrow-up',
+                'arrow-up-right-from-square' => 'external-link', 'bars' => 'menu-2', 'bell' => 'bell',
+                'box' => 'box', 'bug' => 'bug', 'calendar' => 'calendar', 'check' => 'check', 'chevron-down' => 'chevron-down',
+                'chevron-left' => 'chevron-left', 'chevron-right' => 'chevron-right', 'code' => 'code',
+                'cogs' => 'settings', 'credit-card' => 'credit-card', 'dashboard' => 'layout-dashboard',
+                'edit' => 'edit', 'exclamation-triangle' => 'alert-triangle', 'eye' => 'eye', 'file-text' => 'file-text',
+                'files' => 'files', 'folder' => 'folder', 'github' => 'brand-github', 'globe' => 'world',
+                'grip-vertical' => 'grip-vertical', 'heart' => 'heart', 'help-circle' => 'help-circle',
+                'home' => 'home', 'image' => 'photo', 'info' => 'info-circle', 'keyboard' => 'keyboard',
+                'lightbulb' => 'bulb', 'link' => 'link', 'list' => 'list', 'lock' => 'lock', 'login' => 'login',
+                'logout' => 'logout', 'mail' => 'mail', 'map' => 'map', 'map-pin' => 'map-pin',
+                'message' => 'message', 'newspaper' => 'news', 'palette' => 'palette', 'phone' => 'phone',
+                'plus' => 'plus', 'puzzle' => 'puzzle', 'save' => 'device-floppy', 'search' => 'search',
+                'send' => 'send', 'settings' => 'settings', 'share-nodes' => 'share', 'shield' => 'shield',
+                'shopping-cart' => 'shopping-cart', 'sign-in-alt' => 'login', 'sign-out-alt' => 'logout',
+                'star' => 'star', 'tag' => 'tag', 'times' => 'x', 'trash' => 'trash', 'trash-alt' => 'trash',
+                'truck' => 'truck', 'unlock' => 'lock-open', 'user' => 'user', 'user-plus' => 'user-plus',
+                'users' => 'users', 'vk' => 'brand-vk', 'youtube' => 'brand-youtube',
+                // У Tabler brand-vk НАСТОЯЩИЙ (см. выше), а MAX и Rutube
+                // подменяются по смыслу — их глифов нет нигде.
+                'max' => 'message-2', 'rutube' => 'player-play',
             ],
             'lucide' => [
                 'bell' => 'bell', 'shopping-cart' => 'shopping-cart', 'message' => 'message-circle',
@@ -443,63 +511,54 @@ class ThemeServiceProvider extends ServiceProvider
              * Каждый перевод сверен по самой сборке скриптом — несуществующих
              * имён здесь нет.
              */
+            // То же самое у Phosphor: без карты не находилось 25 имён из 47.
             'phosphor' => [
-                'alert-circle' => 'warning-circle', 'alert-octagon' => 'warning-octagon', 'alert-triangle'
-                => 'warning', 'arrow-up-right-from-square' => 'arrow-square-out', 'at-sign' => 'at', 'badge-
-                check' => 'seal-check', 'badge-info' => 'info', 'banknote' => 'money', 'bars' => 'list',
-                'cable' => 'plugs', 'chevron-down' => 'caret-down', 'chevron-left' => 'caret-left',
-                'chevron-right' => 'caret-right', 'circle-dashed' => 'circle-dashed', 'circle-help' =>
-                'question', 'clipboard-check' => 'clipboard-text', 'cog' => 'gear', 'cogs' => 'gear-six',
-                'database-zap' => 'database', 'edit' => 'pencil-simple', 'exclamation-triangle' =>
-                'warning', 'external-link' => 'arrow-square-out', 'eye-off' => 'eye-slash', 'file-cog' =>
-                'file-text', 'github' => 'github-logo', 'grip-vertical' => 'dots-six-vertical', 'hashtag' =>
-                'hash', 'help-circle' => 'question', 'home' => 'house', 'key-round' => 'key', 'languages' =>
-                'translate', 'layers' => 'stack', 'layout-dashboard' => 'squares-four', 'life-buoy' =>
-                'lifebuoy', 'loader-2' => 'spinner', 'log-in' => 'sign-in', 'log-out' => 'sign-out', 'mail'
-                => 'envelope-simple', 'map' => 'map-trifold', 'menu' => 'list', 'message' => 'chat-circle',
-                'octagon-alert' => 'warning-octagon', 'party-popper' => 'confetti', 'plug-zap' => 'plugs-
-                connected', 'power-off' => 'power', 'puzzle' => 'puzzle-piece', 'refresh-cw' => 'arrows-
-                clockwise', 'rotate-cw' => 'arrow-clockwise', 'save' => 'floppy-disk', 'scan-search' =>
-                'magnifying-glass', 'search' => 'magnifying-glass', 'server' => 'hard-drives', 'settings' =>
-                'gear', 'shield-check' => 'shield-check', 'sign-in-alt' => 'sign-in', 'sign-out-alt' =>
-                'sign-out', 'sliders-horizontal' => 'sliders-horizontal', 'square-pen' => 'pencil-simple-
-                line', 'ticket-percent' => 'ticket', 'times' => 'x', 'trash-2' => 'trash', 'trash-alt' =>
-                'trash', 'type' => 'text-aa', 'unlock' => 'lock-open', 'user-round' => 'user', 'vk' =>
-                'chat-circle', 'wand-2' => 'magic-wand', 'x' => 'x', 'youtube' => 'youtube-logo', 'zap' =>
-                'lightning',
+                'alert-triangle' => 'warning', 'arrow-left' => 'arrow-left', 'arrow-up' => 'arrow-up',
+                'arrow-up-right-from-square' => 'arrow-square-out', 'bars' => 'list', 'bell' => 'bell',
+                'box' => 'package', 'bug' => 'bug', 'calendar' => 'calendar', 'check' => 'check',
+                'chevron-down' => 'caret-down', 'chevron-left' => 'caret-left', 'chevron-right' => 'caret-right',
+                'code' => 'code', 'cogs' => 'gear', 'credit-card' => 'credit-card', 'dashboard' => 'squares-four',
+                'edit' => 'pencil-simple', 'exclamation-triangle' => 'warning', 'external-link' => 'arrow-square-out',
+                'eye' => 'eye', 'file-text' => 'file-text', 'files' => 'files', 'folder' => 'folder',
+                'github' => 'github-logo', 'globe' => 'globe', 'grip-vertical' => 'dots-six-vertical',
+                'heart' => 'heart', 'help-circle' => 'question', 'home' => 'house', 'image' => 'image',
+                'info' => 'info', 'keyboard' => 'keyboard', 'lightbulb' => 'lightbulb', 'link' => 'link',
+                'list' => 'list-bullets', 'lock' => 'lock', 'login' => 'sign-in', 'logout' => 'sign-out',
+                'mail' => 'envelope', 'map' => 'map-trifold', 'map-pin' => 'map-pin', 'max' => 'chat-circle-dots',
+                'message' => 'chat-circle', 'newspaper' => 'newspaper', 'palette' => 'palette',
+                'phone' => 'phone', 'plus' => 'plus', 'puzzle' => 'puzzle-piece', 'rutube' => 'play-circle',
+                'save' => 'floppy-disk', 'search' => 'magnifying-glass', 'send' => 'paper-plane-tilt',
+                'settings' => 'gear', 'share-nodes' => 'share-network', 'shield' => 'shield', 'shopping-cart' => 'shopping-cart',
+                'sign-in-alt' => 'sign-in', 'sign-out-alt' => 'sign-out', 'star' => 'star', 'tag' => 'tag',
+                'times' => 'x', 'trash' => 'trash', 'trash-alt' => 'trash', 'truck' => 'truck',
+                'unlock' => 'lock-open', 'user' => 'user', 'user-plus' => 'user-plus', 'users' => 'users-three',
+                'vk' => 'chat-circle-text', 'youtube' => 'youtube-logo',
             ],
 
+            // 🔴 Карты у Boxicons не было вовсе: имена уходили в набор с одной
+            // лишь приставкой `bx-`, и глифа не находилось у 26 имён из 47 —
+            // «значки не дорисовываются», как это выглядело у владельца.
+            // Каждая цель СВЕРЕНА с самим набором (assets/css/boxicons.css).
             'boxicons' => [
-                'alert-circle' => 'bx-error-circle', 'alert-octagon' => 'bx-error-circle', 'alert-triangle'
-                => 'bx-error', 'arrow-down' => 'bx-down-arrow-alt', 'arrow-left' => 'bx-left-arrow-alt',
-                'arrow-right' => 'bx-right-arrow-alt', 'arrow-up' => 'bx-up-arrow-alt', 'arrow-up-right-
-                from-square' => 'bx-link-external', 'at-sign' => 'bx-at', 'badge-check' => 'bx-badge-check',
-                'badge-info' => 'bx-info-circle', 'banknote' => 'bx-money', 'bars' => 'bx-menu', 'cable' =>
-                'bx-plug', 'chevron-down' => 'bx-chevron-down', 'chevron-left' => 'bx-chevron-left',
-                'chevron-right' => 'bx-chevron-right', 'circle-dashed' => 'bx-circle', 'circle-help' => 'bx-
-                help-circle', 'clipboard-check' => 'bx-clipboard', 'clock' => 'bx-time', 'cog' => 'bx-cog',
-                'cogs' => 'bx-cog', 'database' => 'bx-data', 'database-zap' => 'bx-data', 'edit' => 'bx-
-                edit', 'exclamation-triangle' => 'bx-error', 'external-link' => 'bx-link-external', 'eye' =>
-                'bx-show', 'eye-off' => 'bx-hide', 'file-cog' => 'bx-file', 'file-text' => 'bx-file',
-                'gauge' => 'bx-tachometer', 'github' => 'bxl-github', 'grip-vertical' => 'bx-dots-vertical-
-                rounded', 'hard-drive' => 'bx-server', 'hashtag' => 'bx-hash', 'help-circle' => 'bx-help-
-                circle', 'home' => 'bx-home', 'house' => 'bx-home', 'info' => 'bx-info-circle', 'key-round'
-                => 'bx-key', 'keyboard' => 'bxs-keyboard', 'languages' => 'bx-globe', 'layers' => 'bx-
-                layer', 'layout-dashboard' => 'bx-grid-alt', 'life-buoy' => 'bx-buoy', 'lightbulb' => 'bx-
-                bulb', 'list' => 'bx-list-ul', 'list-checks' => 'bx-list-check', 'loader-2' => 'bx-loader',
-                'log-in' => 'bx-log-in', 'log-out' => 'bx-log-out', 'mail' => 'bx-envelope', 'map' => 'bx-
-                map', 'menu' => 'bx-menu', 'message' => 'bx-message', 'octagon-alert' => 'bx-error-circle',
-                'party-popper' => 'bx-party', 'plug-zap' => 'bx-plug', 'power-off' => 'bx-power-off',
-                'puzzle' => 'bx-extension', 'puzzle-piece' => 'bx-extension', 'refresh-cw' => 'bx-refresh',
-                'rotate-cw' => 'bx-refresh', 'save' => 'bx-save', 'scan-search' => 'bx-search-alt', 'search'
-                => 'bx-search', 'server' => 'bx-server', 'settings' => 'bx-cog', 'shield-check' => 'bx-
-                shield', 'shopping-cart' => 'bx-cart', 'sign-in-alt' => 'bx-log-in', 'sign-out-alt' => 'bx-
-                log-out', 'skip-forward' => 'bx-skip-next', 'sliders-horizontal' => 'bx-slider', 'square-
-                pen' => 'bx-edit-alt', 'ticket' => 'bx-purchase-tag', 'ticket-percent' => 'bx-purchase-tag',
-                'times' => 'bx-x', 'trash' => 'bx-trash', 'trash-2' => 'bx-trash', 'trash-alt' => 'bx-
-                trash', 'type' => 'bx-text', 'unlock' => 'bx-lock-open', 'user-round' => 'bx-user', 'vk' =>
-                'bxl-vk', 'wand-2' => 'bxs-magic-wand', 'x' => 'bx-x', 'youtube' => 'bxl-youtube', 'zap' =>
-                'bx-bolt-circle',
+                'alert-triangle' => 'error', 'arrow-left' => 'left-arrow-alt', 'arrow-up' => 'up-arrow-alt',
+                'arrow-up-right-from-square' => 'link-external', 'bars' => 'menu', 'bell' => 'bell',
+                'box' => 'package', 'bug' => 'bug', 'calendar' => 'calendar', 'check' => 'check',
+                'chevron-down' => 'chevron-down', 'chevron-left' => 'chevron-left', 'chevron-right' => 'chevron-right',
+                'code' => 'code-alt', 'cogs' => 'cog', 'credit-card' => 'credit-card', 'dashboard' => 'grid-alt',
+                'edit' => 'edit', 'exclamation-triangle' => 'error', 'external-link' => 'link-external',
+                'eye' => 'show', 'file-text' => 'file', 'files' => 'copy', 'folder' => 'folder',
+                'github' => 'code-block', 'globe' => 'globe', 'grip-vertical' => 'dots-vertical-rounded',
+                'heart' => 'heart', 'help-circle' => 'help-circle', 'home' => 'home', 'image' => 'image',
+                'info' => 'info-circle', 'keyboard' => 'terminal', 'lightbulb' => 'bulb', 'link' => 'link',
+                'list' => 'list-ul', 'lock' => 'lock', 'login' => 'log-in', 'logout' => 'log-out',
+                'mail' => 'envelope', 'map' => 'map', 'map-pin' => 'map-pin', 'max' => 'chat', 'message' => 'message',
+                'newspaper' => 'news', 'palette' => 'palette', 'phone' => 'phone', 'plus' => 'plus',
+                'puzzle' => 'extension', 'rutube' => 'play-circle', 'save' => 'save', 'search' => 'search',
+                'send' => 'send', 'settings' => 'cog', 'share-nodes' => 'share-alt', 'shield' => 'shield',
+                'shopping-cart' => 'cart', 'sign-in-alt' => 'log-in', 'sign-out-alt' => 'log-out',
+                'star' => 'star', 'tag' => 'purchase-tag', 'times' => 'x', 'trash' => 'trash', 'trash-alt' => 'trash',
+                'truck' => 'car', 'unlock' => 'lock-open', 'user' => 'user', 'user-plus' => 'user-plus',
+                'users' => 'group', 'vk' => 'message-rounded', 'youtube' => 'play-circle',
             ],
         ];
     }
@@ -519,6 +578,17 @@ class ThemeServiceProvider extends ServiceProvider
     private static function getFaMap(): array
     {
         return [
+            // 🔴 Дописано по сверке с самим набором: без этих четырёх имя
+            // уходило в Font Awesome как есть, глифа не находилось, и на месте
+            // значка не рисовалось ничего. Брендовых знаков Rutube и MAX в
+            // наборе нет вовсе — подменяем по смыслу, как в остальных картах.
+            'alert-triangle' => 'triangle-exclamation', 'help-circle' => 'circle-question',
+            // `info` без соответствия уходил в набор как есть и рисовался ГОЛОЙ
+            // буквой «i» — узкой, отчего в меню зазор до слова выходил заметно
+            // шире, чем у соседей. Во всех остальных наборах это кружок с «i»,
+            // приводим к тому же.
+            'info' => 'circle-info',
+            'rutube' => 'circle-play', 'max' => 'comment-dots',
             'cart' => 'shopping-cart', 'shopping-cart' => 'shopping-cart', 'user' => 'user',
             'login' => 'sign-in-alt', 'logout' => 'sign-out-alt', 'user-plus' => 'user-plus',
             'cog' => 'cog', 'cogs' => 'cogs', 'phone' => 'phone', 'search' => 'search',

@@ -886,3 +886,143 @@ body.fx-theme-dark .page-content .pc-map__btn{ color:var(--color-bg) }
     .page-content pre,
     .news-content pre { padding: .85rem .9rem; }
 }
+
+/* ─────────────────────────────────────────────────────────────────────
+   ТАБЛИЦА СРАВНЕНИЯ
+
+   Таблицы в содержимом не были оформлены вовсе: редактор их вставляет и
+   сохраняет, а на сайте они выходили голыми строками без рамок. Между тем
+   сравнение — самый убедительный формат: рядом видно, чем одно отличается
+   от другого.
+
+   ⚠️ Обёртка со своей прокруткой обязательна. Таблица из четырёх колонок не
+   ужимается ниже содержимого, и на телефоне она распирала бы страницу вбок —
+   тот же случай, что уже был в списках панели.
+   ───────────────────────────────────────────────────────────────────── */
+.page-content .pc-table,
+.news-content .pc-table {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 1.4rem 0;
+    border: 1px solid var(--surface-bd, #e2e8f0);
+}
+
+.page-content table,
+.news-content table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .92rem;
+    background: var(--surface, #fff);
+}
+
+.page-content th,
+.news-content th {
+    padding: .8rem .9rem;
+    text-align: left;
+    font-weight: 700;
+    color: var(--surface-ink, #0f172a);
+    background: var(--surface-2, #f8fafc);
+    border-bottom: 2px solid var(--surface-bd, #e2e8f0);
+    white-space: nowrap;
+}
+
+/* ⚠️ Таблица сравнения — РАВНЫЕ колонки (`table-layout: fixed`).
+   Замер вскрыл, что при обычной раскладке правые колонки не прокручивались,
+   а ПРОПАДАЛИ: `width:100%` держит коробку таблицы по колонке
+   текста, переполнение случается ВНУТРИ таблицы, а таблица — не
+   контейнер прокрутки. На 1280 коробка была 605 при содержимом 1237 —
+   632 пикселя сравнения были за краем, и достать их было нечем.
+   И это на десктопе, а не только на телефоне.
+
+   `overflow-wrap` здесь не помогает: `break-word` вообще не влияет на
+   вычисление минимальной ширины колонки, а `anywhere` ломает слова
+   посредине. Фиксированная раскладка решает задачу напрямую: ширина
+   колонок задана заранее, содержимое переносится внутри них.
+   Для сравнения это и правильнее по сути: три системы получают
+   одинаковое место, а не та, чей текст длиннее. */
+.page-content .pc-table table,
+.news-content .pc-table table {
+    /* ⚠️ `display: table` здесь несущий. Вьюха страницы объявляет
+       `.page-content table{ display:block; overflow-x:auto }` — то есть делает
+       саму таблицу контейнером прокрутки. У блочного элемента
+       `table-layout` игнорируется вовсе, и колонки берут ширину по
+       содержимому: замер на 1280 показал 1237 при колонке текста 605,
+       то есть сравнение приходилось прокручивать вбок даже на широком
+       экране. Прокрутка ничего не теряла — но читать сравнение
+       трёх систем, видя за раз одну колонку, бессмысленно: смысл
+       таблицы именно в том, что варианты видны рядом.
+       На широком экране возвращаем табличную раскладку с равными
+       колонками; прокрутка остаётся у обёртки `.pc-table` как запас. */
+    display: table;
+    table-layout: fixed;
+    width: 100%;
+}
+
+@media (max-width: 1024px) {
+    /* На телефоне четыре колонки в 261 пиксель — это по 62 на
+       колонку: слова вроде «разработчик» туда не встают вовсе.
+       Возвращаем прокрутку: читать вбок хуже, чем видеть всё
+       сразу, но лучше, чем столбик из обрубленных слов. */
+    .page-content .pc-table table,
+    .news-content .pc-table table {
+        display: block;
+        overflow-x: auto;
+        table-layout: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+.page-content .pc-table th,
+.news-content .pc-table th { white-space: normal }
+
+/* Первая колонка — признак сравнения, ей нужно больше места,
+   трём системам — поровну. */
+.page-content .pc-table th:first-child,
+.news-content .pc-table th:first-child { width: 28% }
+
+.page-content td,
+.news-content td {
+    padding: .75rem .9rem;
+    vertical-align: top;
+    border-bottom: 1px solid var(--surface-bd, #eef2f7);
+    /* ⚠️ break-word, а НЕ anywhere: anywhere обнуляет минимальную ширину, и
+       браузер начинает переносить заголовки по одной букве в строку. */
+    overflow-wrap: break-word;
+}
+
+.page-content tbody tr:last-child td,
+.news-content tbody tr:last-child td { border-bottom: 0 }
+
+/* Первая колонка — признак сравнения, она и есть подпись строки */
+.page-content tbody td:first-child,
+.news-content tbody td:first-child {
+    font-weight: 600;
+    color: var(--surface-ink, #0f172a);
+}
+
+/* Колонка своего продукта выделяется: ради неё таблицу и читают.
+   Класс ставится на th и td вручную — на любой позиции. */
+.page-content .is-us,
+.news-content .is-us {
+    background: color-mix(in srgb, var(--color-primary, #6366f1) 7%, transparent);
+}
+
+.page-content th.is-us,
+.news-content th.is-us {
+    background: color-mix(in srgb, var(--color-primary, #6366f1) 14%, transparent);
+    color: color-mix(in srgb, var(--color-primary, #6366f1) 75%, var(--surface-ink, #0f172a));
+}
+
+/* Значки «есть / нет / отчасти» — словами, а не только цветом: цвет один
+   не читается ни на чёрно-белой печати, ни при дальтонизме. */
+.page-content .yes, .news-content .yes { color: #15803d; font-weight: 700 }
+.page-content .no,  .news-content .no  { color: #b91c1c; font-weight: 700 }
+.page-content .mid, .news-content .mid { color: #a16207; font-weight: 700 }
+
+@media (max-width: 1024px) {
+    .page-content table,
+    .news-content table { font-size: .86rem }
+
+    .page-content th, .news-content th,
+    .page-content td, .news-content td { padding: .6rem .7rem }
+}

@@ -71,7 +71,17 @@
 
 @if ($slides->isNotEmpty())
 <div class="w-full my-4">
-  <div class="ru-swiper swiper swiper-{{ $slideshow->id }} max-w-screen-xl mx-auto rounded-xl shadow-md overflow-hidden relative"
+  {{-- Внешняя обёртка нужна РАДИ СТРЕЛОК.
+       У самого слайдера `overflow-hidden` — им Swiper обрезает соседние
+       слайды, и снять его нельзя: иначе все слайды встанут в ряд. Значит,
+       кнопка, выступающая за край, была бы срезана вместе с ними. Поэтому
+       слайдер лежит внутри обёртки без обрезки, а кнопки — снаружи него, но
+       внутри обёртки, и позиционируются от неё.
+       ⚠️ Ширина (max-w-screen-xl mx-auto) переехала сюда: если оставить её на
+       слайдере, обёртка растянется на всю страницу и стрелки уедут к краям
+       окна, а не к краям кадра. --}}
+  <div class="ru-swiper-outer ru-sw-{{ $slideshow->id }} max-w-screen-xl mx-auto relative">
+  <div class="ru-swiper swiper swiper-{{ $slideshow->id }} w-full rounded-xl shadow-md overflow-hidden relative"
        style="--ru-slide-h: {{ $height }};">
 
     {{-- 🔁 Слайды --}}
@@ -167,9 +177,14 @@
       {{-- Полоса прогресса до смены слайда. Показывается только при
            работающей автопрокрутке, поэтому её разметка тоже под условием. --}}
       <div class="ru-progress" aria-hidden="true"><div class="ru-progress__fill"></div></div>
+    @endunless
+  </div>
 
+    @unless ($isSingle)
       @if ($showNavigation)
-        {{-- Кнопки, а не div-ы: только так они попадают в обход по Tab и
+        {{-- Кнопки стоят ВНЕ слайдера (см. пояснение у обёртки): у него
+             обрезка по краям, и выступающая кнопка была бы срезана.
+             Кнопки, а не div-ы: только так они попадают в обход по Tab и
              срабатывают на пробел/Enter. Размер 44px — минимум, за который
              уверенно попадают пальцем. --}}
         <button type="button" class="ru-nav ru-nav--prev swiper-button-prev"
@@ -204,10 +219,27 @@
        Высота из настроек слайдшоу стала НИЖНЕЙ границей — кадр не будет
        ниже неё, но может стать выше, чтобы вместить картинку целиком.
        Потолок в 78vh не даёт вертикальному баннеру занять весь экран. */
+    /* 🔴 Подложка кадра берётся ИЗ ТЕМЫ, а не задана цветом.
+       Демо-баннеры нарисованы прозрачными: в SVG остались только рисунок и
+       текст, фона у них нет вовсе. Фон даёт это правило — цвет темы,
+       затемнённый до предсказуемого уровня. Меняется тема — меняется и
+       слайд, ровно как у кнопок.
+       До этого фон был вписан в саму картинку, и его приходилось подбирать
+       вручную: три захода (почти чёрный, почти белый, насыщенный индиго)
+       упирались в одно — тем одиннадцать, и удачный для одной спорит с
+       другой. Один цвет на все не подбирается в принципе.
+       ⚠️ Доли смеси (50/32) проверены по ВСЕМ темам, худшая — «Неон» с самым
+       светлым основным цветом: белый текст там даёт 6.92, второстепенный
+       #dbeafe — 5.67. Возьмёшь долю больше — Неон уйдёт ниже порога 4.5.
+       Фотографию слайда подложка не портит: картинка закрывает кадр
+       целиком, а в полях у неё и так стоит размытая копия (.ru-slide__bg). */
     .ru-slide{ position:relative; width:100%; height:auto;
         aspect-ratio:var(--ru-ar, 16/9);
         min-height:var(--ru-slide-h, 420px); max-height:78vh;
-        overflow:hidden; background:#0f172a }
+        overflow:hidden;
+        background:linear-gradient(135deg,
+            color-mix(in srgb, var(--color-primary, #6366f1) 50%, #0f172a),
+            color-mix(in srgb, var(--color-primary, #6366f1) 32%, #0f172a)) }
 
     /* Заглушка по краям — та же картинка, увеличенная и размытая. */
     .ru-slide__bg{ position:absolute; inset:0; background-position:center;
@@ -230,14 +262,35 @@
     /* ── Стрелки ────────────────────────────────────────────────────── */
     /* Swiper рисует свой значок псевдоэлементом; собственный размер кнопки
        он при этом не задаёт, отсюда прежние 27x44 — мимо пальца. */
-    .ru-swiper .ru-nav{ width:44px; height:44px; margin-top:-22px; padding:0;
-        color:#fff; background:rgba(15,23,42,.42); border:1px solid rgba(255,255,255,.22);
-        -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
-        transition:background-color .15s, border-color .15s }
-    .ru-swiper .ru-nav:hover{ background:rgba(15,23,42,.62); border-color:rgba(255,255,255,.4) }
-    .ru-swiper .ru-nav:focus-visible{ outline:2px solid #fff; outline-offset:2px }
-    .ru-swiper .ru-nav::after{ font-size:16px; font-weight:700 }
-    .ru-swiper .ru-nav.swiper-button-disabled{ opacity:0; pointer-events:none }
+    /* Кнопки живут в обёртке, а не в слайдере, поэтому и позиционируются от
+       неё. Swiper задаёт им `top:50%` и свои left/right — перебиваем. */
+    .ru-swiper-outer{ --ru-nav: 46px }
+    .ru-swiper-outer .ru-nav{ position:absolute; top:50%; margin-top:0;
+        width:var(--ru-nav); height:var(--ru-nav); padding:0; z-index:12;
+        transform:translateY(-50%);
+        color:#fff; background:var(--color-primary,#6366f1);
+        border:1px solid rgba(255,255,255,.55);
+        box-shadow:0 6px 20px rgba(15,23,42,.28);
+        transition:background-color .15s, box-shadow .15s }
+    .ru-swiper-outer .ru-nav--prev{ left:0 }
+    .ru-swiper-outer .ru-nav--next{ right:0 }
+    .ru-swiper-outer .ru-nav:hover{
+        background:color-mix(in srgb, var(--color-primary,#6366f1) 82%, #0f172a);
+        box-shadow:0 8px 26px rgba(15,23,42,.36) }
+    .ru-swiper-outer .ru-nav:focus-visible{ outline:2px solid var(--color-primary,#6366f1); outline-offset:3px }
+    .ru-swiper-outer .ru-nav::after{ font-size:16px; font-weight:700 }
+    .ru-swiper-outer .ru-nav.swiper-button-disabled{ opacity:0; pointer-events:none }
+
+    /* ⚠️ Выступ ТОЛЬКО когда для него есть место.
+       Кадр шире 1280 не бывает (max-w-screen-xl), и на окне 1300 кнопка,
+       вылезшая на половину ширины, ушла бы за край страницы — это
+       горизонтальная прокрутка всему сайту. Ниже порога кнопки просто
+       прижаты к краям кадра, как раньше.
+       Порог: 1280 кадра + 2×23 выступа + запас на полосу прокрутки. */
+    @media (min-width: 1360px){
+        .ru-swiper-outer .ru-nav--prev{ left:calc(var(--ru-nav) / -2) }
+        .ru-swiper-outer .ru-nav--next{ right:calc(var(--ru-nav) / -2) }
+    }
 
     /* ── Точки ──────────────────────────────────────────────────────── */
     .ru-swiper .swiper-pagination-bullets{ display:flex; justify-content:center;
@@ -247,20 +300,27 @@
     /* Радиусы тут не задаются: на фронте прямые углы включены глобально
        (body.fx-sharp с important в лейауте), и любой border-radius здесь
        был бы мёртвым кодом. */
-    .ru-swiper .swiper-pagination-bullet{ position:relative; width:22px; height:4px;
-        background-color:rgba(255,255,255,.45); opacity:1;
+    /* ⚠️ Точки были БЕЛЫМИ (rgba(255,255,255,.45)) — приём с тёмных слайдов.
+       На светлом слайде белое по светлому не видно вовсе: счётчик слайдов
+       пропадал, и понять, сколько их, было нельзя.
+       Теперь точка тёмная, а поверх неё светлая обводка: на светлом слайде
+       читается заливка, на тёмном — обводка. Одна пара значений работает в
+       обе стороны, отдельной ветки под тёмные слайды не нужно. */
+    .ru-swiper .swiper-pagination-bullet{ position:relative; width:26px; height:5px;
+        background-color:rgba(15,23,42,.30); opacity:1;
+        box-shadow:0 0 0 1px rgba(255,255,255,.55);
         transition:background-color .2s, width .2s }
     .ru-swiper .swiper-pagination-bullet::before{ content:''; position:absolute;
         top:-10px; left:-4px; right:-4px; bottom:-10px }
-    .ru-swiper .swiper-pagination-bullet:hover{ background-color:rgba(255,255,255,.8) }
+    .ru-swiper .swiper-pagination-bullet:hover{ background-color:rgba(15,23,42,.55) }
     /* Селектор из трёх классов и длинная форма background-color намеренно:
        у базового правила рядом та же специфичность, а таблица Swiper
        подключается на странице дважды, и вторая копия идёт ПОСЛЕ этого
        блока. Сокращённое background с var() тут проигрывало (проверено
        замером: активная точка оставалась белой). */
     .ru-swiper .swiper-pagination-bullet.swiper-pagination-bullet-active{
-        background-color:var(--color-primary,#6366f1); width:38px;
-        box-shadow:0 0 0 1px rgba(255,255,255,.35) }
+        background-color:var(--color-primary,#6366f1); width:46px;
+        box-shadow:0 0 0 1px rgba(255,255,255,.7), 0 2px 8px rgba(15,23,42,.28) }
 
     /* ── Полоса прогресса автопрокрутки ─────────────────────────────── */
     /* Показывает, сколько осталось до смены слайда. Ширина задаётся из
@@ -292,8 +352,12 @@
     .sld-badge__text{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
         letter-spacing:.01em; text-shadow:0 1px 2px rgba(2,6,23,.35) }
 
+    /* ⚠️ .75rem (12пкс), а не .72 — на телефоне браузер предлагает
+       увеличить страницу целиком всё, что мельче 12. Замер по семи
+       размерам показал 11.5 — единственное место на витрине, где
+       порог нарушался. */
     .sld-badge__count{ display:inline-flex; align-items:baseline; gap:.1rem; flex:none;
-        padding:.2rem .45rem; font-size:.72rem; font-variant-numeric:tabular-nums;
+        padding:.2rem .45rem; font-size:.75rem; font-variant-numeric:tabular-nums;
         background:rgba(255,255,255,.16) }
     .sld-badge__count b{ font-weight:700 }
     .sld-badge__count i{ font-style:normal; opacity:.55; margin:0 .1rem }
@@ -324,8 +388,15 @@
             padding:.5rem .75rem; font-size:.8125rem; line-height:1.35;
             text-align:center; box-shadow:none }
 
-        /* Точки остаются на своём месте: подпись уехала из кадра, и
-           перекрывать друг друга им больше нечем. */
+        /* 🔴 Точкам нужна СВОЯ полоса под подписью.
+           Подпись уехала из кадра и встала под ним обычным блоком, то есть
+           заняла собой весь низ слайда. Точки при этом остались накладкой:
+           у самого низа они легли бы на подпись, а поднятые над ней (так
+           делал скрипт) — заходили внутрь кадра на 17 пикселей и ложились
+           ровно на нижнюю строку текста баннера (замер на 414×896).
+           Полоса снизу решает обе беды разом: подпись до неё не достаёт,
+           точки в неё попадают, а кадра не касаются вовсе. */
+        .ru-swiper .swiper-slide{ padding-bottom:18px }
 
         /* Бейдж с названием слайдшоу на телефоне убран. Кадр широкого
            баннера тут невысокий, и подпись поверх него закрывает картинку;
@@ -334,8 +405,11 @@
 
         /* Стрелки убираем: на узком экране они закрывают картинку, а листать
            там естественнее пальцем. Точки и свайп остаются. */
-        .ru-swiper .ru-nav.swiper-button-prev,
-        .ru-swiper .ru-nav.swiper-button-next{ display:none }
+        /* ⚠️ Селектор от ОБЁРТКИ: кнопки вынесены из слайдера, и прежний
+           `.ru-swiper .ru-nav` их больше не находит — они остались бы
+           видны на телефоне и закрывали бы картинку. */
+        .ru-swiper-outer .ru-nav.swiper-button-prev,
+        .ru-swiper-outer .ru-nav.swiper-button-next{ display:none }
     }
 
     @media (max-width:480px){
@@ -411,8 +485,10 @@
       @if($showNavigation)
       if (!single) {
         config.navigation = {
-          nextEl: '.swiper-{{ $slideshow->id }} .swiper-button-next',
-          prevEl: '.swiper-{{ $slideshow->id }} .swiper-button-prev',
+          // ⚠️ Ищем от ОБЁРТКИ, а не от слайдера: кнопки вынесены наружу,
+          // чтобы выступать за край, и внутри `.swiper-N` их больше нет.
+          nextEl: '.ru-sw-{{ $slideshow->id }} .swiper-button-next',
+          prevEl: '.ru-sw-{{ $slideshow->id }} .swiper-button-prev',
         };
       }
       @endif
@@ -443,17 +519,20 @@
       const pagination = root.querySelector('.swiper-pagination');
       const narrow = window.matchMedia('(max-width: 767px)');
 
-      // Точки прижаты к низу слайдера. На узком экране в слайд входит ещё и
-      // подпись под кадром, и точки оказывались поверх её текста. Поднимаем
-      // их над подписью — её высота зависит от длины текста, в CSS такое не
-      // вычислить, поэтому отступ задаётся здесь.
+      // Точки прижаты к низу слайдера.
+      //
+      // 🔴 Здесь скрипт поднимал их на высоту подписи. Это осталось от
+      // времени, когда подпись была НАКЛАДКОЙ поверх кадра. Сейчас на узком
+      // экране она встаёт под кадром обычным блоком, и подъём загонял точки
+      // ВНУТРЬ кадра — замер на 414×896 показал заход на 17 пикселей, ровно
+      // на нижнюю строку текста баннера.
+      //
+      // Место под точки теперь выделено полосой снизу (padding у слайда в
+      // блоке для узких экранов), поэтому считать ничего не нужно: точки
+      // просто стоят у самого низа и ни на что не налезают.
       const placePagination = () => {
         if (!pagination) return;
-
-        if (!narrow.matches) { pagination.style.bottom = ''; return; }
-
-        const cap = root.querySelector('.swiper-slide-active .ru-slide__cap');
-        pagination.style.bottom = cap ? (Math.round(cap.getBoundingClientRect().height) + 8) + 'px' : '';
+        pagination.style.bottom = narrow.matches ? '3px' : '';
       };
 
       const remeasure = () => {

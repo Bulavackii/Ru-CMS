@@ -9,13 +9,15 @@
 * Date: 2023-12-10
 */
 @font-face {
+  /* 🔴 Здесь было перечисление eot/woff2/woff/ttf/svg с путями РЯДОМ С ЭТИМ
+     ФАЙЛОМ, а шрифты лежат в assets/icons/. Ни один src не находился, шрифт
+     не грузился, и все значки набора превращались в «тофу» — одинаковый
+     пустой прямоугольник. Проверено холстом: каждый значок давал ровно 162
+     закрашенных точки, то есть один и тот же силуэт на всё.
+     Остальные начертания в проекте отсутствуют вовсе — перечислять их
+     значило бы держать несколько 404 на каждой загрузке страницы. */
   font-family: "remixicon";
-  src: url('remixicon.eot?t=1702216974873'); /* IE9*/
-  src: url('remixicon.eot?t=1702216974873#iefix') format('embedded-opentype'), /* IE6-IE8 */
-  url("remixicon.woff2?t=1702216974873") format("woff2"),
-  url("remixicon.woff?t=1702216974873") format("woff"),
-  url('remixicon.ttf?t=1702216974873') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+*/
-  url('remixicon.svg?t=1702216974873#remixicon') format('svg'); /* iOS 4.1- */
+  src: url('../icons/remixicon.woff2') format('woff2');
   font-display: swap;
 }
 

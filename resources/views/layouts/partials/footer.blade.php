@@ -501,7 +501,13 @@
         width:2rem; height:2rem; flex:0 0 auto; color:var(--color-primary,#6366f1);
         background:color-mix(in srgb, var(--color-primary, #6366f1) 10%, transparent);
         transition:color .15s ease, background .15s ease; }
-    .f-contact__ico svg, .f-contact__ico i{ width:.95rem; height:.95rem; font-size:.95rem; }
+    /* ⚠️ `line-height:1` тут несущий, хоть плитка и центрирует содержимое.
+       Центрируется КОРОБКА элемента (15×15), а глиф рисуется на строке, и её
+       высота наследовалась от подвала — 22.4px. Из-за этого сам рисунок
+       оседал ниже середины плитки: коробка по центру, а значок нет.
+       Замером видно: сдвиг коробки 0, но строка вдвое выше значка.
+       У соседнего `.f-menu-ico` это правило уже стояло — здесь его забыли. */
+    .f-contact__ico svg, .f-contact__ico i{ width:.95rem; height:.95rem; font-size:.95rem; line-height:1; }
 
     .f-contact__body{ display:flex; flex-direction:column; min-width:0; line-height:1.25; }
     .f-contact__label{ font-size:.62rem; font-weight:700; letter-spacing:.1em;

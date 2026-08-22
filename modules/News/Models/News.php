@@ -134,6 +134,31 @@ class News extends Model
         return (int) \Illuminate\Support\Facades\Cache::get('news_content_version', 1);
     }
 
+    /**
+     * Это товар, который надо ВЕЗТИ, или услуга, которую оказывают на месте?
+     *
+     * 🔴 От ответа зависят деньги покупателя. Пока признака не было, корзина
+     * предлагала доставку всему, у чего есть цена: детский приём в клинике
+     * уезжал Почтой России за 350 ₽, и покупателя ещё и просили указать адрес.
+     *
+     * Список шаблонов один на весь проект и лежит в реестре шаблонов
+     * (`NewsController::SHIPPABLE_TEMPLATES`) — там же, где `PRICE_TEMPLATES`
+     * и `WEIGHT_TEMPLATES`. Модель к нему обращается, а не заводит свою копию:
+     * копия этого списка разошлась бы с формой материала.
+     *
+     * ⚠️ Шаблон — три состояния одной группы: `default`, пустая строка и NULL.
+     * Ни одно из них не пересылается, поэтому отдельной ветки не нужно —
+     * `in_array` со строгим сравнением честно отвечает «нет» на все три.
+     */
+    public function доставляется(): bool
+    {
+        return in_array(
+            (string) $this->template,
+            \Modules\News\Controllers\Admin\NewsController::SHIPPABLE_TEMPLATES,
+            true
+        );
+    }
+
     public static function bumpContentVersion(): void
     {
         \Illuminate\Support\Facades\Cache::forever(

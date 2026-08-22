@@ -1179,6 +1179,7 @@ return [
         'total' => 'Total',
         'f_payment' => 'Payment method',
         'f_delivery' => 'Delivery method',
+        'delivery_not_needed' => 'Not needed - the order is services only',
         'f_created' => 'Placed',
         'f_user' => 'Account',
         'change_status' => 'Change the status',

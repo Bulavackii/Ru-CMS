@@ -327,16 +327,67 @@
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
         <div>
+          {{-- 🔴 Один список на всё.
+               Раньше выбор был разорван надвое: в этом списке стоял режим
+               «свои SVG», а КАКОЙ набор брать — задавалось только загрузкой
+               архива. Наборы из поставки выбрать было невозможно вовсе, а
+               пара «режим svg + пустой путь» давала тему вообще без значков.
+               Теперь свои наборы стоят наравне с остальными, а путь едет в
+               том же значении после двоеточия — разбирает контроллер.
+               Список наборов собирается по каталогам с файлами, а не пишется
+               руками: положат рядом ещё один — он появится сам. --}}
+          @php
+            $своиНаборы = [];
+            foreach (glob(public_path('assets/icons/*'), GLOB_ONLYDIR) as $каталог) {
+                if (! glob($каталог . '/*.svg')) continue;          // это не набор
+                $имя = basename($каталог);
+                $своиНаборы['svg:/assets/icons/' . $имя] = [
+                    'подпись' => match ($имя) {
+                        'nexum-line'  => 'Нексум тонкий',
+                        'nexum-solid' => 'Нексум плотный',
+                        default       => $имя,
+                    },
+                    'сколько' => count(glob($каталог . '/*.svg')),
+                ];
+            }
+
+            $текущийПуть = old('config.icons_path', data_get($cfg, 'icons_path', ''));
+            $выбрано = $iconMode === 'svg' && $текущийПуть
+                ? 'svg:' . $текущийПуть
+                : $iconMode;
+          @endphp
+
           <label class="thm-label">Набор значков</label>
           <select name="config[icon_mode]" class="admin-field">
-            <option value="lucide"    @selected($iconMode==='lucide')>Lucide — тонкие линии</option>
-            <option value="fa"        @selected($iconMode==='fa')>Font Awesome</option>
-            <option value="bootstrap" @selected($iconMode==='bootstrap')>Bootstrap Icons</option>
-            <option value="tabler"    @selected($iconMode==='tabler')>Tabler Icons</option>
-            <option value="phosphor"  @selected($iconMode==='phosphor')>Phosphor — тонкие, 1530 значков</option>
-            <option value="boxicons"  @selected($iconMode==='boxicons')>Boxicons — 1634 значка</option>
-            <option value="remix"     @selected($iconMode==='remix')>Remix Icons</option>
-            <option value="svg"       @selected($iconMode==='svg')>Свои SVG из архива</option>
+            <optgroup label="Собственные">
+              @foreach($своиНаборы as $значение => $набор)
+                <option value="{{ $значение }}" @selected($выбрано === $значение)>
+                  {{ $набор['подпись'] }} ({{ $набор['сколько'] }})
+                </option>
+              @endforeach
+            </optgroup>
+            <optgroup label="Готовые наборы">
+              <option value="lucide"    @selected($выбрано==='lucide')>Lucide — тонкие линии</option>
+              <option value="fa"        @selected($выбрано==='fa')>Font Awesome — сплошные</option>
+              <option value="bootstrap" @selected($выбрано==='bootstrap')>Bootstrap Icons</option>
+              <option value="remix"     @selected($выбрано==='remix')>Remix Icons</option>
+              <option value="phosphor"  @selected($выбрано==='phosphor')>Phosphor — тонкие, 1530 значков</option>
+              <option value="boxicons"  @selected($выбрано==='boxicons')>Boxicons — 1634 значка</option>
+              {{-- Подписи «сплошные» у Font Awesome и Tabler — не оценка, а
+                   замер: доля заливки значка при показе в 16 пикселей.
+                   Bootstrap 0.51, Phosphor 0.55, Remix 0.60, Boxicons 0.61,
+                   а Font Awesome 0.80 и Tabler 0.81 — вдвое плотнее. В мелкой
+                   плитке они читаются глухими пятнами, и владелец принял их
+                   за незагрузившиеся. Из списка не убираем: у Font Awesome
+                   это его собственный стиль (Solid), а Tabler заработает,
+                   если подменить файл шрифта на контурный. --}}
+              <option value="tabler"    @selected($выбрано==='tabler')>Tabler Icons — рисуется заливкой</option>
+            </optgroup>
+            @if($iconMode === 'svg' && $текущийПуть && ! array_key_exists('svg:' . $текущийПуть, $своиНаборы))
+              <optgroup label="Загружено архивом">
+                <option value="svg" selected>{{ $текущийПуть }}</option>
+              </optgroup>
+            @endif
           </select>
         </div>
         <div>

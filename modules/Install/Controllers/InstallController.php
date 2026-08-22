@@ -702,6 +702,12 @@ class InstallController extends Controller
             $this->seedDefaultCategories();
             $this->seedContentTranslations();
             $this->seedDefaultAccessibility();
+            // Витрина — ПОСЛЕ всего содержимого и ДО SEO: она заводит
+            // продающие страницы и снимает с главной демо-разделы, которые
+            // показывают шаблоны, но ничего не говорят о продукте. Раньше
+            // сюда было бы нечего раскладывать, позже — SEO не описало бы
+            // новые страницы.
+            $this->seedPresentation();
             // SEO — ПОСЛЕ всего содержимого: команда описывает то, что уже
             // создано. Вызови её раньше — описывать будет нечего.
             $this->seedSeoPages();
@@ -1955,6 +1961,21 @@ git blame файл                кто и когда написал строк
     private function seedSeoPages(): void
     {
         \Modules\Seo\Console\Commands\SeedSeoPagesCommand::seed(false);
+    }
+
+    /**
+     * Витрина: продающая главная вместо набора демо-разделов.
+     *
+     * Свежая установка показывала вперемешку магазин, клинику, игры и учебные
+     * уроки — это демонстрация шаблонов, а не рассказ о продукте. Плюс на
+     * главную выводились ВСЕ страницы, включая соглашение и карту сайта.
+     *
+     * ⚠️ Демо-материалы НЕ удаляются: они остаются опубликованными и
+     * доступными по своим адресам, снимается только показ на главной.
+     */
+    private function seedPresentation(): void
+    {
+        \App\Console\Commands\SeedPresentationCommand::seed(false);
     }
 
     private function seedRolesAndPermissions(): void

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em"
+     fill="none" stroke="currentColor" stroke-width="1.574"
+     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+     focusable="false">
+  <!-- Нексум · palette. Собран scripts/art/nexum-icons.py — руками не правят. -->
+  <g transform="translate(-0.960 -0.960) scale(1.0800)">
+  <path d="M12 3 A9 9 0 1 0 13.5 20.9 A1.9 1.9 0 0 0 14.6 17.6 A1.9 1.9 0 0 1 15.8 14.3 H18 A3.6 3.6 0 0 0 21 10.7 A8.6 8.6 0 0 0 12 3 Z"/>
+  <circle cx="8.2" cy="8.4" r="1.15" fill="currentColor" stroke="none"/>
+  <circle cx="12.4" cy="6.8" r="1.15" fill="currentColor" stroke="none"/>
+  <circle cx="6.6" cy="12.8" r="1.15" fill="currentColor" stroke="none"/>
+  <circle cx="16.4" cy="8.6" r="1.15" fill="currentColor" stroke="none"/>
+  </g>
+</svg>

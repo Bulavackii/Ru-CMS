@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em"
+     fill="none" stroke="currentColor" stroke-width="1.574"
+     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+     focusable="false">
+  <!-- Нексум · puzzle. Собран scripts/art/nexum-icons.py — руками не правят. -->
+  <g transform="translate(-0.960 -0.960) scale(1.0800)">
+  <path d="M9.2 3 H14.8 V6.4 A2.4 2.4 0 0 1 19.6 6.4 H21 V11.6 H17.6 A2.4 2.4 0 0 0 17.6 16.4 H21 V21 H3 V6.4 H4.4 A2.4 2.4 0 0 1 9.2 6.4 Z"/>
+  </g>
+</svg>

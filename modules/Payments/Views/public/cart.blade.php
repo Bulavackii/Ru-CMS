@@ -148,7 +148,19 @@
                     @endif
                 </section>
 
-                {{-- ── 03. Доставка ── --}}
+                {{-- ── 03. Доставка ──
+
+                     🔴 Шаг показывается, ТОЛЬКО если в корзине есть что везти.
+
+                     Прежде он был всегда, и услугу — детский приём в клинике —
+                     предлагалось отправить Почтой России за 350 ₽, указав
+                     адрес для курьера. Покупатель платил за доставку того, что
+                     никуда не едет.
+
+                     Признак считает контроллер по базе (`SHIPPABLE_TEMPLATES`),
+                     а не разметка по названию: браузеру здесь верить нельзя, а
+                     проверка на сервере обязана совпадать с тем, что видно. --}}
+                @if ($нуженаДоставка)
                 <section class="crt-step">
                     <h2 class="crt-step__title">
                         <span class="crt-step__num">03</span>
@@ -201,6 +213,7 @@
                         <p class="crt-hint">{{ __('frontend.cart.no_delivery') }}</p>
                     @endif
                 </section>
+                @endif
 
                 {{-- ── 04. Покупатель ──
 
@@ -215,11 +228,18 @@
                      терпимой на телефоне. --}}
                 <section class="crt-step">
                     <h2 class="crt-step__title">
-                        <span class="crt-step__num">04</span>
+                        {{-- Номер следует за тем, что реально показано: без шага
+                             доставки покупатель — третий, а не четвёртый.
+                             «01, 02, 04» выглядело бы потерянным шагом. --}}
+                        <span class="crt-step__num">{{ $нуженаДоставка ? '04' : '03' }}</span>
                         {{ __('frontend.cart.buyer') }}
                     </h2>
 
-                    <p class="crt-hint">{{ __('frontend.cart.buyer_hint') }}</p>
+                    <p class="crt-hint">
+                        {{ $нуженаДоставка
+                            ? __('frontend.cart.buyer_hint')
+                            : __('frontend.cart.buyer_hint_service') }}
+                    </p>
 
                     <div class="crt-fields">
                         <label class="crt-field">
@@ -252,6 +272,12 @@
                             @error('customer_email')<span class="crt-field__err">{{ $message }}</span>@enderror
                         </label>
 
+                        {{-- Город и адрес — только у заказа, который везут.
+                             У услуги их не спрашивают вовсе: лишнее
+                             обязательное поле — это брошенная корзина, а
+                             «адрес доставки» на приём у врача ещё и сбивает
+                             с толку. --}}
+                        @if ($нуженаДоставка)
                         {{-- Город — ОТДЕЛЬНОЙ строкой, а не внутри адреса.
                              Из свободного текста регион не выделить, а по нему
                              служба решает, возит ли она туда: до этого
@@ -282,6 +308,7 @@
                                    value="{{ old('customer_address', auth()->user()->address ?? '') }}">
                             @error('customer_address')<span class="crt-field__err">{{ $message }}</span>@enderror
                         </label>
+                        @endif
 
                         <label class="crt-field crt-field--wide">
                             <span class="crt-field__label">{{ __('frontend.cart.f_comment') }}</span>
@@ -304,20 +331,27 @@
                         <span class="crt-chosen__value"></span>
                     </div>
 
+                    @if ($нуженаДоставка)
                     <div class="crt-chosen" id="chosen-delivery" hidden>
                         <span class="crt-chosen__label">{{ __('frontend.cart.delivery_method') }}</span>
                         <span class="crt-chosen__value"></span>
                     </div>
+                    @endif
 
                     <div class="crt-total__row">
                         <span>{{ __('frontend.cart.goods') }}</span>
                         <b><span id="cart-total">{{ number_format($goodsTotal, 2, ',', ' ') }}</span> ₽</b>
                     </div>
 
+                    {{-- Строки доставки у заказа из одних услуг нет вовсе.
+                         «Доставка 0,00 ₽» выглядела бы как бесплатная
+                         пересылка, которой не существует. --}}
+                    @if ($нуженаДоставка)
                     <div class="crt-total__row">
                         <span>{{ __('frontend.cart.delivery') }}</span>
                         <b><span id="delivery-cost">0,00</span> ₽</b>
                     </div>
+                    @endif
 
                     <div class="crt-total__row hidden" id="commission-row">
                         <span>{{ __('frontend.cart.fee') }}</span>
@@ -472,6 +506,11 @@ document.addEventListener('DOMContentLoaded', function () {
     // снимается ВМЕСТЕ со скрытием: `required` на скрытом поле не даёт
     // отправить форму, и браузер молча ругается на невидимый элемент.
     function syncAddress() {
+        // Заказ из одних услуг: шага доставки нет, полей адреса нет тоже.
+        // Выходим сразу — иначе первая же строка стала бы решать про поля,
+        // которых на странице не существует.
+        if (!document.querySelector('input[name="delivery_method_id"]')) return;
+
         const выбрана = picked('delivery_method_id');
         const нужен = !выбрана || выбрана.dataset.needsAddress !== '0';
 

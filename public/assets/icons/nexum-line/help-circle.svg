@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em"
+     fill="none" stroke="currentColor" stroke-width="1.574"
+     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+     focusable="false">
+  <!-- Нексум · help-circle. Собран scripts/art/nexum-icons.py — руками не правят. -->
+  <g transform="translate(-0.960 -0.960) scale(1.0800)">
+  <circle cx="12" cy="12" r="9"/>
+  <path d="M9.3 9.4 A2.8 2.8 0 0 1 14.7 10.2 C14.7 12.4 12 12.8 12 15"/>
+  <circle cx="12" cy="17.6" r="1.15" fill="currentColor" stroke="none"/>
+  </g>
+</svg>

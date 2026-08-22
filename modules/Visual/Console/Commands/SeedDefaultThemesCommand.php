@@ -91,7 +91,7 @@ class SeedDefaultThemesCommand extends Command
                     'font'   => ['base' => "Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"],
                 ],
                 'config' => [
-                    'icon_mode'     => 'lucide',
+                    'icon_mode'     => 'svg',
                     'font_provider' => 'local',
                     'font_name'     => 'Inter',
                 ],
@@ -114,7 +114,7 @@ class SeedDefaultThemesCommand extends Command
                     'font'   => ['base' => "Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"],
                 ],
                 'config' => [
-                    'icon_mode'     => 'lucide',
+                    'icon_mode'     => 'bootstrap',
                     'font_provider' => 'local',
                     'font_name'     => 'Inter',
                 ],
@@ -137,7 +137,7 @@ class SeedDefaultThemesCommand extends Command
                     'font'   => ['base' => "Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"],
                 ],
                 'config' => [
-                    'icon_mode'     => 'lucide',
+                    'icon_mode'     => 'remix',
                     'font_provider' => 'local',
                     'font_name'     => 'Inter',
                 ],
@@ -160,7 +160,7 @@ class SeedDefaultThemesCommand extends Command
                     'font'   => ['base' => "Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"],
                 ],
                 'config' => [
-                    'icon_mode'     => 'lucide',
+                    'icon_mode'     => 'svg',
                     'font_provider' => 'local',
                     'font_name'     => 'Inter',
                 ],
@@ -195,7 +195,7 @@ class SeedDefaultThemesCommand extends Command
                     'font'   => ['base' => "Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"],
                 ],
                 'config' => [
-                    'icon_mode'     => 'lucide',
+                    'icon_mode'     => 'svg',
                     'font_provider' => 'local',
                     'font_name'     => 'Inter',
                 ],
@@ -229,7 +229,7 @@ class SeedDefaultThemesCommand extends Command
                     'font'   => ['base' => "Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"],
                 ],
                 'config' => [
-                    'icon_mode'     => 'lucide',
+                    'icon_mode'     => 'svg',
                     'font_provider' => 'local',
                     'font_name'     => 'Inter',
                 ],
@@ -252,7 +252,7 @@ class SeedDefaultThemesCommand extends Command
                     'font'   => ['base' => "Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"],
                 ],
                 'config' => [
-                    'icon_mode'     => 'lucide',
+                    'icon_mode'     => 'bootstrap',
                     'font_provider' => 'local',
                     'font_name'     => 'Inter',
                 ],
@@ -275,7 +275,7 @@ class SeedDefaultThemesCommand extends Command
                     'font'   => ['base' => "Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"],
                 ],
                 'config' => [
-                    'icon_mode'     => 'lucide',
+                    'icon_mode'     => 'remix',
                     'font_provider' => 'local',
                     'font_name'     => 'Inter',
                 ],
@@ -321,7 +321,7 @@ class SeedDefaultThemesCommand extends Command
                     'font'   => ['base' => "Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"],
                 ],
                 'config' => [
-                    'icon_mode'     => 'lucide',
+                    'icon_mode'     => 'svg',
                     'font_provider' => 'local',
                     'font_name'     => 'Inter',
                 ],
@@ -329,19 +329,33 @@ class SeedDefaultThemesCommand extends Command
         ];
     }
 
-    /** Фоновая картинка Индиго — прежняя, отслеживается git. */
-    public const DEFAULT_BACKGROUND = '/images/theme-default-bg.png';
+    /**
+     * Фон Индиго.
+     *
+     * Прежде здесь лежал растр `/images/theme-default-bg.png` (1,4 МБ). Он
+     * ушёл вместе со светящимися узлами: владелец попросил убрать блики во
+     * ВСЕХ темах, а из готовой картинки их не вынуть. Индиго собран тем же
+     * генератором, что и остальные, — язык рисунка сохранён (сеть, грани,
+     * соты), пропали только засветки.
+     */
+    public const DEFAULT_BACKGROUND = '/images/themes/backgrounds/indigo.svg';
 
     /**
      * Свой фон и свой знак у каждой темы.
      *
      * Раньше сидер выдавал ВСЕМ темам одну и ту же картинку, а логотипа не
-     * давал вовсе — темы отличались только цветами. Теперь у каждой свой узор
-     * и свой знак в её палитре.
+     * давал вовсе — темы отличались только цветами. Потом появились свои
+     * узоры, но все десять были ОДНОЙ россыпью точек при 8% непрозрачности:
+     * от темы к теме сайт по-прежнему не менялся.
      *
-     * Формат SVG: узор повторяется плиткой без потери резкости, весит
-     * килобайты вместо мегабайта и правится текстом. Индиго намеренно
-     * оставлен на прежнем PNG — после обновления сайт выглядит как и до него.
+     * Сейчас у каждой темы фон в языке Индиго — низкополигональная сеть с
+     * гранями, сотами и мягкими пятнами, — но в своей палитре и со своим
+     * рисунком сети. Светящихся узлов нет ни у одной: блики читались как
+     * засветка от вспышки и спорили с текстом карточек.
+     *
+     * Формат SVG: рисунок не мылится на любом экране, весит ~42 КБ вместо
+     * 1,4 МБ и правится текстом. Файлы СОБРАНЫ генератором — руками их не
+     * правят, меняют генератор и пересобирают.
      *
      * Ключ отсутствует — тема получает только то, что задано; ничего не
      * подставляется молча.
@@ -365,13 +379,17 @@ class SeedDefaultThemesCommand extends Command
         // Индиго: знак в том же строении, что у остальных тем, но надпись
         // прежняя — «Nexum Core» с расшифровкой. Это тема по умолчанию, её марка
         // должна остаться узнаваемой: менялось исполнение, не смысл.
-        // Фон намеренно оставлен прежним PNG.
         'indigo' => [
             'background_url' => self::DEFAULT_BACKGROUND,
+            // Тема не на своём наборе: путь к нему должен исчезнуть из
+            // настроек. Явный null нужен потому, что сброс сливает конфиг
+            // ПОВЕРХ прежнего и чужие ключи сохраняет — «не задать» мало.
+            'icons_path'     => null,
             'logo_url'       => '/images/themes/logos/indigo.svg',
         ],
         'scarlet' => [
             'background_url' => '/images/themes/backgrounds/scarlet.svg',
+            'icons_path'     => '/assets/icons/nexum-line',
             'logo_url'       => '/images/themes/logos/scarlet.svg',
         ],
         'azure' => [
@@ -380,14 +398,20 @@ class SeedDefaultThemesCommand extends Command
         ],
         'graphite' => [
             'background_url' => '/images/themes/backgrounds/graphite.svg',
+            // Тема не на своём наборе: путь к нему должен исчезнуть из
+            // настроек. Явный null нужен потому, что сброс сливает конфиг
+            // ПОВЕРХ прежнего и чужие ключи сохраняет — «не задать» мало.
+            'icons_path'     => null,
             'logo_url'       => '/images/themes/logos/graphite.svg',
         ],
         'magenta' => [
             'background_url' => '/images/themes/backgrounds/magenta.svg',
+            'icons_path'     => '/assets/icons/nexum-line',
             'logo_url'       => '/images/themes/logos/magenta.svg',
         ],
         'mono' => [
             'background_url' => '/images/themes/backgrounds/mono.svg',
+            'icons_path'     => '/assets/icons/nexum-line',
             'logo_url'       => '/images/themes/logos/mono.svg',
         ],
         'amber' => [
@@ -396,20 +420,30 @@ class SeedDefaultThemesCommand extends Command
         ],
         'pine' => [
             'background_url' => '/images/themes/backgrounds/pine.svg',
+            // Тема не на своём наборе: путь к нему должен исчезнуть из
+            // настроек. Явный null нужен потому, что сброс сливает конфиг
+            // ПОВЕРХ прежнего и чужие ключи сохраняет — «не задать» мало.
+            'icons_path'     => null,
             'logo_url'       => '/images/themes/logos/pine.svg',
         ],
         'ocean' => [
             'background_url' => '/images/themes/backgrounds/ocean.svg',
+            // Тема не на своём наборе: путь к нему должен исчезнуть из
+            // настроек. Явный null нужен потому, что сброс сливает конфиг
+            // ПОВЕРХ прежнего и чужие ключи сохраняет — «не задать» мало.
+            'icons_path'     => null,
             'logo_url'       => '/images/themes/logos/ocean.svg',
         ],
         'plum' => [
             'background_url' => '/images/themes/backgrounds/plum.svg',
+            'icons_path'     => '/assets/icons/nexum-line',
             'logo_url'       => '/images/themes/logos/plum.svg',
         ],
         // Неон единственный ТЁМНЫЙ, поэтому и узор у него тёмный: светлая
         // плитка остальных на его фоне была бы белым пятном.
         'neon' => [
             'background_url' => '/images/themes/backgrounds/neon.svg',
+            'icons_path'     => '/assets/icons/nexum-line',
             'logo_url'       => '/images/themes/logos/neon.svg',
         ],
     ];

@@ -42,8 +42,16 @@
     .header-nav .menu-link{ display:flex; align-items:center; gap:.4rem; text-decoration:none;
         color:var(--color-text,#374151); line-height:1.25; }
     .header-nav .menu-ico{ display:inline-flex; flex:0 0 auto; color:var(--nav-accent); opacity:.7; }
+    /* ⚠️ `display:inline-flex` тут несущий. У значка-шрифта элемент `<i>`
+       СТРОЧНЫЙ, и заданная ширина к нему не применяется вовсе: коробка
+       сжимается по ширине самого глифа. У узких глифов (например
+       `fa-info` — это буква «i») зазор до слова выходил заметно шире,
+       чем у соседей с квадратными значками. Одинаковая коробка нужна
+       ещё и потому, что набор значков меняется вместе с темой: ряд
+       обязан стоять ровно при любом. */
     .header-nav .menu-ico svg,
-    .header-nav .menu-ico i{ width:1rem; height:1rem; font-size:1rem; line-height:1; }
+    .header-nav .menu-ico i{ display:inline-flex; align-items:center; justify-content:center;
+        width:1rem; height:1rem; font-size:1rem; line-height:1; }
     .header-nav .menu-text{ white-space:nowrap; }
     .header-nav .menu-caret{ flex:0 0 auto; opacity:.5; }
 

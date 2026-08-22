@@ -131,14 +131,14 @@
           <button type="button" @click="open=!open; if (open) navOpen = false" class="hdr-icon-btn" title="{{ __('frontend.header.language') }}" :aria-expanded="open.toString()">
             {!! locale_flag($curLocale) !!}
             <span class="hidden sm:inline">{{ strtoupper($curLocale) }}</span>
-            <i class="fas fa-chevron-down" style="font-size:.58rem; opacity:.55"></i>
+            <span class="hdr-ico hdr-ico--tiny">@themeIcon('chevron-down')</span>
           </button>
           <div x-cloak x-show="open" x-transition class="hdr-lang-menu">
             @foreach(available_locales() as $code)
               <a href="{{ route('frontend.locale.set', $code) }}" class="hdr-lang-item {{ $code===$curLocale ? 'is-active' : '' }}">
                 {!! locale_flag($code) !!}
                 <span>{{ $langNames[$code] ?? strtoupper($code) }}</span>
-                @if($code===$curLocale)<i class="fas fa-check" style="margin-left:auto; font-size:.7rem"></i>@endif
+                @if($code===$curLocale)<span class="hdr-ico hdr-ico--tiny" style="margin-left:auto">@themeIcon('check')</span>@endif
               </a>
             @endforeach
           </div>
@@ -148,10 +148,18 @@
              панели (Темы → Применить), и выбор администратора применяется
              сразу и к панели, и к сайту. --}}
 
+            {{-- 🔴 Значки правой группы следуют ТЕМЕ.
+                 Раньше они были прибиты: часть — инлайновым SVG прямо в
+                 разметке, часть — классами Font Awesome. От смены оформления
+                 менялось всё меню слева, а эта группа оставалась в чужом
+                 рисунке — ряд выглядел собранным из двух наборов.
+                 ⚠️ Имена взяты такие, что находятся в КАЖДОМ наборе (сверено
+                 скриптом по всем восьми): пункт без значка недопустим ни при
+                 каком оформлении. --}}
         @if ($hasProducts)
           <a href="{{ route('cart.index') }}" class="hdr-pill" title="{{ __('frontend.header.cart') }}">
             <span class="cart-ico">
-              <span class="cart-ico__glyph"><i class="fas fa-cart-shopping"></i></span>
+              <span class="cart-ico__glyph">@themeIcon('shopping-cart')</span>
               <span id="cart-count" class="cart-ico__badge {{ $cartCount == 0 ? 'hidden' : '' }}">{{ $cartCount }}</span>
             </span>
             <span class="hidden lg:inline">{{ __('frontend.header.cart') }}</span>
@@ -160,7 +168,7 @@
 
         @auth
           <a href="{{ route('dashboard') }}" class="hdr-pill" title="{{ __('frontend.header.account_title') }}">
-            <svg class="hdr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.6 20a7.4 7.4 0 0 1 14.8 0"/></svg><span class="hidden md:inline">{{ __('frontend.header.account') }}</span>
+            <span class="hdr-ico">@themeIcon('user')</span><span class="hidden md:inline">{{ __('frontend.header.account') }}</span>
           </a>
 
           {{-- Кнопка панели — только тем, кого туда действительно пустят.
@@ -168,22 +176,22 @@
                ВОШЕДШЕГО пользователя, а не у переменной из вьюхи. --}}
           @if (auth()->user()?->is_admin)
             <a href="{{ route('admin.dashboard') }}" class="hdr-pill hdr-pill--accent" title="{{ __('frontend.header.admin_title') }}">
-              <svg class="hdr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg><span class="hidden md:inline">{{ __('frontend.header.admin') }}</span>
+              <span class="hdr-ico">@themeIcon('dashboard')</span><span class="hidden md:inline">{{ __('frontend.header.admin') }}</span>
             </a>
           @endif
 
           <form method="POST" action="{{ route('logout') }}" class="inline">
             @csrf
             <button type="submit" class="hdr-pill hdr-pill--danger" title="{{ __('frontend.header.logout') }}">
-              <svg class="hdr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4H6.5A1.5 1.5 0 0 0 5 5.5v13A1.5 1.5 0 0 0 6.5 20H14"/><path d="M17 8.5 20.5 12 17 15.5M20.5 12H10"/></svg><span class="hidden md:inline">{{ __('frontend.header.logout') }}</span>
+              <span class="hdr-ico">@themeIcon('logout')</span><span class="hidden md:inline">{{ __('frontend.header.logout') }}</span>
             </button>
           </form>
         @else
           <a href="{{ route('login') }}" class="hdr-pill" title="{{ __('frontend.header.login') }}">
-            <svg class="hdr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 4h7.5A1.5 1.5 0 0 1 19 5.5v13a1.5 1.5 0 0 1-1.5 1.5H10"/><path d="M6.5 8.5 3 12l3.5 3.5M3 12h10"/></svg><span class="hidden md:inline">{{ __('frontend.header.login') }}</span>
+            <span class="hdr-ico">@themeIcon('login')</span><span class="hidden md:inline">{{ __('frontend.header.login') }}</span>
           </a>
           <a href="{{ route('register') }}" class="hdr-pill hdr-pill--accent" title="{{ __('frontend.header.register') }}">
-            <svg class="hdr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="8" r="3.4"/><path d="M3.5 20a6.5 6.5 0 0 1 13 0"/><path d="M18.5 8.5v5M21 11h-5"/></svg><span class="hidden md:inline">{{ __('frontend.header.register') }}</span>
+            <span class="hdr-ico">@themeIcon('user-plus')</span><span class="hidden md:inline">{{ __('frontend.header.register') }}</span>
           </a>
         @endauth
 
@@ -375,7 +383,22 @@
 
     /* Значки — штриховые, поэтому размер задаётся, а цвет наследуется от
        самой кнопки и меняется вместе с ней. */
-    .hdr-actions .hdr-ico{ width:1.05rem; height:1.05rem; flex:0 0 auto; }
+    /* ⚠️ `.hdr-ico` — теперь ОБЁРТКА, а не сам значок.
+       Раньше этот класс висел прямо на инлайновом `<svg>`, и размера ему
+       хватало. Сейчас внутри может оказаться и `<svg>` своего набора, и
+       `<i>` шрифтового — набор меняется вместе с темой. Поэтому коробку
+       задаём обёртке, а содержимое центрируем в ней.
+       Без `display:inline-flex` у шрифтового `<i>` ширина не применилась бы
+       вовсе (элемент строчный), и узкий глиф съезжал бы к тексту вплотную —
+       ровно это и было видно у «Админки» и «Выйти». */
+    .hdr-actions .hdr-ico{ display:inline-flex; align-items:center; justify-content:center;
+        width:1.05rem; height:1.05rem; flex:0 0 auto; }
+    .hdr-actions .hdr-ico > svg,
+    .hdr-actions .hdr-ico > i{ width:100%; height:100%; font-size:1.05rem; line-height:1; }
+    /* Мелкие значки — стрелка списка языков и галочка выбранного. */
+    .hdr-actions .hdr-ico--tiny{ width:.66rem; height:.66rem; opacity:.6; }
+    .hdr-actions .hdr-ico--tiny > svg,
+    .hdr-actions .hdr-ico--tiny > i{ font-size:.66rem; }
     /* Залитая кнопка остаётся залитой: полоса на градиенте не читается. */
     .hdr-actions .hdr-pill--accent{ background:var(--fx-grad,#6366f1); color:#fff; box-shadow:0 8px 18px -10px color-mix(in srgb, var(--color-primary, #6366f1) 70%, transparent); }
     .hdr-actions .hdr-pill--accent::after{ display:none; }
@@ -471,7 +494,12 @@
 
     /* Корзина */
     .cart-ico{ position:relative; display:inline-flex; align-items:center; }
-    .cart-ico__glyph{ display:inline-flex; line-height:1; font-size:1rem; }
+    /* Значок корзины тоже из набора темы, поэтому внутри может оказаться
+       и `<svg>`, и `<i>`. Коробку задаём обёртке — иначе у своего набора
+       (SVG в 1em) размер поехал бы за кеглем ссылки, а не за этой строкой. */
+    .cart-ico__glyph{ display:inline-flex; align-items:center; justify-content:center;
+        width:1.05rem; height:1.05rem; line-height:1; font-size:1rem; }
+    .cart-ico__glyph > svg, .cart-ico__glyph > i{ width:100%; height:100%; font-size:1rem; }
     .cart-ico__badge{ position:absolute; top:-7px; left:-7px; min-width:1.05rem; height:1.05rem; padding:0 .18rem;
         display:flex; align-items:center; justify-content:center; font-size:.68rem; line-height:1; color:#fff;
         background:var(--fx-a,#6366f1); border-radius:999px; box-shadow:0 0 0 2px #fff; }
@@ -544,6 +572,7 @@
           padding:0 .5rem; font-size:.78rem; justify-content:center; }
       .hdr-actions .hdr-pill i, .hdr-actions .hdr-icon-btn i{ font-size:.9rem; }
       .hdr-actions .hdr-ico{ width:.95rem; height:.95rem; }
+      .hdr-actions .hdr-ico > svg, .hdr-actions .hdr-ico > i{ font-size:.95rem; }
       .hdr-actions .hdr-pill::before,
       .hdr-actions .hdr-icon-btn::before,
       .hdr-burger::before{

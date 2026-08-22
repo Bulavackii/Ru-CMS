@@ -368,6 +368,7 @@ return [
         // The “Buyer” step. Without it there is nobody to deliver the order to.
         'buyer' => 'Buyer',
         'buyer_hint' => 'Needed to deliver the order and to reach you if anything needs clarifying.',
+        'buyer_hint_service' => 'Needed to reach you and agree on a time.',
         'f_name' => 'Name',
         'f_phone' => 'Phone',
         'f_email' => 'E-mail',

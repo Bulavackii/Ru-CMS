@@ -21,7 +21,40 @@ class CartController extends Controller
         $paymentMethods = PaymentMethod::where('active', true)->orderBy('sort_order')->orderBy('id')->get();
         $deliveryMethods = DeliveryMethod::where('active', true)->orderBy('sort_order')->orderBy('id')->get();
 
-        return view('Payments::public.cart', compact('cart', 'paymentMethods', 'deliveryMethods'));
+        // 🔴 Доставка нужна не всякому заказу.
+        //
+        // Раньше шаг доставки показывался всегда, и услугу — детский приём в
+        // клинике — предлагалось отправить Почтой России за 350 ₽ с указанием
+        // адреса. Теперь шаг появляется, только если в корзине есть то, что
+        // физически везут; заказ из одних услуг оформляется без доставки,
+        // адреса и города.
+        $нуженаДоставка = $this->нуженаДоставка(array_keys($cart));
+
+        return view('Payments::public.cart', compact(
+            'cart', 'paymentMethods', 'deliveryMethods', 'нуженаДоставка'
+        ));
+    }
+
+    /**
+     * Есть ли в наборе хоть один пересылаемый товар.
+     *
+     * ⚠️ Признак берётся ИЗ БАЗЫ по идентификаторам, а не из корзины и не из
+     * запроса: в сессии лежит только `id`, `qty`, название и цена, а браузеру
+     * доверять здесь нельзя — иначе достаточно было бы прислать «доставка не
+     * нужна» и получить бесплатную пересылку настоящего товара.
+     *
+     * Смешанный набор (товар + услуга) считается требующим доставки: везти
+     * надо товар, услуга просто едет в том же заказе строкой.
+     */
+    private function нуженаДоставка(array $идентификаторы): bool
+    {
+        if ($идентификаторы === []) {
+            return false;
+        }
+
+        return News::whereIn('id', $идентификаторы)
+            ->whereIn('template', \Modules\News\Controllers\Admin\NewsController::SHIPPABLE_TEMPLATES)
+            ->exists();
     }
 
     /**
@@ -228,21 +261,42 @@ class CartController extends Controller
         // Адрес требуется, только если доставка его подразумевает: у
         // самовывоза его нет по смыслу. Проверяется это на сервере, а не
         // доверием к скрытому в браузере полю.
+        // 🔴 Нужна ли вообще доставка — решает СОСТАВ ЗАКАЗА, а не форма.
+        //
+        // Заказ из одних услуг (приём в клинике, работа, консультация) никуда
+        // не едет: у него нет ни способа доставки, ни адреса, ни города, и
+        // денег за доставку с него не берут. Раньше доставка требовалась
+        // всегда, поэтому услугу нельзя было купить, не выбрав службу и не
+        // заплатив ей.
+        //
+        // Признак считается по базе, до разбора заявки: прислать «доставка не
+        // нужна» вместе с настоящим товаром не выйдет.
+        $составЗаявки = collect((array) $request->input('items', []))
+            ->map(fn ($с) => (int) ($с['id'] ?? 0))
+            ->filter()
+            ->all();
+
+        $нуженаДоставка = $this->нуженаДоставка($составЗаявки);
+
         $самовывоз = DeliveryMethod::find($request->input('delivery_method_id'))?->type === 'pickup';
+
+        // Адрес и город спрашиваем, только когда есть что везти и это не
+        // самовывоз. У самовывоза адреса нет по смыслу, у услуги — тем более.
+        $нуженАдрес = $нуженаДоставка && ! $самовывоз;
 
         $проверено = $request->validate([
             'payment_method_id'  => 'required|exists:payment_methods,id',
-            'delivery_method_id' => 'required|exists:delivery_methods,id',
+            'delivery_method_id' => ($нуженаДоставка ? 'required' : 'nullable') . '|exists:delivery_methods,id',
             'terms_agree'        => 'accepted',
             'customer_name'      => 'required|string|max:255',
             'customer_phone'     => 'required|string|max:64',
             'customer_email'     => 'nullable|email|max:255',
-            'customer_address'   => ($самовывоз ? 'nullable' : 'required') . '|string|max:500',
+            'customer_address'   => ($нуженАдрес ? 'required' : 'nullable') . '|string|max:500',
             // Город отдельной строкой, а не внутри адреса. Из свободного текста
             // регион не выделить, а по нему служба решает, возит ли она туда:
             // до этого ограничение `regions` при оформлении не применялось
             // вовсе, хотя в панели его можно было задать.
-            'customer_city'      => ($самовывоз ? 'nullable' : 'required') . '|string|max:190',
+            'customer_city'      => ($нуженАдрес ? 'required' : 'nullable') . '|string|max:190',
             'comment'            => 'nullable|string|max:2000',
         ], [
             'terms_agree.accepted' => __('frontend.cart.consent_required'),
@@ -305,8 +359,15 @@ class CartController extends Controller
             return redirect()->route('cart.index')->with('error', 'Выбранный метод оплаты недоступен');
         }
 
-        if (!$deliveryMethod || !$deliveryMethod->active) {
-            return redirect()->route('cart.index')->with('error', 'Выбранный метод доставки недоступен');
+        // Служба сверяется, только если заказ вообще везут. Заказ из одних
+        // услуг проходит без неё — и присланную «на всякий случай» службу мы
+        // тоже отбрасываем, иначе покупатель заплатил бы за доставку приёма.
+        if ($нуженаДоставка) {
+            if (!$deliveryMethod || !$deliveryMethod->active) {
+                return redirect()->route('cart.index')->with('error', 'Выбранный метод доставки недоступен');
+            }
+        } else {
+            $deliveryMethod = null;
         }
 
         // Расчет общей суммы товаров
@@ -337,20 +398,24 @@ class CartController extends Controller
         // ⚠️ `skip_api` — наружу при оформлении не ходим: расчёт через API
         // службы имеет таймаут 15–20 секунд, и недоступная служба рвала бы
         // покупку. Правила проверяются до этой ветки и работают всегда.
-        $расчёт = app(\Modules\Delivery\Services\DeliveryCalculatorService::class)->calculate($deliveryMethod, [
-            'city'        => $проверено['customer_city'] ?? null,
-            'region'      => $проверено['customer_city'] ?? null,
-            'address'     => $проверено['customer_address'] ?? null,
-            'weight'      => $весЗаказа,
-            'order_total' => $itemsTotal,
-            'skip_api'    => true,
-        ]);
+        $deliveryPrice = 0.0;
 
-        if (! empty($расчёт['error'])) {
-            return redirect()->route('cart.index')->with('error', $расчёт['error']);
+        if ($deliveryMethod) {
+            $расчёт = app(\Modules\Delivery\Services\DeliveryCalculatorService::class)->calculate($deliveryMethod, [
+                'city'        => $проверено['customer_city'] ?? null,
+                'region'      => $проверено['customer_city'] ?? null,
+                'address'     => $проверено['customer_address'] ?? null,
+                'weight'      => $весЗаказа,
+                'order_total' => $itemsTotal,
+                'skip_api'    => true,
+            ]);
+
+            if (! empty($расчёт['error'])) {
+                return redirect()->route('cart.index')->with('error', $расчёт['error']);
+            }
+
+            $deliveryPrice = (float) ($расчёт['price'] ?? $deliveryMethod->price);
         }
-
-        $deliveryPrice = (float) ($расчёт['price'] ?? $deliveryMethod->price);
 
         // Расчет комиссии
         $commissionAmount = 0;
@@ -384,7 +449,10 @@ class CartController extends Controller
                 $order = Order::create([
                     'user_id'            => Auth::check() ? Auth::id() : null,
                     'payment_method_id'  => $request->payment_method_id,
-                    'delivery_method_id' => $request->delivery_method_id,
+                    // Берём службу из ПРОВЕРЕННОЙ переменной, а не из запроса:
+                    // у заказа из одних услуг она снята выше, и присланное
+                    // «на всякий случай» значение не должно попасть в заказ.
+                    'delivery_method_id' => $deliveryMethod?->id,
                     'total'              => $total,
                     'items_total'        => $itemsTotal,
                     'delivery_price'     => $deliveryPrice,

@@ -161,6 +161,10 @@ return Application::configure(basePath: dirname(__DIR__))
         // не одному модулю, и должна быть доступна независимо от того, какие
         // модули включены.
         \App\Console\Commands\RenameBrandInContent::class,
+        // Витрина: собирает продающую главную. На уровне приложения — она
+        // трогает и страницы, и материалы, то есть не принадлежит одному
+        // модулю.
+        \App\Console\Commands\SeedPresentationCommand::class,
     ])
 
     // 📅 Расписание задач (schedule)

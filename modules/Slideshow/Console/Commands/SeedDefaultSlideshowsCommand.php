@@ -43,18 +43,27 @@ class SeedDefaultSlideshowsCommand extends Command
                 'position'    => 'top',
                 'description' => 'Верхний баннер главной страницы. Демо-слайды можно заменить своими.',
                 'height'      => 'clamp(260px, 40vh, 520px)',
+                // 🔴 `caption` — это ПОДПИСЬ-ПЕРЕХОД, а не пересказ слайда.
+                //
+                // Она рисуется плашкой поверх картинки в углу. Пока в ней
+                // лежал заголовок, тот же текст читался дважды: крупно на
+                // самом слайде и мелко на плашке, — и плашка вдобавок
+                // закрывала угол рисунка. Теперь это короткое действие.
+                //
+                // Описание для чтения с экрана живёт отдельно в `alt_text`
+                // и от укорачивания подписи не пострадало.
                 'slides' => [
                     [
                         'file' => 'top-1.svg',
-                        'caption' => 'Nexum Core — модульная система управления сайтом',
-                        'alt_text' => 'Nexum Core — модульная CMS на Laravel',
-                        'link' => '/page/o-proekte',
+                        'caption' => 'Почему это выгодно',
+                        'alt_text' => 'Nexum Core — одна покупка, работа без интернета, магазин в поставке',
+                        'link' => '/page/pochemu-nexum-core',
                     ],
                     [
                         'file' => 'top-2.svg',
-                        'caption' => 'Публикуйте новости и страницы без разработчика',
-                        'alt_text' => 'Контент без кода: визуальный редактор и медиа',
-                        'link' => '/page/vozmozhnosti',
+                        'caption' => 'Открыть сравнение',
+                        'alt_text' => 'Сравнение WordPress, 1С-Битрикс и Nexum Core',
+                        'link' => '/page/sravnenie',
                     ],
                 ],
             ],
@@ -67,15 +76,15 @@ class SeedDefaultSlideshowsCommand extends Command
                 'slides' => [
                     [
                         'file' => 'bottom-1.svg',
-                        'caption' => 'Модульная архитектура: подключайте только нужное',
-                        'alt_text' => 'Модульная архитектура Nexum Core',
-                        'link' => '/page/vozmozhnosti',
+                        'caption' => 'Как это проверить',
+                        'alt_text' => 'Автономность: все ресурсы лежат на вашем сервере',
+                        'link' => '/page/sravnenie',
                     ],
                     [
                         'file' => 'bottom-2.svg',
-                        'caption' => 'Настройте оформление в разделе «Темы»',
-                        'alt_text' => 'Оформление сайта: цвета, шрифты, логотип',
-                        'link' => '/page/chastye-voprosy',
+                        'caption' => 'Начать установку',
+                        'alt_text' => 'Мастер установки: проверка сервера, база, администратор',
+                        'link' => '/page/kak-nachat',
                     ],
                 ],
             ],

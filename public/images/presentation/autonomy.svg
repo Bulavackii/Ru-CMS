@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Автономность: что уходит наружу у типового сайта и что у Nexum Core.
+
+    Проверяемое утверждение, а не лозунг: список слева — обычные внешние
+    зависимости типового сайта на плагинах; справа — то, что лежит локально.
+    Проверить можно вкладкой «Сеть» в браузере.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 340" width="720" height="340" role="img"
+     aria-label="Сравнение внешних зависимостей: типовой сайт против Nexum Core">
+  <title>Что уходит наружу при каждом заходе посетителя</title>
+
+  <style>
+    .t { font-family: 'Segoe UI', Inter, system-ui, Arial, sans-serif; }
+    .h { font-size: 15px; font-weight: 700; fill: #0f172a; }
+    .s { font-size: 11px; fill: #94a3b8; }
+    .c { font-size: 13px; font-weight: 700; fill: #0f172a; }
+    .i { font-size: 12px; fill: #475569; }
+    .no { fill: #b91c1c; font-size: 12px; font-weight: 700 }
+    .ok { fill: #15803d; font-size: 12px; font-weight: 700 }
+  </style>
+
+  <text class="t h" x="24" y="30">Что уходит наружу при каждом заходе посетителя</text>
+  <text class="t s" x="24" y="50">Проверяется вкладкой «Сеть» в браузере — это не обещание, а наблюдаемый факт</text>
+
+  <!-- Левая колонка -->
+  <rect x="24" y="70" width="320" height="230" fill="#fef2f2" stroke="#fecaca" stroke-width="1.5"/>
+  <text class="t c" x="44" y="96">Типовой сайт на плагинах</text>
+
+  <g class="t i">
+    <text x="44" y="126"><tspan class="no">→</tspan> шрифты с чужого CDN</text>
+    <text x="44" y="150"><tspan class="no">→</tspan> библиотеки скриптов с CDN</text>
+    <text x="44" y="174"><tspan class="no">→</tspan> счётчики и пиксели</text>
+    <text x="44" y="198"><tspan class="no">→</tspan> карты и виджеты</text>
+    <text x="44" y="222"><tspan class="no">→</tspan> проверка лицензий плагинов</text>
+    <text x="44" y="246"><tspan class="no">→</tspan> сервер обновлений</text>
+  </g>
+
+  <text class="t s" x="44" y="278">Адрес каждого посетителя видят посторонние.</text>
+  <text class="t s" x="44" y="292">Упал чужой сервер — поехала вёрстка.</text>
+
+  <!-- Правая колонка -->
+  <rect x="376" y="70" width="320" height="230" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1.5"/>
+  <text class="t c" x="396" y="96">Nexum Core</text>
+
+  <g class="t i">
+    <text x="396" y="126"><tspan class="ok">✓</tspan> шрифты локально</text>
+    <text x="396" y="150"><tspan class="ok">✓</tspan> скрипты и значки локально</text>
+    <text x="396" y="174"><tspan class="ok">✓</tspan> счётчик — только по согласию</text>
+    <text x="396" y="198"><tspan class="ok">✓</tspan> карта — по клику посетителя</text>
+    <text x="396" y="222"><tspan class="ok">✓</tspan> лицензия не проверяется в сети</text>
+    <text x="396" y="246"><tspan class="ok">✓</tspan> сервер обновлений — ваш</text>
+  </g>
+
+  <text class="t s" x="396" y="278">Режим «без интернета» отключает выход наружу</text>
+  <text class="t s" x="396" y="292">целиком — одной строкой в настройках.</text>
+
+  <text class="t s" x="24" y="326">Сайт работает в закрытом контуре: во внутренней сети предприятия, за шлюзом, без доступа в интернет.</text>
+</svg>

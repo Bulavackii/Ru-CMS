@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Стоимость владения за три года: из чего она складывается.
+
+    Числа НЕ выдуманы под красивую картинку — это порядки, а не прайс, и так
+    и подписано на самом рисунке. Лицензия Битрикса и часы подрядчика у всех
+    свои; смысл графика в СТРУКТУРЕ расходов, а не в точной сумме.
+
+    Рисунок без внешних шрифтов: системный стек, как и весь проект.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380" role="img"
+     aria-label="Структура расходов на владение сайтом за три года: лицензии, доработки, поддержка">
+  <title>Из чего складывается стоимость владения за три года</title>
+
+  <defs>
+    <linearGradient id="nx" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#8b5cf6"/>
+    </linearGradient>
+  </defs>
+
+  <style>
+    .t  { font-family: 'Segoe UI', Inter, system-ui, Arial, sans-serif; }
+    .h  { font-size: 15px; font-weight: 700; fill: #0f172a; }
+    .l  { font-size: 12px; fill: #475569; }
+    .s  { font-size: 11px; fill: #94a3b8; }
+    .v  { font-size: 12px; font-weight: 700; fill: #0f172a; }
+    .ax { stroke: #e2e8f0; stroke-width: 1; }
+  </style>
+
+  <text class="t h" x="24" y="30">Из чего складывается владение за три года</text>
+  <text class="t s" x="24" y="50">Порядки величин, а не прайс: лицензии и ставки подрядчиков у всех свои</text>
+
+  <!-- Сетка -->
+  <g class="ax">
+    <line x1="150" y1="80"  x2="690" y2="80"/>
+    <line x1="150" y1="140" x2="690" y2="140"/>
+    <line x1="150" y1="200" x2="690" y2="200"/>
+    <line x1="150" y1="260" x2="690" y2="260"/>
+    <line x1="150" y1="320" x2="690" y2="320"/>
+  </g>
+
+  <!-- WordPress -->
+  <text class="t l" x="24" y="115">WordPress</text>
+  <text class="t s" x="24" y="130">бесплатно + плагины</text>
+  <rect x="150" y="92"  width="90"  height="34" fill="#94a3b8"/>
+  <rect x="240" y="92"  width="150" height="34" fill="#cbd5e1"/>
+  <rect x="390" y="92"  width="170" height="34" fill="#e2e8f0"/>
+  <text class="t v" x="572" y="114">высокая</text>
+
+  <!-- Битрикс -->
+  <text class="t l" x="24" y="175">1С-Битрикс</text>
+  <text class="t s" x="24" y="190">лицензия + продления</text>
+  <rect x="150" y="152" width="210" height="34" fill="#94a3b8"/>
+  <rect x="360" y="152" width="140" height="34" fill="#cbd5e1"/>
+  <rect x="500" y="152" width="120" height="34" fill="#e2e8f0"/>
+  <text class="t v" x="632" y="174">высокая</text>
+
+  <!-- Nexum Core -->
+  <text class="t l" x="24" y="235">Nexum Core</text>
+  <text class="t s" x="24" y="250">одна покупка</text>
+  <rect x="150" y="212" width="110" height="34" fill="url(#nx)"/>
+  <rect x="260" y="212" width="60"  height="34" fill="#c7d2fe"/>
+  <rect x="320" y="212" width="40"  height="34" fill="#e0e7ff"/>
+  <text class="t v" x="372" y="234">ниже</text>
+
+  <!-- Обозначения -->
+  <g transform="translate(150,300)">
+    <rect x="0"   y="0" width="12" height="12" fill="#94a3b8"/>
+    <text class="t s" x="18" y="10">лицензия или покупка</text>
+    <rect x="170" y="0" width="12" height="12" fill="#cbd5e1"/>
+    <text class="t s" x="188" y="10">доработки под себя</text>
+    <rect x="330" y="0" width="12" height="12" fill="#e2e8f0"/>
+    <text class="t s" x="348" y="10">поддержка и обновления</text>
+  </g>
+
+  <text class="t s" x="24" y="358">Главная разница не в цене покупки, а в том, сколько стоит жить с системой дальше.</text>
+</svg>

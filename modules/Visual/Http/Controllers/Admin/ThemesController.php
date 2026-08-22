@@ -254,8 +254,40 @@ class ThemesController extends Controller
         $cfg['font_provider'] = $r->input('config.font_provider', $cfg['font_provider'] ?? null);
         $cfg['font_name']     = $r->input('config.font_name',     $cfg['font_name'] ?? null);
 
-        // Режим иконок
-        $cfg['icon_mode']     = $r->input('config.icon_mode', $cfg['icon_mode'] ?? 'lucide');
+        // Набор значков.
+        //
+        // 🔴 Значение приходит ОДНИМ полем, и у своих наборов внутри него ещё
+        // и путь: `svg:/assets/icons/nexum-line`. Так сделано намеренно —
+        // раньше режим и путь задавались двумя разными местами, и пара
+        // «режим svg + пустой путь» давала тему вообще без значков.
+        //
+        // ⚠️ Когда загружают архив, поле формы НЕ применяется: распаковка выше
+        // уже задала и режим, и путь, а в поле лежит прежнее значение — оно
+        // затёрло бы только что распакованный набор.
+        if (! $r->hasFile('icons_zip')) {
+            $выбор = trim((string) $r->input('config.icon_mode', $cfg['icon_mode'] ?? 'lucide'));
+
+            if (str_starts_with($выбор, 'svg:')) {
+                $путь = substr($выбор, 4);
+
+                // ⚠️ Путь проверяется по каталогу на диске, а не принимается на
+                // веру: он уходит в `renderSvgIcon()`, который читает оттуда
+                // файлы. Не прошёл проверку — набор не меняем вовсе.
+                if (preg_match('~^/assets/icons/[A-Za-z0-9_-]+$~', $путь)
+                    && is_dir(public_path(ltrim($путь, '/')))) {
+                    $cfg['icon_mode']  = 'svg';
+                    $cfg['icons_path'] = $путь;
+                }
+            } elseif ($выбор === 'svg') {
+                // Набор из архива: путь остаётся прежним.
+                $cfg['icon_mode'] = 'svg';
+            } else {
+                $cfg['icon_mode'] = $выбор;
+                // Уходим со «своих SVG» — путь больше ни на что не влияет,
+                // но пусть не остаётся мусором в настройках темы.
+                unset($cfg['icons_path']);
+            }
+        }
 
         // Пользовательский CSS (не трогаем, если поле пустое и не прислано)
         if ($r->exists('config.css')) {

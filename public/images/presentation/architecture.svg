@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Устройство Nexum Core: ядро и модули.
+
+    Показывает главное отличие от плагинной архитектуры: модуль — часть
+    системы с общей базой, общим редактором и общими правами, а не сторонний
+    код, который «как-то» встраивается в чужие хуки.
+
+    Без внешних шрифтов: системный стек, как и весь проект.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" width="720" height="400" role="img"
+     aria-label="Устройство системы: ядро на Laravel и модули вокруг него">
+  <title>Ядро и модули: как устроен Nexum Core</title>
+
+  <defs>
+    <linearGradient id="core" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#8b5cf6"/>
+    </linearGradient>
+  </defs>
+
+  <style>
+    .t { font-family: 'Segoe UI', Inter, system-ui, Arial, sans-serif; }
+    .h { font-size: 15px; font-weight: 700; fill: #0f172a; }
+    .s { font-size: 11px; fill: #94a3b8; }
+    .m { font-size: 12px; font-weight: 600; fill: #334155; }
+    .c { font-size: 14px; font-weight: 700; fill: #fff; }
+    .cs{ font-size: 10.5px; fill: #e0e7ff; }
+    .box { fill: #fff; stroke: #e2e8f0; stroke-width: 1.5; }
+    .link{ stroke: #c7d2fe; stroke-width: 2; }
+  </style>
+
+  <text class="t h" x="24" y="30">Ядро и модули — не плагины</text>
+  <text class="t s" x="24" y="50">Модуль живёт в системе: общая база, общий редактор, общие права доступа</text>
+
+  <!-- Связи рисуем первыми, чтобы они уходили под блоки -->
+  <g class="link">
+    <line x1="360" y1="150" x2="130" y2="115"/>
+    <line x1="360" y1="150" x2="360" y2="105"/>
+    <line x1="360" y1="150" x2="590" y2="115"/>
+    <line x1="360" y1="230" x2="130" y2="290"/>
+    <line x1="360" y1="230" x2="360" y2="300"/>
+    <line x1="360" y1="230" x2="590" y2="290"/>
+  </g>
+
+  <!-- Ядро -->
+  <rect x="250" y="150" width="220" height="80" fill="url(#core)"/>
+  <text class="t c" x="360" y="182" text-anchor="middle">Ядро · Laravel 12</text>
+  <text class="t cs" x="360" y="202" text-anchor="middle">PostgreSQL · права · редактор · темы</text>
+
+  <!-- Модули сверху -->
+  <g>
+    <rect class="box" x="40" y="86" width="180" height="46"/>
+    <text class="t m" x="130" y="105" text-anchor="middle">Материалы и страницы</text>
+    <text class="t s" x="130" y="121" text-anchor="middle">шаблоны, категории, SEO</text>
+
+    <rect class="box" x="270" y="76" width="180" height="46"/>
+    <text class="t m" x="360" y="95" text-anchor="middle">Магазин</text>
+    <text class="t s" x="360" y="111" text-anchor="middle">товары, заказы, оплата</text>
+
+    <rect class="box" x="500" y="86" width="180" height="46"/>
+    <text class="t m" x="590" y="105" text-anchor="middle">Доставка</text>
+    <text class="t s" x="590" y="121" text-anchor="middle">службы, вес, регионы</text>
+  </g>
+
+  <!-- Модули снизу -->
+  <g>
+    <rect class="box" x="40" y="268" width="180" height="46"/>
+    <text class="t m" x="130" y="287" text-anchor="middle">Формы и заявки</text>
+    <text class="t s" x="130" y="303" text-anchor="middle">конструктор, каптча</text>
+
+    <rect class="box" x="270" y="278" width="180" height="46"/>
+    <text class="t m" x="360" y="297" text-anchor="middle">Оформление</text>
+    <text class="t s" x="360" y="313" text-anchor="middle">темы, фрагменты, меню</text>
+
+    <rect class="box" x="500" y="268" width="180" height="46"/>
+    <text class="t m" x="590" y="287" text-anchor="middle">Люди и доступ</text>
+    <text class="t s" x="590" y="303" text-anchor="middle">роли, вход по коду</text>
+  </g>
+
+  <text class="t s" x="24" y="376">Ненужный модуль выключается в панели — и перестаёт грузиться совсем, а не просто прячет кнопку.</text>
+</svg>

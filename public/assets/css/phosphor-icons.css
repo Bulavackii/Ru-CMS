@@ -3,15 +3,16 @@
    Лицензия: /assets/icons/licenses/phosphor.txt
    Файл получен скриптом scripts/vendor-icons.py — правки руками потеряются. */
 @font-face {
+  /* 🔴 Здесь было перечисление eot/woff2/woff/ttf/svg с путями РЯДОМ С ЭТИМ
+     ФАЙЛОМ, а шрифты лежат в assets/icons/. Ни один src не находился, шрифт
+     не грузился, и все значки набора превращались в «тофу» — одинаковый
+     пустой прямоугольник. Проверено холстом: каждый значок давал ровно 162
+     закрашенных точки, то есть один и тот же силуэт на всё.
+     Остальные начертания в проекте отсутствуют вовсе — перечислять их
+     значило бы держать несколько 404 на каждой загрузке страницы. */
   font-family: "Phosphor";
-  src:
-    url(/assets/icons/Phosphor.woff2) format("woff2"),
-    
-    
-    
-  font-weight: normal;
-  font-style: normal;
-  font-display: block;
+  src: url('../icons/Phosphor.woff2') format('woff2');
+  font-display: swap;
 }
 
 .ph {
